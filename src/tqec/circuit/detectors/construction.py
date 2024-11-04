@@ -17,7 +17,8 @@ from tqec.exceptions import TQECException
 
 
 def _detectors_to_circuit(
-    detectors: list[MatchedDetector], additional_coordinates: list[float] | None = None
+    detectors: list[MatchedDetector],
+    shift_coords: tuple[float, ...] = (0, 0, 0),
 ) -> stim.Circuit:
     """Transform a list of detectors into a circuit.
 
@@ -27,23 +28,12 @@ def _detectors_to_circuit(
     Returns:
         A `stim.Circuit` instance containing all the provided detectors.
     """
-    if additional_coordinates is None:
-        additional_coordinates = []
-
     circuit = stim.Circuit()
+    if any(shift != 0 for shift in shift_coords) and detectors:
+        circuit.append("SHIFT_COORDS", [], shift_coords)
 
     for detector in detectors:
         circuit.append(detector.to_instruction())
-
-    return circuit
-
-
-def _shift_time_instruction(number_of_spatial_coordinates: int) -> stim.Circuit:
-    args = tuple(0.0 for _ in range(number_of_spatial_coordinates)) + (1.0,)
-    circuit = stim.Circuit()
-    circuit.append(
-        stim.CircuitInstruction("SHIFT_COORDS", targets=[], gate_args=list(args))
-    )
     return circuit
 
 
@@ -101,6 +91,28 @@ def _insert_before_last_tick_instruction(
         return circuit + added_circuit
 
 
+def _append_fragment_to_circuit(
+    circuit: stim.Circuit,
+    fragment: Fragment | FragmentLoop,
+    detectors: list[MatchedDetector],
+    qubit_coords_map: dict[int, tuple[float, ...]],
+    shifts: tuple[float, ...] = (0, 0, 0),
+) -> None:
+    detectors_circuit = _detectors_to_circuit(detectors, shift_coords=shifts)
+    if isinstance(fragment, Fragment):
+        circuit += _insert_before_last_tick_instruction(
+            fragment.circuit, detectors_circuit
+        )
+    else:  # isinstance(fragment, FragmentLoop):
+        loop_body = compile_fragments_to_circuit_with_detectors(
+            fragment.fragments, qubit_coords_map
+        )
+        circuit += (
+            _insert_before_last_tick_instruction(loop_body, detectors_circuit)
+            * fragment.repetitions
+        )
+
+
 def compile_fragments_to_circuit_with_detectors(
     fragments: list[Fragment | FragmentLoop],
     qubit_coords_map: dict[int, tuple[float, ...]],
@@ -110,21 +122,16 @@ def compile_fragments_to_circuit_with_detectors(
 
     circuit = stim.Circuit()
     number_of_spatial_coordinates = len(next(iter(qubit_coords_map.values()), []))
-    for fragment, detectors in zip(fragments, detectors_from_flows):
-        detectors_circuit = _detectors_to_circuit(detectors, [0.0])
-        if isinstance(fragment, Fragment):
-            circuit += _insert_before_last_tick_instruction(
-                fragment.circuit, detectors_circuit
-            )
-        else:  # isinstance(fragment, FragmentLoop):
-            shift_circuit = _shift_time_instruction(number_of_spatial_coordinates)
-            loop_body = compile_fragments_to_circuit_with_detectors(
-                fragment.fragments, qubit_coords_map
-            )
-            circuit += (
-                _insert_before_last_tick_instruction(
-                    loop_body, shift_circuit + detectors_circuit
-                )
-                * fragment.repetitions
-            )
+    shifts = tuple(0 for _ in range(number_of_spatial_coordinates)) + (1,)
+
+    # Add the first moment without any shift
+    _append_fragment_to_circuit(
+        circuit, fragments[0], detectors_from_flows[0], qubit_coords_map
+    )
+    # Add the other moments
+    for fragment, detectors in zip(fragments[1:], detectors_from_flows[1:]):
+        _append_fragment_to_circuit(
+            circuit, fragment, detectors, qubit_coords_map, shifts=shifts
+        )
+
     return circuit
