@@ -1,3 +1,5 @@
+"""Defines templates representing logical qubits and its constituent parts."""
+
 import warnings
 from typing import Sequence
 
@@ -66,99 +68,6 @@ class QubitTemplate(RectangularTemplate):
     @override
     def expected_plaquettes_number(self) -> int:
         return 14
-
-
-class QubitVerticalBorders(RectangularTemplate):
-    """Two vertical sides of neighbouring error-corrected qubits glued
-    together.
-
-    The below text represents this template for an input ``k == 2`` ::
-
-        1 2
-        5 7
-        6 8
-        5 7
-        6 8
-        3 4
-    """
-
-    @override
-    def instantiate(
-        self, k: int, plaquette_indices: Sequence[int] | None = None
-    ) -> npt.NDArray[numpy.int_]:
-        if plaquette_indices is None:
-            plaquette_indices = list(range(1, self.expected_plaquettes_number + 1))
-
-        ret = numpy.zeros(self.shape(k).to_numpy_shape(), dtype=numpy.int_)
-
-        # The four corners
-        ret[0, 0] = plaquette_indices[0]
-        ret[0, -1] = plaquette_indices[1]
-        ret[-1, 0] = plaquette_indices[2]
-        ret[-1, -1] = plaquette_indices[3]
-        # The left side
-        ret[1:-1:2, 0] = plaquette_indices[4]
-        ret[2:-1:2, 0] = plaquette_indices[5]
-        # The right side
-        ret[1:-1:2, -1] = plaquette_indices[6]
-        ret[2:-1:2, -1] = plaquette_indices[7]
-
-        return ret
-
-    @property
-    @override
-    def scalable_shape(self) -> Scalable2D:
-        """Returns a scalable version of the template shape."""
-        return Scalable2D(LinearFunction(0, 2), LinearFunction(2, 2))
-
-    @property
-    @override
-    def expected_plaquettes_number(self) -> int:
-        return 8
-
-
-class QubitHorizontalBorders(RectangularTemplate):
-    """Two horizontal sides of neighbouring error-corrected qubits glued
-    together.
-
-    The below text represents this template for an input ``k == 2`` ::
-
-        1 5 6 5 6 2
-        3 7 8 7 8 4
-    """
-
-    @override
-    def instantiate(
-        self, k: int, plaquette_indices: Sequence[int] | None = None
-    ) -> npt.NDArray[numpy.int_]:
-        if plaquette_indices is None:
-            plaquette_indices = list(range(1, self.expected_plaquettes_number + 1))
-
-        ret = numpy.zeros(self.shape(k).to_numpy_shape(), dtype=numpy.int_)
-
-        # The four corners
-        ret[0, 0] = plaquette_indices[0]
-        ret[0, -1] = plaquette_indices[1]
-        ret[-1, 0] = plaquette_indices[2]
-        ret[-1, -1] = plaquette_indices[3]
-        # The up side
-        ret[0, 1:-1:2] = plaquette_indices[4]
-        ret[0, 2:-1:2] = plaquette_indices[5]
-        # The bottom side
-        ret[-1, 1:-1:2] = plaquette_indices[6]
-        ret[-1, 2:-1:2] = plaquette_indices[7]
-
-        return ret
-
-    @property
-    @override
-    def scalable_shape(self) -> Scalable2D:
-        return Scalable2D(LinearFunction(2, 2), LinearFunction(0, 2))
-
-    @property
-    @override
-    def expected_plaquettes_number(self) -> int:
-        return 8
 
 
 class Qubit4WayJunctionTemplate(RectangularTemplate):

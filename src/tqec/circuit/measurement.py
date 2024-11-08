@@ -26,6 +26,8 @@ from tqec.position import Displacement
 
 
 class AbstractMeasurement(ABC):
+    """Base class to represent a measurement."""
+
     @abstractmethod
     def offset_spatially_by(self, x: int, y: int) -> AbstractMeasurement:
         """Returns a new instance offset by the provided spatial coordinates.
@@ -35,7 +37,7 @@ class AbstractMeasurement(ABC):
             y: second spatial dimension offset.
 
         Returns:
-            a new instance with the specified offset from `self`.
+            a new instance with the specified offset from ``self``.
         """
 
     @abstractmethod
@@ -46,7 +48,7 @@ class AbstractMeasurement(ABC):
             t: temporal offset.
 
         Returns:
-            a new instance with the specified offset from `self`.
+            a new instance with the specified offset from ``self``.
         """
 
     @abstractmethod
@@ -58,7 +60,7 @@ class AbstractMeasurement(ABC):
         self, qubit_map: Mapping[GridQubit, GridQubit]
     ) -> AbstractMeasurement:
         """Returns a new instance representing a measurement on the qubit
-        obtained from `self.qubit` and the provided `qubit_map`.
+        obtained from ``self.qubit`` and the provided ``qubit_map``.
 
         Args:
             qubit_map: a correspondence map for qubits.
@@ -76,18 +78,18 @@ class Measurement(AbstractMeasurement):
     in a unique and easily usable way.
 
     Note:
-        This is not a global representation as the `offset` is always
+        This is not a global representation as the ``offset`` is always
         relative to the end of the quantum circuit considered.
 
     Attributes:
         qubit: qubit on which the represented measurement is performed.
         offset: negative offset representing the number of measurements
             performed on the provided qubit after the represented measurement.
-            A value of `-1` means that the represented measurement is the
-            last one applied on `qubit`.
+            A value of ``-1`` means that the represented measurement is the
+            last one applied on ``qubit``.
 
     Raises:
-        TQECException: if the provided `offset` is not strictly negative.
+        TQECException: if the provided ``offset`` is not strictly negative.
     """
 
     qubit: GridQubit
@@ -123,11 +125,11 @@ class RepeatedMeasurement(AbstractMeasurement):
 
     This class aims at being able to represent a repeated measurement in a
     quantum circuit in a unique and easily usable way.
-    Repeated measurements can be found when a :class:`stim.CircuitRepeatBlock`
+    Repeated measurements can be found when a ``stim.CircuitRepeatBlock``
     contains measurements.
 
     Note:
-        This is not a global representation as the `offsets` is always
+        This is not a global representation as the ``offsets`` is always
         relative to the end of the quantum circuit considered.
 
     Attributes:
@@ -135,11 +137,11 @@ class RepeatedMeasurement(AbstractMeasurement):
         offsets: an interval only containing negative offsets representing the
             number of measurements performed on the provided qubit after the
             represented measurement.
-            A value of `-1` means that the represented measurement is the
-            last one applied on `qubit`.
+            A value of ``-1`` means that the represented measurement is the
+            last one applied on ``qubit``.
 
     Raises:
-        TQECException: if the provided `offsetd` contains positive entries.
+        TQECException: if the provided ``offset`` contains positive entries.
     """
 
     qubit: GridQubit
@@ -183,14 +185,14 @@ def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
         circuit: circuit to extract measurements from.
 
     Raises:
-        TQECException: if the provided circuit contains a `REPEAT` block.
+        TQECException: if the provided circuit contains a ``REPEAT`` block.
         TQECException: if the provided circuit contains a multi-qubit measurement
-            gate such as MXX or MPP.
+            gate such as ``MXX`` or ``MPP``.
         TQECException: if the provided circuit contains a single-qubit
             measurement gate with a non-qubit target.
 
     Returns:
-        all the measurements present in the provided `circuit`, in their order
+        all the measurements present in the provided ``circuit``, in their order
         of appearance (so in increasing order of measurement record offsets).
     """
     qubit_map = QubitMap.from_circuit(circuit)

@@ -17,21 +17,31 @@ from tqec.templates.layout import LayoutTemplate
 
 @dataclass
 class CompiledBlock:
-    """Represents a specific implementation of a cube in a `BlockGraph`.
+    """Represents a specific implementation of a cube in a
+    :class:`~tqec.computation.block_graph.BlockGraph`.
 
     Attributes:
         template: the template that defines the cube implementation.
-        layers: a list of `Plaquettes` that represent different functional layers of the
-            cube. When aligning two `CompiledBlock` instances, the layers are aligned in
-            order. Typically, there are three layers in most cube implementations:
+        layers: a list of :class:`~tqec.plaquette.plaquette.Plaquettes` that
+            represent different functional layers of the cube. When aligning two
+            :class:`CompiledBlock` instances, the layers are aligned in order.
+            Typically, there are three layers in most cube implementations:
             Initialization, Repetitions, and Measurement.
     """
 
     template: RectangularTemplate
+    """Template representing the 2-dimensional footprint of the block."""
+
     layers: list[Plaquettes]
+    """Different functional layers of the block."""
 
     @property
     def num_layers(self) -> int:
+        """Number of layers in the block.
+
+        Temporal pipes have 2 layers, spatial pipes and blocks have 3
+        layers.
+        """
         return len(self.layers)
 
     def update_layers(
@@ -40,12 +50,13 @@ class CompiledBlock:
     ) -> None:
         """Update the plaquettes in a specific layer of the block.
 
-        Warning: This method modifies the `layers` attribute in place.
+        Warning:
+            This method modifies the :attr:`layers` attribute in place.
 
         Args:
-            substitution: a mapping from the layer index to the plaquettes that should
-                be used to update the layer. The index can be negative, which means the
-                layer is counted from the end of the layers list.
+            substitution: a mapping from the layer index to the plaquettes that
+                should be used to update the layer. The index can be negative,
+                which means the layer is counted from the end of the layers list.
         """
         for layer, plaquettes_to_update in substitution.items():
             if layer < 0:
@@ -62,7 +73,7 @@ class CompiledBlock:
 
 class BlockLayout:
     def __init__(self, blocks_layout: dict[Position2D, CompiledBlock]):
-        """Create a layout of `CompiledBlock` instances in the 2D grid.
+        """Create a layout of :class:`CompiledBlock` instances in the 2D grid.
 
         We require that all the blocks in the layout have the same
         scalable shape.
@@ -77,10 +88,12 @@ class BlockLayout:
 
     @property
     def template(self) -> LayoutTemplate:
+        """Template representing the 2-dimensional footprint of the block."""
         return self._template
 
     @property
     def layers(self) -> list[Plaquettes]:
+        """Different functional layers of the block."""
         return self._layers
 
     def _merge_layers(
@@ -127,22 +140,28 @@ class BlockLayout:
 
     @property
     def num_layers(self) -> int:
+        """Number of layers in the block.
+
+        Temporal pipes have 2 layers, spatial pipes and blocks have 3
+        layers.
+        """
         return len(self._layers)
 
     def get_shifted_circuits(self, k: int) -> list[ScheduledCircuit]:
-        """Instantiate and shift the circuits for all the layers in `self`.
+        """Instantiate and shift the circuits for all the layers in ``self``.
 
         The returned circuit are appropriately shifted to account for any shifts
-        due to the fact that the origin of the template stored in `self` might
+        due to the fact that the origin of the template stored in ``self`` might
         not be the global origin.
 
         Args:
             k: scaling factor used to instantiate the template.
 
         Returns:
-            as many circuits as there are layers in `self`, each circuit being
-            the instantiation of one layer (i.e., a set of :class:`Plaquette`
-            instances) and the :class:`Template` instance from `self`.
+            as many circuits as there are layers in ``self``, each circuit being
+            the instantiation of one layer (i.e., a set of
+            :class:`~tqec.plaquette.plaquette.Plaquette` instances) and the
+            :class:`~tqec.templates.base.Template` instance from ``self``.
         """
         # We need to shift the circuit based on the shift of the layout template.
         top_left_plaquette = self._template.instantiation_origin(k)

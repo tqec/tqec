@@ -4,9 +4,6 @@ Automatic detector computation
 The ``tqec`` package implements a method to automatically compute detectors from a
 given quantum circuit representing a quantum error corrected computation.
 
-An accompanying notebook showcasing the different steps to find detectors is located
-`here <../media/detectors/detector_computation_illustration.ipynb>`_.
-
 Difference from the main ``tqec`` package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -119,12 +116,12 @@ This quantum circuit can "propagate" a stabilizer, for example if a ``Z`` stabil
 on qubit ``2`` is given as input, a ``Z`` stabilizer on qubit ``2`` is propagated
 through:
 
-.. image:: ../media/detectors/stabilizer-propagation.png
+.. image:: ../../media/user_guide/detectors/stabilizer-propagation.png
 
 The quantum circuit also "creates" propagation of stabilizers with its resets, as
 shown in the illustration below:
 
-.. image:: ../media/detectors/stabilizer-creation.png
+.. image:: ../../media/user_guide/detectors/stabilizer-creation.png
 
 Here, the fragment is creating a ``Z0Z2`` stabilizer: the ``Z`` Pauli string
 comes out of the final moment of the fragment on qubits ``0`` and ``2``.
@@ -132,7 +129,7 @@ comes out of the final moment of the fragment on qubits ``0`` and ``2``.
 Quantum circuit can also "destroy" some incoming stabilizers with its measurements
 as shown below:
 
-.. image:: ../media/detectors/stabilizer-destruction.png
+.. image:: ../../media/user_guide/detectors/stabilizer-destruction.png
 
 Here, the fragment is destroying an incoming ``Z0Z2`` stabilizer.
 
@@ -167,7 +164,7 @@ It stores:
 
 Taking the above example, the following flow:
 
-.. image:: ../media/detectors/stabilizer-creation.png
+.. image:: ../../media/user_guide/detectors/stabilizer-creation.png
 
 can be represented by a ``BoundaryStabilizer`` instance with the following attributes:
 
@@ -180,7 +177,7 @@ can be represented by a ``BoundaryStabilizer`` instance with the following attri
 
 As another example, the following flow:
 
-.. image:: ../media/detectors/stabilizer-destruction.png
+.. image:: ../../media/user_guide/detectors/stabilizer-destruction.png
 
 can be represented by a ``BoundaryStabilizer`` instance that has exactly the same attributes
 as the one described above.
@@ -198,4 +195,4 @@ See the accompanying notebook for an example of how to perform automatic detecto
 .. toctree::
    :maxdepth: 1
 
-   ../media/detectors/detector_computation_illustration.ipynb
+   detector_computation.ipynb

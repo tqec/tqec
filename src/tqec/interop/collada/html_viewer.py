@@ -1,14 +1,17 @@
+"""View COLLADA model in html with the help of ``three.js``."""
+
 import base64
 import html
 import pathlib
 from string import Template
 
 
-class ColladaHTMLViewer:
-    """Helper class to view COLLADA model in html with the help of `three.js`.
+class _ColladaHTMLViewer:
+    """Helper class to view COLLADA model in html with the help of
+    ``three.js``.
 
     This can display a COLLADA model in IPython compatible environments with the
-    implementation of `_repr_html_` method.
+    implementation of ``_repr_html_`` method.
     """
 
     HTML_TEMPLATE = Template("""
@@ -252,21 +255,22 @@ class ColladaHTMLViewer:
 def display_collada_model(
     filepath_or_bytes: str | pathlib.Path | bytes,
     write_html_filepath: str | pathlib.Path | None = None,
-) -> ColladaHTMLViewer:
-    """Display a 3D model from a Collada DAE file in IPython compatible
-    environments.
+) -> _ColladaHTMLViewer:
+    """Display the 3D COLLADA model from a Collada DAE file in IPython
+    compatible environments, or write the generated HTML content to a file.
 
-    This function references the code snippet from the `stim.Circuit().diagram()` method.
+    The implementation of this function references the code snippet from the ``stim.Circuit().diagram()`` method.
 
     Args:
         filepath_or_bytes: The input dae file path or bytes of the dae file.
         write_html_filepath: The output html file path to write the generated html content.
+          Default is None.
 
     Returns:
-        A helper class to display the 3D model, which implements the `_repr_html_` method and
+        A helper class to display the 3D model, which implements the ``_repr_html_`` method and
         can be directly displayed in IPython compatible environments.
     """
-    helper = ColladaHTMLViewer(filepath_or_bytes)
+    helper = _ColladaHTMLViewer(filepath_or_bytes)
 
     if write_html_filepath is not None:
         with open(write_html_filepath, "w") as file:

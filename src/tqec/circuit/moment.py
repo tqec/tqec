@@ -1,11 +1,11 @@
-"""Defines a class analogous to `cirq.Moment`
+"""Defines a class analogous to ``cirq.Moment``.
 
 This module defines :class:`Moment` that is very close to the external
-[`cirq.Moment`](https://quantumai.google/reference/python/cirq/Moment)
+`cirq.Moment <https://quantumai.google/reference/python/cirq/Moment>`_
 class.
 
-Internally, :class:`Moment` stores the instructions using `stim.Circuit`
-instead of using `cirq` data-structures.
+Internally, :class:`Moment` stores the instructions using ``stim.Circuit``
+instead of using ``cirq`` data-structures.
 """
 
 from __future__ import annotations
@@ -22,21 +22,21 @@ from tqec.exceptions import TQECException
 class Moment:
     """A collection of instructions that can be executed in parallel.
 
-    This class is a collection of `stim.CircuitInstruction` instances that
+    This class is a collection of ``stim.CircuitInstruction`` instances that
     can all be executed in parallel. That means that it maintains the following
     invariant:
 
     For each instruction contained in any instance of this class, exactly
     one of the following assertions is true:
 
-    1. The instruction is an annotation (e.g., `QUBIT_COORDS`, `DETECTOR`, ...),
-    2. It is the only instruction of the `Moment` instance to be applied
-        on its targets. In other words, no other instructions in the `Moment`
+    1. The instruction is an annotation (e.g., ``QUBIT_COORDS``, ``DETECTOR``, ...),
+    2. It is the only instruction of the :class:`Moment` instance to be applied
+        on its targets. In other words, no other instructions in the :class:`Moment`
         instance can be applied on the targets this instruction is applied to.
 
     In practice, that means that this class match closely the definition of
-    [`cirq.Moment`](https://quantumai.google/reference/python/cirq/Moment).
-    The only minor different is that `cirq` only uses the second assertion
+    `cirq.Moment <https://quantumai.google/reference/python/cirq/Moment>`_.
+    The only minor different is that ``cirq`` only uses the second assertion
     above (meaning that an annotation might push a quantum gate to the next
     moment, even though the annotation is never executed in hardware).
     """
@@ -47,29 +47,32 @@ class Moment:
         used_qubits: set[int] | None = None,
         _avoid_checks: bool = False,
     ) -> None:
-        """Initialize a `Moment` instance.
+        """Initialize a :class:`Moment` instance.
 
         Args:
-            circuit: collection of instructions representing the `Moment`. It
-                should represent a valid moment, see the class documentation for
-                a detailed explanation of the pre-conditions.
-            used_qubits: a set of qubit indices used in the provided `circuit`.
+            circuit: collection of instructions representing the :class:`Moment`.
+                It should represent a valid moment, see the class documentation
+                for a detailed explanation of the pre-conditions.
+            used_qubits: a set of qubit indices used in the provided ``circuit``.
                 It is the user responsibility to ensure that this input is
-                correct if it is provided, as any non-None input will not be
-                checked. Defaults to None, which triggers a call to
-                :func:`get_used_qubit_indices` to initialise the indices.
-            _avoid_checks: avoid checking the validity of the provided `circuit`.
+                correct if it is provided, as any non-``None`` input will not be
+                checked. Defaults to ``None``, which triggers a call to
+                :func:`.get_used_qubit_indices` to initialise the indices.
+            _avoid_checks: avoid checking the validity of the provided ``circuit``.
                 This parameter can be used when the user knows that the provided
-                `circuit` is a valid moment (and so checks the pre-conditions
-                listed in the class documentation). Defaults to False, which
+                ``circuit`` is a valid moment (and so checks the pre-conditions
+                listed in the class documentation). Defaults to ``False``, which
                 triggers a systematic check and might raise if the provided
-                circuit is not a valid moment.
+                ``circuit`` is not a valid moment.
 
         Raises:
-            TQECException: if the circuit contains one or more `TICK` instruction.
-            TQECException: if the circuit contains at least 2 non-annotation
-                instructions that are applied on the same qubit target.
-            TQECException: if the circuit contains a `REPEAT` block instruction.
+            TQECException: if the provided ``circuit`` contains one or more
+                ``TICK`` instruction.
+            TQECException: if the provided ``circuit`` contains at least 2
+                non-annotation instructions that are applied on the same qubit
+                target.
+            TQECException: if the provided ``circuit`` contains a ``REPEAT``
+                block instruction.
         """
         if not _avoid_checks:
             Moment.check_is_valid_moment(circuit)
@@ -92,10 +95,13 @@ class Moment:
             circuit: instance to check.
 
         Raises:
-            TQECException: if the circuit contains one or more `TICK` instruction.
-            TQECException: if the circuit contains at least 2 non-annotation
-                instructions that are applied on the same qubit target.
-            TQECException: if the circuit contains a `REPEAT` block instruction.
+            TQECException: if the provided ``circuit`` contains one or more
+                ``TICK`` instruction.
+            TQECException: if the provided ``circuit`` contains at least 2
+                non-annotation instructions that are applied on the same qubit
+                target.
+            TQECException: if the provided ``circuit`` contains a ``REPEAT``
+                block instruction.
         """
         if circuit.num_ticks > 0:
             raise TQECException(
@@ -119,8 +125,8 @@ class Moment:
         """Return the qubit indices this moment operates on.
 
         Note:
-            Some instructions are considered annotations (e.g., `QUBIT_COORDS`,
-            see `tqec.circuit.qubit.NON_COMPUTATION_INSTRUCTIONS` for an
+            Some instructions are considered annotations (e.g., ``QUBIT_COORDS``,
+            see :data:`~tqec.circuit.qubit.NON_COMPUTATION_INSTRUCTIONS` for an
             exhaustive list). These instructions are ignored by this property,
             meaning that the qubits they operate on will only be returned by
             this property iff another non-annotation instruction is applied on
@@ -129,7 +135,7 @@ class Moment:
         return self._used_qubits
 
     def contains_instruction(self, instruction_name: str) -> bool:
-        """Return `True` if `self` contains at least one operation with the
+        """Return ``True`` if ``self`` contains at least one operation with the
         provided name."""
         return any(instr.name == instruction_name for instr in self._circuit)
 
@@ -137,7 +143,7 @@ class Moment:
         self, instructions_to_remove: frozenset[str]
     ) -> None:
         """Remove in-place all the instructions that have their name in the
-        provided `instructions_to_remove`."""
+        provided ``instructions_to_remove``."""
         new_circuit = stim.Circuit()
         for inst in self._circuit:
             if inst.name in instructions_to_remove:
@@ -146,7 +152,7 @@ class Moment:
         self._circuit = new_circuit
 
     def __iadd__(self, other: Moment) -> Moment:
-        """Add instructions in-place in `self`."""
+        """Add instructions in-place in ``self``."""
         both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
         if both_sides_used_qubits:
             raise TQECException(
@@ -179,18 +185,18 @@ class Moment:
         """Append an instruction to the :class:`Moment`.
 
         Note:
-            if you append an annotation (e.g., `DETECTOR` or `QUBIT_COORDS`) then
-            you should use :meth:`append_annotation` that is more efficient.
+            if you append an annotation (e.g., ``DETECTOR`` or ``QUBIT_COORDS``)
+            then you should use :meth:`append_annotation` that is more efficient.
 
         Args:
             name_or_instr: either the name of the instruction to append or the
-                actual instruction. If the name is provided, `targets` and `args`
-                are used to build the `stim.CircuitInstruction` instance that
-                will be appended. Else, they are not accessed.
-            targets: if `name_or_instr` is a string representing the instruction
+                actual instruction. If the name is provided, ``targets`` and
+                ``args`` are used to build the ``stim.CircuitInstruction``
+                instance that will be appended. Else, they are not accessed.
+            targets: if ``name_or_instr`` is a string representing the instruction
                 name, this argument represent the targets the instruction should
                 be applied on. Else, it is not used.
-            args: if `name_or_instr` is a string representing the instruction
+            args: if ``name_or_instr`` is a string representing the instruction
                 name, this argument represent the arguments the instruction
                 should be applied with. Else, it is not used.
         """
@@ -225,19 +231,19 @@ class Moment:
     def append_annotation(
         self, annotation_instruction: stim.CircuitInstruction
     ) -> None:
-        """Append an annotation instruction to the Moment.
+        """Append an annotation instruction to ``self``.
 
-        This method is way more efficient than :meth:`append_instruction` to
-        append an annotation. This is thanks to the fact that annotations are
-        not using any qubit and so can be appended without checking that the
-        instruction does not apply on already used qubits.
+        This method is way more efficient than :meth:`append` to append an
+        annotation. This is thanks to the fact that annotations are not using
+        any qubit and so can be appended without checking that the instruction
+        does not apply on already used qubits.
 
         Args:
             annotation_instruction: an annotation to append to the moment
-                represented by `self`.
+                represented by ``self``.
 
         Raises:
-            TQECException: if `not is_annotation_instruction(annotation_instruction)`.
+            TQECException: if ``not is_annotation_instruction(annotation_instruction)``.
         """
         if not is_annotation_instruction(annotation_instruction):
             raise TQECException(
@@ -250,7 +256,7 @@ class Moment:
 
     @property
     def instructions(self) -> Iterator[stim.CircuitInstruction]:
-        """Iterator over all the instructions contained in the moment."""
+        """Iterator over all the instructions contained in ``self``."""
         # We can ignore the type error below because:
         # 1. if a Moment instance is created with a stim.CircuitRepeatBlock
         #    instance, it will raise an exception.
@@ -295,7 +301,7 @@ class Moment:
 
     @property
     def is_empty(self) -> bool:
-        """Return `True` if the :class:`Moment` instance is empty."""
+        """Return ``True`` if the :class:`Moment` instance is empty."""
         return len(self._circuit) == 0
 
     def __copy__(self) -> Moment:
@@ -313,18 +319,19 @@ class Moment:
         )
 
     def with_mapped_qubit_indices(self, qubit_index_map: dict[int, int]) -> Moment:
-        """Map the qubits **indices** the `Moment` instance is applied on.
+        """Map the qubits **indices** the :class:`Moment` instance is applied
+        on.
 
         Note:
-            This method has to iterate over all the instructions in `self` and
+            This method has to iterate over all the instructions in ``self`` and
             change the gate target they are applied on.
 
         Args:
             qubit_index_map: the map used to modify the qubit targets.
 
         Returns:
-            a modified copy of `self` with the qubit gate targets mapped according
-            to the provided `qubit_index_map`.
+            a modified copy of ``self`` with the qubit gate targets mapped according
+            to the provided ``qubit_index_map``.
         """
         circuit = stim.Circuit()
         for instr in self.instructions:
@@ -352,29 +359,29 @@ class Moment:
 def iter_stim_circuit_without_repeat_by_moments(
     circuit: stim.Circuit, collected_before_use: bool = True
 ) -> Iterator[Moment]:
-    """Iterate over the `stim.Circuit` by moments.
+    """Iterate over the ``stim.Circuit`` by moments.
 
-    A moment in a `stim.Circuit` is a sequence of instructions between two `TICK`
-    instructions. Note that `stim.CircuitRepeatBlock` instances are explicitly not
+    A moment in a ``stim.Circuit`` is a sequence of instructions between two ``TICK``
+    instructions. Note that ``stim.CircuitRepeatBlock`` instances are explicitly not
     supported and no such instance should appear in the provided circuit.
 
     Args:
-        circuit: circuit to iterate over. Should not contain any REPEAT block.
-        collected_before_use: if `True`, the returned :class:`Moment` instances
-            will contain a copy of the temporary `stim.Circuit` instance
+        circuit: circuit to iterate over. Should not contain any ``REPEAT`` block.
+        collected_before_use: if ``True``, the returned :class:`Moment` instances
+            will contain a copy of the temporary ``stim.Circuit`` instance
             representing the moment. This is needed if the yielded
             :class:`Moment` instances are not used directly because the
-            underlying `stim.Circuit` instance is cleared when resuming the
+            underlying ``stim.Circuit`` instance is cleared when resuming the
             generator.
 
     Yields:
-        A `Moment` instance.
+        :class`Moment` instances.
 
     Raises:
-        TQECException: if the provided `circuit` contains at least one
-            `stim.CircuitRepeatBlock` instance.
-        TQECException: if the provided `circuit` `TICK` instructions are not
-            inserted such that instructions between two `TICK` instructions
+        TQECException: if the provided ``circuit`` contains at least one
+            ``stim.CircuitRepeatBlock`` instance.
+        TQECException: if the provided ``circuit`` ``TICK`` instructions are not
+            inserted such that instructions between two ``TICK`` instructions
             are always applied on disjoint sets of qubits.
     """
     copy_func: Callable[[stim.Circuit], stim.Circuit] = (

@@ -41,7 +41,7 @@ class ComputationGraph(Generic[_NODE, _EDGE]):
 
     @property
     def name(self) -> str:
-        """The name of the graph."""
+        """Name of the graph."""
         return self._name
 
     @name.setter
@@ -50,39 +50,38 @@ class ComputationGraph(Generic[_NODE, _EDGE]):
 
     @property
     def num_nodes(self) -> int:
-        """The number of nodes in the graph."""
+        """Number of nodes in the graph."""
         return self._graph.number_of_nodes()
 
     @property
     def num_edges(self) -> int:
-        """The number of edges in the graph."""
+        """Number of edges in the graph."""
         return self._graph.number_of_edges()
 
     @property
     def num_ports(self) -> int:
-        """The number of ports in the graph.
-
-        A port is a virtual node that represents the input/output of the
-        computation.
-        """
+        """Number of ports in the graph."""
         return len(self._ports)
 
     @property
     def nodes(self) -> list[_NODE]:
-        """Return a list of nodes in the graph."""
+        """The list of nodes in the graph."""
         return [data[self._NODE_DATA_KEY] for _, data in self._graph.nodes(data=True)]
 
     @property
     def edges(self) -> list[_EDGE]:
-        """Return a list of edges in the graph."""
+        """The list of edges in the graph."""
         return [
             data[self._EDGE_DATA_KEY] for _, _, data in self._graph.edges(data=True)
         ]
 
     @property
     def ports(self) -> dict[str, Position3D]:
-        """Get a mapping from the labels of the ports in the graph to their
-        positions."""
+        """Mapping from port labels to their positions.
+
+        A port is a virtual node with unique label that represents the
+        input/output of the computation.
+        """
         return self._ports
 
     def get_degree(self, position: Position3D) -> int:
@@ -122,13 +121,18 @@ class ComputationGraph(Generic[_NODE, _EDGE]):
         Args:
             node: The node to add to the graph.
             check_conflict: Whether to check for conflicts before adding the node. If set to
-                False, the node may replace an existing node at the same position. Defaults to
+                True, either one of the following two circumstances will raise an exception:
+
+                1. There is already a node which is not equal to this one at the same position.
+                2. The node is a port but there is already a different port with the same label
+                   in the graph.
+
+                Otherwise, an existing node at the same position will be overwritten. Defaults to
                 True.
 
         Raises:
-            TQECException: There is already a node which is not equal to this one at the same
-                position, or the node is a port but there is already a different port with the
-                same label in the graph.
+            TQECException: If ``check_conflict`` is True and there is a conflict when adding the
+                node.
         """
         if check_conflict:
             self._check_node_conflict(node)
@@ -146,11 +150,20 @@ class ComputationGraph(Generic[_NODE, _EDGE]):
         self._graph.add_edge(u.position, v.position, **{self._EDGE_DATA_KEY: edge})
 
     def has_edge_between(self, pos1: Position3D, pos2: Position3D) -> bool:
-        """Check if there is an edge between two positions."""
+        """Check if there is an edge between two positions.
+
+        Args:
+            pos1: The first endpoint position.
+            pos2: The second endpoint position.
+
+        Returns:
+            True if there is an edge between the two positions, False otherwise.
+        """
         return self._graph.has_edge(pos1, pos2)
 
     def get_edge(self, pos1: Position3D, pos2: Position3D) -> _EDGE:
-        """Get the edge by its endpoint positions.
+        """Get the edge by its endpoint positions. If there is no edge between
+        the given positions, an exception will be raised.
 
         Args:
             pos1: The first endpoint position.

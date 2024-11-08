@@ -1,17 +1,18 @@
-"""Defines functions to modify or merge :class:`ScheduledCircuit` instances.
+"""Defines functions to modify or merge
+:class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instances.
 
-This module implement a few central functions for the ``tqec`` library:
+This module implement a few central functions for the :mod:`tqec` library:
 
 - :func:`remove_duplicate_instructions` to remove some instructions appearing
   twice in a single moment (most of the time due to data qubit
   reset/measurements that are defined by each plaquette, even on qubits shared
   with other plaquettes, leading to duplicates).
-- :func:`merge_scheduled_circuits` that merge several :class:`ScheduledCircuit`
-  instances into one.
+- :func:`merge_scheduled_circuits` that merge several
+  :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instances into one.
 - :func:`relabel_circuits_qubit_indices` to prepare several
-  :class:`ScheduledCircuit` before merging them. This function is called
-  internally by :func:`merge_scheduled_circuits` but might be useful at other
-  places and so is kept public.
+  :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` before merging them.
+  This function is called internally by :func:`merge_scheduled_circuits` but
+  might be useful at other places and so is kept public.
 """
 
 from __future__ import annotations
@@ -34,20 +35,22 @@ class _ScheduledCircuits:
     def __init__(
         self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap
     ) -> None:
-        """Represents a collection of :class`ScheduledCircuit` instances.
+        """Represents a collection of
+        :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instances.
 
         This class aims at providing accessors for several compatible instances
-        of :class:`ScheduledCircuit`. It allows to iterate on gates globally, for
-        all the managed instances of :class:`ScheduledCircuit`, and implement a
-        few other accessor methods to help with the task of merging multiple
-        :class`ScheduledCircuit` together.
+        of :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`. It allows
+        to iterate on gates globally, for all the managed instances of
+        :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`, and implement
+        a few other accessor methods to help with the task of merging multiple
+        :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` together.
 
         Args:
             circuits: the instances that should be managed. Note that the
                 instances provided here have to be "compatible" with each
                 other.
             global_qubit_map: a unique qubit map that can be used to map qubits
-                to indices for all the provided `circuits`.
+                to indices for all the provided ``circuits``.
         """
         # We might need to remap qubits to avoid index collision on several
         # circuits.
@@ -79,7 +82,7 @@ class _ScheduledCircuits:
         the given index.
 
         Raises:
-            AssertionError: if not self.has_pending_operation(index).
+            AssertionError: ``if not self.has_pending_operation(index)``.
         """
         ret = self._current_moments[index]
         if ret is None:
@@ -101,8 +104,8 @@ class _ScheduledCircuits:
         be scheduled next.
 
         Returns:
-            a list of :class:`Moment` instances that should be added next to
-            the QEC circuit.
+            a list of :class:`~tqec.circuit.moment.Moment` instances that should
+            be added next to the QEC circuit.
         """
         assert self.has_pending_moment()
         circuit_indices_organised_by_schedule: dict[int, list[int]] = dict()
@@ -145,18 +148,18 @@ def remove_duplicate_instructions(
         This function guarantees the following post-conditions on the returned
         results:
 
-        - Instructions with a name that is not in `mergeable_instruction_names`
+        - Instructions with a name that is not in ``mergeable_instruction_names``
           are returned at the front of the returned list, in the same relative
-          ordering as provided in `instructions` input.
-        - Instructions with a name that is in `mergeable_instruction_names` will
-          be returned after all the instructions with a name that does not
-          appear in `mergeable_instruction_names`. The order in which these
+          ordering as provided in ``instructions`` input.
+        - Instructions with a name that is in ``mergeable_instruction_names``
+          will be returned after all the instructions with a name that does not
+          appear in ``mergeable_instruction_names``. The order in which these
           instructions are returned is not guaranteed and can change between
           executions.
 
     Warning:
         this function **does not keep instruction ordering**. It is intended to
-        be used with input `instructions` that, once de-duplication has been
+        be used with input ``instructions`` that, once de-duplication has been
         applied, form a valid moment, which means that each instruction can be
         executed in parallel, and so their order in the returned list does not
         matter.
@@ -167,8 +170,8 @@ def remove_duplicate_instructions(
         a warning if it happens.
 
     Returns:
-        a list containing a copy of the stim.CircuitInstruction instances from
-        the given instructions but without any duplicate.
+        a list containing a copy of the ``stim.CircuitInstruction`` instances
+        from the given instructions but without any duplicate.
     """
     # Separate mergeable operations from non-mergeable ones.
     mergeable_operations: dict[
@@ -215,11 +218,13 @@ def merge_scheduled_circuits(
     global_qubit_map: QubitMap,
     mergeable_instructions: Iterable[str] = (),
 ) -> ScheduledCircuit:
-    """Merge several ScheduledCircuit instances into one instance.
+    """Merge several :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`
+    instances into one instance.
 
     This function takes several **compatible** scheduled circuits as input and
-    merge them, respecting their schedules, into a unique `ScheduledCircuit`
-    instance that will then be returned to the caller.
+    merge them, respecting their schedules, into a unique
+    :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instance that will
+    then be returned to the caller.
 
     The provided circuits should be compatible between each other. Compatible
     circuits are circuits that can all be described with a unique global qubit
@@ -230,7 +235,7 @@ def merge_scheduled_circuits(
 
     Args:
         circuits: **compatible** circuits to merge.
-        qubit_map: global qubit map for all the provided `circuits`.
+        qubit_map: global qubit map for all the provided ``circuits``.
         mergeable_instructions: a list of instruction names that are considered
             mergeable. Duplicate instructions with a name in this list will be
             merged into a single instruction.
@@ -273,11 +278,11 @@ def relabel_circuits_qubit_indices(
 ) -> tuple[list[ScheduledCircuit], QubitMap]:
     """Relabel the qubit indices of the provided circuits to avoid collision.
 
-    When several :class:`ScheduledCircuit` are constructed without a global
-    knowledge of all the qubits, qubit indices used by each instance likely
-    overlap. This is an issue when we try to merge such circuits because one
-    index might represent a different qubit depending on the circuit it is used
-    in.
+    When several :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` are
+    constructed without a global knowledge of all the qubits, qubit indices used
+    by each instance likely overlap. This is an issue when we try to merge such
+    circuits because one index might represent a different qubit depending on
+    the circuit it is used in.
 
     This function takes a sequence of circuits and relabel their qubits to avoid
     such collisions.
@@ -285,7 +290,7 @@ def relabel_circuits_qubit_indices(
     Warning:
         all the qubit targets used in each of the provided circuits should have
         a corresponding entry in the circuit qubit map for this function to work
-        correctly. If that is not the case, a KeyError will be raised.
+        correctly. If that is not the case, a ``KeyError`` will be raised.
 
     Raises:
         KeyError: if any of the provided circuit contains a qubit target that is
@@ -296,11 +301,11 @@ def relabel_circuits_qubit_indices(
             this function and is only used in read-only mode.
 
     Returns:
-        the same circuits with update qubit indices as well as the global qubit
+        the same circuits with updated qubit indices as well as the global qubit
         indices map that has been used. Qubits in the returned global qubit map
         are assigned to an index such that:
 
-        1. the sequence of indices is `range(0, len(qubit_map))`.
+        1. the sequence of indices is ``range(0, len(qubit_map))``.
         2. qubits are assigned indices in sorted order.
     """
     # First, get a global qubit index map.

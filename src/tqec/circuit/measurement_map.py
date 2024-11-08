@@ -1,3 +1,11 @@
+"""Defines :class:`~tqec.circuit.measurement_map.MeasurementRecordsMap`, the
+class used to represent and query measurement offsets in a circuit.
+
+This module defines :class:`MeasurementRecordsMap`. This class implements the
+necessary interface to register, modify and query measurement offsets from a
+``stim.Circuit``.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -29,7 +37,7 @@ class MeasurementRecordsMap:
 
     Raises:
         TQECException: if at least one of the provided measurement record offsets
-            is non-negative (`>=0`).
+            is non-negative (``>=0``).
         TQECException: if, for any of the provided qubits, the provided offsets
             are not sorted.
         TQECException: if any measurement offset is duplicated.
@@ -67,25 +75,25 @@ class MeasurementRecordsMap:
 
     @staticmethod
     def from_scheduled_circuit(circuit: ScheduledCircuit) -> MeasurementRecordsMap:
-        """Build a :class:`MeasurementMap` from a scheduled circuit.
+        """Build a :class:`MeasurementRecordsMap` from a scheduled circuit.
 
         Args:
             circuit: circuit containing the measurements to map.
 
         Raises:
-            TQECException: if the provided `circuit` contains a `REPEAT` block.
-            TQECException: if the provided `circuit` contains an unsupported
+            TQECException: if the provided ``circuit`` contains a ``REPEAT`` block.
+            TQECException: if the provided ``circuit`` contains an unsupported
                 measurement instruction. Currently, this method supports all
                 single-qubit measurement instructions (see the value of
-                `SINGLE_QUBIT_MEASUREMENT_INSTRUCTION_NAMES`).
+                ``SINGLE_QUBIT_MEASUREMENT_INSTRUCTION_NAMES``).
             TQECException: if one of the measurement counted in
-                `circuit.num_measurements` was not processed (this should never
+                ``circuit.num_measurements`` was not processed (this should never
                 raise, but the post-condition is easy to check so this method
                 performs the check just in case).
 
         Returns:
-            a :class:`MeasurementMap` linking measurements in the provided
-            `circuit` to their offset.
+            a :class:`MeasurementRecordsMap` linking measurements in the provided
+            ``circuit`` to their offset.
         """
         return MeasurementRecordsMap.from_circuit(
             circuit.get_circuit(include_qubit_coords=False), circuit.qubit_map
@@ -95,27 +103,27 @@ class MeasurementRecordsMap:
     def from_circuit(
         circuit: stim.Circuit, qubit_map: QubitMap | None = None
     ) -> MeasurementRecordsMap:
-        """Build a :class:`MeasurementMap` from a circuit.
+        """Build a :class:`MeasurementRecordsMap` from a circuit.
 
         Args:
             circuit: circuit containing the measurements to map.
-            qubit_map: qubit map of the provided circuit. If `None`, the
+            qubit_map: qubit map of the provided circuit. If ``None``, the
                 qubit map is computed from the provided circuit. Default to
-                `None`.
+                ``None``.
         Raises:
-            TQECException: if the provided `circuit` contains a `REPEAT` block.
-            TQECException: if the provided `circuit` contains an unsupported
+            TQECException: if the provided ``circuit`` contains a ``REPEAT`` block.
+            TQECException: if the provided ``circuit`` contains an unsupported
                 measurement instruction. Currently, this method supports all
                 single-qubit measurement instructions (see the value of
-                `SINGLE_QUBIT_MEASUREMENT_INSTRUCTION_NAMES`).
+                ``SINGLE_QUBIT_MEASUREMENT_INSTRUCTION_NAMES``).
             TQECException: if one of the measurement counted in
-                `circuit.num_measurements` was not processed (this should never
+                ``circuit.num_measurements`` was not processed (this should never
                 raise, but the post-condition is easy to check so this method
                 performs the check just in case).
 
         Returns:
-            a :class:`MeasurementMap` linking measurements in the provided
-            `circuit` to their offset.
+            a :class:`MeasurementRecordsMap` linking measurements in the provided
+            ``circuit`` to their offset.
         """
         # We iterate the circuit in forward order, which means that the first
         # measurement we will encounter will have a record offset of
@@ -161,17 +169,18 @@ class MeasurementRecordsMap:
         self, mrecords_map: MeasurementRecordsMap, repetitions: int = 1
     ) -> MeasurementRecordsMap:
         """Build a new :class:`MeasurementRecordsMap` with measurements from
-        `self` appearing before measurements from the provided `mrecords_map`.
+        ``self`` appearing before measurements from the provided
+        ``mrecords_map``.
 
         Args:
             mrecords_map: records of measurements happening after the measurements
-                represented by `self`.
-            repetitions: number of time the measurements from `mrecords_map` are
+                represented by ``self``.
+            repetitions: number of time the measurements from ``mrecords_map`` are
                 repeated. Default to 1.
 
         Returns:
-            a new instance containing valid offsets for each measurement in `self`
-            and `mrecords_map`.
+            a new instance containing valid offsets for each measurement in ``self``
+            and ``mrecords_map``.
         """
         num_measurements_without_repetition = sum(
             len(offsets) for offsets in mrecords_map.mapping.values()

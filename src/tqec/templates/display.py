@@ -1,3 +1,6 @@
+"""Provides functions to pretty-print :class:`~tqec.templates.base.Template`
+instances."""
+
 from __future__ import annotations
 
 import typing as ty
@@ -38,8 +41,10 @@ def display_template_from_instantiation(instantiation: npt.NDArray[numpy.int_]) 
 def get_template_representation_from_instantiation(
     instantiation: npt.NDArray[numpy.int_],
 ) -> str:
+    """Get the pretty-string representation of a template instantiation."""
     max_integer = numpy.max(instantiation)
     pad = len(str(max_integer)) + 1
     return "\n".join(
-        " ".join(str(num).ljust(pad) for num in line) for line in instantiation
+        " ".join((str(num) if num != 0 else ".").rjust(pad) for num in line)
+        for line in instantiation
     )

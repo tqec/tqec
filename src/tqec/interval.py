@@ -1,3 +1,6 @@
+"""Defines the :class:`Interval` data-structure to represent intervals on
+:math:`\\mathbb{R}`."""
+
 from __future__ import annotations
 
 import math
@@ -9,7 +12,8 @@ from tqec.exceptions import TQECException
 
 @dataclass(frozen=True)
 class Interval:
-    """A subset of the mathematical space representing real numbers: R.
+    """A subset of the mathematical space representing real numbers:
+    :math:`\\mathbb{R}`.
 
     This class represents the mathematical object called interval. It stores
     two floating-point numbers representing the bounds of the interval as
@@ -18,8 +22,20 @@ class Interval:
 
     Raises:
         TQECException: if any bound is NaN.
-        TQECException: if the provided `start` value is strictly larger than
-            the provided `end` value.
+        TQECException: if the provided ``start`` value is strictly larger than
+            the provided ``end`` value.
+
+    Attributes:
+        start: beginning of the interval. Included in the interval iff
+            ``not self.start_excluded``, else it is excluded from the interval.
+        end: end of the interval. Included in the interval iff
+            ``not self.end_excluded``, else it is excluded from the interval.
+        start_excluded: controls if ``self.start`` is included in the represented
+            interval or not. Default to ``False`` which means that ``self.start``
+            is included.
+        end_excluded: controls if ``self.end`` is included in the represented
+            interval or not. Default to ``True`` which means that ``self.end``
+            is excluded.
     """
 
     start: float | int
@@ -36,50 +52,50 @@ class Interval:
             )
 
     def _is_over_start(self, value: float) -> bool:
-        """Compare the provided value to `self.start`, taking into account
-        `self.start_excluded`.
+        """Compare the provided value to ``self.start``, taking into account
+        ``self.start_excluded``.
 
         This method checks if the provided value is contained in the interval that
-        has the same `start` boundary as self but with +inf as end boundary.
+        has the same ``start`` boundary as self but with +inf as ``end`` boundary.
 
         Args:
             value: the value to compare to start.
 
         Returns:
-            True if `Interval(self.start, float("inf"), self.start_excluded,
-            True).contains(value)`.
+            ``True`` if ``Interval(self.start, float("inf"), self.start_excluded,
+            True).contains(value)``.
         """
         return self.start < value if self.start_excluded else self.start <= value
 
     def _is_below_end(self, value: float) -> bool:
-        """Compare the provided value to `self.end`, taking into account
-        `self.end_excluded`.
+        """Compare the provided value to ``self.end``, taking into account
+        ``self.end_excluded``.
 
         This method checks if the provided value is contained in the interval that
-        has the same `end` boundary as self but with -inf as start boundary.
+        has the same ``end`` boundary as self but with -inf as ``start`` boundary.
 
         Args:
             value: the value to compare to end.
 
         Returns:
-            True if `Interval(float("-inf"), self.end, True,
-            self.end_excluded).contains(value)`.
+            ``True`` if ``Interval(float("-inf"), self.end, True,
+            self.end_excluded).contains(value)``.
         """
         return value < self.end if self.end_excluded else value <= self.end
 
     def contains(self, value: float) -> bool:
-        """Returns `True` if `self` contains the provided value, else
-        `False`."""
+        """Returns ``True`` if ``self`` contains the provided ``value``, else
+        ``False``."""
         return self._is_over_start(value) and self._is_below_end(value)
 
     def overlaps_with(self, other: Interval) -> bool:
-        """Returns `True` if `self` overlaps with the provided interval, else
-        `False`."""
+        """Returns ``True`` if ``self`` overlaps with the provided interval,
+        else ``False``."""
         return not self.is_disjoint(other)
 
     def is_disjoint(self, other: Interval) -> bool:
-        """Returns `True` if `self` does not overlap with the provided
-        interval, else `False`."""
+        """Returns ``True`` if ``self`` does not overlap with the provided
+        interval, else ``False``."""
         other_end_lt_self_start = other.end < self.start or (
             other.end == self.start and (other.end_excluded or self.start_excluded)
         )
@@ -89,11 +105,12 @@ class Interval:
         return other_end_lt_self_start or self_end_lt_other_start
 
     def is_empty(self) -> bool:
-        """Returns `True` if `self` is the empty interval, else `False`."""
+        """Returns ``True`` if ``self`` is the empty interval, else
+        ``False``."""
         return self.start == self.end and (self.start_excluded or self.end_excluded)
 
     def intersection(self, other: Interval) -> Interval:
-        """Compute and return the intersection of `self` and `other`."""
+        """Compute and return the intersection of ``self`` and ``other``."""
         if self.is_disjoint(other):
             return EMPTY_INTERVAL
 
@@ -127,6 +144,7 @@ class Interval:
         )
 
     def iter_integers(self) -> typing.Iterable[int]:
+        """Iterate over all the integers strictly contained in ``self``."""
         inclusive_start_int = int(math.ceil(self.start))
         if self.start_excluded and abs(self.start - round(self.start)) < 1e-30:
             inclusive_start_int += 1

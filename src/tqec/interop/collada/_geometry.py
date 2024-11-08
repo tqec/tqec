@@ -1,8 +1,9 @@
+"""Define the face geometries used in COLLADA models."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from dataclasses import astuple, dataclass
-from enum import Enum
 
 import numpy as np
 import numpy.typing as npt
@@ -12,32 +13,10 @@ from tqec.computation.pipe import PipeKind
 from tqec.computation.zx_graph import ZXKind
 from tqec.exceptions import TQECException
 from tqec.position import Direction3D, FloatPosition3D, SignedDirection3D
+from tqec.interop.color import TQECColor
 
 if TYPE_CHECKING:
     from tqec.computation.block_graph import BlockKind
-
-
-CORRELATION_SUFFIX: str = "_CORRELATION"
-
-
-class FaceKind(Enum):
-    X = "X"
-    Y = "Y"
-    Z = "Z"
-    H = "H"
-    X_CORRELATION = "X" + CORRELATION_SUFFIX
-    Z_CORRELATION = "Z" + CORRELATION_SUFFIX
-
-    def with_zx_flipped(self) -> FaceKind:
-        if self == FaceKind.X:
-            return FaceKind.Z
-        if self == FaceKind.Z:
-            return FaceKind.X
-        if self == FaceKind.X_CORRELATION:
-            return FaceKind.Z_CORRELATION
-        if self == FaceKind.Z_CORRELATION:
-            return FaceKind.X_CORRELATION
-        return self
 
 
 @dataclass(frozen=True)
@@ -48,7 +27,7 @@ class Face:
     (X, Y, Z) or (Y, Z, X) or (Z, X, Y).
 
     Attributes:
-        kind: The kind of the face.
+        color: The color of the face.
         width: The width of the face.
         height: The height of the face.
         normal_direction: The normal direction of the face, which is the direction
@@ -56,7 +35,7 @@ class Face:
         position: The position of the face in the 3D space.
     """
 
-    kind: FaceKind
+    color: TQECColor
     width: float
     height: float
     normal_direction: SignedDirection3D
@@ -87,7 +66,7 @@ class Face:
 
     def shift_by(self, dx: float, dy: float, dz: float) -> Face:
         return Face(
-            self.kind,
+            self.color,
             self.width,
             self.height,
             self.normal_direction,
@@ -96,7 +75,7 @@ class Face:
 
     def with_negated_normal_direction(self) -> Face:
         return Face(
-            self.kind,
+            self.color,
             self.width,
             self.height,
             -self.normal_direction,
@@ -140,7 +119,7 @@ class BlockGeometries:
             for direction in Direction3D.all_directions():
                 basis = kind.get_basis_along(direction)
                 face = Face(
-                    FaceKind(basis.value),
+                    TQECColor(basis.value),
                     width,
                     height,
                     SignedDirection3D(direction, False),
@@ -163,7 +142,7 @@ class BlockGeometries:
                 width, height = 0.5, 1.0
             else:
                 width, height = 1.0, 1.0
-            face = Face(FaceKind.Y, width, height, SignedDirection3D(direction, False))
+            face = Face(TQECColor.Y, width, height, SignedDirection3D(direction, False))
             faces.append(face)
             translation = [0.0, 0.0, 0.0]
             translation[direction.value] = 1.0 if direction != Direction3D.Z else 0.5
@@ -184,7 +163,7 @@ class BlockGeometries:
                 else:
                     width, height = 1.0, 2.0
                 face = Face(
-                    FaceKind(basis.value),
+                    TQECColor(basis.value),
                     width,
                     height,
                     SignedDirection3D(direction, False),
@@ -223,16 +202,16 @@ class BlockGeometries:
                     w2, h2 = 1.0, 0.2
                     w3, h3 = 1.0, 0.9
                 normal_direction = SignedDirection3D(direction, False)
-                face1 = Face(FaceKind(basis.value), w1, h1, normal_direction)
+                face1 = Face(TQECColor(basis.value), w1, h1, normal_direction)
                 face2 = Face(
-                    FaceKind.H,
+                    TQECColor.H,
                     w2,
                     h2,
                     normal_direction,
                     _get_face_position(kind.direction, 0.9),
                 )
                 face3 = Face(
-                    face1.kind.with_zx_flipped(),
+                    face1.color.with_zx_flipped(),
                     w3,
                     h3,
                     normal_direction,
@@ -258,4 +237,4 @@ def get_correlation_surface_geometry(zx_kind: ZXKind) -> Face:
     if zx_kind not in [ZXKind.X, ZXKind.Z]:
         raise TQECException("Invalid ZX kind for correlation surface.")
     normal_direction = SignedDirection3D(Direction3D.Z, True)
-    return Face(FaceKind(zx_kind.value + "_CORRELATION"), 1.0, 1.0, normal_direction)
+    return Face(TQECColor(zx_kind.value + "_CORRELATION"), 1.0, 1.0, normal_direction)

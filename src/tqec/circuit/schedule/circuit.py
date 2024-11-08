@@ -1,3 +1,13 @@
+"""Defines :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` that
+represents a quantum circuit with a specific schedule.
+
+This module defines the class used to represent a quantum circuit. It is a
+"scheduled" circuit. Such circuits are composed of a finite number of ordered
+:class:`~tqec.circuit.moment.Moment` instances that are each associated to an
+integer in a strictly increasing list of integers (called "schedule" and
+represented by instances of :class:`~.schedule.schedule.Schedule`).
+"""
+
 from __future__ import annotations
 
 import bisect
@@ -25,34 +35,34 @@ class ScheduledCircuit:
     ) -> None:
         """Represent a quantum circuit with scheduled moments.
 
-        This class aims at representing a `stim.Circuit` instance that has all
+        This class aims at representing a ``stim.Circuit`` instance that has all
         its moments scheduled, i.e., associated with a time slice.
 
-        This class explicitly does not support `stim.CircuitRepeatBlock` (i.e.,
-        `REPEAT` instruction). It will raise an exception if such an instruction is
-        found.
+        This class explicitly does not support ``stim.CircuitRepeatBlock`` (i.e.,
+        ``REPEAT`` instruction). It will raise an exception if such an
+        instruction is found.
 
         Args:
             moments: moments representing the computation that is scheduled.
-                The provided `moments` should not contain any `QUBIT_COORDS`
+                The provided ``moments`` should not contain any ``QUBIT_COORDS``
                 instructions. Instead, the qubit coordinates should be provided
-                through the `qubit_map` parameter.
-            schedule: schedule of the provided `moments`. If an integer is
-                provided, each moment of the provided `stim.Circuit` is
+                through the ``qubit_map`` parameter.
+            schedule: schedule of the provided ``moments``. If an integer is
+                provided, each moment of the provided ``stim.Circuit`` is
                 scheduled sequentially, starting by the provided integer.
             qubit_map: a map from indices to qubits that is used to re-create
-                `QUBIT_COORDS` instructions when generating a `stim.Circuit`.
+                ``QUBIT_COORDS`` instructions when generating a ``stim.Circuit``.
             _avoid_checks: if True, the inputs are not checked for pre-condition
                 violation and it is up to the user to ensure that
-                ScheduledCircuit pre-conditions are checked by the provided
-                input.
+                :class:`ScheduledCircuit` pre-conditions are checked by the
+                provided input.
 
         Raises:
-            ScheduleError: if the provided schedule is invalid.
-            TQECException: if the provided `circuit` contains at least one
-                `stim.CircuitRepeatBlock` instance.
-            TQECException: if the provided `circuit` contains at least one
-                `QUBIT_COORDS` instruction after the first `TICK` instruction.
+            ScheduleError: if the provided ``schedule`` is invalid.
+            TQECException: if the provided ``circuit`` contains at least one
+                ``stim.CircuitRepeatBlock`` instance.
+            TQECException: if the provided ``circuit`` contains at least one
+                ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
         """
 
         if isinstance(schedule, int):
@@ -80,6 +90,7 @@ class ScheduledCircuit:
 
     @staticmethod
     def empty() -> ScheduledCircuit:
+        """Returns an empty :class:`ScheduledCircuit` instance."""
         return ScheduledCircuit([], Schedule(), QubitMap(), _avoid_checks=True)
 
     @staticmethod
@@ -92,23 +103,24 @@ class ScheduledCircuit:
         schedule.
 
         Args:
-            circuit: the instance of Circuit that is scheduled. Should not contain
-                any instance of `stim.CircuitRepeatBlock`.
-            schedule: a sorted list of positive integers or a positive integer. If a
-                list is given, it should contain as many values as there are moments
-                in the provided `stim.Circuit` instance. If an integer is provided,
-                each moment of the provided `stim.Circuit` is scheduled sequentially,
-                starting by the provided schedule.
-            qubit_map: a map from indices to qubits. If None, this function will try to
-                extract the qubit coordinates from the `QUBIT_COORDS` instructions
-                found in the provided `circuit`. Else, the provided map will be used.
+            circuit: the instance of ``stim.Circuit`` that is scheduled. Should
+                not contain any instance of ``stim.CircuitRepeatBlock``.
+            schedule: a sorted list of positive integers or a positive integer.
+                If a list is given, it should contain as many values as there
+                are moments in the provided ``stim.Circuit`` instance. If an
+                integer is provided, each moment of the provided ``stim.Circuit``
+                is scheduled sequentially, starting by the provided schedule.
+            qubit_map: a map from indices to qubits. If None, this function will
+                try to extract the qubit coordinates from the ``QUBIT_COORDS``
+                instructions found in the provided ``circuit``. Else, the
+                provided map will be used.
 
         Raises:
-            ScheduleError: if the provided schedule is invalid.
-            TQECException: if the provided `circuit` contains at least one
-                `stim.CircuitRepeatBlock` instance.
-            TQECException: if the provided `circuit` contains at least one
-                `QUBIT_COORDS` instruction after the first `TICK` instruction.
+            ScheduleError: if the provided ``schedule`` is invalid.
+            TQECException: if the provided ``circuit`` contains at least one
+                ``stim.CircuitRepeatBlock`` instance.
+            TQECException: if the provided ``circuit`` contains at least one
+                ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
         """
 
         if isinstance(schedule, int):
@@ -148,20 +160,22 @@ class ScheduledCircuit:
 
     @property
     def schedule(self) -> Schedule:
+        """Schedule of the internal moments."""
         return self._schedule
 
     def get_qubit_coords_definition_preamble(self) -> stim.Circuit:
-        """Get a circuit with only `QUBIT_COORDS` instructions."""
+        """Get a circuit with only ``QUBIT_COORDS`` instructions."""
         return self._qubit_map.to_circuit()
 
     def get_circuit(self, include_qubit_coords: bool = True) -> stim.Circuit:
-        """Build and return the `stim.Circuit` instance represented by self.
+        """Build and return the ``stim.Circuit`` instance represented by
+        ``self``.
 
         Warning:
             The circuit is re-built at each call! Use that function wisely.
 
         Returns:
-            `stim.Circuit` instance represented by self.
+            ``stim.Circuit`` instance represented by ``self``.
         """
         ret = stim.Circuit()
         if not self._moments:
@@ -190,34 +204,34 @@ class ScheduledCircuit:
         include_qubit_coords: bool = True,
         include_additional_tick_in_body: bool = True,
     ) -> stim.Circuit:
-        """Build and return the `stim.Circuit` instance represented by self
-        encapsulated in a `REPEAT` block.
+        """Build and return the ``stim.Circuit`` instance represented by
+        ``self`` encapsulated in a ``REPEAT`` block.
 
         Warning:
             The circuit is re-built at each call! Use that function wisely.
 
         Warning:
-            An extra `TICK` instruction is appended by default at the end of the
-            body of the `REPEAT` block to mimic `stim` way of doing. You can
-            control that behaviour with the `include_additional_tick_in_body`
+            An extra ``TICK`` instruction is appended by default at the end of the
+            body of the ``REPEAT`` block to mimic ``stim`` way of doing. You can
+            control that behaviour with the ``include_additional_tick_in_body``
             parameter.
 
         Args:
-            repetitions: argument to the enclosing `REPEAT` block representing
+            repetitions: argument to the enclosing ``REPEAT`` block representing
                 the number of repetitions that should be used in the returned
                 circuit.
-            include_qubit_coords: if `True`, `QUBIT_COORDS` instructions are
+            include_qubit_coords: if ``True``, ``QUBIT_COORDS`` instructions are
                 inserted at the beginning of the returned circuit (before the
-                `REPEAT` block).
-            include_additional_tick_in_body: if `True`, an additional `TICK`
+                ``REPEAT`` block).
+            include_additional_tick_in_body: if ``True``, an additional ``TICK``
                 instruction is appended to the **body** (i.e., the circuit
-                inside the `REPEAT` block) of the returned circuit. This is the
-                default behaviour as `stim` does that in its code and adding
-                the `TICK` here makes more sense than after the `REPEAT` block.
+                inside the ``REPEAT`` block) of the returned circuit. This is the
+                default behaviour as ``stim`` does that in its code and adding
+                the ``TICK`` here makes more sense than after the ``REPEAT`` block.
 
         Returns:
-            `stim.Circuit` instance represented by self encapsulated in a
-            `REPEAT` block.
+            ``stim.Circuit`` instance represented by self encapsulated in a
+            ``REPEAT`` block.
         """
         ret = stim.Circuit()
         # Appending the QUBIT_COORDS instructions first.
@@ -237,11 +251,11 @@ class ScheduledCircuit:
     def map_qubit_indices(
         self, qubit_index_map: dict[int, int], inplace: bool = False
     ) -> ScheduledCircuit:
-        """Map the qubits **indices** the `ScheduledCircuit` instance is
+        """Map the qubits **indices** the :class:`ScheduledCircuit` instance is
         applied on.
 
         Note:
-            This method differs from :meth:`ScheduledCircuit.map_to_qubits`
+            This method differs from :meth:`~ScheduledCircuit.map_to_qubits`
             because it changes the qubit indices, which requires to iterate the
             whole circuit and change every instruction target.
 
@@ -251,14 +265,14 @@ class ScheduledCircuit:
 
         Args:
             qubit_index_map: the map used to modify the qubit targets.
-            inplace: if True, perform the modification in place and return self.
-                Else, perform the modification in a copy and return the copy.
-                Note that the runtime cost of this method should be the same
-                independently of the value provided here.
+            inplace: if ``True``, perform the modification in place and return
+                ``self``. Else, perform the modification in a copy and return
+                the copy. Note that the runtime cost of this method should be
+                the same independently of the value provided here.
 
         Returns:
-            a modified instance of `ScheduledCircuit` (a copy if inplace is
-            `True`, else `self`).
+            a modified instance of :class:`ScheduledCircuit` (a copy if
+            ``inplace`` is ``True``, else ``self``).
         """
         mapped_final_qubits = QubitMap(
             {qubit_index_map[qi]: q for qi, q in self._qubit_map.items()}
@@ -281,29 +295,29 @@ class ScheduledCircuit:
         qubit_map: Callable[[GridQubit], GridQubit],
         inplace_qubit_map: bool = False,
     ) -> ScheduledCircuit:
-        """Map the qubits the `ScheduledCircuit` instance is applied on.
+        """Map the qubits the :class:`ScheduledCircuit` instance is applied on.
 
         Note:
-            This method only changes the `QUBIT_COORDS` instructions at the
+            This method only changes the ``QUBIT_COORDS`` instructions at the
             beginning of the circuit. As such, it never has to iterate on the
             whole quantum circuit and so this method is very efficient.
 
         Warning:
             The underlying quantum circuit data-structure is never copied (even
-            if `inplace_qubit_map == True`), so the returned instance should be
+            if ``inplace_qubit_map == True``), so the returned instance should be
             used with care, in particular if any method mutating the underlying
-            circuit is called on `self` or the returned instance after calling
+            circuit is called on ``self`` or the returned instance after calling
             that method.
 
         Args:
             qubit_map: the map used to modify the qubits.
             inplace_qubit_map: if True, replaces the qubit map directly in
-                `self` and return `self`. Else, create a new instance from
-                `self` **without copying the underlying moments**, simply
+                ``self`` and return ``self``. Else, create a new instance from
+                ``self`` **without copying the underlying moments**, simply
                 replacing the qubit map.
 
         Returns:
-            an instance of `ScheduledCircuit` with a new qubit map.
+            an instance of :class:`ScheduledCircuit` with a new qubit map.
         """
         operand = self if inplace_qubit_map else copy(self)
         operand._qubit_map = operand._qubit_map.with_mapped_qubits(qubit_map)
@@ -324,7 +338,7 @@ class ScheduledCircuit:
 
     @property
     def scheduled_moments(self) -> Iterator[tuple[int, Moment]]:
-        """Yields `stim.Circuit` instances representing a moment with their
+        """Yields ``stim.Circuit`` instances representing a moment with their
         computed schedule.
 
         This property yields all the scheduled moments.
@@ -335,10 +349,12 @@ class ScheduledCircuit:
 
     @property
     def moments(self) -> Iterator[Moment]:
+        """Iterator over the internal moments representing the computation."""
         yield from self._moments
 
     @property
     def qubits(self) -> frozenset[GridQubit]:
+        """Set of qubits on which the circuit is applied."""
         return frozenset(self._qubit_map.qubits)
 
     def _get_moment_index_by_schedule(self, schedule: int) -> int | None:
@@ -347,16 +363,18 @@ class ScheduledCircuit:
         Args:
             schedule: the schedule at which the Moment instance should be returned.
                 If the schedule is negative, it is considered as an index from
-                the end. For example, -1 is the last schedule and -2 is the
-                last schedule - 1 (which might not be the second to last schedule).
+                the end. For example, ``-1`` is the last schedule and ``-2`` is the
+                ``last schedule - 1`` (which might not be the second to last
+                schedule).
 
         Returns:
-            the index of the Moment instance scheduled at the provided schedule.
-            If no Moment instance is scheduled at the provided schedule, None is
-            returned.
+            the index of the :class:`~tqec.circuit.moment.Moment` instance
+            scheduled at the provided schedule. If no
+            :class:`~tqec.circuit.moment.Moment` instance is scheduled at the
+            provided ``schedule``, ``None`` is returned.
 
         Raises:
-            TQECException: if the provided calculated schedule is negative.
+            TQECException: if the provided calculated ``schedule`` is negative.
         """
         if not self._schedule:
             return None
@@ -373,16 +391,18 @@ class ScheduledCircuit:
         return moment_index
 
     def moment_at_schedule(self, schedule: int) -> Moment:
-        """Get the Moment instance scheduled at the provided schedule.
+        """Get the :class:`~tqec.circuit.moment.Moment` instance scheduled at
+        the provided schedule.
 
         Args:
-            schedule: the schedule at which the Moment instance should be returned.
-                If the schedule is negative, it is considered as an index from
-                the end. For example, -1 is the last schedule and -2 is the
-                last schedule - 1 (which might not be the second to last schedule).
+            schedule: the schedule at which the :class:`~tqec.circuit.moment.Moment`
+                instance should be returned. If the ``schedule`` is negative, it
+                is considered as an index from the end. For example, ``-1`` is the
+                last schedule and ``-2`` is the ``last schedule - 1`` (which
+                might not be the second to last schedule).
 
         Raises:
-            TQECException if no moment exist at the provided schedule.
+            TQECException: if no moment exist at the provided ``schedule``.
         """
         moment_index = self._get_moment_index_by_schedule(schedule)
         if moment_index is None:
@@ -392,8 +412,9 @@ class ScheduledCircuit:
         return self._moments[moment_index]
 
     def append_new_moment(self, moment: Moment) -> None:
-        """Schedule the provided Moment instance at the end of the circuit. The
-        new schedule will be the last schedule plus one.
+        """Schedule the provided :class:`~tqec.circuit.moment.Moment` instance
+        at the end of the circuit. The new schedule will be the last schedule
+        plus one.
 
         Args:
             moment: the moment to schedule.
@@ -408,14 +429,15 @@ class ScheduledCircuit:
         self.add_to_schedule_index(schedule, moment)
 
     def add_to_schedule_index(self, schedule: int, moment: Moment) -> None:
-        """Add the operations contained in the provided moment at the provided
-        schedule.
+        """Add the operations contained in the provided ``moment`` to the
+        provided schedule.
 
         Args:
-            schedule: schedule at which operations in `moment` should be added.
+            schedule: schedule at which operations in ``moment`` should be added.
                 If the schedule is negative, it is considered as an index from
-                the end. For example, -1 is the last schedule and -2 is the
-                last schedule - 1 (which might not be the second to last schedule).
+                the end. For example, ``-1`` is the last schedule and ``-2`` is the
+                ``last schedule - 1`` (which might not be the second to last
+                schedule).
             moment: operations that should be added.
         """
         moment_index = self._get_moment_index_by_schedule(schedule)
@@ -431,7 +453,7 @@ class ScheduledCircuit:
             self._moments[moment_index] += moment
 
     def append_observable(self, index: int, targets: Sequence[stim.GateTarget]) -> None:
-        """Append an `OBSERVABLE_INCLUDE` instruction to the last moment.
+        """Append an ``OBSERVABLE_INCLUDE`` instruction to the last moment.
 
         Args:
             index: index of the observable to append measurement records to.
@@ -446,7 +468,7 @@ class ScheduledCircuit:
 
         Args:
             instruction: an annotation that will be added to the last moment of
-                `self`.
+                ``self``.
 
         Raises:
             TQECException: if the provided instruction is not an annotation.
@@ -460,6 +482,7 @@ class ScheduledCircuit:
 
     @property
     def num_measurements(self) -> int:
+        """Number of measurements in the represented computation."""
         return sum(m.num_measurements for m in self._moments)
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[GridQubit]) -> ScheduledCircuit:
@@ -467,15 +490,15 @@ class ScheduledCircuit:
         the provided qubits. If an instruction is applied on a qubit that is
         not in the provided list, it is removed.
 
-        After filtering, the empty moments as well as the corresponding schedules are
-        removed.
+        After filtering, the empty moments as well as the corresponding schedules
+        are removed.
 
         Args:
             qubits_to_keep: the qubits to keep in the circuit.
 
         Returns:
-            a new instance of `ScheduledCircuit` with the filtered circuit and
-            schedules.
+            a new instance of :class:`ScheduledCircuit` with the filtered
+            circuit and schedules.
         """
         qubits_indices_to_keep = frozenset(
             self._qubit_map.q2i[q] for q in qubits_to_keep if q in self.qubits
@@ -498,4 +521,5 @@ class ScheduledCircuit:
 
     @property
     def qubit_map(self) -> QubitMap:
+        """Qubit map of the circuit."""
         return self._qubit_map

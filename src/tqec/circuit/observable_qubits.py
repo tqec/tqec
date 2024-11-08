@@ -22,13 +22,16 @@ def observable_qubits_from_template(
     Args:
         template: The template to get the default observable qubits from.
         k: scaling parameter used to instantiate the provided template.
-        plaquettes: The plaquettes to use to get the accurate positions of the observable qubits.
-        orientation: Whether to get the observable qubits from
-            the horizontal or vertical midline. Defaults to horizontal.
+        plaquettes: The plaquettes to use to get the accurate positions of the
+            observable qubits.
+        orientation: Whether to get the observable qubits from the horizontal or
+            vertical midline. Defaults to horizontal.
 
     Raises:
-        TQECException: If the number of plaquettes does not match the expected number.
-        TQECException: If the plaquettes are provided as a dictionary and 0 is in the keys.
+        TQECException: If the number of plaquettes does not match the expected
+            number.
+        TQECException: If the plaquettes are provided as a dictionary and 0 is
+            in the keys.
         TQECException: If the template does not have a definable midline.
 
     Returns:

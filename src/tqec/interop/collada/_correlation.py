@@ -1,3 +1,5 @@
+"""Helper functions for representing correlation surfaces in COLLADA model."""
+
 import numpy as np
 import numpy.typing as npt
 import collada
@@ -6,7 +8,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, ZXBasis, ZXCube
 from tqec.computation.zx_graph import ZXEdge, ZXKind, ZXNode
-from tqec.interop.collada import Transformation
+from tqec.interop.collada.read_write import _Transformation
 from tqec.position import Direction3D, FloatPosition3D, Position3D
 
 
@@ -14,8 +16,10 @@ def get_transformations_for_correlation_surface(
     block_graph: BlockGraph,
     correlation_surface: CorrelationSurface,
     pipe_length: float,
-) -> list[tuple[ZXKind, Transformation]]:
-    transformations: list[tuple[ZXKind, Transformation]] = []
+) -> list[tuple[ZXKind, _Transformation]]:
+    """Get the transformations of each piece of a correlation surface for
+    representing it in a COLLADA model."""
+    transformations: list[tuple[ZXKind, _Transformation]] = []
     # Surfaces in the pipes
     for edge in correlation_surface.span:
         transformations.extend(
@@ -44,7 +48,7 @@ def _get_transformations_for_surface_in_pipe(
     block_graph: BlockGraph,
     edge: ZXEdge,
     pipe_length: float,
-) -> list[tuple[ZXKind, Transformation]]:
+) -> list[tuple[ZXKind, _Transformation]]:
     transformations = []
     normal_direction = _surface_normal_direction(block_graph, edge)
     surface_position = (
@@ -60,7 +64,7 @@ def _get_transformations_for_surface_in_pipe(
     transformations.append(
         (
             edge.u.kind,
-            Transformation(
+            _Transformation(
                 translation=surface_position.as_array(),
                 rotation=rotation,
                 scale=scale,
@@ -71,7 +75,7 @@ def _get_transformations_for_surface_in_pipe(
         transformations.append(
             (
                 edge.v.kind,
-                Transformation(
+                _Transformation(
                     translation=surface_position.shift_in_direction(
                         edge.direction, pipe_length / 2
                     ).as_array(),
@@ -89,7 +93,7 @@ def _get_transformations_for_surface_in_cube(
     correlation_surface: CorrelationSurface,
     correlation: ZXKind,
     pipe_length: float,
-) -> list[tuple[ZXKind, Transformation]]:
+) -> list[tuple[ZXKind, _Transformation]]:
     pos = cube.position
     scaled_pos = _scale_position(pos, pipe_length)
     assert isinstance(cube.kind, ZXCube)
@@ -110,7 +114,7 @@ def _get_transformations_for_surface_in_cube(
                 transformations.append(
                     (
                         node.kind,
-                        Transformation(
+                        _Transformation(
                             translation=scaled_pos.shift_in_direction(
                                 normal_direction, 0.5
                             ).as_array(),
@@ -138,7 +142,7 @@ def _get_transformations_for_surface_in_cube(
         transformations.append(
             (
                 node.kind.with_zx_flipped(),
-                Transformation(
+                _Transformation(
                     translation=scaled_pos.shift_in_direction(
                         cube_normal_direction, 0.5
                     ).as_array(),
@@ -155,7 +159,7 @@ def _get_transformation_for_surface_at_turn(
     node: ZXNode,
     e1: ZXEdge,
     e2: ZXEdge,
-) -> tuple[ZXKind, Transformation]:
+) -> tuple[ZXKind, _Transformation]:
     assert e1.direction != e2.direction
     corner_normal_direction = (
         set(Direction3D.all_directions()) - {e1.direction, e2.direction}
@@ -187,7 +191,7 @@ def _get_transformation_for_surface_at_turn(
         ).shift_in_direction(corner_plane_y, 1.0)
     return (
         node.kind,
-        Transformation(
+        _Transformation(
             translation=translation.as_array(),
             rotation=rotation,
             scale=scale,

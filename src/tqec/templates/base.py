@@ -1,3 +1,6 @@
+"""Defines the base classes for templates: :class:`Template` and
+:class:`RectangularTemplate`."""
+
 from abc import ABC, abstractmethod
 from typing import Sequence
 
@@ -16,15 +19,19 @@ from tqec.templates.subtemplates import (
 
 
 class Template(ABC):
-    def __init__(self, default_increments: Displacement | None = None) -> None:
-        """Base class for all the templates.
+    """Base class for all the templates.
 
-        This class is the base of all templates and provide the necessary interface
-        that all templates should implement to be usable by the library.
+    This class is the base of all templates and provide the necessary
+    interface that all templates should implement to be usable by the
+    library.
+    """
+
+    def __init__(self, default_increments: Displacement | None = None) -> None:
+        """Construct an instance of the template.
 
         Args:
             default_increments: default increments between two plaquettes. Defaults
-                to `Displacement(2, 2)` when `None`
+                to ``Displacement(2, 2)`` when ``None``
         """
         super().__init__()
         self._default_increments = default_increments or Displacement(2, 2)
@@ -39,7 +46,7 @@ class Template(ABC):
             k: scaling parameter used to instantiate the template.
             plaquette_indices: the plaquette indices that will be forwarded to
                 the underlying Shape instance's instantiate method. Defaults
-                to `range(1, self.expected_plaquettes_number + 1)` if `None`.
+                to ``range(1, self.expected_plaquettes_number + 1)`` if ``None``.
 
         Returns:
             a numpy array with the given plaquette indices arranged according to
@@ -61,10 +68,10 @@ class Template(ABC):
     ) -> list[tuple[int, int]]:
         """Returns the default observable qubits for the template.
 
-        If the template has a simple shape, this returns the plaquettes on the ``midline''
-        of the template.
-        By convention, it returns the plaquettes above the midline for the horizontal case
-        and to the left of the midline for the vertical case.
+        If the template has a simple shape, this returns the plaquettes on the
+        "midline" of the template.
+        By convention, it returns the plaquettes above the midline for the
+        horizontal case and to the left of the midline for the vertical case.
 
         Args:
             orientation: Horizontal or vertical qubits. Defaults to horizontal.
@@ -90,11 +97,11 @@ class Template(ABC):
     @property
     @abstractmethod
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the `instantiate`
-        method.
+        """Returns the number of plaquettes expected from the
+        :py:meth:`instantiate` method.
 
         Returns:
-            the number of plaquettes expected from the `instantiate` method.
+            the number of plaquettes expected from the :py:meth:`instantiate` method.
         """
 
     def get_increments(self) -> Displacement:
@@ -121,11 +128,12 @@ class Template(ABC):
         Args:
             k: scaling parameter used to instantiate the template.
             manhattan_radius: radius of the considered ball using the Manhattan
-                distance. Only squares with sides of `2*manhattan_radius+1`
+                distance. Only squares with sides of ``2*manhattan_radius+1``
                 plaquettes will be considered.
-            avoid_zero_plaquettes: `True` if sub-templates with an empty plaquette
-                (i.e., 0 value in the instantiation of the Template instance) at
-                its center should be ignored. Default to `True`.
+            avoid_zero_plaquettes: ``True`` if sub-templates with an empty plaquette
+                (i.e., 0 value in the instantiation of the
+                :class:`~tqec.templates.base.Template` instance) at its center
+                should be ignored. Default to ``True``.
 
         Returns:
             a representation of all the sub-templates found.
@@ -138,8 +146,9 @@ class Template(ABC):
         """Coordinates of the top-left entry origin.
 
         This property returns the coordinates of the origin of the plaquette
-        (:class:`Plaquette.origin`) that corresponds to the top-left entry of
-        the array returned by :meth:`Template.instantiate`.
+        (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
+        to the top-left entry of the array returned by
+        :meth:`~tqec.templates.base.Template.instantiate`.
 
         Note:
             the returned coordinates are in plaquette coordinates. That means
@@ -152,13 +161,16 @@ class Template(ABC):
 
         Returns:
             the coordinates of the origin of the plaquette
-            (:class:`Plaquette.origin`) that corresponds to the top-left entry
-            of the array returned by :meth:`Template.instantiate`.
+            (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
+            to the top-left entry of the array returned by
+            :meth:`~tqec.templates.base.Template.instantiate`.
         """
         return Position2D(0, 0)
 
 
 class RectangularTemplate(Template):
+    """Base class for all the templates that have a rectangular shape."""
+
     @override
     def get_midline_plaquettes(
         self, k: int, orientation: TemplateOrientation = TemplateOrientation.HORIZONTAL

@@ -3,37 +3,22 @@ import pytest
 
 from tqec.exceptions import TQECWarning
 from tqec.scale import LinearFunction, Scalable2D
-from tqec.templates.qubit import (
-    Qubit4WayJunctionTemplate,
-    QubitHorizontalBorders,
-    QubitTemplate,
-    QubitVerticalBorders,
-)
+from tqec.templates.qubit import Qubit4WayJunctionTemplate, QubitTemplate
 
 
 def test_creation() -> None:
     QubitTemplate()
-    QubitHorizontalBorders()
-    QubitVerticalBorders()
     Qubit4WayJunctionTemplate()
 
 
 def test_expected_plaquettes_number() -> None:
     assert QubitTemplate().expected_plaquettes_number == 14
-    assert QubitHorizontalBorders().expected_plaquettes_number == 8
-    assert QubitVerticalBorders().expected_plaquettes_number == 8
     assert Qubit4WayJunctionTemplate().expected_plaquettes_number == 15
 
 
 def test_scalable_shape() -> None:
     assert QubitTemplate().scalable_shape == Scalable2D(
         LinearFunction(2, 2), LinearFunction(2, 2)
-    )
-    assert QubitHorizontalBorders().scalable_shape == Scalable2D(
-        LinearFunction(2, 2), LinearFunction(0, 2)
-    )
-    assert QubitVerticalBorders().scalable_shape == Scalable2D(
-        LinearFunction(0, 2), LinearFunction(2, 2)
     )
     assert Qubit4WayJunctionTemplate().scalable_shape == Scalable2D(
         LinearFunction(2, 2), LinearFunction(2, 2)
@@ -66,54 +51,6 @@ def test_qubit_template_instantiation() -> None:
             [7, 9, 10, 9, 10, 9, 10, 9, 10, 11],
             [8, 10, 9, 10, 9, 10, 9, 10, 9, 12],
             [3, 13, 14, 13, 14, 13, 14, 13, 14, 4],
-        ],
-    )
-
-
-def test_qubit_vertical_borders_template_instantiation() -> None:
-    template = QubitVerticalBorders()
-    numpy.testing.assert_array_equal(
-        template.instantiate(2),
-        [
-            [1, 2],
-            [5, 7],
-            [6, 8],
-            [5, 7],
-            [6, 8],
-            [3, 4],
-        ],
-    )
-    numpy.testing.assert_array_equal(
-        template.instantiate(4),
-        [
-            [1, 2],
-            [5, 7],
-            [6, 8],
-            [5, 7],
-            [6, 8],
-            [5, 7],
-            [6, 8],
-            [5, 7],
-            [6, 8],
-            [3, 4],
-        ],
-    )
-
-
-def test_qubit_horizontal_borders_template_instantiation() -> None:
-    template = QubitHorizontalBorders()
-    numpy.testing.assert_array_equal(
-        template.instantiate(2),
-        [
-            [1, 5, 6, 5, 6, 2],
-            [3, 7, 8, 7, 8, 4],
-        ],
-    )
-    numpy.testing.assert_array_equal(
-        template.instantiate(4),
-        [
-            [1, 5, 6, 5, 6, 5, 6, 5, 6, 2],
-            [3, 7, 8, 7, 8, 7, 8, 7, 8, 4],
         ],
     )
 

@@ -1,3 +1,6 @@
+"""Defines functions to plot ZX graphs and correlation surfaces on 3D axes with
+``matplotlib``."""
+
 from dataclasses import astuple
 from typing import cast
 
@@ -7,14 +10,14 @@ import numpy.typing as npt
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 from tqec.computation.correlation import CorrelationSurface
-from tqec.interop.color import RGBA
+from tqec.interop.color import RGBA, TQECColor
 from tqec.position import Position3D
 from tqec.computation.zx_graph import ZXKind, ZXGraph, ZXNode
 
 NODE_COLOR: dict[ZXKind, RGBA] = {
-    ZXKind.X: RGBA.x_color(),
-    ZXKind.Y: RGBA.y_color(),
-    ZXKind.Z: RGBA.z_color(),
+    ZXKind.X: TQECColor.X.rgba,
+    ZXKind.Y: TQECColor.Y.rgba,
+    ZXKind.Z: TQECColor.Z.rgba,
 }
 
 
@@ -31,7 +34,8 @@ def draw_zx_graph_on(
     edge_width: int = 1,
     annotate_ports: bool = True,
 ) -> None:
-    """Draw the 3D graph using matplotlib on the provided figure.
+    """Draw the :py:class:`~tqec.computation.zx_graph.ZXGraph` on the provided
+    axes.
 
     Args:
         graph: The ZX graph to draw.
@@ -110,7 +114,7 @@ def draw_correlation_surface_on(
     Args:
         correlation_surface: The correlation surface to draw.
         ax: The 3-dimensional ax to draw on.
-        correlation_edge_width: The width of the correlation edge. Default is 3.
+        correlation_edge_width: The width of the correlation edges. Default is 3.
     """
     span = correlation_surface.span
     if isinstance(span, ZXNode):
@@ -163,15 +167,22 @@ def plot_zx_graph(
     node_size: int = 400,
     hadamard_size: int = 200,
     edge_width: int = 1,
+    annotate_ports: bool = True,
 ) -> tuple[Figure, Axes3D]:
-    """Draw the 3D graph using matplotlib.
+    """Plot the :py:class:`~tqec.computation.zx_graph.ZXGraph` using
+    matplotlib.
 
     Args:
+        graph: The ZX graph to plot.
         figsize: The figure size. Default is (5, 6).
-        title: The title of the plot. Default is the name of the graph.
-        node_size: The size of the node. Default is 400.
-        hadamard_size: The size of the Hadamard transition. Default is 200.
-        edge_width: The width of the edge. Default is 1.
+        title: The title of the plot. Default to the name of the graph.
+        node_size: The size of the node in the plot. Default is 400.
+        hadamard_size: The size of the Hadamard square in the plot. Default is 200.
+        edge_width: The width of the edge in the plot. Default is 1.
+        annotate_ports: Whether to annotate the ports if they are present. Default is True.
+
+    Returns:
+        A tuple of the figure and the axes.
     """
     import matplotlib.pyplot as plt
 
@@ -184,6 +195,7 @@ def plot_zx_graph(
         node_size=node_size,
         hadamard_size=hadamard_size,
         edge_width=edge_width,
+        annotate_ports=annotate_ports,
     )
 
     ax.set_title(title or graph.name)

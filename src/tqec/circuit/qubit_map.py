@@ -1,3 +1,13 @@
+"""Defines core data-structures to handle the mapping between qubit coordinates
+(as :class:`~tqec.circuit.qubit.GridQubit` instances) and qubit indices.
+
+A bijection from qubit coordinates to qubit indices is represented by
+:class:`QubitMap` defined in this module.
+
+This bijection can be obtained from a ``stim.Circuit`` instance by using
+:func:`get_qubit_map`.
+"""
+
 from __future__ import annotations
 
 import functools
@@ -14,7 +24,8 @@ from tqec.scale import round_or_fail
 
 @dataclass(frozen=True)
 class QubitMap:
-    """Represent a bijection between :class:`GridQubit` instances and indices.
+    """Represent a bijection between :class:`~tqec.circuit.qubit.GridQubit`
+    instances and indices.
 
     This class aims at representing a bidirectional mapping (hence the
     "bijection") between qubits and their associated indices.
@@ -38,8 +49,8 @@ class QubitMap:
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
-        """Creates a qubit map from the provided `qubits`, associating indices
-        using the order in which qubits are provided."""
+        """Creates a qubit map from the provided ``qubits``, associating
+        indices using the order in which qubits are provided."""
         return QubitMap(dict(enumerate(qubits)))
 
     @staticmethod
@@ -61,16 +72,16 @@ class QubitMap:
     def with_mapped_qubits(
         self, qubit_map: Callable[[GridQubit], GridQubit]
     ) -> QubitMap:
-        """Change the qubits involved in `self` without changing the associated
-        indices.
+        """Change the qubits involved in ``self`` without changing the
+        associated indices.
 
         Args:
             qubit_map: a map from qubits to qubits that should associate a qubit
-                to each of the qubits represented by `self`.
+                to each of the qubits represented by ``self``.
 
         Raises:
-            KeyError: if any qubit in `self.qubits` is not present in the keys of
-                the provided `qubit_map`.
+            KeyError: if any qubit in ``self.qubits`` is not present in the keys of
+                the provided ``qubit_map``.
 
         Returns:
             a new instance representing the updated mapping.
@@ -82,21 +93,21 @@ class QubitMap:
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[GridQubit]) -> QubitMap:
         """Filter the qubit map to only keep qubits present in the provided
-        `qubits_to_keep`.
+        ``qubits_to_keep``.
 
         Args:
             qubits_to_keep: the qubits to keep in the circuit.
 
         Returns:
-            a copy of `self` for which the assertion
-            `set(return_value.qubits).issubset(qubits_to_keep)` is `True`.
+            a copy of ``self`` for which the assertion
+            ``set(return_value.qubits).issubset(qubits_to_keep)`` is ``True``.
         """
         kept_qubits = frozenset(qubits_to_keep)
         return QubitMap({i: q for i, q in self.i2q.items() if q in kept_qubits})
 
     def to_circuit(self) -> stim.Circuit:
-        """Get a circuit with only `QUBIT_COORDS` instructions representing
-        `self`."""
+        """Get a circuit with only ``QUBIT_COORDS`` instructions representing
+        ``self``."""
         ret = stim.Circuit()
         for qi, qubit in sorted(self.i2q.items(), key=lambda t: t[0]):
             ret.append("QUBIT_COORDS", qi, (float(qubit.x), float(qubit.y)))
@@ -105,12 +116,12 @@ class QubitMap:
 
 def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
     """Returns the existing qubits and their coordinates at the end of the
-    provided `circuit`.
+    provided ``circuit``.
 
     Warning:
         This function, just like
-        [`stim.Circuit.get_final_qubit_coordinates`](https://github.com/quantumlib/Stim/blob/main/doc/python_api_reference_vDev.md#stim.Circuit.get_final_qubit_coordinates),
-        returns the qubit coordinates **at the end** of the provided `circuit`.
+        `stim.Circuit.get_final_qubit_coordinates <https://github.com/quantumlib/Stim/blob/main/doc/python_api_reference_vDev.md#stim.Circuit.get_final_qubit_coordinates>`_,
+        returns the qubit coordinates **at the end** of the provided ``circuit``.
 
     Args:
         circuit: instance to get qubit coordinates from.

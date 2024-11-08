@@ -6,7 +6,7 @@ import stim
 from tqec.circuit.detectors.construction import annotate_detectors_automatically
 from tqec.compile.compile import CompiledGraph, compile_block_graph
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
-from tqec.noise_models import NoiseModel
+from tqec.noise_model import NoiseModel
 from tqec.gallery import logical_cnot_block_graph
 
 BENCHMARK_FOLDER = Path(__file__).resolve().parent

@@ -232,14 +232,14 @@ def build_flows_from_fragments(
     should be checked (recursively if there is any FragmentLoop instance in
     the provided fragments):
 
-    ```py
-    fragments: list[Fragment | FragmentLoop] = []  # anything here
-    flows = build_flows_from_fragments(fragments)
-    for frag, flow in zip(fragments, flows):
-        assert (isinstance(frag, Fragment) and isinstance(flow, FragmentFlow)) or (
-            isinstance(frag, FragmentLoop) and isinstance(flow, FragmentLoopFlow)
-        )
-    ```
+    .. code-block:: python
+
+        fragments: list[Fragment | FragmentLoop] = []  # anything here
+        flows = build_flows_from_fragments(fragments)
+        for frag, flow in zip(fragments, flows):
+            assert (isinstance(frag, Fragment) and isinstance(flow, FragmentFlow)) or (
+                isinstance(frag, FragmentLoop) and isinstance(flow, FragmentLoopFlow)
+            )
 
     Args:
         fragments: the fragments composing the circuit to study and for which this

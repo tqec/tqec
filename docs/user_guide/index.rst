@@ -1,5 +1,3 @@
-.. _user_guide:
-
 User Guide
 ==========
 
@@ -15,4 +13,5 @@ User Guide
    :maxdepth: 1
    :caption: Tutorials
 
-   Detectors Computation <detectors>
+   collada_interop.ipynb
+   Detectors Computation <detectors/index>

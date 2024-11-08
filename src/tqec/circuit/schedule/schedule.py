@@ -1,3 +1,6 @@
+"""Defines the :class:`~.schedule.Schedule` class, a thin wrapper around
+``list[int]`` to represent a schedule."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -8,7 +11,7 @@ from tqec.circuit.schedule.exception import ScheduleException
 
 @dataclass
 class Schedule:
-    """Thin wrapper around `list[int]` to represent a schedule.
+    """Thin wrapper around ``list[int]`` to represent a schedule.
 
     This class ensures that the list of integers provided is a valid
     schedule by checking that all entries are positive integers, that
@@ -16,8 +19,10 @@ class Schedule:
     """
 
     schedule: list[int] = field(default_factory=list)
+    """List of integers representing the schedule."""
 
     _INITIAL_SCHEDULE: ClassVar[int] = 0
+    """First entry of a default-constructed schedule."""
 
     def __post_init__(self) -> None:
         Schedule._check_schedule(self.schedule)
@@ -27,7 +32,7 @@ class Schedule:
         """Get a valid schedule from offsets.
 
         This method should be used to avoid any dependency on
-        `Schedule._INITIAL_SCHEDULE` in user code.
+        :py:const:`Schedule._INITIAL_SCHEDULE` in user code.
         """
         return Schedule([Schedule._INITIAL_SCHEDULE + s for s in schedule_offsets])
 
@@ -58,7 +63,7 @@ class Schedule:
 
         If inserting the integer results in an invalid schedule, the schedule is
         brought back to its (valid) original state before calling this function
-        and a `ScheduleException` is raised.
+        and a :py:exc:`~.schedule.exception.ScheduleException` is raised.
 
         Args:
             i: index at which the provided value should be inserted.
@@ -80,7 +85,7 @@ class Schedule:
 
         If appending the integer results in an invalid schedule, the schedule is
         brought back to its (valid) original state before calling this function
-        and a `ScheduleException` is raised.
+        and a :py:exc:`~.schedule.exception.ScheduleException` is raised.
 
         Args:
             value: value to insert.
@@ -100,7 +105,6 @@ class Schedule:
         starting_index = (
             self.schedule[-1] + 1 if self.schedule else Schedule._INITIAL_SCHEDULE
         )
-        # Note: not using a generator here but explicitly constructing a list
-        #       because if `schedule == self` a generator would induce an
-        #       infinite loop.
+        # Not using a generator here but explicitly constructing a list because
+        # if `schedule == self` a generator would induce an infinite loop.
         self.schedule.extend([starting_index + s for s in schedule.schedule])

@@ -19,7 +19,22 @@ from tqec.position import Direction3D
 def convert_block_graph_to_zx_graph(
     block_graph: BlockGraph, name: str | None = None
 ) -> ZXGraph:
-    """Convert the block graph to a ZX graph."""
+    """Convert a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
+    :py:class:`~tqec.computation.zx_graph.ZXGraph`.
+
+    The conversion process is as follows:
+
+    1. For each cube in the block graph, convert it to a ZX node by calling :py:meth:`~tqec.computation.cube.Cube.to_zx_node`.
+    2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.
+
+    Args:
+        block_graph: The block graph to be converted to a ZX graph.
+        name: The name of the new ZX graph. If None, the name of the block graph will be used.
+
+    Returns:
+        The :py:class:`~tqec.computation.zx_graph.ZXGraph` object converted from the block graph.
+    """
+
     zx_graph = ZXGraph(name or block_graph.name)
     for cube in block_graph.nodes:
         zx_graph.add_node(cube.to_zx_node())
@@ -33,11 +48,17 @@ def convert_block_graph_to_zx_graph(
 def convert_zx_graph_to_block_graph(
     zx_graph: ZXGraph, name: str | None = None
 ) -> BlockGraph:
-    """Convert the ZX graph to a block graph.
+    """Convert a :py:class:`~tqec.computation.zx_graph.ZXGraph` to a
+    :py:class:`~tqec.computation.block_graph.BlockGraph`.
 
-    The ZX graph includes the minimal information required to construct the block graph,
-    but is not guaranteed to admit a valid block structure. The block structure will be inferred
-    from the ZX graph and validated.
+    Currently, the conversion respects the explicit 3D structure of the ZX graph. And convert node by node, edge by edge.
+    Future work may include automatic compilation from a simplified or a more general ZX diagram to a block graph implementation.
+
+    To successfully convert a ZX graph to a block graph, the following necessary conditions must be satisfied:
+
+    - The ZX graph itself is a valid representation, i.e. :py:meth:`~tqec.computation.zx_graph.ZXGraph.check_invariants` does not raise an exception.
+    - Every nodes in the ZX graph connects to edges at most in two directions, i.e. there is no 3D corner node.
+    - Y nodes in the ZX graph can only have edges in time direction.
 
     The conversion process is as follows:
 
@@ -45,17 +66,28 @@ def convert_zx_graph_to_block_graph(
     2. Construct pipes connecting ports/Y to ports/Y nodes.
     3. Greedily construct the pipes until no more pipes can be inferred.
     4. If there are still nodes left, then choose orientation for an arbitrary node
-       and repeat 3. Repeat 4 until all nodes are handled or conflicts are detected.
+       and repeat step 3 and 4 until all nodes are handled or conflicts are detected.
 
     Args:
-        zx_graph: The base ZX graph to construct the block graph.
+        zx_graph: The ZX graph to be converted to a block graph.
         name: The name of the new block graph. If None, the name of the ZX graph will be used.
 
     Returns:
-        The constructed block graph.
+        The :py:class:`~tqec.computation.block_graph.BlockGraph` object converted from the ZX graph.
+
+    Raises:
+        TQECException: If the ZX graph does not satisfy the necessary conditions
+            or there are inference conflicts during the conversion.
     """
-    # validate the ZX graph before constructing the block graph
-    zx_graph.raise_if_cannot_be_valid_computation()
+    # Check necessary conditions
+    zx_graph.check_invariants()
+    for node in zx_graph.nodes:
+        if len({e.direction for e in zx_graph.edges_at(node.position)}) == 3:
+            raise TQECException(f"ZX graph has a 3D corner at {node.position}.")
+        if node.is_y_node:
+            (edge,) = zx_graph.edges_at(node.position)
+            if not edge.direction == Direction3D.Z:
+                raise TQECException("The Y node must only has Z-direction edge.")
 
     nodes_to_handle = set(zx_graph.nodes)
     edges_to_handle = set(zx_graph.edges)

@@ -20,7 +20,7 @@ def test_logical_cnot_collada_write_read(pipe_length: float) -> None:
         block_graph.to_dae_file(temp_file.name, pipe_length)
         block_graph_from_file = BlockGraph.from_dae_file(temp_file.name)
         assert block_graph_from_file == block_graph
-        assert block_graph_from_file.to_zx_graph() == logical_cnot_zx_graph("X")
+        assert block_graph_from_file.to_zx_graph() == logical_cnot_zx_graph("Z")
 
     # Manually delete the temporary file
     os.remove(temp_file.name)
@@ -33,12 +33,12 @@ def test_three_cnots_collada_write_read(pipe_length: float) -> None:
         block_graph.to_dae_file(temp_file.name, pipe_length)
         block_graph_from_file = BlockGraph.from_dae_file(temp_file.name)
         assert block_graph_from_file == block_graph
-        assert block_graph_from_file.to_zx_graph() == three_cnots_zx_graph("Z")
+        assert block_graph_from_file.to_zx_graph() == three_cnots_zx_graph("X")
     os.remove(temp_file.name)
 
 
 def test_open_ports_roundtrip_not_equal() -> None:
-    block_graph = logical_cnot_block_graph("OPEN")
+    block_graph = logical_cnot_block_graph("BOTH")
     with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
         block_graph.to_dae_file(temp_file.name, 2.0)
         block_graph_from_file = BlockGraph.from_dae_file(temp_file.name)
@@ -75,6 +75,6 @@ def test_collada_write_read_with_correlation_surface() -> None:
             )
             block_graph_from_file = BlockGraph.from_dae_file(temp_file.name)
             assert block_graph_from_file == block_graph
-            assert block_graph_from_file.to_zx_graph() == logical_cnot_zx_graph("X")
+            assert block_graph_from_file.to_zx_graph() == logical_cnot_zx_graph("Z")
 
     os.remove(temp_file.name)

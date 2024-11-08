@@ -1,8 +1,9 @@
-"""Defines :class:`GridQubit` and helper functions to manage qubits.
+"""Defines :class:`~tqec.circuit.qubit.GridQubit` and helper functions to
+manage qubits.
 
 This module defines a central class to represent a qubit placed on a
 2-dimensional grid, :class:`GridQubit`, and a few functions to extract
-qubit-related information from `stim.Circuit` instances.
+qubit-related information from ``stim.Circuit`` instances.
 """
 
 from __future__ import annotations
@@ -25,15 +26,17 @@ class GridQubit:
 
     @property
     def x(self) -> int:
+        """Coordinate of the qubit in the first spatial dimension."""
         return self._x
 
     @property
     def y(self) -> int:
+        """Coordinate of the qubit in the second spatial dimension."""
         return self._y
 
     def to_qubit_coords_instruction(self, index: int) -> stim.CircuitInstruction:
-        """Return the `QUBIT_COORDS` `stim.CircuitInstruction` needed to define
-        `self` in a `stim.Circuit`."""
+        """Return the ``QUBIT_COORDS`` ``stim.CircuitInstruction`` needed to
+        define ``self`` in a ``stim.Circuit``."""
         return stim.CircuitInstruction(
             "QUBIT_COORDS",
             [index],
@@ -102,7 +105,7 @@ def count_qubit_accesses(circuit: stim.Circuit) -> dict[int, int]:
     is not an annotation.
 
     Note:
-        If a `REPEAT` instruction is found, each qubit access within the
+        If a ``REPEAT`` instruction is found, each qubit access within the
         repeated block will be multiplied by the number of time the block is
         repeated.
 

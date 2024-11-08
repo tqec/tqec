@@ -18,7 +18,7 @@ from tqec.compile.specs.library.zxxz import (
     ZXXZ_SUBSTITUTION_BUILDER,
 )
 from tqec.gallery import logical_cnot_block_graph
-from tqec.noise_models import NoiseModel
+from tqec.noise_model import NoiseModel
 from tqec.simulation.plotting.inset import plot_observable_as_inset
 from tqec.simulation.simulation import start_simulation_using_sinter
 

@@ -1,9 +1,10 @@
 """Implementation of different noise models for Stim.
 
-# Important note:
+Important note:
+---------------
 
 This file has been recovered from https://zenodo.org/records/7487893
-and is under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/legalcode)
+and is under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/legalcode).
 It is part of the code from the paper
 
     Gidney, C. (2022). Data for "Inplace Access to the Surface Code Y Basis".
@@ -11,13 +12,15 @@ It is part of the code from the paper
 
 
 Modifications to the original code:
+
 1. Formatting with ruff.
 2. Fixing typing issues and adapting a few imports to personal taste.
-3. A minor adjustment to the measurement noise rules of `uniform_depolarizing`
-and `si1000` noise models: the depolarizing error on the measured qubits after
-measurement is removed because, in our library, all measurements are immediately
-followed by resets. As a result, the depolarizing error has no effect.
-4. Remove the `depolarizing_two_body_measurement_noise` noise model.
+3. A minor adjustment to the measurement noise rules of ``uniform_depolarizing``
+   and ``si1000`` noise models: the depolarizing error on the measured qubits
+   after measurement is removed because, in our library, all measurements are
+   immediately followed by resets. As a result, the depolarizing error has no
+   effect.
+4. Remove the ``depolarizing_two_body_measurement_noise`` noise model.
 """
 
 from collections import Counter, defaultdict

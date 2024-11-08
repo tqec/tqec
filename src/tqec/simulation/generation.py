@@ -7,7 +7,7 @@ import sinter
 import stim
 
 from tqec.compile.compile import CompiledGraph
-from tqec.noise_models.noise_model import NoiseModel
+from tqec.noise_model import NoiseModel
 
 
 def _parallel_func(
@@ -44,13 +44,13 @@ def generate_stim_circuits_with_detectors(
 
     It is equivalent to:
 
-    ```py
-    for p in ps:
-        for k in ks:
-            yield (
-                compiled_graph.generate_stim_circuit(k, noise_model_factory(p)), k, p
-            )
-    ```
+    .. code-block:: python
+
+        for p in ps:
+            for k in ks:
+                yield (
+                    compiled_graph.generate_stim_circuit(k, noise_model_factory(p)), k, p
+                )
 
     except that the order in which the results are returned is not guaranteed.
 

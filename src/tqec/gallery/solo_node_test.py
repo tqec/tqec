@@ -15,10 +15,10 @@ def test_solo_node_zx_graph() -> None:
 
 
 def test_solo_node_block_graph() -> None:
-    g = solo_node_block_graph("Z")
+    g = solo_node_block_graph("X")
     assert len(g.nodes) == 1
     assert g.nodes[0] == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXX"))
 
-    g = solo_node_block_graph("X")
+    g = solo_node_block_graph("Z")
     assert len(g.nodes) == 1
     assert g.nodes[0] == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))

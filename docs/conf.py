@@ -48,6 +48,9 @@ extensions = [
     # An extension allowing the inclusion of Jupyter notebooks.
     # https://nbsphinx.readthedocs.io/en/0.9.3/
     "nbsphinx",
+    # Include Mermaid diagrams in the documentation
+    # https://sphinxcontrib-mermaid-demo.readthedocs.io/en/latest/
+    "sphinxcontrib.mermaid",
 ]
 
 templates_path = ["_templates"]
@@ -130,6 +133,13 @@ def setup(app):
     app.connect("autodoc-skip-member", autodoc_skip_member_handler)
 
 
+autodoc_member_order = "groupwise"
+# See https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autoclass_content
+autoclass_content = "both"
+autodoc_default_options = {
+    "show-inheritance": True,
+}
+
 # Automatically execute and import some notebooks in the documentation.
 
 # In order for Crumble IFrames to be included correctly, 1200px seems
@@ -145,6 +155,10 @@ nbsphinx_prolog = """
         }
     </style>
 """
+nbsphinx_thumbnails = {
+    "gallery/cnot": "_static/media/gallery/cnot.png",
+    "gallery/memory": "_static/media/gallery/memory.png",
+}
 
 # -- Options for autosummary extension ---------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html

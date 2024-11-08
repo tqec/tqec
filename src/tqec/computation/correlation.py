@@ -1,3 +1,6 @@
+"""Defines the :py:class:`~tqec.computation.correlation.CorrelationSurface` and
+the functions to find the correlation surfaces in the ZX graph."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -106,12 +109,13 @@ class CorrelationSurface:
 def find_correlation_surfaces(
     zx_graph: ZXGraph,
 ) -> list[CorrelationSurface]:
-    """Find the correlation surfaces in the ZX graph.
+    """Find all the
+    :py:class:`~tqec.computation.correlation.CorrelationSurface` in a ZX graph.
 
-    The algorithm starts from each leaf node in the graph, and find the correlation surfaces
-    using the flood fill like algorithm.
+    It starts from each leaf node in the graph, and finds the correlation surfaces using a variant
+    of flood-fill algorithm.
 
-    For Z/X type node, the correlation surface must start from the opposite type node. For the
+    For Z/X type correlation surface, the correlation surface must start from the opposite type node. For the
     Port, the correlation surface can start from both X/Z type node. For the Y type node, the
     correlation surface must be the product of the X and Z type.
 
@@ -121,7 +125,7 @@ def find_correlation_surfaces(
     Returns:
         A list of `CorrelationSurface` in the graph.
     """
-    zx_graph.raise_if_cannot_be_valid_computation()
+    zx_graph.check_invariants()
     # Edge case: single node graph
     if zx_graph.num_nodes == 1:
         return [

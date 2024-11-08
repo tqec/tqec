@@ -1,6 +1,14 @@
 How to contribute
 =================
 
+Architecture Overview
+---------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   architecture
+
 Installation procedure (for developers)
 ---------------------------------------
 

@@ -14,7 +14,7 @@ from tqec.compile.specs.library.zxxz import (
     ZXXZ_SUBSTITUTION_BUILDER,
 )
 from tqec.gallery.logical_cnot import logical_cnot_block_graph
-from tqec.noise_models import NoiseModel
+from tqec.noise_model import NoiseModel
 from tqec.simulation.plotting.inset import plot_observable_as_inset
 from tqec.simulation.simulation import start_simulation_using_sinter
 
@@ -23,9 +23,11 @@ TQEC_FOLDER = EXAMPLE_FOLDER.parent
 ASSETS_FOLDER = TQEC_FOLDER / "assets"
 
 
-def generate_graphs(style: Literal["css", "zxxz"], basis: Literal["Z", "X"]) -> None:
+def generate_graphs(
+    style: Literal["css", "zxxz"], support_observable_basis: Literal["Z", "X"]
+) -> None:
     # 1 Create `BlockGraph` representing the computation
-    block_graph = logical_cnot_block_graph(basis)
+    block_graph = logical_cnot_block_graph(support_observable_basis)
     zx_graph = block_graph.to_zx_graph()
 
     # 2. Find and choose the logical observables
@@ -67,7 +69,8 @@ def generate_graphs(style: Literal["css", "zxxz"], basis: Literal["Z", "X"]) -> 
         ax.loglog()
         ax.set_title(f"{style.upper()} Logical CNOT Error Rate")
         fig.savefig(
-            ASSETS_FOLDER / f"{style}_logical_cnot_result_{basis}_observable_{i}.png"
+            ASSETS_FOLDER
+            / f"{style}_logical_cnot_result_{support_observable_basis}_observable_{i}.png"
         )
 
 

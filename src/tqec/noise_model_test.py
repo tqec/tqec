@@ -20,7 +20,7 @@ Modifications to the original code:
 
 import stim
 
-from tqec.noise_models.noise_model import (
+from tqec.noise_model import (
     NoiseModel,
     _iter_split_op_moments,
     _measure_basis,

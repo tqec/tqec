@@ -1,20 +1,35 @@
-from typing import Literal
+"""Build the computation graphs that represent three logical CNOT gates
+compressed in spacetime."""
+
+from typing import Literal, cast
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.zx_graph import ZXGraph, ZXKind, ZXNode
 from tqec.position import Position3D
 
 
-def three_cnots_zx_graph(port_type: Literal["X", "Z", "OPEN"]) -> ZXGraph:
-    """Three CNOT ZX graph.
+def three_cnots_zx_graph(port_kind: Literal["X", "Z", "OPEN"]) -> ZXGraph:
+    """Create a ZX graph for three logical CNOT gates compressed in spacetime.
 
-    Implement the following circuit:
-    ```
-    CNOT 0 1
-    CNOT 1 2
-    CNOT 0 2
-    ```
+    The three CNOT gates are applied in the following order:
+
+    .. code-block:: text
+
+        q0: -@---@-
+             |   |
+        q1: -X-@-|-
+               | |
+        q2: ---X-X-
+
+    Args:
+        port_kind: The node kind to fill the six ports of the ZX graph
+            It can be either "Z", "X", or "OPEN". If "OPEN", the ports are
+            left open. Otherwise, the ports are filled with the given node kind.
+
+    Returns:
+        A :py:class:`~tqec.computation.zx_graph.ZXGraph` instance representing the
+        three logical CNOT gates compressed in spacetime.
     """
-    g = ZXGraph("Three CNOT")
+    g = ZXGraph("Three CNOTs")
     g.add_edge(
         ZXNode(Position3D(-1, 0, 0), ZXKind.P, "Out_a"),
         ZXNode(Position3D(0, 0, 0), ZXKind.Z),
@@ -64,11 +79,33 @@ def three_cnots_zx_graph(port_type: Literal["X", "Z", "OPEN"]) -> ZXGraph:
         ZXNode(Position3D(1, 1, 1), ZXKind.Z),
     )
 
-    if port_type != "OPEN":
-        g.fill_ports(ZXKind(port_type.upper()))
+    if port_kind != "OPEN":
+        g.fill_ports(ZXKind(port_kind.upper()))
     return g
 
 
-def three_cnots_block_graph(port_type: Literal["X", "Z", "OPEN"]) -> BlockGraph:
-    zx_graph = three_cnots_zx_graph(port_type)
-    return zx_graph.to_block_graph("Three CNOT")
+def three_cnots_block_graph(
+    support_observable_basis: Literal["X", "Z", "BOTH"],
+) -> BlockGraph:
+    """Create a block graph for three logical CNOT gates compressed in
+    spacetime.
+
+    Args:
+        support_observable_basis: The observable basis that the block graph can support.
+            It can be either "Z", "X", or "BOTH". Note that a cube at the port can only
+            support the observable basis opposite to the cube. If "Z", the six ports of
+            the block graph are filled with X basis cubes. If "X", the six ports are
+            filled with Z basis cubes. If "BOTH", the ports are left open.
+
+    Returns:
+        A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing the
+        three logical CNOT gates compressed in spacetime.
+    """
+    if support_observable_basis == "BOTH":
+        port_kind = "OPEN"
+    elif support_observable_basis == "Z":
+        port_kind = "X"
+    else:
+        port_kind = "Z"
+    zx_graph = three_cnots_zx_graph(cast(Literal["Z", "X", "OPEN"], port_kind))
+    return zx_graph.to_block_graph("Three CNOTs")

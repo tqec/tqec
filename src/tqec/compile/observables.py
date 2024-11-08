@@ -1,10 +1,12 @@
+"""Provides helper functions to add observables to circuits."""
+
 import stim
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.computation.block_graph import Cube, Pipe
 from tqec.computation.abstract_observable import AbstractObservable
+from tqec.computation.block_graph import Cube, Pipe
 from tqec.computation.cube import ZXCube
 from tqec.exceptions import TQECException
 from tqec.position import Direction3D, Displacement, Shape2D

@@ -1,3 +1,29 @@
+"""Defines 2D and 3D data-structures storing vectors of integers.
+
+This module defines several classes to store pairs (2D) or 3-tuples (3D) of
+integers representing coordinates. They are used all over the code base to avoid
+any coordinate system mess and to explicitly annotate each coordinate with its
+significance. Basically, instead of having
+
+.. code-block:: python
+
+    coords = (0, 4)  # Is it (y, x) or (x, y)?
+    # 0 used below, but if the coords tuple was obtained from a call to
+    # `.shape` from a numpy array it should rather be a 1.
+    x = coords[0]
+
+we have
+
+.. code-block:: python
+
+    coords = Position2D(0, 4)
+    x = coords.x
+
+This is particularly useful when we, as humans, are mostly used to always have
+(x, y) coordinates but some libraries (such as numpy) reverse that order for
+indexing.
+"""
+
 from __future__ import annotations
 
 from dataclasses import astuple, dataclass

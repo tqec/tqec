@@ -1,13 +1,13 @@
 How to install ``tqec``
 =======================
 
-Requirements before installing
-------------------------------
+Requirements
+------------
 
 Python version
 ~~~~~~~~~~~~~~
 
-The ``tqec`` package only supports Python 3.10 and onward. If you have Python 3.9 or below,
+The ``tqec`` package only supports Python 3.10 and later. If you have Python 3.9 or earlier,
 please update your Python installation.
 
 Additional toolchains
@@ -18,10 +18,10 @@ example the case of the `pycryptosat <https://pypi.org/project/pycryptosat/>`_ d
 Pre-compiled Python packages that should be compatible with any GNU/Linux are provided
 by the author, but no pre-compiled package exist for Windows or MacOS.
 
-This means that, if you try to install the ``tqec`` package on Windows or MacOS, a working
+This means that if you try to install the ``tqec`` package on Windows or MacOS, a working
 C++ toolchain should also be installed on your system.
 
-Here is a list of potential issues you might encounter and how to solve them:
+Here are some potential issues you might encounter and their solutions:
 
 - `Failed building wheel for pycryptosat <https://github.com/tqec/tqec/issues/311>`_
 
@@ -31,20 +31,20 @@ Installation procedure
 (optional) Create a new environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is a good practice to create a specific virtual environment for the ``tqec`` package.
+It is a good practice to create a new virtual environment for mananging the dependencies of the ``tqec`` package.
 
 One way of doing that is using the native ``venv`` package of your python installation:
 
 .. code-block:: bash
 
-    python -m venv [path to where you want your virtual environment]/tqec
+    python -m venv .venv
     # On GNU/Linux and MacOS
-    source [path to where you want your virtual environment]/tqec/bin/activate
+    source .venv/bin/activate
     # On Windows
     ## In cmd.exe
-    [path to where you want your virtual environment]\tqec\Scripts\activate.bat
+    .venv\Scripts\activate.bat
     ## In PowerShell
-    [path to where you want your virtual environment]\tqec\Scripts\Activate.ps1
+    .venv\Scripts\Activate.ps1
 
 Install the ``tqec`` package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

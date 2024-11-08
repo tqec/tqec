@@ -10,7 +10,7 @@ from tqec.position import Position3D
 
 
 def test_abstract_observable_for_single_cube() -> None:
-    g = solo_node_block_graph("X")
+    g = solo_node_block_graph("Z")
     observables, correlation_surfaces = g.get_abstract_observables()
     assert len(observables) == len(correlation_surfaces) == 1
     assert observables[0] == AbstractObservable(

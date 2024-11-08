@@ -9,9 +9,7 @@ from tqec.templates.base import Template
 from tqec.templates.layout import LayoutTemplate
 from tqec.templates.qubit import (
     Qubit4WayJunctionTemplate,
-    QubitHorizontalBorders,
     QubitTemplate,
-    QubitVerticalBorders,
 )
 from tqec.templates.subtemplates import (
     get_spatially_distinct_3d_subtemplates,
@@ -21,8 +19,6 @@ from tqec.templates.subtemplates import (
 _TEMPLATES_TO_TEST = [
     QubitTemplate(),
     Qubit4WayJunctionTemplate(),
-    QubitHorizontalBorders(),
-    QubitVerticalBorders(),
     LayoutTemplate(
         {Position2D(0, 0): QubitTemplate(), Position2D(1, 1): QubitTemplate()}
     ),

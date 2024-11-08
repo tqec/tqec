@@ -1,18 +1,16 @@
-"""Define the main data structures to represent the logical computation.
+"""Defines the data structures to represent the logical computations.
 
-Under the context of topological quantum error correction, the logical computations
-can be represented by the spacetime defect diagrams. The topological structure of the
-spacetime diagram guides the computation and implements the desired logical subroutines.
+This module provides high-level abstractions to represent the fault-tolerant logical
+computations protected by surface code. There are two representations of the logical
+computation:
 
-This package defines the two main graph data structure to represent the spacetime diagram
-of the logical computation:
-
-- The :class:`ZXGraph` is in the form of a ZX-calculus graph and the representation is
-  based on the correspondence between the ZX-calculus and the lattice surgery.
-- The :class:`BlockGraph` specifies the explicit block structures of the spacetime diagram,
-  including the layout of the code patches, the boundary types and the connectivity of the
-  patches across the spacetime. The block graph can be compiled and used to generate the
-  concrete circuits that implement the logical computation.
+- :py:class:`~tqec.computation.zx_graph.ZXGraph`: A restricted form of the ZX graph from
+  the ZX-calculus. Rewriting rules from the ZX-calculus can be applied to the graph to
+  verify the functionality of the computation.
+- :py:class:`~tqec.computation.block_graph.BlockGraph`: A graph consisting of individual
+  building blocks that fully specify the boundary conditions and topological structures
+  of the logical computation. It corresponds to the commonly used 3D spacetime diagram
+  representation of a surface code logical computation.
 """
 
 from tqec.computation.zx_graph import ZXKind, ZXEdge, ZXGraph, ZXNode

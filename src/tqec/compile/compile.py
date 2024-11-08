@@ -1,3 +1,6 @@
+"""Defines :class:`~.compile.CompiledGraph` and
+:func:`~.compile.compile_block_graph`."""
+
 import itertools
 import warnings
 from dataclasses import dataclass
@@ -21,10 +24,10 @@ from tqec.compile.specs.base import (
     SubstitutionBuilder,
 )
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
-from tqec.computation.block_graph import BlockGraph
 from tqec.computation.abstract_observable import AbstractObservable
+from tqec.computation.block_graph import BlockGraph
 from tqec.exceptions import TQECException, TQECWarning
-from tqec.noise_models import NoiseModel
+from tqec.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
 from tqec.position import Direction3D, Position3D
 from tqec.scale import round_or_fail
@@ -39,14 +42,20 @@ class CompiledGraph:
     This class should be easy to scale and generate circuits directly.
 
     Attributes:
-        layout_slices: a list of `BlockLayout` objects that represent the compiled blocks
-            at contiguous time slices.
-        observables: a list of `AbstractObservable` objects that represent the observables
-            to be included in the compiled circuit.
+        layout_slices: a list of :class:`~tqec.templates.layout.BlockLayout`
+            instances that represent the compiled blocks at contiguous time
+            slices.
+        observables: a list of
+            :class:`~tqec.computation.abstract_observable.AbstractObservable`
+            instances that represent the observables to be included in the
+            compiled circuit.
     """
 
     layout_slices: list[BlockLayout]
+    """Timeslices of compiled blocks arranged as 2-dimensional slices."""
+
     observables: list[AbstractObservable]
+    """Observables to be included in the final ``stim.Circuit`` instance."""
 
     def __post_init__(self) -> None:
         if len(self.layout_slices) == 0:
@@ -67,18 +76,18 @@ class CompiledGraph:
         detector_database: DetectorDatabase | None = None,
         only_use_database: bool = False,
     ) -> stim.Circuit:
-        """Generate the stim circuit from the compiled graph.
+        """Generate the ``stim.Circuit`` from the compiled graph.
 
         Args:
-            k: The scale factor of the templates.
-            noise_models: The noise models to be applied to the circuit.
-            manhattan_radius: the radius considered to compute detectors.
+            k: scale factor of the templates.
+            noise_models: noise models to be applied to the circuit.
+            manhattan_radius: radius considered to compute detectors.
                 Detectors are not computed and added to the circuit if this
                 argument is negative.
             detector_database: an instance to retrieve from / store in detectors
                 that are computed as part of the circuit generation.
-            only_use_database: if True, only detectors from the database will be
-                used. An error will be raised if a situation that is not
+            only_use_database: if ``True``, only detectors from the database
+                will be used. An error will be raised if a situation that is not
                 registered in the database is encountered.
 
         Returns:
@@ -148,7 +157,7 @@ class CompiledGraph:
     ) -> QubitMap:
         """Equivalent to :func:`relabel_circuits_qubit_indices` but applied to
         nested lists and performing the modifications in-place in the provided
-        `circuits`.
+        ``circuits``.
 
         Args:
             circuits: circuit instances to remap. This parameter is mutated by
@@ -184,18 +193,18 @@ class CompiledGraph:
         detector_database: DetectorDatabase | None = None,
         only_use_database: bool = False,
     ) -> None:
-        """Compute and add in-place to `circuits` valid detectors.
+        """Compute and add in-place to ``circuits`` valid detectors.
 
         Args:
             circuits: circuits to add detectors to. Should have the same number
-                of entries as `templates` and `plaquettes`.
-            templates: templates used to generate the provided `circuits`. Should
-                have the same number of entries as `circuits` and `plaquettes`.
-            plaquettes: plaquettes used to generate the provided `circuits`.
-                Should have the same number of entries as `circuits` and
-                `templates`.
+                of entries as ``templates`` and ``plaquettes``.
+            templates: templates used to generate the provided ``circuits``. Should
+                have the same number of entries as ``circuits`` and ``plaquettes``.
+            plaquettes: plaquettes used to generate the provided ``circuits``.
+                Should have the same number of entries as ``circuits`` and
+                ``templates``.
             k: scaling parameter that has been used to generate the provided
-                `circuits`.
+                ``circuits``.
             manhattan_radius: radius considered to compute detectors. Defaults
                 to 2.
             detector_database: a database associating "situations" (subtemplate
@@ -257,17 +266,18 @@ class CompiledGraph:
         detectors: Sequence[Detector],
         shift_coords_by: StimCoordinates | None = None,
     ) -> None:
-        """Add the provided `detectors` to the provided `circuits`, inserting a
-        `SHIFT_COORDS` instruction before `DETECTOR` instructions if required.
+        """Add the provided ``detectors`` to the provided ``circuits``,
+        inserting a ``SHIFT_COORDS`` instruction before ``DETECTOR``
+        instructions if required.
 
         Args:
             circuit: circuit to modify in-place.
             mrecords_map: a measurement record map containing at least all the
-                measurements in the provided `detectors`.
+                measurements in the provided ``detectors``.
             detectors: all the detectors that should be added at the end of the
-                provided `circuit`.
-            shift_coords_by: if not None, used to insert a `SHIFT_COORDS`
-                instruction before inserting the `DETECTOR` instructions.
+                provided ``circuit``.
+            shift_coords_by: if not None, used to insert a ``SHIFT_COORDS``
+                instruction before inserting the ``DETECTOR`` instructions.
                 Defaults to None.
         """
         if shift_coords_by is not None:
@@ -290,22 +300,25 @@ def compile_block_graph(
 
     Args:
         block_graph: The block graph to compile.
-        block_builder: A callable that specifies how to build the `CompiledBlock` from
-            the specified `CubeSpecs`. Defaults to the block builder for the css type
-            surface code.
-        substitution_builder: A callable that specifies how to build the substitution
-            plaquettes from the specified `PipeSpec`. Defaults to the substitution
-            builder for the css type surface code.
+        block_builder: A callable that specifies how to build the
+            :class:`~.block.CompiledBlock` from the specified
+            :class:`~.specs.base.CubeSpecs`. Defaults to the block builder for
+            the CSS type surface code.
+        substitution_builder: A callable that specifies how to build the
+            substitution plaquettes from the specified
+            :class:`~.specs.base.PipeSpec`. Defaults to the substitution builder
+            for the CSS type surface code.
         observables: The abstract observables to be included in the compiled
             circuit.
-            If set to "auto", the observables will be automatically determined from
-            the block graph. If a list of abstract observables is provided, only
-            those observables will be included in the compiled circuit. If set to
-            None, no observables will be included in the compiled circuit.
+            If set to ``"auto"``, the observables will be automatically
+            determined from the block graph. If a list of abstract observables
+            is provided, only those observables will be included in the compiled
+            circuit. If set to ``None``, no observables will be included in the
+            compiled circuit.
 
     Returns:
-        A `CompiledGraph` object that can be used to generate a cirq/stim circuit and
-        scale easily.
+        A :class:`CompiledGraph` object that can be used to generate a
+        ``stim.Circuit`` and scale easily.
     """
     if block_graph.num_ports != 0:
         raise TQECException(

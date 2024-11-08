@@ -1,3 +1,18 @@
+"""Defines several scalable classes such as :class:`LinearFunction` or
+:class:`Scalable2D`.
+
+This module defines the necessary classes to help with scalable structures.
+:class:`LinearFunction` simply represents a linear function ``a * k + b`` where
+``a`` and ``b`` are floating-point quantities.
+
+This :class:`LinearFunction` class is for example used to represent the shape
+of a :class:`~tqec.templates.base.Template` for any input value ``k``. More
+specifically, :class:`~tqec.templates.qubit.QubitTemplate` has a shape that should
+exactly match a pair of ``LinearFunction(2, 2)`` which is basically ``2k + 2``.
+
+:class:`Scalable2D` is exactly made to represent such pairs of scalable quantities.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -159,22 +174,66 @@ class LinearFunction:
         return f"{self.slope}*x + {self.offset}"
 
 
-def round_or_fail(f: float) -> int:
+def round_or_fail(f: float, atol: float = 1e-8) -> int:
+    """Try to round the provided ``f`` to the nearest integer and raise if
+    ``f`` was not close enough to this integer.
+
+    Args:
+        f: a floating-point value that should be close (absolute tolerance of
+            ``atol``) to its nearest integer number.
+        atol: absolute tolerance between the provided ``f`` and ``round(f)`` that
+            is acceptable.
+
+    Raises:
+        TQECException: if abs(f - round(f)) > atol
+
+    Returns:
+        ``int(round(f))``
+    """
     rounded_value = int(round(f))
-    if abs(f - rounded_value) > 1e-8:
+    if abs(f - rounded_value) > atol:
         raise TQECException(f"Rounding from {f} to integer failed.")
     return rounded_value
 
 
 @dataclass(frozen=True)
 class Scalable2D:
+    """A pair of scalable quantities.
+
+    Attributes:
+        x: a linear function representing the value of the ``x`` coordinate.
+        y: a linear function representing the value of the ``y`` coordinate.
+    """
+
     x: LinearFunction
     y: LinearFunction
 
     def to_shape_2d(self, k: int) -> Shape2D:
+        """Get the represented value for a given scaling parameter ``k``.
+
+        Args:
+            k: scaling parameter to use to get a value from the scalable
+                quantities stored in ``self``.
+
+        Raises:
+            TQECException: if any of ``self.x(k)`` or ``self.y(k)`` returns a
+                number that is not an integer (or very close to an integer).
+
+        Returns:
+            ``Shape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))``
+        """
         return Shape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
 
     def to_numpy_shape(self, k: int) -> tuple[int, int]:
+        """Get a tuple of coordinates in ``numpy``-coordinates.
+
+        Raises:
+            TQECException: if any of ``self.x(k)`` or ``self.y(k)`` returns a
+                number that is not an integer (or very close to an integer).
+
+        Returns:
+            a tuple of coordinates in ``numpy``-coordinates.
+        """
         return self.to_shape_2d(k).to_numpy_shape()
 
     def __add__(self, other: Scalable2D) -> Scalable2D:
@@ -184,16 +243,3 @@ class Scalable2D:
                 "not implemented."
             )
         return Scalable2D(self.x + other.x, self.y + other.y)
-
-
-@dataclass(frozen=True)
-class ScalableInterval:
-    start: LinearFunction
-    end: LinearFunction
-
-    @property
-    def width(self) -> LinearFunction:
-        return self.end - self.start
-
-    def is_empty(self) -> bool:
-        return not (self.width < 0).is_empty()

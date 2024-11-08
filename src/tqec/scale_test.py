@@ -3,12 +3,7 @@ import pytest
 from tqec.exceptions import TQECException
 from tqec.interval import Interval
 from tqec.position import Shape2D
-from tqec.scale import (
-    LinearFunction,
-    Scalable2D,
-    ScalableInterval,
-    round_or_fail,
-)
+from tqec.scale import LinearFunction, Scalable2D, round_or_fail
 
 
 @pytest.mark.parametrize(
@@ -58,15 +53,6 @@ def test_linear_function_comparison() -> None:
     assert (a <= a) == Interval(
         float("-inf"), float("inf"), start_excluded=True, end_excluded=True
     )
-
-
-def test_scalable_interval_creation() -> None:
-    ScalableInterval(LinearFunction(2), LinearFunction(2, 2))
-
-
-def test_scalable_interval_is_empty() -> None:
-    sint = ScalableInterval(LinearFunction(2, 2), LinearFunction(2))
-    assert sint.is_empty()
 
 
 def test_scalable_2d_creation() -> None:

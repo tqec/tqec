@@ -1,3 +1,5 @@
+"""Defines functions and classes to generate and store sub-templates."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,72 +16,69 @@ SubTemplateType = npt.NDArray[numpy.int_]
 @dataclass(frozen=True)
 class UniqueSubTemplates:
     """Stores information on the sub-templates of a specific radius present on
-    a larger `Template` instance.
+    a larger :class:`~tqec.templates.base.Template` instance.
 
-    A sub-template is defined here as a portion of a `Template` instantiation.
-    In other words, a sub-template is a sub-array of the array resulting from
-    calling the method `Template.instantiate` on any `Template` instance.
-    The size of this sub-array is defined by its `radius`, which is computed
-    according to the Manhattan distance.
+    A sub-template is defined here as a portion of a
+    :class:`~tqec.templates.base.Template` instantiation. In other words, a
+    sub-template is a sub-array of the array resulting from calling the method
+    :meth:`~tqec.templates.base.Template.instantiate` on any
+    :class:`~tqec.templates.base.Template` instance. The size of this sub-array
+    is defined by its `radius`, which is computed according to the Manhattan
+    distance.
 
     For example, let's say you have the following array from calling
-    `Template.instantiate` on a `Template` instance:
+    :meth:`~tqec.templates.base.Template.instantiate` on a
+    :class:`~tqec.templates.base.Template` instance: ::
 
-    ```
-    1  5  6  5  6  2
-    7  9 10  9 10 11
-    8 10  9 10  9 12
-    7  9 10  9 10 11
-    8 10  9 10  9 12
-    3 13 14 13 14  4
-    ```
+        1  5  6  5  6  2
+        7  9 10  9 10 11
+        8 10  9 10  9 12
+        7  9 10  9 10 11
+        8 10  9 10  9 12
+        3 13 14 13 14  4
 
-    Focusing on the top-left `9` (coordinates `(1, 1)` in the array), the
-    following sub-array is a sub-template of radius `1`, centered on the
-    `(1, 1)` coordinate of the above instantiation:
+    Focusing on the top-left ``9`` (coordinates ``(1, 1)`` in the array), the
+    following sub-array is a sub-template of radius ``1``, centered on the
+    ``(1, 1)`` coordinate of the above instantiation: ::
 
-    ```
-    1  5  6
-    7  9 10
-    8 10  9
-    ```
+        1  5  6
+        7  9 10
+        8 10  9
 
-    Still focusing on the top-left `9`, the following sub-array is a
-    sub-template of radius `2`, centered on the `(1, 1)` coordinate of the
-    above instantiation:
+    Still focusing on the top-left ``9``, the following sub-array is a
+    sub-template of radius ``2``, centered on the ``(1, 1)`` coordinate of the
+    above instantiation: ::
 
-    ```
-    .  .  .  .  .
-    .  1  5  6  5
-    .  7  9 10  9
-    .  8 10  9 10
-    .  7  9 10  9
-    ```
+        .  .  .  .  .
+        .  1  5  6  5
+        .  7  9 10  9
+        .  8 10  9 10
+        .  7  9 10  9
 
-    Note the inclusion of `.` that are here to represent `0` (i.e., the
+    Note the inclusion of ``.`` that are here to represent ``0`` (i.e., the
     absence of plaquette at that particular point) because there is no
-    plaquette in the original `Template` instantiation.
+    plaquette in the original :class:`~tqec.templates.base.Template` instantiation.
 
     This dataclass efficiently stores all the sub-templates of a given
-    `Template` instantiation and of a given `radius`.
+    `:class:`~tqec.templates.base.Template` instantiation and of a given ``radius``.
 
     Attributes:
         subtemplate_indices: an array that has the same shape as the
-            original `Template` instantiation but stores sub-template
-            indices referencing sub-templates from the `subtemplates`
-            attribute. The integers in this array do NOT represent
+            original :class:`~tqec.templates.base.Template` instantiation but
+            stores sub-template indices referencing sub-templates from the
+            ``subtemplates`` attribute. The integers in this array do NOT represent
             plaquette indices.
         subtemplates: a store of sub-template (values) indexed by integers
             (keys) that link the sub-template center to the original
-            template instantiation thanks to `subtemplate_indices`.
+            template instantiation thanks to ``subtemplate_indices``.
 
     Raises:
-        TQECException: if any index in `self.subtemplate_indices` is
-            not present in `self.subtemplates.keys()`.
+        TQECException: if any index in ``self.subtemplate_indices`` is
+            not present in ``self.subtemplates.keys()``.
         TQECException: if any of the sub-template shapes is non-square
             or of even width or length.
         TQECException: if not all the sub-template shapes in
-            `self.subtemplates.values()` are equal.
+            ``self.subtemplates.values()`` are equal.
     """
 
     subtemplate_indices: npt.NDArray[numpy.int_]
@@ -131,61 +130,60 @@ def get_spatially_distinct_subtemplates(
 
     Note:
         This function will likely be inefficient for large templates (i.e.,
-        large values of `k`) or for large Manhattan radiuses, both in terms of
-        memory used and computation time.
+        large values of :math:`k`) or for large Manhattan radiuses, both in
+        terms of memory used and computation time.
 
         Right now, with
 
-        - `n` the width of the provided `instantiation` array,
-        - `m` the height of the provided `instantiation` array,
-        - `r` the provided Manhattan radius,
+        - :math:`n` the width of the provided ``instantiation`` array,
+        - :math:`m` the height of the provided ``instantiation`` array,
+        - :math:`r` the provided Manhattan radius,
 
-        it takes of the order of `n*m*(2*r+1)²` memory and has to sort an
-        array of `n*m` elements of size `(2*r+1)²` in lexicographic order so
-        require, in the worst case, `O(n*m*log(n*m)*(2*r+1)²)` runtime.
+        it takes of the order of :math:`n m (2r+1)^2` memory and has to sort an
+        array of :math:`nm` elements of size :math:`(2r+1)^2` in lexicographic
+        order so require, in the worst case,
+        :math:`O\\left(nm\\log(nm) (2r+1)^2\\right)` runtime.
 
         Subclasses are invited to reimplement that method using a specialized
         algorithm (or hard-coded values) to speed things up.
 
-        Some timings obtained on an AMD Ryzen 9 5950X:
+        Some timings obtained on an AMD Ryzen 9 5950X: ::
 
-        ```
-        k = 10
-        ----------------------------------------------------------------------
-        radius   =         0 |         1 |         2 |         3 |         4
-        time (s) =  0.000776 |  0.000992 |   0.00151 |   0.00227 |   0.00321
-        ----------------------------------------------------------------------
-        k = 20
-        ----------------------------------------------------------------------
-        radius   =         0 |         1 |         2 |         3 |         4
-        time (s) =   0.00202 |   0.00356 |   0.00672 |    0.0116 |    0.0173
-        ----------------------------------------------------------------------
-        k = 40
-        ----------------------------------------------------------------------
-        radius   =         0 |         1 |         2 |         3 |         4
-        time (s) =   0.00778 |    0.0156 |    0.0326 |    0.0574 |    0.0889
-        ----------------------------------------------------------------------
-        k = 80
-        ----------------------------------------------------------------------
-        radius   =         0 |         1 |         2 |         3 |         4
-        time (s) =    0.0318 |    0.0706 |     0.147 |      0.27 |     0.426
-        ----------------------------------------------------------------------
-        k = 160
-        ----------------------------------------------------------------------
-        radius   =         0 |         1 |         2 |         3 |         4
-        time (s) =     0.139 |     0.309 |     0.651 |      1.25 |      1.98
-        ----------------------------------------------------------------------
-        ```
+            k = 10
+            ----------------------------------------------------------------------
+            radius   =         0 |         1 |         2 |         3 |         4
+            time (s) =  0.000776 |  0.000992 |   0.00151 |   0.00227 |   0.00321
+            ----------------------------------------------------------------------
+            k = 20
+            ----------------------------------------------------------------------
+            radius   =         0 |         1 |         2 |         3 |         4
+            time (s) =   0.00202 |   0.00356 |   0.00672 |    0.0116 |    0.0173
+            ----------------------------------------------------------------------
+            k = 40
+            ----------------------------------------------------------------------
+            radius   =         0 |         1 |         2 |         3 |         4
+            time (s) =   0.00778 |    0.0156 |    0.0326 |    0.0574 |    0.0889
+            ----------------------------------------------------------------------
+            k = 80
+            ----------------------------------------------------------------------
+            radius   =         0 |         1 |         2 |         3 |         4
+            time (s) =    0.0318 |    0.0706 |     0.147 |      0.27 |     0.426
+            ----------------------------------------------------------------------
+            k = 160
+            ----------------------------------------------------------------------
+            radius   =         0 |         1 |         2 |         3 |         4
+            time (s) =     0.139 |     0.309 |     0.651 |      1.25 |      1.98
+            ----------------------------------------------------------------------
 
     Args:
         instantiation: a 2-dimensional array representing the instantiated
             template on which sub-templates should be computed.
         manhattan_radius: radius of the considered ball using the Manhattan
-            distance. Only squares with sides of `2*manhattan_radius+1`
+            distance. Only squares with sides of ``2*manhattan_radius+1``
             plaquettes will be considered.
-        avoid_zero_plaquettes: `True` if sub-templates with an empty plaquette
+        avoid_zero_plaquettes: ``True`` if sub-templates with an empty plaquette
             (i.e., 0 value in the instantiation of the Template instance) at
-            its center should be ignored. Default to `True`.
+            its center should be ignored. Default to ``True``.
 
     Returns:
         a representation of all the sub-templates found.
@@ -343,22 +341,23 @@ def get_spatially_distinct_3d_subtemplates(
 
     Note:
         This function will likely be inefficient for large templates (i.e.,
-        large values of `k`) or for large Manhattan radiuses, both in terms of
-        memory used and computation time.
+        large values of :math:`k`) or for large Manhattan radiuses, both in
+        terms of memory used and computation time.
 
         Right now, with
 
-        - `n` the width of the provided `instantiations` array,
-        - `m` the height of the provided `instantiations` array,
-        - `t` the number of time slices (`len(instantiations)`),
-        - `r` the provided Manhattan radius,
+        - :math:`n` the width of the ``instantiations`` array entries,
+        - :math:`m` the height of the ``instantiations`` array entries,
+        - :math:`t` the number of time slices (``len(instantiations)``),
+        - :math:`r` the provided Manhattan radius,
 
-        it takes of the order of up to `n*m*t*(2*r+1)²` memory, has to sort `t`
-        arrays of `n*m` elements of size `(2*r+1)²` in lexicographic order, so
-        require, in the worst case, `O(t*n*m*log(n*m)*(2*r+1)²)` runtime.
+        it takes of the order of up to :math:`nmt(2r+1)^2` memory, has to sort
+        :math:`t` arrays of :math:`nm` elements of size :math:`(2r+1)^2` in
+        lexicographic order, so require, in the worst case,
+        :math:`O\\left(tnm\\log(nm)(2r+1)^2\\right)` runtime.
 
     Warning:
-        This function assumes that the provided `instantiations` are compatible
+        This function assumes that the provided ``instantiations`` are compatible
         with each other. That means that they should all have the same shape and
         they should all be defined with respect to the same origin in order to
         ensure that stacking all the instantiations result in a 3-dimensional
@@ -370,11 +369,11 @@ def get_spatially_distinct_3d_subtemplates(
             They should all be "compatible" with each other. See warning in the
             function documentation.
         manhattan_radius: radius of the considered ball using the Manhattan
-            distance. Only squares with sides of `2*manhattan_radius+1`
+            distance. Only squares with sides of ``2*manhattan_radius+1``
             plaquettes will be considered.
-        avoid_zero_plaquettes: `True` if sub-templates with an empty plaquette
+        avoid_zero_plaquettes: ``True`` if sub-templates with an empty plaquette
             (i.e., 0 value in the instantiation of the Template instance) at
-            its center should be ignored. Default to `True`.
+            its center should be ignored. Default to ``True``.
 
     Returns:
         a representation of all the sub-templates found.

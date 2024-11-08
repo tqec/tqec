@@ -1,3 +1,69 @@
+"""Defines a high-level template composing several sub-templates:
+:class:`LayoutTemplate`.
+
+This module defines a :class:`~tqec.templates.base.Template` child class that
+is able to represent several :class:`~tqec.templates.base.RectangularTemplate`
+instances with the same scalable shape. Each of the managed
+:class:`~tqec.templates.base.RectangularTemplate` instance is linked to a unique
+2-dimensional position on an infinite 2-dimensional grid.
+
+Example
+-------
+
+A grid of :math:`2 \\times 2` logical qubits can be represented with
+
+.. code-block:: python
+
+    from tqec.position import Position2D
+    from tqec.templates.layout import LayoutTemplate
+    from tqec.templates.qubit import QubitTemplate
+
+    qubit = QubitTemplate()
+    grid = LayoutTemplate(
+        {
+            Position2D(0, 0): qubit,
+            Position2D(0, 1): qubit,
+            Position2D(1, 0): qubit,
+            Position2D(1, 1): qubit,
+        }
+    )
+
+Being a :class:`~tqec.templates.base.Template` instance, the above constructed
+``grid`` can be displayed with
+
+.. code-block:: python
+
+    from tqec.templates.display import display_template
+
+    display_template(qubit, 2)
+    print("=" * 50)
+    display_template(grid, 2)
+
+which outputs
+
+.. code-block:: text
+
+    1   5   6   5   6   2
+    7   9  10   9  10  11
+    8  10   9  10   9  12
+    7   9  10   9  10  11
+    8  10   9  10   9  12
+    3  13  14  13  14   4
+    ==================================================
+     1   5   6   5   6   2  29  33  34  33  34  30
+     7   9  10   9  10  11  35  37  38  37  38  39
+     8  10   9  10   9  12  36  38  37  38  37  40
+     7   9  10   9  10  11  35  37  38  37  38  39
+     8  10   9  10   9  12  36  38  37  38  37  40
+     3  13  14  13  14   4  31  41  42  41  42  32
+    15  19  20  19  20  16  43  47  48  47  48  44
+    21  23  24  23  24  25  49  51  52  51  52  53
+    22  24  23  24  23  26  50  52  51  52  51  54
+    21  23  24  23  24  25  49  51  52  51  52  53
+    22  24  23  24  23  26  50  52  51  52  51  54
+    17  27  28  27  28  18  45  55  56  55  56  46
+"""
+
 from copy import deepcopy
 from typing import Sequence
 
@@ -33,7 +99,7 @@ class LayoutTemplate(RectangularTemplate):
             element_layout: a dictionary with the position of the element
                 templates in the layout as keys and the templates as values.
             default_increments: default increments between two plaquettes. Defaults
-                to `Displacement(2, 2)` when `None`.
+                to ``Displacement(2, 2)`` when ``None``.
         """
         super().__init__(default_increments)
         if not element_layout:
@@ -64,6 +130,28 @@ class LayoutTemplate(RectangularTemplate):
         self,
         instantiate_indices: Sequence[int] | None = None,
     ) -> dict[Position2D, dict[int, int]]:
+        """Get one index map for each of the templates in the layout.
+
+        This method is used internally by :meth:`LayoutTemplate.instantiate` and
+        can be used externally to get a map from the instantiation indices used by
+        each of the individual :class:`~tqec.templates.base.Template` instances
+        stored in ``self`` to the global instantiation index used.
+
+        Args:
+            instantiate_indices: global indices used to instantiate ``self``.
+                Have the same meaning and defaults as the ``plaquette_indices``
+                parameter in :meth:`LayoutTemplate.instantiate`.
+                Defaults to None.
+
+        Returns:
+            a map from positions to instantiation index maps. Each instantiation
+            index map is a bijection from the template instantiation indices (going
+            from ``1`` to ``template.expected_plaquettes_number``) to the global
+            indices that are used in :meth:`LayoutTemplate.instantiate` (going
+            from ``N`` to ``N + template.expected_plaquettes_number - 1`` where
+            ``N`` depends on the other :class:`~tqec.templates.base.Template`
+            instances managed by ``self``).
+        """
         if instantiate_indices is None:
             instantiate_indices = list(range(1, self.expected_plaquettes_number + 1))
         index_count = 0
@@ -78,6 +166,25 @@ class LayoutTemplate(RectangularTemplate):
 
     @property
     def origin_shift(self) -> Displacement:
+        """Returns the shift that should be applied to the global origin to
+        become the template origin.
+
+        Due to how :class:`LayoutTemplate` organizes the
+        :class:`~tqec.templates.base.Template` instances it manages, it is entirely
+        possible (and valid) for the template to not be aligned with the global
+        origin.
+
+        For example, the following instance exhibit this behaviour:
+
+        .. code-block:: python
+
+            not_on_origin = LayoutTemplate({Position2D(1, 1): QubitTemplate()})
+            assert not_on_origin.origin_shift == Position2D(1, 1)
+
+        Returns:
+            the shift that should be applied to the global origin to become the
+            template origin.
+        """
         return self._origin_shift
 
     @property

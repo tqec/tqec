@@ -171,26 +171,16 @@ def test_zx_graph_with_zx_flipped() -> None:
     assert g.num_ports == 2
     assert g.num_edges == 4
 
-    flipped_g = g.with_zx_flipped()
-    assert flipped_g.num_nodes == 5
-    assert flipped_g.num_ports == 2
-    assert flipped_g.num_edges == 4
-    assert flipped_g[Position3D(0, 0, 0)].kind == ZXKind.P
-    assert flipped_g[Position3D(1, 0, 0)].kind == ZXKind.Z
-    assert flipped_g[Position3D(2, 0, 0)].kind == ZXKind.X
-    assert flipped_g[Position3D(2, 0, -1)].kind == ZXKind.Y
-    assert flipped_g[Position3D(2, 0, 1)].kind == ZXKind.P
 
-
-def test_zx_graph_validity() -> None:
+def test_zx_graph_check_invariants() -> None:
     g = ZXGraph()
     g.add_node(ZXNode(Position3D(0, 0, 0), ZXKind.Z))
     g.add_node(ZXNode(Position3D(1, 0, 0), ZXKind.X))
     with pytest.raises(
         TQECException,
-        match="The graph must be a single connected component to represent a computation.",
+        match="The ZX graph must be a single connected component",
     ):
-        g.raise_if_cannot_be_valid_computation()
+        g.check_invariants()
 
     g = ZXGraph()
     g.add_edge(
@@ -202,31 +192,4 @@ def test_zx_graph_validity() -> None:
         ZXNode(Position3D(1, 0, 0), ZXKind.P, "test"),
     )
     with pytest.raises(TQECException, match="The port/Y node must be a leaf node."):
-        g.raise_if_cannot_be_valid_computation()
-
-    g = ZXGraph()
-    g.add_edge(
-        ZXNode(Position3D(0, 0, 0), ZXKind.Z),
-        ZXNode(Position3D(1, 0, 0), ZXKind.Y),
-    )
-    with pytest.raises(
-        TQECException, match="The Y node must only has Z-direction edge."
-    ):
-        g.raise_if_cannot_be_valid_computation()
-
-    g = ZXGraph()
-    g.add_edge(
-        ZXNode(Position3D(0, 0, 0), ZXKind.Z),
-        ZXNode(Position3D(1, 0, 0), ZXKind.Z),
-    )
-    g.add_edge(
-        ZXNode(Position3D(0, 0, 0), ZXKind.Z),
-        ZXNode(Position3D(0, 1, 0), ZXKind.Z),
-    )
-    g.raise_if_cannot_be_valid_computation()
-    g.add_edge(
-        ZXNode(Position3D(0, 0, 0), ZXKind.Z),
-        ZXNode(Position3D(0, 0, 1), ZXKind.Z),
-    )
-    with pytest.raises(TQECException, match="ZX graph has a 3D corne"):
-        g.raise_if_cannot_be_valid_computation()
+        g.check_invariants()

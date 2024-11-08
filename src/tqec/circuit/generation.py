@@ -1,19 +1,19 @@
-"""Defines :meth:`generate_circuit`, one of the core method of the `tqec`
-package.
+"""Defines :meth:`~tqec.circuit.generation.generate_circuit`, one of the core
+method of the :mod:`tqec` package.
 
-This module defines two of core methods of the `tqec` package:
+This module defines two of core methods of the :mod:`tqec` package:
 
 - :meth:`generate_circuit` that is the most convenient method for external users.
 - :meth:`generate_circuit_from_instantiation` that gives more freedom to the
   user (and is used internally by :meth:`generate_circuit`) at the expense of
   often less convenient inputs.
 
-Both of these methods are used to generate the `stim.Circuit` instance
+Both of these methods are used to generate the ``stim.Circuit`` instance
 representing **one** time slice (often equivalent to "one QEC round"). Users are
 expected to call these methods several times and concatenate the output
-`stim.Circuit` instances in time to obtain a full QEC implementation.
+``stim.Circuit`` instances in time to obtain a full QEC implementation.
 
-Note that these methods do not work with `REPEAT` instructions.
+Note that these methods do not work with ``REPEAT`` instructions.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ def generate_circuit(
 ) -> ScheduledCircuit:
     """Generate a quantum circuit from a template and its plaquettes.
 
-    This is one of the core methods of the `tqec` package. It generates a
+    This is one of the core methods of the :mod:`tqec` package. It generates a
     quantum circuit from the description of the template that should be
     implemented as well as the plaquettes that should be used to instantiate the
     provided template.
@@ -45,8 +45,8 @@ def generate_circuit(
 
     1. the number of plaquettes provided should match the number of plaquettes
        required by the provided template.
-    2. all the provided plaquettes should be implemented on :class:`GridQubit`
-       instances **only**.
+    2. all the provided plaquettes should be implemented on
+       :class:`~.qubit.GridQubit` instances **only**.
 
     If any of the above pre-conditions is not met, the inputs are considered
     invalid, in which case this function **might** raise an error.
@@ -54,14 +54,15 @@ def generate_circuit(
     Args:
         template: spatial description of the quantum error correction experiment
             we want to implement.
-        k: scaling parameter used to instantiate the provided `template`.
+        k: scaling parameter used to instantiate the provided ``template``.
         plaquettes: description of the computation that should happen at
             different time-slices of the quantum error correction experiment (or
             at least part of it).
 
     Returns:
-        a `ScheduledCircuit` instance implementing the (part of) quantum error
-        correction experiment represented by the provided inputs.
+        a :class:`~.schedule.circuit.ScheduledCircuit` instance implementing the
+        (part of) quantum error correction experiment represented by the
+        provided inputs.
     """
     # instantiate the template with the appropriate plaquette indices.
     # Index 0 is "no plaquette" by convention and should not be included here.
@@ -82,7 +83,7 @@ def generate_circuit_from_instantiation(
     """Generate a quantum circuit from an array of plaquette indices and the
     associated plaquettes.
 
-    This is one of the core methods of the `tqec` package. It generates a
+    This is one of the core methods of the :mod:`tqec` package. It generates a
     quantum circuit from a spatial description of where the plaquettes should be
     located as well as the actual plaquettes used.
 
@@ -90,27 +91,29 @@ def generate_circuit_from_instantiation(
 
     1. the number of plaquettes provided should match the number of plaquettes
        required by the provided template.
-    2. all the provided plaquettes should be implemented on :class:`GridQubit`
-       instances **only**.
+    2. all the provided plaquettes should be implemented on
+       :class:`~.qubit.GridQubit` instances **only**.
 
     If any of the above pre-conditions is not met, the inputs are considered
     invalid, in which case this function **might** raise an error.
 
     Args:
-        plaquette_array: an array of indices referencing Plaquette instances in
-            the `plaquettes` argument.
+        plaquette_array: an array of indices referencing
+            :class:`~tqec.plaquette.plaquette.Plaquette` instances in the
+            ``plaquettes`` argument.
         plaquettes: description of the computation that should happen at
             different time-slices of the quantum error correction experiment (or
             at least part of it).
         increments: the displacement between each plaquette origin.
 
     Returns:
-        a `ScheduledCircuit` instance implementing the (part of) quantum error
-        correction experiment represented by the provided inputs.
+        a :class:`~.schedule.circuit.ScheduledCircuit` instance implementing the
+        (part of) quantum error correction experiment represented by the
+        provided inputs.
 
     Raises:
-        TQECException: if any index in `plaquette_array` is not correctly
-            associated to a plaquette in `plaquettes`.
+        TQECException: if any index in ``plaquette_array`` is not correctly
+            associated to a plaquette in ``plaquettes``.
     """
     # Collect all the used plaquette indices, removing 0 if present.
     indices = numpy.unique(plaquette_array)

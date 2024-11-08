@@ -1,40 +1,38 @@
-"""Handling interoperation with Collada DAE files."""
+"""Read and write block graphs to and from Collada DAE files."""
 
 from __future__ import annotations
 
 import pathlib
-from typing import BinaryIO, Iterable, Mapping, cast
 from dataclasses import dataclass
+from typing import BinaryIO, Iterable, cast
 
 import collada
 import collada.source
 import numpy as np
 import numpy.typing as npt
 
-from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.zx_graph import ZXKind
-from tqec.computation.cube import Cube, Port, CubeKind, YCube, ZXCube
-from tqec.computation.pipe import PipeKind
-from tqec.exceptions import TQECException
-from tqec.interop.color import RGBA
-from tqec.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.computation.block_graph import BlockGraph, BlockKind
-from tqec.interop.geometry import (
-    CORRELATION_SUFFIX,
-    Face,
-    FaceKind,
+from tqec.computation.correlation import CorrelationSurface
+from tqec.computation.cube import Cube, CubeKind, Port, YCube, ZXCube
+from tqec.computation.pipe import PipeKind
+from tqec.computation.zx_graph import ZXKind
+from tqec.exceptions import TQECException
+from tqec.interop.collada._geometry import (
     BlockGeometries,
+    Face,
+    TQECColor,
     get_correlation_surface_geometry,
 )
+from tqec.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.scale import round_or_fail
 
+_ASSET_AUTHOR = "TQEC Community"
+_ASSET_AUTHORING_TOOL_TQEC = "https://github.com/tqec/tqec"
+_ASSET_UNIT_NAME = "inch"
+_ASSET_UNIT_METER = 0.02539999969303608
 
-ASSET_AUTHOR = "TQEC Community"
-ASSET_AUTHORING_TOOL_TQEC = "https://github.com/tqec/tqec"
-ASSET_UNIT_NAME = "inch"
-ASSET_UNIT_METER = 0.02539999969303608
-
-MATERIAL_SYMBOL = "MaterialSymbol"
+_MATERIAL_SYMBOL = "MaterialSymbol"
+_CORRELATION_SUFFIX = "_CORRELATION"
 
 
 def _block_kind_from_str(string: str) -> BlockKind:
@@ -52,13 +50,18 @@ def read_block_graph_from_dae_file(
     filepath: str | pathlib.Path,
     graph_name: str = "",
 ) -> BlockGraph:
-    """Read and construct the block graph from a Collada DAE file.
+    """Read a Collada DAE file and construct a
+    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.
 
     Args:
         filepath: The input dae file path.
+        graph_name: The name of the block graph. Default is an empty string.
 
     Returns:
-        The constructed block graph.
+        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
+
+    Raises:
+        TQECException: If the COLLADA model cannot be parsed and converted to a block graph.
     """
     mesh = collada.Collada(str(filepath))
     # Check some invariants about the DAE file
@@ -85,10 +88,10 @@ def read_block_graph_from_dae_file(
             library_node: collada.scene.Node = instance.node
             name: str = library_node.name
             # Skip the correlation surface nodes
-            if name.endswith(CORRELATION_SUFFIX):
+            if name.endswith(_CORRELATION_SUFFIX):
                 continue
             kind = _block_kind_from_str(name)
-            transformation = Transformation.from_4d_affine_matrix(node.matrix)
+            transformation = _Transformation.from_4d_affine_matrix(node.matrix)
             translation = FloatPosition3D(*transformation.translation)
             if not np.allclose(transformation.rotation, np.eye(3), atol=1e-9):
                 raise TQECException(
@@ -156,27 +159,21 @@ def write_block_graph_to_dae_file(
     file_like: str | pathlib.Path | BinaryIO,
     pipe_length: float = 2.0,
     pop_faces_at_direction: SignedDirection3D | None = None,
-    custom_face_colors: Mapping[FaceKind, RGBA] | None = None,
     show_correlation_surface: CorrelationSurface | None = None,
 ) -> None:
-    """Write the block graph to a Collada DAE file.
+    """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
+    Collada DAE file.
 
     Args:
-        block_graph: The block graph to write.
+        block_graph: The block graph to write to the DAE file.
         file: The output file path or file-like object that supports binary write.
-        pipe_length: The length of the pipes. Default is 2.0.
+        pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.
         pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
             This is useful for visualizing the internal structure of the blocks. Default is None.
-        custom_face_colors: A mapping from the face kind to the RGBA color to override the default
-            face colors.
-        show_correlation_surface: The correlation surface to show in the block graph. Default is None.
+        show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.
     """
 
-    custom_face_colors = (
-        dict(custom_face_colors) if custom_face_colors is not None else dict()
-    )
-    face_colors = DEFAULT_FACE_COLORS | custom_face_colors
-    base = _BaseColladaData(face_colors, pop_faces_at_direction)
+    base = _BaseColladaData(pop_faces_at_direction)
 
     def scale_position(pos: Position3D) -> FloatPosition3D:
         return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
@@ -213,7 +210,7 @@ def write_block_graph_to_dae_file(
 
 
 @dataclass(frozen=True)
-class BlockLibraryKey:
+class _BlockLibraryKey:
     """The key to access the library node in the Collada DAE file."""
 
     kind: BlockKind
@@ -227,20 +224,9 @@ class BlockLibraryKey:
         return string
 
 
-DEFAULT_FACE_COLORS: dict[FaceKind, RGBA] = {
-    FaceKind.X: RGBA.x_color(),
-    FaceKind.Y: RGBA.y_color(),
-    FaceKind.Z: RGBA.z_color(),
-    FaceKind.H: RGBA.h_color(),
-    FaceKind.X_CORRELATION: RGBA.x_correlation_color(),
-    FaceKind.Z_CORRELATION: RGBA.z_correlation_color(),
-}
-
-
 class _BaseColladaData:
     def __init__(
         self,
-        face_colors: dict[FaceKind, RGBA],
         pop_faces_at_direction: SignedDirection3D | None = None,
     ) -> None:
         """The base model template including the definition of all the library
@@ -248,17 +234,16 @@ class _BaseColladaData:
         self.mesh = collada.Collada()
         self.geometries = BlockGeometries()
 
-        self.materials: dict[FaceKind, collada.material.Material] = {}
+        self.materials: dict[TQECColor, collada.material.Material] = {}
         self.geometry_nodes: dict[Face, collada.scene.GeometryNode] = {}
         self.root_node = collada.scene.Node("SketchUp", name="SketchUp")
-        self.block_library: dict[BlockLibraryKey, collada.scene.Node] = {}
+        self.block_library: dict[_BlockLibraryKey, collada.scene.Node] = {}
         self.surface_library: dict[ZXKind, collada.scene.Node] = {}
         self._pop_faces_at_direction: frozenset[SignedDirection3D] = (
             frozenset({pop_faces_at_direction})
             if pop_faces_at_direction
             else frozenset()
         )
-        self._face_colors = face_colors
         self._num_instances: int = 0
 
         self._create_scene()
@@ -275,19 +260,19 @@ class _BaseColladaData:
             return
         self.mesh.assetInfo.contributors.append(
             collada.asset.Contributor(
-                author=ASSET_AUTHOR, authoring_tool=ASSET_AUTHORING_TOOL_TQEC
+                author=_ASSET_AUTHOR, authoring_tool=_ASSET_AUTHORING_TOOL_TQEC
             ),
         )
-        self.mesh.assetInfo.unitmeter = ASSET_UNIT_METER
-        self.mesh.assetInfo.unitname = ASSET_UNIT_NAME
+        self.mesh.assetInfo.unitmeter = _ASSET_UNIT_METER
+        self.mesh.assetInfo.unitname = _ASSET_UNIT_NAME
         self.mesh.assetInfo.upaxis = collada.asset.UP_AXIS.Z_UP
 
     def _add_materials(self) -> None:
         """Add all the materials for different faces."""
-        for face_type in FaceKind:
-            rgba = self._face_colors[face_type].as_floats()
+        for face_color in TQECColor:
+            rgba = face_color.rgba.as_floats()
             effect = collada.material.Effect(
-                f"{face_type.value}_effect",
+                f"{face_color.value}_effect",
                 [],
                 "lambert",
                 diffuse=rgba,
@@ -302,10 +287,10 @@ class _BaseColladaData:
             self.mesh.effects.append(effect)
 
             material = collada.material.Material(
-                f"{face_type.value}_material", f"{face_type.value}_material", effect
+                f"{face_color.value}_material", f"{face_color.value}_material", effect
             )
             self.mesh.materials.append(material)
-            self.materials[face_type] = material
+            self.materials[face_color] = material
 
     def _add_face_geometry_node(self, face: Face) -> collada.scene.GeometryNode:
         if face in self.geometry_nodes:
@@ -326,15 +311,15 @@ class _BaseColladaData:
         input_list.addInput(0, "VERTEX", "#" + positions.id)
         input_list.addInput(1, "NORMAL", "#" + normals.id)
         triset = geom.createTriangleSet(
-            Face.get_triangle_indices(), input_list, MATERIAL_SYMBOL
+            Face.get_triangle_indices(), input_list, _MATERIAL_SYMBOL
         )
         geom.primitives.append(triset)
         self.mesh.geometries.append(geom)
         # Create geometry node
         inputs = [("UVSET0", "TEXCOORD", "0")]
-        material = self.materials[face.kind]
+        material = self.materials[face.color]
         geom_node = collada.scene.GeometryNode(
-            geom, [collada.scene.MaterialNode(MATERIAL_SYMBOL, material, inputs)]
+            geom, [collada.scene.MaterialNode(_MATERIAL_SYMBOL, material, inputs)]
         )
         self.geometry_nodes[face] = geom_node
         return geom_node
@@ -343,11 +328,11 @@ class _BaseColladaData:
         self,
         block_kind: BlockKind,
         pop_faces_at_directions: Iterable[SignedDirection3D] = (),
-    ) -> BlockLibraryKey:
+    ) -> _BlockLibraryKey:
         pop_faces_at_directions = (
             frozenset(pop_faces_at_directions) | self._pop_faces_at_direction
         )
-        key = BlockLibraryKey(block_kind, pop_faces_at_directions)
+        key = _BlockLibraryKey(block_kind, pop_faces_at_directions)
         if key in self.block_library:
             return key
         faces = self.geometries.get_geometry(block_kind, pop_faces_at_directions)
@@ -383,7 +368,7 @@ class _BaseColladaData:
         surface = get_correlation_surface_geometry(kind)
         geometry_node = self._add_face_geometry_node(surface)
         node = collada.scene.Node(
-            surface.kind.value, [geometry_node], name=surface.kind.value
+            surface.color.value, [geometry_node], name=surface.color.value
         )
         self.mesh.nodes.append(node)
         self.surface_library[kind] = node
@@ -394,7 +379,7 @@ class _BaseColladaData:
         correlation_surface: CorrelationSurface,
         pipe_length: float = 2.0,
     ) -> None:
-        from tqec.interop.correlation import (
+        from tqec.interop.collada._correlation import (
             get_transformations_for_correlation_surface,
         )
 
@@ -422,7 +407,7 @@ class _BaseColladaData:
 
 
 @dataclass(frozen=True)
-class Transformation:
+class _Transformation:
     """Transformation data class to store the translation, scale, rotation, and
     the composed affine matrix.
 
@@ -439,11 +424,11 @@ class Transformation:
     rotation: npt.NDArray[np.float32]
 
     @staticmethod
-    def from_4d_affine_matrix(mat: npt.NDArray[np.float32]) -> Transformation:
+    def from_4d_affine_matrix(mat: npt.NDArray[np.float32]) -> _Transformation:
         translation = mat[:3, 3]
         scale = np.linalg.norm(mat[:3, :3], axis=1)
         rotation = mat[:3, :3] / scale[None, :]
-        return Transformation(translation, scale, rotation)
+        return _Transformation(translation, scale, rotation)
 
     def to_4d_affine_matrix(self) -> npt.NDArray[np.float32]:
         mat = np.eye(4, dtype=np.float32)
