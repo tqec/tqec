@@ -88,9 +88,9 @@ class QubitSpatialJunctionTemplate(RectangularTemplate):
          3  20  21  20  21  20  21  20  21   4
 
     Warning:
-        For `k == 1`, this template does not include any of the plaquette
-        indexed `9` and so its instantiation has a "hole" in the plaquette
-        indices.
+        For ``k == 1``, this template does not include any of the plaquette
+        that have an index in ``[13, 17]`` and so its instantiation has a "hole"
+        in the plaquette indices.
     """
 
     @override
@@ -103,8 +103,9 @@ class QubitSpatialJunctionTemplate(RectangularTemplate):
         if k == 1:
             warnings.warn(
                 "Instantiating Qubit4WayJunctionTemplate with k=1. The "
-                "instantiation array returned will not have any plaquette indexed "
-                "9, which might break other parts of the library.",
+                "instantiation array returned will not have any plaquette with "
+                "an index in [13, 17], which might break other parts of the "
+                "library.",
                 TQECWarning,
             )
 
@@ -175,6 +176,7 @@ class QubitSpatialJunctionTemplate(RectangularTemplate):
 class QubitVerticalBorders(RectangularTemplate):
     """Two vertical sides of neighbouring error-corrected qubits glued
     together.
+
     The below text represents this template for an input ``k == 2`` ::
         1 2
         5 7
@@ -219,6 +221,7 @@ class QubitVerticalBorders(RectangularTemplate):
 class QubitHorizontalBorders(RectangularTemplate):
     """Two horizontal sides of neighbouring error-corrected qubits glued
     together.
+
     The below text represents this template for an input ``k == 2`` ::
         1 5 6 5 6 2
         3 7 8 7 8 4
