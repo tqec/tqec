@@ -366,7 +366,7 @@ def _get_down_spatial_junction(
         # TOP_RIGHT: NOT included to avoid overwriting the corner
         # 1: RPNGDescription.from_string(f"-{be}1- -{be}2- {r}{be}4{m} ----"),
         # BOTTOM_RIGHT
-        3: RPNGDescription.from_string(f"{r}{be}1{m} --- -{be}2- ----"),
+        3: RPNGDescription.from_string(f"{r}{be}1{m} ---- -{be}2- ----"),
         # TOP bulk
         5: RPNGDescription.from_string(f"-{be}1- -{be}4- {r}{be}2{m} {r}{be}5{m}"),
         6: RPNGDescription.from_string(f"-{bi}1- -{bi}3- {r}{bi}4{m} {r}{bi}5{m}"),
