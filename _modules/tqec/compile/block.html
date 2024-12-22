@@ -416,8 +416,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span> <span class="nn">tqec.plaquette.plaquette</span> <span class="kn">import</span> <span class="n">Plaquette</span><span class="p">,</span> <span class="n">Plaquettes</span><span class="p">,</span> <span class="n">RepeatedPlaquettes</span>
 <span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">Displacement</span><span class="p">,</span> <span class="n">Position2D</span>
 <span class="kn">from</span> <span class="nn">tqec.scale</span> <span class="kn">import</span> <span class="n">LinearFunction</span>
-<span class="kn">from</span> <span class="nn">tqec.templates.base</span> <span class="kn">import</span> <span class="n">RectangularTemplate</span>
-<span class="kn">from</span> <span class="nn">tqec.templates.layout</span> <span class="kn">import</span> <span class="n">LayoutTemplate</span>
+<span class="kn">from</span> <span class="nn">tqec.templates.indices.base</span> <span class="kn">import</span> <span class="n">RectangularTemplate</span>
+<span class="kn">from</span> <span class="nn">tqec.templates.indices.layout</span> <span class="kn">import</span> <span class="n">LayoutTemplate</span>
 
 
 <div class="viewcode-block" id="CompiledBlock">
@@ -572,7 +572,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            as many circuits as there are layers in ``self``, each circuit being</span>
 <span class="sd">            the instantiation of one layer (i.e., a set of</span>
 <span class="sd">            :class:`~tqec.plaquette.plaquette.Plaquette` instances) and the</span>
-<span class="sd">            :class:`~tqec.templates.base.Template` instance from ``self``.</span>
+<span class="sd">            :class:`~tqec.templates.indices.base.Template` instance from ``self``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># We need to shift the circuit based on the shift of the layout template.</span>
         <span class="n">top_left_plaquette</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span><span class="o">.</span><span class="n">instantiation_origin</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>

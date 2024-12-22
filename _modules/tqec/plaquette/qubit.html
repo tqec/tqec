@@ -409,8 +409,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 
 <span class="kn">from</span> <span class="nn">tqec.circuit.qubit</span> <span class="kn">import</span> <span class="n">GridQubit</span>
+<span class="kn">from</span> <span class="nn">tqec.enums</span> <span class="kn">import</span> <span class="n">Orientation</span>
 <span class="kn">from</span> <span class="nn">tqec.plaquette.enums</span> <span class="kn">import</span> <span class="n">PlaquetteSide</span>
-<span class="kn">from</span> <span class="nn">tqec.templates.enums</span> <span class="kn">import</span> <span class="n">TemplateOrientation</span>
 
 
 <div class="viewcode-block" id="PlaquetteQubits">
@@ -432,7 +432,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits.get_edge_qubits">[docs]</a>
     <span class="k">def</span> <span class="nf">get_edge_qubits</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">orientation</span><span class="p">:</span> <span class="n">TemplateOrientation</span> <span class="o">=</span> <span class="n">TemplateOrientation</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">,</span>
+        <span class="n">orientation</span><span class="p">:</span> <span class="n">Orientation</span> <span class="o">=</span> <span class="n">Orientation</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">GridQubit</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the data qubits on the edge of the plaquette. By convention,</span>
 <span class="sd">        the edge is the one with the highest index in the relevant axis.</span>
@@ -445,7 +445,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">_get_relevant_value</span><span class="p">(</span><span class="n">qubit</span><span class="p">:</span> <span class="n">GridQubit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">qubit</span><span class="o">.</span><span class="n">y</span> <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="n">TemplateOrientation</span><span class="o">.</span><span class="n">HORIZONTAL</span> <span class="k">else</span> <span class="n">qubit</span><span class="o">.</span><span class="n">x</span>
+            <span class="k">return</span> <span class="n">qubit</span><span class="o">.</span><span class="n">y</span> <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="n">Orientation</span><span class="o">.</span><span class="n">HORIZONTAL</span> <span class="k">else</span> <span class="n">qubit</span><span class="o">.</span><span class="n">x</span>
 
         <span class="n">max_index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_get_relevant_value</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_qubits</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span>

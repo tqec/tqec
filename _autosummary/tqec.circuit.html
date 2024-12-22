@@ -352,12 +352,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.templates.html">tqec.templates</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template.html">display_template</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html">display_template_from_instantiation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.LayoutTemplate.html">LayoutTemplate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.QubitTemplate.html">QubitTemplate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.Template.html">Template</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.TemplateOrientation.html">TemplateOrientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.RPNGTemplate.html">RPNGTemplate</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -517,7 +512,7 @@ circuits.</p>
 that is used to represent a quantum circuit in the <cite>tqec</cite> library. It also
 defines a few core functions:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="tqec.circuit.generate_circuit.html#tqec.circuit.generate_circuit" title="tqec.circuit.generate_circuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_circuit()</span></code></a> that takes a <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a>
+<li><p><a class="reference internal" href="tqec.circuit.generate_circuit.html#tqec.circuit.generate_circuit" title="tqec.circuit.generate_circuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_circuit()</span></code></a> that takes a <code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code>
 instance and a description of plaquettes via a
 <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> instance and generates a
 <a class="reference internal" href="tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit" title="tqec.circuit.schedule.circuit.ScheduledCircuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code></a> instance that corresponds to the

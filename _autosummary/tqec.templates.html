@@ -42,12 +42,10 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.templates';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="display_template" href="tqec.templates.display_template.html" />
+    <link rel="next" title="RPNGTemplate" href="tqec.templates.RPNGTemplate.html" />
     <link rel="prev" title="API Reference" href="../api.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -354,12 +352,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">tqec.templates</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template.html">display_template</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html">display_template_from_instantiation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.LayoutTemplate.html">LayoutTemplate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.QubitTemplate.html">QubitTemplate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.Template.html">Template</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.TemplateOrientation.html">TemplateOrientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.RPNGTemplate.html">RPNGTemplate</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -513,156 +506,11 @@
                   
   <section id="module-tqec.templates">
 <span id="tqec-templates"></span><h1>tqec.templates<a class="headerlink" href="#module-tqec.templates" title="Link to this heading">#</a></h1>
-<p>Defines several scalable arrays of numbers used to tile plaquettes.</p>
-<p>This module defines the <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> interface that
-should be implemented by subclasses implementing different templates.</p>
-<section id="terminology-used">
-<h2>Terminology used<a class="headerlink" href="#terminology-used" title="Link to this heading">#</a></h2>
-<p>The <strong>template</strong> terminology is used to describe an object (instance of a subclass
-of the <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> class) that can be
-“instantiated” into an array of integers from an input integer scaling parameter
-<span class="math notranslate nohighlight">\(k\)</span>.</p>
-<p>A <strong>subtemplate</strong> is a constant-size sub-array of a template instantiation. For the
-moment, a subtemplate is always a square sub-array with odd-sized sides.</p>
-<p>The <strong>scaling parameter</strong> <span class="math notranslate nohighlight">\(k\)</span> directly relates to the code distance <span class="math notranslate nohighlight">\(d\)</span>
-(at least for regular surface code) where <span class="math notranslate nohighlight">\(d = 2 k + 1\)</span>.</p>
-</section>
-<section id="templates">
-<h2>Templates<a class="headerlink" href="#templates" title="Link to this heading">#</a></h2>
-<p>As noted in the terminology section, a “template” is defined as something that
-can be “instantiated”, i.e., that can generate an array of integer from a given
-scaling parameter <span class="math notranslate nohighlight">\(k\)</span>.</p>
-<p>Templates should all inherit from the base <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a>
-class that defines a few abstract methods that have to be overridden by child
-classes. The most canonical example of a template is implemented by the
-<a class="reference internal" href="tqec.templates.QubitTemplate.html#tqec.templates.QubitTemplate" title="tqec.templates.qubit.QubitTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitTemplate</span></code></a> class: it represents the
-arrangement of plaquettes needed to make a logical qubit.</p>
-<p>The following code demonstrates quite well what a template is supposed to be.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.templates.display</span> <span class="kn">import</span> <span class="n">display_template</span>
-<span class="kn">from</span> <span class="nn">tqec.templates.qubit</span> <span class="kn">import</span> <span class="n">QubitTemplate</span>
-
-<span class="n">template</span> <span class="o">=</span> <span class="n">QubitTemplate</span><span class="p">()</span>
-<span class="n">display_template</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>It outputs</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1   5   6   5   6   2
-7   9   10  9   10  11
-8   10  9   10  9   12
-7   9   10  9   10  11
-8   10  9   10  9   12
-3   13  14  13  14  4
-</pre></div>
-</div>
-<p>The template instantiation is an array of size <span class="math notranslate nohighlight">\(6 \times 6\)</span>, filled with
-integers. Each unique integer will eventually either be linked to a plaquette or
-be left empty. Let’s try to clean up a little bit the array by setting the
-values <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">4</span></code>, <code class="docutils literal notranslate"><span class="pre">5</span></code>, <code class="docutils literal notranslate"><span class="pre">8</span></code>, <code class="docutils literal notranslate"><span class="pre">12</span></code> and <code class="docutils literal notranslate"><span class="pre">14</span></code> to the value
-<code class="docutils literal notranslate"><span class="pre">0</span></code> that means “no plaquette here” for all templates (and that is represented
-by <code class="docutils literal notranslate"><span class="pre">.</span></code> for visibility).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">k</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">removed_plaquettes</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">}</span>
-<span class="n">display_template</span><span class="p">(</span>
-    <span class="n">template</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">removed_plaquettes</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)]</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>that outputs</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.   .   6   .   6   .
-7   9   10  9   10  11
-.   10  9   10  9   .
-7   9   10  9   10  11
-.   10  9   10  9   .
-.   13  .   13  .   .
-</pre></div>
-</div>
-<p>The above array looks very much like a logical qubit arrangement as can be seen in
-most of the papers using the surface code and below!</p>
-<img alt="../_images/logical_qubit.png" src="../_images/logical_qubit.png" />
-<p>But that is only a distance
-<span class="math notranslate nohighlight">\(5 = 2 \times 2 + 1 = 2 k + 1\)</span> code. Let’s try to scale that up:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">k</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">display_template</span><span class="p">(</span>
-    <span class="n">template</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">removed_plaquettes</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)]</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>outputs what we would expect: the “template” of plaquettes for a logical qubit
-using a distance <span class="math notranslate nohighlight">\(d = 2 k + 1 = 2 \times 5 + 1 = 11\)</span> code:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.   .   6   .   6   .   6   .   6   .   6   .
-7   9   10  9   10  9   10  9   10  9   10  11
-.   10  9   10  9   10  9   10  9   10  9   .
-7   9   10  9   10  9   10  9   10  9   10  11
-.   10  9   10  9   10  9   10  9   10  9   .
-7   9   10  9   10  9   10  9   10  9   10  11
-.   10  9   10  9   10  9   10  9   10  9   .
-7   9   10  9   10  9   10  9   10  9   10  11
-.   10  9   10  9   10  9   10  9   10  9   .
-7   9   10  9   10  9   10  9   10  9   10  11
-.   10  9   10  9   10  9   10  9   10  9   .
-.   13  .   13  .   13  .   13  .   13  .   .
-</pre></div>
-</div>
-<p>This ability to scale to arbitrarily large values of <span class="math notranslate nohighlight">\(k\)</span> (as long as your
-computer can store a matrix of shape <span class="math notranslate nohighlight">\((2k+1, 2k+1)\)</span>) is exactly the reason
-of existence of the <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> class.</p>
-<p>This module also includes a few sub-classes implementing the
-<a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> interface:</p>
-<ol class="arabic simple">
-<li><p><a class="reference internal" href="tqec.templates.QubitTemplate.html#tqec.templates.QubitTemplate" title="tqec.templates.qubit.QubitTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitTemplate</span></code></a> that has already been used in
-documentation and that represents a logical qubit.</p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Qubit4WayJunctionTemplate</span></code> that represents a
-logical qubit that has 4 junctions in space and is still a work in progress.</p></li>
-<li><p><a class="reference internal" href="tqec.templates.LayoutTemplate.html#tqec.templates.LayoutTemplate" title="tqec.templates.layout.LayoutTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayoutTemplate</span></code></a> that represent an arbitrary
-layout of other templates arranged on a regular grid.</p></li>
-</ol>
-</section>
-<section id="sub-templates">
-<h2>Sub-templates<a class="headerlink" href="#sub-templates" title="Link to this heading">#</a></h2>
-<p>This module also implements helpers to list and represent sub-templates. A
-sub-template is basically a sub-array of a given template instantiation.
-Sub-templates are all of known constant size and cannot be scaled. Sub-templates
-are represented as an array of integers with a square shape (i.e., 2-dimensional
-with the same number of elements in each dimension) with odd-sized sides.</p>
-<p>The module <code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec.templates.subtemplates</span></code> provides functions to compute
-all the subtemplates for given template instantiation and subtemplate size along
-with some data-structure to represent efficiently this collection of
-sub-templates.</p>
-</section>
-<section id="displaying">
-<h2>Displaying<a class="headerlink" href="#displaying" title="Link to this heading">#</a></h2>
-<p>Templates are basically scalable arrays of integers. The module
-<code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec.templates.display</span></code> provides a few functions to display a pretty and
-human readable representation of a given template instantiation. These functions
-are used in the documentation about templates above, and so their output can be
-observed above.</p>
-</section>
-<p class="rubric">Functions</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.templates.display_template.html#tqec.templates.display_template" title="tqec.templates.display_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_template</span></code></a>(template, k[, ...])</p></td>
-<td><p>Display a template instance with ASCII output.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html#tqec.templates.display_template_from_instantiation" title="tqec.templates.display_template_from_instantiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_template_from_instantiation</span></code></a>(...)</p></td>
-<td><p>Display an array representing a template instantiation with ASCII output.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
 <p class="rubric">Classes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.templates.LayoutTemplate.html#tqec.templates.LayoutTemplate" title="tqec.templates.LayoutTemplate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayoutTemplate</span></code></a>(element_layout[, ...])</p></td>
-<td><p>A template representing a layout of other templates.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.templates.QubitTemplate.html#tqec.templates.QubitTemplate" title="tqec.templates.QubitTemplate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QubitTemplate</span></code></a>([default_increments])</p></td>
-<td><p>An error-corrected qubit.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.Template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Template</span></code></a>([default_increments])</p></td>
-<td><p>Base class for all the templates.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.templates.TemplateOrientation.html#tqec.templates.TemplateOrientation" title="tqec.templates.TemplateOrientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TemplateOrientation</span></code></a>(value[, names, module, ...])</p></td>
-<td><p>Indicates the orientation of the midline of a template.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate" title="tqec.templates.RPNGTemplate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RPNGTemplate</span></code></a>(template, mapping)</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -689,11 +537,11 @@ observed above.</p>
       </div>
     </a>
     <a class="right-next"
-       href="tqec.templates.display_template.html"
+       href="tqec.templates.RPNGTemplate.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">display_template</p>
+        <p class="prev-next-title">RPNGTemplate</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -707,21 +555,6 @@ observed above.</p>
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#terminology-used">Terminology used</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#templates">Templates</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sub-templates">Sub-templates</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#displaying">Displaying</a></li>
-</ul>
-  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">

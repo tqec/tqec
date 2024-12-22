@@ -352,12 +352,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.templates.html">tqec.templates</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template.html">display_template</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html">display_template_from_instantiation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.LayoutTemplate.html">LayoutTemplate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.QubitTemplate.html">QubitTemplate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.Template.html">Template</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.TemplateOrientation.html">TemplateOrientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.RPNGTemplate.html">RPNGTemplate</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -563,12 +558,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits">
-<span class="sig-name descname"><span class="pre">get_edge_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">TemplateOrientation.HORIZONTAL</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_edge_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Orientation.HORIZONTAL</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits" title="Link to this definition">#</a></dt>
 <dd><p>Return the data qubits on the edge of the plaquette. By convention,
 the edge is the one with the highest index in the relevant axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>orientation</strong> (<a class="reference internal" href="tqec.templates.TemplateOrientation.html#tqec.templates.TemplateOrientation" title="tqec.templates.TemplateOrientation"><em>TemplateOrientation</em></a><em>, </em><em>optional</em>) – Whether to use horizontal or
+<dd class="field-odd"><p><strong>orientation</strong> (<em>TemplateOrientation</em><em>, </em><em>optional</em>) – Whether to use horizontal or
 vertical orientation as the axis. Defaults to horizontal.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
