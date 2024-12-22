@@ -27,6 +27,7 @@ _VALUES_OF_K_TO_TEST = [1, 10]
 _VALUES_OF_MANHATTAN_RADIUS_TO_TEST = [0, 1, 3]
 
 
+@pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
     "template,k,r,avoid_zero_plaquettes",
     itertools.product(
@@ -107,6 +108,7 @@ _TEMPLATE_PAIRS_TO_TEST = [
 ]
 
 
+@pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
     "templates,k,r,avoid_zero_plaquettes",
     itertools.product(
