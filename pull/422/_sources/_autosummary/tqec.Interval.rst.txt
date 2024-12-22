@@ -1,0 +1,50 @@
+﻿Interval
+========
+
+.. currentmodule:: tqec
+
+.. autoclass:: Interval
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Interval.__init__
+      ~Interval.contains
+      ~Interval.intersection
+      ~Interval.is_disjoint
+      ~Interval.is_empty
+      ~Interval.iter_integers
+      ~Interval.overlaps_with
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Interval.end_excluded
+      ~Interval.start_excluded
+      ~Interval.start
+      ~Interval.end
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: contains
+   .. automethod:: intersection
+   .. automethod:: is_disjoint
+   .. automethod:: is_empty
+   .. automethod:: iter_integers
+   .. automethod:: overlaps_with
+   
+   

@@ -1,0 +1,43 @@
+﻿tqec.plaquette
+==============
+
+.. currentmodule:: tqec
+
+.. automodule:: tqec.plaquette
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+   
+      FrozenDefaultDict
+      MeasurementBasis
+      Plaquette
+      PlaquetteOrientation
+      PlaquetteQubits
+      PlaquetteSide
+      Plaquettes
+      RAPNG
+      RAPNGDescription
+      RG
+      RPNG
+      RPNGDescription
+      RepeatedPlaquettes
+      ResetBasis
+      SquarePlaquetteQubits
+   
+   
+
+   
+   
+   

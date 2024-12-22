@@ -1,0 +1,41 @@
+PlaquetteQubits
+===============
+
+.. currentmodule:: tqec.plaquette
+
+.. autoclass:: PlaquetteQubits
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PlaquetteQubits.__init__
+      ~PlaquetteQubits.get_edge_qubits
+      ~PlaquetteQubits.get_qubits_on_side
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PlaquetteQubits.all_qubits
+      ~PlaquetteQubits.data_qubits
+      ~PlaquetteQubits.syndrome_qubits
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: get_edge_qubits
+   .. automethod:: get_qubits_on_side
+   
+   

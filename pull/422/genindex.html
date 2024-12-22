@@ -1,0 +1,1400 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#X"><strong>X</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.circuit.QubitMap.html#tqec.circuit.QubitMap.__init__">__init__() (tqec.circuit.QubitMap method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.__init__">(tqec.circuit.ScheduledCircuit method)</a>
+</li>
+        <li><a href="_autosummary/tqec.compile.BlockBuilder.html#tqec.compile.BlockBuilder.__init__">(tqec.compile.BlockBuilder method)</a>
+</li>
+        <li><a href="_autosummary/tqec.compile.CompiledBlock.html#tqec.compile.CompiledBlock.__init__">(tqec.compile.CompiledBlock method)</a>
+</li>
+        <li><a href="_autosummary/tqec.compile.CubeSpec.html#tqec.compile.CubeSpec.__init__">(tqec.compile.CubeSpec method)</a>
+</li>
+        <li><a href="_autosummary/tqec.compile.PipeSpec.html#tqec.compile.PipeSpec.__init__">(tqec.compile.PipeSpec method)</a>
+</li>
+        <li><a href="_autosummary/tqec.compile.SubstitutionBuilder.html#tqec.compile.SubstitutionBuilder.__init__">(tqec.compile.SubstitutionBuilder method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.__init__">(tqec.computation.BlockGraph method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.Cube.html#tqec.computation.Cube.__init__">(tqec.computation.Cube method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.CubeKind.html#tqec.computation.CubeKind.__init__">(tqec.computation.CubeKind method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.__init__">(tqec.computation.Pipe method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.__init__">(tqec.computation.PipeKind method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.Port.html#tqec.computation.Port.__init__">(tqec.computation.Port method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.YCube.html#tqec.computation.YCube.__init__">(tqec.computation.YCube method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.__init__">(tqec.computation.ZXCube method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.ZXEdge.html#tqec.computation.ZXEdge.__init__">(tqec.computation.ZXEdge method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.__init__">(tqec.computation.ZXGraph method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.ZXNode.html#tqec.computation.ZXNode.__init__">(tqec.computation.ZXNode method)</a>
+</li>
+        <li><a href="_autosummary/tqec.Displacement.html#tqec.Displacement.__init__">(tqec.Displacement method)</a>
+</li>
+        <li><a href="_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.__init__">(tqec.interop.RGBA method)</a>
+</li>
+        <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.__init__">(tqec.Interval method)</a>
+</li>
+        <li><a href="_autosummary/tqec.LinearFunction.html#tqec.LinearFunction.__init__">(tqec.LinearFunction method)</a>
+</li>
+        <li><a href="_autosummary/tqec.NoiseModel.html#tqec.NoiseModel.__init__">(tqec.NoiseModel method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.__init__">(tqec.plaquette.FrozenDefaultDict method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.__init__">(tqec.plaquette.Plaquette method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits.__init__">(tqec.plaquette.PlaquetteQubits method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes.__init__">(tqec.plaquette.Plaquettes method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RAPNG.html#tqec.plaquette.RAPNG.__init__">(tqec.plaquette.RAPNG method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription.__init__">(tqec.plaquette.RAPNGDescription method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes.__init__">(tqec.plaquette.RepeatedPlaquettes method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RG.html#tqec.plaquette.RG.__init__">(tqec.plaquette.RG method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.__init__">(tqec.plaquette.RPNG method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.__init__">(tqec.plaquette.RPNGDescription method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.SquarePlaquetteQubits.html#tqec.plaquette.SquarePlaquetteQubits.__init__">(tqec.plaquette.SquarePlaquetteQubits method)</a>
+</li>
+        <li><a href="_autosummary/tqec.Position2D.html#tqec.Position2D.__init__">(tqec.Position2D method)</a>
+</li>
+        <li><a href="_autosummary/tqec.Position3D.html#tqec.Position3D.__init__">(tqec.Position3D method)</a>
+</li>
+        <li><a href="_autosummary/tqec.Scalable2D.html#tqec.Scalable2D.__init__">(tqec.Scalable2D method)</a>
+</li>
+        <li><a href="_autosummary/tqec.Shape2D.html#tqec.Shape2D.__init__">(tqec.Shape2D method)</a>
+</li>
+        <li><a href="_autosummary/tqec.SignedDirection3D.html#tqec.SignedDirection3D.__init__">(tqec.SignedDirection3D method)</a>
+</li>
+        <li><a href="_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.__init__">(tqec.templates.RPNGTemplate method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.a">a (tqec.interop.RGBA attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.add_edge">add_edge() (tqec.computation.BlockGraph method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.add_edge">(tqec.computation.ZXGraph method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.add_node">add_node() (tqec.computation.BlockGraph method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.add_node">(tqec.computation.ZXGraph method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.add_to_schedule_index">add_to_schedule_index() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Direction3D.html#tqec.Direction3D.all_directions">all_directions() (tqec.Direction3D static method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.all_kinds">all_kinds() (tqec.computation.ZXCube static method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.append_annotation">append_annotation() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.append_new_moment">append_new_moment() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.append_observable">append_observable() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Position3D.html#tqec.Position3D.as_2d">as_2d() (tqec.Position3D method)</a>
+</li>
+      <li><a href="_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.as_floats">as_floats() (tqec.interop.RGBA method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.as_tuple">as_tuple() (tqec.computation.ZXCube method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.Position3D.html#tqec.Position3D.as_tuple">(tqec.Position3D method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.b">b (tqec.interop.RGBA attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.compile.BlockBuilder.html#tqec.compile.BlockBuilder">BlockBuilder (class in tqec.compile)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph">BlockGraph (class in tqec.computation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.check_compatible_with_cubes">check_compatible_with_cubes() (tqec.computation.Pipe method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.check_invariants">check_invariants() (tqec.computation.ZXGraph method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.circuit">circuit (tqec.plaquette.Plaquette attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.compile_block_graph.html#tqec.compile.compile_block_graph">compile_block_graph() (in module tqec.compile)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.CompiledBlock.html#tqec.compile.CompiledBlock">CompiledBlock (class in tqec.compile)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.contains">contains() (tqec.Interval method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.Cube.html#tqec.computation.Cube">Cube (class in tqec.computation)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.CubeSpec.html#tqec.compile.CubeSpec.cube_kind">cube_kind (tqec.compile.CubeSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.CubeKind.html#tqec.computation.CubeKind">CubeKind (class in tqec.computation)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.CubeSpec.html#tqec.compile.CubeSpec">CubeSpec (class in tqec.compile)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.Direction3D.html#tqec.Direction3D">Direction3D (class in tqec)</a>
+</li>
+      <li><a href="_autosummary/tqec.Displacement.html#tqec.Displacement">Displacement (class in tqec)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.interop.display_collada_model.html#tqec.interop.display_collada_model">display_collada_model() (in module tqec.interop)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.draw">draw() (tqec.computation.ZXGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.edges_at">edges_at() (tqec.computation.BlockGraph method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.edges_at">(tqec.computation.ZXGraph method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.empty">empty() (tqec.circuit.ScheduledCircuit static method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.end">end (tqec.Interval attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.end_excluded">end_excluded (tqec.Interval attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.fill_ports">fill_ports() (tqec.computation.ZXGraph method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.QubitMap.html#tqec.circuit.QubitMap.filter_by_qubits">filter_by_qubits() (tqec.circuit.QubitMap method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.filter_by_qubits">(tqec.circuit.ScheduledCircuit method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.find_correration_surfaces">find_correration_surfaces() (tqec.computation.ZXGraph method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.QubitMap.html#tqec.circuit.QubitMap.from_circuit">from_circuit() (tqec.circuit.QubitMap static method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.from_circuit">(tqec.circuit.ScheduledCircuit static method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.compile.CubeSpec.html#tqec.compile.CubeSpec.from_cube">from_cube() (tqec.compile.CubeSpec static method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.from_cubes">from_cubes() (tqec.computation.Pipe static method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.from_dae_file">from_dae_file() (tqec.computation.BlockGraph static method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription.from_extended_string">from_extended_string() (tqec.plaquette.RAPNGDescription class method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.from_extended_string">(tqec.plaquette.RPNGDescription class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.circuit.QubitMap.html#tqec.circuit.QubitMap.from_qubits">from_qubits() (tqec.circuit.QubitMap static method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.from_str">from_str() (tqec.computation.PipeKind static method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.from_str">(tqec.computation.ZXCube static method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.plaquette.RAPNG.html#tqec.plaquette.RAPNG.from_string">from_string() (tqec.plaquette.RAPNG class method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription.from_string">(tqec.plaquette.RAPNGDescription class method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RG.html#tqec.plaquette.RG.from_string">(tqec.plaquette.RG class method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.from_string">(tqec.plaquette.RPNG class method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.from_string">(tqec.plaquette.RPNGDescription class method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict">FrozenDefaultDict (class in tqec.plaquette)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.g">g (tqec.interop.RGBA attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.generate_circuit.html#tqec.circuit.generate_circuit">generate_circuit() (in module tqec.circuit)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.get">get() (tqec.plaquette.FrozenDefaultDict method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.get_abstract_observables">get_abstract_observables() (tqec.computation.BlockGraph method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.get_basis_along">get_basis_along() (tqec.computation.PipeKind method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.get_basis_along">(tqec.computation.ZXCube method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.get_circuit">get_circuit() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.get_degree">get_degree() (tqec.computation.BlockGraph method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.get_degree">(tqec.computation.ZXGraph method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.get_edge">get_edge() (tqec.computation.BlockGraph method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.get_edge">(tqec.computation.ZXGraph method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits.get_edge_qubits">get_edge_qubits() (tqec.plaquette.PlaquetteQubits method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.SquarePlaquetteQubits.html#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits">(tqec.plaquette.SquarePlaquetteQubits method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.plaquette.RAPNG.html#tqec.plaquette.RAPNG.get_g_op">get_g_op() (tqec.plaquette.RAPNG method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription.get_g_op">(tqec.plaquette.RAPNGDescription method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.get_g_op">(tqec.plaquette.RPNG method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_g_op">(tqec.plaquette.RPNGDescription method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.get_increments">get_increments() (tqec.templates.RPNGTemplate method)</a>
+</li>
+      <li><a href="_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.get_midline_plaquettes">get_midline_plaquettes() (tqec.templates.RPNGTemplate method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription.get_n">get_n() (tqec.plaquette.RAPNGDescription method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_n">(tqec.plaquette.RPNGDescription method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription.get_plaquette">get_plaquette() (tqec.plaquette.RAPNGDescription method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_plaquette">(tqec.plaquette.RPNGDescription method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.get_qubit_coords_definition_preamble">get_qubit_coords_definition_preamble() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits.get_qubits_on_side">get_qubits_on_side() (tqec.plaquette.PlaquetteQubits method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.SquarePlaquetteQubits.html#tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side">(tqec.plaquette.SquarePlaquetteQubits method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.plaquette.RAPNG.html#tqec.plaquette.RAPNG.get_r_op">get_r_op() (tqec.plaquette.RAPNG method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription.get_r_op">(tqec.plaquette.RAPNGDescription method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.get_r_op">(tqec.plaquette.RPNG method)</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_r_op">(tqec.plaquette.RPNGDescription method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.get_repeated_circuit">get_repeated_circuit() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.has_default_factory">has_default_factory() (tqec.plaquette.FrozenDefaultDict method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.has_edge_between">has_edge_between() (tqec.computation.BlockGraph method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.has_edge_between">(tqec.computation.ZXGraph method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.has_hadamard">has_hadamard (tqec.computation.PipeKind attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXEdge.html#tqec.computation.ZXEdge.has_hadamard">(tqec.computation.ZXEdge attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.instantiate">instantiate() (tqec.templates.RPNGTemplate method)</a>
+</li>
+      <li><a href="_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.instantiation_origin">instantiation_origin() (tqec.templates.RPNGTemplate method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.intersection">intersection() (tqec.Interval method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.LinearFunction.html#tqec.LinearFunction.intersection">(tqec.LinearFunction method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval">Interval (class in tqec)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.is_disjoint">is_disjoint() (tqec.Interval method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.is_empty">is_empty() (tqec.Interval method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Position3D.html#tqec.Position3D.is_neighbour">is_neighbour() (tqec.Position3D method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.QubitMap.html#tqec.circuit.QubitMap.items">items() (tqec.circuit.QubitMap method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.items">(tqec.plaquette.FrozenDefaultDict method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.iter_integers">iter_integers() (tqec.Interval method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.compile.CubeSpec.html#tqec.compile.CubeSpec.junction_arms">junction_arms (tqec.compile.CubeSpec attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.keys">keys() (tqec.plaquette.FrozenDefaultDict method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.Cube.html#tqec.computation.Cube.kind">kind (tqec.computation.Cube attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.kind">(tqec.computation.Pipe attribute)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.ZXNode.html#tqec.computation.ZXNode.kind">(tqec.computation.ZXNode attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.Cube.html#tqec.computation.Cube.label">label (tqec.computation.Cube attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXNode.html#tqec.computation.ZXNode.label">(tqec.computation.ZXNode attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.compile.CompiledBlock.html#tqec.compile.CompiledBlock.layers">layers (tqec.compile.CompiledBlock attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.LinearFunction.html#tqec.LinearFunction">LinearFunction (class in tqec)</a>
+</li>
+      <li><a href="_autosummary/tqec.gallery.logical_cnot_block_graph.html#tqec.gallery.logical_cnot_block_graph">logical_cnot_block_graph() (in module tqec.gallery)</a>
+</li>
+      <li><a href="_autosummary/tqec.gallery.logical_cnot_zx_graph.html#tqec.gallery.logical_cnot_zx_graph">logical_cnot_zx_graph() (in module tqec.gallery)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes.map_indices">map_indices() (tqec.plaquette.Plaquettes method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes.map_indices">(tqec.plaquette.RepeatedPlaquettes method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.map_keys">map_keys() (tqec.plaquette.FrozenDefaultDict method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.map_qubit_indices">map_qubit_indices() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.map_to_qubits">map_to_qubits() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.MeasurementBasis.html#tqec.plaquette.MeasurementBasis">MeasurementBasis (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.merge_scheduled_circuits.html#tqec.circuit.merge_scheduled_circuits">merge_scheduled_circuits() (in module tqec.circuit)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.mergeable_instructions">mergeable_instructions (tqec.plaquette.Plaquette attribute)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="_autosummary/tqec.circuit.html#module-tqec.circuit">tqec.circuit</a>
+</li>
+        <li><a href="_autosummary/tqec.compile.html#module-tqec.compile">tqec.compile</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.html#module-tqec.computation">tqec.computation</a>
+</li>
+        <li><a href="_autosummary/tqec.exceptions.html#module-tqec.exceptions">tqec.exceptions</a>
+</li>
+        <li><a href="_autosummary/tqec.gallery.html#module-tqec.gallery">tqec.gallery</a>
+</li>
+        <li><a href="_autosummary/tqec.interop.html#module-tqec.interop">tqec.interop</a>
+</li>
+        <li><a href="_autosummary/tqec.plaquette.html#module-tqec.plaquette">tqec.plaquette</a>
+</li>
+        <li><a href="_autosummary/tqec.simulation.html#module-tqec.simulation">tqec.simulation</a>
+</li>
+        <li><a href="_autosummary/tqec.templates.html#module-tqec.templates">tqec.templates</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.moment_at_schedule">moment_at_schedule() (tqec.circuit.ScheduledCircuit method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.name">name (tqec.plaquette.Plaquette attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.NoiseModel.html#tqec.NoiseModel">NoiseModel (class in tqec)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.NoiseModel.html#tqec.NoiseModel.noisy_circuit">noisy_circuit() (tqec.NoiseModel method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes.num_rounds">num_rounds() (tqec.plaquette.RepeatedPlaquettes method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.plaquette.PlaquetteSide.html#tqec.plaquette.PlaquetteSide.opposite">opposite() (tqec.plaquette.PlaquetteSide method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.overlaps_with">overlaps_with() (tqec.Interval method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe">Pipe (class in tqec.computation)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.PipeSpec.html#tqec.compile.PipeSpec.pipe_type">pipe_type (tqec.compile.PipeSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind">PipeKind (class in tqec.computation)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.PipeSpec.html#tqec.compile.PipeSpec">PipeSpec (class in tqec.compile)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette">Plaquette (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.PlaquetteOrientation.html#tqec.plaquette.PlaquetteOrientation">PlaquetteOrientation (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits">PlaquetteQubits (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes">Plaquettes (class in tqec.plaquette)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.plaquette.PlaquetteSide.html#tqec.plaquette.PlaquetteSide">PlaquetteSide (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.simulation.plot_observable_as_inset.html#tqec.simulation.plot_observable_as_inset">plot_observable_as_inset() (in module tqec.simulation)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.Port.html#tqec.computation.Port">Port (class in tqec.computation)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.Cube.html#tqec.computation.Cube.position">position (tqec.computation.Cube attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXNode.html#tqec.computation.ZXNode.position">(tqec.computation.ZXNode attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.Position2D.html#tqec.Position2D">Position2D (class in tqec)</a>
+</li>
+      <li><a href="_autosummary/tqec.Position3D.html#tqec.Position3D">Position3D (class in tqec)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.project_on_boundary">project_on_boundary() (tqec.plaquette.Plaquette method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.circuit.QubitMap.html#tqec.circuit.QubitMap">QubitMap (class in tqec.circuit)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.qubits">qubits (tqec.plaquette.Plaquette attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.r">r (tqec.interop.RGBA attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.RAPNG.html#tqec.plaquette.RAPNG">RAPNG (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription">RAPNGDescription (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.interop.read_block_graph_from_dae_file.html#tqec.interop.read_block_graph_from_dae_file">read_block_graph_from_dae_file() (in module tqec.interop)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.reliable_hash">reliable_hash() (tqec.plaquette.Plaquette method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes.repeat">repeat() (tqec.plaquette.Plaquettes method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes.repeat">(tqec.plaquette.RepeatedPlaquettes method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes">RepeatedPlaquettes (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.ResetBasis.html#tqec.plaquette.ResetBasis">ResetBasis (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.RG.html#tqec.plaquette.RG">RG (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA">RGBA (class in tqec.interop)</a>
+</li>
+      <li><a href="_autosummary/tqec.round_or_fail.html#tqec.round_or_fail">round_or_fail() (in module tqec)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG">RPNG (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription">RPNGDescription (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate">RPNGTemplate (class in tqec.templates)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.Scalable2D.html#tqec.Scalable2D">Scalable2D (class in tqec)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit">ScheduledCircuit (class in tqec.circuit)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.ScheduleException.html#tqec.circuit.ScheduleException">ScheduleException</a>
+</li>
+      <li><a href="_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.shape">shape() (tqec.templates.RPNGTemplate method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Shape2D.html#tqec.Shape2D">Shape2D (class in tqec)</a>
+</li>
+      <li><a href="_autosummary/tqec.Position3D.html#tqec.Position3D.shift_by">shift_by() (tqec.Position3D method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Position3D.html#tqec.Position3D.shift_in_direction">shift_in_direction() (tqec.Position3D method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.shift_min_z_to_zero">shift_min_z_to_zero() (tqec.computation.BlockGraph method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.NoiseModel.html#tqec.NoiseModel.si1000">si1000() (tqec.NoiseModel static method)</a>
+</li>
+      <li><a href="_autosummary/tqec.SignedDirection3D.html#tqec.SignedDirection3D">SignedDirection3D (class in tqec)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.PipeSpec.html#tqec.compile.PipeSpec.spec1">spec1 (tqec.compile.PipeSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.PipeSpec.html#tqec.compile.PipeSpec.spec2">spec2 (tqec.compile.PipeSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.SquarePlaquetteQubits.html#tqec.plaquette.SquarePlaquetteQubits">SquarePlaquetteQubits (class in tqec.plaquette)</a>
+</li>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.start">start (tqec.Interval attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.Interval.html#tqec.Interval.start_excluded">start_excluded (tqec.Interval attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.simulation.start_simulation_using_sinter.html#tqec.simulation.start_simulation_using_sinter">start_simulation_using_sinter() (in module tqec.simulation)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.SubstitutionBuilder.html#tqec.compile.SubstitutionBuilder">SubstitutionBuilder (class in tqec.compile)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.compile.CompiledBlock.html#tqec.compile.CompiledBlock.template">template (tqec.compile.CompiledBlock attribute)</a>
+</li>
+      <li><a href="_autosummary/tqec.gallery.three_cnots_block_graph.html#tqec.gallery.three_cnots_block_graph">three_cnots_block_graph() (in module tqec.gallery)</a>
+</li>
+      <li><a href="_autosummary/tqec.gallery.three_cnots_zx_graph.html#tqec.gallery.three_cnots_zx_graph">three_cnots_zx_graph() (in module tqec.gallery)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.to_block_graph">to_block_graph() (tqec.computation.ZXGraph method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.QubitMap.html#tqec.circuit.QubitMap.to_circuit">to_circuit() (tqec.circuit.QubitMap method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_dae_file">to_dae_file() (tqec.computation.BlockGraph method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Position2D.html#tqec.Position2D.to_grid_qubit">to_grid_qubit() (tqec.Position2D method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes.to_name_dict">to_name_dict() (tqec.plaquette.Plaquettes method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes.to_name_dict">(tqec.plaquette.RepeatedPlaquettes method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.Scalable2D.html#tqec.Scalable2D.to_numpy_shape">to_numpy_shape() (tqec.Scalable2D method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.Shape2D.html#tqec.Shape2D.to_numpy_shape">(tqec.Shape2D method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.plaquette.PlaquetteOrientation.html#tqec.plaquette.PlaquetteOrientation.to_plaquette_side">to_plaquette_side() (tqec.plaquette.PlaquetteOrientation method)</a>
+</li>
+      <li><a href="_autosummary/tqec.Scalable2D.html#tqec.Scalable2D.to_shape_2d">to_shape_2d() (tqec.Scalable2D method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_zx_graph">to_zx_graph() (tqec.computation.BlockGraph method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.CubeKind.html#tqec.computation.CubeKind.to_zx_kind">to_zx_kind() (tqec.computation.CubeKind method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.Port.html#tqec.computation.Port.to_zx_kind">(tqec.computation.Port method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.YCube.html#tqec.computation.YCube.to_zx_kind">(tqec.computation.YCube method)</a>
+</li>
+        <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.to_zx_kind">(tqec.computation.ZXCube method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.computation.Cube.html#tqec.computation.Cube.to_zx_node">to_zx_node() (tqec.computation.Cube method)</a>
+</li>
+      <li>
+    tqec.circuit
+
+      <ul>
+        <li><a href="_autosummary/tqec.circuit.html#module-tqec.circuit">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    tqec.compile
+
+      <ul>
+        <li><a href="_autosummary/tqec.compile.html#module-tqec.compile">module</a>
+</li>
+      </ul></li>
+      <li>
+    tqec.computation
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.html#module-tqec.computation">module</a>
+</li>
+      </ul></li>
+      <li>
+    tqec.exceptions
+
+      <ul>
+        <li><a href="_autosummary/tqec.exceptions.html#module-tqec.exceptions">module</a>
+</li>
+      </ul></li>
+      <li>
+    tqec.gallery
+
+      <ul>
+        <li><a href="_autosummary/tqec.gallery.html#module-tqec.gallery">module</a>
+</li>
+      </ul></li>
+      <li>
+    tqec.interop
+
+      <ul>
+        <li><a href="_autosummary/tqec.interop.html#module-tqec.interop">module</a>
+</li>
+      </ul></li>
+      <li>
+    tqec.plaquette
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.html#module-tqec.plaquette">module</a>
+</li>
+      </ul></li>
+      <li>
+    tqec.simulation
+
+      <ul>
+        <li><a href="_autosummary/tqec.simulation.html#module-tqec.simulation">module</a>
+</li>
+      </ul></li>
+      <li>
+    tqec.templates
+
+      <ul>
+        <li><a href="_autosummary/tqec.templates.html#module-tqec.templates">module</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.interop.TQECColor.html#tqec.interop.TQECColor">TQECColor (class in tqec.interop)</a>
+</li>
+      <li><a href="_autosummary/tqec.exceptions.TQECException.html#tqec.exceptions.TQECException">TQECException</a>
+</li>
+      <li><a href="_autosummary/tqec.exceptions.TQECWarning.html#tqec.exceptions.TQECWarning">TQECWarning</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.u">u (tqec.computation.Pipe attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXEdge.html#tqec.computation.ZXEdge.u">(tqec.computation.ZXEdge attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.NoiseModel.html#tqec.NoiseModel.uniform_depolarizing">uniform_depolarizing() (tqec.NoiseModel static method)</a>
+</li>
+      <li><a href="_autosummary/tqec.compile.CompiledBlock.html#tqec.compile.CompiledBlock.update_layers">update_layers() (tqec.compile.CompiledBlock method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.v">v (tqec.computation.Pipe attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXEdge.html#tqec.computation.ZXEdge.v">(tqec.computation.ZXEdge attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.validate">validate() (tqec.computation.BlockGraph method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.values">values() (tqec.plaquette.FrozenDefaultDict method)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.view_as_html">view_as_html() (tqec.computation.BlockGraph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.with_alpha">with_alpha() (tqec.interop.RGBA method)</a>
+</li>
+      <li><a href="_autosummary/tqec.circuit.QubitMap.html#tqec.circuit.QubitMap.with_mapped_qubits">with_mapped_qubits() (tqec.circuit.QubitMap method)</a>
+</li>
+      <li><a href="_autosummary/tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes.with_updated_plaquettes">with_updated_plaquettes() (tqec.plaquette.Plaquettes method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes.with_updated_plaquettes">(tqec.plaquette.RepeatedPlaquettes method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.ZXKind.html#tqec.computation.ZXKind.with_zx_flipped">with_zx_flipped() (tqec.computation.ZXKind method)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXNode.html#tqec.computation.ZXNode.with_zx_flipped">(tqec.computation.ZXNode method)</a>
+</li>
+        <li><a href="_autosummary/tqec.interop.TQECColor.html#tqec.interop.TQECColor.with_zx_flipped">(tqec.interop.TQECColor method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.interop.write_block_graph_to_dae_file.html#tqec.interop.write_block_graph_to_dae_file">write_block_graph_to_dae_file() (in module tqec.interop)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="X">X</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.x">x (tqec.computation.PipeKind attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.x">(tqec.computation.ZXCube attribute)</a>
+</li>
+        <li><a href="_autosummary/tqec.Scalable2D.html#tqec.Scalable2D.x">(tqec.Scalable2D attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.y">y (tqec.computation.PipeKind attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.y">(tqec.computation.ZXCube attribute)</a>
+</li>
+        <li><a href="_autosummary/tqec.Scalable2D.html#tqec.Scalable2D.y">(tqec.Scalable2D attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.YCube.html#tqec.computation.YCube">YCube (class in tqec.computation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.z">z (tqec.computation.PipeKind attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.z">(tqec.computation.ZXCube attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube">ZXCube (class in tqec.computation)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/tqec.computation.ZXEdge.html#tqec.computation.ZXEdge">ZXEdge (class in tqec.computation)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph">ZXGraph (class in tqec.computation)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.ZXKind.html#tqec.computation.ZXKind">ZXKind (class in tqec.computation)</a>
+</li>
+      <li><a href="_autosummary/tqec.computation.ZXNode.html#tqec.computation.ZXNode">ZXNode (class in tqec.computation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
