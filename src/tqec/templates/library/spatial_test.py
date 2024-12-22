@@ -176,5 +176,30 @@ def test_spatial_junction_junctions_never_overwrite_corners(
             assert 3 not in template.mapping
 
 
-def test_spatial_junction_logical_qubit_no_reset_or_measurement_on_corners() -> None:
-    pass
+@pytest.mark.parametrize(
+    ["external_stabilizers", "arms", "reset", "measurement"],
+    itertools.product(
+        ["x", "z"],
+        (
+            JunctionArms.L_shaped_arms()
+            + JunctionArms.T_shaped_arms()
+            + JunctionArms.X_shaped_arms()
+        ),
+        [None, ResetBasis.X, ResetBasis.Z],
+        [None, MeasurementBasis.X, MeasurementBasis.Z],
+    ),
+)
+def test_spatial_junction_logical_qubit_no_reset_or_measurement_on_corners(
+    external_stabilizers: Literal["x", "z"],
+    arms: JunctionArms,
+    reset: ResetBasis | None,
+    measurement: MeasurementBasis | None,
+) -> None:
+    template = get_spatial_junction_qubit_template(
+        external_stabilizers, arms, reset, measurement
+    )
+    rpng_inst = template.instantiate(k=3)
+
+    for i, j in itertools.product([0, -1], [0, -1]):
+        assert not rpng_inst[i][j].has_reset
+        assert not rpng_inst[i][j].has_measurement

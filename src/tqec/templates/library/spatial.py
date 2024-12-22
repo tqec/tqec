@@ -34,18 +34,41 @@ def get_spatial_junction_qubit_template(
         measure the data-qubits.
 
     Warning:
-        by convention, this function does not populate the plaquettes on the
+        By convention, this function does not populate the plaquettes on the
         boundaries where an arm (i.e. spatial junction) is present **BUT** do
         populate the corners (that are part of the boundaries, so this is an
         exception to the first part of the sentence).
 
+        The rationale behind that convention is that the logical qubit at the
+        center of the spatial junction is completely aware of all the spatial
+        junctions that should be implemented whereas each spatial junction in
+        isolation does not know if the others spatial junctions are present or
+        not. That means that corners, whose plaquette depends on the presence or
+        absence of the two spatial junctions it belongs to, require information
+        that is given to this function, but not to the junction generation
+        function.
+
+        Junctions should follow that convention and should not replace the
+        plaquette descriptions on the corners (i.e., not include an explicit
+        mapping, even to the empty plaquette, from the index of the corner to
+        a plaquette).
+
+    Warning:
         Corners are populated with plaquette that do not contain resets or
         measurements on the data-qubits. It is up to the junction implementation
         to make sure that a reset or a measurement is present on the qubit(s)
         shared with the corner, if needed.
 
-        Junctions should follow that convention and should not replace the
-        plaquette descriptions on the corners.
+        The rationale behind that convention is that the information about
+        whether or not the internal data-qubits of a junction should be reset
+        or measured is given to the junction-generation function, and not to
+        the qubit-generation function (this one). It is also important to note
+        that the information we need here is not given by ``reset`` or
+        ``measurement``: the logical qubit at the center of the spatial junction
+        can already be initialised (and so have an incoming temporal junction
+        from below), which means ``reset is None`` and ``measurement is None``,
+        with the junction requiring the initialisation or measurement of its
+        internal data-qubit.
 
     Arguments:
         external_stabilizers: stabilizers that are measured at each boundaries
@@ -128,17 +151,19 @@ def get_spatial_junction_qubit_template(
     # Note that indices 1 and 4 **might** be set twice in the 4 ifs below. These
     # cases are handled later in the function and will overwrite the description
     # on 1 and 4 if needed, so we do not have to account for those cases here.
+    # Also note that, by convention from the docstring, corners (so indices 1
+    # and 4 below) should NOT contain reset/measurement operations.
     if JunctionArms.UP not in arms:
-        mapping[1] = RPNGDescription.from_string(f"---- ---- {r}{be}3{m} {r}{be}4{m}")
+        mapping[1] = RPNGDescription.from_string(f"---- ---- -{be}3- -{be}4-")
         mapping[10] = RPNGDescription.from_string(f"---- ---- {r}{be}3{m} {r}{be}4{m}")
     if JunctionArms.RIGHT not in arms:
-        mapping[4] = RPNGDescription.from_string(f"{r}{be}1{m} ---- {r}{be}2{m} ----")
+        mapping[4] = RPNGDescription.from_string(f"-{be}1- ---- -{be}2- ----")
         mapping[18] = RPNGDescription.from_string(f"{r}{be}1{m} ---- {r}{be}2{m} ----")
     if JunctionArms.DOWN not in arms:
-        mapping[4] = RPNGDescription.from_string(f"{r}{be}1{m} {r}{be}2{m} ---- ----")
+        mapping[4] = RPNGDescription.from_string(f"-{be}1- -{be}2- ---- ----")
         mapping[20] = RPNGDescription.from_string(f"{r}{be}1{m} {r}{be}2{m} ---- ----")
     if JunctionArms.LEFT not in arms:
-        mapping[1] = RPNGDescription.from_string(f"---- {r}{be}3{m} ---- {r}{be}4{m}")
+        mapping[1] = RPNGDescription.from_string(f"---- -{be}3- ---- -{be}4-")
         mapping[12] = RPNGDescription.from_string(f"---- {r}{be}3{m} ---- {r}{be}4{m}")
 
     # If we have a down-right or top-left L-shaped junction, the opposite corner

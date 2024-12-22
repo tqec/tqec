@@ -245,3 +245,11 @@ class RPNGDescription:
         circuit = stim_Circuit(circuit_as_str)
         scheduled_circuit = ScheduledCircuit.from_circuit(circuit, qubit_map=q_map)
         return Plaquette(name="test", qubits=qubits, circuit=scheduled_circuit)
+
+    @property
+    def has_reset(self) -> bool:
+        return any(corner.get_r_op() not in {None, "H"} for corner in self.corners)
+
+    @property
+    def has_measurement(self) -> bool:
+        return any(corner.get_g_op() not in {None, "H"} for corner in self.corners)
