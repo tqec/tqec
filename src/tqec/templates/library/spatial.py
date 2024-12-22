@@ -39,6 +39,11 @@ def get_spatial_junction_qubit_template(
         populate the corners (that are part of the boundaries, so this is an
         exception to the first part of the sentence).
 
+        Corners are populated with plaquette that do not contain resets or
+        measurements on the data-qubits. It is up to the junction implementation
+        to make sure that a reset or a measurement is present on the qubit(s)
+        shared with the corner, if needed.
+
         Junctions should follow that convention and should not replace the
         plaquette descriptions on the corners.
 
@@ -53,6 +58,11 @@ def get_spatial_junction_qubit_template(
         measurement: basis of the measurement operation performed on data-qubits.
             Defaults to ``None`` that translates to no measurement being applied
             on data-qubits.
+
+    Raises:
+        TQECException: if ``arms`` only contains 0 or 1 flag.
+        TQECException: if ``arms`` describes an I-shaped junction (TOP/DOWN or
+            LEFT/RIGHT).
 
     Returns:
         a description of a logical qubit performing a memory operation while
@@ -73,8 +83,17 @@ def get_spatial_junction_qubit_template(
     #     12   7  15  17  15  17  15  17   8  19
     #      3  20  21  20  21  20  21  20  21   4
 
-    # When Python 3.10 support will be dropped:
-    # assert len(arms) >= 2
+    if len(arms) < 2:
+        raise TQECException(
+            f"Expected two or more arms. Got {arms} that contains {len(arms)} arm."
+        )
+    if arms in JunctionArms.I_shaped_arms():
+        raise TQECException(
+            "I-shaped spatial junctions (i.e., spatial junctions with only two "
+            "arms that are the opposite of each other: LEFT/RIGHT or UP/DOWN) "
+            "should not use get_spatial_junction_qubit_template but rather use "
+            "a conventional memory logical qubit with get_memory_qubit_template."
+        )
 
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
@@ -88,15 +107,18 @@ def get_spatial_junction_qubit_template(
     #     Corners      #
     ####################
     # Corners 2 and 3 are always empty, but corners 1 and 4 might contain a 3-body
-    # stabilizer measurement if both arms around are set.
+    # stabilizer measurement if both arms around are set. The case in which only
+    # one of the arm is present (e.g., UP without LEFT) and where a 2-body
+    # stabilizer should be inserted instead of a 3-body stabilizer is handled
+    # in the next ifs, in the "Boundaries" section.
+    # Note that, according to the convention set in the docstring, the
+    # plaquettes inserted below, that are not part of the bulk, should NOT
+    # contain any reset or measurement. It is up to the junction to use resets
+    # or measurements on the data-qubits shared if they are needed.
     if JunctionArms.UP in arms and JunctionArms.LEFT in arms:
-        mapping[1] = RPNGDescription.from_string(
-            f"---- {r}{be}2{m} {r}{be}4{m} {r}{be}5{m}"
-        )
+        mapping[1] = RPNGDescription.from_string(f"---- -{be}2- -{be}4- -{be}5-")
     if JunctionArms.DOWN in arms and JunctionArms.RIGHT in arms:
-        mapping[4] = RPNGDescription.from_string(
-            f"{r}{be}1{m} {r}{be}2{m} {r}{be}4{m} ----"
-        )
+        mapping[4] = RPNGDescription.from_string(f"-{be}1- -{be}2- -{be}4- ----")
 
     ####################
     #    Boundaries    #
