@@ -19,8 +19,8 @@ from tqec.exceptions import TQECException
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.zxxz import make_zxxz_surface_code_plaquette
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.templates.qubit import QubitTemplate
-from tqec.templates.subtemplates import (
+from tqec.templates.indices.qubit import QubitTemplate
+from tqec.templates.indices.subtemplates import (
     SubTemplateType,
     get_spatially_distinct_subtemplates,
 )

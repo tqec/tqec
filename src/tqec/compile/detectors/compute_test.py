@@ -28,10 +28,10 @@ from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.position import Displacement, Position2D
-from tqec.templates._testing import FixedTemplate
-from tqec.templates.layout import LayoutTemplate
-from tqec.templates.qubit import QubitTemplate
-from tqec.templates.subtemplates import SubTemplateType
+from tqec.templates.indices._testing import FixedTemplate
+from tqec.templates.indices.layout import LayoutTemplate
+from tqec.templates.indices.qubit import QubitTemplate
+from tqec.templates.indices.subtemplates import SubTemplateType
 
 
 @pytest.fixture(name="alternating_subtemplate")

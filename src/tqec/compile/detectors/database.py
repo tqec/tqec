@@ -19,7 +19,7 @@ from tqec.compile.detectors.detector import Detector
 from tqec.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.position import Displacement
-from tqec.templates.subtemplates import SubTemplateType
+from tqec.templates.indices.subtemplates import SubTemplateType
 
 
 @dataclass(frozen=True)

@@ -5,14 +5,14 @@ This module is crucial for ``tqec`` as it implements scalable functions to
 automatically compute detectors in a provided time slice.
 
 The implementation of this module is heavily based on sub-templates, that are
-implemented in :mod:`tqec.templates.subtemplates`.
+implemented in :mod:`tqec.templates.indices.subtemplates`.
 
 The main function defined by this module is
 :func:`~.compute.compute_detectors_for_fixed_radius`. It allows to efficiently
 compute all the detectors (represented as instances of
 :class:`~.detector.Detector`) involving at least one of the measurements
 contained in the last QEC round of the circuit that would be generated with
-the provided :class:`~tqec.templates.base.Template` and
+the provided :class:`~tqec.templates.indices.base.Template` and
 :class:`~tqec.plaquette.plaquette.Plaquette` instances.
 
 Along with :func:`~.compute.compute_detectors_for_fixed_radius`, this module also

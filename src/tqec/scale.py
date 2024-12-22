@@ -6,9 +6,10 @@ This module defines the necessary classes to help with scalable structures.
 ``a`` and ``b`` are floating-point quantities.
 
 This :class:`LinearFunction` class is for example used to represent the shape
-of a :class:`~tqec.templates.base.Template` for any input value ``k``. More
-specifically, :class:`~tqec.templates.qubit.QubitTemplate` has a shape that should
-exactly match a pair of ``LinearFunction(2, 2)`` which is basically ``2k + 2``.
+of a :class:`~tqec.templates.indices.base.Template` for any input value ``k``.
+More specifically, :class:`~tqec.templates.indices.qubit.QubitTemplate` has a
+shape that should exactly match a pair of ``LinearFunction(2, 2)`` which is
+basically ``2k + 2``.
 
 :class:`Scalable2D` is exactly made to represent such pairs of scalable quantities.
 """

@@ -11,7 +11,7 @@ from tqec.computation.pipe import Pipe
 from tqec.exceptions import TQECException
 from tqec.position import Direction3D, Displacement, Shape2D
 from tqec.scale import round_or_fail
-from tqec.templates.layout import LayoutTemplate
+from tqec.templates.indices.layout import LayoutTemplate
 
 
 def get_center_qubit_at_horizontal_pipe(

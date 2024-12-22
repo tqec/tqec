@@ -31,8 +31,8 @@ from tqec.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
 from tqec.position import Direction3D, Position3D
 from tqec.scale import round_or_fail
-from tqec.templates.base import Template
-from tqec.templates.layout import LayoutTemplate
+from tqec.templates.indices.base import Template
+from tqec.templates.indices.layout import LayoutTemplate
 
 
 @dataclass
@@ -42,7 +42,7 @@ class CompiledGraph:
     This class should be easy to scale and generate circuits directly.
 
     Attributes:
-        layout_slices: a list of :class:`~tqec.templates.layout.BlockLayout`
+        layout_slices: a list of :class:`~tqec.templates.indices.layout.BlockLayout`
             instances that represent the compiled blocks at contiguous time
             slices.
         observables: a list of

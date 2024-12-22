@@ -9,7 +9,7 @@ from typing_extensions import override
 
 from tqec.exceptions import TQECWarning
 from tqec.scale import LinearFunction, Scalable2D
-from tqec.templates.base import RectangularTemplate
+from tqec.templates.indices.base import RectangularTemplate
 
 
 class QubitTemplate(RectangularTemplate):

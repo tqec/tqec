@@ -1,9 +1,9 @@
 from ._version import __version__
+from .circuit import QubitMap as QubitMap
 from .circuit import ScheduledCircuit as ScheduledCircuit
 from .circuit import ScheduleException as ScheduleException
 from .circuit import generate_circuit as generate_circuit
 from .circuit import merge_scheduled_circuits as merge_scheduled_circuits
-from .circuit import QubitMap as QubitMap
 from .compile import compile_block_graph as compile_block_graph
 from .computation import BlockGraph as BlockGraph
 from .computation import BlockKind as BlockKind
@@ -18,6 +18,7 @@ from .computation import ZXEdge as ZXEdge
 from .computation import ZXGraph as ZXGraph
 from .computation import ZXKind as ZXKind
 from .computation import ZXNode as ZXNode
+from .enums import Orientation as Orientation
 from .exceptions import TQECException as TQECException
 from .interop import RGBA as RGBA
 from .interop import TQECColor as TQECColor
@@ -26,14 +27,14 @@ from .interop import read_block_graph_from_dae_file as read_block_graph_from_dae
 from .interop import write_block_graph_to_dae_file as write_block_graph_to_dae_file
 from .interval import Interval as Interval
 from .noise_model import NoiseModel as NoiseModel
+from .plaquette import RAPNG as RAPNG
+from .plaquette import RG as RG
+from .plaquette import RPNG as RPNG
 from .plaquette import Plaquette as Plaquette
 from .plaquette import PlaquetteQubits as PlaquetteQubits
-from .plaquette import SquarePlaquetteQubits as SquarePlaquetteQubits
-from .plaquette import RPNG as RPNG
-from .plaquette import RG as RG
-from .plaquette import RPNGDescription as RPNGDescription
-from .plaquette import RAPNG as RAPNG
 from .plaquette import RAPNGDescription as RAPNGDescription
+from .plaquette import RPNGDescription as RPNGDescription
+from .plaquette import SquarePlaquetteQubits as SquarePlaquetteQubits
 from .plaquette.enums import PlaquetteOrientation as PlaquetteOrientation
 from .position import Direction3D as Direction3D
 from .position import Displacement as Displacement
@@ -44,5 +45,4 @@ from .position import SignedDirection3D as SignedDirection3D
 from .scale import LinearFunction as LinearFunction
 from .scale import Scalable2D as Scalable2D
 from .scale import round_or_fail as round_or_fail
-from .templates import Template as Template
-from .templates.enums import TemplateOrientation as TemplateOrientation
+from .templates.indices import Template as Template

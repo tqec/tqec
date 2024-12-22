@@ -1,17 +1,14 @@
 from __future__ import annotations
 
-from tqec.circuit.schedule import ScheduledCircuit
-from tqec.circuit.qubit_map import QubitMap
-from tqec.plaquette.plaquette import Plaquette
-from tqec.plaquette.qubit import PlaquetteQubits
-from tqec.plaquette.qubit import SquarePlaquetteQubits
-from tqec.plaquette.rpng import BasisEnum
-from tqec.plaquette.rpng import ExtendedBasisEnum
-from tqec.plaquette.rpng import RG
-
 from dataclasses import dataclass
 
 from stim import Circuit as stim_Circuit
+
+from tqec.circuit.qubit_map import QubitMap
+from tqec.circuit.schedule import ScheduledCircuit
+from tqec.plaquette.plaquette import Plaquette
+from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
+from tqec.plaquette.rpng import RG, BasisEnum, ExtendedBasisEnum
 
 
 @dataclass(frozen=True)

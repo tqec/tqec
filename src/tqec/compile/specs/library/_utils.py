@@ -14,7 +14,7 @@ from tqec.plaquette.library import PlaquetteBuilder, empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.position import Direction3D
 from tqec.scale import LinearFunction
-from tqec.templates.qubit import QubitTemplate
+from tqec.templates.indices.qubit import QubitTemplate
 
 _DEFAULT_BLOCK_REPETITIONS = LinearFunction(2, -1)
 

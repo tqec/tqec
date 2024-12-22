@@ -3,7 +3,7 @@ import pytest
 
 from tqec.exceptions import TQECWarning
 from tqec.scale import LinearFunction, Scalable2D
-from tqec.templates.qubit import Qubit4WayJunctionTemplate, QubitTemplate
+from tqec.templates.indices.qubit import Qubit4WayJunctionTemplate, QubitTemplate
 
 
 def test_creation() -> None:

@@ -4,7 +4,7 @@ from tqec.circuit.observable_qubits import observable_qubits_from_template
 from tqec.circuit.qubit import GridQubit
 from tqec.plaquette.library import make_css_surface_code_plaquette
 from tqec.plaquette.plaquette import Plaquette
-from tqec.templates._testing import FixedTemplate
+from tqec.templates.indices._testing import FixedTemplate
 
 
 @pytest.fixture
