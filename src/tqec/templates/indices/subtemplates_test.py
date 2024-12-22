@@ -7,10 +7,7 @@ import pytest
 from tqec.position import Position2D
 from tqec.templates.indices.base import Template
 from tqec.templates.indices.layout import LayoutTemplate
-from tqec.templates.indices.qubit import (
-    QubitSpatialJunctionTemplate,
-    QubitTemplate,
-)
+from tqec.templates.indices.qubit import QubitSpatialJunctionTemplate, QubitTemplate
 from tqec.templates.indices.subtemplates import (
     get_spatially_distinct_3d_subtemplates,
     get_spatially_distinct_subtemplates,
