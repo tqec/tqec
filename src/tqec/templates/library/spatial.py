@@ -39,14 +39,13 @@ def get_spatial_junction_qubit_template(
         populate the corners (that are part of the boundaries, so this is an
         exception to the first part of the sentence).
 
-        The rationale behind that convention is that the logical qubit at the
-        center of the spatial junction is completely aware of all the spatial
-        junctions that should be implemented whereas each spatial junction in
-        isolation does not know if the others spatial junctions are present or
-        not. That means that corners, whose plaquette depends on the presence or
-        absence of the two spatial junctions it belongs to, require information
-        that is given to this function, but not to the junction generation
-        function.
+        The rationale behind that convention is that the logical qubit
+        representing the spatial junction is completely aware of all the arms
+        that should be implemented whereas each arm in isolation does not know
+        if the other arms are present or not. That means that corners, whose
+        plaquette depends on the presence or absence of the two arms it belongs
+        to, require information that is given to this function, but not to the
+        arm-generation function.
 
         Junctions should follow that convention and should not replace the
         plaquette descriptions on the corners (i.e., not include an explicit
