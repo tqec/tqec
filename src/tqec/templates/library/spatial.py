@@ -22,10 +22,10 @@ def get_spatial_junction_qubit_template(
     reset: ResetBasis | None = None,
     measurement: MeasurementBasis | None = None,
 ) -> RPNGTemplate:
-    """Implementation of a logical qubit performing a spatial junction.
+    """Implementation of a logical qubit acting as a spatial junction.
 
     This function returns a RPNGTemplate instance representing a logical qubit
-    that is touched by 2 or more spatial junctions. The returned template is
+    connecting to others in space and forming a spatial junction. The returned template is
     carefully crafted to avoid hook errors damaging the logical distance.
 
     Note:

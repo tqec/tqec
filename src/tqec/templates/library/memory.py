@@ -73,7 +73,7 @@ def get_memory_vertical_boundary_template(
     reset: ResetBasis | None = None,
     measurement: MeasurementBasis | None = None,
 ) -> RPNGTemplate:
-    """Implementation of standard memory rounds on a junction aligned with the
+    """Implementation of standard memory rounds on a junction arm aligned with the
     X-axis.
 
     This function returns the RPNGTemplate that represents a memory operation
@@ -146,7 +146,7 @@ def get_memory_horizontal_boundary_template(
     reset: ResetBasis | None = None,
     measurement: MeasurementBasis | None = None,
 ) -> RPNGTemplate:
-    """Implementation of standard memory rounds on a junction aligned with the
+    """Implementation of standard memory rounds on a junction arm aligned with the
     Y-axis.
 
     This function returns the RPNGTemplate that represents a memory operation
