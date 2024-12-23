@@ -22,7 +22,7 @@ def test_4_way_spatial_junction() -> None:
     )
     instantiation = description.instantiate(k=2)
 
-    _3STL = RPNGDescription.from_string("---- -z2- -z4- -z5-")
+    _3STL = RPNGDescription.from_string("---- -z3- -z4- -z5-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
     _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
@@ -65,7 +65,7 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
     )
     instantiation = description.instantiate(k=2)
 
-    _3STL = RPNGDescription.from_string("---- -z2- -z4- -z5-")
+    _3STL = RPNGDescription.from_string("---- -z3- -z4- -z5-")
     _ZZ__ = RPNGDescription.from_string("-z1- -z2- ---- ----")
     _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")

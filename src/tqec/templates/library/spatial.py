@@ -118,7 +118,7 @@ def get_spatial_junction_qubit_template(
     # stabilizer should be inserted instead of a 3-body stabilizer is handled
     # in the next ifs, in the "Boundaries" section.
     if JunctionArms.UP in arms and JunctionArms.LEFT in arms:
-        mapping[1] = RPNGDescription.from_string(f"---- {r}{be}2{m} -{be}4- -{be}5-")
+        mapping[1] = RPNGDescription.from_string(f"---- {r}{be}3{m} -{be}4- -{be}5-")
     if JunctionArms.DOWN in arms and JunctionArms.RIGHT in arms:
         mapping[4] = RPNGDescription.from_string(
             f"{r}{be}1{m} {r}{be}2{m} -{be}4- ----"
