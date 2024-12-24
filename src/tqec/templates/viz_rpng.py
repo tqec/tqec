@@ -2,8 +2,10 @@
 
 from collections.abc import Callable, Iterable
 import math
+from typing import Literal
+
 from tqec.exceptions import TQECException
-from tqec.interop.color import TQECColor
+from tqec.interop.color import RGBA, TQECColor
 from tqec.plaquette.rpng import RPNG, ExtendedBasisEnum, RPNGDescription
 
 
@@ -14,17 +16,52 @@ def rpng_svg_viewer(
     opacity: float = 1.0,
     show_rg_fields: bool = True,
     show_plaquette_indices: bool = False,
+    show_interaction_order: bool = True,
 ) -> str:
     """Visualize the RPNG plaquettes as SVG.
 
     Args:
-        rpng_object: The RPNG object to visualize.
-        canvas_width: The width of the canvas. Defaults to 500.
+        rpng_object: The RPNG object to visualize. It can be a single RPNGDescription or
+            a 2D list of RPNGDescriptions.
+        canvas_height: The height of the canvas in pixels.
+        plaquette_indices: The indices of the plaquettes. It must be provided when
+            ``show_plaquette_indices`` is True. It must have the same dimensions as
+            ``rpng_object``.
+        opacity: The opacity of the plaquettes.
+        show_rg_fields: Whether to show the R/G fields on the data qubits. If True, the R
+            field is shown as a small rectangle at the position of the data qubit, whose color
+            corresponds to the basis. The G field is shown as a small circle at the position
+            of the data qubit, whose color corresponds to the basis.
+        show_plaquette_indices: Whether to show the indices of the plaquettes. If True, the
+            indices are shown at the center of the plaquettes.
+        show_interaction_order: Whether to show the interaction order of the plaquettes. If
+            True, the interaction order is shown at each corner of the plaquette.
+
+    Returns:
+        The SVG string representing the RPNG object.
     """
+    if show_plaquette_indices:
+        if isinstance(rpng_object, RPNGDescription):
+            raise TQECException(
+                "``rpng_object`` must be a 2D list when ``show_plaquette_indices`` is True."
+            )
+        if plaquette_indices is None:
+            raise TQECException(
+                "Plaquette indices must be provided when ``show_plaquette_indices`` is True."
+            )
+        if not len(rpng_object) == len(plaquette_indices) and all(
+            len(row) == len(indices)
+            for row, indices in zip(rpng_object, plaquette_indices)
+        ):
+            raise TQECException(
+                "The dimensions of ``rpng_object`` and ``plaquette_indices`` must match."
+            )
+
     data_qubits: set[complex] = set()
     plaquettes: dict[complex, dict[complex, RPNG]] = {}
     merged_r: dict[complex, ExtendedBasisEnum | None] = {}
     merged_g: dict[complex, ExtendedBasisEnum | None] = {}
+    indices: dict[complex, int] = {}
 
     if isinstance(rpng_object, RPNGDescription):
         rpng_object = [[rpng_object]]
@@ -45,12 +82,16 @@ def rpng_svg_viewer(
                 # Merge the R/G fields on each data qubits
                 merged_r[dq] = _merge_rg_field(merged_r.get(dq), rpng.r)
                 merged_g[dq] = _merge_rg_field(merged_g.get(dq), rpng.g)
-            plaquettes[center] = plaquette
+            if plaquette:
+                plaquettes[center] = plaquette
+                if show_plaquette_indices:
+                    assert plaquette_indices is not None
+                    indices[center] = plaquette_indices[r][c]
 
     # Calculate the bounding box and scale the qubits to fit the canvas
     min_c, max_c = _get_bounding_box(data_qubits)
-    min_c -= 1 + 1j
-    max_c += 1 + 1j
+    min_c -= 2 + 2j
+    max_c += 2 + 2j
     box_width = max_c.real - min_c.real
     box_height = max_c.imag - min_c.imag
     scale_factor = canvas_height / box_height
@@ -64,20 +105,39 @@ def rpng_svg_viewer(
         f"""<svg viewBox="0 0 {canvas_width} {canvas_height}" xmlns="http://www.w3.org/2000/svg">"""
     ]
     fill_layer: list[str] = []
+    stroke_layer: list[str] = []
+    rg_layer: list[str] = []
     text_layer: list[str] = []
 
     # Draw the plaquettes
     clip_path_id = 0
     for center, plaquette in plaquettes.items():
         _draw_plaquette(
-            fill_layer, text_layer, center, plaquette, clip_path_id, q2p, opacity
+            fill_layer,
+            stroke_layer,
+            text_layer,
+            center,
+            plaquette,
+            clip_path_id,
+            q2p,
+            opacity,
+            scale_factor,
+            show_interaction_order,
         )
         clip_path_id += 1
+        if show_plaquette_indices:
+            index = indices[center]
+            _draw_plaquette_index(
+                stroke_layer, text_layer, center, index, q2p, scale_factor
+            )
 
     # Draw the R/G fields on the data qubits
-    # _draw_rg_fields()
+    if show_rg_fields:
+        _draw_rg_fields(rg_layer, merged_r, merged_g, q2p, scale_factor)
 
     lines.extend(fill_layer)
+    lines.extend(stroke_layer)
+    lines.extend(rg_layer)
     lines.extend(text_layer)
     lines.append("</svg>")
     return "\n".join(lines)
@@ -105,12 +165,15 @@ def _get_bounding_box(coords: Iterable[complex]) -> tuple[complex, complex]:
 
 def _draw_plaquette(
     fill_layer: list[str],
+    stroke_layer: list[str],
     text_layer: list[str],
     center: complex,
     plaquette: dict[complex, RPNG],
     clip_path_id: int,
     q2p: Callable[[complex], complex],
     opacity: float,
+    scale_factor: float,
+    show_interaction_order: bool,
 ) -> None:
     path_directions = _svg_path_directions(center, plaquette, q2p)
     # Add clip path
@@ -137,6 +200,27 @@ def _draw_plaquette(
             f'opacity="{opacity}" '
             'stroke="none"/>'
         )
+        # stroke around the polygon
+        stroke_layer.append(
+            f'<path d="{path_directions}" '
+            f'fill="none" stroke="black" stroke-width="{0.05 * scale_factor}"/>'
+        )
+        # Add the interaction order texts
+        if show_interaction_order:
+            if rpng.n is None:
+                continue
+            f = 0.7
+            text_pos = q2p(f * dq + (1 - f) * center)
+            text_layer.append(
+                "<text "
+                f'x="{text_pos.real}" '
+                f'y="{text_pos.imag}" '
+                f'fill="black" '
+                f'font-size="{0.4 * scale_factor}" '
+                'text-anchor="middle" '
+                'dominant-baseline="middle">'
+                f"{rpng.n}</text>"
+            )
 
 
 def _svg_path_directions(
@@ -152,7 +236,7 @@ def _svg_path_directions(
         case 4:
             return _svg_path_directions_4_corners(center, plaquette, q2p)
         case _:
-            raise TQECException("Invalid number of corners")
+            raise TQECException("Invalid number of corners.")
 
 
 def _svg_path_directions_2_corners(
@@ -187,7 +271,7 @@ def _svg_path_directions_3_corners(
 ) -> str:
     antinode = [c for c in plaquette if (2 * center - c) not in plaquette][0]
     missing_node = 2 * center - antinode
-    shoulders = [c + (missing_node - c) * 0.3 for c in plaquette if c != antinode]
+    shoulders = [c + (missing_node - c) * 0.2 for c in plaquette if c != antinode]
     sorted_corners = sorted(
         list(plaquette.keys()) + shoulders,
         key=lambda p2: math.atan2(p2.imag - center.imag, p2.real - center.real),
@@ -213,14 +297,68 @@ def _svg_path_directions_4_corners(
     return directions
 
 
+def _draw_plaquette_index(
+    stroke_layer: list[str],
+    text_layer: list[str],
+    center: complex,
+    index: int,
+    q2p: Callable[[complex], complex],
+    scale_factor: float,
+) -> None:
+    center_pos = q2p(center)
+    stroke_layer.append(
+        f'<circle cx="{center_pos.real}" cy="{center_pos.imag}" r="{0.35 * scale_factor}" '
+        f'fill="{RGBA(240, 240, 240, 1.0).to_hex()}" '
+        'stroke="black" '
+        f'stroke-width="2"/>'
+    )
+    text_layer.append(
+        "<text "
+        f'x="{center_pos.real}" '
+        f'y="{center_pos.imag}" '
+        f'fill="black" '
+        f'font-size="{0.4 * scale_factor}" '
+        'text-anchor="middle" '
+        'dominant-baseline="middle">'
+        f"{index}</text>"
+    )
+
+
 def _draw_rg_fields(
-    out_lines: list[str],
+    rg_lines: list[str],
     rs: dict[complex, ExtendedBasisEnum | None],
     gs: dict[complex, ExtendedBasisEnum | None],
-    r_circle_radius: float,
-    g_circle_radius: float,
+    q2p: Callable[[complex], complex],
+    scale_factor: float,
 ) -> None:
-    pass
+    _draw_rg_field(rg_lines, rs, q2p, scale_factor, 0.17, "rect")
+    _draw_rg_field(rg_lines, gs, q2p, scale_factor, 0.12, "circle")
+
+
+def _draw_rg_field(
+    rg_lines: list[str],
+    mapping: dict[complex, ExtendedBasisEnum | None],
+    q2p: Callable[[complex], complex],
+    scale_factor: float,
+    radius: float,
+    shape: Literal["circle", "rect"],
+) -> None:
+    for q, b in mapping.items():
+        if b is None:
+            continue
+        p = q2p(q)
+        r = radius * scale_factor
+        color = TQECColor(b.value.upper()).rgba.to_hex()
+        if shape == "circle":
+            rg_lines.append(
+                f'<circle cx="{p.real}" cy="{p.imag}" r="{r}" '
+                f'fill="{color}" stroke="black" stroke-width="{0.03 * scale_factor}"/>'
+            )
+        else:
+            rg_lines.append(
+                f'<rect x="{p.real - r}" y="{p.imag - r}" width="{2 * r}" height="{2 * r}" '
+                f'fill="{color}" stroke="black" stroke-width="{0.03 * scale_factor}"/>'
+            )
 
 
 def _complex_str(c: complex) -> str:
