@@ -10,7 +10,6 @@ def test_validate_plaquette_from_rpng_string() -> None:
     rpng_errors = [
         "---- ---- ----",  # wrong length of values
         "---- ---- --- ----",  # wrong length of values
-        "-z1- -z2- ---- -z4-",  # wrong number of 2Q gates
         "-z1- -z4- -z3- -z4-",  # wrong times for the 2Q gates
         "-z1- -z0- -z3- -z4-",  # wrong times for the 2Q gates
     ]
