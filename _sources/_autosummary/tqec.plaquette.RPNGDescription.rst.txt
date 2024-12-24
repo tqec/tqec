@@ -28,6 +28,8 @@ RPNGDescription
    .. autosummary::
    
       ~RPNGDescription.ancilla
+      ~RPNGDescription.has_measurement
+      ~RPNGDescription.has_reset
       ~RPNGDescription.corners
    
    
