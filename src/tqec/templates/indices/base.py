@@ -1,17 +1,18 @@
 """Defines the base classes for templates: :class:`Template` and
 :class:`RectangularTemplate`."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Sequence
 
 import numpy
 import numpy.typing as npt
-from typing_extensions import override
 
-from tqec.enums import Orientation
-from tqec.exceptions import TQECException
 from tqec.position import Displacement, Position2D, Shape2D
 from tqec.scale import Scalable2D, round_or_fail
+from tqec.templates.indices.enums import TemplateBorder
 from tqec.templates.indices.subtemplates import (
     UniqueSubTemplates,
     get_spatially_distinct_subtemplates,
@@ -137,5 +138,48 @@ class Template(ABC):
         return Position2D(0, 0)
 
 
+@dataclass(frozen=True)
+class BorderIndices:
+    """Stores indices on the border of a rectangular template.
+
+    Attributes:
+        top_left_corner: non-repeating index at the top or left part of the
+            border.
+        first_repeating: first repeating index on the border "bulk".
+        second_repeating: second repeating index on the border "bulk".
+        bottom_right_corner: non-repeating index at the bottom or right part of
+            the border.
+    """
+
+    top_left_corner: int
+    first_repeating: int
+    second_repeating: int
+    bottom_right_corner: int
+
+    def to(self, other: BorderIndices) -> dict[int, int]:
+        """Returns a mapping from ``self`` to ``other``.
+
+        This method returns a mapping from the indices stored in ``self`` to the
+        indices stored in ``other``.
+
+        Args:
+            other: indices from another border.
+
+        Returns:
+            a mapping from the indices stored in ``self`` to the indices stored
+            in ``other``.
+        """
+        return {
+            self.top_left_corner: other.top_left_corner,
+            self.first_repeating: other.first_repeating,
+            self.second_repeating: other.second_repeating,
+            self.bottom_right_corner: other.bottom_right_corner,
+        }
+
+
 class RectangularTemplate(Template):
     """Base class for all the templates that have a rectangular shape."""
+
+    @abstractmethod
+    def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
+        pass
