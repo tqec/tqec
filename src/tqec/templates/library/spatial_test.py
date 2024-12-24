@@ -4,7 +4,7 @@ from typing import Final, Literal
 import pytest
 
 from tqec.compile.specs.enums import JunctionArms
-from tqec.exceptions import TQECException
+from tqec.exceptions import TQECException, TQECWarning
 from tqec.plaquette.enums import MeasurementBasis, ResetBasis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.library.spatial import (
@@ -36,6 +36,16 @@ def test_4_way_spatial_junction() -> None:
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
+    expected_warning_message = "^Instantiating Qubit4WayJunctionTemplate with k=1\\..*"
+    with pytest.warns(TQECWarning, match=expected_warning_message):
+        instantiation = description.instantiate(k=1)
+    assert instantiation == [
+        [_3STL, _EMPT, _EMPT, _EMPT],
+        [_EMPT, _ZVHE, _XXXX, _EMPT],
+        [_EMPT, _XXXX, _ZVHE, _EMPT],
+        [_EMPT, _EMPT, _EMPT, _3SBR],
+    ]
+
 
 def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
     description = get_spatial_junction_qubit_template(
@@ -58,6 +68,16 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
+    expected_warning_message = "^Instantiating Qubit4WayJunctionTemplate with k=1\\..*"
+    with pytest.warns(TQECWarning, match=expected_warning_message):
+        instantiation = description.instantiate(k=1)
+    assert instantiation == [
+        [__Z_Z, _EMPT, _EMPT, _EMPT],
+        [_EMPT, _ZVHE, _XXXX, _EMPT],
+        [__Z_Z, _XXXX, _ZVHE, _EMPT],
+        [_EMPT, _EMPT, _EMPT, _3SBR],
+    ]
+
 
 def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
     description = get_spatial_junction_qubit_template(
@@ -78,6 +98,16 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
         [_EMPT, _ZHHE, _XXXX, _ZHHE, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZHHE, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZZ__, _EMPT, _ZZ__, _EMPT, _ZZ__],
+    ]
+
+    expected_warning_message = "^Instantiating Qubit4WayJunctionTemplate with k=1\\..*"
+    with pytest.warns(TQECWarning, match=expected_warning_message):
+        instantiation = description.instantiate(k=1)
+    assert instantiation == [
+        [_3STL, _EMPT, _EMPT, _EMPT],
+        [_EMPT, _ZVHE, _XXXX, _EMPT],
+        [_EMPT, _XXXX, _ZHHE, _EMPT],
+        [_EMPT, _ZZ__, _EMPT, _ZZ__],
     ]
 
 
@@ -107,6 +137,16 @@ def test_2_way_L_shape_spatial_junction() -> None:
         [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
         [L__ZZ, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
+    ]
+
+    expected_warning_message = "^Instantiating Qubit4WayJunctionTemplate with k=1\\..*"
+    with pytest.warns(TQECWarning, match=expected_warning_message):
+        instantiation = description.instantiate(k=1)
+    assert instantiation == [
+        [_EMPT, _EMPT, T__ZZ, _EMPT],
+        [_EMPT, _3STL, _XXXX, _EMPT],
+        [L__ZZ, _XXXX, _ZVHE, _EMPT],
+        [_EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
 
