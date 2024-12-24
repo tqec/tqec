@@ -168,9 +168,7 @@ def get_spatial_junction_qubit_template(
     internal_basis_plaquette = RPNGDescription.from_string(
         f"{r}{bi}1{m} {r}{bi}3{m} {r}{bi}2{m} {r}{bi}5{m}"
     )
-    mapping[6] = internal_basis_plaquette
-    mapping[7] = internal_basis_plaquette
-    mapping[17] = internal_basis_plaquette
+    mapping[6] = mapping[7] = mapping[17] = internal_basis_plaquette
 
     # be{h,v}hp: basis external {horizontal,vertical} hook plaquette
     behhp = RPNGDescription.from_string(
@@ -179,11 +177,9 @@ def get_spatial_junction_qubit_template(
     bevhp = RPNGDescription.from_string(
         f"{r}{be}1{m} {r}{be}4{m} {r}{be}3{m} {r}{be}5{m}"
     )
-    mapping[5] = bevhp if JunctionArms.UP in arms else behhp
-    mapping[13] = bevhp if JunctionArms.UP in arms else behhp
+    mapping[5] = mapping[13] = bevhp if JunctionArms.UP in arms else behhp
     mapping[14] = behhp if JunctionArms.RIGHT in arms else bevhp
-    mapping[8] = bevhp if JunctionArms.DOWN in arms else behhp
-    mapping[15] = bevhp if JunctionArms.DOWN in arms else behhp
+    mapping[8] = mapping[15] = bevhp if JunctionArms.DOWN in arms else behhp
     mapping[16] = behhp if JunctionArms.LEFT in arms else bevhp
 
     # In the special cases of an L-shaped junction TOP/LEFT or DOWN/RIGHT, the
