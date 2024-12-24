@@ -22,9 +22,11 @@ from tqec.compile.detectors.detector import Detector
 from tqec.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.position import Displacement, Position2D
-from tqec.templates.base import Template
-from tqec.templates.display import get_template_representation_from_instantiation
-from tqec.templates.subtemplates import (
+from tqec.templates.indices.base import Template
+from tqec.templates.indices.display import (
+    get_template_representation_from_instantiation,
+)
+from tqec.templates.indices.subtemplates import (
     SubTemplateType,
     get_spatially_distinct_3d_subtemplates,
 )

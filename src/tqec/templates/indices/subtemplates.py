@@ -16,19 +16,19 @@ SubTemplateType = npt.NDArray[numpy.int_]
 @dataclass(frozen=True)
 class UniqueSubTemplates:
     """Stores information on the sub-templates of a specific radius present on
-    a larger :class:`~tqec.templates.base.Template` instance.
+    a larger :class:`~tqec.templates.indices.base.Template` instance.
 
     A sub-template is defined here as a portion of a
-    :class:`~tqec.templates.base.Template` instantiation. In other words, a
+    :class:`~tqec.templates.indices.base.Template` instantiation. In other words, a
     sub-template is a sub-array of the array resulting from calling the method
-    :meth:`~tqec.templates.base.Template.instantiate` on any
-    :class:`~tqec.templates.base.Template` instance. The size of this sub-array
+    :meth:`~tqec.templates.indices.base.Template.instantiate` on any
+    :class:`~tqec.templates.indices.base.Template` instance. The size of this sub-array
     is defined by its `radius`, which is computed according to the Manhattan
     distance.
 
     For example, let's say you have the following array from calling
-    :meth:`~tqec.templates.base.Template.instantiate` on a
-    :class:`~tqec.templates.base.Template` instance: ::
+    :meth:`~tqec.templates.indices.base.Template.instantiate` on a
+    :class:`~tqec.templates.indices.base.Template` instance: ::
 
         1  5  6  5  6  2
         7  9 10  9 10 11
@@ -57,14 +57,14 @@ class UniqueSubTemplates:
 
     Note the inclusion of ``.`` that are here to represent ``0`` (i.e., the
     absence of plaquette at that particular point) because there is no
-    plaquette in the original :class:`~tqec.templates.base.Template` instantiation.
+    plaquette in the original :class:`~tqec.templates.indices.base.Template` instantiation.
 
     This dataclass efficiently stores all the sub-templates of a given
-    `:class:`~tqec.templates.base.Template` instantiation and of a given ``radius``.
+    `:class:`~tqec.templates.indices.base.Template` instantiation and of a given ``radius``.
 
     Attributes:
         subtemplate_indices: an array that has the same shape as the
-            original :class:`~tqec.templates.base.Template` instantiation but
+            original :class:`~tqec.templates.indices.base.Template` instantiation but
             stores sub-template indices referencing sub-templates from the
             ``subtemplates`` attribute. The integers in this array do NOT represent
             plaquette indices.

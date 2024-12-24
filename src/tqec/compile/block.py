@@ -11,8 +11,8 @@ from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes, RepeatedPlaquettes
 from tqec.position import Displacement, Position2D
 from tqec.scale import LinearFunction
-from tqec.templates.base import RectangularTemplate
-from tqec.templates.layout import LayoutTemplate
+from tqec.templates.indices.base import RectangularTemplate
+from tqec.templates.indices.layout import LayoutTemplate
 
 
 @dataclass
@@ -161,7 +161,7 @@ class BlockLayout:
             as many circuits as there are layers in ``self``, each circuit being
             the instantiation of one layer (i.e., a set of
             :class:`~tqec.plaquette.plaquette.Plaquette` instances) and the
-            :class:`~tqec.templates.base.Template` instance from ``self``.
+            :class:`~tqec.templates.indices.base.Template` instance from ``self``.
         """
         # We need to shift the circuit based on the shift of the layout template.
         top_left_plaquette = self._template.instantiation_origin(k)

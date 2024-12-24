@@ -5,20 +5,17 @@ import numpy.typing as npt
 import pytest
 
 from tqec.position import Position2D
-from tqec.templates.base import Template
-from tqec.templates.layout import LayoutTemplate
-from tqec.templates.qubit import (
-    Qubit4WayJunctionTemplate,
-    QubitTemplate,
-)
-from tqec.templates.subtemplates import (
+from tqec.templates.indices.base import Template
+from tqec.templates.indices.layout import LayoutTemplate
+from tqec.templates.indices.qubit import QubitSpatialJunctionTemplate, QubitTemplate
+from tqec.templates.indices.subtemplates import (
     get_spatially_distinct_3d_subtemplates,
     get_spatially_distinct_subtemplates,
 )
 
 _TEMPLATES_TO_TEST = [
     QubitTemplate(),
-    Qubit4WayJunctionTemplate(),
+    QubitSpatialJunctionTemplate(),
     LayoutTemplate(
         {Position2D(0, 0): QubitTemplate(), Position2D(1, 1): QubitTemplate()}
     ),
@@ -27,6 +24,7 @@ _VALUES_OF_K_TO_TEST = [1, 10]
 _VALUES_OF_MANHATTAN_RADIUS_TO_TEST = [0, 1, 3]
 
 
+@pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
     "template,k,r,avoid_zero_plaquettes",
     itertools.product(
@@ -89,17 +87,17 @@ def test_get_spatially_distinct_subtemplates(
 
 
 _TEMPLATE_PAIRS_TO_TEST = [
-    (QubitTemplate(), Qubit4WayJunctionTemplate()),
+    (QubitTemplate(), QubitSpatialJunctionTemplate()),
     (
         LayoutTemplate(
             {
                 Position2D(0, 0): QubitTemplate(),
-                Position2D(1, 1): Qubit4WayJunctionTemplate(),
+                Position2D(1, 1): QubitSpatialJunctionTemplate(),
             }
         ),
         LayoutTemplate(
             {
-                Position2D(0, 0): Qubit4WayJunctionTemplate(),
+                Position2D(0, 0): QubitSpatialJunctionTemplate(),
                 Position2D(1, 1): QubitTemplate(),
             }
         ),
@@ -107,6 +105,7 @@ _TEMPLATE_PAIRS_TO_TEST = [
 ]
 
 
+@pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
     "templates,k,r,avoid_zero_plaquettes",
     itertools.product(

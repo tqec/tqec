@@ -1,10 +1,10 @@
 """Defines a high-level template composing several sub-templates:
 :class:`LayoutTemplate`.
 
-This module defines a :class:`~tqec.templates.base.Template` child class that
-is able to represent several :class:`~tqec.templates.base.RectangularTemplate`
+This module defines a :class:`~tqec.templates.indices.base.Template` child class that
+is able to represent several :class:`~tqec.templates.indices.base.RectangularTemplate`
 instances with the same scalable shape. Each of the managed
-:class:`~tqec.templates.base.RectangularTemplate` instance is linked to a unique
+:class:`~tqec.templates.indices.base.RectangularTemplate` instance is linked to a unique
 2-dimensional position on an infinite 2-dimensional grid.
 
 Example
@@ -15,8 +15,8 @@ A grid of :math:`2 \\times 2` logical qubits can be represented with
 .. code-block:: python
 
     from tqec.position import Position2D
-    from tqec.templates.layout import LayoutTemplate
-    from tqec.templates.qubit import QubitTemplate
+    from tqec.templates.indices.layout import LayoutTemplate
+    from tqec.templates.indices.qubit import QubitTemplate
 
     qubit = QubitTemplate()
     grid = LayoutTemplate(
@@ -28,12 +28,12 @@ A grid of :math:`2 \\times 2` logical qubits can be represented with
         }
     )
 
-Being a :class:`~tqec.templates.base.Template` instance, the above constructed
+Being a :class:`~tqec.templates.indices.base.Template` instance, the above constructed
 ``grid`` can be displayed with
 
 .. code-block:: python
 
-    from tqec.templates.display import display_template
+    from tqec.templates.indices.display import display_template
 
     display_template(qubit, 2)
     print("=" * 50)
@@ -74,7 +74,7 @@ from typing_extensions import override
 from tqec.exceptions import TQECException
 from tqec.position import Displacement, Position2D, Shape2D
 from tqec.scale import Scalable2D
-from tqec.templates.base import RectangularTemplate
+from tqec.templates.indices.base import RectangularTemplate
 
 
 class LayoutTemplate(RectangularTemplate):
@@ -134,7 +134,7 @@ class LayoutTemplate(RectangularTemplate):
 
         This method is used internally by :meth:`LayoutTemplate.instantiate` and
         can be used externally to get a map from the instantiation indices used by
-        each of the individual :class:`~tqec.templates.base.Template` instances
+        each of the individual :class:`~tqec.templates.indices.base.Template` instances
         stored in ``self`` to the global instantiation index used.
 
         Args:
@@ -149,7 +149,7 @@ class LayoutTemplate(RectangularTemplate):
             from ``1`` to ``template.expected_plaquettes_number``) to the global
             indices that are used in :meth:`LayoutTemplate.instantiate` (going
             from ``N`` to ``N + template.expected_plaquettes_number - 1`` where
-            ``N`` depends on the other :class:`~tqec.templates.base.Template`
+            ``N`` depends on the other :class:`~tqec.templates.indices.base.Template`
             instances managed by ``self``).
         """
         if instantiate_indices is None:
@@ -170,7 +170,7 @@ class LayoutTemplate(RectangularTemplate):
         become the template origin.
 
         Due to how :class:`LayoutTemplate` organizes the
-        :class:`~tqec.templates.base.Template` instances it manages, it is entirely
+        :class:`~tqec.templates.indices.base.Template` instances it manages, it is entirely
         possible (and valid) for the template to not be aligned with the global
         origin.
 

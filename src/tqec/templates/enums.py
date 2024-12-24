@@ -1,10 +1,13 @@
-"""Defines a few enumerations related to templates."""
-
 from enum import Enum, auto
+from typing import Literal
 
 
-class TemplateOrientation(Enum):
-    """Indicates the orientation of the midline of a template."""
-
+class ZObservableOrientation(Enum):
     HORIZONTAL = auto()
     VERTICAL = auto()
+
+    def horizontal_basis(self) -> Literal["x", "z"]:
+        return "z" if self == ZObservableOrientation.HORIZONTAL else "x"
+
+    def vertical_basis(self) -> Literal["x", "z"]:
+        return "z" if self == ZObservableOrientation.VERTICAL else "x"

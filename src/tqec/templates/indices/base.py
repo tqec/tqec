@@ -8,11 +8,11 @@ import numpy
 import numpy.typing as npt
 from typing_extensions import override
 
+from tqec.enums import Orientation
 from tqec.exceptions import TQECException
 from tqec.position import Displacement, Position2D, Shape2D
 from tqec.scale import Scalable2D, round_or_fail
-from tqec.templates.enums import TemplateOrientation
-from tqec.templates.subtemplates import (
+from tqec.templates.indices.subtemplates import (
     UniqueSubTemplates,
     get_spatially_distinct_subtemplates,
 )
@@ -64,7 +64,7 @@ class Template(ABC):
         """Returns a scalable version of the template shape."""
 
     def get_midline_plaquettes(
-        self, k: int, orientation: TemplateOrientation = TemplateOrientation.HORIZONTAL
+        self, k: int, orientation: Orientation = Orientation.HORIZONTAL
     ) -> list[tuple[int, int]]:
         """Returns the default observable qubits for the template.
 
@@ -87,10 +87,10 @@ class Template(ABC):
         if midline_shape % 2 == 1:
             raise TQECException(
                 "Midline is not defined for odd "
-                + f"{'height' if orientation == TemplateOrientation.HORIZONTAL else 'width'}."
+                + f"{'height' if orientation == Orientation.HORIZONTAL else 'width'}."
             )
         midline = midline_shape // 2 - 1
-        if orientation == TemplateOrientation.VERTICAL:
+        if orientation == Orientation.VERTICAL:
             return [(row, midline) for row in range(iteration_shape)]
         return [(midline, column) for column in range(iteration_shape)]
 
@@ -132,7 +132,7 @@ class Template(ABC):
                 plaquettes will be considered.
             avoid_zero_plaquettes: ``True`` if sub-templates with an empty plaquette
                 (i.e., 0 value in the instantiation of the
-                :class:`~tqec.templates.base.Template` instance) at its center
+                :class:`~tqec.templates.indices.base.Template` instance) at its center
                 should be ignored. Default to ``True``.
 
         Returns:
@@ -148,7 +148,7 @@ class Template(ABC):
         This property returns the coordinates of the origin of the plaquette
         (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
         to the top-left entry of the array returned by
-        :meth:`~tqec.templates.base.Template.instantiate`.
+        :meth:`~tqec.templates.indices.base.Template.instantiate`.
 
         Note:
             the returned coordinates are in plaquette coordinates. That means
@@ -163,7 +163,7 @@ class Template(ABC):
             the coordinates of the origin of the plaquette
             (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
             to the top-left entry of the array returned by
-            :meth:`~tqec.templates.base.Template.instantiate`.
+            :meth:`~tqec.templates.indices.base.Template.instantiate`.
         """
         return Position2D(0, 0)
 
@@ -173,16 +173,16 @@ class RectangularTemplate(Template):
 
     @override
     def get_midline_plaquettes(
-        self, k: int, orientation: TemplateOrientation = TemplateOrientation.HORIZONTAL
+        self, k: int, orientation: Orientation = Orientation.HORIZONTAL
     ) -> list[tuple[int, int]]:
         shape = self.shape(k)
         midline_shape, iteration_shape = shape.x, shape.y
         if midline_shape % 2 == 1:
             raise TQECException(
                 "Midline is not defined for odd "
-                + f"{'height' if orientation == TemplateOrientation.HORIZONTAL else 'width'}."
+                + f"{'height' if orientation == Orientation.HORIZONTAL else 'width'}."
             )
         midline = midline_shape // 2 - 1
-        if orientation == TemplateOrientation.VERTICAL:
+        if orientation == Orientation.VERTICAL:
             return [(row, midline) for row in range(iteration_shape)]
         return [(midline, column) for column in range(iteration_shape)]

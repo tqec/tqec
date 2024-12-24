@@ -3,18 +3,18 @@ from __future__ import annotations
 from typing import Mapping, Sequence, cast
 
 from tqec.circuit.qubit import GridQubit
+from tqec.enums import Orientation
 from tqec.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquette
 from tqec.position import Displacement
-from tqec.templates.base import Template
-from tqec.templates.enums import TemplateOrientation
+from tqec.templates.indices.base import Template
 
 
 def observable_qubits_from_template(
     template: Template,
     k: int,
     plaquettes: Sequence[Plaquette] | Mapping[int, Plaquette],
-    orientation: TemplateOrientation = TemplateOrientation.HORIZONTAL,
+    orientation: Orientation = Orientation.HORIZONTAL,
 ) -> Sequence[tuple[GridQubit, int]]:
     """Return the default observable qubits for the given template and its
     plaquettes.

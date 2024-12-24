@@ -28,7 +28,7 @@ from tqec.circuit.schedule import (
 )
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.position import Displacement
-from tqec.templates.base import Template
+from tqec.templates.indices.base import Template
 
 
 def generate_circuit(

@@ -18,6 +18,7 @@ from .computation import ZXEdge as ZXEdge
 from .computation import ZXGraph as ZXGraph
 from .computation import ZXKind as ZXKind
 from .computation import ZXNode as ZXNode
+from .enums import Orientation as Orientation
 from .exceptions import TQECException as TQECException
 from .interop import RGBA as RGBA
 from .interop import TQECColor as TQECColor
@@ -43,5 +44,4 @@ from .position import SignedDirection3D as SignedDirection3D
 from .scale import LinearFunction as LinearFunction
 from .scale import Scalable2D as Scalable2D
 from .scale import round_or_fail as round_or_fail
-from .templates import Template as Template
-from .templates.enums import TemplateOrientation as TemplateOrientation
+from .templates.indices import Template as Template

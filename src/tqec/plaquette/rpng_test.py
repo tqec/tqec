@@ -1,9 +1,8 @@
-from tqec.plaquette.rpng import RPNGDescription
+import pytest
+from stim import Circuit
 
 from tqec.plaquette.qubit import SquarePlaquetteQubits
-
-from stim import Circuit as stim_Circuit
-import pytest
+from tqec.plaquette.rpng import RPNGDescription
 
 
 def test_validate_plaquette_from_rpng_string() -> None:
@@ -11,7 +10,6 @@ def test_validate_plaquette_from_rpng_string() -> None:
     rpng_errors = [
         "---- ---- ----",  # wrong length of values
         "---- ---- --- ----",  # wrong length of values
-        "-z1- -z2- ---- -z4-",  # wrong number of 2Q gates
         "-z1- -z4- -z3- -z4-",  # wrong times for the 2Q gates
         "-z1- -z0- -z3- -z4-",  # wrong times for the 2Q gates
     ]
@@ -21,6 +19,7 @@ def test_validate_plaquette_from_rpng_string() -> None:
         "-z1- -z2- -z3- -z4-",
         "-z5- -x2- -x3- -z1-",
         "-x5h -z2z -x3x hz1-",
+        "-z1- -z2- ---- -z4-",
     ]
     for rpng in rpng_errors:
         with pytest.raises(ValueError):
@@ -61,7 +60,7 @@ TICK
 TICK
 MX 4
 """
-    assert stim_Circuit(expected_circuit_str) == plaquette.circuit.get_circuit()
+    assert Circuit(expected_circuit_str) == plaquette.circuit.get_circuit()
 
     # Usual plaquette corresponding to the ZXXZ stabilizer with partial initialization.
     corners_rpng_str = "-z1- zx2- zx4- -z5-"
@@ -87,7 +86,7 @@ CZ 4 3
 TICK
 MX 4
 """
-    assert stim_Circuit(expected_circuit_str) == plaquette.circuit.get_circuit()
+    assert Circuit(expected_circuit_str) == plaquette.circuit.get_circuit()
 
     # Arbitrary plaquette.
     qubits = SquarePlaquetteQubits()
@@ -116,4 +115,4 @@ H 0
 M 1
 MX 2 4
 """
-    assert stim_Circuit(expected_circuit_str) == plaquette.circuit.get_circuit()
+    assert Circuit(expected_circuit_str) == plaquette.circuit.get_circuit()

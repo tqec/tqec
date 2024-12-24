@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-from tqec.circuit.schedule import ScheduledCircuit
-from tqec.circuit.qubit_map import QubitMap
-from tqec.plaquette.plaquette import Plaquette
-from tqec.plaquette.qubit import PlaquetteQubits
-from tqec.plaquette.qubit import SquarePlaquetteQubits
-
 from dataclasses import dataclass
 from enum import Enum
 
 from stim import Circuit as stim_Circuit
+
+from tqec.circuit.qubit_map import QubitMap
+from tqec.circuit.schedule import ScheduledCircuit
+from tqec.plaquette.plaquette import Plaquette
+from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
 
 
 class BasisEnum(Enum):
@@ -181,8 +180,6 @@ class RPNGDescription:
                 times.append(rpng.n)
         if len(times) != len(set(times)):
             raise ValueError("The n values for the corners must be unique.")
-        elif len(times) not in [0, 2, 4]:
-            raise ValueError("Each plaquette must have 0, 2, or 4 2Q gates.")
 
     @classmethod
     def from_string(cls, corners_rpng_string: str) -> RPNGDescription:
@@ -248,3 +245,11 @@ class RPNGDescription:
         circuit = stim_Circuit(circuit_as_str)
         scheduled_circuit = ScheduledCircuit.from_circuit(circuit, qubit_map=q_map)
         return Plaquette(name="test", qubits=qubits, circuit=scheduled_circuit)
+
+    @property
+    def has_reset(self) -> bool:
+        return any(corner.get_r_op() not in {None, "H"} for corner in self.corners)
+
+    @property
+    def has_measurement(self) -> bool:
+        return any(corner.get_g_op() not in {None, "H"} for corner in self.corners)

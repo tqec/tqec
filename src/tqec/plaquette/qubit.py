@@ -4,8 +4,8 @@ import typing as ty
 from dataclasses import dataclass
 
 from tqec.circuit.qubit import GridQubit
+from tqec.enums import Orientation
 from tqec.plaquette.enums import PlaquetteSide
-from tqec.templates.enums import TemplateOrientation
 
 
 @dataclass(frozen=True)
@@ -23,7 +23,7 @@ class PlaquetteQubits:
 
     def get_edge_qubits(
         self,
-        orientation: TemplateOrientation = TemplateOrientation.HORIZONTAL,
+        orientation: Orientation = Orientation.HORIZONTAL,
     ) -> list[GridQubit]:
         """Return the data qubits on the edge of the plaquette. By convention,
         the edge is the one with the highest index in the relevant axis.
@@ -36,7 +36,7 @@ class PlaquetteQubits:
         """
 
         def _get_relevant_value(qubit: GridQubit) -> int:
-            return qubit.y if orientation == TemplateOrientation.HORIZONTAL else qubit.x
+            return qubit.y if orientation == Orientation.HORIZONTAL else qubit.x
 
         max_index = max(_get_relevant_value(q) for q in self.data_qubits)
         return [

@@ -5,7 +5,7 @@ from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library import make_css_surface_code_plaquette
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.templates._testing import FixedTemplate
+from tqec.templates.indices._testing import FixedTemplate
 
 
 def test_generate_circuit_one_plaquette() -> None:
