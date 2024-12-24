@@ -1,7 +1,6 @@
 import pytest
 
 from tqec.exceptions import TQECException
-from tqec.interval import Interval
 from tqec.position import Shape2D
 from tqec.scale import LinearFunction, Scalable2D, round_or_fail
 
@@ -35,24 +34,6 @@ def test_intersection() -> None:
 
     intersection = a.intersection(a)
     assert intersection is None
-
-
-def test_linear_function_comparison() -> None:
-    a, b = LinearFunction(2, 5), LinearFunction(3, 1)
-
-    assert (a < b) == Interval(
-        4.0, float("inf"), start_excluded=True, end_excluded=True
-    )
-    assert (b < a) == Interval(
-        float("-inf"), 4.0, start_excluded=True, end_excluded=True
-    )
-    assert (a < a).is_empty()
-    assert (a <= b) == Interval(
-        4.0, float("inf"), start_excluded=False, end_excluded=True
-    )
-    assert (a <= a) == Interval(
-        float("-inf"), float("inf"), start_excluded=True, end_excluded=True
-    )
 
 
 def test_scalable_2d_creation() -> None:

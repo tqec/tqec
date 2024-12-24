@@ -17,10 +17,8 @@ basically ``2k + 2``.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import floor
 
 from tqec.exceptions import TQECException
-from tqec.interval import EMPTY_INTERVAL, Interval, R_interval
 from tqec.position import Shape2D
 
 
@@ -111,54 +109,6 @@ class LinearFunction:
             return None
 
         return -(other.offset - self.offset) / (other.slope - self.slope)
-
-    def __lt__(self, other: LinearFunction | float) -> Interval:
-        """Compute the interval on which `self < other`.
-
-        Args:
-            other: the `LinearFunction` instance to compare to `self`.
-
-        Returns:
-            the interval on which `self < other` is verified.
-        """
-        other = LinearFunction._from(other)
-        intersection = self.intersection(other)
-        if intersection is None:
-            return R_interval if self(0) < other(0) else EMPTY_INTERVAL
-
-        before_intersection = int(floor(intersection)) - 1
-        if self(before_intersection) < other(before_intersection):
-            return Interval(
-                float("-inf"), intersection, start_excluded=True, end_excluded=True
-            )
-        else:
-            return Interval(
-                intersection, float("inf"), start_excluded=True, end_excluded=True
-            )
-
-    def __le__(self, other: LinearFunction | float) -> Interval:
-        """Compute the interval on which `self <= other`.
-
-        Args:
-            other: the `LinearFunction` instance to compare to `self`.
-
-        Returns:
-            the interval on which `self <= other` is verified.
-        """
-        other = LinearFunction._from(other)
-        intersection = self.intersection(other)
-        if intersection is None:
-            return R_interval if self(0) <= other(0) else EMPTY_INTERVAL
-
-        before_intersection = int(floor(intersection)) - 1
-        if self(before_intersection) <= other(before_intersection):
-            return Interval(
-                float("-inf"), intersection, start_excluded=True, end_excluded=False
-            )
-        else:
-            return Interval(
-                intersection, float("inf"), start_excluded=False, end_excluded=True
-            )
 
     @staticmethod
     def _from(obj: LinearFunction | float) -> LinearFunction:
