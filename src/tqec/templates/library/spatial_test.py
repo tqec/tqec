@@ -8,7 +8,7 @@ from tqec.exceptions import TQECException
 from tqec.plaquette.enums import MeasurementBasis, ResetBasis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.library.spatial import (
-    get_spatial_junction_junction_template,
+    get_spatial_junction_arm_template,
     get_spatial_junction_qubit_template,
 )
 
@@ -111,7 +111,7 @@ def test_2_way_L_shape_spatial_junction() -> None:
 
 
 @pytest.mark.parametrize(
-    ["external_stabilizers", "arms", "reset", "measurement"],
+    ["spatial_boundary_basis", "arms", "reset", "measurement"],
     itertools.product(
         ["x", "z"],
         (
@@ -124,13 +124,13 @@ def test_2_way_L_shape_spatial_junction() -> None:
     ),
 )
 def test_spatial_junction_logical_qubit_always_defines_corners(
-    external_stabilizers: Literal["x", "z"],
+    spatial_boundary_basis: Literal["x", "z"],
     arms: JunctionArms,
     reset: ResetBasis | None,
     measurement: MeasurementBasis | None,
 ) -> None:
     template = get_spatial_junction_qubit_template(
-        external_stabilizers, arms, reset, measurement
+        spatial_boundary_basis, arms, reset, measurement
     )
     rpng_inst = template.instantiate(k=3)
     if arms == JunctionArms.RIGHT | JunctionArms.DOWN:
@@ -148,7 +148,7 @@ def test_spatial_junction_logical_qubit_always_defines_corners(
 
 
 @pytest.mark.parametrize(
-    ["external_stabilizers", "arms", "reset", "measurement"],
+    ["spatial_boundary_basis", "arms", "reset", "measurement"],
     itertools.product(
         ["x", "z"],
         JunctionArms.single_arms(),
@@ -157,13 +157,13 @@ def test_spatial_junction_logical_qubit_always_defines_corners(
     ),
 )
 def test_spatial_junction_junctions_never_overwrite_corners(
-    external_stabilizers: Literal["x", "z"],
+    spatial_boundary_basis: Literal["x", "z"],
     arms: JunctionArms,
     reset: ResetBasis | None,
     measurement: MeasurementBasis | None,
 ) -> None:
-    template = get_spatial_junction_junction_template(
-        external_stabilizers, arms, reset, measurement
+    template = get_spatial_junction_arm_template(
+        spatial_boundary_basis, arms, reset, measurement
     )
     match arms:
         case JunctionArms.UP:

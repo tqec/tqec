@@ -1,5 +1,19 @@
 """Provide functions building the :class:`~tqec.templates.rpng.RPNGTemplate`
-instances representing spatial junctions."""
+instances representing spatial junctions and arms.
+
+This module provides 2 functions to create
+:class:`~tqec.templates.rpng.RPNGTemplate` instances:
+
+- :func:`get_spatial_junction_qubit_template` that creates spatial junctions,
+- and :func:`get_spatial_junction_arm_template` that creates the arms.
+
+## Terminology
+
+In this module, a **spatial junction** always refers to the logical qubit that
+has at least 2 pipes in the spatial plane (``X`` or ``Y`` axis).
+
+The pipes connected to the spatial junction are called **arms**.
+"""
 
 from typing import Literal
 
@@ -17,7 +31,7 @@ from tqec.templates.rpng import RPNGTemplate
 
 
 def get_spatial_junction_qubit_template(
-    external_stabilizers: Literal["x", "z"],
+    spatial_boundary_basis: Literal["x", "z"],
     arms: JunctionArms,
     reset: ResetBasis | None = None,
     measurement: MeasurementBasis | None = None,
@@ -25,8 +39,9 @@ def get_spatial_junction_qubit_template(
     """Implementation of a logical qubit acting as a spatial junction.
 
     This function returns a RPNGTemplate instance representing a logical qubit
-    connecting to others in space and forming a spatial junction. The returned template is
-    carefully crafted to avoid hook errors damaging the logical distance.
+    connecting to others in space and forming a spatial junction. The returned
+    template is carefully crafted to avoid hook errors damaging the logical
+    distance.
 
     Note:
         this function does not enforce anything on the input values. As such, it
@@ -35,9 +50,9 @@ def get_spatial_junction_qubit_template(
 
     Warning:
         By convention, this function does not populate the plaquettes on the
-        boundaries where an arm (i.e. spatial junction) is present **BUT** do
-        populate the corners (that are part of the boundaries, so this is an
-        exception to the first part of the sentence).
+        boundaries where an arm is present **BUT** do populate the corners (that
+        are part of the boundaries, so this is an exception to the first part of
+        the sentence).
 
         The rationale behind that convention is that the logical qubit
         representing the spatial junction is completely aware of all the arms
@@ -47,18 +62,17 @@ def get_spatial_junction_qubit_template(
         to, require information that is given to this function, but not to the
         arm-generation function.
 
-        Junctions should follow that convention and should not replace the
-        plaquette descriptions on the corners (i.e., not include an explicit
-        mapping, even to the empty plaquette, from the index of the corner to
-        a plaquette).
+        Arms should follow that convention and should not replace the plaquette
+        descriptions on the corners (i.e., not include an explicit mapping, even
+        to the empty plaquette, from the index of the corner to a plaquette).
 
 
     Arguments:
-        external_stabilizers: stabilizers that are measured at each boundaries
+        spatial_boundary_basis: stabilizers that are measured at each boundaries
             of the spatial junction.
-        arms: flag-like enumeration listing the spatial junctions that are used
-            around the logical qubit. The returned template will be adapted to
-            be compatible with such a layout.
+        arms: flag-like enumeration listing the arms that are used around the
+            logical qubit. The returned template will be adapted to be
+            compatible with such a layout.
         reset: basis of the reset operation performed on data-qubits. Defaults
             to ``None`` that translates to no reset being applied on data-qubits.
         measurement: basis of the measurement operation performed on data-qubits.
@@ -72,7 +86,7 @@ def get_spatial_junction_qubit_template(
 
     Returns:
         a description of a logical qubit performing a memory operation while
-        being enclosed by 2 or more spatial junctions.
+        being enclosed by 2 or more arms.
     """
     # In this function implementation, all the indices used are referring to the
     # indices returned by the QubitSpatialJunctionTemplate template. They are
@@ -105,8 +119,8 @@ def get_spatial_junction_qubit_template(
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = external_stabilizers
-    bi = "x" if external_stabilizers == "z" else "z"
+    be = spatial_boundary_basis
+    bi = "x" if spatial_boundary_basis == "z" else "z"
 
     mapping: dict[int, RPNGDescription] = {}
     ####################
@@ -214,18 +228,18 @@ def get_spatial_junction_qubit_template(
     )
 
 
-def get_spatial_junction_junction_template(
-    external_stabilizers: Literal["x", "z"],
+def get_spatial_junction_arm_template(
+    spatial_boundary_basis: Literal["x", "z"],
     arm: JunctionArms,
     reset: ResetBasis | None = None,
     measurement: MeasurementBasis | None = None,
 ) -> RPNGTemplate:
-    """Implementation of junctions for a spatial junction around a logical qubit.
+    """Implementation of arms for a spatial junction around a logical qubit.
 
-    This function returns a RPNGTemplate instance representing the junctions
-    required to perform a spatial junction on a logical qubit that is touched by
-    2 or more spatial junctions. The returned template is carefully crafted to
-    avoid hook errors damaging the logical distance.
+    This function returns a RPNGTemplate instance representing the arms
+    required to perform a spatial junction on a logical qubit that has 2 or more
+    arms. The returned template is carefully crafted to avoid hook errors
+    damaging the logical distance.
 
     Note:
         this function does not enforce anything on the input values. As such, it
@@ -244,41 +258,49 @@ def get_spatial_junction_junction_template(
         corner of the center logical qubit are set.
 
     Arguments:
-        external_stabilizers: stabilizers that are measured at each boundaries
+        spatial_boundary_basis: stabilizers that are measured at each boundaries
             of the spatial junction.
         arm: arm to return a spatial junction for. Should contain exactly
             **one** of the possible arm flags.
-        reset: basis of the reset operation performed on data-qubits. Defaults
-            to ``None`` that translates to no reset being applied on data-qubits.
-        measurement: basis of the measurement operation performed on data-qubits.
-            Defaults to ``None`` that translates to no measurement being applied
-            on data-qubits.
+        reset: basis of the reset operation performed on **internal**
+            data-qubits. Defaults to ``None`` that translates to no reset being
+            applied on data-qubits.
+        measurement: basis of the measurement operation performed on **internal**
+            data-qubits. Defaults to ``None`` that translates to no measurement
+            being applied on data-qubits.
 
     Raises:
         TQECException: if ``arm`` does not contain exactly 1 flag (i.e., if it
             contains 0 or 2+ flags).
 
     Returns:
-        a description of a logical qubit performing a memory operation while
-        being enclosed by 2 or more spatial junctions.
+        a description of the provided ``arm``.
     """
     match arm:
         case JunctionArms.LEFT:
-            return _get_left_spatial_junction(external_stabilizers, reset, measurement)
+            return _get_left_spatial_junction_arm(
+                spatial_boundary_basis, reset, measurement
+            )
         case JunctionArms.RIGHT:
-            return _get_right_spatial_junction(external_stabilizers, reset, measurement)
+            return _get_right_spatial_junction_arm(
+                spatial_boundary_basis, reset, measurement
+            )
         case JunctionArms.UP:
-            return _get_up_spatial_junction(external_stabilizers, reset, measurement)
+            return _get_up_spatial_junction_arm(
+                spatial_boundary_basis, reset, measurement
+            )
         case JunctionArms.DOWN:
-            return _get_down_spatial_junction(external_stabilizers, reset, measurement)
+            return _get_down_spatial_junction_arm(
+                spatial_boundary_basis, reset, measurement
+            )
         case _:
             raise TQECException(
                 f"The 'arm' parameter should contain exactly 1 flag. Got {arm}."
             )
 
 
-def _get_left_spatial_junction(
-    external_stabilizers: Literal["x", "z"],
+def _get_left_spatial_junction_arm(
+    spatial_boundary_basis: Literal["x", "z"],
     reset: ResetBasis | None = None,
     measurement: MeasurementBasis | None = None,
 ) -> RPNGTemplate:
@@ -286,8 +308,8 @@ def _get_left_spatial_junction(
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = external_stabilizers
-    bi = "x" if external_stabilizers == "z" else "z"
+    be = spatial_boundary_basis
+    bi = "x" if spatial_boundary_basis == "z" else "z"
 
     mapping = {
         # TOP_RIGHT: NOT included to avoid overwriting the corner
@@ -310,8 +332,8 @@ def _get_left_spatial_junction(
     )
 
 
-def _get_right_spatial_junction(
-    external_stabilizers: Literal["x", "z"],
+def _get_right_spatial_junction_arm(
+    spatial_boundary_basis: Literal["x", "z"],
     reset: ResetBasis | None = None,
     measurement: MeasurementBasis | None = None,
 ) -> RPNGTemplate:
@@ -319,8 +341,8 @@ def _get_right_spatial_junction(
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = external_stabilizers
-    bi = "x" if external_stabilizers == "z" else "z"
+    be = spatial_boundary_basis
+    bi = "x" if spatial_boundary_basis == "z" else "z"
 
     mapping = {
         # TOP_RIGHT
@@ -343,8 +365,8 @@ def _get_right_spatial_junction(
     )
 
 
-def _get_up_spatial_junction(
-    external_stabilizers: Literal["x", "z"],
+def _get_up_spatial_junction_arm(
+    spatial_boundary_basis: Literal["x", "z"],
     reset: ResetBasis | None = None,
     measurement: MeasurementBasis | None = None,
 ) -> RPNGTemplate:
@@ -352,8 +374,8 @@ def _get_up_spatial_junction(
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = external_stabilizers
-    bi = "x" if external_stabilizers == "z" else "z"
+    be = spatial_boundary_basis
+    bi = "x" if spatial_boundary_basis == "z" else "z"
 
     mapping = {
         # TOP_LEFT
@@ -376,8 +398,8 @@ def _get_up_spatial_junction(
     )
 
 
-def _get_down_spatial_junction(
-    external_stabilizers: Literal["x", "z"],
+def _get_down_spatial_junction_arm(
+    spatial_boundary_basis: Literal["x", "z"],
     reset: ResetBasis | None = None,
     measurement: MeasurementBasis | None = None,
 ) -> RPNGTemplate:
@@ -385,8 +407,8 @@ def _get_down_spatial_junction(
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = external_stabilizers
-    bi = "x" if external_stabilizers == "z" else "z"
+    be = spatial_boundary_basis
+    bi = "x" if spatial_boundary_basis == "z" else "z"
 
     mapping = {
         # TOP_RIGHT: NOT included to avoid overwriting the corner
