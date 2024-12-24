@@ -108,6 +108,14 @@ class RPNG:
         else:
             return f"{op.value.upper()}"
 
+    @property
+    def is_null(self) -> bool:
+        """Check if the RPNG object is null, i.e. all fields are None"""
+        return str(self) == "----"
+
+    def __str__(self) -> str:
+        return f"{'-' if self.r is None else self.r.value}{'-' if self.p is None else self.p.value}{'-' if self.n is None else self.n}{'-' if self.g is None else self.g.value}"
+
 
 @dataclass(frozen=True)
 class RG:
@@ -180,8 +188,8 @@ class RPNGDescription:
                 times.append(rpng.n)
         if len(times) != len(set(times)):
             raise ValueError("The n values for the corners must be unique.")
-        elif len(times) not in [0, 2, 4]:
-            raise ValueError("Each plaquette must have 0, 2, or 4 2Q gates.")
+        elif len(times) not in [0, 2, 3, 4]:
+            raise ValueError("Each plaquette must have 0, 2, 3, or 4 2Q gates.")
 
     @classmethod
     def from_string(cls, corners_rpng_string: str) -> RPNGDescription:
