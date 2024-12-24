@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Iterator, Sequence
 
 import numpy
 import numpy.typing as npt
@@ -169,12 +169,15 @@ class BorderIndices:
             a mapping from the indices stored in ``self`` to the indices stored
             in ``other``.
         """
-        return {
-            self.top_left_corner: other.top_left_corner,
-            self.first_repeating: other.first_repeating,
-            self.second_repeating: other.second_repeating,
-            self.bottom_right_corner: other.bottom_right_corner,
-        }
+        return {s: o for s, o in zip(self, other)}
+
+    def __iter__(self) -> Iterator[int]:
+        yield from (
+            self.top_left_corner,
+            self.first_repeating,
+            self.second_repeating,
+            self.bottom_right_corner,
+        )
 
 
 class RectangularTemplate(Template):
