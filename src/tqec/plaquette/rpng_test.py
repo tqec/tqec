@@ -19,6 +19,7 @@ def test_validate_plaquette_from_rpng_string() -> None:
         "-z1- -z2- -z3- -z4-",
         "-z5- -x2- -x3- -z1-",
         "-x5h -z2z -x3x hz1-",
+        "-z1- -z2- ---- -z4-",
     ]
     for rpng in rpng_errors:
         with pytest.raises(ValueError):
