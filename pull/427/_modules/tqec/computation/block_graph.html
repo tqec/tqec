@@ -1,0 +1,781 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tqec.computation.block_graph &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/tqec/computation/block_graph';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.computation.block_graph</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for tqec.computation.block_graph</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Block graph representation of a logical computation.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">from</span> <span class="nn">tqec.computation._base_graph</span> <span class="kn">import</span> <span class="n">ComputationGraph</span>
+<span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
+<span class="kn">from</span> <span class="nn">tqec.computation.cube</span> <span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span>
+<span class="kn">from</span> <span class="nn">tqec.computation.pipe</span> <span class="kn">import</span> <span class="n">Pipe</span><span class="p">,</span> <span class="n">PipeKind</span>
+<span class="kn">from</span> <span class="nn">tqec.computation.zx_graph</span> <span class="kn">import</span> <span class="n">ZXGraph</span>
+<span class="kn">from</span> <span class="nn">tqec.computation.correlation</span> <span class="kn">import</span> <span class="n">CorrelationSurface</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">tqec.interop.collada.html_viewer</span> <span class="kn">import</span> <span class="n">_ColladaHTMLViewer</span>
+    <span class="kn">from</span> <span class="nn">tqec.computation.abstract_observable</span> <span class="kn">import</span> <span class="n">AbstractObservable</span>
+
+
+<span class="n">BlockKind</span> <span class="o">=</span> <span class="n">CubeKind</span> <span class="o">|</span> <span class="n">PipeKind</span>
+
+
+<div class="viewcode-block" id="BlockGraph">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph">[docs]</a>
+<span class="k">class</span> <span class="nc">BlockGraph</span><span class="p">(</span><span class="n">ComputationGraph</span><span class="p">[</span><span class="n">Cube</span><span class="p">,</span> <span class="n">Pipe</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Block graph representation of a logical computation.</span>
+
+<span class="sd">    A block graph consists of building blocks that fully define the boundary</span>
+<span class="sd">    conditions and topological structures of a logical computation. It corresponds</span>
+<span class="sd">    to the commonly used 3D spacetime diagram representation of a surface code</span>
+<span class="sd">    logical computation.</span>
+
+<span class="sd">    The graph contains two categories of blocks:</span>
+
+<span class="sd">    1. :py:class:`~tqec.computation.cube.Cube`: The fundamental building blocks</span>
+<span class="sd">    of the computation. A cube represents a block of quantum operations within</span>
+<span class="sd">    a specific spacetime volume. These operations preserve or manipulate the</span>
+<span class="sd">    quantum information encoded in the logical qubits. Cubes are represented</span>
+<span class="sd">    as nodes in the graph.</span>
+
+<span class="sd">    2. :py:class:`~tqec.computation.pipe.Pipe`: Connects cubes to form the</span>
+<span class="sd">    topological structure representing the logical computation. A pipe occupies</span>
+<span class="sd">    no spacetime volume and only replaces the operations within the cubes it</span>
+<span class="sd">    connects. Pipes are represented as edges in the graph.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BlockGraph.add_edge">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.add_edge">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">PipeKind</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an edge to the graph. If the nodes of the edge do not exist in</span>
+<span class="sd">        the graph, the nodes will be created and added to the graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            u: The cube on one end of the edge.</span>
+<span class="sd">            v: The cube on the other end of the edge.</span>
+<span class="sd">            kind: The kind of the pipe connecting the cubes. If None, the kind will be</span>
+<span class="sd">                automatically determined based on the cubes it connects to make the</span>
+<span class="sd">                boundary conditions consistent. Default is None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: For each node in the edge, if there is already a node which is not</span>
+<span class="sd">                equal to it at the same position, or the node is a port but there is already a</span>
+<span class="sd">                different port with the same label in the graph.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipe</span><span class="o">.</span><span class="n">from_cubes</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">kind</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_edge_and_nodes_with_checks</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">pipe</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.validate">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.validate">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check the validity of the block graph to represent a logical</span>
+<span class="sd">        computation.</span>
+
+<span class="sd">        Refer to the Fig.9 in arXiv:2404.18369. Currently, we ignore the b) and e),</span>
+<span class="sd">        only check the following conditions:</span>
+
+<span class="sd">        - **No fanout:** ports can only have one pipe connected to them.</span>
+<span class="sd">        - **Time-like Y:** Y cubes can only have time-like pipes connected to them.</span>
+<span class="sd">        - **No 3D corner:** a cube cannot have pipes in all three directions.</span>
+<span class="sd">        - **Match color at passthrough:** two pipes in a &quot;pass-through&quot; should have the same</span>
+<span class="sd">          color orientation.</span>
+<span class="sd">        - **Match color at turn:** two pipes in a &quot;turn&quot; should have the matching colors on</span>
+<span class="sd">          faces that are touching.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: If the above conditions are not satisfied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_locally_at_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_validate_locally_at_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check the validity of the block structures locally at a cube.&quot;&quot;&quot;</span>
+        <span class="n">pipes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_at</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+        <span class="c1"># a). no fanout</span>
+        <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_port</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Port at </span><span class="si">{</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2"> does not have exactly one pipe connected.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="c1"># c). time-like Y</span>
+        <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_y_cube</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Y cube at </span><span class="si">{</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2"> does not have exactly one pipe connected.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pipes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Y cube at </span><span class="si">{</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2"> has non-timelike pipes connected.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Check the color matching conditions</span>
+        <span class="n">pipes_by_direction</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Direction3D</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Pipe</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span><span class="p">:</span>
+            <span class="n">pipes_by_direction</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pipe</span><span class="p">)</span>
+        <span class="c1"># d), f), g). Match color</span>
+        <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span><span class="p">:</span>
+            <span class="n">pipe</span><span class="o">.</span><span class="n">check_compatible_with_cubes</span><span class="p">()</span>
+
+<div class="viewcode-block" id="BlockGraph.to_zx_graph">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_zx_graph">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_zx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the block graph to a</span>
+<span class="sd">        :py:class:`~tqec.computation.zx_graph.ZXGraph`.</span>
+
+<span class="sd">        The conversion process is as follows:</span>
+
+<span class="sd">        1. For each cube in the block graph, convert it to a ZX node by calling :py:meth:`~tqec.computation.cube.Cube.to_zx_node`.</span>
+<span class="sd">        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block_graph: The block graph to be converted to a ZX graph.</span>
+<span class="sd">            name: The name of the new ZX graph. If None, the name of the block graph will be used.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The :py:class:`~tqec.computation.zx_graph.ZXGraph` object converted from the block graph.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">tqec.computation.conversion</span> <span class="kn">import</span> <span class="p">(</span>
+            <span class="n">convert_block_graph_to_zx_graph</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">convert_block_graph_to_zx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.to_dae_file">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_dae_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_dae_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">pop_faces_at_direction</span><span class="p">:</span> <span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">show_correlation_surface</span><span class="p">:</span> <span class="n">CorrelationSurface</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the block graph to a Collada DAE file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path: The output file path.</span>
+<span class="sd">            pipe_length: The length of the pipes. Default is 2.0.</span>
+<span class="sd">            pop_faces_at_direction: Remove the faces at the given direction for all the blocks.</span>
+<span class="sd">                This is useful for visualizing the internal structure of the blocks. Default is None.</span>
+<span class="sd">            show_correlation_surface: The correlation surface to show in the block graph. Default is None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">tqec.interop.collada.read_write</span> <span class="kn">import</span> <span class="n">write_block_graph_to_dae_file</span>
+
+        <span class="n">write_block_graph_to_dae_file</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">file_path</span><span class="p">,</span>
+            <span class="n">pipe_length</span><span class="p">,</span>
+            <span class="n">pop_faces_at_direction</span><span class="p">,</span>
+            <span class="n">show_correlation_surface</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.from_dae_file">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.from_dae_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dae_file</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a block graph from a COLLADA DAE file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: The input ``.dae`` file path.</span>
+<span class="sd">            graph_name: The name of the block graph. Default is an empty string.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">tqec.interop.collada.read_write</span> <span class="kn">import</span> <span class="n">read_block_graph_from_dae_file</span>
+
+        <span class="k">return</span> <span class="n">read_block_graph_from_dae_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.view_as_html">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.view_as_html">[docs]</a>
+    <span class="k">def</span> <span class="nf">view_as_html</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">write_html_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">pop_faces_at_direction</span><span class="p">:</span> <span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">show_correlation_surface</span><span class="p">:</span> <span class="n">CorrelationSurface</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ColladaHTMLViewer</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;View COLLADA model in html with the help of ``three.js``.</span>
+
+<span class="sd">        This can display a COLLADA model interactively in IPython compatible environments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            write_html_filepath: The output html file path to write the generated html content</span>
+<span class="sd">                if provided. Default is None.</span>
+<span class="sd">            pipe_length: The length of the pipes. Default is 2.0.</span>
+<span class="sd">            pop_faces_at_direction: Remove the faces at the given direction for all the blocks.</span>
+<span class="sd">                This is useful for visualizing the internal structure of the blocks. Default is None.</span>
+<span class="sd">            show_correlation_surface: The correlation surface to show in the block graph. Default is None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A helper class to display the 3D model, which implements the ``_repr_html_`` method and</span>
+<span class="sd">            can be directly displayed in IPython compatible environments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">tqec.interop.collada.read_write</span> <span class="kn">import</span> <span class="n">write_block_graph_to_dae_file</span>
+        <span class="kn">from</span> <span class="nn">tqec.interop.collada.html_viewer</span> <span class="kn">import</span> <span class="n">display_collada_model</span>
+
+        <span class="n">bytes_buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">write_block_graph_to_dae_file</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">bytes_buffer</span><span class="p">,</span>
+            <span class="n">pipe_length</span><span class="p">,</span>
+            <span class="n">pop_faces_at_direction</span><span class="p">,</span>
+            <span class="n">show_correlation_surface</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">display_collada_model</span><span class="p">(</span>
+            <span class="n">filepath_or_bytes</span><span class="o">=</span><span class="n">bytes_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span>
+            <span class="n">write_html_filepath</span><span class="o">=</span><span class="n">write_html_filepath</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.get_abstract_observables">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.get_abstract_observables">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_abstract_observables</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">correlation_surfaces</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the</span>
+<span class="sd">        :py:class:`~tqec.computation.abstract_observable.AbstractObservable` in</span>
+<span class="sd">        the graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            correlation_surfaces: The correlation surfaces to convert to abstract observables. If not</span>
+<span class="sd">                provided, all the possible correlation surfaces will be constructed from the corresponding ZX graph</span>
+<span class="sd">                of the block graph. Abstract observables will be created for each correlation surface.</span>
+<span class="sd">                Default is None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple containing the list of abstract observables and the list of correlation surfaces corresponding</span>
+<span class="sd">            to the observables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">tqec.computation.abstract_observable</span> <span class="kn">import</span> <span class="p">(</span>
+            <span class="n">correlation_surface_to_abstract_observable</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">correlation_surfaces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span><span class="o">.</span><span class="n">find_correration_surfaces</span><span class="p">()</span>
+        <span class="n">abstract_observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">correlation_surface_to_abstract_observable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surface</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">correlation_surfaces</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">abstract_observables</span><span class="p">,</span> <span class="n">correlation_surfaces</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.shift_min_z_to_zero">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.shift_min_z_to_zero">[docs]</a>
+    <span class="k">def</span> <span class="nf">shift_min_z_to_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shift the whole graph in the z direction to make the minimum z equal</span>
+<span class="sd">        zero.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new graph with the minimum z position of the cubes equal to zero. The new graph</span>
+<span class="sd">            will share no data with the original graph.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">minz</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">minz</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">new_graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">v</span>
+            <span class="n">new_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+                <span class="n">Cube</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">),</span> <span class="n">u</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">label</span><span class="p">),</span>
+                <span class="n">Cube</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">),</span> <span class="n">v</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span><span class="p">),</span>
+                <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_graph</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,761 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tqec.interop.collada.html_viewer &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/tqec/interop/collada/html_viewer';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.interop.collada.html_viewer</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for tqec.interop.collada.html_viewer</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;View COLLADA model in html with the help of ``three.js``.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
+
+
+<span class="k">class</span> <span class="nc">_ColladaHTMLViewer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class to view COLLADA model in html with the help of</span>
+<span class="sd">    ``three.js``.</span>
+
+<span class="sd">    This can display a COLLADA model in IPython compatible environments with the</span>
+<span class="sd">    implementation of ``_repr_html_`` method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">HTML_TEMPLATE</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;!doctype html&gt;</span>
+<span class="s2">&lt;html&gt;</span>
+
+<span class="s2">&lt;head&gt;</span>
+<span class="s2">  &lt;meta charset=&quot;UTF-8&quot; /&gt;</span>
+<span class="s2">  &lt;script type=&quot;importmap&quot;&gt;</span>
+<span class="s2">      {</span>
+<span class="s2">        &quot;imports&quot;: {</span>
+<span class="s2">          &quot;three&quot;: &quot;https://unpkg.com/three@0.138.0/build/three.module.js&quot;,</span>
+<span class="s2">          &quot;three-orbitcontrols&quot;: &quot;https://unpkg.com/three@0.138.0/examples/jsm/controls/OrbitControls.js&quot;,</span>
+<span class="s2">          &quot;three-collada-loader&quot;: &quot;https://unpkg.com/three@0.138.0/examples/jsm/loaders/ColladaLoader.js&quot;</span>
+<span class="s2">        }</span>
+<span class="s2">      }</span>
+<span class="s2">    &lt;/script&gt;</span>
+<span class="s2">&lt;/head&gt;</span>
+
+<span class="s2">&lt;body&gt;</span>
+<span class="s2">  &lt;a download=&quot;model.dae&quot; id=&quot;model-download-link&quot; href=&quot;data:text/plain;base64,$MODEL_BASE64_PLACEHOLDER&quot;&gt;Download 3D</span>
+<span class="s2">    Model as .dae File&lt;/a&gt;</span>
+<span class="s2">  &lt;br /&gt;Mouse Wheel = Zoom. Left Drag = Orbit. Right Drag = Strafe.</span>
+<span class="s2">  &lt;div id=&quot;scene-container&quot; style=&quot;width: calc(100vw - 32px); height: calc(100vh - 64px)&quot;&gt;</span>
+<span class="s2">    JavaScript Blocked?</span>
+<span class="s2">  &lt;/div&gt;</span>
+
+<span class="s2">  &lt;script type=&quot;module&quot;&gt;</span>
+<span class="s2">    import * as THREE from &quot;three&quot;;</span>
+<span class="s2">    import </span><span class="si">{OrbitControls}</span><span class="s2"> from &quot;three-orbitcontrols&quot;;</span>
+<span class="s2">    import </span><span class="si">{ColladaLoader}</span><span class="s2"> from &quot;three-collada-loader&quot;;</span>
+
+<span class="s2">    const container = document.getElementById(&quot;scene-container&quot;);</span>
+<span class="s2">    const downloadLink = document.getElementById(&quot;model-download-link&quot;);</span>
+
+<span class="s2">    // Remove IDs to avoid cross-cell interactions (workaround for Jupyter notebook issue)</span>
+<span class="s2">    container.removeAttribute(&quot;id&quot;);</span>
+<span class="s2">    downloadLink.removeAttribute(&quot;id&quot;);</span>
+
+<span class="s2">    container.textContent = &quot;Loading viewer...&quot;;</span>
+
+<span class="s2">    async function init() {</span>
+<span class="s2">      try {</span>
+<span class="s2">        container.textContent = &quot;Loading model...&quot;;</span>
+
+<span class="s2">        const modelDataUri = downloadLink.href;</span>
+<span class="s2">        const collada = await new ColladaLoader().loadAsync(modelDataUri);</span>
+
+<span class="s2">        container.textContent = &quot;Loading scene...&quot;;</span>
+
+<span class="s2">        // Create the scene</span>
+<span class="s2">        const scene = new THREE.Scene();</span>
+<span class="s2">        scene.background = new THREE.Color(&quot;#CBDFC6&quot;);</span>
+
+<span class="s2">        // Set up lights</span>
+<span class="s2">        setupLights(scene);</span>
+
+<span class="s2">        // Prepare and add the model to the scene</span>
+<span class="s2">        processModel(collada.scene);</span>
+<span class="s2">        scene.add(collada.scene);</span>
+
+<span class="s2">        // Set up the camera and controls</span>
+<span class="s2">        const camera = new THREE.PerspectiveCamera(</span>
+<span class="s2">          35,</span>
+<span class="s2">          container.clientWidth / container.clientHeight,</span>
+<span class="s2">          0.1,</span>
+<span class="s2">          100000,</span>
+<span class="s2">        );</span>
+<span class="s2">        const controls = new OrbitControls(camera, container);</span>
+
+<span class="s2">        // Adjust camera to fit the scene</span>
+<span class="s2">        fitCameraToObject(camera, controls, scene);</span>
+
+<span class="s2">        // Add axes helper</span>
+<span class="s2">        const axesHelper = new THREE.AxesHelper(2);</span>
+<span class="s2">        axesHelper.rotation.x = -Math.PI / 2;</span>
+<span class="s2">        scene.add(axesHelper);</span>
+
+<span class="s2">        // Set up renderer</span>
+<span class="s2">        const renderer = new THREE.WebGLRenderer({antialias: true});</span>
+<span class="s2">        setupRenderer(renderer, container, camera, scene);</span>
+
+<span class="s2">        // Start rendering</span>
+<span class="s2">        renderScene(renderer, scene, camera, controls, container);</span>
+<span class="s2">      } catch (ex) {</span>
+<span class="s2">        container.textContent = &quot;Failed to show model. &quot; + ex;</span>
+<span class="s2">        console.error(ex);</span>
+<span class="s2">      }</span>
+<span class="s2">    }</span>
+
+<span class="s2">    function setupLights(scene) {</span>
+<span class="s2">      const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);</span>
+<span class="s2">      scene.add(ambientLight);</span>
+
+<span class="s2">      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);</span>
+<span class="s2">      directionalLight.position.set(10, 10, 10);</span>
+<span class="s2">      directionalLight.castShadow = true;</span>
+<span class="s2">      scene.add(directionalLight);</span>
+<span class="s2">    }</span>
+
+<span class="s2">    function processModel(modelScene) {</span>
+<span class="s2">      modelScene.traverse((node) =&gt; {</span>
+<span class="s2">        if (node.isMesh) {</span>
+<span class="s2">          node.material.side = THREE.DoubleSide;</span>
+
+<span class="s2">          if (node.name.endsWith(&quot;correlation_surface&quot;)) {</span>
+<span class="s2">            return;</span>
+<span class="s2">          }</span>
+<span class="s2">          // Add edges for better visibility</span>
+<span class="s2">          const edgesGeometry = new THREE.EdgesGeometry(node.geometry);</span>
+<span class="s2">          const edgesMaterial = new THREE.LineBasicMaterial({</span>
+<span class="s2">            color: 0x000000,</span>
+<span class="s2">          });</span>
+<span class="s2">          const edgeMesh = new THREE.LineSegments(</span>
+<span class="s2">            edgesGeometry,</span>
+<span class="s2">            edgesMaterial,</span>
+<span class="s2">          );</span>
+<span class="s2">          node.add(edgeMesh);</span>
+<span class="s2">        }</span>
+<span class="s2">      });</span>
+<span class="s2">    }</span>
+
+<span class="s2">    function fitCameraToObject(camera, controls, scene) {</span>
+<span class="s2">      let bounds = new THREE.Box3().setFromObject(scene);</span>
+<span class="s2">      let mid = new THREE.Vector3(</span>
+<span class="s2">        (bounds.min.x + bounds.max.x) * 0.5,</span>
+<span class="s2">        (bounds.min.y + bounds.max.y) * 0.5,</span>
+<span class="s2">        (bounds.min.z + bounds.max.z) * 0.5,</span>
+<span class="s2">      );</span>
+<span class="s2">      let boxPoints = [];</span>
+<span class="s2">      for (let dx of [0, 0.5, 1]) {</span>
+<span class="s2">        for (let dy of [0, 0.5, 1]) {</span>
+<span class="s2">          for (let dz of [0, 0.5, 1]) {</span>
+<span class="s2">            boxPoints.push(</span>
+<span class="s2">              new THREE.Vector3(</span>
+<span class="s2">                bounds.min.x + (bounds.max.x - bounds.min.x) * dx,</span>
+<span class="s2">                bounds.min.y + (bounds.max.y - bounds.min.y) * dy,</span>
+<span class="s2">                bounds.min.z + (bounds.max.z - bounds.min.z) * dz,</span>
+<span class="s2">              ),</span>
+<span class="s2">            );</span>
+<span class="s2">          }</span>
+<span class="s2">        }</span>
+<span class="s2">      }</span>
+<span class="s2">      let isInView = (p) =&gt; {</span>
+<span class="s2">        p = new THREE.Vector3(p.x, p.y, p.z);</span>
+<span class="s2">        p.project(camera);</span>
+<span class="s2">        return Math.abs(p.x) &lt; 1 &amp;&amp; Math.abs(p.y) &lt; 1 &amp;&amp; p.z &gt;= 0 &amp;&amp; p.z &lt; 1;</span>
+<span class="s2">      };</span>
+<span class="s2">      let unit = new THREE.Vector3(0.3, 0.4, 1.8);</span>
+<span class="s2">      unit.normalize();</span>
+<span class="s2">      let setCameraDistance = (d) =&gt; {</span>
+<span class="s2">        controls.target.copy(mid);</span>
+<span class="s2">        camera.position.copy(mid);</span>
+<span class="s2">        camera.position.addScaledVector(unit, d);</span>
+<span class="s2">        controls.update();</span>
+<span class="s2">        return boxPoints.every(isInView);</span>
+<span class="s2">      };</span>
+
+<span class="s2">      let maxDistance = 1;</span>
+<span class="s2">      for (let k = 0; k &lt; 20; k++) {</span>
+<span class="s2">        if (setCameraDistance(maxDistance)) {</span>
+<span class="s2">          break;</span>
+<span class="s2">        }</span>
+<span class="s2">        maxDistance *= 2;</span>
+<span class="s2">      }</span>
+<span class="s2">      let minDistance = maxDistance;</span>
+<span class="s2">      for (let k = 0; k &lt; 20; k++) {</span>
+<span class="s2">        minDistance /= 2;</span>
+<span class="s2">        if (!setCameraDistance(minDistance)) {</span>
+<span class="s2">          break;</span>
+<span class="s2">        }</span>
+<span class="s2">      }</span>
+<span class="s2">      for (let k = 0; k &lt; 20; k++) {</span>
+<span class="s2">        let mid = (minDistance + maxDistance) / 2;</span>
+<span class="s2">        if (setCameraDistance(mid)) {</span>
+<span class="s2">          maxDistance = mid;</span>
+<span class="s2">        } else {</span>
+<span class="s2">          minDistance = mid;</span>
+<span class="s2">        }</span>
+<span class="s2">      }</span>
+<span class="s2">      setCameraDistance(maxDistance);</span>
+<span class="s2">    }</span>
+
+<span class="s2">    function setupRenderer(renderer, container, camera, scene) {</span>
+<span class="s2">      container.textContent = &quot;&quot;;</span>
+<span class="s2">      renderer.setSize(container.clientWidth, container.clientHeight);</span>
+<span class="s2">      renderer.setPixelRatio(window.devicePixelRatio);</span>
+<span class="s2">      renderer.physicallyCorrectLights = true;</span>
+<span class="s2">      renderer.toneMapping = THREE.ACESFilmicToneMapping;</span>
+<span class="s2">      renderer.toneMappingExposure = 1.2;</span>
+<span class="s2">      renderer.outputEncoding = THREE.sRGBEncoding;</span>
+<span class="s2">      renderer.setClearColor(0xdedede);</span>
+<span class="s2">      container.appendChild(renderer.domElement);</span>
+<span class="s2">    }</span>
+
+<span class="s2">    function renderScene(renderer, scene, camera, controls, container) {</span>
+<span class="s2">      const render = () =&gt; {</span>
+<span class="s2">        renderer.render(scene, camera);</span>
+<span class="s2">      };</span>
+
+<span class="s2">      render();</span>
+
+<span class="s2">      new ResizeObserver(() =&gt; {</span>
+<span class="s2">        const width = container.clientWidth;</span>
+<span class="s2">        const height = container.clientHeight;</span>
+<span class="s2">        camera.aspect = width / height;</span>
+<span class="s2">        camera.updateProjectionMatrix();</span>
+<span class="s2">        renderer.setSize(width, height);</span>
+<span class="s2">        render();</span>
+<span class="s2">      }).observe(container);</span>
+
+<span class="s2">      controls.addEventListener(&quot;change&quot;, render);</span>
+<span class="s2">    }</span>
+
+<span class="s2">    init();</span>
+<span class="s2">  &lt;/script&gt;</span>
+<span class="s2">&lt;/body&gt;</span>
+
+<span class="s2">&lt;/html&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath_or_bytes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filepath_or_bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">collada_bytes</span> <span class="o">=</span> <span class="n">filepath_or_bytes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath_or_bytes</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">collada_bytes</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">collada_base64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">collada_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">html_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HTML_TEMPLATE</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
+            <span class="n">MODEL_BASE64_PLACEHOLDER</span><span class="o">=</span><span class="n">collada_base64</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">framed</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;iframe style=&quot;width: 100%; height: 300px; overflow: hidden; resize: both; border: 1px dashed gray;&quot; frameBorder=&quot;0&quot; srcdoc=&quot;</span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html_str</span><span class="p">,</span><span class="w"> </span><span class="n">quote</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&gt;&lt;/iframe&gt;&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">framed</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">html_str</span>
+
+
+<div class="viewcode-block" id="display_collada_model">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.interop.display_collada_model.html#tqec.interop.display_collada_model">[docs]</a>
+<span class="k">def</span> <span class="nf">display_collada_model</span><span class="p">(</span>
+    <span class="n">filepath_or_bytes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">,</span>
+    <span class="n">write_html_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ColladaHTMLViewer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Display the 3D COLLADA model from a Collada DAE file in IPython</span>
+<span class="sd">    compatible environments, or write the generated HTML content to a file.</span>
+
+<span class="sd">    The implementation of this function references the code snippet from the ``stim.Circuit().diagram()`` method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filepath_or_bytes: The input dae file path or bytes of the dae file.</span>
+<span class="sd">        write_html_filepath: The output html file path to write the generated html content.</span>
+<span class="sd">          Default is None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A helper class to display the 3D model, which implements the ``_repr_html_`` method and</span>
+<span class="sd">        can be directly displayed in IPython compatible environments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">helper</span> <span class="o">=</span> <span class="n">_ColladaHTMLViewer</span><span class="p">(</span><span class="n">filepath_or_bytes</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">write_html_filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_html_filepath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">helper</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">helper</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
