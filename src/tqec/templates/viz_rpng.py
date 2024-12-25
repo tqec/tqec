@@ -2,7 +2,7 @@
 
 from collections.abc import Callable, Iterable
 import math
-from typing import Literal
+from typing import Literal, cast
 
 from tqec.exceptions import TQECException
 from tqec.interop.color import RGBA, TQECColor
@@ -17,6 +17,7 @@ def rpng_svg_viewer(
     show_rg_fields: bool = True,
     show_plaquette_indices: bool = False,
     show_interaction_order: bool = True,
+    show_hook_error: Callable[[RPNGDescription], bool] = lambda _: False,
 ) -> str:
     """Visualize the RPNG plaquettes as SVG.
 
@@ -36,6 +37,9 @@ def rpng_svg_viewer(
             indices are shown at the center of the plaquettes.
         show_interaction_order: Whether to show the interaction order of the plaquettes. If
             True, the interaction order is shown at each corner of the plaquette.
+        show_hook_error: A predicate function that takes an RPNGDescription and returns True
+            if the plaquette should be highlighted with the hook error. The hook error is
+            shown as a black line along the hook edge.
 
     Returns:
         The SVG string representing the RPNG object.
@@ -59,6 +63,7 @@ def rpng_svg_viewer(
 
     data_qubits: set[complex] = set()
     plaquettes: dict[complex, dict[complex, RPNG]] = {}
+    hook_error: dict[complex, tuple[complex, complex]] = {}
     merged_r: dict[complex, ExtendedBasisEnum | None] = {}
     merged_g: dict[complex, ExtendedBasisEnum | None] = {}
     indices: dict[complex, int] = {}
@@ -87,6 +92,14 @@ def rpng_svg_viewer(
                 if show_plaquette_indices:
                     assert plaquette_indices is not None
                     indices[center] = plaquette_indices[r][c]
+                if show_hook_error(description):
+                    sorted_corners = sorted(
+                        [p for p, rpng in plaquette.items() if rpng.n is not None],
+                        key=lambda p: cast(int, plaquette[p].n),
+                    )
+                    if len(sorted_corners) < 2:
+                        continue
+                    hook_error[center] = (sorted_corners[-2], sorted_corners[-1])
 
     # Calculate the bounding box and scale the qubits to fit the canvas
     min_c, max_c = _get_bounding_box(data_qubits)
@@ -123,6 +136,7 @@ def rpng_svg_viewer(
             opacity,
             scale_factor,
             show_interaction_order,
+            hook_error.get(center),
         )
         clip_path_id += 1
         if show_plaquette_indices:
@@ -174,6 +188,7 @@ def _draw_plaquette(
     opacity: float,
     scale_factor: float,
     show_interaction_order: bool,
+    hook_error: tuple[complex, complex] | None,
 ) -> None:
     path_directions = _svg_path_directions(center, plaquette, q2p)
     # Add clip path
@@ -192,6 +207,7 @@ def _draw_plaquette(
             opacity *= rgba.a
         else:
             fill = "gray"
+        # Fill each corner by a rectangle
         fill_layer.append(
             f'<rect clip-path="url(#clipPath{clip_path_id})" '
             f'x="{a.real}" y="{a.imag}" '
@@ -199,11 +215,6 @@ def _draw_plaquette(
             f'fill="{fill}" '
             f'opacity="{opacity}" '
             'stroke="none"/>'
-        )
-        # stroke around the polygon
-        stroke_layer.append(
-            f'<path d="{path_directions}" '
-            f'fill="none" stroke="black" stroke-width="{0.05 * scale_factor}"/>'
         )
         # Add the interaction order texts
         if show_interaction_order:
@@ -221,6 +232,21 @@ def _draw_plaquette(
                 'dominant-baseline="middle">'
                 f"{rpng.n}</text>"
             )
+    # stroke around the polygon
+    stroke_layer.append(
+        f'<path d="{path_directions}" '
+        f'fill="none" stroke="black" stroke-width="{0.05 * scale_factor}"/>'
+    )
+    # Add the hook error
+    if hook_error is not None:
+        p1, p2 = q2p(hook_error[0]), q2p(hook_error[1])
+        p1 += (q2p(center) - p1) * 0.008 * scale_factor
+        p2 += (q2p(center) - p2) * 0.008 * scale_factor
+        stroke_layer.append(
+            f'<line x1="{p1.real}" y1="{p1.imag}" '
+            f'x2="{p2.real}" y2="{p2.imag}" '
+            f'stroke="black" stroke-width="{0.06 * scale_factor}"/>'
+        )
 
 
 def _svg_path_directions(

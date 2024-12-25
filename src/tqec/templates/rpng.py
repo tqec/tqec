@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -90,6 +91,7 @@ class RPNGTemplate:
         show_rg_fields: bool = True,
         show_plaquette_indices: bool = True,
         show_interaction_order: bool = True,
+        show_hook_error: Callable[[RPNGDescription], bool] = lambda _: False,
     ) -> str:
         """Visualize the template as an SVG image.
 
@@ -105,6 +107,10 @@ class RPNGTemplate:
                 indices are shown at the center of the plaquettes.
             show_interaction_order: Whether to show the interaction order of the plaquettes. If
                 True, the interaction order is shown at each corner of the plaquette.
+            show_hook_error: A predicate function that takes an RPNGDescription and returns True
+                if the plaquette should be highlighted with the hook error. The hook error is
+                shown as a black line along the hook edge.
+
 
         Returns:
             The SVG string of the visualization.
@@ -119,6 +125,7 @@ class RPNGTemplate:
             show_rg_fields=show_rg_fields,
             show_plaquette_indices=show_plaquette_indices,
             show_interaction_order=show_interaction_order,
+            show_hook_error=show_hook_error,
         )
         if write_to_filepath is not None:
             with open(write_to_filepath, "w") as f:
