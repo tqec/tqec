@@ -302,7 +302,7 @@ def _svg_path_directions_3_corners(
         list(plaquette.keys()) + shoulders,
         key=lambda p2: math.atan2(p2.imag - center.imag, p2.real - center.real),
     )
-    directions = f"M {_complex_str((q2p(sorted_corners[-1])))} "
+    directions = f"M {_complex_str(q2p(sorted_corners[-1]))} "
     for c in sorted_corners:
         directions += f"L {_complex_str(q2p(c))} "
     return directions
@@ -317,7 +317,7 @@ def _svg_path_directions_4_corners(
         list(plaquette.keys()),
         key=lambda p2: math.atan2(p2.imag - center.imag, p2.real - center.real),
     )
-    directions = f"M {_complex_str((q2p(sorted_corners[-1])))} "
+    directions = f"M {_complex_str(q2p(sorted_corners[-1]))} "
     for c in sorted_corners:
         directions += f"L {_complex_str(q2p(c))} "
     return directions
