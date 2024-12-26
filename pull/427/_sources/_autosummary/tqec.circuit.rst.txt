@@ -1,0 +1,45 @@
+﻿tqec.circuit
+============
+
+.. currentmodule:: tqec
+
+.. automodule:: tqec.circuit
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      generate_circuit
+      merge_scheduled_circuits
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+   
+      QubitMap
+      ScheduledCircuit
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+   
+      ScheduleException
+   
+   

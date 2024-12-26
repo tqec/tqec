@@ -1,0 +1,1049 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tqec.noise_model &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/tqec/noise_model';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.noise_model</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for tqec.noise_model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Implementation of different noise models for Stim.</span>
+
+<span class="sd">Important note:</span>
+<span class="sd">---------------</span>
+
+<span class="sd">This file has been recovered from https://zenodo.org/records/7487893</span>
+<span class="sd">and is under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/legalcode).</span>
+<span class="sd">It is part of the code from the paper</span>
+
+<span class="sd">    Gidney, C. (2022). Data for &quot;Inplace Access to the Surface Code Y Basis&quot;.</span>
+<span class="sd">    https://doi.org/10.5281/zenodo.7487893</span>
+
+
+<span class="sd">Modifications to the original code:</span>
+
+<span class="sd">1. Formatting with ruff.</span>
+<span class="sd">2. Fixing typing issues and adapting a few imports to personal taste.</span>
+<span class="sd">3. A minor adjustment to the measurement noise rules of ``uniform_depolarizing``</span>
+<span class="sd">   and ``si1000`` noise models: the depolarizing error on the measured qubits</span>
+<span class="sd">   after measurement is removed because, in our library, all measurements are</span>
+<span class="sd">   immediately followed by resets. As a result, the depolarizing error has no</span>
+<span class="sd">   effect.</span>
+<span class="sd">4. Remove the ``depolarizing_two_body_measurement_noise`` noise model.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AbstractSet</span><span class="p">,</span> <span class="n">Iterator</span>
+
+<span class="kn">import</span> <span class="nn">stim</span>
+
+<span class="n">CLIFFORD_1Q</span> <span class="o">=</span> <span class="s2">&quot;C1&quot;</span>
+<span class="n">CLIFFORD_2Q</span> <span class="o">=</span> <span class="s2">&quot;C2&quot;</span>
+<span class="n">ANNOTATION</span> <span class="o">=</span> <span class="s2">&quot;info&quot;</span>
+<span class="n">MPP</span> <span class="o">=</span> <span class="s2">&quot;MPP&quot;</span>
+<span class="n">MEASURE_RESET_1Q</span> <span class="o">=</span> <span class="s2">&quot;MR1&quot;</span>
+<span class="n">JUST_MEASURE_1Q</span> <span class="o">=</span> <span class="s2">&quot;M1&quot;</span>
+<span class="n">JUST_RESET_1Q</span> <span class="o">=</span> <span class="s2">&quot;R1&quot;</span>
+<span class="n">NOISE</span> <span class="o">=</span> <span class="s2">&quot;!?&quot;</span>
+
+<span class="n">OP_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;I&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;X&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;Y&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;C_XYZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;C_ZYX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;H_XY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;H_XZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;H_YZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_X&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_X_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_Y&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_Y_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_Z&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_Z_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;S_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;CNOT&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;CX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;CY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;CZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;ISWAP&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;ISWAP_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_XX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_XX_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_YY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_YY_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_ZZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;SQRT_ZZ_DAG&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;SWAP&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;XCX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;XCY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;XCZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;YCX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;YCY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;YCZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;ZCX&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;ZCY&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;ZCZ&quot;</span><span class="p">:</span> <span class="n">CLIFFORD_2Q</span><span class="p">,</span>
+    <span class="s2">&quot;MPP&quot;</span><span class="p">:</span> <span class="n">MPP</span><span class="p">,</span>
+    <span class="s2">&quot;MR&quot;</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;MRX&quot;</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;MRY&quot;</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;MRZ&quot;</span><span class="p">:</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;MX&quot;</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;MY&quot;</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;MZ&quot;</span><span class="p">:</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;RX&quot;</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;RY&quot;</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;RZ&quot;</span><span class="p">:</span> <span class="n">JUST_RESET_1Q</span><span class="p">,</span>
+    <span class="s2">&quot;DETECTOR&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">&quot;OBSERVABLE_INCLUDE&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">&quot;QUBIT_COORDS&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">&quot;SHIFT_COORDS&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">&quot;TICK&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="n">ANNOTATION</span><span class="p">,</span>
+    <span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">&quot;DEPOLARIZE2&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">&quot;PAULI_CHANNEL_1&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">&quot;PAULI_CHANNEL_2&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">&quot;X_ERROR&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">&quot;Y_ERROR&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="s2">&quot;Z_ERROR&quot;</span><span class="p">:</span> <span class="n">NOISE</span><span class="p">,</span>
+    <span class="c1"># Not supported.</span>
+    <span class="c1"># &#39;CORRELATED_ERROR&#39;: NOISE,</span>
+    <span class="c1"># &#39;E&#39;: NOISE,</span>
+    <span class="c1"># &#39;ELSE_CORRELATED_ERROR&#39;,</span>
+<span class="p">}</span>
+<span class="n">OP_MEASURE_BASES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MX&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MY&quot;</span><span class="p">:</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MZ&quot;</span><span class="p">:</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MPP&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">COLLAPSING_OPS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">op</span>
+    <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">OP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_RESET_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_MEASURE_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MPP</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MEASURE_RESET_1Q</span>
+<span class="p">}</span>
+
+
+<span class="k">class</span> <span class="nc">NoiseRule</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Describes how to add noise to an operation.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">after</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">flip_result</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            after: A dictionary mapping noise rule names to their probability argument.</span>
+<span class="sd">                For example, {&quot;DEPOLARIZE2&quot;: 0.01, &quot;X_ERROR&quot;: 0.02} will add two qubit</span>
+<span class="sd">                depolarization with parameter 0.01 and also add 2% bit flip noise. These</span>
+<span class="sd">                noise channels occur after all other operations in the moment and are applied</span>
+<span class="sd">                to the same targets as the relevant operation.</span>
+<span class="sd">            flip_result: The probability that a measurement result should be reported incorrectly.</span>
+<span class="sd">                Only valid when applied to operations that produce measurement results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">flip_result</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;not (0 &lt;= </span><span class="si">{</span><span class="n">flip_result</span><span class="si">=}</span><span class="s2"> &lt;= 1)&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">after</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">!=</span> <span class="n">NOISE</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;not a noise channel: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">after</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;not (0 &lt;= </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> &lt;= 1) from </span><span class="si">{</span><span class="n">after</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">after</span> <span class="o">=</span> <span class="n">after</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flip_result</span> <span class="o">=</span> <span class="n">flip_result</span>
+
+    <span class="k">def</span> <span class="nf">append_noisy_version_of</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">split_op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span>
+        <span class="n">out_during_moment</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span>
+        <span class="n">after_moments</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">],</span>
+        <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">immune_qubits</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">is_qubit_target</span> <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">is_x_target</span> <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">is_y_target</span> <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">is_z_target</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">t</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">immune_qubits</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">targets</span>
+        <span class="p">):</span>
+            <span class="n">out_during_moment</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">split_op</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flip_result</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">split_op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MPP</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_MEASURE_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MEASURE_RESET_1Q</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">flip_result</span><span class="p">]</span>
+
+        <span class="n">out_during_moment</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">split_op</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="n">raw_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">targets</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="o">.</span><span class="n">is_combiner</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">op_name</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">after</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">after_moments</span><span class="p">[(</span><span class="n">op_name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op_name</span><span class="p">,</span> <span class="n">raw_targets</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="NoiseModel">
+<a class="viewcode-back" href="../../_autosummary/tqec.NoiseModel.html#tqec.NoiseModel">[docs]</a>
+<span class="k">class</span> <span class="nc">NoiseModel</span><span class="p">:</span>
+<div class="viewcode-block" id="NoiseModel.__init__">
+<a class="viewcode-back" href="../../_autosummary/tqec.NoiseModel.html#tqec.NoiseModel.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">idle_depolarization</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">additional_depolarization_waiting_for_m_or_r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">gate_rules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NoiseRule</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">measure_rules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NoiseRule</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">any_clifford_1q_rule</span><span class="p">:</span> <span class="n">NoiseRule</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">any_clifford_2q_rule</span><span class="p">:</span> <span class="n">NoiseRule</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span> <span class="o">=</span> <span class="n">idle_depolarization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">additional_depolarization_waiting_for_m_or_r</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate_rules</span> <span class="o">=</span> <span class="n">gate_rules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measure_rules</span> <span class="o">=</span> <span class="n">measure_rules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_1q_rule</span> <span class="o">=</span> <span class="n">any_clifford_1q_rule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_2q_rule</span> <span class="o">=</span> <span class="n">any_clifford_2q_rule</span></div>
+
+
+<div class="viewcode-block" id="NoiseModel.si1000">
+<a class="viewcode-back" href="../../_autosummary/tqec.NoiseModel.html#tqec.NoiseModel.si1000">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">si1000</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NoiseModel&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Superconducting inspired noise.</span>
+
+<span class="sd">        As defined in &quot;A Fault-Tolerant Honeycomb Memory&quot;:</span>
+<span class="sd">        https://arxiv.org/abs/2108.10457</span>
+
+<span class="sd">        Small tweak from the paper: The measurement result is probabilistically flipped instead of the input qubit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">NoiseModel</span><span class="p">(</span>
+            <span class="n">idle_depolarization</span><span class="o">=</span><span class="n">p</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="n">additional_depolarization_waiting_for_m_or_r</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+            <span class="n">any_clifford_1q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">:</span> <span class="n">p</span> <span class="o">/</span> <span class="mi">10</span><span class="p">}),</span>
+            <span class="n">any_clifford_2q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;DEPOLARIZE2&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+            <span class="n">measure_rules</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span> <span class="o">*</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="n">gate_rules</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;X_ERROR&quot;</span><span class="p">:</span> <span class="n">p</span> <span class="o">*</span> <span class="mi">2</span><span class="p">}),</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NoiseModel.uniform_depolarizing">
+<a class="viewcode-back" href="../../_autosummary/tqec.NoiseModel.html#tqec.NoiseModel.uniform_depolarizing">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">uniform_depolarizing</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NoiseModel&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Near-standard circuit depolarizing noise.</span>
+
+<span class="sd">        Everything has the same parameter p. Single qubit clifford gates</span>
+<span class="sd">        get single qubit depolarization. Two qubit clifford gates get</span>
+<span class="sd">        single qubit depolarization. Dissipative gates have their result</span>
+<span class="sd">        probabilistically bit flipped (or phase flipped if appropriate).</span>
+
+<span class="sd">        Non-demolition measurement is treated a bit unusually in that it</span>
+<span class="sd">        is the result that is flipped instead of the input qubit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">NoiseModel</span><span class="p">(</span>
+            <span class="n">idle_depolarization</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
+            <span class="n">any_clifford_1q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+            <span class="n">any_clifford_2q_rule</span><span class="o">=</span><span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;DEPOLARIZE2&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+            <span class="n">measure_rules</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;X&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">&quot;Y&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">&quot;XX&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">&quot;YY&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+                <span class="s2">&quot;ZZ&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{},</span> <span class="n">flip_result</span><span class="o">=</span><span class="n">p</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="n">gate_rules</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;RX&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Z_ERROR&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+                <span class="s2">&quot;RY&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;X_ERROR&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+                <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="n">NoiseRule</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;X_ERROR&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">}),</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_noise_rule_for_split_operation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">split_op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoiseRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">occurs_in_classical_control_system</span><span class="p">(</span><span class="n">split_op</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gate_rules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gate_rules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">split_op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">rule</span>
+
+        <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">split_op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_1q_rule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">==</span> <span class="n">CLIFFORD_1Q</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_1q_rule</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_2q_rule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_2q_rule</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">measure_rules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">measure_basis</span> <span class="o">=</span> <span class="n">_measure_basis</span><span class="p">(</span><span class="n">split_op</span><span class="o">=</span><span class="n">split_op</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">measure_basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">rule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measure_rules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">measure_basis</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">rule</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No noise (or lack of noise) specified for </span><span class="si">{</span><span class="n">split_op</span><span class="si">=}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_append_idle_error</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">moment_split_ops</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">],</span>
+        <span class="n">out</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span>
+        <span class="n">system_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">collapse_qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">clifford_qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">split_op</span> <span class="ow">in</span> <span class="n">moment_split_ops</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">occurs_in_classical_control_system</span><span class="p">(</span><span class="n">split_op</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">split_op</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">COLLAPSING_OPS</span><span class="p">:</span>
+                <span class="n">qubits_out</span> <span class="o">=</span> <span class="n">collapse_qubits</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">qubits_out</span> <span class="o">=</span> <span class="n">clifford_qubits</span>
+            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">split_op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="o">.</span><span class="n">is_combiner</span><span class="p">:</span>
+                    <span class="n">qubits_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Safety check for operation collisions.</span>
+        <span class="n">usage_counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">collapse_qubits</span> <span class="o">+</span> <span class="n">clifford_qubits</span><span class="p">)</span>
+        <span class="n">qubits_used_multiple_times</span> <span class="o">=</span> <span class="p">{</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">usage_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">qubits_used_multiple_times</span><span class="p">:</span>
+            <span class="n">moment</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">moment_split_ops</span><span class="p">:</span>
+                <span class="n">moment</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Qubits were operated on multiple times without a TICK in between:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;multiple uses: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">qubits_used_multiple_times</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;moment:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">moment</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">collapse_qubits_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">collapse_qubits</span><span class="p">)</span>
+        <span class="n">clifford_qubits_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">clifford_qubits</span><span class="p">)</span>
+        <span class="n">idle</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">system_qubits</span> <span class="o">-</span> <span class="n">collapse_qubits_set</span> <span class="o">-</span> <span class="n">clifford_qubits_set</span> <span class="o">-</span> <span class="n">immune_qubits</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">idle</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span><span class="p">)</span>
+
+        <span class="n">waiting_for_mr</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">system_qubits</span> <span class="o">-</span> <span class="n">collapse_qubits_set</span> <span class="o">-</span> <span class="n">immune_qubits</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">collapse_qubits_set</span>
+            <span class="ow">and</span> <span class="n">waiting_for_mr</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span>
+        <span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_append_noisy_moment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">moment_split_ops</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">],</span>
+        <span class="n">out</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span>
+        <span class="n">system_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">after</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">split_op</span> <span class="ow">in</span> <span class="n">moment_split_ops</span><span class="p">:</span>
+            <span class="n">rule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_noise_rule_for_split_operation</span><span class="p">(</span><span class="n">split_op</span><span class="o">=</span><span class="n">split_op</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">split_op</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rule</span><span class="o">.</span><span class="n">append_noisy_version_of</span><span class="p">(</span>
+                    <span class="n">split_op</span><span class="o">=</span><span class="n">split_op</span><span class="p">,</span>
+                    <span class="n">out_during_moment</span><span class="o">=</span><span class="n">out</span><span class="p">,</span>
+                    <span class="n">after_moments</span><span class="o">=</span><span class="n">after</span><span class="p">,</span>
+                    <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">after</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="n">after</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_append_idle_error</span><span class="p">(</span>
+            <span class="n">moment_split_ops</span><span class="o">=</span><span class="n">moment_split_ops</span><span class="p">,</span>
+            <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span>
+            <span class="n">system_qubits</span><span class="o">=</span><span class="n">system_qubits</span><span class="p">,</span>
+            <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="NoiseModel.noisy_circuit">
+<a class="viewcode-back" href="../../_autosummary/tqec.NoiseModel.html#tqec.NoiseModel.noisy_circuit">[docs]</a>
+    <span class="k">def</span> <span class="nf">noisy_circuit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">circuit</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">system_qubits</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">immune_qubits</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a noisy version of the given circuit, by applying the</span>
+<span class="sd">        receiving noise model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuit: The circuit to layer noise over.</span>
+<span class="sd">            system_qubits: All qubits used by the circuit. These are the qubits eligible for idling noise.</span>
+<span class="sd">            immune_qubits: Qubits to not apply noise to, even if they are operated on.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The noisy version of the circuit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">system_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">system_qubits</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">immune_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">immune_qubits</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">()</span>
+
+        <span class="n">first</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">moment_split_ops</span> <span class="ow">in</span> <span class="n">_iter_split_op_moments</span><span class="p">(</span>
+            <span class="n">circuit</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">first</span><span class="p">:</span>
+                <span class="n">first</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">result</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TICK&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">moment_split_ops</span><span class="p">,</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">):</span>
+                <span class="n">noisy_body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noisy_circuit</span><span class="p">(</span>
+                    <span class="n">moment_split_ops</span><span class="o">.</span><span class="n">body_copy</span><span class="p">(),</span>
+                    <span class="n">system_qubits</span><span class="o">=</span><span class="n">system_qubits</span><span class="p">,</span>
+                    <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">noisy_body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TICK&quot;</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">(</span>
+                        <span class="n">repeat_count</span><span class="o">=</span><span class="n">moment_split_ops</span><span class="o">.</span><span class="n">repeat_count</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">noisy_body</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_append_noisy_moment</span><span class="p">(</span>
+                    <span class="n">moment_split_ops</span><span class="o">=</span><span class="n">moment_split_ops</span><span class="p">,</span>
+                    <span class="n">out</span><span class="o">=</span><span class="n">result</span><span class="p">,</span>
+                    <span class="n">system_qubits</span><span class="o">=</span><span class="n">system_qubits</span><span class="p">,</span>
+                    <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+</div>
+
+
+
+<span class="k">def</span> <span class="nf">occurs_in_classical_control_system</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines if an operation is an annotation or a classical control</span>
+<span class="sd">    system update.&quot;&quot;&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">ANNOTATION</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span><span class="p">:</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">classical_0</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">is_measurement_record_target</span> <span class="ow">or</span> <span class="n">a</span><span class="o">.</span><span class="n">is_sweep_bit_target</span>
+            <span class="n">classical_1</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">is_measurement_record_target</span> <span class="ow">or</span> <span class="n">b</span><span class="o">.</span><span class="n">is_sweep_bit_target</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">classical_0</span> <span class="ow">or</span> <span class="n">classical_1</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">_split_targets_if_needed</span><span class="p">(</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits operations into pieces as needed (e.g. MPP into each product,</span>
+<span class="sd">    classical control away from quantum ops).&quot;&quot;&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="n">_split_targets_if_needed_clifford_2q</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MPP</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="n">_split_targets_if_needed_m_basis</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">[</span><span class="n">NOISE</span><span class="p">,</span> <span class="n">ANNOTATION</span><span class="p">]:</span>
+        <span class="k">yield</span> <span class="n">op</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="n">_split_targets_if_needed_clifford_1q</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_split_targets_if_needed_clifford_1q</span><span class="p">(</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">immune_qubits</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">op</span>
+
+
+<span class="k">def</span> <span class="nf">_split_targets_if_needed_clifford_2q</span><span class="p">(</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits classical control system operations away from things actually</span>
+<span class="sd">    happening on the quantum computer.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">immune_qubits</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">is_measurement_record_target</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">targets</span><span class="p">[</span><span class="n">k</span> <span class="p">:</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">op</span>
+
+
+<span class="k">def</span> <span class="nf">_split_targets_if_needed_m_basis</span><span class="p">(</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits an MPP operation into one operation for each Pauli product it</span>
+<span class="sd">    measures.&quot;&quot;&quot;</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">()</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">k</span>
+    <span class="k">while</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">targets</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">is_combiner</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">targets</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">args</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">k</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">+=</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="n">k</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_iter_split_op_moments</span><span class="p">(</span>
+    <span class="n">circuit</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits a circuit into moments and some operations into pieces.</span>
+
+<span class="sd">    Classical control system operations like CX rec[-1] 0 are split from quantum operations like CX 1 0.</span>
+
+<span class="sd">    MPP operations are split into one operation per Pauli product.</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        Lists of operations corresponding to one moment in the circuit, with any problematic operations</span>
+<span class="sd">        like MPPs split into pieces.</span>
+
+<span class="sd">        (A moment is the time between two TICKs.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cur_moment</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">circuit</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">cur_moment</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">cur_moment</span>
+                <span class="n">cur_moment</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">yield</span> <span class="n">op</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># if isinstance(op, stim.CircuitInstruction):</span>
+            <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;TICK&quot;</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">cur_moment</span>
+                <span class="n">cur_moment</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cur_moment</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="n">_split_targets_if_needed</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span><span class="p">)</span>
+                <span class="p">)</span>
+    <span class="k">if</span> <span class="n">cur_moment</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">cur_moment</span>
+
+
+<span class="k">def</span> <span class="nf">_measure_basis</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">split_op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts an operation into a string describing the Pauli product basis</span>
+<span class="sd">    it measures.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None: This is not a measurement (or not *just* a measurement).</span>
+<span class="sd">        str: Pauli product string that the operation measures (e.g. &quot;XX&quot; or &quot;Y&quot;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">OP_MEASURE_BASES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">split_op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">is_x_target</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;X&quot;</span>
+            <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">is_y_target</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;Y&quot;</span>
+            <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">is_z_target</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;Z&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">targets</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
