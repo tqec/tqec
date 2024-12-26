@@ -6,14 +6,8 @@ from typing import Callable, Generic, Iterable, Iterator, TypeVar, cast
 
 from typing_extensions import override
 
-from tqec.exceptions import TQECException
-
 K = TypeVar("K")
 V = TypeVar("V")
-
-
-class FrozenException(TQECException):
-    pass
 
 
 class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
