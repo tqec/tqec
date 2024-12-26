@@ -13,6 +13,7 @@ RGBA
    
       ~RGBA.__init__
       ~RGBA.as_floats
+      ~RGBA.to_hex
       ~RGBA.with_alpha
    
    
@@ -37,6 +38,7 @@ RGBA
    
    .. automethod:: __init__
    .. automethod:: as_floats
+   .. automethod:: to_hex
    .. automethod:: with_alpha
    
    

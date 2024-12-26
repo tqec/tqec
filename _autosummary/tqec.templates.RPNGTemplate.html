@@ -530,6 +530,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.shape" title="tqec.templates.RPNGTemplate.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
 <td><p>Returns the current template shape.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.view_as_svg" title="tqec.templates.RPNGTemplate.view_as_svg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view_as_svg</span></code></a>(k[, write_to_filepath, ...])</p></td>
+<td><p>Visualize the template as an SVG image.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -645,6 +648,39 @@ to the top-left entry of the array returned by
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.RPNGTemplate.view_as_svg">
+<span class="sig-name descname"><span class="pre">view_as_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_to_filepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_height=500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_rg_fields=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plaquette_indices=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_interaction_order=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_hook_error=&lt;function</span> <span class="pre">RPNGTemplate.&lt;lambda&gt;&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/rpng.html#RPNGTemplate.view_as_svg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.RPNGTemplate.view_as_svg" title="Link to this definition">#</a></dt>
+<dd><p>Visualize the template as an SVG image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<em>int</em>) – scaling parameter used to instantiate the template.</p></li>
+<li><p><strong>canvas_height</strong> (<em>int</em>) – The height of the canvas in pixels.</p></li>
+<li><p><strong>opacity</strong> (<em>float</em>) – The opacity of the plaquettes.</p></li>
+<li><p><strong>show_rg_fields</strong> (<em>bool</em>) – Whether to show the R/G fields on the data qubits. If True, the R
+field is shown as a small rectangle at the position of the data qubit, whose color
+corresponds to the basis. The G field is shown as a small circle at the position
+of the data qubit, whose color corresponds to the basis.</p></li>
+<li><p><strong>show_plaquette_indices</strong> (<em>bool</em>) – Whether to show the indices of the plaquettes. If True, the
+indices are shown at the center of the plaquettes.</p></li>
+<li><p><strong>show_interaction_order</strong> (<em>bool</em>) – Whether to show the interaction order of the plaquettes. If
+True, the interaction order is shown at each corner of the plaquette.</p></li>
+<li><p><strong>show_hook_error</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription" title="tqec.plaquette.rpng.RPNGDescription"><em>RPNGDescription</em></a><em>]</em><em>, </em><em>bool</em><em>]</em>) – A predicate function that takes an RPNGDescription and returns True
+if the plaquette should be highlighted with the hook error. The hook error is
+shown as a black line along the hook edge.</p></li>
+<li><p><strong>write_to_filepath</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The SVG string of the visualization.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -702,6 +738,7 @@ to the top-left entry of the array returned by
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.instantiate"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.instantiate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.instantiation_origin"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.instantiation_origin()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.shape"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.shape()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.view_as_svg"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.view_as_svg()</span></code></a></li>
 </ul>
 </li>
 </ul>

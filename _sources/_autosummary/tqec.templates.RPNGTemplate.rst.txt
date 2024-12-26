@@ -16,6 +16,7 @@ RPNGTemplate
       ~RPNGTemplate.instantiate
       ~RPNGTemplate.instantiation_origin
       ~RPNGTemplate.shape
+      ~RPNGTemplate.view_as_svg
    
    
 
@@ -41,5 +42,6 @@ RPNGTemplate
    .. automethod:: instantiate
    .. automethod:: instantiation_origin
    .. automethod:: shape
+   .. automethod:: view_as_svg
    
    

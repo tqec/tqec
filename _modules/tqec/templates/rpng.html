@@ -403,7 +403,9 @@ window.addEventListener("load", () => mermaid.run());
                 <article class="bd-article">
                   
   <h1>Source code for tqec.templates.rpng</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span></span><span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span> <span class="nn">tqec.enums</span> <span class="kn">import</span> <span class="n">Orientation</span>
 <span class="kn">from</span> <span class="nn">tqec.plaquette.frozendefaultdict</span> <span class="kn">import</span> <span class="n">FrozenDefaultDict</span>
@@ -476,6 +478,58 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            :meth:`~tqec.templates.indices.base.Template.instantiate`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">instantiation_origin</span><span class="p">(</span><span class="n">k</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RPNGTemplate.view_as_svg">
+<a class="viewcode-back" href="../../../_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.view_as_svg">[docs]</a>
+    <span class="k">def</span> <span class="nf">view_as_svg</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">write_to_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">canvas_height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+        <span class="n">opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">show_rg_fields</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_plaquette_indices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_interaction_order</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">show_hook_error</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">RPNGDescription</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Visualize the template as an SVG image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            k: scaling parameter used to instantiate the template.</span>
+<span class="sd">            canvas_height: The height of the canvas in pixels.</span>
+<span class="sd">            opacity: The opacity of the plaquettes.</span>
+<span class="sd">            show_rg_fields: Whether to show the R/G fields on the data qubits. If True, the R</span>
+<span class="sd">                field is shown as a small rectangle at the position of the data qubit, whose color</span>
+<span class="sd">                corresponds to the basis. The G field is shown as a small circle at the position</span>
+<span class="sd">                of the data qubit, whose color corresponds to the basis.</span>
+<span class="sd">            show_plaquette_indices: Whether to show the indices of the plaquettes. If True, the</span>
+<span class="sd">                indices are shown at the center of the plaquettes.</span>
+<span class="sd">            show_interaction_order: Whether to show the interaction order of the plaquettes. If</span>
+<span class="sd">                True, the interaction order is shown at each corner of the plaquette.</span>
+<span class="sd">            show_hook_error: A predicate function that takes an RPNGDescription and returns True</span>
+<span class="sd">                if the plaquette should be highlighted with the hook error. The hook error is</span>
+<span class="sd">                shown as a black line along the hook edge.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The SVG string of the visualization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">tqec.templates.viz_rpng</span> <span class="kn">import</span> <span class="n">rpng_svg_viewer</span>
+
+        <span class="n">svg_str</span> <span class="o">=</span> <span class="n">rpng_svg_viewer</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">instantiate</span><span class="p">(</span><span class="n">k</span><span class="p">),</span>
+            <span class="n">canvas_height</span><span class="o">=</span><span class="n">canvas_height</span><span class="p">,</span>
+            <span class="n">plaquette_indices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">instantiate</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">,</span>
+            <span class="n">show_rg_fields</span><span class="o">=</span><span class="n">show_rg_fields</span><span class="p">,</span>
+            <span class="n">show_plaquette_indices</span><span class="o">=</span><span class="n">show_plaquette_indices</span><span class="p">,</span>
+            <span class="n">show_interaction_order</span><span class="o">=</span><span class="n">show_interaction_order</span><span class="p">,</span>
+            <span class="n">show_hook_error</span><span class="o">=</span><span class="n">show_hook_error</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">write_to_filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_to_filepath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">svg_str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">svg_str</span></div>
 </div>
 
 </pre></div>

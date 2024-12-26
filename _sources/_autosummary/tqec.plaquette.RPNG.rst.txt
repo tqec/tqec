@@ -24,6 +24,7 @@ RPNG
 
    .. autosummary::
    
+      ~RPNG.is_null
       ~RPNG.r
       ~RPNG.p
       ~RPNG.n
