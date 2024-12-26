@@ -25,7 +25,6 @@ from .interop import TQECColor as TQECColor
 from .interop import display_collada_model as display_collada_model
 from .interop import read_block_graph_from_dae_file as read_block_graph_from_dae_file
 from .interop import write_block_graph_to_dae_file as write_block_graph_to_dae_file
-from .interval import Interval as Interval
 from .noise_model import NoiseModel as NoiseModel
 from .plaquette import RAPNG as RAPNG
 from .plaquette import RG as RG

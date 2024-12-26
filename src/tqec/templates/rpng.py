@@ -26,27 +26,6 @@ class RPNGTemplate:
         """Returns a scalable version of the template shape."""
         return self.template.scalable_shape
 
-    def get_midline_plaquettes(
-        self, k: int, orientation: Orientation = Orientation.HORIZONTAL
-    ) -> list[tuple[int, int]]:
-        """Returns the default observable qubits for the template.
-
-        If the template has a simple shape, this returns the plaquettes on the
-        "midline" of the template.
-        By convention, it returns the plaquettes above the midline for the
-        horizontal case and to the left of the midline for the vertical case.
-
-        Args:
-            orientation: Horizontal or vertical qubits. Defaults to horizontal.
-
-        Returns:
-            The sequence of qubits and offsets.
-
-        Raises:
-            TQECException: If the midline is not uniquely defined.
-        """
-        return self.template.get_midline_plaquettes(k, orientation)
-
     def get_increments(self) -> Displacement:
         """Get the default increments of the template.
 

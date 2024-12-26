@@ -63,37 +63,6 @@ class Template(ABC):
     def scalable_shape(self) -> Scalable2D:
         """Returns a scalable version of the template shape."""
 
-    def get_midline_plaquettes(
-        self, k: int, orientation: Orientation = Orientation.HORIZONTAL
-    ) -> list[tuple[int, int]]:
-        """Returns the default observable qubits for the template.
-
-        If the template has a simple shape, this returns the plaquettes on the
-        "midline" of the template.
-        By convention, it returns the plaquettes above the midline for the
-        horizontal case and to the left of the midline for the vertical case.
-
-        Args:
-            orientation: Horizontal or vertical qubits. Defaults to horizontal.
-
-        Returns:
-            The sequence of qubits and offsets.
-
-        Raises:
-            TQECException: If the midline is not uniquely defined.
-        """
-        shape = self.shape(k)
-        midline_shape, iteration_shape = shape.x, shape.y
-        if midline_shape % 2 == 1:
-            raise TQECException(
-                "Midline is not defined for odd "
-                + f"{'height' if orientation == Orientation.HORIZONTAL else 'width'}."
-            )
-        midline = midline_shape // 2 - 1
-        if orientation == Orientation.VERTICAL:
-            return [(row, midline) for row in range(iteration_shape)]
-        return [(midline, column) for column in range(iteration_shape)]
-
     @property
     @abstractmethod
     def expected_plaquettes_number(self) -> int:
@@ -170,19 +139,3 @@ class Template(ABC):
 
 class RectangularTemplate(Template):
     """Base class for all the templates that have a rectangular shape."""
-
-    @override
-    def get_midline_plaquettes(
-        self, k: int, orientation: Orientation = Orientation.HORIZONTAL
-    ) -> list[tuple[int, int]]:
-        shape = self.shape(k)
-        midline_shape, iteration_shape = shape.x, shape.y
-        if midline_shape % 2 == 1:
-            raise TQECException(
-                "Midline is not defined for odd "
-                + f"{'height' if orientation == Orientation.HORIZONTAL else 'width'}."
-            )
-        midline = midline_shape // 2 - 1
-        if orientation == Orientation.VERTICAL:
-            return [(row, midline) for row in range(iteration_shape)]
-        return [(midline, column) for column in range(iteration_shape)]

@@ -21,7 +21,6 @@ from tqec.circuit.instructions import (
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.exceptions import TQECException
-from tqec.interval import Interval, Rplus_interval
 from tqec.position import Displacement
 
 
@@ -117,65 +116,6 @@ class Measurement(AbstractMeasurement):
     @override
     def map_qubit(self, qubit_map: Mapping[GridQubit, GridQubit]) -> Measurement:
         return Measurement(qubit_map[self.qubit], self.offset)
-
-
-@dataclass(frozen=True)
-class RepeatedMeasurement(AbstractMeasurement):
-    """A unique representation for a repeated measurement in a quantum circuit.
-
-    This class aims at being able to represent a repeated measurement in a
-    quantum circuit in a unique and easily usable way.
-    Repeated measurements can be found when a ``stim.CircuitRepeatBlock``
-    contains measurements.
-
-    Note:
-        This is not a global representation as the ``offsets`` is always
-        relative to the end of the quantum circuit considered.
-
-    Attributes:
-        qubit: qubit on which the represented repeated measurement is performed.
-        offsets: an interval only containing negative offsets representing the
-            number of measurements performed on the provided qubit after the
-            represented measurement.
-            A value of ``-1`` means that the represented measurement is the
-            last one applied on ``qubit``.
-
-    Raises:
-        TQECException: if the provided ``offset`` contains positive entries.
-    """
-
-    qubit: GridQubit
-    offsets: Interval
-
-    def __post_init__(self) -> None:
-        if not self.offsets.intersection(Rplus_interval).is_empty():
-            raise TQECException(
-                "Measurement.offsets should be an Interval "
-                "containing only strictly negative values."
-            )
-
-    @override
-    def offset_spatially_by(self, x: int, y: int) -> RepeatedMeasurement:
-        return RepeatedMeasurement(self.qubit + Displacement(x, y), self.offsets)
-
-    @override
-    def offset_temporally_by(self, t: int) -> RepeatedMeasurement:
-        return RepeatedMeasurement(self.qubit, self.offsets + t)
-
-    @override
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.qubit}, {self.offsets})"
-
-    @override
-    def map_qubit(
-        self, qubit_map: Mapping[GridQubit, GridQubit]
-    ) -> RepeatedMeasurement:
-        return RepeatedMeasurement(qubit_map[self.qubit], self.offsets)
-
-    def measurements(self) -> list[Measurement]:
-        return [
-            Measurement(self.qubit, offset) for offset in self.offsets.iter_integers()
-        ]
 
 
 def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
