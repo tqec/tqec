@@ -229,7 +229,7 @@ def _draw_plaquette(
                 f'fill="black" '
                 f'font-size="{0.4 * scale_factor}" '
                 'text-anchor="middle" '
-                'dominant-baseline="middle">'
+                'dominant-baseline="central">'
                 f"{rpng.n}</text>"
             )
     # stroke around the polygon
@@ -345,7 +345,7 @@ def _draw_plaquette_index(
         f'fill="black" '
         f'font-size="{0.4 * scale_factor}" '
         'text-anchor="middle" '
-        'dominant-baseline="middle">'
+        'dominant-baseline="central">'
         f"{index}</text>"
     )
 
