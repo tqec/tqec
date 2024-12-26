@@ -1,0 +1,1049 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tqec.circuit.schedule.circuit &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/tqec/circuit/schedule/circuit';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.circuit.schedule.circuit</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for tqec.circuit.schedule.circuit</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Defines :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` that</span>
+<span class="sd">represents a quantum circuit with a specific schedule.</span>
+
+<span class="sd">This module defines the class used to represent a quantum circuit. It is a</span>
+<span class="sd">&quot;scheduled&quot; circuit. Such circuits are composed of a finite number of ordered</span>
+<span class="sd">:class:`~tqec.circuit.moment.Moment` instances that are each associated to an</span>
+<span class="sd">integer in a strictly increasing list of integers (called &quot;schedule&quot; and</span>
+<span class="sd">represented by instances of :class:`~.schedule.schedule.Schedule`).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">bisect</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
+
+<span class="kn">import</span> <span class="nn">stim</span>
+
+<span class="kn">from</span> <span class="nn">tqec.circuit.instructions</span> <span class="kn">import</span> <span class="n">is_annotation_instruction</span>
+<span class="kn">from</span> <span class="nn">tqec.circuit.moment</span> <span class="kn">import</span> <span class="n">Moment</span><span class="p">,</span> <span class="n">iter_stim_circuit_without_repeat_by_moments</span>
+<span class="kn">from</span> <span class="nn">tqec.circuit.qubit</span> <span class="kn">import</span> <span class="n">GridQubit</span>
+<span class="kn">from</span> <span class="nn">tqec.circuit.qubit_map</span> <span class="kn">import</span> <span class="n">QubitMap</span><span class="p">,</span> <span class="n">get_qubit_map</span>
+<span class="kn">from</span> <span class="nn">tqec.circuit.schedule.exception</span> <span class="kn">import</span> <span class="n">ScheduleException</span>
+<span class="kn">from</span> <span class="nn">tqec.circuit.schedule.schedule</span> <span class="kn">import</span> <span class="n">Schedule</span>
+<span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span>
+
+
+<div class="viewcode-block" id="ScheduledCircuit">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit">[docs]</a>
+<span class="k">class</span> <span class="nc">ScheduledCircuit</span><span class="p">:</span>
+<div class="viewcode-block" id="ScheduledCircuit.__init__">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">moments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Moment</span><span class="p">],</span>
+        <span class="n">schedule</span><span class="p">:</span> <span class="n">Schedule</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">qubit_map</span><span class="p">:</span> <span class="n">QubitMap</span><span class="p">,</span>
+        <span class="n">_avoid_checks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Represent a quantum circuit with scheduled moments.</span>
+
+<span class="sd">        This class aims at representing a ``stim.Circuit`` instance that has all</span>
+<span class="sd">        its moments scheduled, i.e., associated with a time slice.</span>
+
+<span class="sd">        This class explicitly does not support ``stim.CircuitRepeatBlock`` (i.e.,</span>
+<span class="sd">        ``REPEAT`` instruction). It will raise an exception if such an</span>
+<span class="sd">        instruction is found.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            moments: moments representing the computation that is scheduled.</span>
+<span class="sd">                The provided ``moments`` should not contain any ``QUBIT_COORDS``</span>
+<span class="sd">                instructions. Instead, the qubit coordinates should be provided</span>
+<span class="sd">                through the ``qubit_map`` parameter.</span>
+<span class="sd">            schedule: schedule of the provided ``moments``. If an integer is</span>
+<span class="sd">                provided, each moment of the provided ``stim.Circuit`` is</span>
+<span class="sd">                scheduled sequentially, starting by the provided integer.</span>
+<span class="sd">            qubit_map: a map from indices to qubits that is used to re-create</span>
+<span class="sd">                ``QUBIT_COORDS`` instructions when generating a ``stim.Circuit``.</span>
+<span class="sd">            _avoid_checks: if True, the inputs are not checked for pre-condition</span>
+<span class="sd">                violation and it is up to the user to ensure that</span>
+<span class="sd">                :class:`ScheduledCircuit` pre-conditions are checked by the</span>
+<span class="sd">                provided input.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ScheduleError: if the provided ``schedule`` is invalid.</span>
+<span class="sd">            TQECException: if the provided ``circuit`` contains at least one</span>
+<span class="sd">                ``stim.CircuitRepeatBlock`` instance.</span>
+<span class="sd">            TQECException: if the provided ``circuit`` contains at least one</span>
+<span class="sd">                ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">schedule</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="n">schedule</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">moments</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">schedule</span> <span class="o">=</span> <span class="n">Schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">moments</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">schedule</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ScheduleException</span><span class="p">(</span>
+                <span class="s2">&quot;ScheduledCircuit expects all the provided moments to be scheduled. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">moments</span><span class="p">)</span><span class="si">}</span><span class="s2"> moments but </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span><span class="si">}</span><span class="s2"> schedules.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_avoid_checks</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">contains_instruction</span><span class="p">(</span><span class="s2">&quot;QUBIT_COORDS&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">moments</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ScheduleException</span><span class="p">(</span>
+                <span class="s2">&quot;ScheduledCircuit instance expects the input `stim.Circuit` to &quot;</span>
+                <span class="s2">&quot;not contain any QUBIT_COORDS instruction. Found at least one &quot;</span>
+                <span class="s2">&quot;moment with a QUBIT_COORDS instruction.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Moment</span><span class="p">]</span> <span class="o">=</span> <span class="n">moments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span><span class="p">:</span> <span class="n">QubitMap</span> <span class="o">=</span> <span class="n">qubit_map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">:</span> <span class="n">Schedule</span> <span class="o">=</span> <span class="n">schedule</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.empty">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.empty">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">empty</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an empty :class:`ScheduledCircuit` instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ScheduledCircuit</span><span class="p">([],</span> <span class="n">Schedule</span><span class="p">(),</span> <span class="n">QubitMap</span><span class="p">(),</span> <span class="n">_avoid_checks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.from_circuit">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.from_circuit">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_circuit</span><span class="p">(</span>
+        <span class="n">circuit</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span>
+        <span class="n">schedule</span><span class="p">:</span> <span class="n">Schedule</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">qubit_map</span><span class="p">:</span> <span class="n">QubitMap</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a :class:`ScheduledCircuit` instance from a circuit and a</span>
+<span class="sd">        schedule.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuit: the instance of ``stim.Circuit`` that is scheduled. Should</span>
+<span class="sd">                not contain any instance of ``stim.CircuitRepeatBlock``.</span>
+<span class="sd">            schedule: a sorted list of positive integers or a positive integer.</span>
+<span class="sd">                If a list is given, it should contain as many values as there</span>
+<span class="sd">                are moments in the provided ``stim.Circuit`` instance. If an</span>
+<span class="sd">                integer is provided, each moment of the provided ``stim.Circuit``</span>
+<span class="sd">                is scheduled sequentially, starting by the provided schedule.</span>
+<span class="sd">            qubit_map: a map from indices to qubits. If None, this function will</span>
+<span class="sd">                try to extract the qubit coordinates from the ``QUBIT_COORDS``</span>
+<span class="sd">                instructions found in the provided ``circuit``. Else, the</span>
+<span class="sd">                provided map will be used.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ScheduleError: if the provided ``schedule`` is invalid.</span>
+<span class="sd">            TQECException: if the provided ``circuit`` contains at least one</span>
+<span class="sd">                ``stim.CircuitRepeatBlock`` instance.</span>
+<span class="sd">            TQECException: if the provided ``circuit`` contains at least one</span>
+<span class="sd">                ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">schedule</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="n">schedule</span> <span class="o">+</span> <span class="n">circuit</span><span class="o">.</span><span class="n">num_ticks</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">schedule</span> <span class="o">=</span> <span class="n">Schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+
+        <span class="c1"># Ensure that the provided circuit does not contain any</span>
+        <span class="c1"># `stim.CircuitRepeatBlock` instance.</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">)</span> <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">circuit</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ScheduleException</span><span class="p">(</span>
+                <span class="s2">&quot;stim.CircuitRepeatBlock instances are not supported in &quot;</span>
+                <span class="s2">&quot;a ScheduledCircuit instance.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">moments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Moment</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">iter_stim_circuit_without_repeat_by_moments</span><span class="p">(</span>
+                <span class="n">circuit</span><span class="p">,</span> <span class="n">collected_before_use</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">moments</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ScheduledCircuit</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">contains_instruction</span><span class="p">(</span><span class="s2">&quot;QUBIT_COORDS&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">moments</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="k">raise</span> <span class="n">ScheduleException</span><span class="p">(</span>
+                <span class="s2">&quot;ScheduledCircuit instance expects the input `stim.Circuit` to &quot;</span>
+                <span class="s2">&quot;only contain QUBIT_COORDS instructions before the first TICK.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">qubit_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Here, we know for sure that no qubit is (re)defined in another place</span>
+            <span class="c1"># than the first moment, so we can directly get qubit coordinates from</span>
+            <span class="c1"># that moment.</span>
+            <span class="n">qubit_map</span> <span class="o">=</span> <span class="n">get_qubit_map</span><span class="p">(</span><span class="n">moments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">circuit</span><span class="p">)</span>
+        <span class="c1"># And because we want the cleanest possible moments, we can remove the</span>
+        <span class="c1"># `QUBIT_COORDS` instructions from the first moment.</span>
+        <span class="n">moments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">remove_all_instructions_inplace</span><span class="p">(</span><span class="nb">frozenset</span><span class="p">([</span><span class="s2">&quot;QUBIT_COORDS&quot;</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">ScheduledCircuit</span><span class="p">(</span><span class="n">moments</span><span class="p">,</span> <span class="n">schedule</span><span class="p">,</span> <span class="n">qubit_map</span><span class="p">,</span> <span class="n">_avoid_checks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Schedule</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Schedule of the internal moments.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span>
+
+<div class="viewcode-block" id="ScheduledCircuit.get_qubit_coords_definition_preamble">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.get_qubit_coords_definition_preamble">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_qubit_coords_definition_preamble</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a circuit with only ``QUBIT_COORDS`` instructions.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span><span class="o">.</span><span class="n">to_circuit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.get_circuit">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.get_circuit">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_qubit_coords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build and return the ``stim.Circuit`` instance represented by</span>
+<span class="sd">        ``self``.</span>
+
+<span class="sd">        Warning:</span>
+<span class="sd">            The circuit is re-built at each call! Use that function wisely.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``stim.Circuit`` instance represented by ``self``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="c1"># Appending the QUBIT_COORDS instructions first.</span>
+        <span class="k">if</span> <span class="n">include_qubit_coords</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qubit_coords_definition_preamble</span><span class="p">()</span>
+
+        <span class="c1"># Building the actual circuit.</span>
+        <span class="n">current_schedule</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">last_schedule</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">sched</span><span class="p">,</span> <span class="n">moment</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">current_schedule</span><span class="p">,</span> <span class="n">sched</span><span class="p">):</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TICK&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+                <span class="n">current_schedule</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="n">moment</span><span class="o">.</span><span class="n">circuit</span>
+            <span class="k">if</span> <span class="n">current_schedule</span> <span class="o">!=</span> <span class="n">last_schedule</span><span class="p">:</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TICK&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+                <span class="n">current_schedule</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.get_repeated_circuit">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.get_repeated_circuit">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_repeated_circuit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">repetitions</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">include_qubit_coords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">include_additional_tick_in_body</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build and return the ``stim.Circuit`` instance represented by</span>
+<span class="sd">        ``self`` encapsulated in a ``REPEAT`` block.</span>
+
+<span class="sd">        Warning:</span>
+<span class="sd">            The circuit is re-built at each call! Use that function wisely.</span>
+
+<span class="sd">        Warning:</span>
+<span class="sd">            An extra ``TICK`` instruction is appended by default at the end of the</span>
+<span class="sd">            body of the ``REPEAT`` block to mimic ``stim`` way of doing. You can</span>
+<span class="sd">            control that behaviour with the ``include_additional_tick_in_body``</span>
+<span class="sd">            parameter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            repetitions: argument to the enclosing ``REPEAT`` block representing</span>
+<span class="sd">                the number of repetitions that should be used in the returned</span>
+<span class="sd">                circuit.</span>
+<span class="sd">            include_qubit_coords: if ``True``, ``QUBIT_COORDS`` instructions are</span>
+<span class="sd">                inserted at the beginning of the returned circuit (before the</span>
+<span class="sd">                ``REPEAT`` block).</span>
+<span class="sd">            include_additional_tick_in_body: if ``True``, an additional ``TICK``</span>
+<span class="sd">                instruction is appended to the **body** (i.e., the circuit</span>
+<span class="sd">                inside the ``REPEAT`` block) of the returned circuit. This is the</span>
+<span class="sd">                default behaviour as ``stim`` does that in its code and adding</span>
+<span class="sd">                the ``TICK`` here makes more sense than after the ``REPEAT`` block.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``stim.Circuit`` instance represented by self encapsulated in a</span>
+<span class="sd">            ``REPEAT`` block.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">()</span>
+        <span class="c1"># Appending the QUBIT_COORDS instructions first.</span>
+        <span class="k">if</span> <span class="n">include_qubit_coords</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qubit_coords_definition_preamble</span><span class="p">()</span>
+
+        <span class="c1"># Appending the repeated version of self</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_circuit</span><span class="p">(</span><span class="n">include_qubit_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># A `TICK` instruction is appended before repeating the code block. This</span>
+        <span class="c1"># is to mimic internal `stim` ways of doing.</span>
+        <span class="k">if</span> <span class="n">include_additional_tick_in_body</span><span class="p">:</span>
+            <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TICK&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+        <span class="n">repeated_instruction</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">(</span><span class="n">repetitions</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">repeated_instruction</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.map_qubit_indices">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.map_qubit_indices">[docs]</a>
+    <span class="k">def</span> <span class="nf">map_qubit_indices</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">qubit_index_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Map the qubits **indices** the :class:`ScheduledCircuit` instance is</span>
+<span class="sd">        applied on.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            This method differs from :meth:`~ScheduledCircuit.map_to_qubits`</span>
+<span class="sd">            because it changes the qubit indices, which requires to iterate the</span>
+<span class="sd">            whole circuit and change every instruction target.</span>
+
+<span class="sd">            This method should be used before combining several</span>
+<span class="sd">            :class:`ScheduledCircuit` instances that are not aware of each</span>
+<span class="sd">            other.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            qubit_index_map: the map used to modify the qubit targets.</span>
+<span class="sd">            inplace: if ``True``, perform the modification in place and return</span>
+<span class="sd">                ``self``. Else, perform the modification in a copy and return</span>
+<span class="sd">                the copy. Note that the runtime cost of this method should be</span>
+<span class="sd">                the same independently of the value provided here.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a modified instance of :class:`ScheduledCircuit` (a copy if</span>
+<span class="sd">            ``inplace`` is ``True``, else ``self``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mapped_final_qubits</span> <span class="o">=</span> <span class="n">QubitMap</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">qubit_index_map</span><span class="p">[</span><span class="n">qi</span><span class="p">]:</span> <span class="n">q</span> <span class="k">for</span> <span class="n">qi</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="p">)</span>
+        <span class="n">mapped_moments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Moment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">moment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">:</span>
+            <span class="n">mapped_moments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moment</span><span class="o">.</span><span class="n">with_mapped_qubit_indices</span><span class="p">(</span><span class="n">qubit_index_map</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span> <span class="o">=</span> <span class="n">mapped_final_qubits</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span> <span class="o">=</span> <span class="n">mapped_moments</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ScheduledCircuit</span><span class="p">(</span>
+                <span class="n">mapped_moments</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">,</span> <span class="n">mapped_final_qubits</span><span class="p">,</span> <span class="n">_avoid_checks</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.map_to_qubits">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.map_to_qubits">[docs]</a>
+    <span class="k">def</span> <span class="nf">map_to_qubits</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">qubit_map</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">GridQubit</span><span class="p">],</span> <span class="n">GridQubit</span><span class="p">],</span>
+        <span class="n">inplace_qubit_map</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Map the qubits the :class:`ScheduledCircuit` instance is applied on.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            This method only changes the ``QUBIT_COORDS`` instructions at the</span>
+<span class="sd">            beginning of the circuit. As such, it never has to iterate on the</span>
+<span class="sd">            whole quantum circuit and so this method is very efficient.</span>
+
+<span class="sd">        Warning:</span>
+<span class="sd">            The underlying quantum circuit data-structure is never copied (even</span>
+<span class="sd">            if ``inplace_qubit_map == True``), so the returned instance should be</span>
+<span class="sd">            used with care, in particular if any method mutating the underlying</span>
+<span class="sd">            circuit is called on ``self`` or the returned instance after calling</span>
+<span class="sd">            that method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            qubit_map: the map used to modify the qubits.</span>
+<span class="sd">            inplace_qubit_map: if True, replaces the qubit map directly in</span>
+<span class="sd">                ``self`` and return ``self``. Else, create a new instance from</span>
+<span class="sd">                ``self`` **without copying the underlying moments**, simply</span>
+<span class="sd">                replacing the qubit map.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            an instance of :class:`ScheduledCircuit` with a new qubit map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">operand</span> <span class="o">=</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">inplace_qubit_map</span> <span class="k">else</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">operand</span><span class="o">.</span><span class="n">_qubit_map</span> <span class="o">=</span> <span class="n">operand</span><span class="o">.</span><span class="n">_qubit_map</span><span class="o">.</span><span class="n">with_mapped_qubits</span><span class="p">(</span><span class="n">qubit_map</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">operand</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ScheduledCircuit</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span><span class="p">,</span> <span class="n">_avoid_checks</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ScheduledCircuit</span><span class="p">(</span>
+            <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">),</span>
+            <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">),</span>
+            <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span><span class="p">),</span>
+            <span class="n">_avoid_checks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scheduled_moments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Moment</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Yields ``stim.Circuit`` instances representing a moment with their</span>
+<span class="sd">        computed schedule.</span>
+
+<span class="sd">        This property yields all the scheduled moments.</span>
+
+<span class="sd">        The yielded elements are sorted with respect to their schedule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">yield from</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">moments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Moment</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterator over the internal moments representing the computation.&quot;&quot;&quot;</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">GridQubit</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set of qubits on which the circuit is applied.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_moment_index_by_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the index of the moment scheduled at the provided schedule.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schedule: the schedule at which the Moment instance should be returned.</span>
+<span class="sd">                If the schedule is negative, it is considered as an index from</span>
+<span class="sd">                the end. For example, ``-1`` is the last schedule and ``-2`` is the</span>
+<span class="sd">                ``last schedule - 1`` (which might not be the second to last</span>
+<span class="sd">                schedule).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            the index of the :class:`~tqec.circuit.moment.Moment` instance</span>
+<span class="sd">            scheduled at the provided schedule. If no</span>
+<span class="sd">            :class:`~tqec.circuit.moment.Moment` instance is scheduled at the</span>
+<span class="sd">            provided ``schedule``, ``None`` is returned.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: if the provided calculated ``schedule`` is negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">schedule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">schedule</span> <span class="k">if</span> <span class="n">schedule</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">schedule</span>
+        <span class="k">if</span> <span class="n">schedule</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="s2">&quot;Trying to get the index of a Moment instance with a negative &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;schedule </span><span class="si">{</span><span class="n">schedule</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">moment_index</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sched</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">)</span> <span class="k">if</span> <span class="n">sched</span> <span class="o">==</span> <span class="n">schedule</span><span class="p">),</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">moment_index</span>
+
+<div class="viewcode-block" id="ScheduledCircuit.moment_at_schedule">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.moment_at_schedule">[docs]</a>
+    <span class="k">def</span> <span class="nf">moment_at_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Moment</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the :class:`~tqec.circuit.moment.Moment` instance scheduled at</span>
+<span class="sd">        the provided schedule.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schedule: the schedule at which the :class:`~tqec.circuit.moment.Moment`</span>
+<span class="sd">                instance should be returned. If the ``schedule`` is negative, it</span>
+<span class="sd">                is considered as an index from the end. For example, ``-1`` is the</span>
+<span class="sd">                last schedule and ``-2`` is the ``last schedule - 1`` (which</span>
+<span class="sd">                might not be the second to last schedule).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: if no moment exist at the provided ``schedule``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">moment_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_moment_index_by_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">moment_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No Moment instance scheduled at the provided schedule </span><span class="si">{</span><span class="n">schedule</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">[</span><span class="n">moment_index</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.append_new_moment">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.append_new_moment">[docs]</a>
+    <span class="k">def</span> <span class="nf">append_new_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">moment</span><span class="p">:</span> <span class="n">Moment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Schedule the provided :class:`~tqec.circuit.moment.Moment` instance</span>
+<span class="sd">        at the end of the circuit. The new schedule will be the last schedule</span>
+<span class="sd">        plus one.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            moment: the moment to schedule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># By default, we cannot assume that self._schedule contains an entry, so</span>
+        <span class="c1"># we insert at the first moment.</span>
+        <span class="n">schedule</span> <span class="o">=</span> <span class="n">Schedule</span><span class="o">.</span><span class="n">_INITIAL_SCHEDULE</span>
+        <span class="c1"># If it turns out that we have at least one scheduled moment, then</span>
+        <span class="c1"># insert just after.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">:</span>
+            <span class="n">schedule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_schedule_index</span><span class="p">(</span><span class="n">schedule</span><span class="p">,</span> <span class="n">moment</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.add_to_schedule_index">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.add_to_schedule_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_to_schedule_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">moment</span><span class="p">:</span> <span class="n">Moment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the operations contained in the provided ``moment`` to the</span>
+<span class="sd">        provided schedule.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schedule: schedule at which operations in ``moment`` should be added.</span>
+<span class="sd">                If the schedule is negative, it is considered as an index from</span>
+<span class="sd">                the end. For example, ``-1`` is the last schedule and ``-2`` is the</span>
+<span class="sd">                ``last schedule - 1`` (which might not be the second to last</span>
+<span class="sd">                schedule).</span>
+<span class="sd">            moment: operations that should be added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">moment_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_moment_index_by_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">moment_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># We have to insert a new schedule and a new Moment.</span>
+            <span class="n">insertion_index</span> <span class="o">=</span> <span class="n">bisect</span><span class="o">.</span><span class="n">bisect_left</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_schedule</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insertion_index</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insertion_index</span><span class="p">,</span> <span class="n">moment</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Else, the schedule already exists, in which case we just need to</span>
+            <span class="c1"># add the operations to an existing moment. Note that this might</span>
+            <span class="c1"># fail if two instructions overlap.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">[</span><span class="n">moment_index</span><span class="p">]</span> <span class="o">+=</span> <span class="n">moment</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.append_observable">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.append_observable">[docs]</a>
+    <span class="k">def</span> <span class="nf">append_observable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">GateTarget</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append an ``OBSERVABLE_INCLUDE`` instruction to the last moment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index: index of the observable to append measurement records to.</span>
+<span class="sd">            targets: measurement records forming (part of) the observable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append_annotation</span><span class="p">(</span>
+            <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">(</span><span class="s2">&quot;OBSERVABLE_INCLUDE&quot;</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ScheduledCircuit.append_annotation">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.append_annotation">[docs]</a>
+    <span class="k">def</span> <span class="nf">append_annotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instruction</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append an annotation to the last moment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instruction: an annotation that will be added to the last moment of</span>
+<span class="sd">                ``self``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: if the provided instruction is not an annotation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_annotation_instruction</span><span class="p">(</span><span class="n">instruction</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="s2">&quot;The provided instruction is not an annotation, which is &quot;</span>
+                <span class="s2">&quot;disallowed by the append_annotation method.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append_annotation</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of measurements in the represented computation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">num_measurements</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moments</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ScheduledCircuit.filter_by_qubits">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit.filter_by_qubits">[docs]</a>
+    <span class="k">def</span> <span class="nf">filter_by_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubits_to_keep</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">GridQubit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter the circuit to keep only the instructions that are applied on</span>
+<span class="sd">        the provided qubits. If an instruction is applied on a qubit that is</span>
+<span class="sd">        not in the provided list, it is removed.</span>
+
+<span class="sd">        After filtering, the empty moments as well as the corresponding schedules</span>
+<span class="sd">        are removed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            qubits_to_keep: the qubits to keep in the circuit.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a new instance of :class:`ScheduledCircuit` with the filtered</span>
+<span class="sd">            circuit and schedules.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qubits_indices_to_keep</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span><span class="o">.</span><span class="n">q2i</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qubits_to_keep</span> <span class="k">if</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qubits</span>
+        <span class="p">)</span>
+        <span class="n">filtered_moments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Moment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">filtered_schedule</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">schedule</span><span class="p">,</span> <span class="n">moment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheduled_moments</span><span class="p">:</span>
+            <span class="n">filtered_moment</span> <span class="o">=</span> <span class="n">moment</span><span class="o">.</span><span class="n">filter_by_qubits</span><span class="p">(</span><span class="n">qubits_indices_to_keep</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">filtered_moment</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">filtered_moments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filtered_moment</span><span class="p">)</span>
+            <span class="n">filtered_schedule</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+        <span class="n">qubit_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span><span class="o">.</span><span class="n">filter_by_qubits</span><span class="p">(</span><span class="n">qubits_to_keep</span><span class="p">)</span>
+        <span class="n">filtered_circuit</span> <span class="o">=</span> <span class="n">ScheduledCircuit</span><span class="p">(</span>
+            <span class="n">filtered_moments</span><span class="p">,</span> <span class="n">Schedule</span><span class="p">(</span><span class="n">filtered_schedule</span><span class="p">),</span> <span class="n">qubit_map</span><span class="p">,</span> <span class="n">_avoid_checks</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="c1"># The qubit indices may not be contiguous anymore, so we need to remap them.</span>
+        <span class="n">indices_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">oi</span><span class="p">:</span> <span class="n">ni</span> <span class="k">for</span> <span class="n">ni</span><span class="p">,</span> <span class="n">oi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">qubit_map</span><span class="o">.</span><span class="n">indices</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="n">filtered_circuit</span><span class="o">.</span><span class="n">map_qubit_indices</span><span class="p">(</span><span class="n">indices_map</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">qubit_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QubitMap</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Qubit map of the circuit.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_map</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

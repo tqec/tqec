@@ -1,0 +1,42 @@
+RGBA
+====
+
+.. currentmodule:: tqec.interop
+
+.. autoclass:: RGBA
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RGBA.__init__
+      ~RGBA.as_floats
+      ~RGBA.with_alpha
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RGBA.r
+      ~RGBA.g
+      ~RGBA.b
+      ~RGBA.a
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: as_floats
+   .. automethod:: with_alpha
+   
+   
