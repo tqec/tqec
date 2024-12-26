@@ -137,10 +137,10 @@ def test_rpng_description_visualization() -> None:
 <circle cx="66.66666666666667" cy="33.333333333333336" r="2.0" fill="#ff7f7f" stroke="black" stroke-width="0.5"/>
 <circle cx="33.333333333333336" cy="66.66666666666667" r="2.0" fill="#ffff65" stroke="black" stroke-width="0.5"/>
 <circle cx="66.66666666666667" cy="66.66666666666667" r="2.0" fill="#ff7f7f" stroke="black" stroke-width="0.5"/>
-<text x="38.333333333333336" y="38.333333333333336" fill="black" font-size="6.666666666666668" text-anchor="middle" dominant-baseline="middle">1</text>
-<text x="61.66666666666667" y="38.333333333333336" fill="black" font-size="6.666666666666668" text-anchor="middle" dominant-baseline="middle">2</text>
-<text x="38.333333333333336" y="61.66666666666667" fill="black" font-size="6.666666666666668" text-anchor="middle" dominant-baseline="middle">3</text>
-<text x="61.66666666666667" y="61.66666666666667" fill="black" font-size="6.666666666666668" text-anchor="middle" dominant-baseline="middle">4</text>
+<text x="38.333333333333336" y="38.333333333333336" fill="black" font-size="6.666666666666668" text-anchor="middle" dominant-baseline="central">1</text>
+<text x="61.66666666666667" y="38.333333333333336" fill="black" font-size="6.666666666666668" text-anchor="middle" dominant-baseline="central">2</text>
+<text x="38.333333333333336" y="61.66666666666667" fill="black" font-size="6.666666666666668" text-anchor="middle" dominant-baseline="central">3</text>
+<text x="61.66666666666667" y="61.66666666666667" fill="black" font-size="6.666666666666668" text-anchor="middle" dominant-baseline="central">4</text>
 </svg>"""
 
     assert svg_str == expected_svg
