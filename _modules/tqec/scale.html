@@ -422,10 +422,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">floor</span>
 
 <span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span> <span class="nn">tqec.interval</span> <span class="kn">import</span> <span class="n">EMPTY_INTERVAL</span><span class="p">,</span> <span class="n">Interval</span><span class="p">,</span> <span class="n">R_interval</span>
 <span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">Shape2D</span>
 
 
@@ -521,54 +519,6 @@ window.addEventListener("load", () => mermaid.run());
 
         <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">offset</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">slope</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="p">)</span></div>
 
-
-    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">LinearFunction</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Interval</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the interval on which `self &lt; other`.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            other: the `LinearFunction` instance to compare to `self`.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            the interval on which `self &lt; other` is verified.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">other</span> <span class="o">=</span> <span class="n">LinearFunction</span><span class="o">.</span><span class="n">_from</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-        <span class="n">intersection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">intersection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">R_interval</span> <span class="k">if</span> <span class="bp">self</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">other</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="n">EMPTY_INTERVAL</span>
-
-        <span class="n">before_intersection</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">intersection</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="p">(</span><span class="n">before_intersection</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">other</span><span class="p">(</span><span class="n">before_intersection</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">Interval</span><span class="p">(</span>
-                <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">),</span> <span class="n">intersection</span><span class="p">,</span> <span class="n">start_excluded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">end_excluded</span><span class="o">=</span><span class="kc">True</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Interval</span><span class="p">(</span>
-                <span class="n">intersection</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="n">start_excluded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">end_excluded</span><span class="o">=</span><span class="kc">True</span>
-            <span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">LinearFunction</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Interval</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the interval on which `self &lt;= other`.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            other: the `LinearFunction` instance to compare to `self`.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            the interval on which `self &lt;= other` is verified.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">other</span> <span class="o">=</span> <span class="n">LinearFunction</span><span class="o">.</span><span class="n">_from</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-        <span class="n">intersection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">intersection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">R_interval</span> <span class="k">if</span> <span class="bp">self</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="n">EMPTY_INTERVAL</span>
-
-        <span class="n">before_intersection</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">intersection</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="p">(</span><span class="n">before_intersection</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="p">(</span><span class="n">before_intersection</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">Interval</span><span class="p">(</span>
-                <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">),</span> <span class="n">intersection</span><span class="p">,</span> <span class="n">start_excluded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">end_excluded</span><span class="o">=</span><span class="kc">False</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Interval</span><span class="p">(</span>
-                <span class="n">intersection</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="n">start_excluded</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">end_excluded</span><span class="o">=</span><span class="kc">True</span>
-            <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_from</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">LinearFunction</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LinearFunction</span><span class="p">:</span>

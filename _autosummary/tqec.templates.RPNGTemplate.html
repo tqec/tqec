@@ -433,7 +433,6 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tqec.Interval.html">Interval</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tqec.Direction3D.html">Direction3D</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tqec.Displacement.html">Displacement</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tqec.Position2D.html">Position2D</a></li>
@@ -522,16 +521,13 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.get_increments" title="tqec.templates.RPNGTemplate.get_increments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_increments</span></code></a>()</p></td>
 <td><p>Get the default increments of the template.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.get_midline_plaquettes" title="tqec.templates.RPNGTemplate.get_midline_plaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_midline_plaquettes</span></code></a>(k[, orientation])</p></td>
-<td><p>Returns the default observable qubits for the template.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.instantiate" title="tqec.templates.RPNGTemplate.instantiate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiate</span></code></a>(k)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.instantiate" title="tqec.templates.RPNGTemplate.instantiate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiate</span></code></a>(k)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.instantiation_origin" title="tqec.templates.RPNGTemplate.instantiation_origin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiation_origin</span></code></a>(k)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.instantiation_origin" title="tqec.templates.RPNGTemplate.instantiation_origin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiation_origin</span></code></a>(k)</p></td>
 <td><p>Coordinates of the top-left entry origin.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.shape" title="tqec.templates.RPNGTemplate.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.shape" title="tqec.templates.RPNGTemplate.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
 <td><p>Returns the current template shape.</p></td>
 </tr>
 </tbody>
@@ -587,33 +583,6 @@
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="tqec.Displacement.html#tqec.Displacement" title="tqec.position.Displacement"><em>Displacement</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.templates.RPNGTemplate.get_midline_plaquettes">
-<span class="sig-name descname"><span class="pre">get_midline_plaquettes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Orientation.HORIZONTAL</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/rpng.html#RPNGTemplate.get_midline_plaquettes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.RPNGTemplate.get_midline_plaquettes" title="Link to this definition">#</a></dt>
-<dd><p>Returns the default observable qubits for the template.</p>
-<p>If the template has a simple shape, this returns the plaquettes on the
-“midline” of the template.
-By convention, it returns the plaquettes above the midline for the
-horizontal case and to the left of the midline for the vertical case.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>orientation</strong> (<em>Orientation</em>) – Horizontal or vertical qubits. Defaults to horizontal.</p></li>
-<li><p><strong>k</strong> (<em>int</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The sequence of qubits and offsets.</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – If the midline is not uniquely defined.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[tuple[int, int]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -730,7 +699,6 @@ to the top-left entry of the array returned by
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.__init__"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.get_increments"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.get_increments()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.get_midline_plaquettes"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.get_midline_plaquettes()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.instantiate"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.instantiate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.instantiation_origin"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.instantiation_origin()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.shape"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.shape()</span></code></a></li>

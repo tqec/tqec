@@ -439,30 +439,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a scalable version of the template shape.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">scalable_shape</span>
 
-<div class="viewcode-block" id="RPNGTemplate.get_midline_plaquettes">
-<a class="viewcode-back" href="../../../_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.get_midline_plaquettes">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_midline_plaquettes</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">orientation</span><span class="p">:</span> <span class="n">Orientation</span> <span class="o">=</span> <span class="n">Orientation</span><span class="o">.</span><span class="n">HORIZONTAL</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the default observable qubits for the template.</span>
-
-<span class="sd">        If the template has a simple shape, this returns the plaquettes on the</span>
-<span class="sd">        &quot;midline&quot; of the template.</span>
-<span class="sd">        By convention, it returns the plaquettes above the midline for the</span>
-<span class="sd">        horizontal case and to the left of the midline for the vertical case.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            orientation: Horizontal or vertical qubits. Defaults to horizontal.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The sequence of qubits and offsets.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            TQECException: If the midline is not uniquely defined.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">get_midline_plaquettes</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">orientation</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="RPNGTemplate.get_increments">
 <a class="viewcode-back" href="../../../_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.get_increments">[docs]</a>
     <span class="k">def</span> <span class="nf">get_increments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Displacement</span><span class="p">:</span>
