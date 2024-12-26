@@ -111,7 +111,6 @@ class RPNGTemplate:
                 if the plaquette should be highlighted with the hook error. The hook error is
                 shown as a black line along the hook edge.
 
-
         Returns:
             The SVG string of the visualization.
         """
