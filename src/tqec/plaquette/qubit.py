@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import typing as ty
 from dataclasses import dataclass
+from typing import Iterable, Iterator
 
 from tqec.circuit.qubit import GridQubit
+from tqec.circuit.qubit_map import QubitMap
 from tqec.enums import Orientation
 from tqec.plaquette.enums import PlaquetteSide
 
@@ -13,7 +14,7 @@ class PlaquetteQubits:
     data_qubits: list[GridQubit]
     syndrome_qubits: list[GridQubit]
 
-    def __iter__(self) -> ty.Iterator[GridQubit]:
+    def __iter__(self) -> Iterator[GridQubit]:
         yield from self.data_qubits
         yield from self.syndrome_qubits
 
@@ -81,10 +82,37 @@ class PlaquetteQubits:
             and self.syndrome_qubits == rhs.syndrome_qubits
         )
 
+    @property
+    def data_qubits_indices(self) -> Iterator[int]:
+        yield from range(len(self.data_qubits))
+
+    @property
+    def syndrome_qubits_indices(self) -> Iterator[int]:
+        yield from (i + len(self.data_qubits) for i in range(len(self.data_qubits)))
+
+    @property
+    def data_qubits_with_indices(self) -> Iterator[tuple[int, GridQubit]]:
+        yield from ((i, q) for i, q in zip(self.data_qubits_indices, self.data_qubits))
+
+    @property
+    def syndrome_qubits_with_indices(self) -> Iterator[tuple[int, GridQubit]]:
+        yield from (
+            (i, q) for i, q in zip(self.syndrome_qubits_indices, self.syndrome_qubits)
+        )
+
+    @property
+    def qubit_map(self) -> QubitMap:
+        return QubitMap(
+            dict(self.data_qubits_with_indices)
+            | dict(self.syndrome_qubits_with_indices)
+        )
+
 
 class SquarePlaquetteQubits(PlaquetteQubits):
     def __init__(self) -> None:
         super().__init__(
+            # Order is important here! Top-left, top-right, bottom-left,
+            # bottom-right.
             [GridQubit(-1, -1), GridQubit(1, -1), GridQubit(-1, 1), GridQubit(1, 1)],
             [GridQubit(0, 0)],
         )
