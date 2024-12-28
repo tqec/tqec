@@ -414,8 +414,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span> <span class="nn">tqec.computation.zx_graph</span> <span class="kn">import</span> <span class="n">ZXGraph</span>
 
 
-<div class="viewcode-block" id="add_inset_axes3d">
-<a class="viewcode-back" href="../../../../_autosummary/tqec.simulation.add_inset_axes3d.html#tqec.simulation.add_inset_axes3d">[docs]</a>
 <span class="k">def</span> <span class="nf">add_inset_axes3d</span><span class="p">(</span>
     <span class="n">ax_target</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes3D</span><span class="p">:</span>
@@ -423,8 +421,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    that works also for insetting 3D plot on 2D ax/figures.&quot;&quot;&quot;</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">ax_target</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">Axes3D</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ax</span></div>
-
+    <span class="k">return</span> <span class="n">ax</span>
 
 
 <div class="viewcode-block" id="plot_observable_as_inset">
