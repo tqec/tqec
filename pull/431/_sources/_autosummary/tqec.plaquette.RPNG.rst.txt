@@ -1,0 +1,44 @@
+RPNG
+====
+
+.. currentmodule:: tqec.plaquette
+
+.. autoclass:: RPNG
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RPNG.__init__
+      ~RPNG.from_string
+      ~RPNG.get_g_op
+      ~RPNG.get_r_op
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RPNG.r
+      ~RPNG.p
+      ~RPNG.n
+      ~RPNG.g
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: from_string
+   .. automethod:: get_g_op
+   .. automethod:: get_r_op
+   
+   
