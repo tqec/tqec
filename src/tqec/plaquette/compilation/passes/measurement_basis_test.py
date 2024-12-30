@@ -4,7 +4,7 @@ from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.plaquette.compilation.passes.measurement_basis import (
     ChangeMeasurementBasisPass,
 )
-from tqec.plaquette.enums import MeasurementBasis
+from tqec.plaquette.enums import Basis
 
 
 def _s(circuit: str) -> ScheduledCircuit:
@@ -13,12 +13,12 @@ def _s(circuit: str) -> ScheduledCircuit:
 
 
 def test_compilation_pass_creation() -> None:
-    ChangeMeasurementBasisPass(MeasurementBasis.X)
-    ChangeMeasurementBasisPass(MeasurementBasis.Z)
+    ChangeMeasurementBasisPass(Basis.X)
+    ChangeMeasurementBasisPass(Basis.Z)
 
 
 def test_simple_measurement_basis() -> None:
-    compilation_pass = ChangeMeasurementBasisPass(MeasurementBasis.Z)
+    compilation_pass = ChangeMeasurementBasisPass(Basis.Z)
     assert compilation_pass.run(_s("M 0")) == _s("M 0")
     assert compilation_pass.run(_s("MZ 0")) == _s("MZ 0")
     assert compilation_pass.run(_s("M 12")) == _s("M 12")
@@ -27,7 +27,7 @@ def test_simple_measurement_basis() -> None:
 
 
 def test_x_measurement_basis() -> None:
-    compilation_pass = ChangeMeasurementBasisPass(MeasurementBasis.X)
+    compilation_pass = ChangeMeasurementBasisPass(Basis.X)
     assert compilation_pass.run(_s("TICK\nM 0")) == _s("H 0\nTICK\nMX 0")
     assert compilation_pass.run(_s("TICK\nMZ 0")) == _s("H 0\nTICK\nMX 0")
     assert compilation_pass.run(_s("MX 12")) == _s("MX 12")
@@ -36,6 +36,6 @@ def test_x_measurement_basis() -> None:
 
 
 def test_edge_cases_measurement_basis() -> None:
-    compilation_pass = ChangeMeasurementBasisPass(MeasurementBasis.Z)
+    compilation_pass = ChangeMeasurementBasisPass(Basis.Z)
     assert compilation_pass.run(_s("H 0")) == _s("H 0")
     assert compilation_pass.run(_s("")) == _s("")

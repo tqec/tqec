@@ -1,6 +1,6 @@
 from typing import Final
 
-from tqec.plaquette.enums import MeasurementBasis, ResetBasis
+from tqec.plaquette.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.library.hadamard import (
@@ -104,7 +104,7 @@ def test_hadamard_vertical_boundary_top_left_is_x_stabilizer() -> None:
 
 def test_hadamard_vertical_boundary_top_left_is_z_stabilizer_reset_z() -> None:
     hadamard_template = get_spatial_vertical_hadamard_template(
-        top_left_is_z_stabilizer=True, reset=ResetBasis.Z
+        top_left_is_z_stabilizer=True, reset=Basis.Z
     )
     instantiation = hadamard_template.instantiate(k=2)
 
@@ -127,7 +127,7 @@ def test_hadamard_vertical_boundary_top_left_is_z_stabilizer_reset_z() -> None:
 
 def test_hadamard_vertical_boundary_top_left_is_z_stabilizer_measurement_xz() -> None:
     hadamard_template = get_spatial_vertical_hadamard_template(
-        top_left_is_z_stabilizer=True, measurement=MeasurementBasis.X
+        top_left_is_z_stabilizer=True, measurement=Basis.X
     )
     instantiation = hadamard_template.instantiate(k=2)
 
@@ -188,7 +188,7 @@ def test_hadamard_horizontal_boundary_vertical_z_observable() -> None:
 
 def test_hadamard_horizontal_boundary_horizontal_z_observable_reset_z() -> None:
     hadamard_template = get_spatial_horizontal_hadamard_template(
-        top_left_is_z_stabilizer=True, reset=ResetBasis.Z
+        top_left_is_z_stabilizer=True, reset=Basis.Z
     )
     instantiation = hadamard_template.instantiate(k=2)
 
@@ -207,7 +207,7 @@ def test_hadamard_horizontal_boundary_horizontal_z_observable_reset_z() -> None:
 
 def test_hadamard_horizontal_boundary_horizontal_z_observable_measurement_x() -> None:
     hadamard_template = get_spatial_horizontal_hadamard_template(
-        top_left_is_z_stabilizer=True, measurement=MeasurementBasis.X
+        top_left_is_z_stabilizer=True, measurement=Basis.X
     )
     instantiation = hadamard_template.instantiate(k=2)
 

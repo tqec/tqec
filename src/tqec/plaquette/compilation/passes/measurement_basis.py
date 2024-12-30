@@ -4,14 +4,12 @@ from tqec.plaquette.compilation.passes.transformer import (
     ScheduledCircuitTransformationPass,
     ScheduleOffset,
 )
-from tqec.plaquette.enums import MeasurementBasis
+from tqec.plaquette.enums import Basis
 
 
 class ChangeMeasurementBasisPass(ScheduledCircuitTransformationPass):
-    def __init__(self, basis: MeasurementBasis):
-        ibasis = (
-            MeasurementBasis.X if basis == MeasurementBasis.Z else MeasurementBasis.Z
-        )
+    def __init__(self, basis: Basis):
+        ibasis = Basis.X if basis == Basis.Z else Basis.Z
         transformations = [
             ScheduledCircuitTransformation(
                 f"M{ibasis.value.upper()}",
@@ -21,7 +19,7 @@ class ChangeMeasurementBasisPass(ScheduledCircuitTransformationPass):
                 },
             )
         ]
-        if basis == MeasurementBasis.X:
+        if basis == Basis.X:
             transformations.append(
                 ScheduledCircuitTransformation(
                     "M",

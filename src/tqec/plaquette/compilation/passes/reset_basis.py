@@ -4,12 +4,12 @@ from tqec.plaquette.compilation.passes.transformer import (
     ScheduledCircuitTransformationPass,
     ScheduleOffset,
 )
-from tqec.plaquette.enums import ResetBasis
+from tqec.plaquette.enums import Basis
 
 
 class ChangeResetBasisPass(ScheduledCircuitTransformationPass):
-    def __init__(self, basis: ResetBasis):
-        ibasis = ResetBasis.X if basis == ResetBasis.Z else ResetBasis.Z
+    def __init__(self, basis: Basis):
+        ibasis = Basis.X if basis == Basis.Z else Basis.Z
         transformations = [
             ScheduledCircuitTransformation(
                 f"R{ibasis.value.upper()}",
@@ -19,7 +19,7 @@ class ChangeResetBasisPass(ScheduledCircuitTransformationPass):
                 },
             )
         ]
-        if basis == ResetBasis.X:
+        if basis == Basis.X:
             transformations.append(
                 ScheduledCircuitTransformation(
                     "R",

@@ -1,4 +1,4 @@
-from tqec.plaquette.enums import MeasurementBasis, ResetBasis
+from tqec.plaquette.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
@@ -12,8 +12,8 @@ from tqec.templates.rpng import RPNGTemplate
 
 def get_memory_qubit_template(
     orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     """Implementation of standard memory rounds.
 
@@ -70,8 +70,8 @@ def get_memory_qubit_template(
 
 def get_memory_vertical_boundary_template(
     orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     """Implementation of standard memory rounds on a junction arm aligned with the
     X-axis.
@@ -143,8 +143,8 @@ def get_memory_vertical_boundary_template(
 
 def get_memory_horizontal_boundary_template(
     orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     """Implementation of standard memory rounds on a junction arm aligned with the
     Y-axis.

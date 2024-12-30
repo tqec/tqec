@@ -2,7 +2,7 @@ import stim
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.plaquette.compilation.passes.reset_basis import ChangeResetBasisPass
-from tqec.plaquette.enums import ResetBasis
+from tqec.plaquette.enums import Basis
 
 
 def _s(circuit: str) -> ScheduledCircuit:
@@ -11,12 +11,12 @@ def _s(circuit: str) -> ScheduledCircuit:
 
 
 def test_compilation_pass_creation() -> None:
-    ChangeResetBasisPass(ResetBasis.X)
-    ChangeResetBasisPass(ResetBasis.Z)
+    ChangeResetBasisPass(Basis.X)
+    ChangeResetBasisPass(Basis.Z)
 
 
 def test_simple_reset_basis() -> None:
-    compilation_pass = ChangeResetBasisPass(ResetBasis.Z)
+    compilation_pass = ChangeResetBasisPass(Basis.Z)
     assert compilation_pass.run(_s("R 0")).get_circuit() == _s("R 0").get_circuit()
     assert compilation_pass.run(_s("RZ 0")) == _s("RZ 0")
     assert compilation_pass.run(_s("R 12")) == _s("R 12")
@@ -30,7 +30,7 @@ def test_simple_reset_basis() -> None:
 
 
 def test_x_reset_basis() -> None:
-    compilation_pass = ChangeResetBasisPass(ResetBasis.X)
+    compilation_pass = ChangeResetBasisPass(Basis.X)
     assert compilation_pass.run(_s("R 0")) == _s("RX 0\nTICK\nH 0")
     assert compilation_pass.run(_s("RZ 0")) == _s("RX 0\nTICK\nH 0")
     assert compilation_pass.run(_s("RX 12")) == _s("RX 12")
@@ -44,7 +44,7 @@ def test_x_reset_basis() -> None:
 
 
 def test_edge_cases_reset_basis() -> None:
-    compilation_pass = ChangeResetBasisPass(ResetBasis.Z)
+    compilation_pass = ChangeResetBasisPass(Basis.Z)
     assert compilation_pass.run(_s("H 0")) == _s("H 0")
     assert compilation_pass.run(_s("")) == _s("")
 
