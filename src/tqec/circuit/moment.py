@@ -120,6 +120,13 @@ class Moment:
                 "of stim.CircuitRepeatBlock."
             )
 
+    @staticmethod
+    def from_instructions(instructions: Iterable[stim.CircuitInstruction]) -> Moment:
+        circuit = stim.Circuit()
+        for inst in instructions:
+            circuit.append(inst)
+        return Moment(circuit)
+
     @property
     def qubits_indices(self) -> set[int]:
         """Return the qubit indices this moment operates on.
