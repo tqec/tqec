@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>CompiledBlock &#8212; TQEC  documentation</title>
+    <title>CompiledGraph &#8212; TQEC  documentation</title>
   
   
   
@@ -42,11 +42,11 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.compile.CompiledBlock';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.compile.CompiledGraph';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="CubeSpec" href="tqec.compile.CubeSpec.html" />
-    <link rel="prev" title="BlockBuilder" href="tqec.compile.BlockBuilder.html" />
+    <link rel="prev" title="CompiledBlock" href="tqec.compile.CompiledBlock.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -399,7 +399,8 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">CompiledBlock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">CompiledGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CubeSpec.html">CubeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.PipeSpec.html">PipeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.SubstitutionBuilder.html">SubstitutionBuilder</a></li>
@@ -489,7 +490,7 @@
     
     <li class="breadcrumb-item"><a href="tqec.compile.html" class="nav-link">tqec.compile</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CompiledBlock</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CompiledGraph</span></li>
   </ul>
 </nav>
 </div>
@@ -506,44 +507,45 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="compiledblock">
-<h1>CompiledBlock<a class="headerlink" href="#compiledblock" title="Link to this heading">#</a></h1>
+  <section id="compiledgraph">
+<h1>CompiledGraph<a class="headerlink" href="#compiledgraph" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="tqec.compile.CompiledBlock">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">CompiledBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/block.html#CompiledBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CompiledBlock" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.compile.CompiledGraph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">CompiledGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layout_slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/compile.html#CompiledGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CompiledGraph" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Represents a specific implementation of a cube in a
-<a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a>.</p>
+<p>Represents a compiled block graph.</p>
+<p>This class should be easy to scale and generate circuits directly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>template</strong> (<em>RectangularTemplate</em>)</p></li>
-<li><p><strong>layers</strong> (<em>list</em><em>[</em><a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><em>Plaquettes</em></a><em>]</em>)</p></li>
+<li><p><strong>layout_slices</strong> (<em>list</em><em>[</em><em>BlockLayout</em><em>]</em>)</p></li>
+<li><p><strong>observables</strong> (<em>list</em><em>[</em><em>AbstractObservable</em><em>]</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tqec.compile.CompiledBlock.template">
-<span class="sig-name descname"><span class="pre">template</span></span><a class="headerlink" href="#tqec.compile.CompiledBlock.template" title="Link to this definition">#</a></dt>
-<dd><p>the template that defines the cube implementation.</p>
+<dt class="sig sig-object py" id="tqec.compile.CompiledGraph.layout_slices">
+<span class="sig-name descname"><span class="pre">layout_slices</span></span><a class="headerlink" href="#tqec.compile.CompiledGraph.layout_slices" title="Link to this definition">#</a></dt>
+<dd><p>a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">BlockLayout</span></code>
+instances that represent the compiled blocks at contiguous time
+slices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tqec.templates.indices.base.RectangularTemplate</p>
+<dd class="field-odd"><p>list[tqec.compile.block.BlockLayout]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tqec.compile.CompiledBlock.layers">
-<span class="sig-name descname"><span class="pre">layers</span></span><a class="headerlink" href="#tqec.compile.CompiledBlock.layers" title="Link to this definition">#</a></dt>
-<dd><p>a list of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> that
-represent different functional layers of the cube. When aligning two
-<a class="reference internal" href="#tqec.compile.CompiledBlock" title="tqec.compile.CompiledBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompiledBlock</span></code></a> instances, the layers are aligned in order.
-Typically, there are three layers in most cube implementations:
-Initialization, Repetitions, and Measurement.</p>
+<dt class="sig sig-object py" id="tqec.compile.CompiledGraph.observables">
+<span class="sig-name descname"><span class="pre">observables</span></span><a class="headerlink" href="#tqec.compile.CompiledGraph.observables" title="Link to this definition">#</a></dt>
+<dd><p>a list of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractObservable</span></code>
+instances that represent the observables to be included in the
+compiled circuit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[<a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes">tqec.plaquette.plaquette.Plaquettes</a>]</p>
+<dd class="field-odd"><p>list[tqec.computation.abstract_observable.AbstractObservable]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -551,11 +553,11 @@ Initialization, Repetitions, and Measurement.</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CompiledBlock.__init__" title="tqec.compile.CompiledBlock.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(template, layers)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CompiledGraph.__init__" title="tqec.compile.CompiledGraph.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(layout_slices, observables)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.CompiledBlock.update_layers" title="tqec.compile.CompiledBlock.update_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_layers</span></code></a>(substitution)</p></td>
-<td><p>Update the plaquettes in a specific layer of the block.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.CompiledGraph.generate_stim_circuit" title="tqec.compile.CompiledGraph.generate_stim_circuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_stim_circuit</span></code></a>(k[, noise_model, ...])</p></td>
+<td><p>Generate the <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> from the compiled graph.</p></td>
 </tr>
 </tbody>
 </table>
@@ -563,27 +565,24 @@ Initialization, Repetitions, and Measurement.</p>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_layers</span></code></p></td>
-<td><p>Number of layers in the block.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CompiledGraph.layout_slices" title="tqec.compile.CompiledGraph.layout_slices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout_slices</span></code></a></p></td>
+<td><p>Timeslices of compiled blocks arranged as 2-dimensional slices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.CompiledBlock.template" title="tqec.compile.CompiledBlock.template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">template</span></code></a></p></td>
-<td><p>Template representing the 2-dimensional footprint of the block.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CompiledBlock.layers" title="tqec.compile.CompiledBlock.layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layers</span></code></a></p></td>
-<td><p>Different functional layers of the block.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.CompiledGraph.observables" title="tqec.compile.CompiledGraph.observables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">observables</span></code></a></p></td>
+<td><p>Observables to be included in the final <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> instance.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.compile.CompiledBlock.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.CompiledBlock.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.compile.CompiledGraph.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layout_slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.CompiledGraph.__init__" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>template</strong> (<em>RectangularTemplate</em>)</p></li>
-<li><p><strong>layers</strong> (<em>list</em><em>[</em><a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><em>Plaquettes</em></a><em>]</em>)</p></li>
+<li><p><strong>layout_slices</strong> (<em>list</em><em>[</em><em>BlockLayout</em><em>]</em>)</p></li>
+<li><p><strong>observables</strong> (<em>list</em><em>[</em><em>AbstractObservable</em><em>]</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -593,21 +592,30 @@ Initialization, Repetitions, and Measurement.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.compile.CompiledBlock.update_layers">
-<span class="sig-name descname"><span class="pre">update_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">substitution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/block.html#CompiledBlock.update_layers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CompiledBlock.update_layers" title="Link to this definition">#</a></dt>
-<dd><p>Update the plaquettes in a specific layer of the block.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This method modifies the <a class="reference internal" href="#tqec.compile.CompiledBlock.layers" title="tqec.compile.CompiledBlock.layers"><code class="xref py py-attr docutils literal notranslate"><span class="pre">layers</span></code></a> attribute in place.</p>
-</div>
+<dt class="sig sig-object py" id="tqec.compile.CompiledGraph.generate_stim_circuit">
+<span class="sig-name descname"><span class="pre">generate_stim_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manhattan_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detector_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_use_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/compile.html#CompiledGraph.generate_stim_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CompiledGraph.generate_stim_circuit" title="Link to this definition">#</a></dt>
+<dd><p>Generate the <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> from the compiled graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>substitution</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><em>Plaquettes</em></a><em>]</em>) – a mapping from the layer index to the plaquettes that
-should be used to update the layer. The index can be negative,
-which means the layer is counted from the end of the layers list.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<em>int</em>) – scale factor of the templates.</p></li>
+<li><p><strong>noise_models</strong> – noise models to be applied to the circuit.</p></li>
+<li><p><strong>manhattan_radius</strong> (<em>int</em>) – radius considered to compute detectors.
+Detectors are not computed and added to the circuit if this
+argument is negative.</p></li>
+<li><p><strong>detector_database</strong> (<em>DetectorDatabase</em><em> | </em><em>None</em>) – an instance to retrieve from / store in detectors
+that are computed as part of the circuit generation.</p></li>
+<li><p><strong>only_use_database</strong> (<em>bool</em>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, only detectors from the database
+will be used. An error will be raised if a situation that is not
+registered in the database is encountered.</p></li>
+<li><p><strong>noise_model</strong> (<a class="reference internal" href="tqec.NoiseModel.html#tqec.NoiseModel" title="tqec.noise_model.NoiseModel"><em>NoiseModel</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A compiled stim circuit.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Circuit</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -627,12 +635,12 @@ which means the layer is counted from the end of the layers list.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tqec.compile.BlockBuilder.html"
+       href="tqec.compile.CompiledBlock.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">BlockBuilder</p>
+        <p class="prev-next-title">CompiledBlock</p>
       </div>
     </a>
     <a class="right-next"
@@ -663,11 +671,11 @@ which means the layer is counted from the end of the layers list.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledBlock"><code class="docutils literal notranslate"><span class="pre">CompiledBlock</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledBlock.template"><code class="docutils literal notranslate"><span class="pre">CompiledBlock.template</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledBlock.layers"><code class="docutils literal notranslate"><span class="pre">CompiledBlock.layers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledBlock.__init__"><code class="docutils literal notranslate"><span class="pre">CompiledBlock.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledBlock.update_layers"><code class="docutils literal notranslate"><span class="pre">CompiledBlock.update_layers()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledGraph"><code class="docutils literal notranslate"><span class="pre">CompiledGraph</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledGraph.layout_slices"><code class="docutils literal notranslate"><span class="pre">CompiledGraph.layout_slices</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledGraph.observables"><code class="docutils literal notranslate"><span class="pre">CompiledGraph.observables</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledGraph.__init__"><code class="docutils literal notranslate"><span class="pre">CompiledGraph.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CompiledGraph.generate_stim_circuit"><code class="docutils literal notranslate"><span class="pre">CompiledGraph.generate_stim_circuit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -677,7 +685,7 @@ which means the layer is counted from the end of the layers list.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_autosummary/tqec.compile.CompiledBlock.rst.txt"
+      <li><a href="../_sources/_autosummary/tqec.compile.CompiledGraph.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

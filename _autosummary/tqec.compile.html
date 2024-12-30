@@ -400,6 +400,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledGraph.html">CompiledGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CubeSpec.html">CubeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.PipeSpec.html">PipeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.SubstitutionBuilder.html">SubstitutionBuilder</a></li>
@@ -530,13 +531,16 @@ on available hardware.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="tqec.compile.CompiledBlock.html#tqec.compile.CompiledBlock" title="tqec.compile.CompiledBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompiledBlock</span></code></a>(template, layers)</p></td>
 <td><p>Represents a specific implementation of a cube in a <a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.CubeSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CubeSpec</span></code></a>(kind[, junction_arms])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph" title="tqec.compile.CompiledGraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompiledGraph</span></code></a>(layout_slices, observables)</p></td>
+<td><p>Represents a compiled block graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.CubeSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CubeSpec</span></code></a>(kind[, junction_arms])</p></td>
 <td><p>Specification of a cube in a block graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.compile.PipeSpec.html#tqec.compile.PipeSpec" title="tqec.compile.PipeSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PipeSpec</span></code></a>(spec1, spec2, pipe_kind)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.compile.PipeSpec.html#tqec.compile.PipeSpec" title="tqec.compile.PipeSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PipeSpec</span></code></a>(spec1, spec2, pipe_kind)</p></td>
 <td><p>Specification of a pipe in a block graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.compile.SubstitutionBuilder.html#tqec.compile.SubstitutionBuilder" title="tqec.compile.SubstitutionBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubstitutionBuilder</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.compile.SubstitutionBuilder.html#tqec.compile.SubstitutionBuilder" title="tqec.compile.SubstitutionBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubstitutionBuilder</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Protocol for building the <cite>Substitution</cite> based on a <cite>PipeSpec</cite>.</p></td>
 </tr>
 </tbody>

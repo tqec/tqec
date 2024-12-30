@@ -440,6 +440,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span> <span class="nn">tqec.templates.indices.layout</span> <span class="kn">import</span> <span class="n">LayoutTemplate</span>
 
 
+<div class="viewcode-block" id="CompiledGraph">
+<a class="viewcode-back" href="../../../_autosummary/tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">CompiledGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a compiled block graph.</span>
@@ -473,6 +475,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observables</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The compiled graph includes no observable.&quot;</span><span class="p">,</span> <span class="n">TQECWarning</span><span class="p">)</span>
 
+<div class="viewcode-block" id="CompiledGraph.generate_stim_circuit">
+<a class="viewcode-back" href="../../../_autosummary/tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph.generate_stim_circuit">[docs]</a>
     <span class="k">def</span> <span class="nf">generate_stim_circuit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -557,7 +561,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="c1"># If provided, apply the noise model.</span>
         <span class="k">if</span> <span class="n">noise_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">circuit</span> <span class="o">=</span> <span class="n">noise_model</span><span class="o">.</span><span class="n">noisy_circuit</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">circuit</span>
+        <span class="k">return</span> <span class="n">circuit</span></div>
+
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_relabel_circuits_qubit_indices_inplace</span><span class="p">(</span>
@@ -695,7 +700,8 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">detectors</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">coordinates</span><span class="p">):</span>
-            <span class="n">circuit</span><span class="o">.</span><span class="n">append_annotation</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">(</span><span class="n">mrecords_map</span><span class="p">))</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append_annotation</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">(</span><span class="n">mrecords_map</span><span class="p">))</span></div>
+
 
 
 <div class="viewcode-block" id="compile_block_graph">
