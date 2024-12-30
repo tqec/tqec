@@ -2,6 +2,7 @@ from tqec.plaquette.compilation.passes.transformer import (
     InstructionCreator,
     ScheduledCircuitTransformation,
     ScheduledCircuitTransformationPass,
+    ScheduleOffset,
 )
 from tqec.plaquette.enums import ResetBasis
 
@@ -13,8 +14,10 @@ class ChangeResetBasisPass(ScheduledCircuitTransformationPass):
             ScheduledCircuitTransformation(
                 f"R{ibasis.value.upper()}",
                 {
-                    0: [InstructionCreator(f"R{basis.value.upper()}", list)],
-                    1: [InstructionCreator("H", list)],
+                    ScheduleOffset(0): [
+                        InstructionCreator(f"R{basis.value.upper()}", list)
+                    ],
+                    ScheduleOffset(1): [InstructionCreator("H", list)],
                 },
             )
         ]
@@ -23,8 +26,8 @@ class ChangeResetBasisPass(ScheduledCircuitTransformationPass):
                 ScheduledCircuitTransformation(
                     "R",
                     {
-                        0: [InstructionCreator("RX", list)],
-                        1: [InstructionCreator("H", list)],
+                        ScheduleOffset(0): [InstructionCreator("RX", list)],
+                        ScheduleOffset(1): [InstructionCreator("H", list)],
                     },
                 )
             )

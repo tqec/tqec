@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Callable, Iterable, Sequence
 
@@ -25,10 +26,48 @@ class InstructionCreator:
         )
 
 
+class ScheduleFunction(ABC):
+    @abstractmethod
+    def __call__(self, input_schedule: int) -> int:
+        pass
+
+    @abstractmethod
+    def __hash__(self) -> int:
+        pass
+
+
+class ScheduleOffset(ScheduleFunction):
+    def __init__(self, offset: int):
+        super().__init__()
+        self._offset = offset
+
+    @override
+    def __call__(self, input_schedule: int) -> int:
+        return input_schedule + self._offset
+
+    @override
+    def __hash__(self) -> int:
+        return 2 * self._offset
+
+
+class ScheduleConstant(ScheduleFunction):
+    def __init__(self, constant: int):
+        super().__init__()
+        self._constant = constant
+
+    @override
+    def __call__(self, input_schedule: int) -> int:
+        return self._constant
+
+    @override
+    def __hash__(self) -> int:
+        return 2 * self._constant + 1
+
+
 @dataclass
 class ScheduledCircuitTransformation:
     source_name: str
-    transformation: dict[int, list[InstructionCreator]]
+    transformation: dict[ScheduleFunction, list[InstructionCreator]]
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
         moments: dict[int, Moment] = {}
@@ -41,8 +80,8 @@ class ScheduledCircuitTransformation:
                     continue
                 targets = instruction.targets_copy()
                 args = instruction.gate_args_copy()
-                for sched_offset, instr_creators in self.transformation.items():
-                    sched = schedule + sched_offset
+                for schedule_function, instr_creators in self.transformation.items():
+                    sched: int = schedule_function(schedule)
                     moment = moments.setdefault(sched, Moment(stim.Circuit()))
                     for creator in instr_creators:
                         moment.append(creator(targets, args))

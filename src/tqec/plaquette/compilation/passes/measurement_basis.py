@@ -2,6 +2,7 @@ from tqec.plaquette.compilation.passes.transformer import (
     InstructionCreator,
     ScheduledCircuitTransformation,
     ScheduledCircuitTransformationPass,
+    ScheduleOffset,
 )
 from tqec.plaquette.enums import MeasurementBasis
 
@@ -15,8 +16,10 @@ class ChangeMeasurementBasisPass(ScheduledCircuitTransformationPass):
             ScheduledCircuitTransformation(
                 f"M{ibasis.value.upper()}",
                 {
-                    -1: [InstructionCreator("H", list)],
-                    0: [InstructionCreator(f"M{basis.value.upper()}", list)],
+                    ScheduleOffset(-1): [InstructionCreator("H", list)],
+                    ScheduleOffset(0): [
+                        InstructionCreator(f"M{basis.value.upper()}", list)
+                    ],
                 },
             )
         ]
@@ -25,8 +28,8 @@ class ChangeMeasurementBasisPass(ScheduledCircuitTransformationPass):
                 ScheduledCircuitTransformation(
                     "M",
                     {
-                        -1: [InstructionCreator("H", list)],
-                        0: [InstructionCreator("MX", list)],
+                        ScheduleOffset(-1): [InstructionCreator("H", list)],
+                        ScheduleOffset(0): [InstructionCreator("MX", list)],
                     },
                 )
             )
