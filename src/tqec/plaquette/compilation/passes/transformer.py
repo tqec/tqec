@@ -111,9 +111,7 @@ class ScheduledCircuitTransformationPass(CompilationPass):
 
     @override
     def run(
-        self,
-        circuit: ScheduledCircuit,
-        check_all_flows: bool = False,
+        self, circuit: ScheduledCircuit, check_all_flows: bool = False
     ) -> ScheduledCircuit:
         modified_circuit = self._transformations.apply(circuit)
         if check_all_flows:
