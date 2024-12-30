@@ -46,7 +46,7 @@ class ChangeBasisPass(CompilationPass):
                 return ResetBasis.X
             case _:
                 raise TQECException(
-                    f"Found a {instruction.name} instruction, that is not " "supported."
+                    f"Found a {instruction.name} instruction, that is not supported."
                 )
 
     def _with_basis_changed(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
