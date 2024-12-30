@@ -12,7 +12,7 @@ class PlaquetteCompiler:
         self._passes = passes
 
     def compile(self, plaquette: Plaquette) -> Plaquette:
-        circuit = plaquette.circuit.get_circuit(include_qubit_coords=True)
+        circuit = plaquette.circuit
         for compilation_pass in self._passes:
             circuit = compilation_pass.run(circuit)
 
