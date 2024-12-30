@@ -35,6 +35,7 @@ class SelfInverseGateSimplification(InstructionSimplifier):
         for instruction in instructions:
             if instruction.name not in SelfInverseGateSimplification.SELF_INVERSE_GATES:
                 ret.append(instruction)
+                continue
             args = tuple(instruction.gate_args_copy())
             for target_group in instruction.target_groups():
                 key = (instruction.name, tuple(target_group), args)
