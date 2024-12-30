@@ -1,6 +1,5 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Callable, Iterable, Sequence
+from typing import Callable, Sequence
 
 import stim
 from typing_extensions import override
@@ -8,6 +7,11 @@ from typing_extensions import override
 from tqec.circuit.moment import Moment
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.plaquette.compilation.passes.base import CompilationPass
+from tqec.plaquette.compilation.passes.transformer.schedule import ScheduleFunction
+from tqec.plaquette.compilation.passes.transformer.simplifiers import (
+    InstructionSimplifier,
+    NoInstructionSimplification,
+)
 
 
 @dataclass
@@ -26,67 +30,33 @@ class InstructionCreator:
         )
 
 
-class ScheduleFunction(ABC):
-    @abstractmethod
-    def __call__(self, input_schedule: int) -> int:
-        pass
-
-    @abstractmethod
-    def __hash__(self) -> int:
-        pass
-
-
-class ScheduleOffset(ScheduleFunction):
-    def __init__(self, offset: int):
-        super().__init__()
-        self._offset = offset
-
-    @override
-    def __call__(self, input_schedule: int) -> int:
-        return input_schedule + self._offset
-
-    @override
-    def __hash__(self) -> int:
-        return 2 * self._offset
-
-
-class ScheduleConstant(ScheduleFunction):
-    def __init__(self, constant: int):
-        super().__init__()
-        self._constant = constant
-
-    @override
-    def __call__(self, input_schedule: int) -> int:
-        return self._constant
-
-    @override
-    def __hash__(self) -> int:
-        return 2 * self._constant + 1
-
-
 @dataclass
 class ScheduledCircuitTransformation:
     source_name: str
     transformation: dict[ScheduleFunction, list[InstructionCreator]]
+    instruction_simplifier: InstructionSimplifier = NoInstructionSimplification()
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
-        moments: dict[int, Moment] = {}
+        moment_instructions: dict[int, list[stim.CircuitInstruction]] = {}
         for schedule, moment in circuit.scheduled_moments:
             for instruction in moment.instructions:
                 if instruction.name != self.source_name:
-                    moments.setdefault(schedule, Moment(stim.Circuit())).append(
-                        instruction
-                    )
+                    moment_instructions.setdefault(schedule, []).append(instruction)
                     continue
                 targets = instruction.targets_copy()
                 args = instruction.gate_args_copy()
                 for schedule_function, instr_creators in self.transformation.items():
                     sched: int = schedule_function(schedule)
-                    moment = moments.setdefault(sched, Moment(stim.Circuit()))
+                    moment = moment_instructions.setdefault(sched, [])
                     for creator in instr_creators:
                         moment.append(creator(targets, args))
-        schedules = sorted(moments.keys())
-        all_moments = [moments[s] for s in schedules]
+        schedules = sorted(moment_instructions.keys())
+        all_moments = [
+            Moment.from_instructions(
+                self.instruction_simplifier.simplify(moment_instructions[s])
+            )
+            for s in schedules
+        ]
         return ScheduledCircuit(all_moments, schedules, circuit.qubit_map)
 
 
@@ -104,7 +74,8 @@ class ScheduledCircuitTransformer:
 
 class ScheduledCircuitTransformationPass(CompilationPass):
     def __init__(
-        self, transformations: Sequence[ScheduledCircuitTransformation]
+        self,
+        transformations: Sequence[ScheduledCircuitTransformation],
     ) -> None:
         super().__init__()
         self._transformations = ScheduledCircuitTransformer(transformations)
