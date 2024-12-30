@@ -85,9 +85,9 @@ class ScheduledCircuitTransformation:
                     moment = moments.setdefault(sched, Moment(stim.Circuit()))
                     for creator in instr_creators:
                         moment.append(creator(targets, args))
-        return ScheduledCircuit(
-            list(moments.values()), list(moments.keys()), circuit.qubit_map
-        )
+        schedules = sorted(moments.keys())
+        all_moments = [moments[s] for s in schedules]
+        return ScheduledCircuit(all_moments, schedules, circuit.qubit_map)
 
 
 class ScheduledCircuitTransformer:
