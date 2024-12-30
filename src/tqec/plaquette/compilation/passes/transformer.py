@@ -1,0 +1,83 @@
+from dataclasses import dataclass
+from typing import Callable, Iterable, Sequence
+
+import stim
+from typing_extensions import override
+
+from tqec.circuit.moment import Moment
+from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.plaquette.compilation.passes.base import CompilationPass
+
+
+@dataclass
+class InstructionCreator:
+    name: str
+    targets: Callable[
+        [Iterable[int | stim.GateTarget]], list[int | stim.GateTarget]
+    ] = list
+    arguments: Callable[[Iterable[float]], list[float]] = list
+
+    def __call__(
+        self, targets: Iterable[int | stim.GateTarget], arguments: Iterable[float]
+    ) -> stim.CircuitInstruction:
+        return stim.CircuitInstruction(
+            self.name, self.targets(targets), self.arguments(arguments)
+        )
+
+
+@dataclass
+class ScheduledCircuitTransformation:
+    source_name: str
+    transformation: dict[int, list[InstructionCreator]]
+
+    def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        moments: dict[int, Moment] = {}
+        for schedule, moment in circuit.scheduled_moments:
+            for instruction in moment.instructions:
+                if instruction.name != self.source_name:
+                    moments.setdefault(schedule, Moment(stim.Circuit())).append(
+                        instruction
+                    )
+                    continue
+                targets = instruction.targets_copy()
+                args = instruction.gate_args_copy()
+                for sched_offset, instr_creators in self.transformation.items():
+                    sched = schedule + sched_offset
+                    moment = moments.setdefault(sched, Moment(stim.Circuit()))
+                    for creator in instr_creators:
+                        moment.append(creator(targets, args))
+        return ScheduledCircuit(
+            list(moments.values()), list(moments.keys()), circuit.qubit_map
+        )
+
+
+class ScheduledCircuitTransformer:
+    def __init__(
+        self, transformations: Sequence[ScheduledCircuitTransformation]
+    ) -> None:
+        self._transformations = transformations
+
+    def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        for transformation in self._transformations:
+            print(circuit.get_circuit())
+            circuit = transformation.apply(circuit)
+        return circuit
+
+
+class ScheduledCircuitTransformationPass(CompilationPass):
+    def __init__(
+        self, transformations: Sequence[ScheduledCircuitTransformation]
+    ) -> None:
+        super().__init__()
+        self._transformations = ScheduledCircuitTransformer(transformations)
+
+    @override
+    def run(
+        self,
+        circuit: ScheduledCircuit,
+        check_all_flows: bool = False,
+    ) -> ScheduledCircuit:
+        modified_circuit = self._transformations.apply(circuit)
+        if check_all_flows:
+            self.check_flows(circuit, modified_circuit)
+        return modified_circuit
