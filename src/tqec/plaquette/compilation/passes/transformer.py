@@ -13,13 +13,13 @@ from tqec.plaquette.compilation.passes.base import CompilationPass
 @dataclass
 class InstructionCreator:
     name: str
-    targets: Callable[
-        [Iterable[int | stim.GateTarget]], list[int | stim.GateTarget]
-    ] = list
-    arguments: Callable[[Iterable[float]], list[float]] = list
+    targets: Callable[[list[stim.GateTarget]], list[stim.GateTarget]] = (
+        lambda trgts: trgts
+    )
+    arguments: Callable[[list[float]], list[float]] = lambda args: args
 
     def __call__(
-        self, targets: Iterable[int | stim.GateTarget], arguments: Iterable[float]
+        self, targets: list[stim.GateTarget], arguments: list[float]
     ) -> stim.CircuitInstruction:
         return stim.CircuitInstruction(
             self.name, self.targets(targets), self.arguments(arguments)

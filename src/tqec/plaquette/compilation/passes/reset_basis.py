@@ -14,10 +14,8 @@ class ChangeResetBasisPass(ScheduledCircuitTransformationPass):
             ScheduledCircuitTransformation(
                 f"R{ibasis.value.upper()}",
                 {
-                    ScheduleOffset(0): [
-                        InstructionCreator(f"R{basis.value.upper()}", list)
-                    ],
-                    ScheduleOffset(1): [InstructionCreator("H", list)],
+                    ScheduleOffset(0): [InstructionCreator(f"R{basis.value.upper()}")],
+                    ScheduleOffset(1): [InstructionCreator("H")],
                 },
             )
         ]
@@ -26,8 +24,8 @@ class ChangeResetBasisPass(ScheduledCircuitTransformationPass):
                 ScheduledCircuitTransformation(
                     "R",
                     {
-                        ScheduleOffset(0): [InstructionCreator("RX", list)],
-                        ScheduleOffset(1): [InstructionCreator("H", list)],
+                        ScheduleOffset(0): [InstructionCreator("RX")],
+                        ScheduleOffset(1): [InstructionCreator("H")],
                     },
                 )
             )

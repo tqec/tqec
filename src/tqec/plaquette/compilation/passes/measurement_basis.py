@@ -16,10 +16,8 @@ class ChangeMeasurementBasisPass(ScheduledCircuitTransformationPass):
             ScheduledCircuitTransformation(
                 f"M{ibasis.value.upper()}",
                 {
-                    ScheduleOffset(-1): [InstructionCreator("H", list)],
-                    ScheduleOffset(0): [
-                        InstructionCreator(f"M{basis.value.upper()}", list)
-                    ],
+                    ScheduleOffset(-1): [InstructionCreator("H")],
+                    ScheduleOffset(0): [InstructionCreator(f"M{basis.value.upper()}")],
                 },
             )
         ]
@@ -28,8 +26,8 @@ class ChangeMeasurementBasisPass(ScheduledCircuitTransformationPass):
                 ScheduledCircuitTransformation(
                     "M",
                     {
-                        ScheduleOffset(-1): [InstructionCreator("H", list)],
-                        ScheduleOffset(0): [InstructionCreator("MX", list)],
+                        ScheduleOffset(-1): [InstructionCreator("H")],
+                        ScheduleOffset(0): [InstructionCreator("MX")],
                     },
                 )
             )
