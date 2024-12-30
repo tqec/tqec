@@ -1,0 +1,846 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Terminology &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/terminology';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Current known limitations" href="current_limitations.html" />
+    <link rel="prev" title="Quick start using tqec" href="quick_start.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick start</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Terminology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="current_limitations.html">Current limitations</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="build_computations.html">Build Computations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collada_interop.html">COLLADA Interoperability</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Terminology</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="terminology">
+<h1>Terminology<a class="headerlink" href="#terminology" title="Link to this heading">#</a></h1>
+<p>This page provides definitions for some important terms used in the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> codebase.
+Also, we highlight and expand on some concepts that can not fit in the <a class="reference internal" href="../api.html#api"><span class="std std-ref">API Reference</span></a>.</p>
+<section id="block">
+<span id="id1"></span><h2>Block<a class="headerlink" href="#block" title="Link to this heading">#</a></h2>
+<p>Represents quantum operations that encode some logical properties and are local in spacetime.
+The quantum operations within the block are carefully designed to map logical operators in spacetime correctly.
+At the same time, these operations generate syndrome information that protects the logical data, ensuring fault tolerance.</p>
+<p>By composing blocks, we can construct the desired mappings between logical operators
+while preserving the protection of the logical information.
+This is the essence of fault-tolerant quantum computation.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">tqec</span></code>, a block is either a <a class="reference internal" href="#cube"><span class="std std-ref">Cube</span></a> or a <a class="reference internal" href="#pipe"><span class="std std-ref">Pipe</span></a>.</p>
+</section>
+<section id="cube">
+<span id="id2"></span><h2>Cube<a class="headerlink" href="#cube" title="Link to this heading">#</a></h2>
+<p>Represents the fundamental building <a class="reference internal" href="#block"><span class="std std-ref">block</span></a> that occupies certain spacetime volume. The kind of cube determines the
+quantum operations that are applied within the cube. Currently we have the following kinds of cubes, and more cubes can be added in the future:</p>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/cubes.png"><img alt="../_images/cubes.png" src="../_images/cubes.png" style="width: 400px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Different kinds of cubes</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<section id="zxcube">
+<span id="id3"></span><h3><a class="reference internal" href="../_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.ZXCube"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXCube</span></code></a><a class="headerlink" href="#zxcube" title="Link to this heading">#</a></h3>
+<p>A cube whose faces are of <code class="docutils literal notranslate"><span class="pre">X</span></code> (red) or <code class="docutils literal notranslate"><span class="pre">Z</span></code> (blue) type. We assume each pair of opposite faces are of the same type.
+Then the kind can be specified by the type of the faces looking from the XYZ directions. For example, the <cite>ZXZ</cite> cube in the
+figure above has <code class="docutils literal notranslate"><span class="pre">Z</span></code> type faces along the X direction, <code class="docutils literal notranslate"><span class="pre">X</span></code> type faces along the Y direction, and <code class="docutils literal notranslate"><span class="pre">Z</span></code> type faces along the Z direction.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">ZXCube</span></code> occupies <span class="math notranslate nohighlight">\(\approx d^3\)</span> spacetime volume, where <span class="math notranslate nohighlight">\(d\)</span> is the code distance.</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">ZXZ</span></code>, <code class="docutils literal notranslate"><span class="pre">XZZ</span></code>, <code class="docutils literal notranslate"><span class="pre">ZXX</span></code> and <code class="docutils literal notranslate"><span class="pre">XZX</span></code> cubes can represent a (trivial) logical computation by themselves, i.e. a logical memory experiment.
+For example, the <code class="docutils literal notranslate"><span class="pre">XZX</span></code> cube can be used to represent a logical qubit with <code class="docutils literal notranslate"><span class="pre">Z</span></code>/<code class="docutils literal notranslate"><span class="pre">X</span></code> boundaries parallel to the X/Y axes. And the time boundary
+is of <code class="docutils literal notranslate"><span class="pre">X</span></code> type, which means that the logical qubit is initialized and measured in the logical <code class="docutils literal notranslate"><span class="pre">X</span></code> basis.</p>
+<section id="spatial-junction">
+<h4>Spatial Junction<a class="headerlink" href="#spatial-junction" title="Link to this heading">#</a></h4>
+<p>Unlike the other <code class="docutils literal notranslate"><span class="pre">ZXCube</span></code>, <code class="docutils literal notranslate"><span class="pre">XXZ</span></code> and <code class="docutils literal notranslate"><span class="pre">ZZX</span></code> cubes can not represent a logical computation by themselves. They need to be connected to other cubes
+in space to form part of a logical computation:</p>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../_images/spatial_junctions.png"><img alt="../_images/spatial_junctions.png" src="../_images/spatial_junctions.png" style="width: 450px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Spatial junctions</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The circuits that implement these spatial junctions are more complex than the circuits for the other cubes, and special care needs to be taken to avoid
+the hook errors from decreasing the circuit-level code distance.</p>
+</section>
+</section>
+<section id="ycube">
+<h3><a class="reference internal" href="../_autosummary/tqec.computation.YCube.html#tqec.computation.YCube" title="tqec.computation.YCube"><code class="xref py py-class docutils literal notranslate"><span class="pre">YCube</span></code></a><a class="headerlink" href="#ycube" title="Link to this heading">#</a></h3>
+<p>A green cube representing inplace Y-basis logical initialization or measurement as proposed in <a class="reference external" href="https://quantum-journal.org/papers/q-2024-04-08-1310/">this paper</a>.
+The cube’s function, whether for initialization or measurement, is determined by its connection to other cubes, either upwards or downwards.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">YCube</span></code> occupies <span class="math notranslate nohighlight">\(\approx d^3 /2\)</span> spacetime volume, where <span class="math notranslate nohighlight">\(d\)</span> is the code distance.</p>
+</section>
+<section id="port">
+<h3><a class="reference internal" href="../_autosummary/tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.Port"><code class="xref py py-class docutils literal notranslate"><span class="pre">Port</span></code></a><a class="headerlink" href="#port" title="Link to this heading">#</a></h3>
+<p>A port is a special type of cube that represents the input or output of a logical computation.
+It functions as a virtual cube, serving only as a placeholder for other sources or sinks of logical information.
+Therefore, ports are not visualized in spacetime diagrams and occupy zero spacetime volume.</p>
+</section>
+</section>
+<section id="pipe">
+<span id="id4"></span><h2>Pipe<a class="headerlink" href="#pipe" title="Link to this heading">#</a></h2>
+<p>Represents the <a class="reference internal" href="#block"><span class="std std-ref">block</span></a> that maps logical operators between different <a class="reference internal" href="#cube"><span class="std std-ref">cubes</span></a>.
+There are various types of pipes based on the boundary types and connection direction. Additionally,
+Hadamard transitions may occur in the pipe, which changes the basis of the logical operator passing through it.</p>
+<figure class="align-center" id="id8">
+<a class="reference internal image-reference" href="../_images/pipes.png"><img alt="../_images/pipes.png" src="../_images/pipes.png" style="width: 500px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Different types of pipes</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p><strong>It’s important to note that the pipe does not occupy spacetime volume by itself.</strong>
+Instead, the operations within the pipe replace the operations in the cubes it connects.
+The pipe’s visual representation in the diagram is exaggerated for clarity.</p>
+<figure class="align-center" id="id9">
+<a class="reference internal image-reference" href="../_images/pipe_connects_cubes.png"><img alt="../_images/pipe_connects_cubes.png" src="../_images/pipe_connects_cubes.png" style="width: 400px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Example of pipes connecting cubes</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Each cube in the figure above should initially be thought of as an</p>
+<div class="math notranslate nohighlight">
+\[InitZ_k \rightarrow (2k − 1) \times Mem_k \rightarrow MeasZ_k\]</div>
+<p>memory experiment. The pipes modify the walls of these experiments. The first vertical pipe should be interpreted as a layer of memory circuit <span class="math notranslate nohighlight">\(Mem_k\)</span>.
+It replaces <span class="math notranslate nohighlight">\(MeasZ_k\)</span> in the bottom cube and <span class="math notranslate nohighlight">\(InitZ_k\)</span> in the top cube with <span class="math notranslate nohighlight">\(Mem_k\)</span> layers.
+The horizontal pipe replaces the boundary walls of the two cubes it touches with connecting stabilizer measurements, along with appropriate data qubit initialization and measurement.</p>
+</section>
+<section id="correlation-surface">
+<h2>Correlation Surface<a class="headerlink" href="#correlation-surface" title="Link to this heading">#</a></h2>
+<p>A correlation surface in a computation is a set of measurements whose values determine the parity of the logical operators at the inputs and outputs associated with the surface.</p>
+<p>The correlation surface establishes a mapping from the input logical operators to the output logical operators associated to it.
+And the mapping implements the desired logical computation up to some sign that depends on the parity of the physical initialization,
+measurements and stabilizer measurements included in the correlation surface. In <code class="docutils literal notranslate"><span class="pre">tqec</span></code>, we assume all the qubits are initialized
+to the +1 eigenstate of the operators. Therefore, the sign is determined by the parity of the measurements.</p>
+<p>Here we take the movement of a logical qubit for example:</p>
+<figure class="align-center" id="id10">
+<a class="reference internal image-reference" href="../_images/logical_qubit_movement.png"><img alt="../_images/logical_qubit_movement.png" src="../_images/logical_qubit_movement.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Movement of a logical qubit</span><a class="headerlink" href="#id10" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The movement operation maps <span class="math notranslate nohighlight">\(Z_L, X_L\)</span> logical operators at input to <span class="math notranslate nohighlight">\(Z_L^{\prime}, X_L^{\prime}\)</span> at output.
+Firstly, we show in detail why the structure and circuits above implement the movement of a logical qubit.</p>
+<ol class="loweralpha simple">
+<li><p>All data qubits initialized to <span class="math notranslate nohighlight">\(|0\rangle\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(2k + 1\)</span> rounds of stabilizer measurement.</p></li>
+<li><p>Beginning to extend the logical qubit with more data qubits initialized to <span class="math notranslate nohighlight">\(|0\rangle\)</span>. Black dots represent data qubits doing nothing.
+<span class="math notranslate nohighlight">\(Z_L\)</span> can be extended without sign change across these <span class="math notranslate nohighlight">\(|0\rangle\)</span> values.</p></li>
+<li><p><span class="math notranslate nohighlight">\(2k + 1\)</span> rounds of stabilizer measurement during which stabilizers indicated with red dots are used to move <span class="math notranslate nohighlight">\(X_L\)</span>.
+The parity of any chosen round of these measurements sets a sign relationship between <span class="math notranslate nohighlight">\(X_L\)</span> and <span class="math notranslate nohighlight">\(X_L^{\prime}\)</span>.
+Our convention is to choose the earliest round.</p></li>
+<li><p><span class="math notranslate nohighlight">\(Z\)</span> basis measurement of data qubits. The parity of the blue highlighted raw values sets
+a sign relationship between <span class="math notranslate nohighlight">\(Z_L\)</span> and <span class="math notranslate nohighlight">\(Z_L^{\prime}\)</span>.</p></li>
+</ol>
+<p>Note that the sign relationship described above depends on the measurement outcomes, which are error-prone and need
+error correction.</p>
+<p>Tracking the process of logical operator movement above, we can get the following two correlation surfaces:</p>
+<figure class="align-center" id="id11">
+<a class="reference internal image-reference" href="../_images/correlation_surface.png"><img alt="../_images/correlation_surface.png" src="../_images/correlation_surface.png" style="width: 200px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Correlation surfaces, red for X and blue for Z</span><a class="headerlink" href="#id11" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>You can think of constructing the correlation surface as moving a line of logical operators through the structure,
+only allowing the logical operators to attach to walls with the same basis.
+The physical qubit measurements and stabilizer measurements in the correlation surface determine the sign relationship between the logical operators at the input and output.</p>
+</section>
+<section id="template">
+<span id="id5"></span><h2>Template<a class="headerlink" href="#template" title="Link to this heading">#</a></h2>
+<p>In <code class="docutils literal notranslate"><span class="pre">tqec</span></code>, a template is an object that can, from an integer value representing the
+scaling factor $k$ (with the code distance $d$ checking $d = 2k + 1$ for the surface code),
+can generate a $2$-dimensional array of positive integers.</p>
+<div class="admonition-example admonition" id="qubit-example">
+<p class="admonition-title">Example</p>
+<p>The following array is an example of what can be generated by a template:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span>  <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">2</span>
+<span class="mi">7</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span> <span class="mi">11</span>
+<span class="mi">8</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">12</span>
+<span class="mi">7</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span> <span class="mi">11</span>
+<span class="mi">8</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">12</span>
+<span class="mi">3</span> <span class="mi">13</span> <span class="mi">14</span> <span class="mi">13</span> <span class="mi">14</span>  <span class="mi">4</span>
+</pre></div>
+</div>
+</div>
+<p>The returned $2$-dimensional array entries each represent an index into a user-provided
+mapping associating these indices to <a class="reference internal" href="../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette" title="tqec.plaquette.plaquette.Plaquette"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquette</span></code></a> instances.
+The only exception is the value <code class="docutils literal notranslate"><span class="pre">0</span></code> that is associated to the absence of plaquette
+by convention.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>The $2$-dimensional array given as example above can represent the usual logical qubit
+from surface code research papers:</p>
+<figure class="align-center" id="id12">
+<a class="reference internal image-reference" href="../_images/logical_qubit.png"><img alt="../_images/logical_qubit.png" src="../_images/logical_qubit.png" style="width: 200px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Usual tiling of plaquettes to build a logical qubit using the surface code.</span><a class="headerlink" href="#id12" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>To see the correspondence more clearly, one can map the indices <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>,
+<code class="docutils literal notranslate"><span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">4</span></code>, <code class="docutils literal notranslate"><span class="pre">5</span></code>, <code class="docutils literal notranslate"><span class="pre">8</span></code>, <code class="docutils literal notranslate"><span class="pre">12</span></code> and <code class="docutils literal notranslate"><span class="pre">14</span></code> to the “no plaquette” index <code class="docutils literal notranslate"><span class="pre">0</span></code>
+and print <code class="docutils literal notranslate"><span class="pre">0</span></code> with <code class="docutils literal notranslate"><span class="pre">.</span></code> for visual clarity:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span>  <span class="o">.</span>  <span class="mi">6</span>  <span class="o">.</span>  <span class="mi">6</span>  <span class="o">.</span>
+<span class="mi">7</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span> <span class="mi">11</span>
+<span class="o">.</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span>  <span class="o">.</span>
+<span class="mi">7</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span> <span class="mi">11</span>
+<span class="o">.</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span>  <span class="o">.</span>
+<span class="o">.</span> <span class="mi">13</span>  <span class="o">.</span> <span class="mi">13</span>  <span class="o">.</span>  <span class="o">.</span>
+</pre></div>
+</div>
+</div>
+<p>Templates are the abstraction layer that allows most of <code class="docutils literal notranslate"><span class="pre">tqec</span></code> internals to be
+independent of the chosen code distance.</p>
+</section>
+<section id="sub-template">
+<h2>Sub-template<a class="headerlink" href="#sub-template" title="Link to this heading">#</a></h2>
+<p>Sub-templates are defined as square $2$-dimensional arrays of fixed odd size. They are
+systematically extracted from a contiguous portion of a larger template.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<p>The array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span>  <span class="mi">5</span>  <span class="mi">6</span>
+<span class="mi">7</span>  <span class="mi">9</span> <span class="mi">10</span>
+<span class="mi">8</span> <span class="mi">10</span>  <span class="mi">9</span>
+</pre></div>
+</div>
+<p>is a valid sub-template of <a class="reference internal" href="#qubit-example"><span class="std std-ref">the full example given in the Template</span></a>
+section.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Sub-templates center (which is always well defined for a odd-sized square) is
+always extracted from a valid entry <strong>within</strong> the original template. The other
+sub-template entries <em>might</em> be extracted from outside the original template.</p>
+<p>The following sub-template:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span>  <span class="o">.</span>  <span class="o">.</span>  <span class="o">.</span>  <span class="o">.</span>
+<span class="o">.</span>  <span class="mi">1</span>  <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">5</span>
+<span class="o">.</span>  <span class="mi">7</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span>
+<span class="o">.</span>  <span class="mi">8</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span>
+<span class="o">.</span>  <span class="mi">7</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span>
+</pre></div>
+</div>
+<p>is also a sub-template of <a class="reference internal" href="#qubit-example"><span class="std std-ref">the full example given in the Template</span></a>.
+Its top and left borders are filled with <code class="docutils literal notranslate"><span class="pre">0</span></code> (usually represented by a <code class="docutils literal notranslate"><span class="pre">.</span></code>) because
+out-of-bounds accesses for templates are supposed to be <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</div>
+</section>
+<section id="plaquette">
+<h2>Plaquette<a class="headerlink" href="#plaquette" title="Link to this heading">#</a></h2>
+<p>A plaquette is a specific quantum circuit. There are multiple bells and whistles
+around that simple definition in <code class="docutils literal notranslate"><span class="pre">tqec</span></code> code, but all of them are due to implementation
+details and do not matter here.</p>
+<p>The quantum circuit represented by a plaquette are supposed to be:</p>
+<ol class="arabic simple">
+<li><p>spatially-local,</p></li>
+<li><p>temporally-local,</p></li>
+<li><p>with a fully explicit and precise gate scheduling.</p></li>
+</ol>
+<p>Spatial locality means that the quantum circuit representing any plaquette should only use
+a few qubits that are spatially close on a $2$-dimensional array grid of qubits.</p>
+<p>Temporal locality means that the quantum circuit depth should be constant and short.</p>
+<p>Explicit gate scheduling requires each and every gate in the circuit to be explicitly
+scheduled at a precise time (or moment) in the quantum circuit.</p>
+<p>These condition make plaquettes easily representable as visual $2$-dimensional pictures.</p>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<p>One of the plaquette measuring a <code class="docutils literal notranslate"><span class="pre">XXXX</span></code> stabilizer can be represented as follow</p>
+<figure class="align-center" id="id13">
+<a class="reference internal image-reference" href="../_images/plaquette_xxxx.png"><img alt="../_images/plaquette_xxxx.png" src="../_images/plaquette_xxxx.png" style="width: 100px;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">XXXX</span></code> plaquette.</span><a class="headerlink" href="#id13" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>and corresponds to the following quantum circuit</p>
+<figure class="align-center" id="id14">
+<a class="reference internal image-reference" href="../_images/circuit_xxxx.png"><img alt="../_images/circuit_xxxx.png" src="../_images/circuit_xxxx.png" style="width: 500px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Quantum circuit measuring the <code class="docutils literal notranslate"><span class="pre">XXXX</span></code> stabilizer.</span><a class="headerlink" href="#id14" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>One of the plaquette measuring a <code class="docutils literal notranslate"><span class="pre">ZZZZ</span></code> stabilizer can be represented as follow</p>
+<figure class="align-center" id="id15">
+<a class="reference internal image-reference" href="../_images/plaquette_zzzz.png"><img alt="../_images/plaquette_zzzz.png" src="../_images/plaquette_zzzz.png" style="width: 100px;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">ZZZZ</span></code> plaquette.</span><a class="headerlink" href="#id15" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>and corresponds to the following quantum circuit</p>
+<figure class="align-center" id="id16">
+<a class="reference internal image-reference" href="../_images/circuit_zzzz.png"><img alt="../_images/circuit_zzzz.png" src="../_images/circuit_zzzz.png" style="width: 500px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Quantum circuit measuring the <code class="docutils literal notranslate"><span class="pre">ZZZZ</span></code> stabilizer.</span><a class="headerlink" href="#id16" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>One of the plaquette measuring a <code class="docutils literal notranslate"><span class="pre">XX</span></code> stabilizer can be represented as follow</p>
+<figure class="align-center" id="id17">
+<a class="reference internal image-reference" href="../_images/plaquette_xx_up.png"><img alt="../_images/plaquette_xx_up.png" src="../_images/plaquette_xx_up.png" style="width: 100px;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">XX</span></code> plaquette.</span><a class="headerlink" href="#id17" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>and corresponds to the following quantum circuit</p>
+<figure class="align-center" id="id18">
+<a class="reference internal image-reference" href="../_images/circuit_xx_up.png"><img alt="../_images/circuit_xx_up.png" src="../_images/circuit_xx_up.png" style="width: 500px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Quantum circuit measuring the <code class="docutils literal notranslate"><span class="pre">XX</span></code> stabilizer.</span><a class="headerlink" href="#id18" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="detector">
+<h2>Detector<a class="headerlink" href="#detector" title="Link to this heading">#</a></h2>
+<p>In the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> library, a detector is a set of one or more measurements that are
+supposed to have a deterministic parity in the absence of errors.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="quick_start.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Quick start using <code class="docutils literal notranslate"><span class="pre">tqec</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="current_limitations.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Current known limitations</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#block">Block</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cube">Cube</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#zxcube"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXCube</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-junction">Spatial Junction</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ycube"><code class="xref py py-class docutils literal notranslate"><span class="pre">YCube</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port"><code class="xref py py-class docutils literal notranslate"><span class="pre">Port</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipe">Pipe</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correlation-surface">Correlation Surface</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#template">Template</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sub-template">Sub-template</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plaquette">Plaquette</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#detector">Detector</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/terminology.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

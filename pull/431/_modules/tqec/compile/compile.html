@@ -1,0 +1,857 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tqec.compile.compile &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/tqec/compile/compile';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.compile.compile</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for tqec.compile.compile</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Defines :class:`~.compile.CompiledGraph` and</span>
+<span class="sd">:func:`~.compile.compile_block_graph`.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span> <span class="nn">stim</span>
+
+<span class="kn">from</span> <span class="nn">tqec.circuit.coordinates</span> <span class="kn">import</span> <span class="n">StimCoordinates</span>
+<span class="kn">from</span> <span class="nn">tqec.circuit.measurement_map</span> <span class="kn">import</span> <span class="n">MeasurementRecordsMap</span>
+<span class="kn">from</span> <span class="nn">tqec.circuit.qubit_map</span> <span class="kn">import</span> <span class="n">QubitMap</span>
+<span class="kn">from</span> <span class="nn">tqec.circuit.schedule</span> <span class="kn">import</span> <span class="n">ScheduledCircuit</span>
+<span class="kn">from</span> <span class="nn">tqec.compile.block</span> <span class="kn">import</span> <span class="n">BlockLayout</span><span class="p">,</span> <span class="n">CompiledBlock</span>
+<span class="kn">from</span> <span class="nn">tqec.compile.detectors.compute</span> <span class="kn">import</span> <span class="n">compute_detectors_for_fixed_radius</span>
+<span class="kn">from</span> <span class="nn">tqec.compile.detectors.database</span> <span class="kn">import</span> <span class="n">DetectorDatabase</span>
+<span class="kn">from</span> <span class="nn">tqec.compile.detectors.detector</span> <span class="kn">import</span> <span class="n">Detector</span>
+<span class="kn">from</span> <span class="nn">tqec.compile.observables</span> <span class="kn">import</span> <span class="n">inplace_add_observables</span>
+<span class="kn">from</span> <span class="nn">tqec.compile.specs.base</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BlockBuilder</span><span class="p">,</span>
+    <span class="n">CubeSpec</span><span class="p">,</span>
+    <span class="n">PipeSpec</span><span class="p">,</span>
+    <span class="n">SubstitutionBuilder</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">tqec.compile.specs.library.css</span> <span class="kn">import</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
+<span class="kn">from</span> <span class="nn">tqec.computation.abstract_observable</span> <span class="kn">import</span> <span class="n">AbstractObservable</span>
+<span class="kn">from</span> <span class="nn">tqec.computation.block_graph</span> <span class="kn">import</span> <span class="n">BlockGraph</span>
+<span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
+<span class="kn">from</span> <span class="nn">tqec.noise_model</span> <span class="kn">import</span> <span class="n">NoiseModel</span>
+<span class="kn">from</span> <span class="nn">tqec.plaquette.plaquette</span> <span class="kn">import</span> <span class="n">Plaquettes</span><span class="p">,</span> <span class="n">RepeatedPlaquettes</span>
+<span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
+<span class="kn">from</span> <span class="nn">tqec.scale</span> <span class="kn">import</span> <span class="n">round_or_fail</span>
+<span class="kn">from</span> <span class="nn">tqec.templates.indices.base</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">tqec.templates.indices.layout</span> <span class="kn">import</span> <span class="n">LayoutTemplate</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">CompiledGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a compiled block graph.</span>
+
+<span class="sd">    This class should be easy to scale and generate circuits directly.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        layout_slices: a list of :class:`~tqec.templates.indices.layout.BlockLayout`</span>
+<span class="sd">            instances that represent the compiled blocks at contiguous time</span>
+<span class="sd">            slices.</span>
+<span class="sd">        observables: a list of</span>
+<span class="sd">            :class:`~tqec.computation.abstract_observable.AbstractObservable`</span>
+<span class="sd">            instances that represent the observables to be included in the</span>
+<span class="sd">            compiled circuit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">layout_slices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BlockLayout</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Timeslices of compiled blocks arranged as 2-dimensional slices.&quot;&quot;&quot;</span>
+
+    <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Observables to be included in the final ``stim.Circuit`` instance.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout_slices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="s2">&quot;The compiled graph should have at least one time slice &quot;</span>
+                <span class="s2">&quot;but got an empty layout_slices.&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># Use warning instead of exception because a qec circuit without observable</span>
+        <span class="c1"># may still be useful, e.g. do statistics on the detection events.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observables</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The compiled graph includes no observable.&quot;</span><span class="p">,</span> <span class="n">TQECWarning</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">generate_stim_circuit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">noise_model</span><span class="p">:</span> <span class="n">NoiseModel</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">manhattan_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">detector_database</span><span class="p">:</span> <span class="n">DetectorDatabase</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">only_use_database</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the ``stim.Circuit`` from the compiled graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            k: scale factor of the templates.</span>
+<span class="sd">            noise_models: noise models to be applied to the circuit.</span>
+<span class="sd">            manhattan_radius: radius considered to compute detectors.</span>
+<span class="sd">                Detectors are not computed and added to the circuit if this</span>
+<span class="sd">                argument is negative.</span>
+<span class="sd">            detector_database: an instance to retrieve from / store in detectors</span>
+<span class="sd">                that are computed as part of the circuit generation.</span>
+<span class="sd">            only_use_database: if ``True``, only detectors from the database</span>
+<span class="sd">                will be used. An error will be raised if a situation that is not</span>
+<span class="sd">                registered in the database is encountered.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A compiled stim circuit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Generate the quantum circuits, time slice by time slice, layer by layer.</span>
+        <span class="c1"># Note that the circuits have to be shifted to their correct position.</span>
+        <span class="n">circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">layout</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_slices</span><span class="p">:</span>
+            <span class="n">circuits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layout</span><span class="o">.</span><span class="n">get_shifted_circuits</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+        <span class="c1"># The generated circuits cannot, for the moment, be merged together because</span>
+        <span class="c1"># the qubit indices used are likely inconsistent between circuits (a given</span>
+        <span class="c1"># index `i` might be used for different qubits in different circuits).</span>
+        <span class="c1"># Fix that now so that we do not have to think about it later.</span>
+        <span class="n">global_qubit_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relabel_circuits_qubit_indices_inplace</span><span class="p">(</span><span class="n">circuits</span><span class="p">)</span>
+
+        <span class="c1"># Construct the observables and add them in-place to the built circuits.</span>
+        <span class="n">inplace_add_observables</span><span class="p">(</span>
+            <span class="n">circuits</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">layout</span><span class="o">.</span><span class="n">template</span> <span class="k">for</span> <span class="n">layout</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_slices</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">observables</span><span class="p">,</span>
+            <span class="n">k</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Compute the detectors and add them in-place in circuits</span>
+        <span class="n">flattened_circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="n">circuits</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">],</span> <span class="p">[])</span>
+        <span class="p">)</span>
+        <span class="n">flattened_templates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LayoutTemplate</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="p">[</span><span class="n">layout</span><span class="o">.</span><span class="n">template</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">layout</span><span class="o">.</span><span class="n">num_layers</span><span class="p">)]</span>
+                <span class="k">for</span> <span class="n">layout</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_slices</span>
+            <span class="p">),</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="n">LayoutTemplate</span><span class="p">],</span> <span class="p">[]),</span>
+        <span class="p">)</span>
+        <span class="n">flattened_plaquettes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Plaquettes</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">layout</span><span class="o">.</span><span class="n">layers</span> <span class="k">for</span> <span class="n">layout</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_slices</span><span class="p">),</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="n">Plaquettes</span><span class="p">],</span> <span class="p">[]),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">manhattan_radius</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inplace_add_detectors_to_circuits</span><span class="p">(</span>
+                <span class="n">flattened_circuits</span><span class="p">,</span>
+                <span class="n">flattened_templates</span><span class="p">,</span>
+                <span class="n">flattened_plaquettes</span><span class="p">,</span>
+                <span class="n">k</span><span class="p">,</span>
+                <span class="n">manhattan_radius</span><span class="p">,</span>
+                <span class="n">detector_database</span><span class="o">=</span><span class="n">detector_database</span><span class="p">,</span>
+                <span class="n">only_use_database</span><span class="o">=</span><span class="n">only_use_database</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># Assemble the circuits.</span>
+        <span class="n">circuit</span> <span class="o">=</span> <span class="n">global_qubit_map</span><span class="o">.</span><span class="n">to_circuit</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">circ</span><span class="p">,</span> <span class="n">plaq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">flattened_circuits</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">flattened_plaquettes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plaq</span><span class="p">,</span> <span class="n">RepeatedPlaquettes</span><span class="p">):</span>
+                <span class="n">circuit</span> <span class="o">+=</span> <span class="n">circ</span><span class="o">.</span><span class="n">get_repeated_circuit</span><span class="p">(</span>
+                    <span class="n">round_or_fail</span><span class="p">(</span><span class="n">plaq</span><span class="o">.</span><span class="n">repetitions</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="n">include_qubit_coords</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">circuit</span> <span class="o">+=</span> <span class="n">circ</span><span class="o">.</span><span class="n">get_circuit</span><span class="p">(</span><span class="n">include_qubit_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TICK&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+        <span class="n">circuit</span> <span class="o">+=</span> <span class="n">flattened_circuits</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_circuit</span><span class="p">(</span><span class="n">include_qubit_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># If provided, apply the noise model.</span>
+        <span class="k">if</span> <span class="n">noise_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">circuit</span> <span class="o">=</span> <span class="n">noise_model</span><span class="o">.</span><span class="n">noisy_circuit</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">circuit</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_relabel_circuits_qubit_indices_inplace</span><span class="p">(</span>
+        <span class="n">circuits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QubitMap</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Equivalent to :func:`relabel_circuits_qubit_indices` but applied to</span>
+<span class="sd">        nested lists and performing the modifications in-place in the provided</span>
+<span class="sd">        ``circuits``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuits: circuit instances to remap. This parameter is mutated by</span>
+<span class="sd">                this function.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            qubit map used to remap the qubit indices that is valid for all the</span>
+<span class="sd">            circuits provided as input after this method executed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">used_qubits</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+            <span class="c1"># Using itertools to avoid the edge case where there is no circuit</span>
+            <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">qubits</span> <span class="k">for</span> <span class="n">clayer</span> <span class="ow">in</span> <span class="n">circuits</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">clayer</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">global_qubit_map</span> <span class="o">=</span> <span class="n">QubitMap</span><span class="o">.</span><span class="n">from_qubits</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">used_qubits</span><span class="p">))</span>
+        <span class="n">global_q2i</span> <span class="o">=</span> <span class="n">global_qubit_map</span><span class="o">.</span><span class="n">q2i</span>
+        <span class="k">for</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">circuits</span><span class="p">):</span>
+            <span class="n">local_indices_to_global_indices</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">local_index</span><span class="p">:</span> <span class="n">global_q2i</span><span class="p">[</span><span class="n">q</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">local_index</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">qubit_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">map_qubit_indices</span><span class="p">(</span><span class="n">local_indices_to_global_indices</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">global_qubit_map</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_inplace_add_detectors_to_circuits</span><span class="p">(</span>
+        <span class="n">circuits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">],</span>
+        <span class="n">templates</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Template</span><span class="p">],</span>
+        <span class="n">plaquettes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Plaquettes</span><span class="p">],</span>
+        <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">manhattan_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">detector_database</span><span class="p">:</span> <span class="n">DetectorDatabase</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">only_use_database</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute and add in-place to ``circuits`` valid detectors.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuits: circuits to add detectors to. Should have the same number</span>
+<span class="sd">                of entries as ``templates`` and ``plaquettes``.</span>
+<span class="sd">            templates: templates used to generate the provided ``circuits``. Should</span>
+<span class="sd">                have the same number of entries as ``circuits`` and ``plaquettes``.</span>
+<span class="sd">            plaquettes: plaquettes used to generate the provided ``circuits``.</span>
+<span class="sd">                Should have the same number of entries as ``circuits`` and</span>
+<span class="sd">                ``templates``.</span>
+<span class="sd">            k: scaling parameter that has been used to generate the provided</span>
+<span class="sd">                ``circuits``.</span>
+<span class="sd">            manhattan_radius: radius considered to compute detectors. Defaults</span>
+<span class="sd">                to 2.</span>
+<span class="sd">            detector_database: a database associating &quot;situations&quot; (subtemplate</span>
+<span class="sd">                and plaquettes) to already computed detectors. Defaults to None,</span>
+<span class="sd">                meaning that no database is provided and all the detectors should</span>
+<span class="sd">                be re-computed.</span>
+<span class="sd">            only_use_database: if True, only detectors present in the provided</span>
+<span class="sd">                database are used. If the database is `None` or if a &quot;situation&quot;</span>
+<span class="sd">                that is not in the database is encountered, an exception will be</span>
+<span class="sd">                raised. Defaults to False, meaning that encountered &quot;situations&quot;</span>
+<span class="sd">                that are not present in the database will be analysed to find</span>
+<span class="sd">                detectors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Start with the first circuit, as this is a special case.</span>
+        <span class="n">first_template</span> <span class="o">=</span> <span class="n">templates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">first_plaquettes</span> <span class="o">=</span> <span class="n">plaquettes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">first_slice_detectors</span> <span class="o">=</span> <span class="n">compute_detectors_for_fixed_radius</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">first_template</span><span class="p">,),</span>
+            <span class="n">k</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">first_plaquettes</span><span class="p">,),</span>
+            <span class="n">manhattan_radius</span><span class="p">,</span>
+            <span class="n">detector_database</span><span class="p">,</span>
+            <span class="n">only_use_database</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Initialise the measurement records map with the first circuit.</span>
+        <span class="n">mrecords_map</span> <span class="o">=</span> <span class="n">MeasurementRecordsMap</span><span class="o">.</span><span class="n">from_scheduled_circuit</span><span class="p">(</span><span class="n">circuits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># Add the detectors to the first circuit</span>
+        <span class="n">CompiledGraph</span><span class="o">.</span><span class="n">_inplace_add_detectors_to_circuit</span><span class="p">(</span>
+            <span class="n">circuits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mrecords_map</span><span class="p">,</span> <span class="n">first_slice_detectors</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Now, iterate over all the pairs of circuits.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">circuits</span><span class="p">)):</span>
+            <span class="n">current_circuit</span> <span class="o">=</span> <span class="n">circuits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">slice_detectors</span> <span class="o">=</span> <span class="n">compute_detectors_for_fixed_radius</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">templates</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">templates</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+                <span class="n">k</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">plaquettes</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">plaquettes</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+                <span class="n">manhattan_radius</span><span class="p">,</span>
+                <span class="n">detector_database</span><span class="p">,</span>
+                <span class="n">only_use_database</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">mrecords_map</span> <span class="o">=</span> <span class="n">mrecords_map</span><span class="o">.</span><span class="n">with_added_measurements</span><span class="p">(</span>
+                <span class="n">MeasurementRecordsMap</span><span class="o">.</span><span class="n">from_scheduled_circuit</span><span class="p">(</span><span class="n">current_circuit</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">CompiledGraph</span><span class="o">.</span><span class="n">_inplace_add_detectors_to_circuit</span><span class="p">(</span>
+                <span class="n">current_circuit</span><span class="p">,</span>
+                <span class="n">mrecords_map</span><span class="p">,</span>
+                <span class="n">slice_detectors</span><span class="p">,</span>
+                <span class="n">shift_coords_by</span><span class="o">=</span><span class="n">StimCoordinates</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="c1"># We are now over, all the detectors should be added inplace to the end</span>
+        <span class="c1"># of the last circuit containing a measurement involved in the detector.</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_inplace_add_detectors_to_circuit</span><span class="p">(</span>
+        <span class="n">circuit</span><span class="p">:</span> <span class="n">ScheduledCircuit</span><span class="p">,</span>
+        <span class="n">mrecords_map</span><span class="p">:</span> <span class="n">MeasurementRecordsMap</span><span class="p">,</span>
+        <span class="n">detectors</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Detector</span><span class="p">],</span>
+        <span class="n">shift_coords_by</span><span class="p">:</span> <span class="n">StimCoordinates</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add the provided ``detectors`` to the provided ``circuits``,</span>
+<span class="sd">        inserting a ``SHIFT_COORDS`` instruction before ``DETECTOR``</span>
+<span class="sd">        instructions if required.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circuit: circuit to modify in-place.</span>
+<span class="sd">            mrecords_map: a measurement record map containing at least all the</span>
+<span class="sd">                measurements in the provided ``detectors``.</span>
+<span class="sd">            detectors: all the detectors that should be added at the end of the</span>
+<span class="sd">                provided ``circuit``.</span>
+<span class="sd">            shift_coords_by: if not None, used to insert a ``SHIFT_COORDS``</span>
+<span class="sd">                instruction before inserting the ``DETECTOR`` instructions.</span>
+<span class="sd">                Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">shift_coords_by</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append_annotation</span><span class="p">(</span>
+                <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">(</span>
+                    <span class="s2">&quot;SHIFT_COORDS&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="n">shift_coords_by</span><span class="o">.</span><span class="n">to_stim_coordinates</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">detectors</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">coordinates</span><span class="p">):</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append_annotation</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">(</span><span class="n">mrecords_map</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="compile_block_graph">
+<a class="viewcode-back" href="../../../_autosummary/tqec.compile.compile_block_graph.html#tqec.compile.compile_block_graph">[docs]</a>
+<span class="k">def</span> <span class="nf">compile_block_graph</span><span class="p">(</span>
+    <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
+    <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span>
+    <span class="n">substitution_builder</span><span class="p">:</span> <span class="n">SubstitutionBuilder</span> <span class="o">=</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span><span class="p">,</span>
+    <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a block graph.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        block_graph: The block graph to compile.</span>
+<span class="sd">        block_builder: A callable that specifies how to build the</span>
+<span class="sd">            :class:`~.block.CompiledBlock` from the specified</span>
+<span class="sd">            :class:`~.specs.base.CubeSpecs`. Defaults to the block builder for</span>
+<span class="sd">            the CSS type surface code.</span>
+<span class="sd">        substitution_builder: A callable that specifies how to build the</span>
+<span class="sd">            substitution plaquettes from the specified</span>
+<span class="sd">            :class:`~.specs.base.PipeSpec`. Defaults to the substitution builder</span>
+<span class="sd">            for the CSS type surface code.</span>
+<span class="sd">        observables: The abstract observables to be included in the compiled</span>
+<span class="sd">            circuit.</span>
+<span class="sd">            If set to ``&quot;auto&quot;``, the observables will be automatically</span>
+<span class="sd">            determined from the block graph. If a list of abstract observables</span>
+<span class="sd">            is provided, only those observables will be included in the compiled</span>
+<span class="sd">            circuit. If set to ``None``, no observables will be included in the</span>
+<span class="sd">            compiled circuit.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`CompiledGraph` object that can be used to generate a</span>
+<span class="sd">        ``stim.Circuit`` and scale easily.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+            <span class="s2">&quot;Can not compile a block graph with open ports into circuits.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">cube_specs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">)</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">nodes</span>
+    <span class="p">}</span>
+
+    <span class="c1"># 0. Set the minimum z of block graph to 0.(time starts from zero)</span>
+    <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_min_z_to_zero</span><span class="p">()</span>
+
+    <span class="c1"># 1. Get the base compiled blocks before applying the substitution rules.</span>
+    <span class="n">blocks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Position3D</span><span class="p">,</span> <span class="n">CompiledBlock</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">cube</span><span class="p">]</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+
+    <span class="c1"># 2. Apply the substitution rules to the compiled blocks inplace.</span>
+    <span class="n">pipes</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">edges</span>
+    <span class="n">time_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
+    <span class="n">space_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">!=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
+    <span class="c1"># Note that the order of the pipes to apply the substitution rules is important.</span>
+    <span class="c1"># To keep the time-direction substitution rules from removing the extra resets</span>
+    <span class="c1"># added by the space-direction substitution rules, we first apply the time-direction</span>
+    <span class="c1"># substitution rules.</span>
+    <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">time_pipes</span> <span class="o">+</span> <span class="n">space_pipes</span><span class="p">:</span>
+        <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">PipeSpec</span><span class="p">(</span><span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="p">],</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="p">],</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
+        <span class="n">substitution</span> <span class="o">=</span> <span class="n">substitution_builder</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="n">pos1</span><span class="p">]</span><span class="o">.</span><span class="n">update_layers</span><span class="p">(</span><span class="n">substitution</span><span class="o">.</span><span class="n">src</span><span class="p">)</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="n">pos2</span><span class="p">]</span><span class="o">.</span><span class="n">update_layers</span><span class="p">(</span><span class="n">substitution</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+
+    <span class="c1"># 3. Collect by time and create the blocks layout.</span>
+    <span class="n">min_z</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">max_z</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">layout_slices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BlockLayout</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">BlockLayout</span><span class="p">({</span><span class="n">pos</span><span class="o">.</span><span class="n">as_2d</span><span class="p">():</span> <span class="n">block</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="n">z</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_z</span><span class="p">,</span> <span class="n">max_z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># 4. Get the abstract observables to be included in the compiled circuit.</span>
+    <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">obs_included</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">elif</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+        <span class="n">obs_included</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">get_abstract_observables</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">obs_included</span> <span class="o">=</span> <span class="n">observables</span>
+
+    <span class="k">return</span> <span class="n">CompiledGraph</span><span class="p">(</span><span class="n">layout_slices</span><span class="p">,</span> <span class="n">obs_included</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
