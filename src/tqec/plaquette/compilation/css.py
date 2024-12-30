@@ -7,8 +7,9 @@ from tqec.plaquette.compilation.passes.measurement_basis import (
 )
 from tqec.plaquette.compilation.passes.reset_basis import ChangeResetBasisPass
 from tqec.plaquette.compilation.passes.scheduling import ChangeSchedulePass, ScheduleMap
+from tqec.plaquette.compilation.passes.sort_targets import SortTargetsPass
 from tqec.plaquette.compilation.passes.transformer import ScheduleConstant
-from tqec.plaquette.enums import Basis, MeasurementBasis, ResetBasis
+from tqec.plaquette.enums import Basis
 
 CSSPlaquetteCompiler = PlaquetteCompiler(
     "CSS",
@@ -21,5 +22,6 @@ CSSPlaquetteCompiler = PlaquetteCompiler(
         ChangeControlledGateBasisPass(
             Basis.X, ScheduleConstant(1), ScheduleConstant(7)
         ),
+        SortTargetsPass(),
     ],
 )
