@@ -122,6 +122,7 @@ class Moment:
 
     @staticmethod
     def from_instructions(instructions: Iterable[stim.CircuitInstruction]) -> Moment:
+        """Construct a :class:`Moment` instance from the provided ``instructions``."""
         circuit = stim.Circuit()
         for inst in instructions:
             circuit.append(inst)
