@@ -1,8 +1,6 @@
-import pytest
 import stim
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.exceptions import TQECException
 from tqec.plaquette.compilation.passes.measurement_basis import (
     ChangeMeasurementBasisPass,
 )
@@ -27,11 +25,6 @@ def test_simple_measurement_basis() -> None:
     assert compilation_pass.run(_s("TICK\nMX 0")) == _s("H 0\nTICK\nMZ 0")
     assert compilation_pass.run(_s("TICK\nMX 9")) == _s("H 9\nTICK\nMZ 9")
 
-    # with pytest.raises(
-    #     TQECException, match="^Found a MY instruction, that is not supported.$"
-    # ):
-    #     compilation_pass.run(_s("MY 0"))
-
 
 def test_x_measurement_basis() -> None:
     compilation_pass = ChangeMeasurementBasisPass(MeasurementBasis.X)
@@ -40,11 +33,6 @@ def test_x_measurement_basis() -> None:
     assert compilation_pass.run(_s("MX 12")) == _s("MX 12")
     assert compilation_pass.run(_s("MX 0")) == _s("MX 0")
     assert compilation_pass.run(_s("TICK\nMZ 9")) == _s("H 9\nTICK\nMX 9")
-
-    # with pytest.raises(
-    #     TQECException, match="^Found a MY instruction, that is not supported.$"
-    # ):
-    #     compilation_pass.run(_s("MY 0"))
 
 
 def test_edge_cases_measurement_basis() -> None:
