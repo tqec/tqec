@@ -75,10 +75,10 @@ the tqec repository on your own account
 4. Work in your branch and submit a pull request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You should only work on the branch you just created. Implement the fix you envisionned
+You should only work on the branch you just created. Implement the fix you envisioned
 to the issue you were assigned to.
 
-If, for personnal/professional reasons, lack of motivation, lack of time, or whatever
+If, for personal/professional reasons, lack of motivation, lack of time, or whatever
 the reason for which you know that you won't be able to complete your implementation, please
 let us know in the issue so that we can un-assign you and let someone else work on
 the issue.
@@ -86,7 +86,7 @@ the issue.
 Once you think you have something that is ready for review or at least ready to be read
 by other people, you can
 `submit a pull request (PR) <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>`_
-on the ``main`` branch of the QCHacker/tqec repository. In the PR message, try to
+on the ``main`` branch of the tqec repository. In the PR message, try to
 provide as much information as possible to help other people understanding your code.
 
 5. Merge the PR
