@@ -7,14 +7,18 @@ from tqec.plaquette.plaquette import Plaquette
 
 
 class PlaquetteCompiler:
-    def __init__(self, passes: Iterable[CompilationPass]):
+    def __init__(self, name: str, passes: Iterable[CompilationPass]):
         super().__init__()
+        self._name = name
         self._passes = passes
 
     def compile(self, plaquette: Plaquette) -> Plaquette:
         circuit = plaquette.circuit
         for compilation_pass in self._passes:
             circuit = compilation_pass.run(circuit)
-
-        # TODO: issue here, how to be sure we respect the input schedule?
-        return plaquette
+        return Plaquette(
+            f"{plaquette.name}_{self._name}",
+            plaquette.qubits,
+            circuit,
+            plaquette.mergeable_instructions,
+        )
