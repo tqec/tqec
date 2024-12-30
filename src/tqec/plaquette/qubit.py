@@ -88,7 +88,7 @@ class PlaquetteQubits:
 
     @property
     def syndrome_qubits_indices(self) -> Iterator[int]:
-        yield from (i + len(self.data_qubits) for i in range(len(self.data_qubits)))
+        yield from (i + len(self.data_qubits) for i in range(len(self.syndrome_qubits)))
 
     @property
     def data_qubits_with_indices(self) -> Iterator[tuple[int, GridQubit]]:
