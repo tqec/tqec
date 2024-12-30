@@ -355,6 +355,9 @@ class Moment:
             _avoid_checks=True,
         )
 
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Moment) and self._circuit == other._circuit
+
 
 def iter_stim_circuit_without_repeat_by_moments(
     circuit: stim.Circuit, collected_before_use: bool = True

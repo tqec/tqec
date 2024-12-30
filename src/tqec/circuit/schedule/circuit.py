@@ -523,3 +523,11 @@ class ScheduledCircuit:
     def qubit_map(self) -> QubitMap:
         """Qubit map of the circuit."""
         return self._qubit_map
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, ScheduledCircuit)
+            and self._schedule == other._schedule
+            and self._qubit_map == other._qubit_map
+            and self._moments == other._moments
+        )
