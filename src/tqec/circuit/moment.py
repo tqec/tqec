@@ -402,6 +402,5 @@ def iter_stim_circuit_without_repeat_by_moments(
             cur_moment.clear()
         else:
             cur_moment.append(inst)
-    if cur_moment:
-        # No need to copy the last moment
-        yield Moment(cur_moment)
+    # No need to copy the last moment
+    yield Moment(cur_moment)

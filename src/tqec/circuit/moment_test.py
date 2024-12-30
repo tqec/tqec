@@ -208,7 +208,7 @@ def test_iterate_circuit_by_moment() -> None:
     moments = list(
         iter_stim_circuit_without_repeat_by_moments(stim.Circuit("TICK\nTICK\nTICK"))
     )
-    assert len(moments) == 3
+    assert len(moments) == 4
     for moment in moments:
         assert moment.circuit == stim.Circuit()
 
