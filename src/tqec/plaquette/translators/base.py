@@ -10,7 +10,6 @@ class RPNGTranslator(ABC):
     def translate(
         self,
         rpng_description: RPNGDescription,
-        measurement_schedule: int,
         qubits: PlaquetteQubits = SquarePlaquetteQubits(),
     ) -> Plaquette:
         pass

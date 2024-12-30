@@ -47,8 +47,8 @@ QUBIT_COORDS(1, -1) 1
 QUBIT_COORDS(-1, 1) 2
 QUBIT_COORDS(1, 1) 3
 QUBIT_COORDS(0, 0) 4
-RZ 1 2
 RX 4
+RZ 1 2
 TICK
 CZ 4 0
 TICK
@@ -76,8 +76,8 @@ QUBIT_COORDS(1, -1) 1
 QUBIT_COORDS(-1, 1) 2
 QUBIT_COORDS(1, 1) 3
 QUBIT_COORDS(0, 0) 4
-H 3
 RX 4
+H 3
 TICK
 CZ 4 3
 TICK
@@ -88,8 +88,8 @@ TICK
 TICK
 CX 4 0
 TICK
-H 0
-M 1
 MX 2 4
+MZ 1
+H 0
 """)
     assert expected_circuit == plaquette.circuit.get_circuit()
