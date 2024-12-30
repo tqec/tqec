@@ -98,7 +98,6 @@ class ScheduledCircuitTransformer:
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
         for transformation in self._transformations:
-            print(circuit.get_circuit())
             circuit = transformation.apply(circuit)
         return circuit
 
