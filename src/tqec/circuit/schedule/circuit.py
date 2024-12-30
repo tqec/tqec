@@ -84,9 +84,10 @@ class ScheduledCircuit:
                 "moment with a QUBIT_COORDS instruction."
             )
 
-        self._moments: list[Moment] = moments
+        non_empty_moments_indices = [i for i, m in enumerate(moments) if not m.is_empty]
+        self._moments: list[Moment] = [moments[i] for i in non_empty_moments_indices]
         self._qubit_map: QubitMap = qubit_map
-        self._schedule: Schedule = schedule
+        self._schedule = Schedule([schedule[i] for i in non_empty_moments_indices])
 
     @staticmethod
     def empty() -> ScheduledCircuit:
