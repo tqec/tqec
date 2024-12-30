@@ -5,6 +5,9 @@ from tqec.plaquette.compilation.passes.transformer import (
     ScheduleFunction,
     ScheduleOffset,
 )
+from tqec.plaquette.compilation.passes.transformer.simplifiers import (
+    SelfInverseGateSimplification,
+)
 from tqec.plaquette.enums import Basis
 
 
@@ -21,6 +24,7 @@ class ChangeControlledGateBasisPass(ScheduledCircuitTransformationPass):
                     bcsched1: [InstructionCreator("H", lambda trgts: trgts[1::2])],
                     bcsched2: [InstructionCreator("H", lambda trgts: trgts[1::2])],
                 },
+                instruction_simplifier=SelfInverseGateSimplification(),
             )
         ]
         super().__init__(transformations)
