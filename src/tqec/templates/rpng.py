@@ -2,9 +2,14 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from tqec.enums import Orientation
+from tqec.circuit.generation import generate_circuit
+from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
+from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng import RPNGDescription
+from tqec.plaquette.translators.base import RPNGTranslator
+from tqec.plaquette.translators.default import DefaultRPNGTranslator
 from tqec.position import Displacement, Position2D, Shape2D
 from tqec.scale import Scalable2D
 from tqec.templates.indices.base import Template
@@ -109,3 +114,21 @@ class RPNGTemplate:
             with open(write_to_filepath, "w") as f:
                 f.write(svg_str)
         return svg_str
+
+    def get_circuit(
+        self,
+        k: int,
+        translator: RPNGTranslator | None = None,
+        compiler: PlaquetteCompiler | None = None,
+    ) -> ScheduledCircuit:
+        if translator is None:
+            translator = DefaultRPNGTranslator()
+        if compiler is None:
+            compiler = IdentityPlaquetteCompiler
+
+        plaquettes = Plaquettes(
+            self.mapping.map_values(
+                lambda descr: compiler.compile(translator.translate(descr))
+            )
+        )
+        return generate_circuit(self.template, k, plaquettes)
