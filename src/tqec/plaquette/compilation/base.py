@@ -36,3 +36,6 @@ class PlaquetteCompiler:
             circuit,
             plaquette.mergeable_instructions,
         )
+
+
+IdentityPlaquetteCompiler = PlaquetteCompiler("ID", [])
