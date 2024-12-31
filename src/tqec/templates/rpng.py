@@ -1,4 +1,6 @@
+from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 
 from tqec.enums import Orientation
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
@@ -58,3 +60,52 @@ class RPNGTemplate:
             :meth:`~tqec.templates.indices.base.Template.instantiate`.
         """
         return self.template.instantiation_origin(k)
+
+    def view_as_svg(
+        self,
+        k: int,
+        write_to_filepath: str | Path | None = None,
+        canvas_height: int = 500,
+        opacity: float = 1.0,
+        show_rg_fields: bool = True,
+        show_plaquette_indices: bool = True,
+        show_interaction_order: bool = True,
+        show_hook_error: Callable[[RPNGDescription], bool] = lambda _: False,
+    ) -> str:
+        """Visualize the template as an SVG image.
+
+        Args:
+            k: scaling parameter used to instantiate the template.
+            canvas_height: The height of the canvas in pixels.
+            opacity: The opacity of the plaquettes.
+            show_rg_fields: Whether to show the R/G fields on the data qubits. If True, the R
+                field is shown as a small rectangle at the position of the data qubit, whose color
+                corresponds to the basis. The G field is shown as a small circle at the position
+                of the data qubit, whose color corresponds to the basis.
+            show_plaquette_indices: Whether to show the indices of the plaquettes. If True, the
+                indices are shown at the center of the plaquettes.
+            show_interaction_order: Whether to show the interaction order of the plaquettes. If
+                True, the interaction order is shown at each corner of the plaquette.
+            show_hook_error: A predicate function that takes an RPNGDescription and returns True
+                if the plaquette should be highlighted with the hook error. The hook error is
+                shown as a black line along the hook edge.
+
+        Returns:
+            The SVG string of the visualization.
+        """
+        from tqec.templates.viz_rpng import rpng_svg_viewer
+
+        svg_str = rpng_svg_viewer(
+            self.instantiate(k),
+            canvas_height=canvas_height,
+            plaquette_indices=self.template.instantiate(k).tolist(),
+            opacity=opacity,
+            show_rg_fields=show_rg_fields,
+            show_plaquette_indices=show_plaquette_indices,
+            show_interaction_order=show_interaction_order,
+            show_hook_error=show_hook_error,
+        )
+        if write_to_filepath is not None:
+            with open(write_to_filepath, "w") as f:
+                f.write(svg_str)
+        return svg_str

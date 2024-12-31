@@ -186,6 +186,9 @@ docs/_autosummary
 requirements.lock
 requirements-dev.lock
 
+# uv
+uv.lock
+
 # Ruff
 .ruff_cache
 

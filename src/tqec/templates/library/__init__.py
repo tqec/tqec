@@ -15,3 +15,10 @@ from .memory import get_memory_qubit_template as get_memory_qubit_template
 from .memory import (
     get_memory_vertical_boundary_template as get_memory_vertical_boundary_template,
 )
+
+from .spatial import (
+    get_spatial_junction_qubit_template as get_spatial_junction_qubit_template,
+)
+from .spatial import (
+    get_spatial_junction_arm_template as get_spatial_junction_arm_template,
+)

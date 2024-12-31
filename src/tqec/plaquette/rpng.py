@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 from stim import Circuit as stim_Circuit
 
@@ -107,6 +108,14 @@ class RPNG:
             return f"M{op.value.upper()}"
         else:
             return f"{op.value.upper()}"
+
+    @property
+    def is_null(self) -> bool:
+        """Check if the RPNG object is null, i.e. all fields are None"""
+        return str(self) == "----"
+
+    def __str__(self) -> str:
+        return f"{'-' if self.r is None else self.r.value}{'-' if self.p is None else self.p.value}{'-' if self.n is None else self.n}{'-' if self.g is None else self.g.value}"
 
 
 @dataclass(frozen=True)
@@ -223,3 +232,46 @@ class RPNGDescription:
 
     def to_string(self) -> str:
         return " ".join(str(rpng) for rpng in self.corners)
+
+    def view_as_svg(
+        self,
+        write_to_filepath: str | Path | None = None,
+        canvas_height: int = 100,
+        opacity: float = 1.0,
+        show_rg_fields: bool = True,
+        show_interaction_order: bool = True,
+        show_hook_error: bool = False,
+    ) -> str:
+        """Visualize the RPNG description as an SVG image.
+
+        Args:
+            write_to_filepath: the path to write the SVG image to.
+            canvas_height: The height of the canvas in pixels.
+            opacity: The opacity of the plaquettes.
+            show_rg_fields: Whether to show the R/G fields on the data qubits. If True, the R
+                field is shown as a small rectangle at the position of the data qubit, whose color
+                corresponds to the basis. The G field is shown as a small circle at the position
+                of the data qubit, whose color corresponds to the basis.
+            show_interaction_order: Whether to show the interaction order of the plaquettes. If
+                True, the interaction order is shown at each corner of the plaquette.
+            show_hook_error: Whether to highlight the plaquette with the hook error. If True, the
+                hook error is shown as a black line along the hook edge.
+
+
+        Returns:
+            The SVG string representing the visualization.
+        """
+        from tqec.templates.viz_rpng import rpng_svg_viewer
+
+        svg_str = rpng_svg_viewer(
+            self,
+            canvas_height=canvas_height,
+            opacity=opacity,
+            show_rg_fields=show_rg_fields,
+            show_interaction_order=show_interaction_order,
+            show_hook_error=lambda _: show_hook_error,
+        )
+        if write_to_filepath is not None:
+            with open(write_to_filepath, "w") as f:
+                f.write(svg_str)
+        return svg_str
