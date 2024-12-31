@@ -59,16 +59,31 @@ def test_relabel_circuits_qubit_indices() -> None:
                 ScheduledCircuit.from_circuit(stim.Circuit("H 0")),
             ]
         )
-    circuits, q2i = relabel_circuits_qubit_indices(
+    circuits, qubit_map = relabel_circuits_qubit_indices(
         [
             ScheduledCircuit.from_circuit(stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")),
             ScheduledCircuit.from_circuit(stim.Circuit("QUBIT_COORDS(1, 1) 0\nX 0")),
         ]
     )
-    assert q2i == QubitMap({0: GridQubit(0, 0), 1: GridQubit(1, 1)})
+    assert qubit_map == QubitMap({0: GridQubit(0, 0), 1: GridQubit(1, 1)})
     assert len(circuits) == 2
     assert circuits[0].get_circuit() == stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")
     assert circuits[1].get_circuit() == stim.Circuit("QUBIT_COORDS(1, 1) 1\nX 1")
+
+
+def test_relabel_circuits_qubit_indices_with_qubit_map() -> None:
+    # With an explicit qubit map, that should be fine.
+    qubit_map = QubitMap({20: GridQubit(0, 0), 15: GridQubit(1, 1)})
+    circuits, qmap = relabel_circuits_qubit_indices(
+        [
+            ScheduledCircuit.from_circuit(stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")),
+            ScheduledCircuit.from_circuit(stim.Circuit("QUBIT_COORDS(1, 1) 0\nX 0")),
+        ],
+        qubit_map=qubit_map,
+    )
+    assert qmap == qubit_map
+    assert circuits[0].get_circuit() == stim.Circuit("QUBIT_COORDS(0, 0) 20\nH 20")
+    assert circuits[1].get_circuit() == stim.Circuit("QUBIT_COORDS(1, 1) 15\nX 15")
 
 
 def test_merge_scheduled_circuits() -> None:

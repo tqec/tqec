@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import itertools
 import warnings
-from typing import Iterable, Sequence, cast
+from typing import Iterable, Sequence
 
 import stim
 
@@ -280,7 +280,7 @@ def merge_scheduled_circuits(
 
 
 def relabel_circuits_qubit_indices(
-    circuits: Sequence[ScheduledCircuit],
+    circuits: Sequence[ScheduledCircuit], qubit_map: QubitMap | None = None
 ) -> tuple[list[ScheduledCircuit], QubitMap]:
     """Relabel the qubit indices of the provided circuits to avoid collision.
 
@@ -308,19 +308,22 @@ def relabel_circuits_qubit_indices(
 
     Returns:
         the same circuits with updated qubit indices as well as the global qubit
-        indices map that has been used. Qubits in the returned global qubit map
+        indices map that has been used.
+
+        If ``qubit_map is None``, qubits in the returned global qubit map
         are assigned to an index such that:
 
         1. the sequence of indices is ``range(0, len(qubit_map))``.
         2. qubits are assigned indices in sorted order.
     """
-    # First, get a global qubit index map.
-    # Using itertools to avoid the edge case `len(circuits) == 0`
-    needed_qubits = frozenset(
-        itertools.chain.from_iterable([c.qubits for c in circuits])
-    )
-    global_qubit_map = QubitMap.from_qubits(sorted(needed_qubits))
-    global_q2i = global_qubit_map.q2i
+    # First, get a global qubit index map if needed:
+    if qubit_map is None:
+        # Using itertools to avoid the edge case `len(circuits) == 0`
+        needed_qubits = frozenset(
+            itertools.chain.from_iterable([c.qubits for c in circuits])
+        )
+        qubit_map = QubitMap.from_qubits(sorted(needed_qubits))
+    q2i = qubit_map.q2i
     # Then, get the remapped circuits. Note that map_qubit_indices should
     # have approximately the same runtime cost whatever the value of inplace
     # so we ask for a new instance to avoid keeping a reference to the given
@@ -328,9 +331,9 @@ def relabel_circuits_qubit_indices(
     relabeled_circuits: list[ScheduledCircuit] = []
     for circuit in circuits:
         local_indices_to_global_indices = {
-            local_index: global_q2i[q] for local_index, q in circuit.qubit_map.items()
+            local_index: q2i[q] for local_index, q in circuit.qubit_map.items()
         }
         relabeled_circuits.append(
             circuit.map_qubit_indices(local_indices_to_global_indices, inplace=False)
         )
-    return relabeled_circuits, global_qubit_map
+    return relabeled_circuits, qubit_map
