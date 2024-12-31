@@ -185,4 +185,14 @@ class RectangularTemplate(Template):
 
     @abstractmethod
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
+        """Returns the indices on the provided ``border``.
+
+        Args:
+            border: side of the template instance for which the indices are
+                needed.
+
+        Returns:
+            a description of the indices present on the provided ``border`` of
+            the represented template.
+        """
         pass
