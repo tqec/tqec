@@ -1,0 +1,38 @@
+ZXKind
+======
+
+.. currentmodule:: tqec.computation
+
+.. autoclass:: ZXKind
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ZXKind.with_zx_flipped
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ZXKind.X
+      ~ZXKind.Y
+      ~ZXKind.Z
+      ~ZXKind.P
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: with_zx_flipped
+   
+   
