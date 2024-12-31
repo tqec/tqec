@@ -17,7 +17,16 @@ class PlaquetteCompiler:
 
     def compile(self, plaquette: Plaquette) -> Plaquette:
         """Apply in order all the stored compilation passes and returns the
-        resulting plaquette."""
+        resulting plaquette.
+
+        Args:
+            plaquette: plaquette to compile.
+
+        Returns:
+            a :class:`~tqec.plaquette.plaquette.Plaquette` instance that has been
+            compiled with the compilation passes stored in ``self`` and with a
+            modified name.
+        """
         circuit = plaquette.circuit
         for compilation_pass in self._passes:
             circuit = compilation_pass.run(circuit)

@@ -23,11 +23,6 @@ def test_simple_reset_basis() -> None:
     assert compilation_pass.run(_s("RX 0\nTICK")) == _s("RZ 0\nTICK\nH 0")
     assert compilation_pass.run(_s("RX 9\nTICK")) == _s("RZ 9\nTICK\nH 9")
 
-    # with pytest.raises(
-    #     TQECException, match="^Found a RY instruction, that is not supported.$"
-    # ):
-    #     compilation_pass.run(_s("RY 0"))
-
 
 def test_x_reset_basis() -> None:
     compilation_pass = ChangeResetBasisPass(Basis.X)
@@ -36,11 +31,6 @@ def test_x_reset_basis() -> None:
     assert compilation_pass.run(_s("RX 12")) == _s("RX 12")
     assert compilation_pass.run(_s("RX 0")) == _s("RX 0")
     assert compilation_pass.run(_s("RZ 9")) == _s("RX 9\nTICK\nH 9")
-
-    # with pytest.raises(
-    #     TQECException, match="^Found a RY instruction, that is not supported.$"
-    # ):
-    #     compilation_pass.run(_s("RY 0"))
 
 
 def test_edge_cases_reset_basis() -> None:

@@ -16,6 +16,8 @@ from tqec.plaquette.compilation.passes.transformer.simplifiers import (
 
 @dataclass
 class InstructionCreator:
+    """Create an instruction from targets and arguments."""
+
     name: str
     targets: Callable[[list[stim.GateTarget]], list[stim.GateTarget]] = (
         lambda trgts: trgts
@@ -32,27 +34,51 @@ class InstructionCreator:
 
 @dataclass
 class ScheduledCircuitTransformation:
+    """Describes an instruction transformation.
+
+    This class describes how a given instruction should be transformed into
+    potentially several instructions.
+
+    Attributes:
+        source_name: name of the instruction that is transformed by ``self``.
+        transformation: a mapping from a schedule description to a list of
+            instruction creators. The instructions created by the instruction
+            creators will be inserted at the schedule computed by the schedule
+            description.
+        instruction_simplifier: a simplifier applied before trying to create a
+            :class:`~tqec.circuit.moment.Moment` instance with the instructions
+            resulting from the application of ``self``.
+    """
+
     source_name: str
     transformation: dict[ScheduleFunction, list[InstructionCreator]]
     instruction_simplifier: InstructionSimplifier = NoInstructionSimplification()
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        # moment_instructions: schedule_index -> instruction list.
         moment_instructions: dict[int, list[stim.CircuitInstruction]] = {}
         for schedule, moment in circuit.scheduled_moments:
             for instruction in moment.instructions:
+                # if the transformation represented by self does not apply to
+                # the current instruction, just add it unmodified.
                 if instruction.name != self.source_name:
                     moment_instructions.setdefault(schedule, []).append(instruction)
                     continue
+                # else, for each instruction creator in self.transformation, add
+                # the created instruction to the target moment.
                 targets = instruction.targets_copy()
                 args = instruction.gate_args_copy()
                 for schedule_function, instr_creators in self.transformation.items():
                     sched: int = schedule_function(schedule)
-                    moment = moment_instructions.setdefault(sched, [])
-                    for creator in instr_creators:
-                        moment.append(creator(targets, args))
+                    moment_instructions.setdefault(sched, []).extend(
+                        creator(targets, args) for creator in instr_creators
+                    )
+        # Make sure that the schedules are given to ScheduledCircuit as a
+        # sorted list.
         schedules = sorted(moment_instructions.keys())
         all_moments = [
             Moment.from_instructions(
+                # Try to simplify operations before creating the moment.
                 self.instruction_simplifier.simplify(moment_instructions[s])
             )
             for s in schedules
@@ -61,6 +87,20 @@ class ScheduledCircuitTransformation:
 
 
 class ScheduledCircuitTransformer:
+    """Describes a list of :class:`ScheduledCircuitTransformation` instances.
+
+    Note:
+        This class has been introduced for convenience and for future
+        optimisation. Right now, a new scheduled circuit is created for each
+        :class:`ScheduledCircuitTransformation` instance in ``self``. This is
+        unoptimal as we might be able to apply all the transformations by
+        iterating the original quantum circuit once.
+
+        Due to the very limited size of the circuits given to the compilation
+        pipeline, this performance issue does not seem to have a measurable
+        impact at the moment.
+    """
+
     def __init__(
         self, transformations: Sequence[ScheduledCircuitTransformation]
     ) -> None:
@@ -73,6 +113,8 @@ class ScheduledCircuitTransformer:
 
 
 class ScheduledCircuitTransformationPass(CompilationPass):
+    """Apply the provided transformations as a compilation pass."""
+
     def __init__(
         self,
         transformations: Sequence[ScheduledCircuitTransformation],

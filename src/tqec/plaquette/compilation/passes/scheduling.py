@@ -9,9 +9,34 @@ from tqec.plaquette.compilation.passes.base import CompilationPass
 
 @dataclass
 class ScheduleMap:
+    """Represents a map from schedules to schedules."""
+
     map: dict[int, int]
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        """Apply the schedule map.
+
+        This method will create a new
+        :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instance, only
+        including the moments from the provided ``circuit`` if they are present
+        as keys in ``self.map``, and mapping them to the schedule at the
+        corresponding value.
+
+        Args:
+            circuit: circuit whose schedules should be modified.
+
+        Returns:
+            a new circuit with moments scheduled according to the values in
+            ``self.map``.
+
+        Raises:
+            TQECException: if a moment in the provided ``circuit`` is scheduled
+                at a time that is not present in ``self.map``.
+            TQECException: if re-organising the schedules lead to an invalid
+                circuit (i.e., at least one moment with overlapping operations).
+                That can only happen if ``self.map.values()`` contains duplicate
+                integers.
+        """
         ret = ScheduledCircuit([], [], circuit.qubit_map)
         for moment_index, moment in circuit.scheduled_moments:
             if moment_index not in self.map:
@@ -25,6 +50,8 @@ class ScheduleMap:
 
 
 class ChangeSchedulePass(CompilationPass):
+    """Compilation pass changing the schedule of the provided quantum circuit."""
+
     def __init__(self, schedule_map: ScheduleMap):
         super().__init__()
         self._map = schedule_map
