@@ -2,7 +2,6 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from tqec.circuit.generation import generate_circuit
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
@@ -121,6 +120,8 @@ class RPNGTemplate:
         translator: RPNGTranslator | None = None,
         compiler: PlaquetteCompiler | None = None,
     ) -> ScheduledCircuit:
+        from tqec.circuit.generation import generate_circuit
+
         if translator is None:
             translator = DefaultRPNGTranslator()
         if compiler is None:
