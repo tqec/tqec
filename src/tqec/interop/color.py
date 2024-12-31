@@ -42,6 +42,14 @@ class RGBA:
         """
         return (self.r / 255, self.g / 255, self.b / 255, self.a)
 
+    def to_hex(self) -> str:
+        """Returns the color as a hexadecimal string.
+
+        Returns:
+            The color as a hexadecimal string.
+        """
+        return f"#{self.r:02x}{self.g:02x}{self.b:02x}"
+
 
 class TQECColor(Enum):
     """Predefined and commonly used colors in TQEC."""

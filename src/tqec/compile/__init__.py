@@ -9,6 +9,7 @@ on available hardware.
 """
 
 from .block import CompiledBlock as CompiledBlock
+from .compile import CompiledGraph as CompiledGraph
 from .compile import compile_block_graph as compile_block_graph
 from .specs import BlockBuilder as BlockBuilder
 from .specs import CubeSpec as CubeSpec

@@ -65,20 +65,20 @@ One of the lead developers will come back to you and assign you the issue if
 3. Create a specific branch for each issue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are part of the QCHacker community, you will be able to
+If you are a part of the tqec community, you will be able to
 `create a branch <https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging>`_
-directly in the QCHacker/tqec repository. If you are not, you can
+directly in the tqec repository. If you are not, you can
 `fork <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`_
-the QCHacker/tqec repository on your own account
+the tqec repository on your own account
 (`click here <https://github.com/tqec/tqec/fork>`_) and create a branch there.
 
 4. Work in your branch and submit a pull request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You should only work on the branch you just created. Implement the fix you envisionned
+You should only work on the branch you just created. Implement the fix you envisioned
 to the issue you were assigned to.
 
-If, for personnal/professional reasons, lack of motivation, lack of time, or whatever
+If, for personal/professional reasons, lack of motivation, lack of time, or whatever
 the reason for which you know that you won't be able to complete your implementation, please
 let us know in the issue so that we can un-assign you and let someone else work on
 the issue.
@@ -86,7 +86,7 @@ the issue.
 Once you think you have something that is ready for review or at least ready to be read
 by other people, you can
 `submit a pull request (PR) <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>`_
-on the ``main`` branch of the QCHacker/tqec repository. In the PR message, try to
+on the ``main`` branch of the tqec repository. In the PR message, try to
 provide as much information as possible to help other people understanding your code.
 
 5. Merge the PR
