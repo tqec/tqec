@@ -1,8 +1,9 @@
 import numpy
 import pytest
 
-from tqec.exceptions import TQECWarning
+from tqec.exceptions import TQECException, TQECWarning
 from tqec.scale import LinearFunction, Scalable2D
+from tqec.templates.indices.enums import TemplateBorder
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
     QubitSpatialJunctionTemplate,
@@ -70,6 +71,24 @@ def test_qubit_template_instantiation() -> None:
     )
 
 
+def test_qubit_template_borders_indices() -> None:
+    template = QubitTemplate()
+    instantiation = template.instantiate(2)
+
+    assert list(template.get_border_indices(TemplateBorder.TOP)) == [
+        instantiation[0][i] for i in [0, 1, 2, -1]
+    ]
+    assert list(template.get_border_indices(TemplateBorder.BOTTOM)) == [
+        instantiation[-1][i] for i in [0, 1, 2, -1]
+    ]
+    assert list(template.get_border_indices(TemplateBorder.LEFT)) == [
+        instantiation[i][0] for i in [0, 1, 2, -1]
+    ]
+    assert list(template.get_border_indices(TemplateBorder.RIGHT)) == [
+        instantiation[i][-1] for i in [0, 1, 2, -1]
+    ]
+
+
 def test_qubit_horizontal_borders_template_instantiation() -> None:
     template = QubitHorizontalBorders()
     numpy.testing.assert_array_equal(
@@ -86,6 +105,26 @@ def test_qubit_horizontal_borders_template_instantiation() -> None:
             [3, 7, 8, 7, 8, 7, 8, 7, 8, 4],
         ],
     )
+
+
+def test_horizontal_borders_template_borders_indices() -> None:
+    template = QubitHorizontalBorders()
+    instantiation = template.instantiate(2)
+
+    expected_error_message = (
+        "Template QubitHorizontalBorders does not have repeating elements "
+        "on the {} border."
+    )
+    with pytest.raises(TQECException, match=expected_error_message.format("LEFT")):
+        template.get_border_indices(TemplateBorder.LEFT)
+    with pytest.raises(TQECException, match=expected_error_message.format("RIGHT")):
+        template.get_border_indices(TemplateBorder.RIGHT)
+    assert list(template.get_border_indices(TemplateBorder.TOP)) == [
+        instantiation[0][i] for i in [0, 1, 2, -1]
+    ]
+    assert list(template.get_border_indices(TemplateBorder.BOTTOM)) == [
+        instantiation[1][i] for i in [0, 1, 2, -1]
+    ]
 
 
 def test_qubit_vertical_borders_template_instantiation() -> None:
@@ -118,6 +157,26 @@ def test_qubit_vertical_borders_template_instantiation() -> None:
     )
 
 
+def test_vertical_borders_template_borders_indices() -> None:
+    template = QubitVerticalBorders()
+    instantiation = template.instantiate(2)
+
+    expected_error_message = (
+        "Template QubitVerticalBorders does not have repeating elements "
+        "on the {} border."
+    )
+    with pytest.raises(TQECException, match=expected_error_message.format("TOP")):
+        template.get_border_indices(TemplateBorder.TOP)
+    with pytest.raises(TQECException, match=expected_error_message.format("BOTTOM")):
+        template.get_border_indices(TemplateBorder.BOTTOM)
+    assert list(template.get_border_indices(TemplateBorder.LEFT)) == [
+        instantiation[i][0] for i in [0, 1, 2, -1]
+    ]
+    assert list(template.get_border_indices(TemplateBorder.RIGHT)) == [
+        instantiation[i][1] for i in [0, 1, 2, -1]
+    ]
+
+
 def test_qubit_spatial_junction_template_instantiation() -> None:
     template = QubitSpatialJunctionTemplate()
 
@@ -143,3 +202,21 @@ def test_qubit_spatial_junction_template_instantiation() -> None:
             [3, 20, 21, 20, 21, 4],
         ],
     )
+
+
+def test_qubit_spatial_junction_template_borders_indices() -> None:
+    template = QubitSpatialJunctionTemplate()
+    instantiation = template.instantiate(2)
+
+    assert list(template.get_border_indices(TemplateBorder.TOP)) == [
+        instantiation[0][i] for i in [0, 1, 2, -1]
+    ]
+    assert list(template.get_border_indices(TemplateBorder.BOTTOM)) == [
+        instantiation[-1][i] for i in [0, 1, 2, -1]
+    ]
+    assert list(template.get_border_indices(TemplateBorder.LEFT)) == [
+        instantiation[i][0] for i in [0, 1, 2, -1]
+    ]
+    assert list(template.get_border_indices(TemplateBorder.RIGHT)) == [
+        instantiation[i][-1] for i in [0, 1, 2, -1]
+    ]

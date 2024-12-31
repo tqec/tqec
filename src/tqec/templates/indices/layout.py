@@ -74,10 +74,10 @@ from typing_extensions import override
 from tqec.exceptions import TQECException
 from tqec.position import Displacement, Position2D, Shape2D
 from tqec.scale import Scalable2D
-from tqec.templates.indices.base import RectangularTemplate
+from tqec.templates.indices.base import RectangularTemplate, Template
 
 
-class LayoutTemplate(RectangularTemplate):
+class LayoutTemplate(Template):
     def __init__(
         self,
         element_layout: dict[Position2D, RectangularTemplate],

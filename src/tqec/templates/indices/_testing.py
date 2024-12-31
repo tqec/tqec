@@ -4,9 +4,11 @@ import numpy
 import numpy.typing as npt
 from typing_extensions import override
 
+from tqec.exceptions import TQECException
 from tqec.position import Displacement
 from tqec.scale import LinearFunction, Scalable2D
-from tqec.templates.indices.base import RectangularTemplate
+from tqec.templates.indices.base import BorderIndices, RectangularTemplate
+from tqec.templates.indices.enums import TemplateBorder
 
 
 class FixedTemplate(RectangularTemplate):
@@ -41,3 +43,7 @@ class FixedTemplate(RectangularTemplate):
     @override
     def expected_plaquettes_number(self) -> int:
         return max((max(line, default=0) for line in self._indices), default=0) + 1
+
+    @override
+    def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
+        raise NotImplementedError()

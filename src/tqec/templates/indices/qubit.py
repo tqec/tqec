@@ -9,7 +9,8 @@ from typing_extensions import override
 
 from tqec.exceptions import TQECException, TQECWarning
 from tqec.scale import LinearFunction, Scalable2D
-from tqec.templates.indices.base import RectangularTemplate
+from tqec.templates.indices.base import BorderIndices, RectangularTemplate
+from tqec.templates.indices.enums import TemplateBorder
 
 
 class QubitTemplate(RectangularTemplate):
@@ -68,6 +69,18 @@ class QubitTemplate(RectangularTemplate):
     @override
     def expected_plaquettes_number(self) -> int:
         return 14
+
+    @override
+    def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
+        match border:
+            case TemplateBorder.TOP:
+                return BorderIndices(1, 5, 6, 2)
+            case TemplateBorder.BOTTOM:
+                return BorderIndices(3, 13, 14, 4)
+            case TemplateBorder.LEFT:
+                return BorderIndices(1, 7, 8, 3)
+            case TemplateBorder.RIGHT:
+                return BorderIndices(2, 11, 12, 4)
 
 
 class QubitSpatialJunctionTemplate(RectangularTemplate):
@@ -172,6 +185,18 @@ class QubitSpatialJunctionTemplate(RectangularTemplate):
     def expected_plaquettes_number(self) -> int:
         return 21
 
+    @override
+    def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
+        match border:
+            case TemplateBorder.TOP:
+                return BorderIndices(1, 9, 10, 2)
+            case TemplateBorder.BOTTOM:
+                return BorderIndices(3, 20, 21, 4)
+            case TemplateBorder.LEFT:
+                return BorderIndices(1, 11, 12, 3)
+            case TemplateBorder.RIGHT:
+                return BorderIndices(2, 18, 19, 4)
+
 
 class QubitVerticalBorders(RectangularTemplate):
     """Two vertical sides of neighbouring error-corrected qubits glued
@@ -217,6 +242,19 @@ class QubitVerticalBorders(RectangularTemplate):
     def expected_plaquettes_number(self) -> int:
         return 8
 
+    @override
+    def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
+        match border:
+            case TemplateBorder.TOP | TemplateBorder.BOTTOM:
+                raise TQECException(
+                    f"Template {self.__class__.__name__} does not have repeating "
+                    f"elements on the {border.name} border."
+                )
+            case TemplateBorder.LEFT:
+                return BorderIndices(1, 5, 6, 3)
+            case TemplateBorder.RIGHT:
+                return BorderIndices(2, 7, 8, 4)
+
 
 class QubitHorizontalBorders(RectangularTemplate):
     """Two horizontal sides of neighbouring error-corrected qubits glued
@@ -256,3 +294,16 @@ class QubitHorizontalBorders(RectangularTemplate):
     @override
     def expected_plaquettes_number(self) -> int:
         return 8
+
+    @override
+    def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
+        match border:
+            case TemplateBorder.TOP:
+                return BorderIndices(1, 5, 6, 2)
+            case TemplateBorder.BOTTOM:
+                return BorderIndices(3, 7, 8, 4)
+            case TemplateBorder.LEFT | TemplateBorder.RIGHT:
+                raise TQECException(
+                    f"Template {self.__class__.__name__} does not have repeating "
+                    f"elements on the {border.name} border."
+                )
