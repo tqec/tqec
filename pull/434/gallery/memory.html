@@ -1,0 +1,1134 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Memory &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'gallery/memory';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Logical CNOT" href="cnot.html" />
+    <link rel="prev" title="Computation Gallery" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Memory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cnot.html">Logical CNOT</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Computation Gallery</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Memory</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <style>
+    .wy-nav-content {
+        max-width: 1200px !important;
+    }
+</style><section id="Memory">
+<h1>Memory<a class="headerlink" href="#Memory" title="Link to this heading">#</a></h1>
+<p>This notebook demonstrates the simplest(trivial) form of computation: logical memory. More specifically, a logical qubit with distance <span class="math notranslate nohighlight">\(d\)</span> remains idle for <span class="math notranslate nohighlight">\(d\)</span> error correction cycles.</p>
+<section id="Construction">
+<h2>Construction<a class="headerlink" href="#Construction" title="Link to this heading">#</a></h2>
+<p>A memory experiment can be represented with a single cube. The color of the cube determines the spatial/temporal boundary types.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tqec</span></code> provides builtin functions <code class="docutils literal notranslate"><span class="pre">tqec.gallery.solo_node_block_graph</span></code> to construct it.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.gallery</span> <span class="kn">import</span> <span class="n">solo_node_block_graph</span>
+
+<span class="n">graph</span> <span class="o">=</span> <span class="n">solo_node_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<iframe style="width: 100%; height: 300px; overflow: hidden; resize: both; border: 1px dashed gray;" frameBorder="0" srcdoc="
+&lt;!doctype html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;script type=&quot;importmap&quot;&gt;
+      {
+        &quot;imports&quot;: {
+          &quot;three&quot;: &quot;https://unpkg.com/three@0.138.0/build/three.module.js&quot;,
+          &quot;three-orbitcontrols&quot;: &quot;https://unpkg.com/three@0.138.0/examples/jsm/controls/OrbitControls.js&quot;,
+          &quot;three-collada-loader&quot;: &quot;https://unpkg.com/three@0.138.0/examples/jsm/loaders/ColladaLoader.js&quot;
+        }
+      }
+    &lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+  &lt;a download=&quot;model.dae&quot; id=&quot;model-download-link&quot; href=&quot;data:text/plain;base64,PENPTExBREEgeG1sbnM9Imh0dHA6Ly93d3cuY29sbGFkYS5vcmcvMjAwNS8xMS9DT0xMQURBU2NoZW1hIiB2ZXJzaW9uPSIxLjQuMSI+CiAgPGFzc2V0PgogICAgPGNvbnRyaWJ1dG9yPgogICAgICA8YXV0aG9yPlRRRUMgQ29tbXVuaXR5PC9hdXRob3I+CiAgICAgIDxhdXRob3JpbmdfdG9vbD5odHRwczovL2dpdGh1Yi5jb20vUUNIYWNrZXJzL3RxZWM8L2F1dGhvcmluZ190b29sPgogICAgPC9jb250cmlidXRvcj4KICAgIDxjcmVhdGVkPjIwMjQtMTEtMDZUMTQ6NTU6NDYuMTg0MjgwPC9jcmVhdGVkPgogICAgPG1vZGlmaWVkPjIwMjQtMTEtMDZUMTQ6NTU6NDYuMTg0Mjg0PC9tb2RpZmllZD4KICAgIDx1bml0IG5hbWU9ImluY2giIG1ldGVyPSIwLjAyNTM5OTk5OTY5MzAzNjA4IiAvPgogICAgPHVwX2F4aXM+Wl9VUDwvdXBfYXhpcz4KICA8L2Fzc2V0PgogIDxsaWJyYXJ5X2VmZmVjdHM+CiAgICA8ZWZmZWN0IGlkPSJYX2VmZmVjdCIgbmFtZT0iWF9lZmZlY3QiPgogICAgICA8cHJvZmlsZV9DT01NT04+CiAgICAgICAgPHRlY2huaXF1ZSBzaWQ9ImNvbW1vbiI+CiAgICAgICAgICA8bGFtYmVydD4KICAgICAgICAgICAgPGRpZmZ1c2U+CiAgICAgICAgICAgICAgPGNvbG9yPjEuMCAwLjQ5ODAzOTIxNTY4NjI3NDUgMC40OTgwMzkyMTU2ODYyNzQ1IDEuMDwvY29sb3I+CiAgICAgICAgICAgIDwvZGlmZnVzZT4KICAgICAgICAgICAgPHNoaW5pbmVzcz4KICAgICAgICAgICAgICA8ZmxvYXQ+MC4wPC9mbG9hdD4KICAgICAgICAgICAgPC9zaGluaW5lc3M+CiAgICAgICAgICAgIDxyZWZsZWN0aXZpdHk+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvcmVmbGVjdGl2aXR5PgogICAgICAgICAgICA8dHJhbnNwYXJlbnQ+CiAgICAgICAgICAgICAgPGNvbG9yPjEuMCAwLjQ5ODAzOTIxNTY4NjI3NDUgMC40OTgwMzkyMTU2ODYyNzQ1IDEuMDwvY29sb3I+CiAgICAgICAgICAgIDwvdHJhbnNwYXJlbnQ+CiAgICAgICAgICAgIDx0cmFuc3BhcmVuY3k+CiAgICAgICAgICAgICAgPGZsb2F0PjEuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvdHJhbnNwYXJlbmN5PgogICAgICAgICAgPC9sYW1iZXJ0PgogICAgICAgIDwvdGVjaG5pcXVlPgogICAgICAgIDxleHRyYT4KICAgICAgICAgIDx0ZWNobmlxdWUgcHJvZmlsZT0iR09PR0xFRUFSVEgiPgogICAgICAgICAgICA8ZG91YmxlX3NpZGVkPjE8L2RvdWJsZV9zaWRlZD4KICAgICAgICAgIDwvdGVjaG5pcXVlPgogICAgICAgIDwvZXh0cmE+CiAgICAgIDwvcHJvZmlsZV9DT01NT04+CiAgICA8L2VmZmVjdD4KICAgIDxlZmZlY3QgaWQ9IllfZWZmZWN0IiBuYW1lPSJZX2VmZmVjdCI+CiAgICAgIDxwcm9maWxlX0NPTU1PTj4KICAgICAgICA8dGVjaG5pcXVlIHNpZD0iY29tbW9uIj4KICAgICAgICAgIDxsYW1iZXJ0PgogICAgICAgICAgICA8ZGlmZnVzZT4KICAgICAgICAgICAgICA8Y29sb3I+MC4zODgyMzUyOTQxMTc2NDcwNyAwLjc3NjQ3MDU4ODIzNTI5NDEgMC40NjI3NDUwOTgwMzkyMTU3IDEuMDwvY29sb3I+CiAgICAgICAgICAgIDwvZGlmZnVzZT4KICAgICAgICAgICAgPHNoaW5pbmVzcz4KICAgICAgICAgICAgICA8ZmxvYXQ+MC4wPC9mbG9hdD4KICAgICAgICAgICAgPC9zaGluaW5lc3M+CiAgICAgICAgICAgIDxyZWZsZWN0aXZpdHk+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvcmVmbGVjdGl2aXR5PgogICAgICAgICAgICA8dHJhbnNwYXJlbnQ+CiAgICAgICAgICAgICAgPGNvbG9yPjAuMzg4MjM1Mjk0MTE3NjQ3MDcgMC43NzY0NzA1ODgyMzUyOTQxIDAuNDYyNzQ1MDk4MDM5MjE1NyAxLjA8L2NvbG9yPgogICAgICAgICAgICA8L3RyYW5zcGFyZW50PgogICAgICAgICAgICA8dHJhbnNwYXJlbmN5PgogICAgICAgICAgICAgIDxmbG9hdD4xLjA8L2Zsb2F0PgogICAgICAgICAgICA8L3RyYW5zcGFyZW5jeT4KICAgICAgICAgIDwvbGFtYmVydD4KICAgICAgICA8L3RlY2huaXF1ZT4KICAgICAgICA8ZXh0cmE+CiAgICAgICAgICA8dGVjaG5pcXVlIHByb2ZpbGU9IkdPT0dMRUVBUlRIIj4KICAgICAgICAgICAgPGRvdWJsZV9zaWRlZD4xPC9kb3VibGVfc2lkZWQ+CiAgICAgICAgICA8L3RlY2huaXF1ZT4KICAgICAgICA8L2V4dHJhPgogICAgICA8L3Byb2ZpbGVfQ09NTU9OPgogICAgPC9lZmZlY3Q+CiAgICA8ZWZmZWN0IGlkPSJaX2VmZmVjdCIgbmFtZT0iWl9lZmZlY3QiPgogICAgICA8cHJvZmlsZV9DT01NT04+CiAgICAgICAgPHRlY2huaXF1ZSBzaWQ9ImNvbW1vbiI+CiAgICAgICAgICA8bGFtYmVydD4KICAgICAgICAgICAgPGRpZmZ1c2U+CiAgICAgICAgICAgICAgPGNvbG9yPjAuNDUwOTgwMzkyMTU2ODYyNzUgMC41ODgyMzUyOTQxMTc2NDcxIDEuMCAxLjA8L2NvbG9yPgogICAgICAgICAgICA8L2RpZmZ1c2U+CiAgICAgICAgICAgIDxzaGluaW5lc3M+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvc2hpbmluZXNzPgogICAgICAgICAgICA8cmVmbGVjdGl2aXR5PgogICAgICAgICAgICAgIDxmbG9hdD4wLjA8L2Zsb2F0PgogICAgICAgICAgICA8L3JlZmxlY3Rpdml0eT4KICAgICAgICAgICAgPHRyYW5zcGFyZW50PgogICAgICAgICAgICAgIDxjb2xvcj4wLjQ1MDk4MDM5MjE1Njg2Mjc1IDAuNTg4MjM1Mjk0MTE3NjQ3MSAxLjAgMS4wPC9jb2xvcj4KICAgICAgICAgICAgPC90cmFuc3BhcmVudD4KICAgICAgICAgICAgPHRyYW5zcGFyZW5jeT4KICAgICAgICAgICAgICA8ZmxvYXQ+MS4wPC9mbG9hdD4KICAgICAgICAgICAgPC90cmFuc3BhcmVuY3k+CiAgICAgICAgICA8L2xhbWJlcnQ+CiAgICAgICAgPC90ZWNobmlxdWU+CiAgICAgICAgPGV4dHJhPgogICAgICAgICAgPHRlY2huaXF1ZSBwcm9maWxlPSJHT09HTEVFQVJUSCI+CiAgICAgICAgICAgIDxkb3VibGVfc2lkZWQ+MTwvZG91YmxlX3NpZGVkPgogICAgICAgICAgPC90ZWNobmlxdWU+CiAgICAgICAgPC9leHRyYT4KICAgICAgPC9wcm9maWxlX0NPTU1PTj4KICAgIDwvZWZmZWN0PgogICAgPGVmZmVjdCBpZD0iSF9lZmZlY3QiIG5hbWU9IkhfZWZmZWN0Ij4KICAgICAgPHByb2ZpbGVfQ09NTU9OPgogICAgICAgIDx0ZWNobmlxdWUgc2lkPSJjb21tb24iPgogICAgICAgICAgPGxhbWJlcnQ+CiAgICAgICAgICAgIDxkaWZmdXNlPgogICAgICAgICAgICAgIDxjb2xvcj4xLjAgMS4wIDAuMzk2MDc4NDMxMzcyNTQ5IDEuMDwvY29sb3I+CiAgICAgICAgICAgIDwvZGlmZnVzZT4KICAgICAgICAgICAgPHNoaW5pbmVzcz4KICAgICAgICAgICAgICA8ZmxvYXQ+MC4wPC9mbG9hdD4KICAgICAgICAgICAgPC9zaGluaW5lc3M+CiAgICAgICAgICAgIDxyZWZsZWN0aXZpdHk+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvcmVmbGVjdGl2aXR5PgogICAgICAgICAgICA8dHJhbnNwYXJlbnQ+CiAgICAgICAgICAgICAgPGNvbG9yPjEuMCAxLjAgMC4zOTYwNzg0MzEzNzI1NDkgMS4wPC9jb2xvcj4KICAgICAgICAgICAgPC90cmFuc3BhcmVudD4KICAgICAgICAgICAgPHRyYW5zcGFyZW5jeT4KICAgICAgICAgICAgICA8ZmxvYXQ+MS4wPC9mbG9hdD4KICAgICAgICAgICAgPC90cmFuc3BhcmVuY3k+CiAgICAgICAgICA8L2xhbWJlcnQ+CiAgICAgICAgPC90ZWNobmlxdWU+CiAgICAgICAgPGV4dHJhPgogICAgICAgICAgPHRlY2huaXF1ZSBwcm9maWxlPSJHT09HTEVFQVJUSCI+CiAgICAgICAgICAgIDxkb3VibGVfc2lkZWQ+MTwvZG91YmxlX3NpZGVkPgogICAgICAgICAgPC90ZWNobmlxdWU+CiAgICAgICAgPC9leHRyYT4KICAgICAgPC9wcm9maWxlX0NPTU1PTj4KICAgIDwvZWZmZWN0PgogICAgPGVmZmVjdCBpZD0iWF9DT1JSRUxBVElPTl9lZmZlY3QiIG5hbWU9IlhfQ09SUkVMQVRJT05fZWZmZWN0Ij4KICAgICAgPHByb2ZpbGVfQ09NTU9OPgogICAgICAgIDx0ZWNobmlxdWUgc2lkPSJjb21tb24iPgogICAgICAgICAgPGxhbWJlcnQ+CiAgICAgICAgICAgIDxkaWZmdXNlPgogICAgICAgICAgICAgIDxjb2xvcj4xLjAgMC4wIDAuMCAwLjg8L2NvbG9yPgogICAgICAgICAgICA8L2RpZmZ1c2U+CiAgICAgICAgICAgIDxzaGluaW5lc3M+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvc2hpbmluZXNzPgogICAgICAgICAgICA8cmVmbGVjdGl2aXR5PgogICAgICAgICAgICAgIDxmbG9hdD4wLjA8L2Zsb2F0PgogICAgICAgICAgICA8L3JlZmxlY3Rpdml0eT4KICAgICAgICAgICAgPHRyYW5zcGFyZW50PgogICAgICAgICAgICAgIDxjb2xvcj4xLjAgMC4wIDAuMCAwLjg8L2NvbG9yPgogICAgICAgICAgICA8L3RyYW5zcGFyZW50PgogICAgICAgICAgICA8dHJhbnNwYXJlbmN5PgogICAgICAgICAgICAgIDxmbG9hdD4wLjg8L2Zsb2F0PgogICAgICAgICAgICA8L3RyYW5zcGFyZW5jeT4KICAgICAgICAgIDwvbGFtYmVydD4KICAgICAgICA8L3RlY2huaXF1ZT4KICAgICAgICA8ZXh0cmE+CiAgICAgICAgICA8dGVjaG5pcXVlIHByb2ZpbGU9IkdPT0dMRUVBUlRIIj4KICAgICAgICAgICAgPGRvdWJsZV9zaWRlZD4xPC9kb3VibGVfc2lkZWQ+CiAgICAgICAgICA8L3RlY2huaXF1ZT4KICAgICAgICA8L2V4dHJhPgogICAgICA8L3Byb2ZpbGVfQ09NTU9OPgogICAgPC9lZmZlY3Q+CiAgICA8ZWZmZWN0IGlkPSJaX0NPUlJFTEFUSU9OX2VmZmVjdCIgbmFtZT0iWl9DT1JSRUxBVElPTl9lZmZlY3QiPgogICAgICA8cHJvZmlsZV9DT01NT04+CiAgICAgICAgPHRlY2huaXF1ZSBzaWQ9ImNvbW1vbiI+CiAgICAgICAgICA8bGFtYmVydD4KICAgICAgICAgICAgPGRpZmZ1c2U+CiAgICAgICAgICAgICAgPGNvbG9yPjAuMCAwLjAgMS4wIDAuODwvY29sb3I+CiAgICAgICAgICAgIDwvZGlmZnVzZT4KICAgICAgICAgICAgPHNoaW5pbmVzcz4KICAgICAgICAgICAgICA8ZmxvYXQ+MC4wPC9mbG9hdD4KICAgICAgICAgICAgPC9zaGluaW5lc3M+CiAgICAgICAgICAgIDxyZWZsZWN0aXZpdHk+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvcmVmbGVjdGl2aXR5PgogICAgICAgICAgICA8dHJhbnNwYXJlbnQ+CiAgICAgICAgICAgICAgPGNvbG9yPjAuMCAwLjAgMS4wIDAuODwvY29sb3I+CiAgICAgICAgICAgIDwvdHJhbnNwYXJlbnQ+CiAgICAgICAgICAgIDx0cmFuc3BhcmVuY3k+CiAgICAgICAgICAgICAgPGZsb2F0PjAuODwvZmxvYXQ+CiAgICAgICAgICAgIDwvdHJhbnNwYXJlbmN5PgogICAgICAgICAgPC9sYW1iZXJ0PgogICAgICAgIDwvdGVjaG5pcXVlPgogICAgICAgIDxleHRyYT4KICAgICAgICAgIDx0ZWNobmlxdWUgcHJvZmlsZT0iR09PR0xFRUFSVEgiPgogICAgICAgICAgICA8ZG91YmxlX3NpZGVkPjE8L2RvdWJsZV9zaWRlZD4KICAgICAgICAgIDwvdGVjaG5pcXVlPgogICAgICAgIDwvZXh0cmE+CiAgICAgIDwvcHJvZmlsZV9DT01NT04+CiAgICA8L2VmZmVjdD4KICA8L2xpYnJhcnlfZWZmZWN0cz4KICA8bGlicmFyeV9nZW9tZXRyaWVzPgogICAgPGdlb21ldHJ5IGlkPSJGYWNlSUQwIiBuYW1lPSJGYWNlSUQwIj4KICAgICAgPG1lc2g+CiAgICAgICAgPHNvdXJjZSBpZD0iRmFjZUlEMF9wb3NpdGlvbnMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDBfcG9zaXRpb25zLWFycmF5Ij4wIDAgMCAwIDEgMCAwIDEgMSAwIDAgMTwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQwX3Bvc2l0aW9ucy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQwX25vcm1hbHMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDBfbm9ybWFscy1hcnJheSI+LTEgMCAwIC0xIDAgMCAtMSAwIDAgLTEgMCAwPC9mbG9hdF9hcnJheT4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8YWNjZXNzb3IgY291bnQ9IjQiIHNvdXJjZT0iI0ZhY2VJRDBfbm9ybWFscy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8dmVydGljZXMgaWQ9IkZhY2VJRDBfcG9zaXRpb25zLXZlcnRpY2VzIj4KICAgICAgICAgIDxpbnB1dCBzZW1hbnRpYz0iUE9TSVRJT04iIHNvdXJjZT0iI0ZhY2VJRDBfcG9zaXRpb25zIiAvPgogICAgICAgIDwvdmVydGljZXM+CiAgICAgICAgPHRyaWFuZ2xlcyBjb3VudD0iMiIgbWF0ZXJpYWw9Ik1hdGVyaWFsU3ltYm9sIj4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjAiIHNlbWFudGljPSJWRVJURVgiIHNvdXJjZT0iI0ZhY2VJRDBfcG9zaXRpb25zLXZlcnRpY2VzIiAvPgogICAgICAgICAgPGlucHV0IG9mZnNldD0iMSIgc2VtYW50aWM9Ik5PUk1BTCIgc291cmNlPSIjRmFjZUlEMF9ub3JtYWxzIiAvPgogICAgICAgICAgPHA+MCAwIDIgMiAxIDEgMiAyIDAgMCAzIDM8L3A+CiAgICAgICAgPC90cmlhbmdsZXM+CiAgICAgIDwvbWVzaD4KICAgIDwvZ2VvbWV0cnk+CiAgICA8Z2VvbWV0cnkgaWQ9IkZhY2VJRDEiIG5hbWU9IkZhY2VJRDEiPgogICAgICA8bWVzaD4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQxX3Bvc2l0aW9ucyI+CiAgICAgICAgICA8ZmxvYXRfYXJyYXkgY291bnQ9IjEyIiBpZD0iRmFjZUlEMV9wb3NpdGlvbnMtYXJyYXkiPjEgMCAwIDEgMSAwIDEgMSAxIDEgMCAxPC9mbG9hdF9hcnJheT4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8YWNjZXNzb3IgY291bnQ9IjQiIHNvdXJjZT0iI0ZhY2VJRDFfcG9zaXRpb25zLWFycmF5IiBzdHJpZGU9IjMiPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWCIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlkiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJaIiAvPgogICAgICAgICAgICA8L2FjY2Vzc29yPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvc291cmNlPgogICAgICAgIDxzb3VyY2UgaWQ9IkZhY2VJRDFfbm9ybWFscyI+CiAgICAgICAgICA8ZmxvYXRfYXJyYXkgY291bnQ9IjEyIiBpZD0iRmFjZUlEMV9ub3JtYWxzLWFycmF5Ij4xIDAgMCAxIDAgMCAxIDAgMCAxIDAgMDwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQxX25vcm1hbHMtYXJyYXkiIHN0cmlkZT0iMyI+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJYIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWSIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IloiIC8+CiAgICAgICAgICAgIDwvYWNjZXNzb3I+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9zb3VyY2U+CiAgICAgICAgPHZlcnRpY2VzIGlkPSJGYWNlSUQxX3Bvc2l0aW9ucy12ZXJ0aWNlcyI+CiAgICAgICAgICA8aW5wdXQgc2VtYW50aWM9IlBPU0lUSU9OIiBzb3VyY2U9IiNGYWNlSUQxX3Bvc2l0aW9ucyIgLz4KICAgICAgICA8L3ZlcnRpY2VzPgogICAgICAgIDx0cmlhbmdsZXMgY291bnQ9IjIiIG1hdGVyaWFsPSJNYXRlcmlhbFN5bWJvbCI+CiAgICAgICAgICA8aW5wdXQgb2Zmc2V0PSIwIiBzZW1hbnRpYz0iVkVSVEVYIiBzb3VyY2U9IiNGYWNlSUQxX3Bvc2l0aW9ucy12ZXJ0aWNlcyIgLz4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjEiIHNlbWFudGljPSJOT1JNQUwiIHNvdXJjZT0iI0ZhY2VJRDFfbm9ybWFscyIgLz4KICAgICAgICAgIDxwPjAgMCAyIDIgMSAxIDIgMiAwIDAgMyAzPC9wPgogICAgICAgIDwvdHJpYW5nbGVzPgogICAgICA8L21lc2g+CiAgICA8L2dlb21ldHJ5PgogICAgPGdlb21ldHJ5IGlkPSJGYWNlSUQyIiBuYW1lPSJGYWNlSUQyIj4KICAgICAgPG1lc2g+CiAgICAgICAgPHNvdXJjZSBpZD0iRmFjZUlEMl9wb3NpdGlvbnMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDJfcG9zaXRpb25zLWFycmF5Ij4wIDAgMCAwIDAgMSAxIDAgMSAxIDAgMDwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQyX3Bvc2l0aW9ucy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQyX25vcm1hbHMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDJfbm9ybWFscy1hcnJheSI+MCAtMSAwIDAgLTEgMCAwIC0xIDAgMCAtMSAwPC9mbG9hdF9hcnJheT4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8YWNjZXNzb3IgY291bnQ9IjQiIHNvdXJjZT0iI0ZhY2VJRDJfbm9ybWFscy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8dmVydGljZXMgaWQ9IkZhY2VJRDJfcG9zaXRpb25zLXZlcnRpY2VzIj4KICAgICAgICAgIDxpbnB1dCBzZW1hbnRpYz0iUE9TSVRJT04iIHNvdXJjZT0iI0ZhY2VJRDJfcG9zaXRpb25zIiAvPgogICAgICAgIDwvdmVydGljZXM+CiAgICAgICAgPHRyaWFuZ2xlcyBjb3VudD0iMiIgbWF0ZXJpYWw9Ik1hdGVyaWFsU3ltYm9sIj4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjAiIHNlbWFudGljPSJWRVJURVgiIHNvdXJjZT0iI0ZhY2VJRDJfcG9zaXRpb25zLXZlcnRpY2VzIiAvPgogICAgICAgICAgPGlucHV0IG9mZnNldD0iMSIgc2VtYW50aWM9Ik5PUk1BTCIgc291cmNlPSIjRmFjZUlEMl9ub3JtYWxzIiAvPgogICAgICAgICAgPHA+MCAwIDIgMiAxIDEgMiAyIDAgMCAzIDM8L3A+CiAgICAgICAgPC90cmlhbmdsZXM+CiAgICAgIDwvbWVzaD4KICAgIDwvZ2VvbWV0cnk+CiAgICA8Z2VvbWV0cnkgaWQ9IkZhY2VJRDMiIG5hbWU9IkZhY2VJRDMiPgogICAgICA8bWVzaD4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQzX3Bvc2l0aW9ucyI+CiAgICAgICAgICA8ZmxvYXRfYXJyYXkgY291bnQ9IjEyIiBpZD0iRmFjZUlEM19wb3NpdGlvbnMtYXJyYXkiPjAgMSAwIDAgMSAxIDEgMSAxIDEgMSAwPC9mbG9hdF9hcnJheT4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8YWNjZXNzb3IgY291bnQ9IjQiIHNvdXJjZT0iI0ZhY2VJRDNfcG9zaXRpb25zLWFycmF5IiBzdHJpZGU9IjMiPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWCIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlkiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJaIiAvPgogICAgICAgICAgICA8L2FjY2Vzc29yPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvc291cmNlPgogICAgICAgIDxzb3VyY2UgaWQ9IkZhY2VJRDNfbm9ybWFscyI+CiAgICAgICAgICA8ZmxvYXRfYXJyYXkgY291bnQ9IjEyIiBpZD0iRmFjZUlEM19ub3JtYWxzLWFycmF5Ij4wIDEgMCAwIDEgMCAwIDEgMCAwIDEgMDwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQzX25vcm1hbHMtYXJyYXkiIHN0cmlkZT0iMyI+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJYIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWSIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IloiIC8+CiAgICAgICAgICAgIDwvYWNjZXNzb3I+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9zb3VyY2U+CiAgICAgICAgPHZlcnRpY2VzIGlkPSJGYWNlSUQzX3Bvc2l0aW9ucy12ZXJ0aWNlcyI+CiAgICAgICAgICA8aW5wdXQgc2VtYW50aWM9IlBPU0lUSU9OIiBzb3VyY2U9IiNGYWNlSUQzX3Bvc2l0aW9ucyIgLz4KICAgICAgICA8L3ZlcnRpY2VzPgogICAgICAgIDx0cmlhbmdsZXMgY291bnQ9IjIiIG1hdGVyaWFsPSJNYXRlcmlhbFN5bWJvbCI+CiAgICAgICAgICA8aW5wdXQgb2Zmc2V0PSIwIiBzZW1hbnRpYz0iVkVSVEVYIiBzb3VyY2U9IiNGYWNlSUQzX3Bvc2l0aW9ucy12ZXJ0aWNlcyIgLz4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjEiIHNlbWFudGljPSJOT1JNQUwiIHNvdXJjZT0iI0ZhY2VJRDNfbm9ybWFscyIgLz4KICAgICAgICAgIDxwPjAgMCAyIDIgMSAxIDIgMiAwIDAgMyAzPC9wPgogICAgICAgIDwvdHJpYW5nbGVzPgogICAgICA8L21lc2g+CiAgICA8L2dlb21ldHJ5PgogICAgPGdlb21ldHJ5IGlkPSJGYWNlSUQ0IiBuYW1lPSJGYWNlSUQ0Ij4KICAgICAgPG1lc2g+CiAgICAgICAgPHNvdXJjZSBpZD0iRmFjZUlENF9wb3NpdGlvbnMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDRfcG9zaXRpb25zLWFycmF5Ij4wIDAgMCAxIDAgMCAxIDEgMCAwIDEgMDwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQ0X3Bvc2l0aW9ucy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQ0X25vcm1hbHMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDRfbm9ybWFscy1hcnJheSI+MCAwIC0xIDAgMCAtMSAwIDAgLTEgMCAwIC0xPC9mbG9hdF9hcnJheT4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8YWNjZXNzb3IgY291bnQ9IjQiIHNvdXJjZT0iI0ZhY2VJRDRfbm9ybWFscy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8dmVydGljZXMgaWQ9IkZhY2VJRDRfcG9zaXRpb25zLXZlcnRpY2VzIj4KICAgICAgICAgIDxpbnB1dCBzZW1hbnRpYz0iUE9TSVRJT04iIHNvdXJjZT0iI0ZhY2VJRDRfcG9zaXRpb25zIiAvPgogICAgICAgIDwvdmVydGljZXM+CiAgICAgICAgPHRyaWFuZ2xlcyBjb3VudD0iMiIgbWF0ZXJpYWw9Ik1hdGVyaWFsU3ltYm9sIj4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjAiIHNlbWFudGljPSJWRVJURVgiIHNvdXJjZT0iI0ZhY2VJRDRfcG9zaXRpb25zLXZlcnRpY2VzIiAvPgogICAgICAgICAgPGlucHV0IG9mZnNldD0iMSIgc2VtYW50aWM9Ik5PUk1BTCIgc291cmNlPSIjRmFjZUlENF9ub3JtYWxzIiAvPgogICAgICAgICAgPHA+MCAwIDIgMiAxIDEgMiAyIDAgMCAzIDM8L3A+CiAgICAgICAgPC90cmlhbmdsZXM+CiAgICAgIDwvbWVzaD4KICAgIDwvZ2VvbWV0cnk+CiAgICA8Z2VvbWV0cnkgaWQ9IkZhY2VJRDUiIG5hbWU9IkZhY2VJRDUiPgogICAgICA8bWVzaD4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQ1X3Bvc2l0aW9ucyI+CiAgICAgICAgICA8ZmxvYXRfYXJyYXkgY291bnQ9IjEyIiBpZD0iRmFjZUlENV9wb3NpdGlvbnMtYXJyYXkiPjAgMCAxIDEgMCAxIDEgMSAxIDAgMSAxPC9mbG9hdF9hcnJheT4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8YWNjZXNzb3IgY291bnQ9IjQiIHNvdXJjZT0iI0ZhY2VJRDVfcG9zaXRpb25zLWFycmF5IiBzdHJpZGU9IjMiPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWCIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlkiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJaIiAvPgogICAgICAgICAgICA8L2FjY2Vzc29yPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvc291cmNlPgogICAgICAgIDxzb3VyY2UgaWQ9IkZhY2VJRDVfbm9ybWFscyI+CiAgICAgICAgICA8ZmxvYXRfYXJyYXkgY291bnQ9IjEyIiBpZD0iRmFjZUlENV9ub3JtYWxzLWFycmF5Ij4wIDAgMSAwIDAgMSAwIDAgMSAwIDAgMTwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQ1X25vcm1hbHMtYXJyYXkiIHN0cmlkZT0iMyI+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJYIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWSIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IloiIC8+CiAgICAgICAgICAgIDwvYWNjZXNzb3I+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9zb3VyY2U+CiAgICAgICAgPHZlcnRpY2VzIGlkPSJGYWNlSUQ1X3Bvc2l0aW9ucy12ZXJ0aWNlcyI+CiAgICAgICAgICA8aW5wdXQgc2VtYW50aWM9IlBPU0lUSU9OIiBzb3VyY2U9IiNGYWNlSUQ1X3Bvc2l0aW9ucyIgLz4KICAgICAgICA8L3ZlcnRpY2VzPgogICAgICAgIDx0cmlhbmdsZXMgY291bnQ9IjIiIG1hdGVyaWFsPSJNYXRlcmlhbFN5bWJvbCI+CiAgICAgICAgICA8aW5wdXQgb2Zmc2V0PSIwIiBzZW1hbnRpYz0iVkVSVEVYIiBzb3VyY2U9IiNGYWNlSUQ1X3Bvc2l0aW9ucy12ZXJ0aWNlcyIgLz4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjEiIHNlbWFudGljPSJOT1JNQUwiIHNvdXJjZT0iI0ZhY2VJRDVfbm9ybWFscyIgLz4KICAgICAgICAgIDxwPjAgMCAyIDIgMSAxIDIgMiAwIDAgMyAzPC9wPgogICAgICAgIDwvdHJpYW5nbGVzPgogICAgICA8L21lc2g+CiAgICA8L2dlb21ldHJ5PgogIDwvbGlicmFyeV9nZW9tZXRyaWVzPgogIDxsaWJyYXJ5X21hdGVyaWFscz4KICAgIDxtYXRlcmlhbCBpZD0iWF9tYXRlcmlhbCIgbmFtZT0iWF9tYXRlcmlhbCI+CiAgICAgIDxpbnN0YW5jZV9lZmZlY3QgdXJsPSIjWF9lZmZlY3QiIC8+CiAgICA8L21hdGVyaWFsPgogICAgPG1hdGVyaWFsIGlkPSJZX21hdGVyaWFsIiBuYW1lPSJZX21hdGVyaWFsIj4KICAgICAgPGluc3RhbmNlX2VmZmVjdCB1cmw9IiNZX2VmZmVjdCIgLz4KICAgIDwvbWF0ZXJpYWw+CiAgICA8bWF0ZXJpYWwgaWQ9IlpfbWF0ZXJpYWwiIG5hbWU9IlpfbWF0ZXJpYWwiPgogICAgICA8aW5zdGFuY2VfZWZmZWN0IHVybD0iI1pfZWZmZWN0IiAvPgogICAgPC9tYXRlcmlhbD4KICAgIDxtYXRlcmlhbCBpZD0iSF9tYXRlcmlhbCIgbmFtZT0iSF9tYXRlcmlhbCI+CiAgICAgIDxpbnN0YW5jZV9lZmZlY3QgdXJsPSIjSF9lZmZlY3QiIC8+CiAgICA8L21hdGVyaWFsPgogICAgPG1hdGVyaWFsIGlkPSJYX0NPUlJFTEFUSU9OX21hdGVyaWFsIiBuYW1lPSJYX0NPUlJFTEFUSU9OX21hdGVyaWFsIj4KICAgICAgPGluc3RhbmNlX2VmZmVjdCB1cmw9IiNYX0NPUlJFTEFUSU9OX2VmZmVjdCIgLz4KICAgIDwvbWF0ZXJpYWw+CiAgICA8bWF0ZXJpYWwgaWQ9IlpfQ09SUkVMQVRJT05fbWF0ZXJpYWwiIG5hbWU9IlpfQ09SUkVMQVRJT05fbWF0ZXJpYWwiPgogICAgICA8aW5zdGFuY2VfZWZmZWN0IHVybD0iI1pfQ09SUkVMQVRJT05fZWZmZWN0IiAvPgogICAgPC9tYXRlcmlhbD4KICA8L2xpYnJhcnlfbWF0ZXJpYWxzPgogIDxsaWJyYXJ5X25vZGVzPgogICAgPG5vZGUgaWQ9IlpYWiIgbmFtZT0iWlhaIj4KICAgICAgPGluc3RhbmNlX2dlb21ldHJ5IHVybD0iI0ZhY2VJRDAiPgogICAgICAgIDxiaW5kX21hdGVyaWFsPgogICAgICAgICAgPHRlY2huaXF1ZV9jb21tb24+CiAgICAgICAgICAgIDxpbnN0YW5jZV9tYXRlcmlhbCBzeW1ib2w9Ik1hdGVyaWFsU3ltYm9sIiB0YXJnZXQ9IiNaX21hdGVyaWFsIj4KICAgICAgICAgICAgICA8YmluZF92ZXJ0ZXhfaW5wdXQgc2VtYW50aWM9IlVWU0VUMCIgaW5wdXRfc2VtYW50aWM9IlRFWENPT1JEIiBpbnB1dF9zZXQ9IjAiIC8+CiAgICAgICAgICAgIDwvaW5zdGFuY2VfbWF0ZXJpYWw+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9iaW5kX21hdGVyaWFsPgogICAgICA8L2luc3RhbmNlX2dlb21ldHJ5PgogICAgICA8aW5zdGFuY2VfZ2VvbWV0cnkgdXJsPSIjRmFjZUlEMSI+CiAgICAgICAgPGJpbmRfbWF0ZXJpYWw+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGluc3RhbmNlX21hdGVyaWFsIHN5bWJvbD0iTWF0ZXJpYWxTeW1ib2wiIHRhcmdldD0iI1pfbWF0ZXJpYWwiPgogICAgICAgICAgICAgIDxiaW5kX3ZlcnRleF9pbnB1dCBzZW1hbnRpYz0iVVZTRVQwIiBpbnB1dF9zZW1hbnRpYz0iVEVYQ09PUkQiIGlucHV0X3NldD0iMCIgLz4KICAgICAgICAgICAgPC9pbnN0YW5jZV9tYXRlcmlhbD4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L2JpbmRfbWF0ZXJpYWw+CiAgICAgIDwvaW5zdGFuY2VfZ2VvbWV0cnk+CiAgICAgIDxpbnN0YW5jZV9nZW9tZXRyeSB1cmw9IiNGYWNlSUQyIj4KICAgICAgICA8YmluZF9tYXRlcmlhbD4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8aW5zdGFuY2VfbWF0ZXJpYWwgc3ltYm9sPSJNYXRlcmlhbFN5bWJvbCIgdGFyZ2V0PSIjWF9tYXRlcmlhbCI+CiAgICAgICAgICAgICAgPGJpbmRfdmVydGV4X2lucHV0IHNlbWFudGljPSJVVlNFVDAiIGlucHV0X3NlbWFudGljPSJURVhDT09SRCIgaW5wdXRfc2V0PSIwIiAvPgogICAgICAgICAgICA8L2luc3RhbmNlX21hdGVyaWFsPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvYmluZF9tYXRlcmlhbD4KICAgICAgPC9pbnN0YW5jZV9nZW9tZXRyeT4KICAgICAgPGluc3RhbmNlX2dlb21ldHJ5IHVybD0iI0ZhY2VJRDMiPgogICAgICAgIDxiaW5kX21hdGVyaWFsPgogICAgICAgICAgPHRlY2huaXF1ZV9jb21tb24+CiAgICAgICAgICAgIDxpbnN0YW5jZV9tYXRlcmlhbCBzeW1ib2w9Ik1hdGVyaWFsU3ltYm9sIiB0YXJnZXQ9IiNYX21hdGVyaWFsIj4KICAgICAgICAgICAgICA8YmluZF92ZXJ0ZXhfaW5wdXQgc2VtYW50aWM9IlVWU0VUMCIgaW5wdXRfc2VtYW50aWM9IlRFWENPT1JEIiBpbnB1dF9zZXQ9IjAiIC8+CiAgICAgICAgICAgIDwvaW5zdGFuY2VfbWF0ZXJpYWw+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9iaW5kX21hdGVyaWFsPgogICAgICA8L2luc3RhbmNlX2dlb21ldHJ5PgogICAgICA8aW5zdGFuY2VfZ2VvbWV0cnkgdXJsPSIjRmFjZUlENCI+CiAgICAgICAgPGJpbmRfbWF0ZXJpYWw+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGluc3RhbmNlX21hdGVyaWFsIHN5bWJvbD0iTWF0ZXJpYWxTeW1ib2wiIHRhcmdldD0iI1pfbWF0ZXJpYWwiPgogICAgICAgICAgICAgIDxiaW5kX3ZlcnRleF9pbnB1dCBzZW1hbnRpYz0iVVZTRVQwIiBpbnB1dF9zZW1hbnRpYz0iVEVYQ09PUkQiIGlucHV0X3NldD0iMCIgLz4KICAgICAgICAgICAgPC9pbnN0YW5jZV9tYXRlcmlhbD4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L2JpbmRfbWF0ZXJpYWw+CiAgICAgIDwvaW5zdGFuY2VfZ2VvbWV0cnk+CiAgICAgIDxpbnN0YW5jZV9nZW9tZXRyeSB1cmw9IiNGYWNlSUQ1Ij4KICAgICAgICA8YmluZF9tYXRlcmlhbD4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8aW5zdGFuY2VfbWF0ZXJpYWwgc3ltYm9sPSJNYXRlcmlhbFN5bWJvbCIgdGFyZ2V0PSIjWl9tYXRlcmlhbCI+CiAgICAgICAgICAgICAgPGJpbmRfdmVydGV4X2lucHV0IHNlbWFudGljPSJVVlNFVDAiIGlucHV0X3NlbWFudGljPSJURVhDT09SRCIgaW5wdXRfc2V0PSIwIiAvPgogICAgICAgICAgICA8L2luc3RhbmNlX21hdGVyaWFsPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvYmluZF9tYXRlcmlhbD4KICAgICAgPC9pbnN0YW5jZV9nZW9tZXRyeT4KICAgIDwvbm9kZT4KICA8L2xpYnJhcnlfbm9kZXM+CiAgPGxpYnJhcnlfdmlzdWFsX3NjZW5lcz4KICAgIDx2aXN1YWxfc2NlbmUgaWQ9InNjZW5lIj4KICAgICAgPG5vZGUgaWQ9IlNrZXRjaFVwIiBuYW1lPSJTa2V0Y2hVcCI+CiAgICAgICAgPG5vZGUgaWQ9IklEMCIgbmFtZT0iaW5zdGFuY2VfMCI+CiAgICAgICAgICA8bWF0cml4PjEuMCAwLjAgMC4wIDAuMCAwLjAgMS4wIDAuMCAwLjAgMC4wIDAuMCAxLjAgMC4wIDAuMCAwLjAgMC4wIDEuMDwvbWF0cml4PgogICAgICAgICAgPGluc3RhbmNlX25vZGUgdXJsPSIjWlhaIiAvPgogICAgICAgIDwvbm9kZT4KICAgICAgPC9ub2RlPgogICAgPC92aXN1YWxfc2NlbmU+CiAgPC9saWJyYXJ5X3Zpc3VhbF9zY2VuZXM+CiAgPHNjZW5lPgogICAgPGluc3RhbmNlX3Zpc3VhbF9zY2VuZSB1cmw9IiNzY2VuZSIgLz4KICA8L3NjZW5lPgo8L0NPTExBREE+Cg==&quot;&gt;Download 3D
+    Model as .dae File&lt;/a&gt;
+  &lt;br /&gt;Mouse Wheel = Zoom. Left Drag = Orbit. Right Drag = Strafe.
+  &lt;div id=&quot;scene-container&quot; style=&quot;width: calc(100vw - 32px); height: calc(100vh - 64px)&quot;&gt;
+    JavaScript Blocked?
+  &lt;/div&gt;
+
+  &lt;script type=&quot;module&quot;&gt;
+    import * as THREE from &quot;three&quot;;
+    import {OrbitControls} from &quot;three-orbitcontrols&quot;;
+    import {ColladaLoader} from &quot;three-collada-loader&quot;;
+
+    const container = document.getElementById(&quot;scene-container&quot;);
+    const downloadLink = document.getElementById(&quot;model-download-link&quot;);
+
+    // Remove IDs to avoid cross-cell interactions (workaround for Jupyter notebook issue)
+    container.removeAttribute(&quot;id&quot;);
+    downloadLink.removeAttribute(&quot;id&quot;);
+
+    container.textContent = &quot;Loading viewer...&quot;;
+
+    async function init() {
+      try {
+        container.textContent = &quot;Loading model...&quot;;
+
+        const modelDataUri = downloadLink.href;
+        const collada = await new ColladaLoader().loadAsync(modelDataUri);
+
+        container.textContent = &quot;Loading scene...&quot;;
+
+        // Create the scene
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(&quot;#CBDFC6&quot;);
+
+        // Set up lights
+        setupLights(scene);
+
+        // Prepare and add the model to the scene
+        processModel(collada.scene);
+        scene.add(collada.scene);
+
+        // Set up the camera and controls
+        const camera = new THREE.PerspectiveCamera(
+          35,
+          container.clientWidth / container.clientHeight,
+          0.1,
+          100000,
+        );
+        const controls = new OrbitControls(camera, container);
+
+        // Adjust camera to fit the scene
+        fitCameraToObject(camera, controls, scene);
+
+        // Add axes helper
+        const axesHelper = new THREE.AxesHelper(2);
+        axesHelper.rotation.x = -Math.PI / 2;
+        scene.add(axesHelper);
+
+        // Set up renderer
+        const renderer = new THREE.WebGLRenderer({antialias: true});
+        setupRenderer(renderer, container, camera, scene);
+
+        // Start rendering
+        renderScene(renderer, scene, camera, controls, container);
+      } catch (ex) {
+        container.textContent = &quot;Failed to show model. &quot; + ex;
+        console.error(ex);
+      }
+    }
+
+    function setupLights(scene) {
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+      directionalLight.position.set(10, 10, 10);
+      directionalLight.castShadow = true;
+      scene.add(directionalLight);
+    }
+
+    function processModel(modelScene) {
+      modelScene.traverse((node) =&gt; {
+        if (node.isMesh) {
+          node.material.side = THREE.DoubleSide;
+
+          if (node.name.endsWith(&quot;correlation_surface&quot;)) {
+            return;
+          }
+          // Add edges for better visibility
+          const edgesGeometry = new THREE.EdgesGeometry(node.geometry);
+          const edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x000000,
+          });
+          const edgeMesh = new THREE.LineSegments(
+            edgesGeometry,
+            edgesMaterial,
+          );
+          node.add(edgeMesh);
+        }
+      });
+    }
+
+    function fitCameraToObject(camera, controls, scene) {
+      let bounds = new THREE.Box3().setFromObject(scene);
+      let mid = new THREE.Vector3(
+        (bounds.min.x + bounds.max.x) * 0.5,
+        (bounds.min.y + bounds.max.y) * 0.5,
+        (bounds.min.z + bounds.max.z) * 0.5,
+      );
+      let boxPoints = [];
+      for (let dx of [0, 0.5, 1]) {
+        for (let dy of [0, 0.5, 1]) {
+          for (let dz of [0, 0.5, 1]) {
+            boxPoints.push(
+              new THREE.Vector3(
+                bounds.min.x + (bounds.max.x - bounds.min.x) * dx,
+                bounds.min.y + (bounds.max.y - bounds.min.y) * dy,
+                bounds.min.z + (bounds.max.z - bounds.min.z) * dz,
+              ),
+            );
+          }
+        }
+      }
+      let isInView = (p) =&gt; {
+        p = new THREE.Vector3(p.x, p.y, p.z);
+        p.project(camera);
+        return Math.abs(p.x) &lt; 1 &amp;&amp; Math.abs(p.y) &lt; 1 &amp;&amp; p.z &gt;= 0 &amp;&amp; p.z &lt; 1;
+      };
+      let unit = new THREE.Vector3(0.3, 0.4, 1.8);
+      unit.normalize();
+      let setCameraDistance = (d) =&gt; {
+        controls.target.copy(mid);
+        camera.position.copy(mid);
+        camera.position.addScaledVector(unit, d);
+        controls.update();
+        return boxPoints.every(isInView);
+      };
+
+      let maxDistance = 1;
+      for (let k = 0; k &lt; 20; k++) {
+        if (setCameraDistance(maxDistance)) {
+          break;
+        }
+        maxDistance *= 2;
+      }
+      let minDistance = maxDistance;
+      for (let k = 0; k &lt; 20; k++) {
+        minDistance /= 2;
+        if (!setCameraDistance(minDistance)) {
+          break;
+        }
+      }
+      for (let k = 0; k &lt; 20; k++) {
+        let mid = (minDistance + maxDistance) / 2;
+        if (setCameraDistance(mid)) {
+          maxDistance = mid;
+        } else {
+          minDistance = mid;
+        }
+      }
+      setCameraDistance(maxDistance);
+    }
+
+    function setupRenderer(renderer, container, camera, scene) {
+      container.textContent = &quot;&quot;;
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.physicallyCorrectLights = true;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.setClearColor(0xdedede);
+      container.appendChild(renderer.domElement);
+    }
+
+    function renderScene(renderer, scene, camera, controls, container) {
+      const render = () =&gt; {
+        renderer.render(scene, camera);
+      };
+
+      render();
+
+      new ResizeObserver(() =&gt; {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+        render();
+      }).observe(container);
+
+      controls.addEventListener(&quot;change&quot;, render);
+    }
+
+    init();
+  &lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+"></iframe></div>
+</div>
+<p>Memory experiment preserves the logical observable through time:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec</span> <span class="kn">import</span> <span class="n">SignedDirection3D</span><span class="p">,</span> <span class="n">Direction3D</span>
+
+<span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span><span class="o">.</span><span class="n">find_correration_surfaces</span><span class="p">()</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">(</span>
+    <span class="n">pop_faces_at_direction</span><span class="o">=</span><span class="n">SignedDirection3D</span><span class="p">(</span><span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="n">show_correlation_surface</span><span class="o">=</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<iframe style="width: 100%; height: 300px; overflow: hidden; resize: both; border: 1px dashed gray;" frameBorder="0" srcdoc="
+&lt;!doctype html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot; /&gt;
+  &lt;script type=&quot;importmap&quot;&gt;
+      {
+        &quot;imports&quot;: {
+          &quot;three&quot;: &quot;https://unpkg.com/three@0.138.0/build/three.module.js&quot;,
+          &quot;three-orbitcontrols&quot;: &quot;https://unpkg.com/three@0.138.0/examples/jsm/controls/OrbitControls.js&quot;,
+          &quot;three-collada-loader&quot;: &quot;https://unpkg.com/three@0.138.0/examples/jsm/loaders/ColladaLoader.js&quot;
+        }
+      }
+    &lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+  &lt;a download=&quot;model.dae&quot; id=&quot;model-download-link&quot; href=&quot;data:text/plain;base64,PENPTExBREEgeG1sbnM9Imh0dHA6Ly93d3cuY29sbGFkYS5vcmcvMjAwNS8xMS9DT0xMQURBU2NoZW1hIiB2ZXJzaW9uPSIxLjQuMSI+CiAgPGFzc2V0PgogICAgPGNvbnRyaWJ1dG9yPgogICAgICA8YXV0aG9yPlRRRUMgQ29tbXVuaXR5PC9hdXRob3I+CiAgICAgIDxhdXRob3JpbmdfdG9vbD5odHRwczovL2dpdGh1Yi5jb20vUUNIYWNrZXJzL3RxZWM8L2F1dGhvcmluZ190b29sPgogICAgPC9jb250cmlidXRvcj4KICAgIDxjcmVhdGVkPjIwMjQtMTEtMDZUMTQ6NTU6NDkuNDI4MDI4PC9jcmVhdGVkPgogICAgPG1vZGlmaWVkPjIwMjQtMTEtMDZUMTQ6NTU6NDkuNDI4MDMxPC9tb2RpZmllZD4KICAgIDx1bml0IG5hbWU9ImluY2giIG1ldGVyPSIwLjAyNTM5OTk5OTY5MzAzNjA4IiAvPgogICAgPHVwX2F4aXM+Wl9VUDwvdXBfYXhpcz4KICA8L2Fzc2V0PgogIDxsaWJyYXJ5X2VmZmVjdHM+CiAgICA8ZWZmZWN0IGlkPSJYX2VmZmVjdCIgbmFtZT0iWF9lZmZlY3QiPgogICAgICA8cHJvZmlsZV9DT01NT04+CiAgICAgICAgPHRlY2huaXF1ZSBzaWQ9ImNvbW1vbiI+CiAgICAgICAgICA8bGFtYmVydD4KICAgICAgICAgICAgPGRpZmZ1c2U+CiAgICAgICAgICAgICAgPGNvbG9yPjEuMCAwLjQ5ODAzOTIxNTY4NjI3NDUgMC40OTgwMzkyMTU2ODYyNzQ1IDEuMDwvY29sb3I+CiAgICAgICAgICAgIDwvZGlmZnVzZT4KICAgICAgICAgICAgPHNoaW5pbmVzcz4KICAgICAgICAgICAgICA8ZmxvYXQ+MC4wPC9mbG9hdD4KICAgICAgICAgICAgPC9zaGluaW5lc3M+CiAgICAgICAgICAgIDxyZWZsZWN0aXZpdHk+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvcmVmbGVjdGl2aXR5PgogICAgICAgICAgICA8dHJhbnNwYXJlbnQ+CiAgICAgICAgICAgICAgPGNvbG9yPjEuMCAwLjQ5ODAzOTIxNTY4NjI3NDUgMC40OTgwMzkyMTU2ODYyNzQ1IDEuMDwvY29sb3I+CiAgICAgICAgICAgIDwvdHJhbnNwYXJlbnQ+CiAgICAgICAgICAgIDx0cmFuc3BhcmVuY3k+CiAgICAgICAgICAgICAgPGZsb2F0PjEuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvdHJhbnNwYXJlbmN5PgogICAgICAgICAgPC9sYW1iZXJ0PgogICAgICAgIDwvdGVjaG5pcXVlPgogICAgICAgIDxleHRyYT4KICAgICAgICAgIDx0ZWNobmlxdWUgcHJvZmlsZT0iR09PR0xFRUFSVEgiPgogICAgICAgICAgICA8ZG91YmxlX3NpZGVkPjE8L2RvdWJsZV9zaWRlZD4KICAgICAgICAgIDwvdGVjaG5pcXVlPgogICAgICAgIDwvZXh0cmE+CiAgICAgIDwvcHJvZmlsZV9DT01NT04+CiAgICA8L2VmZmVjdD4KICAgIDxlZmZlY3QgaWQ9IllfZWZmZWN0IiBuYW1lPSJZX2VmZmVjdCI+CiAgICAgIDxwcm9maWxlX0NPTU1PTj4KICAgICAgICA8dGVjaG5pcXVlIHNpZD0iY29tbW9uIj4KICAgICAgICAgIDxsYW1iZXJ0PgogICAgICAgICAgICA8ZGlmZnVzZT4KICAgICAgICAgICAgICA8Y29sb3I+MC4zODgyMzUyOTQxMTc2NDcwNyAwLjc3NjQ3MDU4ODIzNTI5NDEgMC40NjI3NDUwOTgwMzkyMTU3IDEuMDwvY29sb3I+CiAgICAgICAgICAgIDwvZGlmZnVzZT4KICAgICAgICAgICAgPHNoaW5pbmVzcz4KICAgICAgICAgICAgICA8ZmxvYXQ+MC4wPC9mbG9hdD4KICAgICAgICAgICAgPC9zaGluaW5lc3M+CiAgICAgICAgICAgIDxyZWZsZWN0aXZpdHk+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvcmVmbGVjdGl2aXR5PgogICAgICAgICAgICA8dHJhbnNwYXJlbnQ+CiAgICAgICAgICAgICAgPGNvbG9yPjAuMzg4MjM1Mjk0MTE3NjQ3MDcgMC43NzY0NzA1ODgyMzUyOTQxIDAuNDYyNzQ1MDk4MDM5MjE1NyAxLjA8L2NvbG9yPgogICAgICAgICAgICA8L3RyYW5zcGFyZW50PgogICAgICAgICAgICA8dHJhbnNwYXJlbmN5PgogICAgICAgICAgICAgIDxmbG9hdD4xLjA8L2Zsb2F0PgogICAgICAgICAgICA8L3RyYW5zcGFyZW5jeT4KICAgICAgICAgIDwvbGFtYmVydD4KICAgICAgICA8L3RlY2huaXF1ZT4KICAgICAgICA8ZXh0cmE+CiAgICAgICAgICA8dGVjaG5pcXVlIHByb2ZpbGU9IkdPT0dMRUVBUlRIIj4KICAgICAgICAgICAgPGRvdWJsZV9zaWRlZD4xPC9kb3VibGVfc2lkZWQ+CiAgICAgICAgICA8L3RlY2huaXF1ZT4KICAgICAgICA8L2V4dHJhPgogICAgICA8L3Byb2ZpbGVfQ09NTU9OPgogICAgPC9lZmZlY3Q+CiAgICA8ZWZmZWN0IGlkPSJaX2VmZmVjdCIgbmFtZT0iWl9lZmZlY3QiPgogICAgICA8cHJvZmlsZV9DT01NT04+CiAgICAgICAgPHRlY2huaXF1ZSBzaWQ9ImNvbW1vbiI+CiAgICAgICAgICA8bGFtYmVydD4KICAgICAgICAgICAgPGRpZmZ1c2U+CiAgICAgICAgICAgICAgPGNvbG9yPjAuNDUwOTgwMzkyMTU2ODYyNzUgMC41ODgyMzUyOTQxMTc2NDcxIDEuMCAxLjA8L2NvbG9yPgogICAgICAgICAgICA8L2RpZmZ1c2U+CiAgICAgICAgICAgIDxzaGluaW5lc3M+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvc2hpbmluZXNzPgogICAgICAgICAgICA8cmVmbGVjdGl2aXR5PgogICAgICAgICAgICAgIDxmbG9hdD4wLjA8L2Zsb2F0PgogICAgICAgICAgICA8L3JlZmxlY3Rpdml0eT4KICAgICAgICAgICAgPHRyYW5zcGFyZW50PgogICAgICAgICAgICAgIDxjb2xvcj4wLjQ1MDk4MDM5MjE1Njg2Mjc1IDAuNTg4MjM1Mjk0MTE3NjQ3MSAxLjAgMS4wPC9jb2xvcj4KICAgICAgICAgICAgPC90cmFuc3BhcmVudD4KICAgICAgICAgICAgPHRyYW5zcGFyZW5jeT4KICAgICAgICAgICAgICA8ZmxvYXQ+MS4wPC9mbG9hdD4KICAgICAgICAgICAgPC90cmFuc3BhcmVuY3k+CiAgICAgICAgICA8L2xhbWJlcnQ+CiAgICAgICAgPC90ZWNobmlxdWU+CiAgICAgICAgPGV4dHJhPgogICAgICAgICAgPHRlY2huaXF1ZSBwcm9maWxlPSJHT09HTEVFQVJUSCI+CiAgICAgICAgICAgIDxkb3VibGVfc2lkZWQ+MTwvZG91YmxlX3NpZGVkPgogICAgICAgICAgPC90ZWNobmlxdWU+CiAgICAgICAgPC9leHRyYT4KICAgICAgPC9wcm9maWxlX0NPTU1PTj4KICAgIDwvZWZmZWN0PgogICAgPGVmZmVjdCBpZD0iSF9lZmZlY3QiIG5hbWU9IkhfZWZmZWN0Ij4KICAgICAgPHByb2ZpbGVfQ09NTU9OPgogICAgICAgIDx0ZWNobmlxdWUgc2lkPSJjb21tb24iPgogICAgICAgICAgPGxhbWJlcnQ+CiAgICAgICAgICAgIDxkaWZmdXNlPgogICAgICAgICAgICAgIDxjb2xvcj4xLjAgMS4wIDAuMzk2MDc4NDMxMzcyNTQ5IDEuMDwvY29sb3I+CiAgICAgICAgICAgIDwvZGlmZnVzZT4KICAgICAgICAgICAgPHNoaW5pbmVzcz4KICAgICAgICAgICAgICA8ZmxvYXQ+MC4wPC9mbG9hdD4KICAgICAgICAgICAgPC9zaGluaW5lc3M+CiAgICAgICAgICAgIDxyZWZsZWN0aXZpdHk+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvcmVmbGVjdGl2aXR5PgogICAgICAgICAgICA8dHJhbnNwYXJlbnQ+CiAgICAgICAgICAgICAgPGNvbG9yPjEuMCAxLjAgMC4zOTYwNzg0MzEzNzI1NDkgMS4wPC9jb2xvcj4KICAgICAgICAgICAgPC90cmFuc3BhcmVudD4KICAgICAgICAgICAgPHRyYW5zcGFyZW5jeT4KICAgICAgICAgICAgICA8ZmxvYXQ+MS4wPC9mbG9hdD4KICAgICAgICAgICAgPC90cmFuc3BhcmVuY3k+CiAgICAgICAgICA8L2xhbWJlcnQ+CiAgICAgICAgPC90ZWNobmlxdWU+CiAgICAgICAgPGV4dHJhPgogICAgICAgICAgPHRlY2huaXF1ZSBwcm9maWxlPSJHT09HTEVFQVJUSCI+CiAgICAgICAgICAgIDxkb3VibGVfc2lkZWQ+MTwvZG91YmxlX3NpZGVkPgogICAgICAgICAgPC90ZWNobmlxdWU+CiAgICAgICAgPC9leHRyYT4KICAgICAgPC9wcm9maWxlX0NPTU1PTj4KICAgIDwvZWZmZWN0PgogICAgPGVmZmVjdCBpZD0iWF9DT1JSRUxBVElPTl9lZmZlY3QiIG5hbWU9IlhfQ09SUkVMQVRJT05fZWZmZWN0Ij4KICAgICAgPHByb2ZpbGVfQ09NTU9OPgogICAgICAgIDx0ZWNobmlxdWUgc2lkPSJjb21tb24iPgogICAgICAgICAgPGxhbWJlcnQ+CiAgICAgICAgICAgIDxkaWZmdXNlPgogICAgICAgICAgICAgIDxjb2xvcj4xLjAgMC4wIDAuMCAwLjg8L2NvbG9yPgogICAgICAgICAgICA8L2RpZmZ1c2U+CiAgICAgICAgICAgIDxzaGluaW5lc3M+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvc2hpbmluZXNzPgogICAgICAgICAgICA8cmVmbGVjdGl2aXR5PgogICAgICAgICAgICAgIDxmbG9hdD4wLjA8L2Zsb2F0PgogICAgICAgICAgICA8L3JlZmxlY3Rpdml0eT4KICAgICAgICAgICAgPHRyYW5zcGFyZW50PgogICAgICAgICAgICAgIDxjb2xvcj4xLjAgMC4wIDAuMCAwLjg8L2NvbG9yPgogICAgICAgICAgICA8L3RyYW5zcGFyZW50PgogICAgICAgICAgICA8dHJhbnNwYXJlbmN5PgogICAgICAgICAgICAgIDxmbG9hdD4wLjg8L2Zsb2F0PgogICAgICAgICAgICA8L3RyYW5zcGFyZW5jeT4KICAgICAgICAgIDwvbGFtYmVydD4KICAgICAgICA8L3RlY2huaXF1ZT4KICAgICAgICA8ZXh0cmE+CiAgICAgICAgICA8dGVjaG5pcXVlIHByb2ZpbGU9IkdPT0dMRUVBUlRIIj4KICAgICAgICAgICAgPGRvdWJsZV9zaWRlZD4xPC9kb3VibGVfc2lkZWQ+CiAgICAgICAgICA8L3RlY2huaXF1ZT4KICAgICAgICA8L2V4dHJhPgogICAgICA8L3Byb2ZpbGVfQ09NTU9OPgogICAgPC9lZmZlY3Q+CiAgICA8ZWZmZWN0IGlkPSJaX0NPUlJFTEFUSU9OX2VmZmVjdCIgbmFtZT0iWl9DT1JSRUxBVElPTl9lZmZlY3QiPgogICAgICA8cHJvZmlsZV9DT01NT04+CiAgICAgICAgPHRlY2huaXF1ZSBzaWQ9ImNvbW1vbiI+CiAgICAgICAgICA8bGFtYmVydD4KICAgICAgICAgICAgPGRpZmZ1c2U+CiAgICAgICAgICAgICAgPGNvbG9yPjAuMCAwLjAgMS4wIDAuODwvY29sb3I+CiAgICAgICAgICAgIDwvZGlmZnVzZT4KICAgICAgICAgICAgPHNoaW5pbmVzcz4KICAgICAgICAgICAgICA8ZmxvYXQ+MC4wPC9mbG9hdD4KICAgICAgICAgICAgPC9zaGluaW5lc3M+CiAgICAgICAgICAgIDxyZWZsZWN0aXZpdHk+CiAgICAgICAgICAgICAgPGZsb2F0PjAuMDwvZmxvYXQ+CiAgICAgICAgICAgIDwvcmVmbGVjdGl2aXR5PgogICAgICAgICAgICA8dHJhbnNwYXJlbnQ+CiAgICAgICAgICAgICAgPGNvbG9yPjAuMCAwLjAgMS4wIDAuODwvY29sb3I+CiAgICAgICAgICAgIDwvdHJhbnNwYXJlbnQ+CiAgICAgICAgICAgIDx0cmFuc3BhcmVuY3k+CiAgICAgICAgICAgICAgPGZsb2F0PjAuODwvZmxvYXQ+CiAgICAgICAgICAgIDwvdHJhbnNwYXJlbmN5PgogICAgICAgICAgPC9sYW1iZXJ0PgogICAgICAgIDwvdGVjaG5pcXVlPgogICAgICAgIDxleHRyYT4KICAgICAgICAgIDx0ZWNobmlxdWUgcHJvZmlsZT0iR09PR0xFRUFSVEgiPgogICAgICAgICAgICA8ZG91YmxlX3NpZGVkPjE8L2RvdWJsZV9zaWRlZD4KICAgICAgICAgIDwvdGVjaG5pcXVlPgogICAgICAgIDwvZXh0cmE+CiAgICAgIDwvcHJvZmlsZV9DT01NT04+CiAgICA8L2VmZmVjdD4KICA8L2xpYnJhcnlfZWZmZWN0cz4KICA8bGlicmFyeV9nZW9tZXRyaWVzPgogICAgPGdlb21ldHJ5IGlkPSJGYWNlSUQwIiBuYW1lPSJGYWNlSUQwIj4KICAgICAgPG1lc2g+CiAgICAgICAgPHNvdXJjZSBpZD0iRmFjZUlEMF9wb3NpdGlvbnMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDBfcG9zaXRpb25zLWFycmF5Ij4wIDAgMCAwIDEgMCAwIDEgMSAwIDAgMTwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQwX3Bvc2l0aW9ucy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQwX25vcm1hbHMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDBfbm9ybWFscy1hcnJheSI+LTEgMCAwIC0xIDAgMCAtMSAwIDAgLTEgMCAwPC9mbG9hdF9hcnJheT4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8YWNjZXNzb3IgY291bnQ9IjQiIHNvdXJjZT0iI0ZhY2VJRDBfbm9ybWFscy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8dmVydGljZXMgaWQ9IkZhY2VJRDBfcG9zaXRpb25zLXZlcnRpY2VzIj4KICAgICAgICAgIDxpbnB1dCBzZW1hbnRpYz0iUE9TSVRJT04iIHNvdXJjZT0iI0ZhY2VJRDBfcG9zaXRpb25zIiAvPgogICAgICAgIDwvdmVydGljZXM+CiAgICAgICAgPHRyaWFuZ2xlcyBjb3VudD0iMiIgbWF0ZXJpYWw9Ik1hdGVyaWFsU3ltYm9sIj4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjAiIHNlbWFudGljPSJWRVJURVgiIHNvdXJjZT0iI0ZhY2VJRDBfcG9zaXRpb25zLXZlcnRpY2VzIiAvPgogICAgICAgICAgPGlucHV0IG9mZnNldD0iMSIgc2VtYW50aWM9Ik5PUk1BTCIgc291cmNlPSIjRmFjZUlEMF9ub3JtYWxzIiAvPgogICAgICAgICAgPHA+MCAwIDIgMiAxIDEgMiAyIDAgMCAzIDM8L3A+CiAgICAgICAgPC90cmlhbmdsZXM+CiAgICAgIDwvbWVzaD4KICAgIDwvZ2VvbWV0cnk+CiAgICA8Z2VvbWV0cnkgaWQ9IkZhY2VJRDEiIG5hbWU9IkZhY2VJRDEiPgogICAgICA8bWVzaD4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQxX3Bvc2l0aW9ucyI+CiAgICAgICAgICA8ZmxvYXRfYXJyYXkgY291bnQ9IjEyIiBpZD0iRmFjZUlEMV9wb3NpdGlvbnMtYXJyYXkiPjEgMCAwIDEgMSAwIDEgMSAxIDEgMCAxPC9mbG9hdF9hcnJheT4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8YWNjZXNzb3IgY291bnQ9IjQiIHNvdXJjZT0iI0ZhY2VJRDFfcG9zaXRpb25zLWFycmF5IiBzdHJpZGU9IjMiPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWCIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlkiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJaIiAvPgogICAgICAgICAgICA8L2FjY2Vzc29yPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvc291cmNlPgogICAgICAgIDxzb3VyY2UgaWQ9IkZhY2VJRDFfbm9ybWFscyI+CiAgICAgICAgICA8ZmxvYXRfYXJyYXkgY291bnQ9IjEyIiBpZD0iRmFjZUlEMV9ub3JtYWxzLWFycmF5Ij4xIDAgMCAxIDAgMCAxIDAgMCAxIDAgMDwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQxX25vcm1hbHMtYXJyYXkiIHN0cmlkZT0iMyI+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJYIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWSIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IloiIC8+CiAgICAgICAgICAgIDwvYWNjZXNzb3I+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9zb3VyY2U+CiAgICAgICAgPHZlcnRpY2VzIGlkPSJGYWNlSUQxX3Bvc2l0aW9ucy12ZXJ0aWNlcyI+CiAgICAgICAgICA8aW5wdXQgc2VtYW50aWM9IlBPU0lUSU9OIiBzb3VyY2U9IiNGYWNlSUQxX3Bvc2l0aW9ucyIgLz4KICAgICAgICA8L3ZlcnRpY2VzPgogICAgICAgIDx0cmlhbmdsZXMgY291bnQ9IjIiIG1hdGVyaWFsPSJNYXRlcmlhbFN5bWJvbCI+CiAgICAgICAgICA8aW5wdXQgb2Zmc2V0PSIwIiBzZW1hbnRpYz0iVkVSVEVYIiBzb3VyY2U9IiNGYWNlSUQxX3Bvc2l0aW9ucy12ZXJ0aWNlcyIgLz4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjEiIHNlbWFudGljPSJOT1JNQUwiIHNvdXJjZT0iI0ZhY2VJRDFfbm9ybWFscyIgLz4KICAgICAgICAgIDxwPjAgMCAyIDIgMSAxIDIgMiAwIDAgMyAzPC9wPgogICAgICAgIDwvdHJpYW5nbGVzPgogICAgICA8L21lc2g+CiAgICA8L2dlb21ldHJ5PgogICAgPGdlb21ldHJ5IGlkPSJGYWNlSUQyIiBuYW1lPSJGYWNlSUQyIj4KICAgICAgPG1lc2g+CiAgICAgICAgPHNvdXJjZSBpZD0iRmFjZUlEMl9wb3NpdGlvbnMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDJfcG9zaXRpb25zLWFycmF5Ij4wIDEgMCAwIDEgMSAxIDEgMSAxIDEgMDwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQyX3Bvc2l0aW9ucy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQyX25vcm1hbHMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDJfbm9ybWFscy1hcnJheSI+MCAxIDAgMCAxIDAgMCAxIDAgMCAxIDA8L2Zsb2F0X2FycmF5PgogICAgICAgICAgPHRlY2huaXF1ZV9jb21tb24+CiAgICAgICAgICAgIDxhY2Nlc3NvciBjb3VudD0iNCIgc291cmNlPSIjRmFjZUlEMl9ub3JtYWxzLWFycmF5IiBzdHJpZGU9IjMiPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWCIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlkiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJaIiAvPgogICAgICAgICAgICA8L2FjY2Vzc29yPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvc291cmNlPgogICAgICAgIDx2ZXJ0aWNlcyBpZD0iRmFjZUlEMl9wb3NpdGlvbnMtdmVydGljZXMiPgogICAgICAgICAgPGlucHV0IHNlbWFudGljPSJQT1NJVElPTiIgc291cmNlPSIjRmFjZUlEMl9wb3NpdGlvbnMiIC8+CiAgICAgICAgPC92ZXJ0aWNlcz4KICAgICAgICA8dHJpYW5nbGVzIGNvdW50PSIyIiBtYXRlcmlhbD0iTWF0ZXJpYWxTeW1ib2wiPgogICAgICAgICAgPGlucHV0IG9mZnNldD0iMCIgc2VtYW50aWM9IlZFUlRFWCIgc291cmNlPSIjRmFjZUlEMl9wb3NpdGlvbnMtdmVydGljZXMiIC8+CiAgICAgICAgICA8aW5wdXQgb2Zmc2V0PSIxIiBzZW1hbnRpYz0iTk9STUFMIiBzb3VyY2U9IiNGYWNlSUQyX25vcm1hbHMiIC8+CiAgICAgICAgICA8cD4wIDAgMiAyIDEgMSAyIDIgMCAwIDMgMzwvcD4KICAgICAgICA8L3RyaWFuZ2xlcz4KICAgICAgPC9tZXNoPgogICAgPC9nZW9tZXRyeT4KICAgIDxnZW9tZXRyeSBpZD0iRmFjZUlEMyIgbmFtZT0iRmFjZUlEMyI+CiAgICAgIDxtZXNoPgogICAgICAgIDxzb3VyY2UgaWQ9IkZhY2VJRDNfcG9zaXRpb25zIj4KICAgICAgICAgIDxmbG9hdF9hcnJheSBjb3VudD0iMTIiIGlkPSJGYWNlSUQzX3Bvc2l0aW9ucy1hcnJheSI+MCAwIDAgMSAwIDAgMSAxIDAgMCAxIDA8L2Zsb2F0X2FycmF5PgogICAgICAgICAgPHRlY2huaXF1ZV9jb21tb24+CiAgICAgICAgICAgIDxhY2Nlc3NvciBjb3VudD0iNCIgc291cmNlPSIjRmFjZUlEM19wb3NpdGlvbnMtYXJyYXkiIHN0cmlkZT0iMyI+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJYIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWSIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IloiIC8+CiAgICAgICAgICAgIDwvYWNjZXNzb3I+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9zb3VyY2U+CiAgICAgICAgPHNvdXJjZSBpZD0iRmFjZUlEM19ub3JtYWxzIj4KICAgICAgICAgIDxmbG9hdF9hcnJheSBjb3VudD0iMTIiIGlkPSJGYWNlSUQzX25vcm1hbHMtYXJyYXkiPjAgMCAtMSAwIDAgLTEgMCAwIC0xIDAgMCAtMTwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQzX25vcm1hbHMtYXJyYXkiIHN0cmlkZT0iMyI+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJYIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWSIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IloiIC8+CiAgICAgICAgICAgIDwvYWNjZXNzb3I+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9zb3VyY2U+CiAgICAgICAgPHZlcnRpY2VzIGlkPSJGYWNlSUQzX3Bvc2l0aW9ucy12ZXJ0aWNlcyI+CiAgICAgICAgICA8aW5wdXQgc2VtYW50aWM9IlBPU0lUSU9OIiBzb3VyY2U9IiNGYWNlSUQzX3Bvc2l0aW9ucyIgLz4KICAgICAgICA8L3ZlcnRpY2VzPgogICAgICAgIDx0cmlhbmdsZXMgY291bnQ9IjIiIG1hdGVyaWFsPSJNYXRlcmlhbFN5bWJvbCI+CiAgICAgICAgICA8aW5wdXQgb2Zmc2V0PSIwIiBzZW1hbnRpYz0iVkVSVEVYIiBzb3VyY2U9IiNGYWNlSUQzX3Bvc2l0aW9ucy12ZXJ0aWNlcyIgLz4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjEiIHNlbWFudGljPSJOT1JNQUwiIHNvdXJjZT0iI0ZhY2VJRDNfbm9ybWFscyIgLz4KICAgICAgICAgIDxwPjAgMCAyIDIgMSAxIDIgMiAwIDAgMyAzPC9wPgogICAgICAgIDwvdHJpYW5nbGVzPgogICAgICA8L21lc2g+CiAgICA8L2dlb21ldHJ5PgogICAgPGdlb21ldHJ5IGlkPSJGYWNlSUQ0IiBuYW1lPSJGYWNlSUQ0Ij4KICAgICAgPG1lc2g+CiAgICAgICAgPHNvdXJjZSBpZD0iRmFjZUlENF9wb3NpdGlvbnMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDRfcG9zaXRpb25zLWFycmF5Ij4wIDAgMSAxIDAgMSAxIDEgMSAwIDEgMTwvZmxvYXRfYXJyYXk+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGFjY2Vzc29yIGNvdW50PSI0IiBzb3VyY2U9IiNGYWNlSUQ0X3Bvc2l0aW9ucy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8c291cmNlIGlkPSJGYWNlSUQ0X25vcm1hbHMiPgogICAgICAgICAgPGZsb2F0X2FycmF5IGNvdW50PSIxMiIgaWQ9IkZhY2VJRDRfbm9ybWFscy1hcnJheSI+MCAwIDEgMCAwIDEgMCAwIDEgMCAwIDE8L2Zsb2F0X2FycmF5PgogICAgICAgICAgPHRlY2huaXF1ZV9jb21tb24+CiAgICAgICAgICAgIDxhY2Nlc3NvciBjb3VudD0iNCIgc291cmNlPSIjRmFjZUlENF9ub3JtYWxzLWFycmF5IiBzdHJpZGU9IjMiPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWCIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlkiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJaIiAvPgogICAgICAgICAgICA8L2FjY2Vzc29yPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvc291cmNlPgogICAgICAgIDx2ZXJ0aWNlcyBpZD0iRmFjZUlENF9wb3NpdGlvbnMtdmVydGljZXMiPgogICAgICAgICAgPGlucHV0IHNlbWFudGljPSJQT1NJVElPTiIgc291cmNlPSIjRmFjZUlENF9wb3NpdGlvbnMiIC8+CiAgICAgICAgPC92ZXJ0aWNlcz4KICAgICAgICA8dHJpYW5nbGVzIGNvdW50PSIyIiBtYXRlcmlhbD0iTWF0ZXJpYWxTeW1ib2wiPgogICAgICAgICAgPGlucHV0IG9mZnNldD0iMCIgc2VtYW50aWM9IlZFUlRFWCIgc291cmNlPSIjRmFjZUlENF9wb3NpdGlvbnMtdmVydGljZXMiIC8+CiAgICAgICAgICA8aW5wdXQgb2Zmc2V0PSIxIiBzZW1hbnRpYz0iTk9STUFMIiBzb3VyY2U9IiNGYWNlSUQ0X25vcm1hbHMiIC8+CiAgICAgICAgICA8cD4wIDAgMiAyIDEgMSAyIDIgMCAwIDMgMzwvcD4KICAgICAgICA8L3RyaWFuZ2xlcz4KICAgICAgPC9tZXNoPgogICAgPC9nZW9tZXRyeT4KICAgIDxnZW9tZXRyeSBpZD0iRmFjZUlENSIgbmFtZT0iRmFjZUlENSI+CiAgICAgIDxtZXNoPgogICAgICAgIDxzb3VyY2UgaWQ9IkZhY2VJRDVfcG9zaXRpb25zIj4KICAgICAgICAgIDxmbG9hdF9hcnJheSBjb3VudD0iMTIiIGlkPSJGYWNlSUQ1X3Bvc2l0aW9ucy1hcnJheSI+MCAwIDAgMSAwIDAgMSAxIDAgMCAxIDA8L2Zsb2F0X2FycmF5PgogICAgICAgICAgPHRlY2huaXF1ZV9jb21tb24+CiAgICAgICAgICAgIDxhY2Nlc3NvciBjb3VudD0iNCIgc291cmNlPSIjRmFjZUlENV9wb3NpdGlvbnMtYXJyYXkiIHN0cmlkZT0iMyI+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJYIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWSIgLz4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IloiIC8+CiAgICAgICAgICAgIDwvYWNjZXNzb3I+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9zb3VyY2U+CiAgICAgICAgPHNvdXJjZSBpZD0iRmFjZUlENV9ub3JtYWxzIj4KICAgICAgICAgIDxmbG9hdF9hcnJheSBjb3VudD0iMTIiIGlkPSJGYWNlSUQ1X25vcm1hbHMtYXJyYXkiPjAgMCAxIDAgMCAxIDAgMCAxIDAgMCAxPC9mbG9hdF9hcnJheT4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8YWNjZXNzb3IgY291bnQ9IjQiIHNvdXJjZT0iI0ZhY2VJRDVfbm9ybWFscy1hcnJheSIgc3RyaWRlPSIzIj4KICAgICAgICAgICAgICA8cGFyYW0gdHlwZT0iZmxvYXQiIG5hbWU9IlgiIC8+CiAgICAgICAgICAgICAgPHBhcmFtIHR5cGU9ImZsb2F0IiBuYW1lPSJZIiAvPgogICAgICAgICAgICAgIDxwYXJhbSB0eXBlPSJmbG9hdCIgbmFtZT0iWiIgLz4KICAgICAgICAgICAgPC9hY2Nlc3Nvcj4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L3NvdXJjZT4KICAgICAgICA8dmVydGljZXMgaWQ9IkZhY2VJRDVfcG9zaXRpb25zLXZlcnRpY2VzIj4KICAgICAgICAgIDxpbnB1dCBzZW1hbnRpYz0iUE9TSVRJT04iIHNvdXJjZT0iI0ZhY2VJRDVfcG9zaXRpb25zIiAvPgogICAgICAgIDwvdmVydGljZXM+CiAgICAgICAgPHRyaWFuZ2xlcyBjb3VudD0iMiIgbWF0ZXJpYWw9Ik1hdGVyaWFsU3ltYm9sIj4KICAgICAgICAgIDxpbnB1dCBvZmZzZXQ9IjAiIHNlbWFudGljPSJWRVJURVgiIHNvdXJjZT0iI0ZhY2VJRDVfcG9zaXRpb25zLXZlcnRpY2VzIiAvPgogICAgICAgICAgPGlucHV0IG9mZnNldD0iMSIgc2VtYW50aWM9Ik5PUk1BTCIgc291cmNlPSIjRmFjZUlENV9ub3JtYWxzIiAvPgogICAgICAgICAgPHA+MCAwIDIgMiAxIDEgMiAyIDAgMCAzIDM8L3A+CiAgICAgICAgPC90cmlhbmdsZXM+CiAgICAgIDwvbWVzaD4KICAgIDwvZ2VvbWV0cnk+CiAgPC9saWJyYXJ5X2dlb21ldHJpZXM+CiAgPGxpYnJhcnlfbWF0ZXJpYWxzPgogICAgPG1hdGVyaWFsIGlkPSJYX21hdGVyaWFsIiBuYW1lPSJYX21hdGVyaWFsIj4KICAgICAgPGluc3RhbmNlX2VmZmVjdCB1cmw9IiNYX2VmZmVjdCIgLz4KICAgIDwvbWF0ZXJpYWw+CiAgICA8bWF0ZXJpYWwgaWQ9IllfbWF0ZXJpYWwiIG5hbWU9IllfbWF0ZXJpYWwiPgogICAgICA8aW5zdGFuY2VfZWZmZWN0IHVybD0iI1lfZWZmZWN0IiAvPgogICAgPC9tYXRlcmlhbD4KICAgIDxtYXRlcmlhbCBpZD0iWl9tYXRlcmlhbCIgbmFtZT0iWl9tYXRlcmlhbCI+CiAgICAgIDxpbnN0YW5jZV9lZmZlY3QgdXJsPSIjWl9lZmZlY3QiIC8+CiAgICA8L21hdGVyaWFsPgogICAgPG1hdGVyaWFsIGlkPSJIX21hdGVyaWFsIiBuYW1lPSJIX21hdGVyaWFsIj4KICAgICAgPGluc3RhbmNlX2VmZmVjdCB1cmw9IiNIX2VmZmVjdCIgLz4KICAgIDwvbWF0ZXJpYWw+CiAgICA8bWF0ZXJpYWwgaWQ9IlhfQ09SUkVMQVRJT05fbWF0ZXJpYWwiIG5hbWU9IlhfQ09SUkVMQVRJT05fbWF0ZXJpYWwiPgogICAgICA8aW5zdGFuY2VfZWZmZWN0IHVybD0iI1hfQ09SUkVMQVRJT05fZWZmZWN0IiAvPgogICAgPC9tYXRlcmlhbD4KICAgIDxtYXRlcmlhbCBpZD0iWl9DT1JSRUxBVElPTl9tYXRlcmlhbCIgbmFtZT0iWl9DT1JSRUxBVElPTl9tYXRlcmlhbCI+CiAgICAgIDxpbnN0YW5jZV9lZmZlY3QgdXJsPSIjWl9DT1JSRUxBVElPTl9lZmZlY3QiIC8+CiAgICA8L21hdGVyaWFsPgogIDwvbGlicmFyeV9tYXRlcmlhbHM+CiAgPGxpYnJhcnlfbm9kZXM+CiAgICA8bm9kZSBpZD0iWlhaIHdpdGhvdXQgWS0iIG5hbWU9IlpYWiI+CiAgICAgIDxpbnN0YW5jZV9nZW9tZXRyeSB1cmw9IiNGYWNlSUQwIj4KICAgICAgICA8YmluZF9tYXRlcmlhbD4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8aW5zdGFuY2VfbWF0ZXJpYWwgc3ltYm9sPSJNYXRlcmlhbFN5bWJvbCIgdGFyZ2V0PSIjWl9tYXRlcmlhbCI+CiAgICAgICAgICAgICAgPGJpbmRfdmVydGV4X2lucHV0IHNlbWFudGljPSJVVlNFVDAiIGlucHV0X3NlbWFudGljPSJURVhDT09SRCIgaW5wdXRfc2V0PSIwIiAvPgogICAgICAgICAgICA8L2luc3RhbmNlX21hdGVyaWFsPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvYmluZF9tYXRlcmlhbD4KICAgICAgPC9pbnN0YW5jZV9nZW9tZXRyeT4KICAgICAgPGluc3RhbmNlX2dlb21ldHJ5IHVybD0iI0ZhY2VJRDEiPgogICAgICAgIDxiaW5kX21hdGVyaWFsPgogICAgICAgICAgPHRlY2huaXF1ZV9jb21tb24+CiAgICAgICAgICAgIDxpbnN0YW5jZV9tYXRlcmlhbCBzeW1ib2w9Ik1hdGVyaWFsU3ltYm9sIiB0YXJnZXQ9IiNaX21hdGVyaWFsIj4KICAgICAgICAgICAgICA8YmluZF92ZXJ0ZXhfaW5wdXQgc2VtYW50aWM9IlVWU0VUMCIgaW5wdXRfc2VtYW50aWM9IlRFWENPT1JEIiBpbnB1dF9zZXQ9IjAiIC8+CiAgICAgICAgICAgIDwvaW5zdGFuY2VfbWF0ZXJpYWw+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9iaW5kX21hdGVyaWFsPgogICAgICA8L2luc3RhbmNlX2dlb21ldHJ5PgogICAgICA8aW5zdGFuY2VfZ2VvbWV0cnkgdXJsPSIjRmFjZUlEMiI+CiAgICAgICAgPGJpbmRfbWF0ZXJpYWw+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGluc3RhbmNlX21hdGVyaWFsIHN5bWJvbD0iTWF0ZXJpYWxTeW1ib2wiIHRhcmdldD0iI1hfbWF0ZXJpYWwiPgogICAgICAgICAgICAgIDxiaW5kX3ZlcnRleF9pbnB1dCBzZW1hbnRpYz0iVVZTRVQwIiBpbnB1dF9zZW1hbnRpYz0iVEVYQ09PUkQiIGlucHV0X3NldD0iMCIgLz4KICAgICAgICAgICAgPC9pbnN0YW5jZV9tYXRlcmlhbD4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L2JpbmRfbWF0ZXJpYWw+CiAgICAgIDwvaW5zdGFuY2VfZ2VvbWV0cnk+CiAgICAgIDxpbnN0YW5jZV9nZW9tZXRyeSB1cmw9IiNGYWNlSUQzIj4KICAgICAgICA8YmluZF9tYXRlcmlhbD4KICAgICAgICAgIDx0ZWNobmlxdWVfY29tbW9uPgogICAgICAgICAgICA8aW5zdGFuY2VfbWF0ZXJpYWwgc3ltYm9sPSJNYXRlcmlhbFN5bWJvbCIgdGFyZ2V0PSIjWl9tYXRlcmlhbCI+CiAgICAgICAgICAgICAgPGJpbmRfdmVydGV4X2lucHV0IHNlbWFudGljPSJVVlNFVDAiIGlucHV0X3NlbWFudGljPSJURVhDT09SRCIgaW5wdXRfc2V0PSIwIiAvPgogICAgICAgICAgICA8L2luc3RhbmNlX21hdGVyaWFsPgogICAgICAgICAgPC90ZWNobmlxdWVfY29tbW9uPgogICAgICAgIDwvYmluZF9tYXRlcmlhbD4KICAgICAgPC9pbnN0YW5jZV9nZW9tZXRyeT4KICAgICAgPGluc3RhbmNlX2dlb21ldHJ5IHVybD0iI0ZhY2VJRDQiPgogICAgICAgIDxiaW5kX21hdGVyaWFsPgogICAgICAgICAgPHRlY2huaXF1ZV9jb21tb24+CiAgICAgICAgICAgIDxpbnN0YW5jZV9tYXRlcmlhbCBzeW1ib2w9Ik1hdGVyaWFsU3ltYm9sIiB0YXJnZXQ9IiNaX21hdGVyaWFsIj4KICAgICAgICAgICAgICA8YmluZF92ZXJ0ZXhfaW5wdXQgc2VtYW50aWM9IlVWU0VUMCIgaW5wdXRfc2VtYW50aWM9IlRFWENPT1JEIiBpbnB1dF9zZXQ9IjAiIC8+CiAgICAgICAgICAgIDwvaW5zdGFuY2VfbWF0ZXJpYWw+CiAgICAgICAgICA8L3RlY2huaXF1ZV9jb21tb24+CiAgICAgICAgPC9iaW5kX21hdGVyaWFsPgogICAgICA8L2luc3RhbmNlX2dlb21ldHJ5PgogICAgPC9ub2RlPgogICAgPG5vZGUgaWQ9IlpfQ09SUkVMQVRJT04iIG5hbWU9IlpfQ09SUkVMQVRJT04iPgogICAgICA8aW5zdGFuY2VfZ2VvbWV0cnkgdXJsPSIjRmFjZUlENSI+CiAgICAgICAgPGJpbmRfbWF0ZXJpYWw+CiAgICAgICAgICA8dGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICAgICAgPGluc3RhbmNlX21hdGVyaWFsIHN5bWJvbD0iTWF0ZXJpYWxTeW1ib2wiIHRhcmdldD0iI1pfQ09SUkVMQVRJT05fbWF0ZXJpYWwiPgogICAgICAgICAgICAgIDxiaW5kX3ZlcnRleF9pbnB1dCBzZW1hbnRpYz0iVVZTRVQwIiBpbnB1dF9zZW1hbnRpYz0iVEVYQ09PUkQiIGlucHV0X3NldD0iMCIgLz4KICAgICAgICAgICAgPC9pbnN0YW5jZV9tYXRlcmlhbD4KICAgICAgICAgIDwvdGVjaG5pcXVlX2NvbW1vbj4KICAgICAgICA8L2JpbmRfbWF0ZXJpYWw+CiAgICAgIDwvaW5zdGFuY2VfZ2VvbWV0cnk+CiAgICA8L25vZGU+CiAgPC9saWJyYXJ5X25vZGVzPgogIDxsaWJyYXJ5X3Zpc3VhbF9zY2VuZXM+CiAgICA8dmlzdWFsX3NjZW5lIGlkPSJzY2VuZSI+CiAgICAgIDxub2RlIGlkPSJTa2V0Y2hVcCIgbmFtZT0iU2tldGNoVXAiPgogICAgICAgIDxub2RlIGlkPSJJRDAiIG5hbWU9Imluc3RhbmNlXzAiPgogICAgICAgICAgPG1hdHJpeD4xLjAgMC4wIDAuMCAwLjAgMC4wIDEuMCAwLjAgMC4wIDAuMCAwLjAgMS4wIDAuMCAwLjAgMC4wIDAuMCAxLjA8L21hdHJpeD4KICAgICAgICAgIDxpbnN0YW5jZV9ub2RlIHVybD0iI1pYWiB3aXRob3V0IFktIiAvPgogICAgICAgIDwvbm9kZT4KICAgICAgICA8bm9kZSBpZD0iSUQxIiBuYW1lPSJpbnN0YW5jZV8xX2NvcnJlbGF0aW9uX3N1cmZhY2UiPgogICAgICAgICAgPG1hdHJpeD4xLjAgMC4wIDAuMCAwLjAgMC4wIDYuMTIzMjM0ZS0xNyAtMS4wIDAuNSAwLjAgMS4wIDYuMTIzMjM0ZS0xNyAwLjAgMC4wIDAuMCAwLjAgMS4wPC9tYXRyaXg+CiAgICAgICAgICA8aW5zdGFuY2Vfbm9kZSB1cmw9IiNaX0NPUlJFTEFUSU9OIiAvPgogICAgICAgIDwvbm9kZT4KICAgICAgPC9ub2RlPgogICAgPC92aXN1YWxfc2NlbmU+CiAgPC9saWJyYXJ5X3Zpc3VhbF9zY2VuZXM+CiAgPHNjZW5lPgogICAgPGluc3RhbmNlX3Zpc3VhbF9zY2VuZSB1cmw9IiNzY2VuZSIgLz4KICA8L3NjZW5lPgo8L0NPTExBREE+Cg==&quot;&gt;Download 3D
+    Model as .dae File&lt;/a&gt;
+  &lt;br /&gt;Mouse Wheel = Zoom. Left Drag = Orbit. Right Drag = Strafe.
+  &lt;div id=&quot;scene-container&quot; style=&quot;width: calc(100vw - 32px); height: calc(100vh - 64px)&quot;&gt;
+    JavaScript Blocked?
+  &lt;/div&gt;
+
+  &lt;script type=&quot;module&quot;&gt;
+    import * as THREE from &quot;three&quot;;
+    import {OrbitControls} from &quot;three-orbitcontrols&quot;;
+    import {ColladaLoader} from &quot;three-collada-loader&quot;;
+
+    const container = document.getElementById(&quot;scene-container&quot;);
+    const downloadLink = document.getElementById(&quot;model-download-link&quot;);
+
+    // Remove IDs to avoid cross-cell interactions (workaround for Jupyter notebook issue)
+    container.removeAttribute(&quot;id&quot;);
+    downloadLink.removeAttribute(&quot;id&quot;);
+
+    container.textContent = &quot;Loading viewer...&quot;;
+
+    async function init() {
+      try {
+        container.textContent = &quot;Loading model...&quot;;
+
+        const modelDataUri = downloadLink.href;
+        const collada = await new ColladaLoader().loadAsync(modelDataUri);
+
+        container.textContent = &quot;Loading scene...&quot;;
+
+        // Create the scene
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(&quot;#CBDFC6&quot;);
+
+        // Set up lights
+        setupLights(scene);
+
+        // Prepare and add the model to the scene
+        processModel(collada.scene);
+        scene.add(collada.scene);
+
+        // Set up the camera and controls
+        const camera = new THREE.PerspectiveCamera(
+          35,
+          container.clientWidth / container.clientHeight,
+          0.1,
+          100000,
+        );
+        const controls = new OrbitControls(camera, container);
+
+        // Adjust camera to fit the scene
+        fitCameraToObject(camera, controls, scene);
+
+        // Add axes helper
+        const axesHelper = new THREE.AxesHelper(2);
+        axesHelper.rotation.x = -Math.PI / 2;
+        scene.add(axesHelper);
+
+        // Set up renderer
+        const renderer = new THREE.WebGLRenderer({antialias: true});
+        setupRenderer(renderer, container, camera, scene);
+
+        // Start rendering
+        renderScene(renderer, scene, camera, controls, container);
+      } catch (ex) {
+        container.textContent = &quot;Failed to show model. &quot; + ex;
+        console.error(ex);
+      }
+    }
+
+    function setupLights(scene) {
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+      directionalLight.position.set(10, 10, 10);
+      directionalLight.castShadow = true;
+      scene.add(directionalLight);
+    }
+
+    function processModel(modelScene) {
+      modelScene.traverse((node) =&gt; {
+        if (node.isMesh) {
+          node.material.side = THREE.DoubleSide;
+
+          if (node.name.endsWith(&quot;correlation_surface&quot;)) {
+            return;
+          }
+          // Add edges for better visibility
+          const edgesGeometry = new THREE.EdgesGeometry(node.geometry);
+          const edgesMaterial = new THREE.LineBasicMaterial({
+            color: 0x000000,
+          });
+          const edgeMesh = new THREE.LineSegments(
+            edgesGeometry,
+            edgesMaterial,
+          );
+          node.add(edgeMesh);
+        }
+      });
+    }
+
+    function fitCameraToObject(camera, controls, scene) {
+      let bounds = new THREE.Box3().setFromObject(scene);
+      let mid = new THREE.Vector3(
+        (bounds.min.x + bounds.max.x) * 0.5,
+        (bounds.min.y + bounds.max.y) * 0.5,
+        (bounds.min.z + bounds.max.z) * 0.5,
+      );
+      let boxPoints = [];
+      for (let dx of [0, 0.5, 1]) {
+        for (let dy of [0, 0.5, 1]) {
+          for (let dz of [0, 0.5, 1]) {
+            boxPoints.push(
+              new THREE.Vector3(
+                bounds.min.x + (bounds.max.x - bounds.min.x) * dx,
+                bounds.min.y + (bounds.max.y - bounds.min.y) * dy,
+                bounds.min.z + (bounds.max.z - bounds.min.z) * dz,
+              ),
+            );
+          }
+        }
+      }
+      let isInView = (p) =&gt; {
+        p = new THREE.Vector3(p.x, p.y, p.z);
+        p.project(camera);
+        return Math.abs(p.x) &lt; 1 &amp;&amp; Math.abs(p.y) &lt; 1 &amp;&amp; p.z &gt;= 0 &amp;&amp; p.z &lt; 1;
+      };
+      let unit = new THREE.Vector3(0.3, 0.4, 1.8);
+      unit.normalize();
+      let setCameraDistance = (d) =&gt; {
+        controls.target.copy(mid);
+        camera.position.copy(mid);
+        camera.position.addScaledVector(unit, d);
+        controls.update();
+        return boxPoints.every(isInView);
+      };
+
+      let maxDistance = 1;
+      for (let k = 0; k &lt; 20; k++) {
+        if (setCameraDistance(maxDistance)) {
+          break;
+        }
+        maxDistance *= 2;
+      }
+      let minDistance = maxDistance;
+      for (let k = 0; k &lt; 20; k++) {
+        minDistance /= 2;
+        if (!setCameraDistance(minDistance)) {
+          break;
+        }
+      }
+      for (let k = 0; k &lt; 20; k++) {
+        let mid = (minDistance + maxDistance) / 2;
+        if (setCameraDistance(mid)) {
+          maxDistance = mid;
+        } else {
+          minDistance = mid;
+        }
+      }
+      setCameraDistance(maxDistance);
+    }
+
+    function setupRenderer(renderer, container, camera, scene) {
+      container.textContent = &quot;&quot;;
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.physicallyCorrectLights = true;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.setClearColor(0xdedede);
+      container.appendChild(renderer.domElement);
+    }
+
+    function renderScene(renderer, scene, camera, controls, container) {
+      const render = () =&gt; {
+        renderer.render(scene, camera);
+      };
+
+      render();
+
+      new ResizeObserver(() =&gt; {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+        render();
+      }).observe(container);
+
+      controls.addEventListener(&quot;change&quot;, render);
+    }
+
+    init();
+  &lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+"></iframe></div>
+</div>
+</section>
+<section id="Circuit">
+<h2>Circuit<a class="headerlink" href="#Circuit" title="Link to this heading">#</a></h2>
+<p>You can download the circuit for a <span class="math notranslate nohighlight">\(d=3\)</span> CSS-type logical Z memory experiment from <a class="reference external" href="../media/gallery/memory/circuit.stim">here</a>, or generate it with the code below. You can also open the circuit in
+<a class="reference external" href="https://algassert.com/crumble#circuit=Q(0,2)0;Q(1,1)1;Q(1,3)2;Q(1,5)3;Q(2,2)4;Q(2,4)5;Q(2,6)6;Q(3,1)7;Q(3,3)8;Q(3,5)9;Q(4,0)10;Q(4,2)11;Q(4,4)12;Q(5,1)13;Q(5,3)14;Q(5,5)15;Q(6,4)16;R_0_1_2_3_5_7_8_9_11_13_14_15_16;RX_4_6_10_12;TICK;CX_4_1_7_11_2_5_12_8_14_16_6_3;TICK;CX_4_7_8_11_3_5_12_14_15_16_6_9;TICK;CX_10_7_1_0_4_2_13_11_8_5_12_9;TICK;CX_10_13_2_0_4_8_14_11_9_5_12_15;TICK;M_0_5_11_16;MX_4_6_10_12;DT(0,2,0)rec%5B-8%5D;DT(2,4,0)rec%5B-7%5D;DT(4,2,0)rec%5B-6%5D;DT(6,4,0)rec%5B-5%5D;TICK;R_0_5_11_16;RX_4_6_10_12;TICK;CX_4_1_7_11_2_5_12_8_14_16_6_3;TICK;CX_4_7_8_11_3_5_12_14_15_16_6_9;TICK;CX_10_7_1_0_4_2_13_11_8_5_12_9;TICK;CX_10_13_2_0_4_8_14_11_9_5_12_15;TICK;M_0_5_11_16;MX_4_6_10_12;DT(0,2,1)rec%5B-8%5D_rec%5B-16%5D;DT(2,4,1)rec%5B-7%5D_rec%5B-15%5D;DT(4,2,1)rec%5B-6%5D_rec%5B-14%5D;DT(6,4,1)rec%5B-5%5D_rec%5B-13%5D;DT(2,2,1)rec%5B-4%5D_rec%5B-12%5D;DT(2,6,1)rec%5B-3%5D_rec%5B-11%5D;DT(4,0,1)rec%5B-2%5D_rec%5B-10%5D;DT(4,4,1)rec%5B-1%5D_rec%5B-9%5D;TICK;TICK;R_0_5_11_16;RX_4_6_10_12;TICK;CX_4_1_7_11_2_5_12_8_14_16_6_3;TICK;CX_4_7_8_11_3_5_12_14_15_16_6_9;TICK;CX_10_7_1_0_4_2_13_11_8_5_12_9;TICK;CX_10_13_2_0_4_8_14_11_9_5_12_15;TICK;M_0_1_2_3_5_7_8_9_11_13_14_15_16;MX_4_6_10_12;DT(0,2,2)rec%5B-17%5D_rec%5B-25%5D;DT(1,3,2)rec%5B-15%5D_rec%5B-16%5D_rec%5B-17%5D;DT(2,4,2)rec%5B-13%5D_rec%5B-24%5D;DT(3,5,2)rec%5B-10%5D_rec%5B-11%5D_rec%5B-13%5D_rec%5B-14%5D_rec%5B-15%5D;DT(4,2,2)rec%5B-9%5D_rec%5B-23%5D;DT(5,3,2)rec%5B-7%5D_rec%5B-8%5D_rec%5B-9%5D_rec%5B-11%5D_rec%5B-12%5D;DT(6,4,2)rec%5B-5%5D_rec%5B-6%5D_rec%5B-7%5D;DT(6,4,3)rec%5B-5%5D_rec%5B-22%5D;DT(2,2,2)rec%5B-4%5D_rec%5B-21%5D;DT(2,6,2)rec%5B-3%5D_rec%5B-20%5D;DT(4,0,2)rec%5B-2%5D_rec%5B-19%5D;DT(4,4,2)rec%5B-1%5D_rec%5B-18%5D;OI(0)rec%5B-7%5D_rec%5B-11%5D_rec%5B-15%5D">Crumble</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec</span> <span class="kn">import</span> <span class="n">compile_block_graph</span><span class="p">,</span> <span class="n">NoiseModel</span>
+
+<span class="n">compiled_graph</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+<span class="n">circuit</span> <span class="o">=</span> <span class="n">compiled_graph</span><span class="o">.</span><span class="n">generate_stim_circuit</span><span class="p">(</span>
+    <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">noise_model</span><span class="o">=</span><span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Simulation">
+<h2>Simulation<a class="headerlink" href="#Simulation" title="Link to this heading">#</a></h2>
+<p>Here we show the simulation results of both Z-basis and X-basis memory experiments. The simulated surface code is <strong>CSS type</strong> and the noise model is <strong>uniform depolarizing</strong>.</p>
+<details><p>Click to show the full code used for simulation</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">sinter</span>
+
+<span class="kn">from</span> <span class="nn">tqec.gallery.solo_node</span> <span class="kn">import</span> <span class="n">solo_node_block_graph</span>
+<span class="kn">from</span> <span class="nn">tqec.noise_model</span> <span class="kn">import</span> <span class="n">NoiseModel</span>
+<span class="kn">from</span> <span class="nn">tqec.simulation.plotting.inset</span> <span class="kn">import</span> <span class="n">plot_observable_as_inset</span>
+<span class="kn">from</span> <span class="nn">tqec.simulation.simulation</span> <span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
+
+<span class="n">SAVE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">generate_graphs</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">block_graph</span> <span class="o">=</span> <span class="n">solo_node_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">)</span>
+    <span class="n">zx_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
+
+    <span class="n">observables</span><span class="p">,</span> <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">get_abstract_observables</span><span class="p">()</span>
+
+    <span class="n">stats</span> <span class="o">=</span> <span class="n">start_simulation_using_sinter</span><span class="p">(</span>
+        <span class="n">block_graph</span><span class="p">,</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span>
+        <span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">,</span>
+        <span class="n">manhattan_radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">observables</span><span class="o">=</span><span class="n">observables</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">max_shots</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
+        <span class="n">max_errors</span><span class="o">=</span><span class="mi">5_000</span><span class="p">,</span>
+        <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pymatching&quot;</span><span class="p">],</span>
+        <span class="n">print_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">stat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stats</span><span class="p">):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+        <span class="n">sinter</span><span class="o">.</span><span class="n">plot_error_rate</span><span class="p">(</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">stats</span><span class="o">=</span><span class="n">stat</span><span class="p">,</span>
+            <span class="n">x_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">],</span>
+            <span class="n">failure_units_per_shot_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">],</span>
+            <span class="n">group_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">plot_observable_as_inset</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">zx_graph</span><span class="p">,</span> <span class="n">correlation_surfaces</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Logical Memory Error Rate&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Physical Error Rate&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Logical Error Rate(per round)&quot;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="n">SAVE_DIR</span>
+            <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;logical_memory_result_</span><span class="si">{</span><span class="n">support_observable_basis</span><span class="si">}</span><span class="s2">_observable_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.png&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">SAVE_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">generate_graphs</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
+    <span class="n">generate_graphs</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</details><section id="X-basis">
+<h3>X-basis<a class="headerlink" href="#X-basis" title="Link to this heading">#</a></h3>
+<p><img alt="X-basis" src="../_images/x_memory.png" /></p>
+</section>
+<section id="Z-basis">
+<h3>Z-basis<a class="headerlink" href="#Z-basis" title="Link to this heading">#</a></h3>
+<p><img alt="Z-basis" src="../_images/z_memory.png" /></p>
+</section>
+</section>
+<section id="References">
+<h2>References<a class="headerlink" href="#References" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Acharya, Rajeev, et al. “Quantum error correction below the surface code threshold.” arXiv preprint arXiv:2408.13687 (2024).</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Computation Gallery</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="cnot.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Logical CNOT</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Construction">Construction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Circuit">Circuit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Simulation">Simulation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#X-basis">X-basis</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Z-basis">Z-basis</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#References">References</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/gallery/memory.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

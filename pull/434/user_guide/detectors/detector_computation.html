@@ -1,0 +1,1009 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>How to automatically find detectors? &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/detectors/detector_computation';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to automatically find detectors?</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <style>
+    .wy-nav-content {
+        max-width: 1200px !important;
+    }
+</style><section id="How-to-automatically-find-detectors?">
+<h1>How to automatically find detectors?<a class="headerlink" href="#How-to-automatically-find-detectors?" title="Link to this heading">#</a></h1>
+<p>This notebook show in a simple example how automatic detector computation is performed.</p>
+<section id="Build-the-quantum-circuit">
+<h2>Build the quantum circuit<a class="headerlink" href="#Build-the-quantum-circuit" title="Link to this heading">#</a></h2>
+<p>In most cases, your QEC implementation will be encoded in a quantum circuit structure. Due to its omnipresence in QEC-related tasks, <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> is the quantum circuit representation that is expected by the package.</p>
+<p>Note that the quantum circuit does not have to represent a complete error-corrected computation. In particular, you might want to use knowledge about the quantum error-correction code used to only submit a sub-circuit of the whole computation. For example, if you know that you code is local and that detectors will only include measurements close to each other, it might be interesting to only compute the detectors on a small sub-circuit and re-use the computed detectors on a larger circuit.</p>
+<p>For the purposes of demonstration, we will use a repetition code of distance <code class="docutils literal notranslate"><span class="pre">3</span></code>, performing memory operations for <code class="docutils literal notranslate"><span class="pre">10</span></code> rounds.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">stim</span>
+
+<span class="n">circuit</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">QUBIT_COORDS(0) 0</span>
+<span class="s2">QUBIT_COORDS(1) 1</span>
+<span class="s2">QUBIT_COORDS(2) 2</span>
+<span class="s2">QUBIT_COORDS(3) 3</span>
+<span class="s2">QUBIT_COORDS(4) 4</span>
+<span class="s2">R 0 1 2 3 4</span>
+<span class="s2">TICK</span>
+<span class="s2">CX 0 1 2 3</span>
+<span class="s2">TICK</span>
+<span class="s2">CX 2 1 4 3</span>
+<span class="s2">TICK</span>
+<span class="s2">M 1 3</span>
+<span class="s2">TICK</span>
+<span class="s2">REPEAT 9 {</span>
+<span class="s2">    R 1 3</span>
+<span class="s2">    TICK</span>
+<span class="s2">    CX 0 1 2 3</span>
+<span class="s2">    TICK</span>
+<span class="s2">    CX 2 1 4 3</span>
+<span class="s2">    TICK</span>
+<span class="s2">    M 1 3</span>
+<span class="s2">    TICK</span>
+<span class="s2">}</span>
+<span class="s2">M 0 2 4&quot;&quot;&quot;</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">diagram</span><span class="p">(</span><span class="s2">&quot;timeline-svg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/user_guide_detectors_detector_computation_2_0.svg" src="../../_images/user_guide_detectors_detector_computation_2_0.svg" />
+</div>
+</div>
+<p>Note that the quantum circuit generated by <code class="docutils literal notranslate"><span class="pre">stim.Circuit.generated</span></code> includes a few structures that are not supported by the package. As such, you should ensure that the circuits provided are checking a few pre-conditions.</p>
+<p>That is one of the reasons why the circuit is explicitly provided above and not directly generated with a call to <code class="docutils literal notranslate"><span class="pre">stim.Circuit.generated</span></code>.</p>
+</section>
+<section id="Split-the-quantum-circuit">
+<h2>Split the quantum circuit<a class="headerlink" href="#Split-the-quantum-circuit" title="Link to this heading">#</a></h2>
+<p>Once the quantum circuit is built and adhere to the pre-conditions imposed by the package, we need to split that circuit into a sequence of fragments.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.circuit.detectors.fragment</span> <span class="kn">import</span> <span class="n">split_stim_circuit_into_fragments</span>
+
+<span class="n">fragments</span> <span class="o">=</span> <span class="n">split_stim_circuit_into_fragments</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can explore the fragments built:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">fragment</span> <span class="ow">in</span> <span class="n">fragments</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">fragment</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+================================================================================
+Fragment(circuit=stim.Circuit(&#39;&#39;&#39;
+    QUBIT_COORDS(0) 0
+    QUBIT_COORDS(1) 1
+    QUBIT_COORDS(2) 2
+    QUBIT_COORDS(3) 3
+    QUBIT_COORDS(4) 4
+    R 0 1 2 3 4
+    TICK
+    CX 0 1 2 3
+    TICK
+    CX 2 1 4 3
+    TICK
+    M 1 3
+    TICK
+&#39;&#39;&#39;))
+================================================================================
+FragmentLoop(repetitions=9, fragments=[Fragment(circuit=stim.Circuit(&#39;&#39;&#39;
+    R 1 3
+    TICK
+    CX 0 1 2 3
+    TICK
+    CX 2 1 4 3
+    TICK
+    M 1 3
+    TICK
+&#39;&#39;&#39;))])
+================================================================================
+Fragment(circuit=stim.Circuit(&#39;&#39;&#39;
+    M 0 2 4
+&#39;&#39;&#39;))
+</pre></div></div>
+</div>
+</section>
+<section id="Pre-computing-flows">
+<h2>Pre-computing flows<a class="headerlink" href="#Pre-computing-flows" title="Link to this heading">#</a></h2>
+<p>Now that the quantum circuit is adequately split into fragments, we can start pre-computing the flows for each fragment.</p>
+<p>For the moment, the package is limited to detectors that only include measurements from <code class="docutils literal notranslate"><span class="pre">2</span></code> fragments: the current one and the one before. Due to that limitation, we do not have to compute any “propagation” flow: only “creation” and “destruction” flows are needed to find such detectors.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.circuit.detectors.flow</span> <span class="kn">import</span> <span class="n">build_flows_from_fragments</span>
+
+<span class="n">flows</span> <span class="o">=</span> <span class="n">build_flows_from_fragments</span><span class="p">(</span><span class="n">fragments</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Just like fragments, it is interesting to explore and visualise the different flows computed.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">flow</span> <span class="ow">in</span> <span class="n">flows</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Flow(&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  creation = [&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">creation</span> <span class="ow">in</span> <span class="n">flow</span><span class="o">.</span><span class="n">creation</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">creation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  ],&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  destruction = [&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">destruction</span> <span class="ow">in</span> <span class="n">flow</span><span class="o">.</span><span class="n">destruction</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">destruction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  ],&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;total_number_of_measurements = </span><span class="si">{</span><span class="n">flow</span><span class="o">.</span><span class="n">total_number_of_measurements</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+================================================================================
+Flow(
+  creation = [
+    BoundaryStabilizers(stabilizer=Z0, collapsing_operations=[Z1, Z3], measurements=[], resets={0}, is_forward=True)
+    BoundaryStabilizers(stabilizer=Z0*Z1*Z2, collapsing_operations=[Z1, Z3], measurements=[RelativeMeasurementLocation(offset=-2, qubit_index=1)], resets={1}, is_forward=True)
+    BoundaryStabilizers(stabilizer=Z2, collapsing_operations=[Z1, Z3], measurements=[], resets={2}, is_forward=True)
+    BoundaryStabilizers(stabilizer=Z2*Z3*Z4, collapsing_operations=[Z1, Z3], measurements=[RelativeMeasurementLocation(offset=-1, qubit_index=3)], resets={3}, is_forward=True)
+    BoundaryStabilizers(stabilizer=Z4, collapsing_operations=[Z1, Z3], measurements=[], resets={4}, is_forward=True)
+  ],
+  destruction = [
+    BoundaryStabilizers(stabilizer=Z0*Z1*Z2, collapsing_operations=[Z3, Z2, Z4, Z0, Z1], measurements=[RelativeMeasurementLocation(offset=-2, qubit_index=1)], resets={0, 1, 2}, is_forward=False)
+    BoundaryStabilizers(stabilizer=Z2*Z3*Z4, collapsing_operations=[Z3, Z2, Z4, Z0, Z1], measurements=[RelativeMeasurementLocation(offset=-1, qubit_index=3)], resets={2, 3, 4}, is_forward=False)
+  ],
+total_number_of_measurements = 2
+)
+================================================================================
+Flow(
+  creation = [
+    BoundaryStabilizers(stabilizer=Z0*Z1*Z2, collapsing_operations=[Z1, Z3], measurements=[RelativeMeasurementLocation(offset=-2, qubit_index=1)], resets={1}, is_forward=True)
+    BoundaryStabilizers(stabilizer=Z2*Z3*Z4, collapsing_operations=[Z1, Z3], measurements=[RelativeMeasurementLocation(offset=-1, qubit_index=3)], resets={3}, is_forward=True)
+  ],
+  destruction = [
+    BoundaryStabilizers(stabilizer=Z0*Z1*Z2, collapsing_operations=[Z1, Z3], measurements=[RelativeMeasurementLocation(offset=-2, qubit_index=1)], resets={1}, is_forward=False)
+    BoundaryStabilizers(stabilizer=Z2*Z3*Z4, collapsing_operations=[Z1, Z3], measurements=[RelativeMeasurementLocation(offset=-1, qubit_index=3)], resets={3}, is_forward=False)
+  ],
+total_number_of_measurements = 2
+)
+================================================================================
+Flow(
+  creation = [
+  ],
+  destruction = [
+    BoundaryStabilizers(stabilizer=Z0, collapsing_operations=[], measurements=[RelativeMeasurementLocation(offset=-3, qubit_index=0)], resets=set(), is_forward=False)
+    BoundaryStabilizers(stabilizer=Z2, collapsing_operations=[], measurements=[RelativeMeasurementLocation(offset=-2, qubit_index=2)], resets=set(), is_forward=False)
+    BoundaryStabilizers(stabilizer=Z4, collapsing_operations=[], measurements=[RelativeMeasurementLocation(offset=-1, qubit_index=4)], resets=set(), is_forward=False)
+  ],
+total_number_of_measurements = 3
+)
+</pre></div></div>
+</div>
+<p>Let’s use the first fragment and its associated flows as an example and illustrate using <a class="reference external" href="https://algassert.com/crumble">Crumble</a>, a nice tool that can be used to explore stabilizer propagation.</p>
+<p>The first “creation” stabilizer is</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>BoundaryStabilizers(
+    stabilizer=Z0,
+    collapsing_operations=[Z3, Z1],
+    involved_measurements=[],
+    source_qubits={0}
+)
+</pre></div>
+</div>
+<p>which originate from the propagation described below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+
+<span class="n">IFrame</span><span class="p">(</span>
+    <span class="s2">&quot;https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)0;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;M_1_3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;100%&quot;</span><span class="p">,</span>
+    <span class="mi">350</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<iframe
+    width="100%"
+    height="350"
+    src="https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)0;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;M_1_3"
+    frameborder="0"
+    allowfullscreen
+
+></iframe></div>
+</div>
+<p>A more interesting propagation is the second “creation” boundary stabilizer:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>BoundaryStabilizers(
+    stabilizer=Z0*Z1*Z2,
+    collapsing_operations=[Z3, Z1],
+    involved_measurements=[RelativeMeasurementLocation(offset=-2, qubit_index=1)],
+    source_qubits={1}
+)
+</pre></div>
+</div>
+<p>resulting from the propagation:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+
+<span class="n">IFrame</span><span class="p">(</span>
+    <span class="s2">&quot;https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)1;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;M_1_3;MARKZ(0)1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;100%&quot;</span><span class="p">,</span>
+    <span class="mi">350</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<iframe
+    width="100%"
+    height="350"
+    src="https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)1;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;M_1_3;MARKZ(0)1"
+    frameborder="0"
+    allowfullscreen
+
+></iframe></div>
+</div>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">BoundaryStabilizer</span></code> stores the state of the stabilizer propagation <strong>before</strong> any non-reversible collapsing operations. That way, from a <code class="docutils literal notranslate"><span class="pre">BoundaryStabilizer</span></code> instance, you have a direct access to the stabilizer resulting from the propagation before any collapsing operation and you can compute the stabilizer obtained after the collapsing operations.</p>
+<p>Let’s take one last example, but this time the “destruction” flow</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>BoundaryStabilizers(
+    stabilizer=Z0*Z1*Z2,
+    collapsing_operations=[Z1, Z3, Z2, Z4, Z0],
+    involved_measurements=[RelativeMeasurementLocation(offset=-2, qubit_index=1)],
+    source_qubits={1}
+)
+</pre></div>
+</div>
+<p>that can be visualised below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+
+<span class="n">IFrame</span><span class="p">(</span>
+    <span class="s2">&quot;https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)0_1_2;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;M_1_3;MARKZ(0)1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;100%&quot;</span><span class="p">,</span>
+    <span class="mi">350</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<iframe
+    width="100%"
+    height="350"
+    src="https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)0_1_2;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;M_1_3;MARKZ(0)1"
+    frameborder="0"
+    allowfullscreen
+
+></iframe></div>
+</div>
+<p>In this step, we pre-computed the necessary information to find detectors: creation and destruction flows. The next step is to use that information to try to find detectors.</p>
+</section>
+<section id="Finding-detectors">
+<h2>Finding detectors<a class="headerlink" href="#Finding-detectors" title="Link to this heading">#</a></h2>
+<p>The problem of finding a detector can be rephrased as finding one or more flow(s) that, when considered together, do not propagate and are fully collapsed by collapsing operations.</p>
+<p>The destruction flow visualised above is a good example: it is generated by the measurement on the second qubit, back-propagates in the fragment, and end up on 3 reset instructions that collapse entirely the flow. This means that all the measurements touched by that flow (i.e., for that example, the measurement on the second qubit) form a detector.</p>
+<p>The package has an iterative approach to find detectors:</p>
+<ol class="arabic simple">
+<li><p>Try to find detectors fully contained within a single flow (the example of a destruction flow above is exactly in this case).</p></li>
+<li><p>For each flows <code class="docutils literal notranslate"><span class="pre">f1</span> <span class="pre">--</span> <span class="pre">f2</span></code> such that the first flow <code class="docutils literal notranslate"><span class="pre">f1</span></code> is located in a fragment <code class="docutils literal notranslate"><span class="pre">F</span></code> and the second flow <code class="docutils literal notranslate"><span class="pre">f2</span></code> is located in the fragment just after <code class="docutils literal notranslate"><span class="pre">F</span></code>, try to find detectors spanning across these two flows:</p>
+<ol class="arabic simple">
+<li><p>First by trying to match <code class="docutils literal notranslate"><span class="pre">1</span></code> creation flow from <code class="docutils literal notranslate"><span class="pre">f1</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> destruction flow from <code class="docutils literal notranslate"><span class="pre">f2</span></code>.</p></li>
+<li><p>Then by trying to find:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> creation flows from <code class="docutils literal notranslate"><span class="pre">f1</span></code> that, when combined, match with <code class="docutils literal notranslate"><span class="pre">1</span></code> destruction flow from <code class="docutils literal notranslate"><span class="pre">f2</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> creation flow from <code class="docutils literal notranslate"><span class="pre">f1</span></code> that match with <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> destruction flows from <code class="docutils literal notranslate"><span class="pre">f2</span></code> when combined.</p></li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<p>The above methodology is only applied on flows that commute with their collapsing operations. For example, the flow</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+
+<span class="n">IFrame</span><span class="p">(</span>
+    <span class="s2">&quot;https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)1;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;H_1;TICK;M_1_3;MARKZ(0)1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;100%&quot;</span><span class="p">,</span>
+    <span class="mi">350</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<iframe
+    width="100%"
+    height="350"
+    src="https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)1;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;H_1;TICK;M_1_3;MARKZ(0)1"
+    frameborder="0"
+    allowfullscreen
+
+></iframe></div>
+</div>
+<p>does not commute with its collapsing operation (the measurement). This can be seen quite easily from the <code class="docutils literal notranslate"><span class="pre">BoundaryStabilizer</span></code> instance that would represent this flow:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>BoundaryStabilizers(
+    stabilizer=Z0*X1*Z2,
+    collapsing_operations=[Z3, Z1],
+    involved_measurements=[RelativeMeasurementLocation(offset=-2, qubit_index=1)],
+    source_qubits={1}
+)
+</pre></div>
+</div>
+<p>The stabilizer <code class="docutils literal notranslate"><span class="pre">Z0*X1*Z2</span></code> does not commute with the collapsing operation <code class="docutils literal notranslate"><span class="pre">Z1</span></code>.</p>
+<p>In such cases, there is an intermediary step <code class="docutils literal notranslate"><span class="pre">1.5</span></code> that consist in try to merge several anti-commuting flows together to form new commuting flows.</p>
+<p>Coming back to the code, detectors can be listed by calling <code class="docutils literal notranslate"><span class="pre">match_detectors_from_flows_shallow</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.circuit.detectors.match</span> <span class="kn">import</span> <span class="n">match_detectors_from_flows_shallow</span>
+
+<span class="n">qubit_coordinates</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">q</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">get_final_qubit_coordinates</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="n">matched_detectors</span> <span class="o">=</span> <span class="n">match_detectors_from_flows_shallow</span><span class="p">(</span><span class="n">flows</span><span class="p">,</span> <span class="n">qubit_coordinates</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>This function will return, for each of the provided flows, a list of detectors:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">detectors</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">matched_detectors</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detectors found for fragment number </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">detector</span> <span class="ow">in</span> <span class="n">detectors</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Detectors found for fragment number 0:
+   DETECTOR(3, 0) rec[-1]
+   DETECTOR(1, 0) rec[-2]
+Detectors found for fragment number 1:
+   DETECTOR(1, 0) rec[-2] rec[-4]
+   DETECTOR(3, 0) rec[-1] rec[-3]
+Detectors found for fragment number 2:
+   DETECTOR(1, 1) rec[-2] rec[-3] rec[-5]
+   DETECTOR(3, 1) rec[-1] rec[-2] rec[-4]
+</pre></div></div>
+</div>
+</section>
+<section id="Wrapping-up">
+<h2>Wrapping up<a class="headerlink" href="#Wrapping-up" title="Link to this heading">#</a></h2>
+<p>In the previous sections, you have seen the process used to compute detectors. In practice, this process is long and tedious to write, so a function performing all the above steps and constructing an equivalent quantum circuit with the computed detectors has been included in the package: <code class="docutils literal notranslate"><span class="pre">annotate_detectors_automatically</span></code>.</p>
+<p>One example of its usage is available below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.circuit.detectors.construction</span> <span class="kn">import</span> <span class="n">annotate_detectors_automatically</span>
+<span class="kn">from</span> <span class="nn">tqec.circuit.detectors.utils</span> <span class="kn">import</span> <span class="n">remove_annotations</span>
+
+<span class="n">base_circuit</span> <span class="o">=</span> <span class="n">remove_annotations</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+<span class="n">base_circuit</span><span class="o">.</span><span class="n">diagram</span><span class="p">(</span><span class="s2">&quot;timeline-svg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/user_guide_detectors_detector_computation_27_0.svg" src="../../_images/user_guide_detectors_detector_computation_27_0.svg" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">annotated_circuit</span> <span class="o">=</span> <span class="n">annotate_detectors_automatically</span><span class="p">(</span><span class="n">remove_annotations</span><span class="p">(</span><span class="n">circuit</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">annotated_circuit</span><span class="p">)</span>
+<span class="n">annotated_circuit</span><span class="o">.</span><span class="n">diagram</span><span class="p">(</span><span class="s2">&quot;timeline-svg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+QUBIT_COORDS(0) 0
+QUBIT_COORDS(1) 1
+QUBIT_COORDS(2) 2
+QUBIT_COORDS(3) 3
+QUBIT_COORDS(4) 4
+R 0 1 2 3 4
+TICK
+CX 0 1 2 3
+TICK
+CX 2 1 4 3
+TICK
+M 1 3
+DETECTOR(3, 0) rec[-1]
+DETECTOR(1, 0) rec[-2]
+TICK
+REPEAT 9 {
+    R 1 3
+    TICK
+    CX 0 1 2 3
+    TICK
+    CX 2 1 4 3
+    TICK
+    M 1 3
+    SHIFT_COORDS(0, 1)
+    DETECTOR(1, 0) rec[-2] rec[-4]
+    DETECTOR(3, 0) rec[-1] rec[-3]
+    TICK
+}
+M 0 2 4
+DETECTOR(1, 1) rec[-2] rec[-3] rec[-5]
+DETECTOR(3, 1) rec[-1] rec[-2] rec[-4]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/user_guide_detectors_detector_computation_28_1.svg" src="../../_images/user_guide_detectors_detector_computation_28_1.svg" />
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Build-the-quantum-circuit">Build the quantum circuit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Split-the-quantum-circuit">Split the quantum circuit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Pre-computing-flows">Pre-computing flows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Finding-detectors">Finding detectors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Wrapping-up">Wrapping up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user_guide/detectors/detector_computation.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
