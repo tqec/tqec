@@ -2,6 +2,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
@@ -117,9 +118,26 @@ class RPNGTemplate:
     def get_circuit(
         self,
         k: int,
+        qubit_map: QubitMap,
+        origin: Position2D = Position2D(0, 0),
         translator: RPNGTranslator | None = None,
         compiler: PlaquetteCompiler | None = None,
     ) -> ScheduledCircuit:
+        """Generate the scheduled circuit represented by ``self``.
+
+        Args:
+            k: scaling parameter used to instantiate the template.
+            qubit_map: if provided, it is used to number qubits. Else, a default
+                qubit map is automatically computed.
+            origin: origin of the template in plaquette coordinates.
+            translator: instance to perform the ``RPNG -> Plaquette``
+                translation.
+            compiler: instance to compile the ``Plaquette`` instances to the
+                desired gate set.
+
+        Returns:
+            a scheduled circuit representing ``self``.
+        """
         from tqec.circuit.generation import generate_circuit
 
         if translator is None:
@@ -132,4 +150,4 @@ class RPNGTemplate:
                 lambda descr: compiler.compile(translator.translate(descr))
             )
         )
-        return generate_circuit(self.template, k, plaquettes)
+        return generate_circuit(self.template, k, plaquettes, origin, qubit_map)
