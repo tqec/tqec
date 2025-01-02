@@ -67,8 +67,8 @@ def _build_plaquette_for_different_basis(
     def factory(b: Literal["X", "Z"]) -> Plaquette:
         return builder(
             basis=b,
-            data_initialization=Basis(str(temporal_basis)) if data_init else None,
-            data_measurement=Basis(str(temporal_basis)) if data_meas else None,
+            data_initialization=temporal_basis if data_init else None,
+            data_measurement=temporal_basis if data_meas else None,
             x_boundary_orientation=x_boundary_orientation,
             init_meas_only_on_side=init_meas_only_on_side,
         )
