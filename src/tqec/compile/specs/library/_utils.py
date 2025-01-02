@@ -4,12 +4,7 @@ from tqec.compile.block import CompiledBlock
 from tqec.compile.specs.base import CubeSpec, PipeSpec, Substitution
 from tqec.computation.cube import CubeKind, ZXCube
 from tqec.enums import Basis
-from tqec.plaquette.enums import (
-    MeasurementBasis,
-    PlaquetteOrientation,
-    PlaquetteSide,
-    ResetBasis,
-)
+from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library import PlaquetteBuilder, empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
@@ -72,10 +67,8 @@ def _build_plaquette_for_different_basis(
     def factory(b: Literal["X", "Z"]) -> Plaquette:
         return builder(
             basis=b,
-            data_initialization=ResetBasis(str(temporal_basis)) if data_init else None,
-            data_measurement=MeasurementBasis(str(temporal_basis))
-            if data_meas
-            else None,
+            data_initialization=Basis(str(temporal_basis)) if data_init else None,
+            data_measurement=Basis(str(temporal_basis)) if data_meas else None,
             x_boundary_orientation=x_boundary_orientation,
             init_meas_only_on_side=init_meas_only_on_side,
         )

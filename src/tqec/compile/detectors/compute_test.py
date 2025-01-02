@@ -1,7 +1,6 @@
 import numpy.testing
 import pytest
 import stim
-
 from tqecd.match import MatchedDetector
 from tqecd.measurement import RelativeMeasurementLocation
 
@@ -21,8 +20,8 @@ from tqec.compile.detectors.compute import (
 )
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
-from tqec.plaquette.enums import ResetBasis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.empty import empty_square_plaquette
@@ -44,12 +43,8 @@ def init_plaquettes_fixture() -> Plaquettes:
     return Plaquettes(
         FrozenDefaultDict(
             {
-                1: make_css_surface_code_plaquette(
-                    "Z", data_initialization=ResetBasis.Z
-                ),
-                2: make_css_surface_code_plaquette(
-                    "X", data_initialization=ResetBasis.Z
-                ),
+                1: make_css_surface_code_plaquette("Z", data_initialization=Basis.Z),
+                2: make_css_surface_code_plaquette("X", data_initialization=Basis.Z),
             }
         )
     )

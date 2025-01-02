@@ -35,21 +35,3 @@ class PlaquetteSide(Enum):
             return PlaquetteSide.UP
         else:
             return PlaquetteSide.DOWN
-
-
-class ResetBasis(Enum):
-    X = "X"
-    Z = "Z"
-
-    @property
-    def instruction_name(self) -> str:
-        return f"R{self.value}"
-
-
-class MeasurementBasis(Enum):
-    X = "X"
-    Z = "Z"
-
-    @property
-    def instruction_name(self) -> str:
-        return f"M{self.value}"
