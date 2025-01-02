@@ -1,10 +1,13 @@
 import stim
 
 from tqec.circuit.generation import generate_circuit
+from tqec.circuit.qubit import GridQubit
+from tqec.circuit.qubit_map import QubitMap
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library import make_css_surface_code_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.position import Position2D
 from tqec.templates.indices._testing import FixedTemplate
 
 
@@ -30,6 +33,60 @@ TICK
 CX 2 0
 TICK
 M 0
+""")
+
+
+def test_generate_circuit_one_plaquette_different_origin() -> None:
+    plaquette = make_css_surface_code_plaquette("Z").project_on_boundary(
+        PlaquetteOrientation.LEFT
+    )
+    circuit = generate_circuit(
+        FixedTemplate([[0]]),
+        2,
+        Plaquettes(FrozenDefaultDict(default_factory=lambda: plaquette)),
+        origin=Position2D(1, 1),
+    )
+    assert circuit.get_circuit() == stim.Circuit("""
+QUBIT_COORDS(2, 2) 0
+QUBIT_COORDS(3, 1) 1
+QUBIT_COORDS(3, 3) 2
+R 0
+TICK
+TICK
+CX 1 0
+TICK
+TICK
+CX 2 0
+TICK
+M 0
+""")
+
+
+def test_generate_circuit_one_plaquette_provided_qubit_map() -> None:
+    plaquette = make_css_surface_code_plaquette("Z").project_on_boundary(
+        PlaquetteOrientation.LEFT
+    )
+    circuit = generate_circuit(
+        FixedTemplate([[0]]),
+        2,
+        Plaquettes(FrozenDefaultDict(default_factory=lambda: plaquette)),
+        qubit_map=QubitMap(
+            {12: GridQubit(0, 0), 56: GridQubit(1, -1), 80: GridQubit(1, 1)}
+        ),
+    )
+    assert circuit.get_circuit() == stim.Circuit("""
+QUBIT_COORDS(0, 0) 12
+QUBIT_COORDS(1, -1) 56
+QUBIT_COORDS(1, 1) 80
+R 12
+TICK
+TICK
+CX 56 12
+TICK
+TICK
+CX 80 12
+TICK
+M 12
 """)
 
 

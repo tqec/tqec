@@ -2,9 +2,14 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from tqec.enums import Orientation
+from tqec.circuit.qubit_map import QubitMap
+from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
+from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng import RPNGDescription
+from tqec.plaquette.translators.base import RPNGTranslator
+from tqec.plaquette.translators.default import DefaultRPNGTranslator
 from tqec.position import Displacement, Position2D, Shape2D
 from tqec.scale import Scalable2D
 from tqec.templates.indices.base import Template
@@ -109,3 +114,40 @@ class RPNGTemplate:
             with open(write_to_filepath, "w") as f:
                 f.write(svg_str)
         return svg_str
+
+    def get_circuit(
+        self,
+        k: int,
+        qubit_map: QubitMap,
+        origin: Position2D = Position2D(0, 0),
+        translator: RPNGTranslator | None = None,
+        compiler: PlaquetteCompiler | None = None,
+    ) -> ScheduledCircuit:
+        """Generate the scheduled circuit represented by ``self``.
+
+        Args:
+            k: scaling parameter used to instantiate the template.
+            qubit_map: if provided, it is used to number qubits. Else, a default
+                qubit map is automatically computed.
+            origin: origin of the template in plaquette coordinates.
+            translator: instance to perform the ``RPNG -> Plaquette``
+                translation.
+            compiler: instance to compile the ``Plaquette`` instances to the
+                desired gate set.
+
+        Returns:
+            a scheduled circuit representing ``self``.
+        """
+        from tqec.circuit.generation import generate_circuit
+
+        if translator is None:
+            translator = DefaultRPNGTranslator()
+        if compiler is None:
+            compiler = IdentityPlaquetteCompiler
+
+        plaquettes = Plaquettes(
+            self.mapping.map_values(
+                lambda descr: compiler.compile(translator.translate(descr))
+            )
+        )
+        return generate_circuit(self.template, k, plaquettes, origin, qubit_map)

@@ -21,18 +21,23 @@ from __future__ import annotations
 import numpy
 import numpy.typing as npt
 
+from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import (
     ScheduledCircuit,
     merge_scheduled_circuits,
     relabel_circuits_qubit_indices,
 )
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import Displacement
+from tqec.position import Displacement, Position2D
 from tqec.templates.indices.base import Template
 
 
 def generate_circuit(
-    template: Template, k: int, plaquettes: Plaquettes
+    template: Template,
+    k: int,
+    plaquettes: Plaquettes,
+    origin: Position2D = Position2D(0, 0),
+    qubit_map: QubitMap | None = None,
 ) -> ScheduledCircuit:
     """Generate a quantum circuit from a template and its plaquettes.
 
@@ -58,6 +63,9 @@ def generate_circuit(
         plaquettes: description of the computation that should happen at
             different time-slices of the quantum error correction experiment (or
             at least part of it).
+        origin: origin of the template in plaquette coordinates.
+        qubit_map: if provided, it is used to number qubits. Else, a default
+            qubit map is automatically computed.
 
     Returns:
         a :class:`~.schedule.circuit.ScheduledCircuit` instance implementing the
@@ -71,7 +79,7 @@ def generate_circuit(
     increments = template.get_increments()
 
     return generate_circuit_from_instantiation(
-        template_plaquettes, plaquettes, increments
+        template_plaquettes, plaquettes, increments, origin, qubit_map
     )
 
 
@@ -79,6 +87,8 @@ def generate_circuit_from_instantiation(
     plaquette_array: npt.NDArray[numpy.int_],
     plaquettes: Plaquettes,
     increments: Displacement,
+    origin: Position2D = Position2D(0, 0),
+    qubit_map: QubitMap | None = None,
 ) -> ScheduledCircuit:
     """Generate a quantum circuit from an array of plaquette indices and the
     associated plaquettes.
@@ -105,6 +115,9 @@ def generate_circuit_from_instantiation(
             different time-slices of the quantum error correction experiment (or
             at least part of it).
         increments: the displacement between each plaquette origin.
+        origin: origin of the template in plaquette coordinates.
+        qubit_map: if provided, it is used to number qubits. Else, a default
+            qubit map is automatically computed.
 
     Returns:
         a :class:`~.schedule.circuit.ScheduledCircuit` instance implementing the
@@ -130,14 +143,15 @@ def generate_circuit_from_instantiation(
     all_scheduled_circuits: list[ScheduledCircuit] = []
     plaquette_index: int
     additional_mergeable_instructions: set[str] = set()
+    qubit_origin = Displacement(origin.x * increments.x, origin.y * increments.y)
     for row_index, line in enumerate(plaquette_array):
         for column_index, plaquette_index in enumerate(line):
             if plaquette_index != 0:
                 # Computing the offset that should be applied to each qubits.
                 plaquette = plaquettes[plaquette_index]
                 qubit_offset = Displacement(
-                    plaquette.origin.x + column_index * increments.x,
-                    plaquette.origin.y + row_index * increments.y,
+                    plaquette.origin.x + column_index * increments.x + qubit_origin.x,
+                    plaquette.origin.y + row_index * increments.y + qubit_origin.y,
                 )
                 # Warning: the variable `mapped_scheduled_circuit` shares with
                 #          `plaquette_circuits[plaquette_index]` a reference to
@@ -158,7 +172,7 @@ def generate_circuit_from_instantiation(
     # that the input circuits are not mutated but rather copied. This allows us
     # to not deepcopy the circuits earlier in the function.
     all_scheduled_circuits, qubit_map = relabel_circuits_qubit_indices(
-        all_scheduled_circuits
+        all_scheduled_circuits, qubit_map
     )
     return merge_scheduled_circuits(
         all_scheduled_circuits, qubit_map, additional_mergeable_instructions

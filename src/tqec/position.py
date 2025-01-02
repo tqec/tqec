@@ -28,6 +28,7 @@ from __future__ import annotations
 
 from dataclasses import astuple, dataclass
 from enum import Enum
+from typing import Iterable
 
 import numpy as np
 import numpy.typing as npt
@@ -54,6 +55,16 @@ class Position2D:
         """Returns the position as a tuple following the cirq.GridQubit
         coordinate system."""
         return (self.y, self.x)
+
+    def shift_by(self, dx: int = 0, dy: int = 0) -> Position2D:
+        """Shift the position by the given offset."""
+        return Position2D(self.x + dx, self.y + dy)
+
+    @property
+    def neighbours(self) -> Iterable[Position2D]:
+        yield from (
+            self.shift_by(*shift) for shift in [(-1, -1), (1, -1), (-1, 1), (1, 1)]
+        )
 
 
 @dataclass(frozen=True)
