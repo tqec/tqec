@@ -18,8 +18,8 @@ The pipes connected to the spatial junction are called **arms**.
 from typing import Literal
 
 from tqec.compile.specs.enums import JunctionArms
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
-from tqec.plaquette.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.indices.qubit import (

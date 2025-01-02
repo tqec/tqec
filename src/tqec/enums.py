@@ -6,3 +6,8 @@ class Orientation(Enum):
 
     HORIZONTAL = auto()
     VERTICAL = auto()
+
+
+class Basis(Enum):
+    X = "X"
+    Z = "Z"

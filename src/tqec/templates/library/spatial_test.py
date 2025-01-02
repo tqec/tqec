@@ -4,8 +4,8 @@ from typing import Final, Literal
 import pytest
 
 from tqec.compile.specs.enums import JunctionArms
+from tqec.enums import Basis
 from tqec.exceptions import TQECException, TQECWarning
-from tqec.plaquette.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.library.spatial import (
     get_spatial_junction_arm_template,

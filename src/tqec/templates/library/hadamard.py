@@ -1,6 +1,6 @@
 from typing import Literal
 
-from tqec.plaquette.enums import Basis
+from tqec.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
