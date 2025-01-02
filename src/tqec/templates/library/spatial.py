@@ -35,7 +35,7 @@ def get_spatial_junction_qubit_template(
     arms: JunctionArms,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitSpatialJunctionTemplate]:
     """Implementation of a logical qubit acting as a spatial junction.
 
     This function returns a RPNGTemplate instance representing a logical qubit
@@ -233,7 +233,7 @@ def get_spatial_junction_arm_template(
     arm: JunctionArms,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitVerticalBorders | QubitHorizontalBorders]:
     """Implementation of arms for a spatial junction around a logical qubit.
 
     This function returns a RPNGTemplate instance representing the arms
@@ -303,7 +303,7 @@ def _get_left_spatial_junction_arm(
     spatial_boundary_basis: Literal["x", "z"],
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitVerticalBorders]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
@@ -336,7 +336,7 @@ def _get_right_spatial_junction_arm(
     spatial_boundary_basis: Literal["x", "z"],
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitVerticalBorders]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
@@ -369,7 +369,7 @@ def _get_up_spatial_junction_arm(
     spatial_boundary_basis: Literal["x", "z"],
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitHorizontalBorders]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
@@ -402,7 +402,7 @@ def _get_down_spatial_junction_arm(
     spatial_boundary_basis: Literal["x", "z"],
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitHorizontalBorders]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"

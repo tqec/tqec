@@ -4,6 +4,7 @@ from tqec.plaquette.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
+from tqec.templates.indices.base import RectangularTemplate
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
     QubitTemplate,
@@ -14,7 +15,7 @@ from tqec.templates.rpng import RPNGTemplate
 
 def get_temporal_hadamard_template(
     orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitTemplate]:
     """Returns a representation of a transversal Hadamard gate applied on one
     logical qubit.
 
@@ -60,7 +61,7 @@ def get_spatial_horizontal_hadamard_template(
     top_left_is_z_stabilizer: bool,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitHorizontalBorders]:
     """Returns a representation of a "transversal" Hadamard gate at the interface
     between two logical qubits aligned on the Y-axis
 
@@ -125,7 +126,7 @@ def get_spatial_vertical_hadamard_template(
     top_left_is_z_stabilizer: bool,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitVerticalBorders]:
     """Returns a representation of a "transversal" Hadamard gate at the interface
     between two logical qubits aligned on the X-axis.
 
