@@ -1,6 +1,6 @@
 from typing import Final
 
-from tqec.plaquette.enums import MeasurementBasis, ResetBasis
+from tqec.plaquette.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.library.memory import (
@@ -56,7 +56,7 @@ def test_memory_vertical_z_observable() -> None:
 
 def test_memory_vertical_z_observable_reset_z() -> None:
     memory_template = get_memory_qubit_template(
-        ZObservableOrientation.VERTICAL, reset=ResetBasis.Z
+        ZObservableOrientation.VERTICAL, reset=Basis.Z
     )
     instantiation = memory_template.instantiate(k=2)
 
@@ -79,7 +79,7 @@ def test_memory_vertical_z_observable_reset_z() -> None:
 
 def test_memory_vertical_z_observable_measure_x() -> None:
     memory_template = get_memory_qubit_template(
-        ZObservableOrientation.VERTICAL, measurement=MeasurementBasis.X
+        ZObservableOrientation.VERTICAL, measurement=Basis.X
     )
     instantiation = memory_template.instantiate(k=2)
 
@@ -144,7 +144,7 @@ def test_memory_vertical_boundary_vertical_z_observable() -> None:
 
 def test_memory_vertical_boundary_vertical_z_observable_reset_z() -> None:
     memory_template = get_memory_vertical_boundary_template(
-        ZObservableOrientation.VERTICAL, reset=ResetBasis.Z
+        ZObservableOrientation.VERTICAL, reset=Basis.Z
     )
     instantiation = memory_template.instantiate(k=2)
 
@@ -167,7 +167,7 @@ def test_memory_vertical_boundary_vertical_z_observable_reset_z() -> None:
 
 def test_memory_vertical_boundary_vertical_z_observable_measure_x() -> None:
     memory_template = get_memory_vertical_boundary_template(
-        ZObservableOrientation.VERTICAL, measurement=MeasurementBasis.X
+        ZObservableOrientation.VERTICAL, measurement=Basis.X
     )
     instantiation = memory_template.instantiate(k=2)
 
@@ -224,7 +224,7 @@ def test_memory_horizontal_boundary_vertical_z_observable() -> None:
 
 def test_memory_horizontal_boundary_vertical_z_observable_reset_z() -> None:
     memory_template = get_memory_horizontal_boundary_template(
-        ZObservableOrientation.VERTICAL, reset=ResetBasis.Z
+        ZObservableOrientation.VERTICAL, reset=Basis.Z
     )
     instantiation = memory_template.instantiate(k=2)
 
@@ -243,7 +243,7 @@ def test_memory_horizontal_boundary_vertical_z_observable_reset_z() -> None:
 
 def test_memory_horizontal_boundary_vertical_z_observable_measure_x() -> None:
     memory_template = get_memory_horizontal_boundary_template(
-        ZObservableOrientation.VERTICAL, measurement=MeasurementBasis.X
+        ZObservableOrientation.VERTICAL, measurement=Basis.X
     )
     instantiation = memory_template.instantiate(k=2)
 

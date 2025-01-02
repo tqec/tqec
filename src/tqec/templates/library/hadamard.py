@@ -1,6 +1,6 @@
 from typing import Literal
 
-from tqec.plaquette.enums import MeasurementBasis, ResetBasis
+from tqec.plaquette.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
@@ -58,8 +58,8 @@ def get_temporal_hadamard_template(
 
 def get_spatial_horizontal_hadamard_template(
     top_left_is_z_stabilizer: bool,
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     """Returns a representation of a "transversal" Hadamard gate at the interface
     between two logical qubits aligned on the Y-axis
@@ -123,8 +123,8 @@ def get_spatial_horizontal_hadamard_template(
 
 def get_spatial_vertical_hadamard_template(
     top_left_is_z_stabilizer: bool,
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     """Returns a representation of a "transversal" Hadamard gate at the interface
     between two logical qubits aligned on the X-axis.

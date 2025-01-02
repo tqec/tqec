@@ -120,6 +120,14 @@ class Moment:
                 "of stim.CircuitRepeatBlock."
             )
 
+    @staticmethod
+    def from_instructions(instructions: Iterable[stim.CircuitInstruction]) -> Moment:
+        """Construct a :class:`Moment` instance from the provided ``instructions``."""
+        circuit = stim.Circuit()
+        for inst in instructions:
+            circuit.append(inst)
+        return Moment(circuit)
+
     @property
     def qubits_indices(self) -> set[int]:
         """Return the qubit indices this moment operates on.
@@ -355,6 +363,9 @@ class Moment:
             _avoid_checks=True,
         )
 
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Moment) and self._circuit == other._circuit
+
 
 def iter_stim_circuit_without_repeat_by_moments(
     circuit: stim.Circuit, collected_before_use: bool = True
@@ -399,6 +410,5 @@ def iter_stim_circuit_without_repeat_by_moments(
             cur_moment.clear()
         else:
             cur_moment.append(inst)
-    if cur_moment:
-        # No need to copy the last moment
-        yield Moment(cur_moment)
+    # No need to copy the last moment
+    yield Moment(cur_moment)

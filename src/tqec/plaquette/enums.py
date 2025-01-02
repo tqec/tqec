@@ -37,6 +37,11 @@ class PlaquetteSide(Enum):
             return PlaquetteSide.DOWN
 
 
+class Basis(Enum):
+    X = "X"
+    Z = "Z"
+
+
 class ResetBasis(Enum):
     X = "X"
     Z = "Z"

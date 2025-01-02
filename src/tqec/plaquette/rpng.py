@@ -222,39 +222,6 @@ class RPNGDescription:
         """Get the measurement operation or Hadamard for the specific data qubit"""
         return self.corners[data_idx].get_g_op()
 
-    def get_plaquette(
-        self, meas_time: int = 6, qubits: PlaquetteQubits = SquarePlaquetteQubits()
-    ) -> Plaquette:
-        """Get the plaquette corresponding to the RPNG description
-
-        Note that the ancilla qubit is the last among the PlaquetteQubits and thus
-        has index 4, while the data qubits have indices 0-3.
-        """
-        prep_time = 0
-        circuit_as_list = [""] * (meas_time - prep_time + 1)
-        for q, rpng in enumerate(self.corners):
-            # 2Q gates.
-            if rpng.n and rpng.p:
-                if rpng.n >= meas_time:
-                    raise ValueError(
-                        "The measurement time must be larger than the 2Q gate time."
-                    )
-                circuit_as_list[rpng.n] += f"C{rpng.p.value.upper()} 4 {q}\n"
-            # Data reset or Hadamard.
-            if rpng.r:
-                circuit_as_list[0] += f"{rpng.get_r_op()} {q}\n"
-            # Data measurement or Hadamard.
-            if rpng.g:
-                circuit_as_list[-1] += f"{rpng.get_g_op()} {q}\n"
-        # Ancilla reset and measurement.
-        circuit_as_list[0] += f"R{self.ancilla.r.value.upper()} 4\n"
-        circuit_as_list[-1] += f"M{self.ancilla.g.value.upper()} 4\n"
-        q_map = QubitMap.from_qubits(qubits)
-        circuit_as_str = "TICK\n".join(circuit_as_list)
-        circuit = stim_Circuit(circuit_as_str)
-        scheduled_circuit = ScheduledCircuit.from_circuit(circuit, qubit_map=q_map)
-        return Plaquette(name="test", qubits=qubits, circuit=scheduled_circuit)
-
     @property
     def has_reset(self) -> bool:
         return any(corner.get_r_op() not in {None, "H"} for corner in self.corners)
@@ -262,6 +229,9 @@ class RPNGDescription:
     @property
     def has_measurement(self) -> bool:
         return any(corner.get_g_op() not in {None, "H"} for corner in self.corners)
+
+    def to_string(self) -> str:
+        return " ".join(str(rpng) for rpng in self.corners)
 
     def view_as_svg(
         self,

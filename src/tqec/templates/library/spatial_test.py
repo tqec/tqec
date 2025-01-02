@@ -5,7 +5,7 @@ import pytest
 
 from tqec.compile.specs.enums import JunctionArms
 from tqec.exceptions import TQECException, TQECWarning
-from tqec.plaquette.enums import MeasurementBasis, ResetBasis
+from tqec.plaquette.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.library.spatial import (
     get_spatial_junction_arm_template,
@@ -159,15 +159,15 @@ def test_2_way_L_shape_spatial_junction() -> None:
             + JunctionArms.T_shaped_arms()
             + JunctionArms.X_shaped_arms()
         ),
-        [None, ResetBasis.X, ResetBasis.Z],
-        [None, MeasurementBasis.X, MeasurementBasis.Z],
+        [None, Basis.X, Basis.Z],
+        [None, Basis.X, Basis.Z],
     ),
 )
 def test_spatial_junction_logical_qubit_always_defines_corners(
     spatial_boundary_basis: Literal["x", "z"],
     arms: JunctionArms,
-    reset: ResetBasis | None,
-    measurement: MeasurementBasis | None,
+    reset: Basis | None,
+    measurement: Basis | None,
 ) -> None:
     template = get_spatial_junction_qubit_template(
         spatial_boundary_basis, arms, reset, measurement
@@ -192,15 +192,15 @@ def test_spatial_junction_logical_qubit_always_defines_corners(
     itertools.product(
         ["x", "z"],
         JunctionArms.single_arms(),
-        [None, ResetBasis.X, ResetBasis.Z],
-        [None, MeasurementBasis.X, MeasurementBasis.Z],
+        [None, Basis.X, Basis.Z],
+        [None, Basis.X, Basis.Z],
     ),
 )
 def test_spatial_junction_junctions_never_overwrite_corners(
     spatial_boundary_basis: Literal["x", "z"],
     arms: JunctionArms,
-    reset: ResetBasis | None,
-    measurement: MeasurementBasis | None,
+    reset: Basis | None,
+    measurement: Basis | None,
 ) -> None:
     template = get_spatial_junction_arm_template(
         spatial_boundary_basis, arms, reset, measurement

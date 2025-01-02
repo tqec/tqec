@@ -19,7 +19,7 @@ from typing import Literal
 
 from tqec.compile.specs.enums import JunctionArms
 from tqec.exceptions import TQECException
-from tqec.plaquette.enums import MeasurementBasis, ResetBasis
+from tqec.plaquette.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.indices.qubit import (
@@ -33,8 +33,8 @@ from tqec.templates.rpng import RPNGTemplate
 def get_spatial_junction_qubit_template(
     spatial_boundary_basis: Literal["x", "z"],
     arms: JunctionArms,
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     """Implementation of a logical qubit acting as a spatial junction.
 
@@ -231,8 +231,8 @@ def get_spatial_junction_qubit_template(
 def get_spatial_junction_arm_template(
     spatial_boundary_basis: Literal["x", "z"],
     arm: JunctionArms,
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     """Implementation of arms for a spatial junction around a logical qubit.
 
@@ -301,8 +301,8 @@ def get_spatial_junction_arm_template(
 
 def _get_left_spatial_junction_arm(
     spatial_boundary_basis: Literal["x", "z"],
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
@@ -334,8 +334,8 @@ def _get_left_spatial_junction_arm(
 
 def _get_right_spatial_junction_arm(
     spatial_boundary_basis: Literal["x", "z"],
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
@@ -367,8 +367,8 @@ def _get_right_spatial_junction_arm(
 
 def _get_up_spatial_junction_arm(
     spatial_boundary_basis: Literal["x", "z"],
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
@@ -400,8 +400,8 @@ def _get_up_spatial_junction_arm(
 
 def _get_down_spatial_junction_arm(
     spatial_boundary_basis: Literal["x", "z"],
-    reset: ResetBasis | None = None,
-    measurement: MeasurementBasis | None = None,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
 ) -> RPNGTemplate:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
