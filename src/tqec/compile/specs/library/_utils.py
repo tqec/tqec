@@ -2,7 +2,8 @@ from typing import Literal
 
 from tqec.compile.block import CompiledBlock
 from tqec.compile.specs.base import CubeSpec, PipeSpec, Substitution
-from tqec.computation.cube import CubeKind, ZXBasis, ZXCube
+from tqec.computation.cube import CubeKind, ZXCube
+from tqec.enums import Basis
 from tqec.plaquette.enums import (
     MeasurementBasis,
     PlaquetteOrientation,
@@ -51,7 +52,7 @@ def _build_plaquette_for_different_basis(
     builder: PlaquetteBuilder,
     x_boundary_orientation: Literal["VERTICAL", "HORIZONTAL"],
     *,
-    temporal_basis: ZXBasis | None = None,
+    temporal_basis: Basis | None = None,
     data_init: bool = False,
     data_meas: bool = False,
     init_meas_only_on_side: PlaquetteSide | None = None,
@@ -86,7 +87,7 @@ def _build_plaquettes_for_rotated_surface_code(
     builder: PlaquetteBuilder,
     x_boundary_orientation: Literal["VERTICAL", "HORIZONTAL"],
     *,
-    temporal_basis: ZXBasis | None = None,
+    temporal_basis: Basis | None = None,
     data_init: bool = False,
     data_meas: bool = False,
     repetitions: LinearFunction | None = None,
@@ -122,7 +123,7 @@ def _build_plaquettes_for_rotated_surface_code(
 
 def _build_regular_block(
     builder: PlaquetteBuilder,
-    temporal_basis: ZXBasis,
+    temporal_basis: Basis,
     x_boundary_orientation: Literal["VERTICAL", "HORIZONTAL"],
     repetitions: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
 ) -> CompiledBlock:
@@ -171,7 +172,7 @@ def _build_plaquettes_for_space_regular_pipe(
     substitution_side: PlaquetteSide,
     x_boundary_orientation: Literal["VERTICAL", "HORIZONTAL"],
     *,
-    temporal_basis: ZXBasis | None = None,
+    temporal_basis: Basis | None = None,
     data_init: bool = False,
     data_meas: bool = False,
     repetitions: LinearFunction | None = None,
@@ -282,4 +283,4 @@ def _get_x_boundary_orientation(
     cube_kind: CubeKind,
 ) -> Literal["VERTICAL", "HORIZONTAL"]:
     assert isinstance(cube_kind, ZXCube)
-    return "VERTICAL" if cube_kind.x == ZXBasis.X else "HORIZONTAL"
+    return "VERTICAL" if cube_kind.x == Basis.X else "HORIZONTAL"

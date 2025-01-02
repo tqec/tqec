@@ -14,7 +14,7 @@ from tqec.compile.detectors.detector import Detector
 from tqec.compile.specs.library._utils import (
     _build_plaquettes_for_rotated_surface_code,  # pyright: ignore[reportPrivateUsage]
 )
-from tqec.computation.cube import ZXBasis
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.zxxz import make_zxxz_surface_code_plaquette
@@ -41,13 +41,13 @@ PLAQUETTE_COLLECTIONS: list[Plaquettes] = [
     _build_plaquettes_for_rotated_surface_code(
         builder=make_css_surface_code_plaquette,
         x_boundary_orientation="VERTICAL",
-        temporal_basis=ZXBasis.X,
+        temporal_basis=Basis.X,
         data_init=True,
     ),
     _build_plaquettes_for_rotated_surface_code(
         builder=make_css_surface_code_plaquette,
         x_boundary_orientation="VERTICAL",
-        temporal_basis=ZXBasis.Z,
+        temporal_basis=Basis.Z,
         data_meas=True,
     ),
     _build_plaquettes_for_rotated_surface_code(
@@ -59,13 +59,13 @@ PLAQUETTE_COLLECTIONS: list[Plaquettes] = [
     _build_plaquettes_for_rotated_surface_code(
         builder=make_zxxz_surface_code_plaquette,
         x_boundary_orientation="VERTICAL",
-        temporal_basis=ZXBasis.X,
+        temporal_basis=Basis.X,
         data_init=True,
     ),
     _build_plaquettes_for_rotated_surface_code(
         builder=make_zxxz_surface_code_plaquette,
         x_boundary_orientation="VERTICAL",
-        temporal_basis=ZXBasis.Z,
+        temporal_basis=Basis.Z,
         data_meas=True,
     ),
 ]

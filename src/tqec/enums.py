@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum, auto
 
 
@@ -11,3 +13,6 @@ class Orientation(Enum):
 class Basis(Enum):
     X = "X"
     Z = "Z"
+
+    def flipped(self) -> Basis:
+        return Basis.X if self == Basis.Z else Basis.Z
