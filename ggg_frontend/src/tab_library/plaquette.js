@@ -2,7 +2,7 @@
 
 import { Graphics } from 'pixi.js';
 import { convexHull } from './utils'
-import { Qubit } from './qubit.js'
+import { Qubit } from './qubit'
 import Circuit from './circuit'
 
 /////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@ import Circuit from './circuit'
  * @param {Color} color - Color filling of the plaquette
  */
 export default class Plaquette extends Graphics {
-    constructor(qubits, color = 'purple') {
+    constructor(qubits, color = 'purple', topLeftCorner = null) {
         super();
         this.color = color;
         this.qubits = qubits
@@ -25,6 +25,7 @@ export default class Plaquette extends Graphics {
         //this.isDragging = false;
         //this.plaquetteMade = false;
         this.name = 'WIP plaquette';
+        this.topLeftCorner = topLeftCorner;
         // Draw the plaquette
         // TODO: Only rectangular plaquettes, at the moment
         //this._createRectangle();
@@ -80,7 +81,7 @@ export default class Plaquette extends Graphics {
             points.push({x: qubit.globalX, y: qubit.globalY});
         });
         const hull = convexHull(points)
-        console.log(`first point of the convex hull: (${hull[0].x}, ${hull[0].y})`)
+        //console.log(`first point of the convex hull: (${hull[0].x}, ${hull[0].y})`)
 
         // Draw convex hull
 		this.beginFill(this.color);
