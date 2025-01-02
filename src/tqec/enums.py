@@ -16,3 +16,6 @@ class Basis(Enum):
 
     def flipped(self) -> Basis:
         return Basis.X if self == Basis.Z else Basis.Z
+
+    def __str__(self) -> str:
+        return self.value
