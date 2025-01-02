@@ -9,14 +9,14 @@ from tqec.exceptions import TQECException, TQECWarning
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.library.spatial import (
     get_spatial_junction_arm_template,
-    get_spatial_junction_qubit_template,
+    get_spatial_junction_qubit_rpng_template,
 )
 
 _EMPT: Final[RPNGDescription] = RPNGDescription.from_string("---- ---- ---- ----")
 
 
 def test_4_way_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
+    description = get_spatial_junction_qubit_rpng_template(
         Basis.Z,
         JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN | JunctionArms.LEFT,
     )
@@ -48,7 +48,7 @@ def test_4_way_spatial_junction() -> None:
 
 
 def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
+    description = get_spatial_junction_qubit_rpng_template(
         Basis.Z, JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN
     )
     instantiation = description.instantiate(k=2)
@@ -80,7 +80,7 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
 
 
 def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
+    description = get_spatial_junction_qubit_rpng_template(
         Basis.Z, JunctionArms.LEFT | JunctionArms.UP | JunctionArms.RIGHT
     )
     instantiation = description.instantiate(k=2)
@@ -113,13 +113,13 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
 
 def test_2_way_through_spatial_junction() -> None:
     with pytest.raises(TQECException, match=".*I-shaped spatial junctions.*"):
-        get_spatial_junction_qubit_template(
+        get_spatial_junction_qubit_rpng_template(
             Basis.Z, JunctionArms.LEFT | JunctionArms.RIGHT
         )
 
 
 def test_2_way_L_shape_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
+    description = get_spatial_junction_qubit_rpng_template(
         Basis.Z, JunctionArms.DOWN | JunctionArms.RIGHT
     )
     instantiation = description.instantiate(k=2)
@@ -171,7 +171,7 @@ def test_spatial_junction_logical_qubit_always_defines_corners(
     reset: Basis | None,
     measurement: Basis | None,
 ) -> None:
-    template = get_spatial_junction_qubit_template(
+    template = get_spatial_junction_qubit_rpng_template(
         spatial_boundary_basis, arms, reset, measurement
     )
     rpng_inst = template.instantiate(k=3)
