@@ -9,21 +9,22 @@ def _s(circuit: str) -> ScheduledCircuit:
     return ScheduledCircuit.from_circuit(stim.Circuit(circuit))
 
 
-def test_simple_instantiation() -> None:
-    sm1 = ScheduleMap({})
-    sm2 = ScheduleMap({i: i for i in range(10)})
-    sm3 = ScheduleMap({i: i % 2 for i in range(10)})
-    sm4 = ScheduleMap({i: 2 * i for i in range(10)})
+def test_schedule_map_instantiation() -> None:
+    ScheduleMap({})
+    ScheduleMap({i: i for i in range(10)})
+    ScheduleMap({i: i % 2 for i in range(10)})
+    ScheduleMap({i: 2 * i for i in range(10)})
 
-    ChangeSchedulePass(sm1)
-    ChangeSchedulePass(sm2)
-    ChangeSchedulePass(sm3)
-    ChangeSchedulePass(sm4)
+
+def test_simple_instantiation() -> None:
+    ChangeSchedulePass({})
+    ChangeSchedulePass({i: i for i in range(10)})
+    ChangeSchedulePass({i: i % 2 for i in range(10)})
+    ChangeSchedulePass({i: 2 * i for i in range(10)})
 
 
 def test_identity() -> None:
-    schedule_map = ScheduleMap({0: 0, 1: 1, 2: 2})
-    compilation_pass = ChangeSchedulePass(schedule_map)
+    compilation_pass = ChangeSchedulePass({0: 0, 1: 1, 2: 2})
     circ = _s(
         "QUBIT_COORDS(0, 0) 0\n"
         "QUBIT_COORDS(0, 1) 1\n"
@@ -37,8 +38,7 @@ def test_identity() -> None:
 
 
 def test_new_moments() -> None:
-    schedule_map = ScheduleMap({0: 0, 1: 1, 2: 3})
-    compilation_pass = ChangeSchedulePass(schedule_map)
+    compilation_pass = ChangeSchedulePass({0: 0, 1: 1, 2: 3})
     circ = _s(
         "QUBIT_COORDS(0, 0) 0\n"
         "QUBIT_COORDS(0, 1) 1\n"
