@@ -29,6 +29,23 @@ class CompilationPass(ABC):
     def check_flows(
         self, original_circuit: ScheduledCircuit, modified_circuit: ScheduledCircuit
     ) -> None:
+        """Check that the two provided circuits have the exact same flows.
+
+        This method can be used to check if two quantum circuits are functionally
+        equivalent. It lists all the flows of the provided ``original_circuit``
+        and checks that ``modified_circuit`` contains all these flows.
+
+        Args:
+            original_circuit: first circuit, supposed to be the circuit before
+                applying the compilation pass.
+            modified_circuit: second circuit, supposed to be the circuit after
+                applying the compilation pass.
+
+        Raises:
+            TQECException: if the two provided circuits are not functionally
+                equivalent (i.e. ``modified_circuit`` does not have at least
+                one of flow of ``original_circuit``).
+        """
         original_flows = original_circuit.get_circuit().flow_generators()
         if not modified_circuit.get_circuit().has_all_flows(original_flows):
             raise TQECException("Modified circuit does not contain")

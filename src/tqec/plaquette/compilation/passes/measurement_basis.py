@@ -21,14 +21,5 @@ class ChangeMeasurementBasisPass(ScheduledCircuitTransformationPass):
                 },
             )
         ]
-        if basis == Basis.X:
-            transformations.append(
-                ScheduledCircuitTransformation(
-                    "M",
-                    {
-                        ScheduleOffset(-1): [InstructionCreator("H")],
-                        ScheduleOffset(0): [InstructionCreator("MX")],
-                    },
-                )
-            )
+
         super().__init__(transformations)

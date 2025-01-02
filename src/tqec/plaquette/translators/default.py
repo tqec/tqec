@@ -1,4 +1,4 @@
-from typing import Final
+from typing import Final, Literal
 
 import stim
 from typing_extensions import override
@@ -33,6 +33,22 @@ class DefaultRPNGTranslator(RPNGTranslator):
 
     MEASUREMENT_SCHEDULE: Final[int] = 6
 
+    @staticmethod
+    def _add_extended_basis_operation(
+        circuit: stim.Circuit,
+        op: Literal["R", "M"],
+        timestep_operations: dict[ExtendedBasisEnum, list[int]],
+    ) -> None:
+        for basis in ExtendedBasisEnum:
+            if basis not in timestep_operations:
+                continue
+            targets = sorted(timestep_operations[basis])
+            match basis:
+                case ExtendedBasisEnum.H:
+                    circuit.append("H", targets, [])
+                case ExtendedBasisEnum.X | ExtendedBasisEnum.Y | ExtendedBasisEnum.Z:
+                    circuit.append(f"{op}{basis.value.upper()}", targets, [])
+
     @override
     def translate(
         self,
@@ -49,12 +65,8 @@ class DefaultRPNGTranslator(RPNGTranslator):
             )
         syndrome_qubit_index = syndrome_qubit_indices[0]
 
-        reset_timestep_operations: dict[ExtendedBasisEnum, list[int]] = {
-            ExtendedBasisEnum.X: [syndrome_qubit_index]
-        }
-        meas_timestep_operations: dict[ExtendedBasisEnum, list[int]] = {
-            ExtendedBasisEnum.X: [syndrome_qubit_index]
-        }
+        reset_timestep_operations = {ExtendedBasisEnum.X: [syndrome_qubit_index]}
+        meas_timestep_operations = {ExtendedBasisEnum.X: [syndrome_qubit_index]}
         entangling_operations: list[tuple[BasisEnum, int] | None] = [
             None for _ in range(DefaultRPNGTranslator.MEASUREMENT_SCHEDULE - 1)
         ]
@@ -70,16 +82,9 @@ class DefaultRPNGTranslator(RPNGTranslator):
         circuit = stim.Circuit()
         schedule: list[int] = [0]
         # Add reset operations
-        for basis in ExtendedBasisEnum:
-            if basis not in reset_timestep_operations:
-                continue
-            targets = sorted(reset_timestep_operations[basis])
-            match basis:
-                case ExtendedBasisEnum.H:
-                    circuit.append("H", targets, [])
-                case ExtendedBasisEnum.X | ExtendedBasisEnum.Y | ExtendedBasisEnum.Z:
-                    circuit.append(f"R{basis.value.upper()}", targets, [])
+        self._add_extended_basis_operation(circuit, "R", reset_timestep_operations)
         circuit.append("TICK")
+
         # Add entangling gates
         for sched, entangling_operation in enumerate(entangling_operations):
             if entangling_operation is None:
@@ -90,16 +95,9 @@ class DefaultRPNGTranslator(RPNGTranslator):
             )
             schedule.append(sched + 1)
             circuit.append("TICK")
+
         # Add measurement operations
-        for basis in ExtendedBasisEnum:
-            if basis not in meas_timestep_operations:
-                continue
-            targets = sorted(meas_timestep_operations[basis])
-            match basis:
-                case ExtendedBasisEnum.H:
-                    circuit.append("H", sorted(targets), [])
-                case ExtendedBasisEnum.X | ExtendedBasisEnum.Y | ExtendedBasisEnum.Z:
-                    circuit.append(f"M{basis.value.upper()}", targets, [])
+        self._add_extended_basis_operation(circuit, "M", meas_timestep_operations)
         schedule.append(DefaultRPNGTranslator.MEASUREMENT_SCHEDULE)
         # Return the plaquette
         return Plaquette(

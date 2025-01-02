@@ -52,9 +52,9 @@ class ScheduleMap:
 class ChangeSchedulePass(CompilationPass):
     """Compilation pass changing the schedule of the provided quantum circuit."""
 
-    def __init__(self, schedule_map: ScheduleMap):
+    def __init__(self, schedule_map: dict[int, int]):
         super().__init__()
-        self._map = schedule_map
+        self._map = ScheduleMap(schedule_map)
 
     @override
     def run(

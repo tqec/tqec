@@ -6,7 +6,7 @@ from tqec.plaquette.compilation.passes.measurement_basis import (
     ChangeMeasurementBasisPass,
 )
 from tqec.plaquette.compilation.passes.reset_basis import ChangeResetBasisPass
-from tqec.plaquette.compilation.passes.scheduling import ChangeSchedulePass, ScheduleMap
+from tqec.plaquette.compilation.passes.scheduling import ChangeSchedulePass
 from tqec.plaquette.compilation.passes.sort_targets import SortTargetsPass
 from tqec.plaquette.compilation.passes.transformer import ScheduleConstant
 from tqec.plaquette.enums import Basis
@@ -16,7 +16,7 @@ CSSPlaquetteCompiler = PlaquetteCompiler(
     [
         # Move schedules to have an empty schedule for basis change after resets
         # and before measurements.
-        ChangeSchedulePass(ScheduleMap({0: 0, 6: 8} | {i: i + 1 for i in range(1, 6)})),
+        ChangeSchedulePass({0: 0, 6: 8} | {i: i + 1 for i in range(1, 6)}),
         # Change reset basis when needed
         ChangeResetBasisPass(Basis.Z),
         # Change measurement basis when needed

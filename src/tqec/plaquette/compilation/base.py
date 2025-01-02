@@ -11,7 +11,6 @@ class PlaquetteCompiler:
     def __init__(self, name: str, passes: Iterable[CompilationPass]):
         """A wrapper around a list of
         :class:`~tqec.plaquette.compilation.passes.base.CompilationPass` instances."""
-        super().__init__()
         self._name = name
         self._passes = passes
 
