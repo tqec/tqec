@@ -17,7 +17,7 @@ _EMPT: Final[RPNGDescription] = RPNGDescription.from_string("---- ---- ---- ----
 
 def test_4_way_spatial_junction() -> None:
     description = get_spatial_junction_qubit_template(
-        "z",
+        Basis.Z,
         JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN | JunctionArms.LEFT,
     )
     instantiation = description.instantiate(k=2)
@@ -49,7 +49,7 @@ def test_4_way_spatial_junction() -> None:
 
 def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
     description = get_spatial_junction_qubit_template(
-        "z", JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN
+        Basis.Z, JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN
     )
     instantiation = description.instantiate(k=2)
 
@@ -81,7 +81,7 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
 
 def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
     description = get_spatial_junction_qubit_template(
-        "z", JunctionArms.LEFT | JunctionArms.UP | JunctionArms.RIGHT
+        Basis.Z, JunctionArms.LEFT | JunctionArms.UP | JunctionArms.RIGHT
     )
     instantiation = description.instantiate(k=2)
 
@@ -113,12 +113,14 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
 
 def test_2_way_through_spatial_junction() -> None:
     with pytest.raises(TQECException, match=".*I-shaped spatial junctions.*"):
-        get_spatial_junction_qubit_template("z", JunctionArms.LEFT | JunctionArms.RIGHT)
+        get_spatial_junction_qubit_template(
+            Basis.Z, JunctionArms.LEFT | JunctionArms.RIGHT
+        )
 
 
 def test_2_way_L_shape_spatial_junction() -> None:
     description = get_spatial_junction_qubit_template(
-        "z", JunctionArms.DOWN | JunctionArms.RIGHT
+        Basis.Z, JunctionArms.DOWN | JunctionArms.RIGHT
     )
     instantiation = description.instantiate(k=2)
 
@@ -153,7 +155,7 @@ def test_2_way_L_shape_spatial_junction() -> None:
 @pytest.mark.parametrize(
     ["spatial_boundary_basis", "arms", "reset", "measurement"],
     itertools.product(
-        ["x", "z"],
+        [Basis.X, Basis.Z],
         (
             JunctionArms.L_shaped_arms()
             + JunctionArms.T_shaped_arms()
@@ -164,7 +166,7 @@ def test_2_way_L_shape_spatial_junction() -> None:
     ),
 )
 def test_spatial_junction_logical_qubit_always_defines_corners(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     arms: JunctionArms,
     reset: Basis | None,
     measurement: Basis | None,
@@ -190,14 +192,14 @@ def test_spatial_junction_logical_qubit_always_defines_corners(
 @pytest.mark.parametrize(
     ["spatial_boundary_basis", "arms", "reset", "measurement"],
     itertools.product(
-        ["x", "z"],
+        [Basis.X, Basis.Z],
         JunctionArms.single_arms(),
         [None, Basis.X, Basis.Z],
         [None, Basis.X, Basis.Z],
     ),
 )
 def test_spatial_junction_junctions_never_overwrite_corners(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     arms: JunctionArms,
     reset: Basis | None,
     measurement: Basis | None,
