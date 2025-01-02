@@ -43,4 +43,4 @@ class PlaquetteCompiler:
         )
 
 
-IdentityPlaquetteCompiler = PlaquetteCompiler("ID", [])
+IdentityPlaquetteCompiler = PlaquetteCompiler("ID", [], lambda x: x)
