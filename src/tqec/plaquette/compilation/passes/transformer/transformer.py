@@ -61,7 +61,7 @@ class ScheduledCircuitTransformation:
             for instruction in moment.instructions:
                 # if the transformation represented by self does not apply to
                 # the current instruction, just add it unmodified.
-                if instruction.name != self.source_name:
+                if instruction.name not in stim.gate_data(self.source_name).aliases:
                     moment_instructions.setdefault(schedule, []).append(instruction)
                     continue
                 # else, for each instruction creator in self.transformation, add

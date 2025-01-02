@@ -37,7 +37,3 @@ def test_edge_cases_reset_basis() -> None:
     compilation_pass = ChangeResetBasisPass(Basis.Z)
     assert compilation_pass.run(_s("H 0")) == _s("H 0")
     assert compilation_pass.run(_s("")) == _s("")
-
-
-if __name__ == "__main__":
-    test_simple_reset_basis()

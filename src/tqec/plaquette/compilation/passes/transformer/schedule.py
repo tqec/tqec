@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 from typing_extensions import override
+
+from tqec.exceptions import TQECException
 
 
 class ScheduleFunction(ABC):
@@ -10,44 +13,31 @@ class ScheduleFunction(ABC):
     def __call__(self, input_schedule: int) -> int:
         pass
 
-    @abstractmethod
-    def __hash__(self) -> int:
-        pass
 
-
+@dataclass(frozen=True)
 class ScheduleOffset(ScheduleFunction):
     """Maps a schedule by applying a relative offset to it."""
 
-    def __init__(self, offset: int):
-        super().__init__()
-        self._offset = offset
+    offset: int
 
     @override
     def __call__(self, input_schedule: int) -> int:
-        return input_schedule + self._offset
-
-    @override
-    def __hash__(self) -> int:
-        # Implementation note: only valid because there are only 2 classes
-        # implementing the ScheduleFunction.__hash__ method. Even hash numbers
-        # are used by ScheduleOffset and odd ones by ScheduleConstant.
-        return 2 * self._offset
+        return input_schedule + self.offset
 
 
+@dataclass(frozen=True)
 class ScheduleConstant(ScheduleFunction):
     """Maps a schedule to a constant."""
 
-    def __init__(self, constant: int):
-        super().__init__()
-        self._constant = constant
+    constant: int
+
+    def __post_init__(self) -> None:
+        if self.constant < 0:
+            raise TQECException(
+                "Cannot have a negative schedule. The provided constant is "
+                f"negative: {self.constant}."
+            )
 
     @override
     def __call__(self, input_schedule: int) -> int:
-        return self._constant
-
-    @override
-    def __hash__(self) -> int:
-        # Implementation note: only valid because there are only 2 classes
-        # implementing the ScheduleFunction.__hash__ method. Even hash numbers
-        # are used by ScheduleOffset and odd ones by ScheduleConstant.
-        return 2 * self._constant + 1
+        return self.constant

@@ -21,14 +21,5 @@ class ChangeResetBasisPass(ScheduledCircuitTransformationPass):
                 },
             )
         ]
-        if basis == Basis.X:
-            transformations.append(
-                ScheduledCircuitTransformation(
-                    "R",
-                    {
-                        ScheduleOffset(0): [InstructionCreator("RX")],
-                        ScheduleOffset(1): [InstructionCreator("H")],
-                    },
-                )
-            )
+
         super().__init__(transformations)
