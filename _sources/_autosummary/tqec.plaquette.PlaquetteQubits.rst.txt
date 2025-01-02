@@ -24,6 +24,11 @@ PlaquetteQubits
    .. autosummary::
    
       ~PlaquetteQubits.all_qubits
+      ~PlaquetteQubits.data_qubits_indices
+      ~PlaquetteQubits.data_qubits_with_indices
+      ~PlaquetteQubits.qubit_map
+      ~PlaquetteQubits.syndrome_qubits_indices
+      ~PlaquetteQubits.syndrome_qubits_with_indices
       ~PlaquetteQubits.data_qubits
       ~PlaquetteQubits.syndrome_qubits
    
