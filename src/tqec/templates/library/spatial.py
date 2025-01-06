@@ -401,7 +401,7 @@ def get_spatial_junction_arm_raw_template(
             )
 
 
-def get_spatial_junction_arm__rpng_descriptions(
+def get_spatial_junction_arm_rpng_descriptions(
     spatial_boundary_basis: Basis,
     arm: JunctionArms,
     reset: Basis | None = None,
@@ -522,7 +522,7 @@ def get_spatial_junction_arm_template(
     """
     return RPNGTemplate(
         template=get_spatial_junction_arm_raw_template(arm),
-        mapping=get_spatial_junction_arm__rpng_descriptions(
+        mapping=get_spatial_junction_arm_rpng_descriptions(
             spatial_boundary_basis, arm, reset, measurement
         ),
     )

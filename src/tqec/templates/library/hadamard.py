@@ -22,9 +22,12 @@ def get_temporal_hadamard_raw_template() -> QubitTemplate:
     fault-tolerant Hadamard gate by transversal application of physical gates.
 
     Arguments:
-        orientation: orientation of the Z observable. Used to compute the
-            stabilizers that should be measured on the boundaries and in the
-            bulk of the returned logical qubit description.
+        orientation: orientation of the Z observable at the beginning of the
+            generated circuit description. The Z observable orientation will be
+            flipped at the end of the returned circuit description, which is
+            exactly the expected behaviour for a Hadamard transition.
+            Used to compute the stabilizers that should be measured on the
+            boundaries and in the bulk of the returned logical qubit description.
 
     Returns:
         an implementation of transversal Hadamard gate.
@@ -44,9 +47,12 @@ def get_temporal_hadamard_rpng_descriptions(
     fault-tolerant Hadamard gate by transversal application of physical gates.
 
     Arguments:
-        orientation: orientation of the Z observable. Used to compute the
-            stabilizers that should be measured on the boundaries and in the
-            bulk of the returned logical qubit description.
+        orientation: orientation of the Z observable at the beginning of the
+            generated circuit description. The Z observable orientation will be
+            flipped at the end of the returned circuit description, which is
+            exactly the expected behaviour for a Hadamard transition.
+            Used to compute the stabilizers that should be measured on the
+            boundaries and in the bulk of the returned logical qubit description.
 
     Returns:
         an implementation of transversal Hadamard gate.
@@ -85,9 +91,12 @@ def get_temporal_hadamard_rpng_template(
     fault-tolerant Hadamard gate by transversal application of physical gates.
 
     Arguments:
-        orientation: orientation of the Z observable. Used to compute the
-            stabilizers that should be measured on the boundaries and in the
-            bulk of the returned logical qubit description.
+        orientation: orientation of the Z observable at the beginning of the
+            generated circuit description. The Z observable orientation will be
+            flipped at the end of the returned circuit description, which is
+            exactly the expected behaviour for a Hadamard transition.
+            Used to compute the stabilizers that should be measured on the
+            boundaries and in the bulk of the returned logical qubit description.
 
     Returns:
         an implementation of transversal Hadamard gate.
