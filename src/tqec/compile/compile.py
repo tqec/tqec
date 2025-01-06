@@ -349,13 +349,19 @@ def compile_block_graph(
     # added by the space-direction substitution rules, we first apply the time-direction
     # substitution rules.
     for pipe in time_pipes + space_pipes:
-        pos1, pos2 = pipe.u.position, pipe.v.position
-        key = PipeSpec(cube_specs[pipe.u], cube_specs[pipe.v], pipe.kind)
+        u, v = pipe.u, pipe.v
+        upos, vpos = u.position, v.position
+        key = PipeSpec(
+            (cube_specs[u], cube_specs[v]),
+            (blocks[upos].template, blocks[vpos].template),
+            pipe.kind,
+        )
         substitution = substitution_builder(key)
-        blocks[pos1].update_layers(substitution.src)
-        blocks[pos2].update_layers(substitution.dst)
+        blocks[upos].update_layers(substitution.src)
+        blocks[vpos].update_layers(substitution.dst)
 
     # 3. Collect by time and create the blocks layout.
+    assert blocks  # Additional check to make the type checker happier.
     min_z = min(pos.z for pos in blocks.keys())
     max_z = max(pos.z for pos in blocks.keys())
     layout_slices: list[BlockLayout] = [
