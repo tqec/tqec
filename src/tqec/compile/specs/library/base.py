@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Final
 
 from tqec.compile.block import CompiledBlock
 from tqec.compile.specs.base import (
@@ -14,10 +14,11 @@ from tqec.enums import Basis
 from tqec.exceptions import TQECException
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
-from tqec.plaquette.plaquette import Plaquette, Plaquettes
+from tqec.plaquette.plaquette import Plaquette, Plaquettes, RepeatedPlaquettes
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.plaquette.translators.default import DefaultRPNGTranslator
 from tqec.position import Direction3D
+from tqec.scale import LinearFunction
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.indices.base import RectangularTemplate
 from tqec.templates.indices.enums import TemplateBorder
@@ -45,6 +46,8 @@ class BaseBlockBuilder(BlockBuilder):
     enough for most of the block builders.
     """
 
+    DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
+
     def __init__(self, compiler: PlaquetteCompiler) -> None:
         """Initialise the :class:`BaseBlockBuilder` with a compiler.
 
@@ -55,10 +58,20 @@ class BaseBlockBuilder(BlockBuilder):
         self._translator = DefaultRPNGTranslator()
         self._compiler = compiler
 
+    def _get_plaquette(self, description: RPNGDescription) -> Plaquette:
+        return self._compiler.compile(self._translator.translate(description))
+
     @staticmethod
     def _get_template_and_plaquettes(
         spec: CubeSpec,
-    ) -> tuple[RectangularTemplate, list[FrozenDefaultDict[int, RPNGDescription]]]:
+    ) -> tuple[
+        RectangularTemplate,
+        tuple[
+            FrozenDefaultDict[int, RPNGDescription],
+            FrozenDefaultDict[int, RPNGDescription],
+            FrozenDefaultDict[int, RPNGDescription],
+        ],
+    ]:
         """Get the template and plaquettes corresponding to the provided ``spec``.
 
         Args:
@@ -71,22 +84,29 @@ class BaseBlockBuilder(BlockBuilder):
         """
         assert isinstance(spec.kind, ZXCube)
         x, y, z = spec.kind.as_tuple()
-        resets_and_measurements = [(z, None), (None, None), (None, z)]
         if not spec.is_spatial_junction:
             orientation = (
                 ZObservableOrientation.HORIZONTAL
                 if x == Basis.Z
                 else ZObservableOrientation.VERTICAL
             )
-            return get_memory_qubit_raw_template(), [
-                get_memory_qubit_rpng_descriptions(orientation, r, m)
-                for r, m in resets_and_measurements
-            ]
+            return get_memory_qubit_raw_template(), (
+                get_memory_qubit_rpng_descriptions(orientation, z, None),
+                get_memory_qubit_rpng_descriptions(orientation, None, None),
+                get_memory_qubit_rpng_descriptions(orientation, None, z),
+            )
         # else:
-        return get_spatial_junction_qubit_raw_template(), [
-            get_spatial_junction_qubit_rpng_descriptions(x, spec.junction_arms, r, m)
-            for r, m in resets_and_measurements
-        ]
+        return get_spatial_junction_qubit_raw_template(), (
+            get_spatial_junction_qubit_rpng_descriptions(
+                x, spec.junction_arms, z, None
+            ),
+            get_spatial_junction_qubit_rpng_descriptions(
+                x, spec.junction_arms, None, None
+            ),
+            get_spatial_junction_qubit_rpng_descriptions(
+                x, spec.junction_arms, None, z
+            ),
+        )
 
     def __call__(self, spec: CubeSpec) -> CompiledBlock:
         kind = spec.kind
@@ -95,16 +115,16 @@ class BaseBlockBuilder(BlockBuilder):
         elif isinstance(kind, YCube):
             raise NotImplementedError("Y cube is not implemented.")
         # else
-        template, mappings = BaseBlockBuilder._get_template_and_plaquettes(spec)
+        template, (init, repeat, measure) = (
+            BaseBlockBuilder._get_template_and_plaquettes(spec)
+        )
         plaquettes = [
-            Plaquettes(
-                mapping.map_values(
-                    lambda descr: self._compiler.compile(
-                        self._translator.translate(descr)
-                    )
-                )
-            )
-            for mapping in mappings
+            Plaquettes(init.map_values(self._get_plaquette)),
+            RepeatedPlaquettes(
+                repeat.map_values(self._get_plaquette),
+                repetitions=BaseBlockBuilder.DEFAULT_BLOCK_REPETITIONS,
+            ),
+            Plaquettes(measure.map_values(self._get_plaquette)),
         ]
         return CompiledBlock(template, plaquettes)
 
