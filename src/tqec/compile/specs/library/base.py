@@ -33,6 +33,7 @@ from tqec.templates.library.memory import (
 )
 from tqec.templates.library.spatial import (
     get_spatial_junction_arm_raw_template,
+    get_spatial_junction_arm_rpng_descriptions,
     get_spatial_junction_qubit_raw_template,
     get_spatial_junction_qubit_rpng_descriptions,
 )
@@ -344,7 +345,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         for layer_index, (reset, measurement) in enumerate(
             [(spec.pipe_kind.z, None), (None, None), (None, spec.pipe_kind.z)]
         ):
-            rpng_descriptions = get_spatial_junction_qubit_rpng_descriptions(
+            rpng_descriptions = get_spatial_junction_arm_rpng_descriptions(
                 spatial_boundary_basis, arm, reset, measurement
             )
             plaquettes = rpng_descriptions.map_values(self._get_plaquette)
