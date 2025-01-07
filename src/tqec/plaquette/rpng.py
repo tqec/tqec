@@ -4,18 +4,14 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from stim import Circuit as stim_Circuit
-
-from tqec.circuit.qubit_map import QubitMap
-from tqec.circuit.schedule import ScheduledCircuit
-from tqec.plaquette.plaquette import Plaquette
-from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
-
 
 class BasisEnum(Enum):
     X = "x"
     Y = "y"
     Z = "z"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class ExtendedBasisEnum(Enum):
@@ -23,6 +19,9 @@ class ExtendedBasisEnum(Enum):
     Y = BasisEnum.Y.value
     Z = BasisEnum.Z.value
     H = "h"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 @dataclass(frozen=True)
@@ -117,6 +116,9 @@ class RPNG:
     def __str__(self) -> str:
         return f"{'-' if self.r is None else self.r.value}{'-' if self.p is None else self.p.value}{'-' if self.n is None else self.n}{'-' if self.g is None else self.g.value}"
 
+    def __repr__(self) -> str:
+        return str(self)
+
 
 @dataclass(frozen=True)
 class RG:
@@ -146,6 +148,12 @@ class RG:
             return cls(r, g)
         except ValueError as err:
             raise ValueError("Invalid rg string.") from err
+
+    def __str__(self) -> str:
+        return f"{self.r.value}{self.g.value}"
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 @dataclass
@@ -230,8 +238,11 @@ class RPNGDescription:
     def has_measurement(self) -> bool:
         return any(corner.get_g_op() not in {None, "H"} for corner in self.corners)
 
-    def to_string(self) -> str:
+    def __str__(self) -> str:
         return " ".join(str(rpng) for rpng in self.corners)
+
+    def __repr__(self) -> str:
+        return str(self)
 
     def view_as_svg(
         self,
