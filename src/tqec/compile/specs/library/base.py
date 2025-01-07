@@ -293,7 +293,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                 return JunctionArms.UP
             case (False, Direction3D.Y):
                 return JunctionArms.DOWN
-            case (_, Direction3D.Z):
+            case _:
                 raise TQECException(
                     "Should never happen as we are in a spatial (i.e., X/Y plane) junction."
                 )
@@ -352,14 +352,10 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         z_observable_orientation: ZObservableOrientation
         match spec.pipe_kind.direction:
             case Direction3D.X:
-                pipe_template = get_memory_vertical_boundary_raw_template()
-                mappings = (
-                    pipe_template.get_border_indices(TemplateBorder.LEFT).to(
-                        spec.cube_templates[0].get_border_indices(TemplateBorder.RIGHT)
-                    ),
-                    pipe_template.get_border_indices(TemplateBorder.RIGHT).to(
-                        spec.cube_templates[1].get_border_indices(TemplateBorder.LEFT)
-                    ),
+                mappings = self._get_plaquette_indices_mapping(
+                    spec.cube_templates,
+                    get_memory_vertical_boundary_raw_template(),
+                    spec.pipe_kind.direction,
                 )
                 description_factory = get_memory_vertical_boundary_rpng_descriptions
                 z_observable_orientation = (
@@ -368,14 +364,10 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                     else ZObservableOrientation.VERTICAL
                 )
             case Direction3D.Y:
-                pipe_template = get_memory_horizontal_boundary_raw_template()
-                mappings = (
-                    pipe_template.get_border_indices(TemplateBorder.BOTTOM).to(
-                        spec.cube_templates[0].get_border_indices(TemplateBorder.TOP)
-                    ),
-                    pipe_template.get_border_indices(TemplateBorder.TOP).to(
-                        spec.cube_templates[1].get_border_indices(TemplateBorder.BOTTOM)
-                    ),
+                mappings = self._get_plaquette_indices_mapping(
+                    spec.cube_templates,
+                    get_memory_horizontal_boundary_raw_template(),
+                    spec.pipe_kind.direction,
                 )
                 description_factory = get_memory_horizontal_boundary_rpng_descriptions
                 z_observable_orientation = (
