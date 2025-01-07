@@ -3,6 +3,10 @@ used to implement a plaquette compiler."""
 
 from typing import Callable, Final, Iterable
 
+from tqec.circuit.instructions import (
+    MEASUREMENT_INSTRUCTION_NAMES,
+    RESET_INSTRUCTION_NAMES,
+)
 from tqec.plaquette.compilation.passes.base import CompilationPass
 from tqec.plaquette.plaquette import Plaquette
 
@@ -44,5 +48,5 @@ class PlaquetteCompiler:
 
 
 IdentityPlaquetteCompiler: Final[PlaquetteCompiler] = PlaquetteCompiler(
-    "ID", [], lambda x: x
+    "ID", [], lambda x: x | RESET_INSTRUCTION_NAMES | MEASUREMENT_INSTRUCTION_NAMES
 )
