@@ -421,8 +421,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
 
     def get_spatial_pipe_substitution(self, spec: PipeSpec) -> Substitution:
         assert spec.pipe_kind.is_spatial
+        cube_specs = spec.cube_specs
         return (
             self._get_spatial_junction_pipe_substitution(spec)
-            if spec.cube_specs[0].is_spatial_junction
+            if cube_specs[0].is_spatial_junction or cube_specs[1].is_spatial_junction
             else self._get_spatial_regular_pipe_substitution(spec)
         )
