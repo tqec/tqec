@@ -281,6 +281,36 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         pipe_template: RectangularTemplate,
         direction: Direction3D,
     ) -> tuple[dict[int, int], dict[int, int]]:
+        """Returns the plaquette indices mappings from ``pipe_template`` to the
+        two provided ``qubit_templates``.
+
+        This static method is re-used in different methods of this class to
+        build the mappings from plaquette indices on each borders of the provided
+        ``pipe_template`` to the plaquette indices on the respective border of
+        both of the provided ``qubit_templates``.
+
+        ``qubit_templates`` is supposed to be "sorted": the first template
+        should come "first" (i.e., be associated to the block with the minimum
+        coordinate in the provided ``direction``).
+
+        Args:
+            qubit_templates: templates used by the two blocks that are connected
+                by the pipe. Should be "sorted" (i.e., if
+                ``direction == Direction3D.X`` then ``qubit_template[0]`` is the
+                block on the left of the pipe and ``qubit_templates[1]`` is the
+                block on the right).
+            pipe_template: template used to build the pipe.
+            direction: direction of the pipe. This is used to determine which
+                side of the different templates should be matched together.
+
+        Raises:
+            TQECException: if ``direction == Direction3D.Z``.
+
+        Returns:
+            two mappings, the first one for plaquette indices from
+            ``pipe_template`` to ``qubit_templates[0]`` and the second one from
+            ``pipe_template`` to ``qubit_templates[1]``.
+        """
         tb1: TemplateBorder
         tb2: TemplateBorder
         match direction:
@@ -304,6 +334,30 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
 
     @staticmethod
     def _get_spatial_junction_arm(spec: PipeSpec) -> JunctionArms:
+        """Returns the arm corresponding to the provided ``spec``.
+
+        Args:
+            spec: pipe specification to get the arm from.
+
+        Raises:
+            TQECException: if the provided ``spec`` is not a spatial pipe.
+            TQECException: if the two blocks connected to the pipe are both
+                spatial junctions, which is currently an unsupported case.
+
+        Returns:
+            the :class:`~tqec.compile.specs.enums.JunctionArms` instance
+            corresponding to the provided ``spec``. The returned flag only
+            contains one flag (i.e., it cannot be
+            ``JunctionArms.RIGHT | JunctionArms.UP``).
+        """
+        assert spec.pipe_kind.is_spatial
+        # Check that we do have a spatial junction.
+        assert any(spec.is_spatial_junction for spec in spec.cube_specs)
+        # For the moment, two spatial junctions side by side are not supported.
+        if all(spec.is_spatial_junction for spec in spec.cube_specs):
+            raise TQECException(
+                "Found 2 spatial junctions connected. This is not supported yet."
+            )
         spatial_junction_is_first: bool = spec.cube_specs[0].is_spatial_junction
         match spatial_junction_is_first, spec.pipe_kind.direction:
             case (True, Direction3D.X):
@@ -320,20 +374,11 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                 )
 
     def _get_spatial_junction_pipe_substitution(self, spec: PipeSpec) -> Substitution:
-        assert spec.pipe_kind.is_spatial
-        # Check that we do have a spatial junction.
-        assert any(spec.is_spatial_junction for spec in spec.cube_specs)
-        # For the moment, two spatial junctions side by side are not supported.
-        if all(spec.is_spatial_junction for spec in spec.cube_specs):
-            raise TQECException(
-                "Found 2 spatial junctions connected. This is not supported yet."
-            )
-        # We are sure we have exactly one spatial junction, se we recover it.
-        arm = BaseSubstitutionBuilder._get_spatial_junction_arm(spec)
         xbasis, ybasis = spec.pipe_kind.x, spec.pipe_kind.y
         assert xbasis is not None or ybasis is not None
         spatial_boundary_basis: Basis = xbasis if xbasis is not None else ybasis  # type: ignore
         # Get the plaquette indices mappings
+        arm = BaseSubstitutionBuilder._get_spatial_junction_arm(spec)
         pipe_template = get_spatial_junction_arm_raw_template(arm)
         mappings = BaseSubstitutionBuilder._get_plaquette_indices_mapping(
             spec.cube_templates, pipe_template, spec.pipe_kind.direction
@@ -370,14 +415,11 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
             [ZObservableOrientation, Basis | None, Basis | None],
             FrozenDefaultDict[int, RPNGDescription],
         ]
+        template_factory: Callable[[], RectangularTemplate]
         z_observable_orientation: ZObservableOrientation
         match spec.pipe_kind.direction:
             case Direction3D.X:
-                mappings = self._get_plaquette_indices_mapping(
-                    spec.cube_templates,
-                    get_memory_vertical_boundary_raw_template(),
-                    spec.pipe_kind.direction,
-                )
+                template_factory = get_memory_vertical_boundary_raw_template
                 description_factory = get_memory_vertical_boundary_rpng_descriptions
                 z_observable_orientation = (
                     ZObservableOrientation.HORIZONTAL
@@ -385,11 +427,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                     else ZObservableOrientation.VERTICAL
                 )
             case Direction3D.Y:
-                mappings = self._get_plaquette_indices_mapping(
-                    spec.cube_templates,
-                    get_memory_horizontal_boundary_raw_template(),
-                    spec.pipe_kind.direction,
-                )
+                template_factory = get_memory_horizontal_boundary_raw_template
                 description_factory = get_memory_horizontal_boundary_rpng_descriptions
                 z_observable_orientation = (
                     ZObservableOrientation.HORIZONTAL
@@ -400,6 +438,10 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                 raise TQECException(
                     "Spatial pipes cannot have a direction equal to Direction3D.Z."
                 )
+        mappings = self._get_plaquette_indices_mapping(
+            spec.cube_templates, template_factory(), spec.pipe_kind.direction
+        )
+
         # The end goal of this function is to fill in the following 2 variables
         # and use them to make a Substitution instance.
         src_substitution: dict[int, Plaquettes] = {}
