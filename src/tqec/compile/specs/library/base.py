@@ -438,7 +438,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                 raise TQECException(
                     "Spatial pipes cannot have a direction equal to Direction3D.Z."
                 )
-        mappings = self._get_plaquette_indices_mapping(
+        mappings = BaseSubstitutionBuilder._get_plaquette_indices_mapping(
             spec.cube_templates, template_factory(), spec.pipe_kind.direction
         )
 
@@ -454,10 +454,10 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
             )
             plaquettes = rpng_descriptions.map_values(self._get_plaquette)
             src_substitution[layer_index] = Plaquettes(
-                plaquettes.map_keys(lambda i: mappings[0][i])
+                plaquettes.map_keys(lambda i: mappings[0][i] if i in mappings[0] else i)
             )
             dst_substitution[layer_index] = Plaquettes(
-                plaquettes.map_keys(lambda i: mappings[1][i])
+                plaquettes.map_keys(lambda i: mappings[1][i] if i in mappings[1] else i)
             )
         return Substitution(src_substitution, dst_substitution)
 
