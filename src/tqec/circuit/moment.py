@@ -109,10 +109,15 @@ class Moment:
                 "containing at least one TICK instruction."
             )
         qubit_usage = count_qubit_accesses(circuit)
-        if any(usage_count > 1 for usage_count in qubit_usage.values()):
+        multi_used_qubits = [
+            qi for qi, usage_count in qubit_usage.items() if usage_count > 1
+        ]
+        if multi_used_qubits:
             raise TQECException(
                 "Moment instances cannot be initialized with a stim.Circuit "
-                "instance containing gates applied on the same qubit."
+                "instance containing gates applied on the same qubit. Found "
+                "multiple gates applied on the following qubits: "
+                f"{multi_used_qubits}."
             )
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
             raise TQECException(
