@@ -12,17 +12,12 @@ class RPNGTranslator(ABC):
     """
 
     @abstractmethod
-    def translate(
-        self,
-        rpng_description: RPNGDescription,
-        qubits: PlaquetteQubits = SquarePlaquetteQubits(),
-    ) -> Plaquette:
+    def translate(self, rpng_description: RPNGDescription) -> Plaquette:
         """Generate the plaquette corresponding to the provided ``RPNG``
         description.
 
         Args:
             rpng_description: description of the plaquette to generate.
-            qubits: qubits to use for the returned plaquette.
 
         Returns:
             a valid implementation of the provided
