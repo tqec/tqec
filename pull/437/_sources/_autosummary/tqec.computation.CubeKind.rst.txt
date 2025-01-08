@@ -1,0 +1,31 @@
+CubeKind
+========
+
+.. currentmodule:: tqec.computation
+
+.. autoclass:: CubeKind
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CubeKind.__init__
+      ~CubeKind.to_zx_kind
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: to_zx_kind
+   
+   
