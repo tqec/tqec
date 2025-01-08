@@ -14,26 +14,19 @@ def test_default_translator_from_ZZZZ_rpng_string() -> None:
     # Usual plaquette corresponding to the ZZZZ stabilizer.
     desc = RPNGDescription.from_string("-z1- -z3- -z2- -z4-")
     plaquette = translator.translate(desc)
-    expected_circuit = stim.Circuit("""
-QUBIT_COORDS(-1, -1) 0
-QUBIT_COORDS(1, -1) 1
-QUBIT_COORDS(-1, 1) 2
-QUBIT_COORDS(1, 1) 3
-QUBIT_COORDS(0, 0) 4
-RX 4
-TICK
-CZ 4 0
-TICK
-CZ 4 2
-TICK
-CZ 4 1
-TICK
-CZ 4 3
-TICK
-TICK
-MX 4
-""")
-    assert expected_circuit == plaquette.circuit.get_circuit()
+    circuit = plaquette.circuit.get_circuit()
+    assert circuit.has_flow(stim.Flow("1 -> ZZZZ_ xor rec[-1]"))
+    assert circuit.has_flow(stim.Flow("ZZZZ_ -> 1 xor rec[-1]"))
+
+
+def test_default_translator_from_XXXX_rpng_string() -> None:
+    translator = DefaultRPNGTranslator()
+    # Usual plaquette corresponding to the ZZZZ stabilizer.
+    desc = RPNGDescription.from_string("-x1- -x2- -x3- -x4-")
+    plaquette = translator.translate(desc)
+    circuit = plaquette.circuit.get_circuit()
+    assert circuit.has_flow(stim.Flow("1 -> XXXX_ xor rec[-1]"))
+    assert circuit.has_flow(stim.Flow("XXXX_ -> 1 xor rec[-1]"))
 
 
 def test_default_translator_from_ZXXZ_rpng_string() -> None:
