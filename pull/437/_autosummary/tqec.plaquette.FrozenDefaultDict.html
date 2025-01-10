@@ -545,10 +545,13 @@ of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaqu
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.map_keys" title="tqec.plaquette.FrozenDefaultDict.map_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_keys</span></code></a>(callable)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.map_values" title="tqec.plaquette.FrozenDefaultDict.map_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_values</span></code></a>(callable)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.map_keys_if_present" title="tqec.plaquette.FrozenDefaultDict.map_keys_if_present"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_keys_if_present</span></code></a>(mapping)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.values" title="tqec.plaquette.FrozenDefaultDict.values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.map_values" title="tqec.plaquette.FrozenDefaultDict.map_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_values</span></code></a>(callable)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.values" title="tqec.plaquette.FrozenDefaultDict.values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -619,6 +622,19 @@ of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaqu
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>callable</strong> (<em>Callable</em><em>[</em><em>[</em><em>K</em><em>]</em><em>, </em><em>K</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict" title="tqec.plaquette.frozendefaultdict.FrozenDefaultDict"><em>FrozenDefaultDict</em></a>[<em>K</em>, <em>V</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.plaquette.FrozenDefaultDict.map_keys_if_present">
+<span class="sig-name descname"><span class="pre">map_keys_if_present</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/frozendefaultdict.html#FrozenDefaultDict.map_keys_if_present"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.FrozenDefaultDict.map_keys_if_present" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mapping</strong> (<em>Mapping</em><em>[</em><em>K</em><em>, </em><em>K</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict" title="tqec.plaquette.frozendefaultdict.FrozenDefaultDict"><em>FrozenDefaultDict</em></a>[<em>K</em>, <em>V</em>]</p>
@@ -702,6 +718,7 @@ of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaqu
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.FrozenDefaultDict.items"><code class="docutils literal notranslate"><span class="pre">FrozenDefaultDict.items()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.FrozenDefaultDict.keys"><code class="docutils literal notranslate"><span class="pre">FrozenDefaultDict.keys()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.FrozenDefaultDict.map_keys"><code class="docutils literal notranslate"><span class="pre">FrozenDefaultDict.map_keys()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.FrozenDefaultDict.map_keys_if_present"><code class="docutils literal notranslate"><span class="pre">FrozenDefaultDict.map_keys_if_present()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.FrozenDefaultDict.map_values"><code class="docutils literal notranslate"><span class="pre">FrozenDefaultDict.map_values()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.FrozenDefaultDict.values"><code class="docutils literal notranslate"><span class="pre">FrozenDefaultDict.values()</span></code></a></li>
 </ul>

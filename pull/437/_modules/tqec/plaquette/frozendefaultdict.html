@@ -524,6 +524,15 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">FrozenDefaultDict</span><span class="p">(</span>
             <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">callable</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span> <span class="n">default_factory</span><span class="o">=</span><span class="n">default_factory</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FrozenDefaultDict.map_keys_if_present">
+<a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.map_keys_if_present">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_keys_if_present</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">K</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">FrozenDefaultDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">mapping</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">},</span>
+            <span class="n">default_factory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_factory</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>

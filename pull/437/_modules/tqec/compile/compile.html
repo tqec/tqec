@@ -428,7 +428,10 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">PipeSpec</span><span class="p">,</span>
     <span class="n">SubstitutionBuilder</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.library.css</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.library.standard</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">STANDARD_BLOCK_BUILDER</span><span class="p">,</span>
+    <span class="n">STANDARD_SUBSTITUTION_BUILDER</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractObservable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
@@ -708,8 +711,8 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.compile.compile_block_graph.html#tqec.compile.compile_block_graph">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compile_block_graph</span><span class="p">(</span>
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
-    <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span>
-    <span class="n">substitution_builder</span><span class="p">:</span> <span class="n">SubstitutionBuilder</span> <span class="o">=</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span><span class="p">,</span>
+    <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">STANDARD_BLOCK_BUILDER</span><span class="p">,</span>
+    <span class="n">substitution_builder</span><span class="p">:</span> <span class="n">SubstitutionBuilder</span> <span class="o">=</span> <span class="n">STANDARD_SUBSTITUTION_BUILDER</span><span class="p">,</span>
     <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a block graph.</span>
