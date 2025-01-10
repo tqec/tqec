@@ -454,10 +454,10 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
             )
             plaquettes = rpng_descriptions.map_values(self._get_plaquette)
             src_substitution[layer_index] = Plaquettes(
-                plaquettes.map_keys(lambda i: mappings[0][i] if i in mappings[0] else i)
+                plaquettes.map_keys_if_present(mappings[0])
             )
             dst_substitution[layer_index] = Plaquettes(
-                plaquettes.map_keys(lambda i: mappings[1][i] if i in mappings[1] else i)
+                plaquettes.map_keys_if_present(mappings[1])
             )
         return Substitution(src_substitution, dst_substitution)
 
