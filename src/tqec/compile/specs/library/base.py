@@ -318,8 +318,8 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                 tb1 = TemplateBorder.LEFT
                 tb2 = TemplateBorder.RIGHT
             case Direction3D.Y:
-                tb1 = TemplateBorder.BOTTOM
-                tb2 = TemplateBorder.TOP
+                tb1 = TemplateBorder.TOP
+                tb2 = TemplateBorder.BOTTOM
             case Direction3D.Z:
                 raise TQECException("This method cannot be used with a temporal pipe.")
 
