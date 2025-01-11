@@ -11,19 +11,20 @@ from tqec.compile.detectors.database import (
     _DetectorDatabaseKey,  # pyright: ignore[reportPrivateUsage]
 )
 from tqec.compile.detectors.detector import Detector
-from tqec.compile.specs.library._utils import (
-    _build_plaquettes_for_rotated_surface_code,  # pyright: ignore[reportPrivateUsage]
-)
 from tqec.enums import Basis
 from tqec.exceptions import TQECException
-from tqec.plaquette.library.css import make_css_surface_code_plaquette
-from tqec.plaquette.library.zxxz import make_zxxz_surface_code_plaquette
+from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
+from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng import RPNGDescription
+from tqec.plaquette.translators.default import DefaultRPNGTranslator
+from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.indices.qubit import QubitTemplate
 from tqec.templates.indices.subtemplates import (
     SubTemplateType,
     get_spatially_distinct_subtemplates,
 )
+from tqec.templates.library.memory import get_memory_qubit_rpng_descriptions
 
 # Pre-computing Plaquettes and SubTemplateType instances to be able to re-use them
 # in tests.
@@ -31,43 +32,26 @@ from tqec.templates.indices.subtemplates import (
 #          important. If you change these lists, you will likely have to also
 #          change a few pre-computed values in tests that check that the computed
 #          hashes are reliable across OS, Python version, interpreter, ...
+_RPNG_DESCRIPTIONS: list[FrozenDefaultDict[int, RPNGDescription]] = [
+    get_memory_qubit_rpng_descriptions(ZObservableOrientation.HORIZONTAL),
+    get_memory_qubit_rpng_descriptions(ZObservableOrientation.VERTICAL),
+    get_memory_qubit_rpng_descriptions(
+        ZObservableOrientation.HORIZONTAL, reset=Basis.X
+    ),
+    get_memory_qubit_rpng_descriptions(
+        ZObservableOrientation.HORIZONTAL, measurement=Basis.Z
+    ),
+]
+_COMPILERS: list[PlaquetteCompiler] = [IdentityPlaquetteCompiler]
+_TRANSLATOR = DefaultRPNGTranslator()
 PLAQUETTE_COLLECTIONS: list[Plaquettes] = [
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_css_surface_code_plaquette, x_boundary_orientation="VERTICAL"
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_css_surface_code_plaquette, x_boundary_orientation="HORIZONTAL"
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_css_surface_code_plaquette,
-        x_boundary_orientation="VERTICAL",
-        temporal_basis=Basis.X,
-        data_init=True,
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_css_surface_code_plaquette,
-        x_boundary_orientation="VERTICAL",
-        temporal_basis=Basis.Z,
-        data_meas=True,
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_zxxz_surface_code_plaquette, x_boundary_orientation="VERTICAL"
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_zxxz_surface_code_plaquette, x_boundary_orientation="HORIZONTAL"
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_zxxz_surface_code_plaquette,
-        x_boundary_orientation="VERTICAL",
-        temporal_basis=Basis.X,
-        data_init=True,
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_zxxz_surface_code_plaquette,
-        x_boundary_orientation="VERTICAL",
-        temporal_basis=Basis.Z,
-        data_meas=True,
-    ),
+    Plaquettes(
+        description.map_values(
+            lambda descr: compiler.compile(_TRANSLATOR.translate(descr))
+        )
+    )
+    for compiler in _COMPILERS
+    for description in _RPNG_DESCRIPTIONS
 ]
 # Note: sorting is important here to guarantee the order in which subtemplates
 #       are in the SUBTEMPLATES list. See comment above PLAQUETTE_COLLECTIONS
@@ -129,13 +113,13 @@ DETECTORS: list[frozenset[Detector]] = [
 
 def test_detector_database_key_creation() -> None:
     _DetectorDatabaseKey((SUBTEMPLATES[0],), (PLAQUETTE_COLLECTIONS[0],))
-    _DetectorDatabaseKey(SUBTEMPLATES[1:5], PLAQUETTE_COLLECTIONS[1:5])
+    _DetectorDatabaseKey(SUBTEMPLATES[1:4], PLAQUETTE_COLLECTIONS[1:4])
     with pytest.raises(
         TQECException,
         match="^DetectorDatabaseKey can only store an equal number of "
-        "subtemplates and plaquettes. Got 4 subtemplates and 3 plaquettes.$",
+        "subtemplates and plaquettes. Got 2 subtemplates and 1 plaquettes.$",
     ):
-        _DetectorDatabaseKey(SUBTEMPLATES[1:5], PLAQUETTE_COLLECTIONS[1:4])
+        _DetectorDatabaseKey(SUBTEMPLATES[1:3], PLAQUETTE_COLLECTIONS[1:2])
 
 
 def test_detector_database_key_num_timeslices() -> None:
@@ -149,19 +133,19 @@ def test_detector_database_key_num_timeslices() -> None:
 
 
 def test_detector_database_key_hash() -> None:
-    dbkey = _DetectorDatabaseKey(SUBTEMPLATES[1:5], PLAQUETTE_COLLECTIONS[1:5])
+    dbkey = _DetectorDatabaseKey(SUBTEMPLATES[1:4], PLAQUETTE_COLLECTIONS[1:4])
     assert hash(dbkey) == hash(dbkey)
     # This is a value that has been pre-computed locally. It is hard-coded here
     # to check that the hash of a dbkey is reliable and does not change depending
     # on the Python interpreter, Python version, host OS, process ID, ...
-    assert hash(dbkey) == 1085786788918911944
+    assert hash(dbkey) == 1033742976377250495
 
     dbkey = _DetectorDatabaseKey(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])
     assert hash(dbkey) == hash(dbkey)
     # This is a value that has been pre-computed locally. It is hard-coded here
     # to check that the hash of a dbkey is reliable and does not change depending
     # on the Python interpreter, Python version, host OS, process ID, ...
-    assert hash(dbkey) == 1699471538780763110
+    assert hash(dbkey) == 1064147440232828513
 
 
 def test_detector_database_creation() -> None:
