@@ -5,15 +5,10 @@ import stim
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import JunctionArms
-from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.cube import Cube, ZXCube
-from tqec.computation.pipe import Pipe
-from tqec.exceptions import TQECException
+from tqec.computation.cube import ZXCube
 from tqec.position import (
     Direction3D,
-    Displacement,
     Position3D,
     Shape2D,
     SignedDirection3D,
@@ -21,8 +16,6 @@ from tqec.position import (
 from tqec.scale import round_or_fail
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.templates.indices.layout import LayoutTemplate
-from tqec.computation.block_graph import BlockGraph
-from tqec.computation.zx_graph import ZXEdge, ZXKind, ZXNode
 
 
 def inplace_add_observable(
