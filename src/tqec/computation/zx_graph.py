@@ -273,7 +273,7 @@ class ZXGraph(ComputationGraph[ZXNode, ZXEdge]):
 
         return convert_zx_graph_to_block_graph(self, name)
 
-    def find_correration_surfaces(self) -> list[CorrelationSurface]:
+    def find_correlation_surfaces(self) -> list[CorrelationSurface]:
         """Find all the
         :py:class:`~tqec.computation.correlation.CorrelationSurface` in a ZX
         graph.
