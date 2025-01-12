@@ -105,9 +105,10 @@ def compile_correlation_surface_to_abstract_observable(
                 )
                 if edges is not None and any(n == zx for edge in edges for n in edge):
                     arms |= arm
-            assert len(arms) in {2, 4}, (
-                "The correlation parity should be even for parallel correlation surface."
-            )
+            assert len(arms) in {
+                2,
+                4,
+            }, "The correlation parity should be even for parallel correlation surface."
             # Two separate lines in the junction
             # By convention, we always split the four arms into [LEFT | UP] and [RIGHT | DOWN]
             if len(arms) == 4:

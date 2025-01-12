@@ -78,12 +78,14 @@ def test_abstract_observable_for_logical_cnot() -> None:
                 Cube(Position3D(1, 1, 3), ZXCube.from_str("ZXZ")),
             ]
         ),
-        top_readout_pipes=frozenset([
-            Pipe.from_cubes(
-                Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ")),
-                Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
-            )
-        ]),
+        top_readout_pipes=frozenset(
+            [
+                Pipe.from_cubes(
+                    Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ")),
+                    Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
+                )
+            ]
+        ),
         bottom_stabilizer_pipes=frozenset(
             [
                 Pipe.from_cubes(
@@ -101,12 +103,14 @@ def test_abstract_observable_for_logical_cnot() -> None:
                 Cube(Position3D(1, 1, 3), ZXCube.from_str("ZXZ")),
             ]
         ),
-        top_readout_pipes=frozenset([
-            Pipe.from_cubes(
-                Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ")),
-                Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
-            )
-        ]),
+        top_readout_pipes=frozenset(
+            [
+                Pipe.from_cubes(
+                    Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ")),
+                    Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
+                )
+            ]
+        ),
         bottom_stabilizer_pipes=frozenset(
             [
                 Pipe.from_cubes(
