@@ -17,7 +17,6 @@ from tqec.computation.correlation import CorrelationSurface
 
 if TYPE_CHECKING:
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
-    from tqec.computation.abstract_observable import AbstractObservable
 
 
 BlockKind = CubeKind | PipeKind
@@ -220,39 +219,6 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
             write_html_filepath=write_html_filepath,
         )
 
-    def get_abstract_observables(
-        self,
-        correlation_surfaces: list[CorrelationSurface] | None = None,
-    ) -> tuple[list[AbstractObservable], list[CorrelationSurface]]:
-        """Get the
-        :py:class:`~tqec.computation.abstract_observable.AbstractObservable` in
-        the graph.
-
-        Args:
-            correlation_surfaces: The correlation surfaces to convert to abstract observables. If not
-                provided, all the possible correlation surfaces will be constructed from the corresponding ZX graph
-                of the block graph. Abstract observables will be created for each correlation surface.
-                Default is None.
-
-        Returns:
-            A tuple containing the list of abstract observables and the list of correlation surfaces corresponding
-            to the observables.
-        """
-        from tqec.computation.abstract_observable import (
-            correlation_surface_to_abstract_observable,
-        )
-
-        self.validate()
-
-        if correlation_surfaces is None:
-            correlation_surfaces = self.to_zx_graph().find_correration_surfaces()
-        abstract_observables: list[AbstractObservable] = [
-            correlation_surface_to_abstract_observable(self, surface)
-            for surface in correlation_surfaces
-        ]
-
-        return abstract_observables, correlation_surfaces
-
     def shift_min_z_to_zero(self) -> BlockGraph:
         """Shift the whole graph in the z direction to make the minimum z equal
         zero.
@@ -273,3 +239,12 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
                 pipe.kind,
             )
         return new_graph
+
+    def find_correlation_surfaces(self) -> list[CorrelationSurface]:
+        """Get the `~tqec.computation.correlation.CorrelationSurface`s from the corresponding
+        ZXGraph of the block graph.
+
+        Returns:
+            The list of correlation surfaces.
+        """
+        return self.to_zx_graph().find_correlation_surfaces()

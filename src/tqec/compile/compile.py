@@ -16,7 +16,11 @@ from tqec.compile.block import BlockLayout, CompiledBlock
 from tqec.compile.detectors.compute import compute_detectors_for_fixed_radius
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
-from tqec.compile.observables import inplace_add_observables
+from tqec.compile.observables.abstract_observable import (
+    AbstractObservable,
+    compile_correlation_surface_to_abstract_observable,
+)
+from tqec.compile.observables.builder import inplace_add_observable
 from tqec.compile.specs.base import (
     BlockBuilder,
     CubeSpec,
@@ -24,8 +28,8 @@ from tqec.compile.specs.base import (
     SubstitutionBuilder,
 )
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
-from tqec.computation.abstract_observable import AbstractObservable
 from tqec.computation.block_graph import BlockGraph
+from tqec.computation.correlation import CorrelationSurface
 from tqec.exceptions import TQECException, TQECWarning
 from tqec.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
@@ -105,12 +109,14 @@ class CompiledGraph:
         global_qubit_map = self._relabel_circuits_qubit_indices_inplace(circuits)
 
         # Construct the observables and add them in-place to the built circuits.
-        inplace_add_observables(
-            circuits,
-            [layout.template for layout in self.layout_slices],
-            self.observables,
-            k,
-        )
+        for observable_index, observable in enumerate(self.observables):
+            inplace_add_observable(
+                k,
+                circuits,
+                template_slices=[layout.template for layout in self.layout_slices],
+                abstract_observable=observable,
+                observable_index=observable_index,
+            )
 
         # Compute the detectors and add them in-place in circuits
         flattened_circuits: list[ScheduledCircuit] = sum(
@@ -297,7 +303,7 @@ def compile_block_graph(
     block_graph: BlockGraph,
     block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
     substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
-    observables: list[AbstractObservable] | Literal["auto"] | None = "auto",
+    correlation_surfaces: list[CorrelationSurface] | Literal["auto"] | None = "auto",
 ) -> CompiledGraph:
     """Compile a block graph.
 
@@ -311,13 +317,13 @@ def compile_block_graph(
             substitution plaquettes from the specified
             :class:`~.specs.base.PipeSpec`. Defaults to the substitution builder
             for the CSS type surface code.
-        observables: The abstract observables to be included in the compiled
-            circuit.
-            If set to ``"auto"``, the observables will be automatically
-            determined from the block graph. If a list of abstract observables
-            is provided, only those observables will be included in the compiled
-            circuit. If set to ``None``, no observables will be included in the
-            compiled circuit.
+        correlation_surfaces: The correlation surfaces that to be compiled into
+            observables and included in the compiled circuit.
+            If set to ``"auto"``, the correlation surfaces will be automatically
+            determined from the block graph. If a list of correlation surfaces
+            is provided, only those surfaces will be compiled into observables
+            and included in the compiled circuit. If set to ``None``, no
+            observables will be included in the compiled circuit.
 
     Returns:
         A :class:`CompiledGraph` object that can be used to generate a
@@ -365,11 +371,14 @@ def compile_block_graph(
 
     # 4. Get the abstract observables to be included in the compiled circuit.
     obs_included: list[AbstractObservable]
-    if observables is None:
+    if correlation_surfaces is None:
         obs_included = []
-    elif observables == "auto":
-        obs_included, _ = block_graph.get_abstract_observables()
     else:
-        obs_included = observables
+        if correlation_surfaces == "auto":
+            correlation_surfaces = block_graph.find_correlation_surfaces()
+        obs_included = [
+            compile_correlation_surface_to_abstract_observable(block_graph, surface)
+            for surface in correlation_surfaces
+        ]
 
     return CompiledGraph(layout_slices, obs_included)

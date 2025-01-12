@@ -30,14 +30,14 @@ def generate_cnot_circuits(*ks: int) -> None:
     block_graph = logical_cnot_block_graph("X")
 
     # 2. (Optional) Find and choose the logical observables
-    observables, _ = block_graph.get_abstract_observables()
+    correlation_surfaces = block_graph.find_correlation_surfaces()
 
     # 3. Compile the `BlockGraph`
     compiled_graph = compile_block_graph(
         block_graph,
         block_builder=CSS_BLOCK_BUILDER,
         substitution_builder=CSS_SUBSTITUTION_BUILDER,
-        observables=[observables[1]],
+        correlation_surfaces=[correlation_surfaces[1]],
     )
 
     for k in ks:

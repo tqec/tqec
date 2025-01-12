@@ -79,15 +79,13 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
         # Save the plotted observables to a subdirectory
         observable_out_dir = out_dir / "observables"
         observable_out_dir.mkdir(exist_ok=True)
-        abstract_observables, correlation_surfaces = (
-            block_graph.get_abstract_observables()
-        )
+        correlation_surfaces = block_graph.find_correlation_surfaces()
         obs_indices: list[int] = args.obs_include
         if not obs_indices:
-            obs_indices = list(range(len(abstract_observables)))
-        if max(obs_indices) >= len(abstract_observables):
+            obs_indices = list(range(len(correlation_surfaces)))
+        if max(obs_indices) >= len(correlation_surfaces):
             raise ValueError(
-                f"Found {len(abstract_observables)} observables, but requested indices up to {max(obs_indices)}."
+                f"Found {len(correlation_surfaces)} observables, but requested indices up to {max(obs_indices)}."
             )
 
         save_correlation_surfaces_to(
@@ -103,7 +101,7 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             block_graph,
             CSS_BLOCK_BUILDER,
             CSS_SUBSTITUTION_BUILDER,
-            observables=[abstract_observables[i] for i in obs_indices],
+            correlation_surfaces=[correlation_surfaces[i] for i in obs_indices],
         )
         ks: list[int] = args.k
         add_detectors: bool = args.add_detectors
