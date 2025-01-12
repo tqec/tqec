@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 
-from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import JunctionArms
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, ZXCube
@@ -38,9 +37,7 @@ class AbstractObservable:
     top_readout_pipes: frozenset[Pipe] = frozenset()
     bottom_stabilizer_pipes: frozenset[Pipe] = frozenset()
     top_readout_spatial_junctions: frozenset[tuple[Cube, JunctionArms]] = frozenset()
-    bottom_stabilizer_spatial_junctions: frozenset[tuple[Cube, JunctionArms]] = (
-        frozenset()
-    )
+    bottom_stabilizer_spatial_junctions: frozenset[Cube] = frozenset()
 
 
 def compile_correlation_surface_to_abstract_observable(
@@ -77,7 +74,7 @@ def compile_correlation_surface_to_abstract_observable(
     top_readout_pipes: set[Pipe] = set()
     bottom_stabilizer_pipes: set[Pipe] = set()
     top_readout_spatial_junctions: set[tuple[Cube, JunctionArms]] = set()
-    bottom_stabilizer_spatial_junctions: set[tuple[Cube, JunctionArms]] = set()
+    bottom_stabilizer_spatial_junctions: set[Cube] = set()
 
     # 1. Handle all spatial junctions
     for node in correlation_surface.nodes:
@@ -89,8 +86,7 @@ def compile_correlation_surface_to_abstract_observable(
         # correlation surface perpendicular to the normal direction of the junction
         # accounts for the bottom stabilizer measurements
         if zx.kind != node.kind:
-            spec = CubeSpec.from_cube(cube, block_graph)
-            bottom_stabilizer_spatial_junctions.add((cube, spec.junction_arms))
+            bottom_stabilizer_spatial_junctions.add(cube)
         # correlation surface parallel to the normal direction of the junction
         # accounts for the top readout measurements
         # we need to record the arm flags to specify different shapes of the

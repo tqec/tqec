@@ -51,11 +51,9 @@ def inplace_add_observable(
             bottom_stabilizer_qubits.setdefault(pos.z, set()).update(
                 _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
             )
-    for junction, arms in abstract_observable.bottom_stabilizer_spatial_junctions:
+    for junction in abstract_observable.bottom_stabilizer_spatial_junctions:
         pos = junction.position
-        qubits = _get_bottom_stabilizer_spatial_junction_qubits(
-            _block_shape(pos.z, k), arms
-        )
+        qubits = _get_bottom_stabilizer_spatial_junction_qubits(_block_shape(pos.z, k))
         bottom_stabilizer_qubits.setdefault(pos.z, set()).update(
             _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
         )
@@ -89,7 +87,19 @@ def inplace_add_observable(
         )
         circuits[z][0].append_observable(
             observable_index,
-            [stim.target_rec(measurement_records[q][-1]) for q in qubits],
+            [
+                stim.target_rec(measurement_records[q][-1])
+                for q in qubits
+                # Filter out those qubits that are not in the circuit.
+                # This is required because the current implementation of
+                # bottom stabilizer calculation for spatial junctions
+                # may include qubits that are not in the circuit, as
+                # intended for simplifying the calculation.
+                # This has the risk of not catching the coordinate
+                # calculation errors but the tests for determinism
+                # and code distance should catch them.
+                if q in measurement_records
+            ],
         )
 
     for z, qubits in top_data_qubits.items():
@@ -104,7 +114,7 @@ def inplace_add_observable(
 
 def _transform_coords_into_grid(
     template_slices: list[LayoutTemplate],
-    local_coords: tuple[float, float],
+    local_coords: tuple[float, float] | tuple[int, int],
     block_position: Position3D,
     k: int,
 ) -> GridQubit:
@@ -132,7 +142,7 @@ def _transform_coords_into_grid(
 def _get_top_readout_cube_qubits(
     shape: Shape2D,
     cube_kind: ZXCube,
-) -> list[tuple[float, float]]:
+) -> list[tuple[int, int]]:
     obs_orientation = Direction3D(int(cube_kind.y == cube_kind.z))
     if obs_orientation == Direction3D.X:
         return [(x, shape.y // 2) for x in range(1, shape.x)]
@@ -143,7 +153,7 @@ def _get_top_readout_cube_qubits(
 def _get_top_readout_pipe_qubits(
     u_shape: Shape2D,
     connect_to: Direction3D,
-) -> list[tuple[float, float]]:
+) -> list[tuple[int, int]]:
     assert connect_to != Direction3D.Z
     if connect_to == Direction3D.X:
         return [(u_shape.x, u_shape.y // 2)]
@@ -191,12 +201,45 @@ def _get_bottom_stabilizer_cube_qubits(
 def _get_top_readout_spatial_junction_qubits(
     junction_shape: Shape2D,
     arms: JunctionArms,
-) -> list[tuple[float, float]]:
-    raise NotImplementedError()
+) -> list[tuple[int, int]]:
+    assert len(arms) == 2
+    half_x, half_y = junction_shape.x // 2, junction_shape.y // 2
+    # could use match expressions here
+    # but not sure how is `|` operator evaluated in
+    # `case JunctionArms.LEFT | JunctionArms.RIGHT:`
+    # Is that used as case separator or bitwise OR?
+    if arms == JunctionArms.LEFT | JunctionArms.RIGHT:
+        return [(x, half_y) for x in range(junction_shape.x + 1)]
+    elif arms == JunctionArms.UP | JunctionArms.DOWN:
+        return [(half_x, y) for y in range(junction_shape.y + 1)]
+    elif arms == JunctionArms.LEFT | JunctionArms.UP:
+        return [(x, half_y) for x in range(half_x)] + [
+            (half_x, y) for y in range(half_y)
+        ]
+    elif arms == JunctionArms.DOWN | JunctionArms.RIGHT:
+        return [(x, half_y) for x in range(junction_shape.x, half_x, -1)] + [
+            (half_x, y) for y in range(junction_shape.y, half_y, -1)
+        ]
+    elif arms == JunctionArms.UP | JunctionArms.RIGHT:
+        return [(x, half_y) for x in range(junction_shape.x, half_x, -1)] + [
+            (half_x, y) for y in range(half_y + 1)
+        ]
+    else:  # arms == JunctionArms.LEFT | JunctionArms.DOWN:
+        return [(x, half_y) for x in range(half_x + 1)] + [
+            (half_x, y) for y in range(junction_shape.y, half_y, -1)
+        ]
 
 
 def _get_bottom_stabilizer_spatial_junction_qubits(
     junction_shape: Shape2D,
-    arms: JunctionArms,
 ) -> list[tuple[float, float]]:
-    raise NotImplementedError()
+    """For simplicity of implementation, we include all the measurement
+    qubits of the spatial basis in the results and filter out the qubits
+    not used in the measurement records later.
+    """
+    return [
+        (i + 0.5, j + 0.5)
+        for i in range(junction_shape.x // 2)
+        for j in range(junction_shape.y // 2)
+        if (i + j) % 2 == 0
+    ]
