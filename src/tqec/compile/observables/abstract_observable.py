@@ -108,10 +108,10 @@ def compile_correlation_surface_to_abstract_observable(
             # By convention, we always split the four arms into [LEFT | UP] and [RIGHT | DOWN]
             if len(arms) == 4:
                 top_readout_spatial_junctions.add(
-                    (cube, JunctionArms.LEFT | JunctionArms.UP)
+                    (cube, JunctionArms.LEFT | JunctionArms.DOWN)
                 )
                 top_readout_spatial_junctions.add(
-                    (cube, JunctionArms.RIGHT | JunctionArms.DOWN)
+                    (cube, JunctionArms.RIGHT | JunctionArms.UP)
                 )
             else:
                 top_readout_spatial_junctions.add((cube, arms))
