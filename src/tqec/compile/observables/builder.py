@@ -1,5 +1,6 @@
 """Provides helper functions to add observables to circuits."""
 
+from typing import Iterable
 import stim
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
@@ -36,6 +37,15 @@ def inplace_add_observable(
     def _block_shape(z: int, k: int) -> Shape2D:
         return template_slices[z].element_shape(k)
 
+    def _collect_into(
+        out_dict: dict[int, set[GridQubit]],
+        pos: Position3D,
+        qubits: Iterable[tuple[float, float] | tuple[int, int]],
+    ) -> None:
+        out_dict.setdefault(pos.z, set()).update(
+            _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
+        )
+
     # 1. The stabilizer measurements that will be added to the end of the first layer of circuits at z.
     for pipe in abstract_observable.bottom_stabilizer_pipes:
         for cube in pipe:
@@ -43,40 +53,46 @@ def inplace_add_observable(
             # handled later
             if cube.is_spatial_junction:
                 continue
-            pos = cube.position
-            qubits = _get_bottom_stabilizer_cube_qubits(
-                _block_shape(pos.z, k),
-                SignedDirection3D(pipe.direction, cube == pipe.u),
-            )
-            bottom_stabilizer_qubits.setdefault(pos.z, set()).update(
-                _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
+            _collect_into(
+                bottom_stabilizer_qubits,
+                cube.position,
+                _get_bottom_stabilizer_cube_qubits(
+                    _block_shape(cube.position.z, k),
+                    SignedDirection3D(pipe.direction, cube == pipe.u),
+                ),
             )
     for junction in abstract_observable.bottom_stabilizer_spatial_junctions:
-        pos = junction.position
-        qubits = _get_bottom_stabilizer_spatial_junction_qubits(_block_shape(pos.z, k))
-        bottom_stabilizer_qubits.setdefault(pos.z, set()).update(
-            _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
+        _collect_into(
+            bottom_stabilizer_qubits,
+            junction.position,
+            _get_bottom_stabilizer_spatial_junction_qubits(
+                _block_shape(junction.position.z, k)
+            ),
         )
 
     # 2. The data qubit readouts that will be added to the end of the last layer of circuits at z.
     for pipe in abstract_observable.top_readout_pipes:
-        u_pos = pipe.u.position
-        qubits = _get_top_readout_pipe_qubits(_block_shape(u_pos.z, k), pipe.direction)
-        top_data_qubits.setdefault(u_pos.z, set()).update(
-            _transform_coords_into_grid(template_slices, q, u_pos, k) for q in qubits
+        _collect_into(
+            top_data_qubits,
+            pipe.u.position,
+            _get_top_readout_pipe_qubits(
+                _block_shape(pipe.u.position.z, k), pipe.direction
+            ),
         )
     for cube in abstract_observable.top_readout_cubes:
-        pos = cube.position
         assert isinstance(cube.kind, ZXCube)
-        qubits = _get_top_readout_cube_qubits(_block_shape(pos.z, k), cube.kind)
-        top_data_qubits.setdefault(pos.z, set()).update(
-            _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
+        _collect_into(
+            top_data_qubits,
+            cube.position,
+            _get_top_readout_cube_qubits(_block_shape(cube.position.z, k), cube.kind),
         )
     for junction, arms in abstract_observable.top_readout_spatial_junctions:
-        pos = junction.position
-        qubits = _get_top_readout_spatial_junction_qubits(_block_shape(pos.z, k), arms)
-        top_data_qubits.setdefault(pos.z, set()).update(
-            _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
+        _collect_into(
+            top_data_qubits,
+            junction.position,
+            _get_top_readout_spatial_junction_qubits(
+                _block_shape(junction.position.z, k), arms
+            ),
         )
 
     # Finally, convert the qubit sets to the measurement records at the specific circuit location
