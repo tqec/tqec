@@ -24,6 +24,9 @@ class ZXBasis(Enum):
     def __str__(self) -> str:
         return self.value
 
+    def __repr__(self) -> str:
+        return f"ZXBasis.{self.name}"
+
 
 class CubeKind(ABC):
     """Base class for the kinds of cubes in the block graph."""
