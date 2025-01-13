@@ -408,7 +408,7 @@ Refer to <a class="reference external" href="https://tqec.github.io/tqec/user_gu
 <span class="c1"># 1. Construct the logical computation</span>
 <span class="n">block_graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dae_file</span><span class="p">(</span><span class="s2">&quot;assets/logical_cnot.dae&quot;</span><span class="p">)</span>
 
-<span class="c1"># 2. Get the logical observables(correlation surfaces) of interest and compile the computation</span>
+<span class="c1"># 2. Get the correlation surfaces of interest and compile the computation</span>
 <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
 <span class="n">compiled_computation</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">correlation_surfaces</span><span class="o">=</span><span class="p">[</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
 
