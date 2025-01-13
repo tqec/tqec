@@ -16,10 +16,10 @@ class AbstractObservable:
     """An abstract description of a logical observable in the
     :py:class:`~tqec.computation.BlockGraph`.
 
-    A logical observable corresponds to all the 
+    A logical observable corresponds to all the
     `OBSERVABLE_INCLUDE <https://github.com/quantumlib/Stim/blob/main/doc/gates.md#OBSERVABLE_INCLUDE>`_
-    instructions with the same observable index in the ``stim`` circuit 
-    and is composed of a set of measurements. Abstract observable 
+    instructions with the same observable index in the ``stim`` circuit
+    and is composed of a set of measurements. Abstract observable
     specifies where are the measurements located in the block graph.
 
     Attributes:
@@ -106,7 +106,7 @@ def compile_correlation_surface_to_abstract_observable(
                 4,
             }, "The correlation parity should be even for parallel correlation surface."
             # Two separate lines in the junction
-            # By convention, we always split the four arms into [LEFT | UP] and [RIGHT | DOWN]
+            # By convention, we always split the four arms into [LEFT | DOWN] and [RIGHT | UP]
             if len(arms) == 4:
                 top_readout_spatial_junctions.add(
                     (cube, JunctionArms.LEFT | JunctionArms.DOWN)

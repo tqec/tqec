@@ -28,8 +28,15 @@ def inplace_add_observable(
 ) -> None:
     """Inplace add the observable components to the circuits.
 
-    The circuits are grouped by time slices and layers. The outer list
-    represents the time slices and the inner list represents the layers.
+    Args:
+        k: The scaling factor of the block.
+        circuits: The circuits to add the observables to. The circuits are
+            grouped by time slices and layers. The outer list represents the
+            time slices and the inner list represents the layers.
+        template_slices: The layout templates of the blocks indexed by the
+            time steps.
+        abstract_observable: The abstract observable to add to the circuits.
+        observable_index: The index of the observable.
     """
     top_data_qubits: dict[int, set[GridQubit]] = {}
     bottom_stabilizer_qubits: dict[int, set[GridQubit]] = {}

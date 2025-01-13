@@ -370,10 +370,8 @@ def compile_block_graph(
     ]
 
     # 4. Get the abstract observables to be included in the compiled circuit.
-    obs_included: list[AbstractObservable]
-    if correlation_surfaces is None:
-        obs_included = []
-    else:
+    obs_included: list[AbstractObservable] = []
+    if correlation_surfaces is not None:
         if correlation_surfaces == "auto":
             correlation_surfaces = block_graph.find_correlation_surfaces()
         obs_included = [
