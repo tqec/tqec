@@ -116,9 +116,6 @@ class RPNG:
     def __str__(self) -> str:
         return f"{'-' if self.r is None else self.r.value}{'-' if self.p is None else self.p.value}{'-' if self.n is None else self.n}{'-' if self.g is None else self.g.value}"
 
-    def __repr__(self) -> str:
-        return str(self)
-
 
 @dataclass(frozen=True)
 class RG:
@@ -151,9 +148,6 @@ class RG:
 
     def __str__(self) -> str:
         return f"{self.r.value}{self.g.value}"
-
-    def __repr__(self) -> str:
-        return str(self)
 
 
 @dataclass
@@ -240,9 +234,6 @@ class RPNGDescription:
 
     def __str__(self) -> str:
         return " ".join(str(rpng) for rpng in self.corners)
-
-    def __repr__(self) -> str:
-        return str(self)
 
     def view_as_svg(
         self,
