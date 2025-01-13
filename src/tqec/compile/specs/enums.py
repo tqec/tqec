@@ -67,6 +67,6 @@ class JunctionArms(Flag):
         yield from (arm for arm in JunctionArms.single_arms() if arm in self)
 
     def __repr__(self) -> str:
-        if self.value == 0:
+        if self == JunctionArms.NONE:
             return "JunctionArms.NONE"
         return " | ".join(f"JunctionArms.{arm.name}" for arm in self)

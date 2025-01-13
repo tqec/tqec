@@ -39,7 +39,7 @@ from tqec.noise_model import NoiseModel
 # 1. Construct the logical computation
 block_graph = BlockGraph.from_dae_file("assets/logical_cnot.dae")
 
-# 2. Get the logical observables(correlation surfaces) of interest and compile the computation
+# 2. Get the correlation surfaces of interest and compile the computation
 correlation_surfaces = block_graph.find_correlation_surfaces()
 compiled_computation = compile_block_graph(block_graph, correlation_surfaces=[correlation_surfaces[1]])
 

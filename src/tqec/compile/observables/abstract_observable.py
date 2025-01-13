@@ -16,9 +16,11 @@ class AbstractObservable:
     """An abstract description of a logical observable in the
     :py:class:`~tqec.computation.BlockGraph`.
 
-    A logical observable corresponds to a `OBSERVABLE_INCLUDE <https://github.com/quantumlib/Stim/blob/main/doc/gates.md#OBSERVABLE_INCLUDE>`_
-    instruction in the ``stim`` circuit and is composed of a set of measurements. Abstract observable specifies where are the measurements
-    located in the block graph.
+    A logical observable corresponds to all the 
+    `OBSERVABLE_INCLUDE <https://github.com/quantumlib/Stim/blob/main/doc/gates.md#OBSERVABLE_INCLUDE>`_
+    instructions with the same observable index in the ``stim`` circuit 
+    and is composed of a set of measurements. Abstract observable 
+    specifies where are the measurements located in the block graph.
 
     Attributes:
         top_readout_cubes: A set of cubes of which a straight line of data qubit readouts on the top face should
@@ -46,7 +48,7 @@ def compile_correlation_surface_to_abstract_observable(
 ) -> AbstractObservable:
     """Compile a ``CorrelationSurface`` to an ``AbstractObservable`` in the block graph.
 
-    .. warning::
+    Warning:
         It is assumed that the corresponding ZX graph of the block graph can support the correlation surface.
         Otherwise, the behavior is undefined.
 

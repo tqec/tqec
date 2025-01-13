@@ -317,7 +317,7 @@ def compile_block_graph(
             substitution plaquettes from the specified
             :class:`~.specs.base.PipeSpec`. Defaults to the substitution builder
             for the CSS type surface code.
-        correlation_surfaces: The correlation surfaces that to be compiled into
+        correlation_surfaces: correlation surfaces that should be compiled into
             observables and included in the compiled circuit.
             If set to ``"auto"``, the correlation surfaces will be automatically
             determined from the block graph. If a list of correlation surfaces
