@@ -783,10 +783,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="p">]</span>
 
     <span class="c1"># 4. Get the abstract observables to be included in the compiled circuit.</span>
-    <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">correlation_surfaces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">obs_included</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">else</span><span class="p">:</span>
+    <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">correlation_surfaces</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">correlation_surfaces</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
             <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
         <span class="n">obs_included</span> <span class="o">=</span> <span class="p">[</span>
