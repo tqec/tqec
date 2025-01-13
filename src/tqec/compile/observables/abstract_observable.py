@@ -23,16 +23,19 @@ class AbstractObservable:
     specifies where are the measurements located in the block graph.
 
     Attributes:
-        top_readout_cubes: A set of cubes of which a straight line of data qubit readouts on the top face should
-            be included in the observable.
-        top_readout_pipes: A set of pipes of which a single data qubit readout on the top face should be included
-            in the observable.
-        bottom_stabilizer_pipes: A set of pipes of which a region of stabilizer measurements on the bottom face(in
-            the cubes it connects) should be included in the observable.
-        top_readout_spatial_junctions: A set of spatial junctions with the arm flags, of which the data qubit readouts
+        top_readout_cubes: A set of cubes of which a straight line of data
+            qubit readouts on the top face should be included in the observable.
+        top_readout_pipes: A set of pipes of which a single data qubit readout
             on the top face should be included in the observable.
-        bottom_stabilizer_spatial_junctions: A set of spatial junctions of which the stabilizer measurements on the
-            bottom face should be included in the observable.
+        bottom_stabilizer_pipes: A set of pipes of which a region of stabilizer
+            measurements on the bottom face(in the cubes it connects) should be
+            included in the observable.
+        top_readout_spatial_junctions: A set of spatial junctions with the arm
+            flags, of which the data qubit readouts on the top face should be
+            included in the observable.
+        bottom_stabilizer_spatial_junctions: A set of spatial junctions of which
+            the stabilizer measurements on the bottom face should be included in
+            the observable.
     """
 
     top_readout_cubes: frozenset[Cube] = frozenset()
@@ -46,15 +49,65 @@ def compile_correlation_surface_to_abstract_observable(
     block_graph: BlockGraph,
     correlation_surface: CorrelationSurface,
 ) -> AbstractObservable:
-    """Compile a ``CorrelationSurface`` to an ``AbstractObservable`` in the block graph.
+    """Compile a ``CorrelationSurface`` into an ``AbstractObservable`` in the
+    block graph.
+
+    The correlation surface translates into measurements to be included in the
+    observable in two main ways:
+
+    1. The surface attaches to the top face of some blocks. This means that part
+    of the logical operator is measured by reading the data qubits. The parity
+    change must be accounted for, and the measurement results should be included
+    in the tracked logical observable.
+
+    2. The surface spans the XY plane within some blocks. This represents a
+    region of stabilizer measurements in the basis of the surface, whose products
+    give the parity of the logical operators on the surface edges. Stabilizer
+    measurements need to be included in the tracked logical observable to account
+    for the correlation between logical operators at different spatial locations.
+    We choose the stabilizer measurements at the first layer (i.e., the earliest
+    in time or the bottom face of the block) because these are typically better
+    error-corrected by the decoder.
+
+    The compilation process is as follows:
+
+    1. Find all the spatial junctions involved in the correlation surface. For
+    each junction:
+
+    - If a surface is perpendicular to the junction's normal direction, include
+    the stabilizer measurements at the bottom of the junction in the observable,
+    and add the junction to the ``bottom_stabilizer_spatial_junctions`` set.
+
+    - If a surface is parallel to the junction's normal direction, include data
+    qubit readouts on the top face of the junction in the observable. Correlation
+    surfaces parallel to the junction's normal direction are guaranteed to attach
+    to an even number of arms.
+        - If exactly two arms touch the surface, add the junction and arms to the
+        ``top_readout_spatial_junctions`` set.
+        - If four arms touch the surface, split the arms into two pairs (e.g.
+        ``JunctionArms.LEFT | JunctionArms.DOWN`` and
+        ``JunctionArms.RIGHT | JunctionArms.UP``), and add the junction and arms
+        to the ``top_readout_spatial_junctions`` set.
+
+    2. Iterate over all the edges in the correlation surface. For each edge:
+    - If the edge is vertical, check if the surface is attached to the top face
+    of the top cube. If so, add the top cube to the ``top_readout_cubes`` set.
+    - If the edge is horizontal, check if the surface is attached to the top face
+    of the pipe. If so, add the pipe to the ``top_readout_pipes`` set; otherwise,
+    add the pipe to the ``bottom_stabilizer_pipes`` set.
+    - For each cube in the pipe, ignore the spatial junctions (already handled),
+    and check if the surface is attached to the top face of the cube. If so, add
+    the cube to the ``top_readout_cubes`` set.
 
     Warning:
-        It is assumed that the corresponding ZX graph of the block graph can support the correlation surface.
-        Otherwise, the behavior is undefined.
+        The corresponding ZX graph of the block graph must support the correlation
+        surface. Otherwise, the behavior is undefined.
 
     Args:
-        block_graph: The block graph whose corresponding ZX graph supports the correlation surface.
-        correlation_surface: The correlation surface to convert to an abstract observable.
+        block_graph: The block graph whose corresponding ZX graph supports the
+            correlation surface.
+        correlation_surface: The correlation surface to convert into an abstract
+            observable.
 
     Returns:
         The abstract observable corresponding to the correlation surface in the block graph.
@@ -119,7 +172,9 @@ def compile_correlation_surface_to_abstract_observable(
 
     # 2. Handle all the pipes
     def has_obs_include(cube: Cube, correlation: ZXKind) -> bool:
-        """Check if the top data qubit readout should be included in the observable."""
+        """Check if the top data qubit readout should be included in the
+        observable.
+        """
         if cube.is_y_cube:
             return True
         assert isinstance(cube.kind, ZXCube)
