@@ -255,7 +255,7 @@ def _get_bottom_stabilizer_spatial_junction_qubits(
     """
     return [
         (i + 0.5, j + 0.5)
-        for i in range(junction_shape.x // 2)
-        for j in range(junction_shape.y // 2)
+        for i in range(junction_shape.x)
+        for j in range(junction_shape.y)
         if (i + j) % 2 == 0
     ]
