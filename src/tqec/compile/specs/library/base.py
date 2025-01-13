@@ -43,8 +43,8 @@ class BaseBlockBuilder(BlockBuilder):
     """Base implementation of the :class:`~tqec.compile.specs.base.BlockBuilder`
     interface.
 
-    This class provides a good enough default implementation that should be
-    enough for most of the block builders.
+    This class provides a default implementation that should be good enough for
+    most of the block builders.
     """
 
     DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
@@ -84,7 +84,7 @@ class BaseBlockBuilder(BlockBuilder):
             the provided ``spec``.
         """
         assert isinstance(spec.kind, ZXCube)
-        x, y, z = spec.kind.as_tuple()
+        x, _, z = spec.kind.as_tuple()
         if not spec.is_spatial_junction:
             orientation = (
                 ZObservableOrientation.HORIZONTAL
@@ -134,8 +134,8 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
     """Base implementation of the
     :class:`~tqec.compile.specs.base.SubstitutionBuilder` interface.
 
-    This class provides a good enough default implementation that should be
-    enough for most of the block builders.
+    This class provides a default implementation that should be good enough for
+    most of the block builders.
     """
 
     def __init__(self, compiler: PlaquetteCompiler) -> None:
@@ -243,10 +243,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         x_axis_basis_at_head = spec.pipe_kind.get_basis_along(
             Direction3D.X, at_head=True
         )
-        if x_axis_basis_at_head is None:
-            raise TQECException(
-                "A temporal pipe should have a non-None basis on the X-axis."
-            )
+        assert (
+            x_axis_basis_at_head is not None
+        ), "A temporal pipe should have a non-None basis on the X-axis."
 
         first_layer_orientation: ZObservableOrientation
         second_layer_orientation: ZObservableOrientation
