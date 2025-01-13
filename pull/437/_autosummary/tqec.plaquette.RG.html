@@ -509,37 +509,49 @@
 <h1>RG<a class="headerlink" href="#rg" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.plaquette.RG">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BasisEnum.X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BasisEnum.X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RG" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RG" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Organize the prep and meas bases for the ancilla, together with the meas time</p>
-<p>The initialization time is assumed to be 0.
-The measurement time is not provided explicitly but determined by the time of circuit creation.</p>
+<p>Reduced format to represent syndrome qubit operations.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">RG</span></code> format is simply the <code class="docutils literal notranslate"><span class="pre">RPNG</span></code> format where <code class="docutils literal notranslate"><span class="pre">P</span></code> is
+unconditionally <code class="docutils literal notranslate"><span class="pre">-</span></code> and <code class="docutils literal notranslate"><span class="pre">N</span></code> is unset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>BasisEnum</em>)</p></li>
-<li><p><strong>g</strong> (<em>BasisEnum</em>)</p></li>
+<li><p><strong>r</strong> (<em>BasisEnum</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>g</strong> (<em>BasisEnum</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">r</span>&#160;&#160; <span class="pre">ancillaqubit</span> <span class="pre">reset</span> <span class="pre">basis</span></span></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="tqec.plaquette.RG.r">
+<span class="sig-name descname"><span class="pre">r</span></span><a class="headerlink" href="#tqec.plaquette.RG.r" title="Link to this definition">#</a></dt>
+<dd><p>reset basis (<code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> or <code class="docutils literal notranslate"><span class="pre">z</span></code>), <code class="docutils literal notranslate"><span class="pre">h</span></code> or <code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tqec.plaquette.rpng.BasisEnum | None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">g</span>&#160;&#160; <span class="pre">ancilla</span> <span class="pre">qubit</span> <span class="pre">measure</span> <span class="pre">basis</span></span></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="tqec.plaquette.RG.g">
+<span class="sig-name descname"><span class="pre">g</span></span><a class="headerlink" href="#tqec.plaquette.RG.g" title="Link to this definition">#</a></dt>
+<dd><p>measure basis (<code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> or <code class="docutils literal notranslate"><span class="pre">z</span></code>), <code class="docutils literal notranslate"><span class="pre">h</span></code> or <code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tqec.plaquette.rpng.BasisEnum | None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RG.__init__" title="tqec.plaquette.RG.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([r, g])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RG.__init__" title="tqec.plaquette.RG.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(r, g)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RG.from_string" title="tqec.plaquette.RG.from_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_string</span></code></a>(rg_string)</p></td>
-<td><p>Initialize the RGN object from a 3-character string</p></td>
+<td><p>Initialize the <code class="docutils literal notranslate"><span class="pre">RG</span></code> object from a 2-character string</p></td>
 </tr>
 </tbody>
 </table>
@@ -547,10 +559,10 @@ The measurement time is not provided explicitly but determined by the time of ci
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RG.r" title="tqec.plaquette.RG.r"><code class="xref py py-obj docutils literal notranslate"><span class="pre">r</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">r</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RG.g" title="tqec.plaquette.RG.g"><code class="xref py py-obj docutils literal notranslate"><span class="pre">g</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -559,12 +571,12 @@ The measurement time is not provided explicitly but determined by the time of ci
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RG.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BasisEnum.X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BasisEnum.X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.RG.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.RG.__init__" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>BasisEnum</em>)</p></li>
-<li><p><strong>g</strong> (<em>BasisEnum</em>)</p></li>
+<li><p><strong>r</strong> (<em>BasisEnum</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>g</strong> (<em>BasisEnum</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -576,7 +588,7 @@ The measurement time is not provided explicitly but determined by the time of ci
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RG.from_string">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rg_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RG.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RG.from_string" title="Link to this definition">#</a></dt>
-<dd><p>Initialize the RGN object from a 3-character string</p>
+<dd><p>Initialize the <code class="docutils literal notranslate"><span class="pre">RG</span></code> object from a 2-character string</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>rg_string</strong> (<em>str</em>)</p>
@@ -639,6 +651,8 @@ The measurement time is not provided explicitly but determined by the time of ci
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RG"><code class="docutils literal notranslate"><span class="pre">RG</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RG.r"><code class="docutils literal notranslate"><span class="pre">RG.r</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RG.g"><code class="docutils literal notranslate"><span class="pre">RG.g</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RG.__init__"><code class="docutils literal notranslate"><span class="pre">RG.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RG.from_string"><code class="docutils literal notranslate"><span class="pre">RG.from_string()</span></code></a></li>
 </ul>

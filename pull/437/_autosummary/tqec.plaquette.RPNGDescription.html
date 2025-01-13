@@ -509,7 +509,7 @@
 <h1>RPNGDescription<a class="headerlink" href="#rpngdescription" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RPNGDescription</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corners</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ancilla</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">xx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RPNGDescription"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RPNGDescription</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corners</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ancilla=RG(r=&lt;BasisEnum.X:</span> <span class="pre">'x'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g=&lt;BasisEnum.X:</span> <span class="pre">'x'&gt;)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RPNGDescription"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Organize the description of a plaquette in RPNG format</p>
 <p>The corners of the square plaquette are listed following the order:
@@ -545,14 +545,27 @@ This forms a Z-shaped path on the plaquette corners:</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">corners</span> <span class="pre">RPNG</span> <span class="pre">description</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">four</span> <span class="pre">corners</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">plaquette</span></span></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.corners">
+<span class="sig-name descname"><span class="pre">corners</span></span><a class="headerlink" href="#tqec.plaquette.RPNGDescription.corners" title="Link to this definition">#</a></dt>
+<dd><p>one <code class="docutils literal notranslate"><span class="pre">RPNG</span></code> description for each of the four corners of the
+plaquette.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<a class="reference internal" href="tqec.plaquette.RPNG.html#tqec.plaquette.RPNG" title="tqec.plaquette.rpng.RPNG">tqec.plaquette.rpng.RPNG</a>, <a class="reference internal" href="tqec.plaquette.RPNG.html#tqec.plaquette.RPNG" title="tqec.plaquette.rpng.RPNG">tqec.plaquette.rpng.RPNG</a>, <a class="reference internal" href="tqec.plaquette.RPNG.html#tqec.plaquette.RPNG" title="tqec.plaquette.rpng.RPNG">tqec.plaquette.rpng.RPNG</a>, <a class="reference internal" href="tqec.plaquette.RPNG.html#tqec.plaquette.RPNG" title="tqec.plaquette.rpng.RPNG">tqec.plaquette.rpng.RPNG</a>]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">ancilla</span> <span class="pre">RG</span> <span class="pre">description</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">ancilla</span></span></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.ancilla">
+<span class="sig-name descname"><span class="pre">ancilla</span></span><a class="headerlink" href="#tqec.plaquette.RPNGDescription.ancilla" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">RG</span></code> description of the syndrome qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tqec.plaquette.RG.html#tqec.plaquette.RG" title="tqec.plaquette.rpng.RG">tqec.plaquette.rpng.RG</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
@@ -560,22 +573,25 @@ This forms a Z-shaped path on the plaquette corners:</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.__init__" title="tqec.plaquette.RPNGDescription.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(corners[, ancilla])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_extended_string" title="tqec.plaquette.RPNGDescription.from_extended_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_extended_string</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.empty" title="tqec.plaquette.RPNGDescription.empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">empty</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_extended_string" title="tqec.plaquette.RPNGDescription.from_extended_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_extended_string</span></code></a>(...)</p></td>
 <td><p>Initialize the RPNGDescription object from a (16+3)-character string</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_string" title="tqec.plaquette.RPNGDescription.from_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_string</span></code></a>(corners_rpng_string)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_string" title="tqec.plaquette.RPNGDescription.from_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_string</span></code></a>(corners_rpng_string)</p></td>
 <td><p>Initialize the RPNGDescription object from a (16+3)-character string</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_g_op" title="tqec.plaquette.RPNGDescription.get_g_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_g_op</span></code></a>(data_idx)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_g_op" title="tqec.plaquette.RPNGDescription.get_g_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_g_op</span></code></a>(data_idx)</p></td>
 <td><p>Get the measurement operation or Hadamard for the specific data qubit</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_n" title="tqec.plaquette.RPNGDescription.get_n"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_n</span></code></a>(data_idx)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_n" title="tqec.plaquette.RPNGDescription.get_n"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_n</span></code></a>(data_idx)</p></td>
 <td><p>Get the time of the 2Q gate involving the specific data qubit</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_r_op" title="tqec.plaquette.RPNGDescription.get_r_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_r_op</span></code></a>(data_idx)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_r_op" title="tqec.plaquette.RPNGDescription.get_r_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_r_op</span></code></a>(data_idx)</p></td>
 <td><p>Get the reset operation or Hadamard for the specific data qubit</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.view_as_svg" title="tqec.plaquette.RPNGDescription.view_as_svg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view_as_svg</span></code></a>([write_to_filepath, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.view_as_svg" title="tqec.plaquette.RPNGDescription.view_as_svg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view_as_svg</span></code></a>([write_to_filepath, ...])</p></td>
 <td><p>Visualize the RPNG description as an SVG image.</p></td>
 </tr>
 </tbody>
@@ -584,7 +600,7 @@ This forms a Z-shaped path on the plaquette corners:</p>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ancilla</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.ancilla" title="tqec.plaquette.RPNGDescription.ancilla"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ancilla</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_measurement</span></code></p></td>
@@ -593,7 +609,7 @@ This forms a Z-shaped path on the plaquette corners:</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_reset</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">corners</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.corners" title="tqec.plaquette.RPNGDescription.corners"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corners</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -602,7 +618,7 @@ This forms a Z-shaped path on the plaquette corners:</p>
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corners</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ancilla</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">xx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.RPNGDescription.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corners</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ancilla=RG(r=&lt;BasisEnum.X:</span> <span class="pre">'x'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g=&lt;BasisEnum.X:</span> <span class="pre">'x'&gt;)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.RPNGDescription.__init__" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -612,6 +628,16 @@ This forms a Z-shaped path on the plaquette corners:</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.empty">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RPNGDescription.empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription.empty" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription" title="tqec.plaquette.rpng.RPNGDescription"><em>RPNGDescription</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -767,7 +793,10 @@ hook error is shown as a black line along the hook edge.</p></li>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription"><code class="docutils literal notranslate"><span class="pre">RPNGDescription</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.corners"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.corners</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.ancilla"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.ancilla</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.__init__"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.empty"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.empty()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.from_extended_string"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.from_extended_string()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.from_string"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.from_string()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.get_g_op"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.get_g_op()</span></code></a></li>

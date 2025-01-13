@@ -12,6 +12,7 @@ RPNGDescription
    .. autosummary::
    
       ~RPNGDescription.__init__
+      ~RPNGDescription.empty
       ~RPNGDescription.from_extended_string
       ~RPNGDescription.from_string
       ~RPNGDescription.get_g_op
@@ -40,6 +41,7 @@ RPNGDescription
 
    
    .. automethod:: __init__
+   .. automethod:: empty
    .. automethod:: from_extended_string
    .. automethod:: from_string
    .. automethod:: get_g_op

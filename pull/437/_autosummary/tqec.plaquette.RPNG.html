@@ -511,18 +511,19 @@
 <dt class="sig sig-object py" id="tqec.plaquette.RPNG">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RPNG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RPNG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNG" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Organize a single RPNG value</p>
-<p>-z1-
-rpng</p>
-<p>(r) data qubit reset basis or h or -
-(p) data basis for the controlled operation (x means CNOT controlled on the ancilla and targeting the data qubit, y means CY, z means CZ)
-(n) time step (positive integers, all distinct, typically in 1-5)
-(g) data qubit measure basis or h or -</p>
-<p>Assumptions on the circuit:
-- if not otherwise stated, a basis can be {x,y,z}
-- the ancilla is always the control qubit for the CNOT, CY, or CZ gates
-- time step of r same as ancilla reset (always 0)
-- time step of g same as ancilla measurement (by default 6)</p>
+<p>Represents a single <code class="docutils literal notranslate"><span class="pre">RPNG</span></code> string.</p>
+<p>## Format specification</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">RPNG</span></code> string is a standard format used in <code class="docutils literal notranslate"><span class="pre">tqec</span></code> to unambiguously
+describe the action(s) being performed on a single data qubit. It is a
+4-character string. See each attribute docstring for more details on the
+possible values for each character.</p>
+<p>## Example</p>
+<p>The following</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">z1</span><span class="o">-</span>
+<span class="n">rpng</span>
+</pre></div>
+</div>
+<p>represents a data-qubit with a <code class="docutils literal notranslate"><span class="pre">CZ</span></code> gate applied at timestep <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -534,34 +535,52 @@ rpng</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">r</span>&#160;&#160; <span class="pre">data</span> <span class="pre">qubit</span> <span class="pre">reset</span> <span class="pre">basis</span> <span class="pre">or</span> <span class="pre">h</span> <span class="pre">or</span> <span class="pre">-</span></span></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">p</span>&#160;&#160; <span class="pre">data</span> <span class="pre">basis</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">controlled</span> <span class="pre">operation</span></span></dt>
-<dd><dl class="field-list simple">
+<dt class="sig sig-object py" id="tqec.plaquette.RPNG.r">
+<span class="sig-name descname"><span class="pre">r</span></span><a class="headerlink" href="#tqec.plaquette.RPNG.r" title="Link to this definition">#</a></dt>
+<dd><p>reset basis (<code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> or <code class="docutils literal notranslate"><span class="pre">z</span></code>), <code class="docutils literal notranslate"><span class="pre">h</span></code> or <code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>assuming a=z, x means CNOT controlled on the ancilla and targeting the data qubit, y means CY, z means CZ</p>
+<dd class="field-odd"><p>tqec.plaquette.rpng.ExtendedBasisEnum | None</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">n</span>&#160;&#160; <span class="pre">time</span> <span class="pre">step</span></span></dt>
-<dd><dl class="field-list simple">
+<dt class="sig sig-object py" id="tqec.plaquette.RPNG.p">
+<span class="sig-name descname"><span class="pre">p</span></span><a class="headerlink" href="#tqec.plaquette.RPNG.p" title="Link to this definition">#</a></dt>
+<dd><p>controlled operation target basis (<code class="docutils literal notranslate"><span class="pre">x</span></code> means <code class="docutils literal notranslate"><span class="pre">CNOT</span></code> controlled
+on the ancilla and targeting the data qubit, <code class="docutils literal notranslate"><span class="pre">y</span></code> means <code class="docutils literal notranslate"><span class="pre">CY</span></code>,
+<code class="docutils literal notranslate"><span class="pre">z</span></code> means <code class="docutils literal notranslate"><span class="pre">CZ</span></code>).</p>
+<dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>positive integers, all distinct, typically in 1-5</p>
+<dd class="field-odd"><p>tqec.plaquette.rpng.BasisEnum | None</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">g</span>&#160;&#160; <span class="pre">data</span> <span class="pre">qubit</span> <span class="pre">measure</span> <span class="pre">basis</span> <span class="pre">or</span> <span class="pre">h</span> <span class="pre">or</span> <span class="pre">-</span></span></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="tqec.plaquette.RPNG.n">
+<span class="sig-name descname"><span class="pre">n</span></span><a class="headerlink" href="#tqec.plaquette.RPNG.n" title="Link to this definition">#</a></dt>
+<dd><p>time step at which the 2-qubit operation described by <code class="docutils literal notranslate"><span class="pre">p</span></code> should
+be applied. Should be a 1-digit positive integer, typically in
+<code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">5]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tqec.plaquette.RPNG.g">
+<span class="sig-name descname"><span class="pre">g</span></span><a class="headerlink" href="#tqec.plaquette.RPNG.g" title="Link to this definition">#</a></dt>
+<dd><p>measure basis (<code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> or <code class="docutils literal notranslate"><span class="pre">z</span></code>), <code class="docutils literal notranslate"><span class="pre">h</span></code> or <code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tqec.plaquette.rpng.ExtendedBasisEnum | None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
@@ -570,7 +589,7 @@ rpng</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNG.from_string" title="tqec.plaquette.RPNG.from_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_string</span></code></a>(rpng_string)</p></td>
-<td><p>Initialize the RPNG object from a 4-character string</p></td>
+<td><p>Initialize the RPNG object from a 4-character string.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNG.get_g_op" title="tqec.plaquette.RPNG.get_g_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_g_op</span></code></a>()</p></td>
 <td><p>Get the measurement operation or Hadamard</p></td>
@@ -587,16 +606,16 @@ rpng</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_null</span></code></p></td>
 <td><p>Check if the RPNG object is null, i.e. all fields are None.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">r</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNG.r" title="tqec.plaquette.RPNG.r"><code class="xref py py-obj docutils literal notranslate"><span class="pre">r</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNG.p" title="tqec.plaquette.RPNG.p"><code class="xref py py-obj docutils literal notranslate"><span class="pre">p</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">n</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNG.n" title="tqec.plaquette.RPNG.n"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">g</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNG.g" title="tqec.plaquette.RPNG.g"><code class="xref py py-obj docutils literal notranslate"><span class="pre">g</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -624,15 +643,16 @@ rpng</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNG.from_string">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpng_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RPNG.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNG.from_string" title="Link to this definition">#</a></dt>
-<dd><p>Initialize the RPNG object from a 4-character string</p>
-<p>Note that any character different from a BasisEnum / ExtendedBasisEnum
-value would result in the corresponding field being None.</p>
+<dd><p>Initialize the RPNG object from a 4-character string.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rpng_string</strong> (<em>str</em>)</p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if an invalid <code class="docutils literal notranslate"><span class="pre">rpng_string</span></code> is provided.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#tqec.plaquette.RPNG" title="tqec.plaquette.rpng.RPNG"><em>RPNG</em></a></p>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>rpng_string</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.plaquette.RPNG" title="tqec.plaquette.rpng.RPNG"><em>RPNG</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -711,6 +731,10 @@ value would result in the corresponding field being None.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNG"><code class="docutils literal notranslate"><span class="pre">RPNG</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNG.r"><code class="docutils literal notranslate"><span class="pre">RPNG.r</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNG.p"><code class="docutils literal notranslate"><span class="pre">RPNG.p</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNG.n"><code class="docutils literal notranslate"><span class="pre">RPNG.n</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNG.g"><code class="docutils literal notranslate"><span class="pre">RPNG.g</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNG.__init__"><code class="docutils literal notranslate"><span class="pre">RPNG.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNG.from_string"><code class="docutils literal notranslate"><span class="pre">RPNG.from_string()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNG.get_g_op"><code class="docutils literal notranslate"><span class="pre">RPNG.get_g_op()</span></code></a></li>

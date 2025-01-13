@@ -418,6 +418,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_extended_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExtendedBasisEnum</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ExtendedBasisEnum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ExtendedBasisEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">value</span>
@@ -433,27 +436,33 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RPNG</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize a single RPNG value</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a single ``RPNG`` string.</span>
 
-<span class="sd">    -z1-</span>
-<span class="sd">    rpng</span>
+<span class="sd">    ## Format specification</span>
 
-<span class="sd">    (r) data qubit reset basis or h or -</span>
-<span class="sd">    (p) data basis for the controlled operation (x means CNOT controlled on the ancilla and targeting the data qubit, y means CY, z means CZ)</span>
-<span class="sd">    (n) time step (positive integers, all distinct, typically in 1-5)</span>
-<span class="sd">    (g) data qubit measure basis or h or -</span>
+<span class="sd">    The ``RPNG`` string is a standard format used in ``tqec`` to unambiguously</span>
+<span class="sd">    describe the action(s) being performed on a single data qubit. It is a</span>
+<span class="sd">    4-character string. See each attribute docstring for more details on the</span>
+<span class="sd">    possible values for each character.</span>
 
-<span class="sd">    Assumptions on the circuit:</span>
-<span class="sd">    - if not otherwise stated, a basis can be {x,y,z}</span>
-<span class="sd">    - the ancilla is always the control qubit for the CNOT, CY, or CZ gates</span>
-<span class="sd">    - time step of r same as ancilla reset (always 0)</span>
-<span class="sd">    - time step of g same as ancilla measurement (by default 6)</span>
+<span class="sd">    ## Example</span>
+
+<span class="sd">    The following ::</span>
+
+<span class="sd">        -z1-</span>
+<span class="sd">        rpng</span>
+
+<span class="sd">    represents a data-qubit with a ``CZ`` gate applied at timestep ``1``.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        r   data qubit reset basis or h or -</span>
-<span class="sd">        p   data basis for the controlled operation (assuming a=z, x means CNOT controlled on the ancilla and targeting the data qubit, y means CY, z means CZ)</span>
-<span class="sd">        n   time step (positive integers, all distinct, typically in 1-5)</span>
-<span class="sd">        g   data qubit measure basis or h or -</span>
+<span class="sd">        r: reset basis (``x``, ``y`` or ``z``), ``h`` or ``-``.</span>
+<span class="sd">        p: controlled operation target basis (``x`` means ``CNOT`` controlled</span>
+<span class="sd">            on the ancilla and targeting the data qubit, ``y`` means ``CY``,</span>
+<span class="sd">            ``z`` means ``CZ``).</span>
+<span class="sd">        n: time step at which the 2-qubit operation described by ``p`` should</span>
+<span class="sd">            be applied. Should be a 1-digit positive integer, typically in</span>
+<span class="sd">            ``[1, 5]``.</span>
+<span class="sd">        g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">r</span><span class="p">:</span> <span class="n">ExtendedBasisEnum</span> <span class="o">|</span> <span class="kc">None</span>
@@ -465,10 +474,10 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.from_string">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rpng_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RPNG</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RPNG object from a 4-character string</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RPNG object from a 4-character string.</span>
 
-<span class="sd">        Note that any character different from a BasisEnum / ExtendedBasisEnum</span>
-<span class="sd">        value would result in the corresponding field being None.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: if an invalid ``rpng_string`` is provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rpng_string</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The rpng string must be exactly 4-character long.&quot;</span><span class="p">)</span>
@@ -530,10 +539,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;----&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">value</span><span class="si">}{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">value</span><span class="si">}{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="si">}{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">value</span><span class="si">}{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">value</span><span class="si">}{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="si">}{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
 
@@ -541,41 +547,38 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.RG.html#tqec.plaquette.RG">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RG</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize the prep and meas bases for the ancilla, together with the meas time</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reduced format to represent syndrome qubit operations.</span>
 
-<span class="sd">    The initialization time is assumed to be 0.</span>
-<span class="sd">    The measurement time is not provided explicitly but determined by the time of circuit creation.</span>
+<span class="sd">    The ``RG`` format is simply the ``RPNG`` format where ``P`` is</span>
+<span class="sd">    unconditionally ``-`` and ``N`` is unset.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        r   ancillaqubit reset basis</span>
-<span class="sd">        g   ancilla qubit measure basis</span>
+<span class="sd">        r: reset basis (``x``, ``y`` or ``z``), ``h`` or ``-``.</span>
+<span class="sd">        g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">r</span><span class="p">:</span> <span class="n">BasisEnum</span> <span class="o">=</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">X</span>
-    <span class="n">g</span><span class="p">:</span> <span class="n">BasisEnum</span> <span class="o">=</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">X</span>
+    <span class="n">r</span><span class="p">:</span> <span class="n">BasisEnum</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">g</span><span class="p">:</span> <span class="n">BasisEnum</span> <span class="o">|</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="RG.from_string">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.RG.html#tqec.plaquette.RG.from_string">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rg_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RG</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RGN object from a 3-character string&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the ``RG`` object from a 2-character string&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rg_string</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The rg string must be exactly 2-character long.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The RG string must be exactly 2-character long.&quot;</span><span class="p">)</span>
         <span class="n">r_str</span><span class="p">,</span> <span class="n">g_str</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">rg_string</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">BasisEnum</span><span class="p">(</span><span class="n">r_str</span><span class="p">)</span>
-            <span class="n">g</span> <span class="o">=</span> <span class="n">BasisEnum</span><span class="p">(</span><span class="n">g_str</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">r_str</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="k">else</span> <span class="n">BasisEnum</span><span class="p">(</span><span class="n">r_str</span><span class="p">)</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">g_str</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="k">else</span> <span class="n">BasisEnum</span><span class="p">(</span><span class="n">g_str</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid rg string.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid RG string: &#39;</span><span class="si">{</span><span class="n">rg_string</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">value</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">value</span><span class="si">}{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
 
@@ -600,12 +603,13 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    If the ancilla RG description is not specified, it is assumed &#39;xx&#39;</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        corners RPNG description of the four corners of the plaquette</span>
-<span class="sd">        ancilla RG description of the ancilla</span>
+<span class="sd">        corners: one ``RPNG`` description for each of the four corners of the</span>
+<span class="sd">            plaquette.</span>
+<span class="sd">        ancilla: ``RG`` description of the syndrome qubit.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">corners</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RPNG</span><span class="p">,</span> <span class="n">RPNG</span><span class="p">,</span> <span class="n">RPNG</span><span class="p">,</span> <span class="n">RPNG</span><span class="p">]</span>
-    <span class="n">ancilla</span><span class="p">:</span> <span class="n">RG</span> <span class="o">=</span> <span class="n">RG</span><span class="p">()</span>
+    <span class="n">ancilla</span><span class="p">:</span> <span class="n">RG</span> <span class="o">=</span> <span class="n">RG</span><span class="p">(</span><span class="n">BasisEnum</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validation of the initialization arguments</span>
@@ -649,6 +653,13 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">rpng_objs</span><span class="p">,</span> <span class="n">ancilla_rg</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="RPNGDescription.empty">
+<a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.empty">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">empty</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">RPNGDescription</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RPNGDescription</span><span class="o">.</span><span class="n">from_extended_string</span><span class="p">(</span><span class="s2">&quot;-- ---- ---- ---- ----&quot;</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="RPNGDescription.get_r_op">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_r_op">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_r_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -680,9 +691,6 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">rpng</span><span class="p">)</span> <span class="k">for</span> <span class="n">rpng</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RPNGDescription.view_as_svg">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.view_as_svg">[docs]</a>
