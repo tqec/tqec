@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
 from tqec.plaquette.plaquette import Plaquette
-from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
 from tqec.plaquette.rpng import RPNGDescription
 
 
