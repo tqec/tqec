@@ -23,37 +23,38 @@ from tqec.templates.indices.qubit import QubitTemplate
 
 
 @pytest.mark.parametrize(
-    "case",
+    "kind, expected",
     [
         ("ZXZ", [(1, 3), (2, 3), (3, 3), (4, 3), (5, 3)]),
         ("XZZ", [(3, 1), (3, 2), (3, 3), (3, 4), (3, 5)]),
     ],
 )
-def test_get_top_readout_cube_qubits(case: tuple[str, list[tuple[int, int]]]) -> None:
-    kind, expected = case
+def test_get_top_readout_cube_qubits(
+    kind: str, expected: list[tuple[int, int]]
+) -> None:
     shape = Shape2D(6, 6)
     coords = _get_top_readout_cube_qubits(shape, ZXCube.from_str(kind))
     assert coords == expected
 
 
 @pytest.mark.parametrize(
-    "case",
+    "direction, expected",
     [
         (Direction3D.X, [(6, 3)]),
         (Direction3D.Y, [(3, 6)]),
     ],
 )
 def test_get_top_readout_pipe_qubits(
-    case: tuple[Direction3D, list[tuple[int, int]]],
+    direction: Direction3D,
+    expected: list[tuple[int, int]],
 ) -> None:
-    direction, expected = case
     shape = Shape2D(6, 6)
     coords = _get_top_readout_pipe_qubits(shape, direction)
     assert coords == expected
 
 
 @pytest.mark.parametrize(
-    "case",
+    "connect_to, expected",
     [
         (
             SignedDirection3D(Direction3D.X, True),
@@ -114,9 +115,9 @@ def test_get_top_readout_pipe_qubits(
     ],
 )
 def test_get_bottom_stabilizer_cube_qubits(
-    case: tuple[SignedDirection3D, set[tuple[float, float]]],
+    connect_to: SignedDirection3D,
+    expected: set[tuple[float, float]],
 ) -> None:
-    connect_to, expected = case
     shape = Shape2D(6, 6)
     coords = set(_get_bottom_stabilizer_cube_qubits(shape, connect_to))
     assert coords == expected
@@ -132,7 +133,7 @@ def test_get_bottom_stabilizer_spatial_junction_qubits(k: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "case",
+    "arms, expected",
     [
         (JunctionArms.LEFT | JunctionArms.UP, {(0, 2), (1, 2), (2, 0), (2, 1)}),
         (
@@ -155,9 +156,9 @@ def test_get_bottom_stabilizer_spatial_junction_qubits(k: int) -> None:
     ],
 )
 def test_get_top_readout_spatial_junction_qubits(
-    case: tuple[JunctionArms, set[tuple[int, int]]],
+    arms: JunctionArms,
+    expected: set[tuple[int, int]],
 ) -> None:
-    arms, expected = case
     shape = Shape2D(4, 4)
     coords = set(_get_top_readout_spatial_junction_qubits(shape, arms))
     assert coords == expected
