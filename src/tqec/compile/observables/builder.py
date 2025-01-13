@@ -28,6 +28,11 @@ def inplace_add_observable(
 ) -> None:
     """Inplace add the observable components to the circuits.
 
+    This functions takes the compiled ``AbstractObservable`` and calculates
+    the measurement coordinates in it. Then it collects the measurements
+    into logical observable and adds them in the correct locations in the
+    sliced circuits.
+
     Args:
         k: The scaling factor of the block.
         circuits: The circuits to add the observables to. The circuits are
@@ -141,12 +146,18 @@ def _transform_coords_into_grid(
     block_position: Position3D,
     k: int,
 ) -> GridQubit:
-    """Transform local coordinates at a block to the global coordinates in the circuit.
+    """Transform local coordinates at a block to the global coordinates in the
+    circuit.
 
     When calculating the coordinates of the measurement qubits, we use a local coordinate system
     in the individual blocks. The top-left corner of the block starts at (0, 0) and each column
     is separated by 0.5. That is, all the data qubits are placed at the integer coordinates while
     all the measurement qubits are placed at the half-integer coordinates.
+
+    This convention helps reducing the number of arguments needed to pass around and simplifies
+    the calculation of the qubit coordinates. The global coordinates are calculated by offsetting
+    the local coordinates by the global position of the block and accounting for the
+    ``Template.default_increments``.
     """
     template = template_slices[block_position.z]
     block_shape = template.element_shape(k)
@@ -166,6 +177,16 @@ def _get_top_readout_cube_qubits(
     shape: Shape2D,
     cube_kind: ZXCube,
 ) -> list[tuple[int, int]]:
+    """The data qubits on the middle line of the cube will be read out and
+    included in the logical observable.
+
+    This function calculates the coordinates of these data qubits in the
+    local coordinate system.
+    """
+    # Determine the middle line orientation based on the cube kind.
+    # Since the basis of the top face decides the measurement basis of the data
+    # qubits, i.e. the logical operator basis. We only need to find the spatial
+    # boundaries that the logical operator can be attached to.
     obs_orientation = Direction3D(int(cube_kind.y == cube_kind.z))
     if obs_orientation == Direction3D.X:
         return [(x, shape.y // 2) for x in range(1, shape.x)]
@@ -177,6 +198,14 @@ def _get_top_readout_pipe_qubits(
     u_shape: Shape2D,
     connect_to: Direction3D,
 ) -> list[tuple[int, int]]:
+    """The top line at a pipe is actually a single data qubits at the interface
+    of the two connected cubes.
+
+    The measurement result of this qubit will be included in the logical
+    observable. This function calculates the coordinates of this data
+    qubit in the local coordinate system of the cube at the head of the
+    pipe.
+    """
     assert connect_to != Direction3D.Z
     if connect_to == Direction3D.X:
         return [(u_shape.x, u_shape.y // 2)]
@@ -188,6 +217,12 @@ def _get_bottom_stabilizer_cube_qubits(
     cube_shape: Shape2D,
     connect_to: SignedDirection3D,
 ) -> list[tuple[float, float]]:
+    """The stabilizer measurements at the bottom of the cube will be included
+    in the logical observable.
+
+    This function calculates the coordinates of the measurement qubits
+    in the local coordinate system of the cube.
+    """
     stabilizers: list[tuple[float, float]] = []
     # We calculate the qubits for the connect_to=SignedDirection3D(Direction3D.X, True) case
     # and post-process(reflect, rotate) to get the correct orientation.
@@ -225,6 +260,13 @@ def _get_top_readout_spatial_junction_qubits(
     junction_shape: Shape2D,
     arms: JunctionArms,
 ) -> list[tuple[int, int]]:
+    """The data qubits at the spatial junctions will be read out and included
+    in the logical observable.
+
+    This function calculates the coordinates of the data qubits in the
+    local coordinate system of the junction based on which arms the
+    correlation surface touches.
+    """
     assert len(arms) == 2
     half_x, half_y = junction_shape.x // 2, junction_shape.y // 2
     # could use match expressions here
@@ -256,9 +298,13 @@ def _get_top_readout_spatial_junction_qubits(
 def _get_bottom_stabilizer_spatial_junction_qubits(
     junction_shape: Shape2D,
 ) -> list[tuple[float, float]]:
-    """For simplicity of implementation, we include all the measurement
-    qubits of the spatial basis in the results and filter out the qubits
-    not used in the measurement records later.
+    """The stabilizer measurements at the spatial junctions will be included in
+    the logical observable.
+
+    For simplicity of implementation, this function
+    include all the measurement qubits of the spatial basis in the results and
+    will filter out the qubits not used in the measurement records in
+    ``inplace_add_observable``.
     """
     return [
         (i + 0.5, j + 0.5)
