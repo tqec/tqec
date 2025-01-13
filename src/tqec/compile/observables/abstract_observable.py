@@ -44,8 +44,7 @@ def compile_correlation_surface_to_abstract_observable(
     block_graph: BlockGraph,
     correlation_surface: CorrelationSurface,
 ) -> AbstractObservable:
-    """Convert a :py:class:`~tqec.computation.CorrelationSurface` to an
-    :py:class:`~tqec.computation.AbstractObservable`.
+    """Compile a ``CorrelationSurface`` to an ``AbstractObservable`` in the block graph.
 
     .. warning::
         It is assumed that the corresponding ZX graph of the block graph can support the correlation surface.

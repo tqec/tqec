@@ -50,7 +50,7 @@ class CompiledGraph:
             instances that represent the compiled blocks at contiguous time
             slices.
         observables: a list of
-            :class:`~tqec.computation.abstract_observable.AbstractObservable`
+            :class:`~tqec.compile.observables.AbstractObservable`
             instances that represent the observables to be included in the
             compiled circuit.
     """
