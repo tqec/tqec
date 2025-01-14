@@ -54,7 +54,7 @@ class CubeSpec:
         pos = cube.position
         junction_arms = JunctionArms.NONE
         for flag, shift in JunctionArms.get_map_from_arm_to_shift().items():
-            if graph.get_edge(pos, pos.shift_by(*shift)) is not None:
+            if graph.has_edge_between(pos, pos.shift_by(*shift)):
                 junction_arms |= flag
         return CubeSpec(cube.kind, junction_arms)
 
