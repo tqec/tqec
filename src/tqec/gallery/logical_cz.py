@@ -13,7 +13,7 @@ def logical_cz_zx_graph(support_flows: str | list[str] | None = None) -> ZXGraph
 
     By default, the Hadamard edge in the CZ gate will be horizontal. If you
     want to use vertical Hadamard edges, you can rotate the graph by 90 degrees
-    by calling TODO.
+    by calling `~tqec.computation.zx_graph.ZXGraph.rotate`.
 
     Args:
         support_flows: The stabilizer flow supported by the logical CZ gate. It
@@ -100,7 +100,7 @@ def logical_cz_block_graph(support_flows: str | list[str] | None = None) -> Bloc
 
     By default, the Hadamard edge in the CZ gate will be horizontal. If you
     want to use vertical Hadamard edges, you can rotate the graph by 90 degrees
-    by calling TODO.
+    by calling `~tqec.computation.block_graph.BlockGraph.rotate`.
 
     Args:
         support_flows: The stabilizer flow supported by the logical CZ gate. It
