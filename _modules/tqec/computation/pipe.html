@@ -29,7 +29,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -405,20 +405,20 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.computation.pipe</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Defines the :py:class:`~tqec.computation.pipe.Pipe` class.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
 
-<span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">Direction3D</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.cube</span> <span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">ZXBasis</span><span class="p">,</span> <span class="n">ZXCube</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">ZXBasis</span><span class="p">,</span> <span class="n">ZXCube</span>
 
 
 <div class="viewcode-block" id="PipeKind">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">PipeKind</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PipeKind</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The kind of a pipe in the block graph.</span>
 
 <span class="sd">    Looking at the head of the pipe, i.e. the side which has smaller position,</span>
@@ -444,13 +444,13 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">z</span><span class="p">:</span> <span class="n">ZXBasis</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">has_hadamard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">basis</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">basis</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;Exactly one basis must be None for a pipe.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">})</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;Pipe must have different basis walls.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">basis</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;O&quot;</span>
             <span class="k">for</span> <span class="n">basis</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
@@ -459,7 +459,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="PipeKind.from_str">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.from_str">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_str</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PipeKind</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_str</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PipeKind</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a pipe kind from the string representation.</span>
 
 <span class="sd">        The string should be a 3-character or 4-character string. The first 3</span>
@@ -484,13 +484,13 @@ window.addEventListener("load", () => mermaid.run());
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">direction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Direction3D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">direction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Direction3D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The direction along which the pipe connects the cubes.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Direction3D</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">))</span>
 
 <div class="viewcode-block" id="PipeKind.get_basis_along">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.get_basis_along">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_basis_along</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_basis_along</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">at_head</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXBasis</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the wall basis of the pipe in the specified direction.</span>
@@ -514,19 +514,19 @@ window.addEventListener("load", () => mermaid.run());
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_temporal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_temporal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the pipe is temporal, i.e. connects two cubes along the Z</span>
 <span class="sd">        axis.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_spatial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_spatial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the pipe is spatial, i.e. connects two cubes along the X or</span>
 <span class="sd">        Y axis.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_temporal</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_from_cube_kind</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_from_cube_kind</span><span class="p">(</span>
         <span class="n">cube_kind</span><span class="p">:</span> <span class="n">ZXCube</span><span class="p">,</span>
         <span class="n">direction</span><span class="p">:</span> <span class="n">Direction3D</span><span class="p">,</span>
         <span class="n">cube_at_head</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -561,7 +561,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="Pipe">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Pipe</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Pipe</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A block connecting two :py:class:`~tqec.computation.cube.Cube` objects.</span>
 
 <span class="sd">    The pipes connect the cubes in the block graph. Topologically, the pipes</span>
@@ -583,7 +583,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">v</span><span class="p">:</span> <span class="n">Cube</span>
     <span class="n">kind</span><span class="p">:</span> <span class="n">PipeKind</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span>
         <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">position</span>
         <span class="n">shift</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
@@ -601,7 +601,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="Pipe.from_cubes">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.from_cubes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_cubes</span><span class="p">(</span><span class="n">u</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Cube</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pipe</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_cubes</span><span class="p">(</span><span class="n">u</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Cube</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pipe</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a pipe connecting two cubes and infer the pipe kind.</span>
 
 <span class="sd">        Args:</span>
@@ -652,13 +652,13 @@ window.addEventListener("load", () => mermaid.run());
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">direction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Direction3D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">direction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Direction3D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The direction along which the pipe connects the cubes.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">direction</span>
 
 <div class="viewcode-block" id="Pipe.check_compatible_with_cubes">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.check_compatible_with_cubes">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_compatible_with_cubes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_compatible_with_cubes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the pipe is compatible with the cubes it connects.</span>
 
 <span class="sd">        For compatibility, each cube (head and tail) must match the pipe&#39;s basis</span>
@@ -683,7 +683,7 @@ window.addEventListener("load", () => mermaid.run());
                     <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Cube</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Cube</span><span class="p">]:</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span></div>
 

@@ -29,7 +29,7 @@
   <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -405,31 +405,31 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.interop.collada.read_write</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Read and write block graphs to and from Collada DAE files.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">import</span> <span class="nn">collada</span>
-<span class="kn">import</span> <span class="nn">collada.source</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">collada</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">collada.source</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 
-<span class="kn">from</span> <span class="nn">tqec.computation.block_graph</span> <span class="kn">import</span> <span class="n">BlockGraph</span><span class="p">,</span> <span class="n">BlockKind</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.correlation</span> <span class="kn">import</span> <span class="n">CorrelationSurface</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.cube</span> <span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">YCube</span><span class="p">,</span> <span class="n">ZXCube</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.pipe</span> <span class="kn">import</span> <span class="n">PipeKind</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.zx_graph</span> <span class="kn">import</span> <span class="n">ZXKind</span>
-<span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span> <span class="nn">tqec.interop.collada._geometry</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span><span class="p">,</span> <span class="n">BlockKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">YCube</span><span class="p">,</span> <span class="n">ZXCube</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada._geometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BlockGeometries</span><span class="p">,</span>
     <span class="n">Face</span><span class="p">,</span>
     <span class="n">get_correlation_surface_geometry</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">tqec.interop.color</span> <span class="kn">import</span> <span class="n">TQECColor</span>
-<span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">FloatPosition3D</span><span class="p">,</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
-<span class="kn">from</span> <span class="nn">tqec.scale</span> <span class="kn">import</span> <span class="n">round_or_fail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECColor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatPosition3D</span><span class="p">,</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_or_fail</span>
 
 <span class="n">_ASSET_AUTHOR</span> <span class="o">=</span> <span class="s2">&quot;TQEC Community&quot;</span>
 <span class="n">_ASSET_AUTHORING_TOOL_TQEC</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/tqec/tqec&quot;</span>
@@ -440,7 +440,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="n">_CORRELATION_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;_CORRELATION&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">_block_kind_from_str</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockKind</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_block_kind_from_str</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockKind</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a block kind from a string.&quot;&quot;&quot;</span>
     <span class="n">string</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
     <span class="k">if</span> <span class="s2">&quot;O&quot;</span> <span class="ow">in</span> <span class="n">string</span><span class="p">:</span>
@@ -453,7 +453,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="read_block_graph_from_dae_file">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.interop.read_block_graph_from_dae_file.html#tqec.interop.read_block_graph_from_dae_file">[docs]</a>
-<span class="k">def</span> <span class="nf">read_block_graph_from_dae_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_block_graph_from_dae_file</span><span class="p">(</span>
     <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
@@ -527,14 +527,14 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="n">pipe_length</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">pipe_length</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pipe_length</span>
 
-    <span class="k">def</span> <span class="nf">int_position_before_scale</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">FloatPosition3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Position3D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">int_position_before_scale</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">FloatPosition3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Position3D</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Position3D</span><span class="p">(</span>
             <span class="n">x</span><span class="o">=</span><span class="n">round_or_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pipe_length</span><span class="p">)),</span>
             <span class="n">y</span><span class="o">=</span><span class="n">round_or_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pipe_length</span><span class="p">)),</span>
             <span class="n">z</span><span class="o">=</span><span class="n">round_or_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pipe_length</span><span class="p">)),</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">offset_y_cube_position</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">FloatPosition3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatPosition3D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">offset_y_cube_position</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">FloatPosition3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatPosition3D</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span><span class="p">),</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
             <span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">FloatPosition3D</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pipe_length</span><span class="p">))</span>
@@ -564,7 +564,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="write_block_graph_to_dae_file">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.interop.write_block_graph_to_dae_file.html#tqec.interop.write_block_graph_to_dae_file">[docs]</a>
-<span class="k">def</span> <span class="nf">write_block_graph_to_dae_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_block_graph_to_dae_file</span><span class="p">(</span>
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
     <span class="n">file_like</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="n">BinaryIO</span><span class="p">,</span>
     <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
@@ -585,7 +585,7 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="n">base</span> <span class="o">=</span> <span class="n">_BaseColladaData</span><span class="p">(</span><span class="n">pop_faces_at_direction</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">scale_position</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatPosition3D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scale_position</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatPosition3D</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">FloatPosition3D</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pipe_length</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pos</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">()))</span>
 
     <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
@@ -621,13 +621,13 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">_BlockLibraryKey</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_BlockLibraryKey</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The key to access the library node in the Collada DAE file.&quot;&quot;&quot;</span>
 
     <span class="n">kind</span><span class="p">:</span> <span class="n">BlockKind</span>
     <span class="n">pop_faces_at_directions</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">SignedDirection3D</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pop_faces_at_directions</span><span class="p">:</span>
             <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot; without &quot;</span>
@@ -635,8 +635,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">string</span>
 
 
-<span class="k">class</span> <span class="nc">_BaseColladaData</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_BaseColladaData</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">pop_faces_at_direction</span><span class="p">:</span> <span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -661,12 +661,12 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_asset_info</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_materials</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_create_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">scene</span> <span class="o">=</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Scene</span><span class="p">(</span><span class="s2">&quot;scene&quot;</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">root_node</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">scenes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="n">scene</span>
 
-    <span class="k">def</span> <span class="nf">_add_asset_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_asset_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assetInfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assetInfo</span><span class="o">.</span><span class="n">contributors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -678,7 +678,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assetInfo</span><span class="o">.</span><span class="n">unitname</span> <span class="o">=</span> <span class="n">_ASSET_UNIT_NAME</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assetInfo</span><span class="o">.</span><span class="n">upaxis</span> <span class="o">=</span> <span class="n">collada</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">UP_AXIS</span><span class="o">.</span><span class="n">Z_UP</span>
 
-    <span class="k">def</span> <span class="nf">_add_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_materials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add all the materials for different faces.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">face_color</span> <span class="ow">in</span> <span class="n">TQECColor</span><span class="p">:</span>
             <span class="n">rgba</span> <span class="o">=</span> <span class="n">face_color</span><span class="o">.</span><span class="n">rgba</span><span class="o">.</span><span class="n">as_floats</span><span class="p">()</span>
@@ -703,7 +703,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">material</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">materials</span><span class="p">[</span><span class="n">face_color</span><span class="p">]</span> <span class="o">=</span> <span class="n">material</span>
 
-    <span class="k">def</span> <span class="nf">_add_face_geometry_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">face</span><span class="p">:</span> <span class="n">Face</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">GeometryNode</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_face_geometry_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">face</span><span class="p">:</span> <span class="n">Face</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">GeometryNode</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">face</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_nodes</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_nodes</span><span class="p">[</span><span class="n">face</span><span class="p">]</span>
         <span class="c1"># Create geometry</span>
@@ -735,7 +735,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">geometry_nodes</span><span class="p">[</span><span class="n">face</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_node</span>
         <span class="k">return</span> <span class="n">geom_node</span>
 
-    <span class="k">def</span> <span class="nf">_add_block_library_node</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_block_library_node</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">block_kind</span><span class="p">:</span> <span class="n">BlockKind</span><span class="p">,</span>
         <span class="n">pop_faces_at_directions</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SignedDirection3D</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
@@ -754,7 +754,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">block_library</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
         <span class="k">return</span> <span class="n">key</span>
 
-    <span class="k">def</span> <span class="nf">add_block_instance</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_block_instance</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">transform_matrix</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">],</span>
         <span class="n">block_kind</span><span class="p">:</span> <span class="n">BlockKind</span><span class="p">,</span>
@@ -773,7 +773,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">root_node</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child_node</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_instances</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">_add_surface_library_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">ZXKind</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_surface_library_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">ZXKind</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">surface</span> <span class="o">=</span> <span class="n">get_correlation_surface_geometry</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
@@ -784,13 +784,13 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
 
-    <span class="k">def</span> <span class="nf">add_correlation_surface</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_correlation_surface</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
         <span class="n">correlation_surface</span><span class="p">:</span> <span class="n">CorrelationSurface</span><span class="p">,</span>
         <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">tqec.interop.collada._correlation</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada._correlation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
             <span class="n">get_transformations_for_correlation_surface</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -818,7 +818,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">_Transformation</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Transformation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation data class to store the translation, scale, rotation, and</span>
 <span class="sd">    the composed affine matrix.</span>
 
@@ -835,13 +835,13 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">rotation</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_4d_affine_matrix</span><span class="p">(</span><span class="n">mat</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_Transformation</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_4d_affine_matrix</span><span class="p">(</span><span class="n">mat</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_Transformation</span><span class="p">:</span>
         <span class="n">translation</span> <span class="o">=</span> <span class="n">mat</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
         <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">mat</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">rotation</span> <span class="o">=</span> <span class="n">mat</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">scale</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
         <span class="k">return</span> <span class="n">_Transformation</span><span class="p">(</span><span class="n">translation</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">rotation</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">to_4d_affine_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_4d_affine_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]:</span>
         <span class="n">mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="n">mat</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">mat</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation</span>

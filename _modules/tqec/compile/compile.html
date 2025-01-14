@@ -29,7 +29,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -406,44 +406,44 @@ window.addEventListener("load", () => mermaid.run());
 <span></span><span class="sd">&quot;&quot;&quot;Defines :class:`~.compile.CompiledGraph` and</span>
 <span class="sd">:func:`~.compile.compile_block_graph`.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">import</span> <span class="nn">stim</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 
-<span class="kn">from</span> <span class="nn">tqec.circuit.coordinates</span> <span class="kn">import</span> <span class="n">StimCoordinates</span>
-<span class="kn">from</span> <span class="nn">tqec.circuit.measurement_map</span> <span class="kn">import</span> <span class="n">MeasurementRecordsMap</span>
-<span class="kn">from</span> <span class="nn">tqec.circuit.qubit_map</span> <span class="kn">import</span> <span class="n">QubitMap</span>
-<span class="kn">from</span> <span class="nn">tqec.circuit.schedule</span> <span class="kn">import</span> <span class="n">ScheduledCircuit</span>
-<span class="kn">from</span> <span class="nn">tqec.compile.block</span> <span class="kn">import</span> <span class="n">BlockLayout</span><span class="p">,</span> <span class="n">CompiledBlock</span>
-<span class="kn">from</span> <span class="nn">tqec.compile.detectors.compute</span> <span class="kn">import</span> <span class="n">compute_detectors_for_fixed_radius</span>
-<span class="kn">from</span> <span class="nn">tqec.compile.detectors.database</span> <span class="kn">import</span> <span class="n">DetectorDatabase</span>
-<span class="kn">from</span> <span class="nn">tqec.compile.detectors.detector</span> <span class="kn">import</span> <span class="n">Detector</span>
-<span class="kn">from</span> <span class="nn">tqec.compile.observables</span> <span class="kn">import</span> <span class="n">inplace_add_observables</span>
-<span class="kn">from</span> <span class="nn">tqec.compile.specs.base</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">StimCoordinates</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.measurement_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeasurementRecordsMap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.qubit_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">QubitMap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.schedule</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduledCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.block</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockLayout</span><span class="p">,</span> <span class="n">CompiledBlock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.detectors.compute</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_detectors_for_fixed_radius</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.detectors.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DetectorDatabase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.detectors.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">Detector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.observables</span><span class="w"> </span><span class="kn">import</span> <span class="n">inplace_add_observables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BlockBuilder</span><span class="p">,</span>
     <span class="n">CubeSpec</span><span class="p">,</span>
     <span class="n">PipeSpec</span><span class="p">,</span>
     <span class="n">SubstitutionBuilder</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">tqec.compile.specs.library.css</span> <span class="kn">import</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.abstract_observable</span> <span class="kn">import</span> <span class="n">AbstractObservable</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.block_graph</span> <span class="kn">import</span> <span class="n">BlockGraph</span>
-<span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
-<span class="kn">from</span> <span class="nn">tqec.noise_model</span> <span class="kn">import</span> <span class="n">NoiseModel</span>
-<span class="kn">from</span> <span class="nn">tqec.plaquette.plaquette</span> <span class="kn">import</span> <span class="n">Plaquettes</span><span class="p">,</span> <span class="n">RepeatedPlaquettes</span>
-<span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
-<span class="kn">from</span> <span class="nn">tqec.scale</span> <span class="kn">import</span> <span class="n">round_or_fail</span>
-<span class="kn">from</span> <span class="nn">tqec.templates.indices.base</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">tqec.templates.indices.layout</span> <span class="kn">import</span> <span class="n">LayoutTemplate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.library.css</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractObservable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquettes</span><span class="p">,</span> <span class="n">RepeatedPlaquettes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_or_fail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.indices.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.indices.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutTemplate</span>
 
 
 <div class="viewcode-block" id="CompiledGraph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">CompiledGraph</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompiledGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a compiled block graph.</span>
 
 <span class="sd">    This class should be easy to scale and generate circuits directly.</span>
@@ -464,7 +464,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Observables to be included in the final ``stim.Circuit`` instance.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout_slices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
                 <span class="s2">&quot;The compiled graph should have at least one time slice &quot;</span>
@@ -477,7 +477,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="CompiledGraph.generate_stim_circuit">
 <a class="viewcode-back" href="../../../_autosummary/tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph.generate_stim_circuit">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_stim_circuit</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_stim_circuit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">noise_model</span><span class="p">:</span> <span class="n">NoiseModel</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -565,7 +565,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_relabel_circuits_qubit_indices_inplace</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_relabel_circuits_qubit_indices_inplace</span><span class="p">(</span>
         <span class="n">circuits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QubitMap</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Equivalent to :func:`relabel_circuits_qubit_indices` but applied to</span>
@@ -597,7 +597,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">global_qubit_map</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_inplace_add_detectors_to_circuits</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_inplace_add_detectors_to_circuits</span><span class="p">(</span>
         <span class="n">circuits</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">],</span>
         <span class="n">templates</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Template</span><span class="p">],</span>
         <span class="n">plaquettes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Plaquettes</span><span class="p">],</span>
@@ -673,7 +673,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="c1"># of the last circuit containing a measurement involved in the detector.</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_inplace_add_detectors_to_circuit</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_inplace_add_detectors_to_circuit</span><span class="p">(</span>
         <span class="n">circuit</span><span class="p">:</span> <span class="n">ScheduledCircuit</span><span class="p">,</span>
         <span class="n">mrecords_map</span><span class="p">:</span> <span class="n">MeasurementRecordsMap</span><span class="p">,</span>
         <span class="n">detectors</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Detector</span><span class="p">],</span>
@@ -706,7 +706,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="compile_block_graph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.compile.compile_block_graph.html#tqec.compile.compile_block_graph">[docs]</a>
-<span class="k">def</span> <span class="nf">compile_block_graph</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compile_block_graph</span><span class="p">(</span>
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
     <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span>
     <span class="n">substitution_builder</span><span class="p">:</span> <span class="n">SubstitutionBuilder</span> <span class="o">=</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span><span class="p">,</span>

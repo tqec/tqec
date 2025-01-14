@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
   
   <!-- So that users can add custom icons -->
@@ -435,7 +435,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.gallery</span> <span class="kn">import</span> <span class="n">logical_cnot_block_graph</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery</span><span class="w"> </span><span class="kn">import</span> <span class="n">logical_cnot_block_graph</span>
 
 <span class="n">graph</span> <span class="o">=</span> <span class="n">logical_cnot_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="o">=</span><span class="s2">&quot;BOTH&quot;</span><span class="p">)</span>
 <span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">()</span>
@@ -671,7 +671,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec</span> <span class="kn">import</span> <span class="n">SignedDirection3D</span><span class="p">,</span> <span class="n">Direction3D</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">SignedDirection3D</span><span class="p">,</span> <span class="n">Direction3D</span>
 
 <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span><span class="o">.</span><span class="n">find_correration_surfaces</span><span class="p">()</span>
 </pre></div>
@@ -1638,7 +1638,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec</span> <span class="kn">import</span> <span class="n">compile_block_graph</span><span class="p">,</span> <span class="n">NoiseModel</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span><span class="p">,</span> <span class="n">NoiseModel</span>
 
 <span class="n">graph</span> <span class="o">=</span> <span class="n">logical_cnot_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="o">=</span><span class="s2">&quot;X&quot;</span><span class="p">)</span>
 <span class="n">observables</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_abstract_observables</span><span class="p">()</span>
@@ -1653,23 +1653,23 @@
 <section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Link to this heading">#</a></h2>
 <p>Here we show the simulation results for all the stabilizer flow generators as well as <code class="docutils literal notranslate"><span class="pre">XX</span> <span class="pre">-&gt;</span> <span class="pre">XI</span></code> and <code class="docutils literal notranslate"><span class="pre">ZZ</span> <span class="pre">-&gt;</span> <span class="pre">IZ</span></code>. The simulated surface code is <strong>CSS type</strong> and the noise model is <strong>uniform depolarizing</strong>.</p>
-<details><p>Click to show the full code used for simulation</p>
-<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<details><summary><p>Click to show the full code used for simulation</p>
+</summary><div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">import</span> <span class="nn">sinter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 
-<span class="kn">from</span> <span class="nn">tqec.gallery.logical_cnot</span> <span class="kn">import</span> <span class="n">logical_cnot_block_graph</span>
-<span class="kn">from</span> <span class="nn">tqec.noise_model</span> <span class="kn">import</span> <span class="n">NoiseModel</span>
-<span class="kn">from</span> <span class="nn">tqec.simulation.plotting.inset</span> <span class="kn">import</span> <span class="n">plot_observable_as_inset</span>
-<span class="kn">from</span> <span class="nn">tqec.simulation.simulation</span> <span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery.logical_cnot</span><span class="w"> </span><span class="kn">import</span> <span class="n">logical_cnot_block_graph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.plotting.inset</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_observable_as_inset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
 
 <span class="n">SAVE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">generate_graphs</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_graphs</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">block_graph</span> <span class="o">=</span> <span class="n">logical_cnot_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">)</span>
     <span class="n">zx_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
 
@@ -1710,7 +1710,7 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">SAVE_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">generate_graphs</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
     <span class="n">generate_graphs</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)</span>
@@ -1722,27 +1722,27 @@
 </div>
 </details><section id="id1">
 <h3><code class="docutils literal notranslate"><span class="pre">XI</span> <span class="pre">-&gt;</span> <span class="pre">XX</span></code><a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
-<p><img alt="XIXX" src="../_images/XIXX.png" /></p>
+<img alt="XIXX" src="../_images/XIXX.png" />
 </section>
 <section id="id2">
 <h3><code class="docutils literal notranslate"><span class="pre">IX</span> <span class="pre">-&gt;</span> <span class="pre">IX</span></code><a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
-<p><img alt="IXIX" src="../_images/IXIX.png" /></p>
+<img alt="IXIX" src="../_images/IXIX.png" />
 </section>
 <section id="XX--&gt;-XI">
 <h3><code class="docutils literal notranslate"><span class="pre">XX</span> <span class="pre">-&gt;</span> <span class="pre">XI</span></code><a class="headerlink" href="#XX-->-XI" title="Link to this heading">#</a></h3>
-<p><img alt="XXXI" src="../_images/XXXI.png" /></p>
+<img alt="XXXI" src="../_images/XXXI.png" />
 </section>
 <section id="id3">
 <h3><code class="docutils literal notranslate"><span class="pre">ZI</span> <span class="pre">-&gt;</span> <span class="pre">ZI</span></code><a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
-<p><img alt="ZIZI" src="../_images/ZIZI.png" /></p>
+<img alt="ZIZI" src="../_images/ZIZI.png" />
 </section>
 <section id="id4">
 <h3><code class="docutils literal notranslate"><span class="pre">IZ</span> <span class="pre">-&gt;</span> <span class="pre">ZZ</span></code><a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
-<p><img alt="IZZZ" src="../_images/IZZZ.png" /></p>
+<img alt="IZZZ" src="../_images/IZZZ.png" />
 </section>
 <section id="ZZ--&gt;-IZ">
 <h3><code class="docutils literal notranslate"><span class="pre">ZZ</span> <span class="pre">-&gt;</span> <span class="pre">IZ</span></code><a class="headerlink" href="#ZZ-->-IZ" title="Link to this heading">#</a></h3>
-<p><img alt="ZZIZ" src="../_images/ZZIZ.png" /></p>
+<img alt="ZZIZ" src="../_images/ZZIZ.png" />
 </section>
 </section>
 <section id="References">

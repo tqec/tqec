@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -409,6 +409,8 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.gallery.html">tqec.gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_block_graph.html">logical_cnot_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
 </ul>
@@ -540,23 +542,29 @@ connects. Pipes are represented as edges in the graph.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.add_node" title="tqec.computation.BlockGraph.add_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_node</span></code></a>(node[, check_conflict])</p></td>
 <td><p>Add a node to the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.edges_at" title="tqec.computation.BlockGraph.edges_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edges_at</span></code></a>(position)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.copy" title="tqec.computation.BlockGraph.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<td><p>Create a data-independent copy of the graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.edges_at" title="tqec.computation.BlockGraph.edges_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edges_at</span></code></a>(position)</p></td>
 <td><p>Get the edges incident to a position.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_dae_file" title="tqec.computation.BlockGraph.from_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dae_file</span></code></a>(filename[, graph_name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_dae_file" title="tqec.computation.BlockGraph.from_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dae_file</span></code></a>(filename[, graph_name])</p></td>
 <td><p>Construct a block graph from a COLLADA DAE file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_abstract_observables" title="tqec.computation.BlockGraph.get_abstract_observables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_abstract_observables</span></code></a>([correlation_surfaces])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_abstract_observables" title="tqec.computation.BlockGraph.get_abstract_observables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_abstract_observables</span></code></a>([correlation_surfaces])</p></td>
 <td><p>Get the <code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractObservable</span></code> in the graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_degree" title="tqec.computation.BlockGraph.get_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_degree</span></code></a>(position)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_degree" title="tqec.computation.BlockGraph.get_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_degree</span></code></a>(position)</p></td>
 <td><p>Get the degree of a node in the graph, i.e. the number of edges incident to it.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_edge" title="tqec.computation.BlockGraph.get_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_edge</span></code></a>(pos1, pos2)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_edge" title="tqec.computation.BlockGraph.get_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_edge</span></code></a>(pos1, pos2)</p></td>
 <td><p>Get the edge by its endpoint positions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.has_edge_between" title="tqec.computation.BlockGraph.has_edge_between"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_edge_between</span></code></a>(pos1, pos2)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.has_edge_between" title="tqec.computation.BlockGraph.has_edge_between"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_edge_between</span></code></a>(pos1, pos2)</p></td>
 <td><p>Check if there is an edge between two positions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.rotate" title="tqec.computation.BlockGraph.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>([rotation_axis, ...])</p></td>
+<td><p>Rotate the graph around an axis by <code class="docutils literal notranslate"><span class="pre">num_90_degree_rotation</span> <span class="pre">*</span> <span class="pre">90</span></code> degrees and return a new rotated graph.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.shift_min_z_to_zero" title="tqec.computation.BlockGraph.shift_min_z_to_zero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_min_z_to_zero</span></code></a>()</p></td>
 <td><p>Shift the whole graph in the z direction to make the minimum z equal zero.</p></td>
@@ -682,6 +690,17 @@ True.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.BlockGraph.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tqec.computation.BlockGraph.copy" title="Link to this definition">#</a></dt>
+<dd><p>Create a data-independent copy of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Self</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.edges_at">
 <span class="sig-name descname"><span class="pre">edges_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.computation.BlockGraph.edges_at" title="Link to this definition">#</a></dt>
 <dd><p>Get the edges incident to a position.</p>
@@ -793,6 +812,29 @@ the given positions, an exception will be raised.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.BlockGraph.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotation_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Direction3D.Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_90_degree_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterclockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.rotate" title="Link to this definition">#</a></dt>
+<dd><p>Rotate the graph around an axis by <code class="docutils literal notranslate"><span class="pre">num_90_degree_rotation</span> <span class="pre">*</span> <span class="pre">90</span></code> degrees and
+return a new rotated graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rotation_axis</strong> (<a class="reference internal" href="tqec.Direction3D.html#tqec.Direction3D" title="tqec.position.Direction3D"><em>Direction3D</em></a>) – The axis around which to rotate the graph.</p></li>
+<li><p><strong>num_90_degree_rotation</strong> (<em>int</em>) – The number of 90-degree rotations to apply to the graph.</p></li>
+<li><p><strong>counterclockwise</strong> (<em>bool</em>) – Whether to rotate the graph counterclockwise. If set to False,
+the graph will be rotated clockwise. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A data-independent copy of the graph rotated by the given number of 90-degree rotations.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -966,12 +1008,14 @@ can be directly displayed in IPython compatible environments.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.__init__"><code class="docutils literal notranslate"><span class="pre">BlockGraph.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.add_edge"><code class="docutils literal notranslate"><span class="pre">BlockGraph.add_edge()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.add_node"><code class="docutils literal notranslate"><span class="pre">BlockGraph.add_node()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.copy"><code class="docutils literal notranslate"><span class="pre">BlockGraph.copy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.edges_at"><code class="docutils literal notranslate"><span class="pre">BlockGraph.edges_at()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.from_dae_file"><code class="docutils literal notranslate"><span class="pre">BlockGraph.from_dae_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.get_abstract_observables"><code class="docutils literal notranslate"><span class="pre">BlockGraph.get_abstract_observables()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.get_degree"><code class="docutils literal notranslate"><span class="pre">BlockGraph.get_degree()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.get_edge"><code class="docutils literal notranslate"><span class="pre">BlockGraph.get_edge()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.has_edge_between"><code class="docutils literal notranslate"><span class="pre">BlockGraph.has_edge_between()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.rotate"><code class="docutils literal notranslate"><span class="pre">BlockGraph.rotate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.shift_min_z_to_zero"><code class="docutils literal notranslate"><span class="pre">BlockGraph.shift_min_z_to_zero()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_dae_file"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_dae_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_zx_graph"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_zx_graph()</span></code></a></li>

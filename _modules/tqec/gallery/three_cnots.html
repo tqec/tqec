@@ -29,7 +29,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -406,15 +406,15 @@ window.addEventListener("load", () => mermaid.run());
 <span></span><span class="sd">&quot;&quot;&quot;Build the computation graphs that represent three logical CNOT gates</span>
 <span class="sd">compressed in spacetime.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.block_graph</span> <span class="kn">import</span> <span class="n">BlockGraph</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.zx_graph</span> <span class="kn">import</span> <span class="n">ZXGraph</span><span class="p">,</span> <span class="n">ZXKind</span><span class="p">,</span> <span class="n">ZXNode</span>
-<span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">Position3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXGraph</span><span class="p">,</span> <span class="n">ZXKind</span><span class="p">,</span> <span class="n">ZXNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Position3D</span>
 
 
 <div class="viewcode-block" id="three_cnots_zx_graph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.gallery.three_cnots_zx_graph.html#tqec.gallery.three_cnots_zx_graph">[docs]</a>
-<span class="k">def</span> <span class="nf">three_cnots_zx_graph</span><span class="p">(</span><span class="n">port_kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;OPEN&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ZXGraph</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">three_cnots_zx_graph</span><span class="p">(</span><span class="n">port_kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;OPEN&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ZXGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ZX graph for three logical CNOT gates compressed in spacetime.</span>
 
 <span class="sd">    The three CNOT gates are applied in the following order:</span>
@@ -494,7 +494,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="three_cnots_block_graph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.gallery.three_cnots_block_graph.html#tqec.gallery.three_cnots_block_graph">[docs]</a>
-<span class="k">def</span> <span class="nf">three_cnots_block_graph</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">three_cnots_block_graph</span><span class="p">(</span>
     <span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;BOTH&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a block graph for three logical CNOT gates compressed in</span>

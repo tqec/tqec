@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -409,6 +409,8 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.gallery.html">tqec.gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_block_graph.html">logical_cnot_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
 </ul>
@@ -547,26 +549,32 @@ not implemented yet but might be added in the future.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.check_invariants" title="tqec.computation.ZXGraph.check_invariants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_invariants</span></code></a>()</p></td>
 <td><p>Check the invariants of a valid ZX graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.draw" title="tqec.computation.ZXGraph.draw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw</span></code></a>(*[, figsize, title, node_size, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.copy" title="tqec.computation.ZXGraph.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<td><p>Create a data-independent copy of the graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.draw" title="tqec.computation.ZXGraph.draw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw</span></code></a>(*[, figsize, title, node_size, ...])</p></td>
 <td><p>Plot the <a class="reference internal" href="#tqec.computation.ZXGraph" title="tqec.computation.zx_graph.ZXGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXGraph</span></code></a> using matplotlib.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.edges_at" title="tqec.computation.ZXGraph.edges_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edges_at</span></code></a>(position)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.edges_at" title="tqec.computation.ZXGraph.edges_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edges_at</span></code></a>(position)</p></td>
 <td><p>Get the edges incident to a position.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.fill_ports" title="tqec.computation.ZXGraph.fill_ports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_ports</span></code></a>(fill)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.fill_ports" title="tqec.computation.ZXGraph.fill_ports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_ports</span></code></a>(fill)</p></td>
 <td><p>Fill the ports at specified positions with nodes of the given kind.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.find_correration_surfaces" title="tqec.computation.ZXGraph.find_correration_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correration_surfaces</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.find_correration_surfaces" title="tqec.computation.ZXGraph.find_correration_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correration_surfaces</span></code></a>()</p></td>
 <td><p>Find all the <code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelationSurface</span></code> in a ZX graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.get_degree" title="tqec.computation.ZXGraph.get_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_degree</span></code></a>(position)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.get_degree" title="tqec.computation.ZXGraph.get_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_degree</span></code></a>(position)</p></td>
 <td><p>Get the degree of a node in the graph, i.e. the number of edges incident to it.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.get_edge" title="tqec.computation.ZXGraph.get_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_edge</span></code></a>(pos1, pos2)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.get_edge" title="tqec.computation.ZXGraph.get_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_edge</span></code></a>(pos1, pos2)</p></td>
 <td><p>Get the edge by its endpoint positions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.has_edge_between" title="tqec.computation.ZXGraph.has_edge_between"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_edge_between</span></code></a>(pos1, pos2)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.has_edge_between" title="tqec.computation.ZXGraph.has_edge_between"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_edge_between</span></code></a>(pos1, pos2)</p></td>
 <td><p>Check if there is an edge between two positions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.rotate" title="tqec.computation.ZXGraph.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>([rotation_axis, ...])</p></td>
+<td><p>Rotate the graph around an axis by <code class="docutils literal notranslate"><span class="pre">num_90_degree_rotation</span> <span class="pre">*</span> <span class="pre">90</span></code> degrees and return a new rotated graph.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.to_block_graph" title="tqec.computation.ZXGraph.to_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_block_graph</span></code></a>([name])</p></td>
 <td><p>Convert the ZX graph to a <a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a>.</p></td>
@@ -695,6 +703,17 @@ conditions:</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.ZXGraph.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tqec.computation.ZXGraph.copy" title="Link to this definition">#</a></dt>
+<dd><p>Create a data-independent copy of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Self</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -865,6 +884,29 @@ the given positions, an exception will be raised.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.ZXGraph.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotation_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Direction3D.Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_90_degree_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterclockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/zx_graph.html#ZXGraph.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.ZXGraph.rotate" title="Link to this definition">#</a></dt>
+<dd><p>Rotate the graph around an axis by <code class="docutils literal notranslate"><span class="pre">num_90_degree_rotation</span> <span class="pre">*</span> <span class="pre">90</span></code> degrees and
+return a new rotated graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rotation_axis</strong> (<a class="reference internal" href="tqec.Direction3D.html#tqec.Direction3D" title="tqec.position.Direction3D"><em>Direction3D</em></a>) – The axis around which to rotate the graph.</p></li>
+<li><p><strong>num_90_degree_rotation</strong> (<em>int</em>) – The number of 90-degree rotations to apply to the graph.</p></li>
+<li><p><strong>counterclockwise</strong> (<em>bool</em>) – Whether to rotate the graph counterclockwise. If set to False,
+the graph will be rotated clockwise. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A data-independent copy of the graph rotated by the given number of 90-degree rotations.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.computation.ZXGraph" title="tqec.computation.zx_graph.ZXGraph"><em>ZXGraph</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.ZXGraph.to_block_graph">
 <span class="sig-name descname"><span class="pre">to_block_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/zx_graph.html#ZXGraph.to_block_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.ZXGraph.to_block_graph" title="Link to this definition">#</a></dt>
 <dd><p>Convert the ZX graph to a
@@ -970,6 +1012,7 @@ converted from the ZX graph.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.add_edge"><code class="docutils literal notranslate"><span class="pre">ZXGraph.add_edge()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.add_node"><code class="docutils literal notranslate"><span class="pre">ZXGraph.add_node()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.check_invariants"><code class="docutils literal notranslate"><span class="pre">ZXGraph.check_invariants()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.copy"><code class="docutils literal notranslate"><span class="pre">ZXGraph.copy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.draw"><code class="docutils literal notranslate"><span class="pre">ZXGraph.draw()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.edges_at"><code class="docutils literal notranslate"><span class="pre">ZXGraph.edges_at()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.fill_ports"><code class="docutils literal notranslate"><span class="pre">ZXGraph.fill_ports()</span></code></a></li>
@@ -977,6 +1020,7 @@ converted from the ZX graph.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.get_degree"><code class="docutils literal notranslate"><span class="pre">ZXGraph.get_degree()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.get_edge"><code class="docutils literal notranslate"><span class="pre">ZXGraph.get_edge()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.has_edge_between"><code class="docutils literal notranslate"><span class="pre">ZXGraph.has_edge_between()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.rotate"><code class="docutils literal notranslate"><span class="pre">ZXGraph.rotate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.to_block_graph"><code class="docutils literal notranslate"><span class="pre">ZXGraph.to_block_graph()</span></code></a></li>
 </ul>
 </li>

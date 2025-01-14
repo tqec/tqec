@@ -29,7 +29,7 @@
   <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -403,24 +403,24 @@ window.addEventListener("load", () => mermaid.run());
                 <article class="bd-article">
                   
   <h1>Source code for tqec.compile.specs.base</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Protocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
 
-<span class="kn">from</span> <span class="nn">tqec.compile.block</span> <span class="kn">import</span> <span class="n">CompiledBlock</span>
-<span class="kn">from</span> <span class="nn">tqec.compile.specs.enums</span> <span class="kn">import</span> <span class="n">JunctionArms</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.cube</span> <span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">ZXCube</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.block_graph</span> <span class="kn">import</span> <span class="n">BlockGraph</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.pipe</span> <span class="kn">import</span> <span class="n">PipeKind</span>
-<span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span> <span class="nn">tqec.plaquette.plaquette</span> <span class="kn">import</span> <span class="n">Plaquettes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.block</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompiledBlock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">JunctionArms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">ZXCube</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquettes</span>
 
 
 <div class="viewcode-block" id="CubeSpec">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.compile.CubeSpec.html#tqec.compile.CubeSpec">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">CubeSpec</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CubeSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Specification of a cube in a block graph.</span>
 
 <span class="sd">    The template of the `CompiledBlock` will be determined based on the specification.</span>
@@ -437,7 +437,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">kind</span><span class="p">:</span> <span class="n">CubeKind</span>
     <span class="n">junction_arms</span><span class="p">:</span> <span class="n">JunctionArms</span> <span class="o">=</span> <span class="n">JunctionArms</span><span class="o">.</span><span class="n">NONE</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># arm_flags is not None iff cube_type is ZZX or XXZ(Spatial Junctions)</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_spatial_junction</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_arms</span> <span class="o">!=</span> <span class="n">JunctionArms</span><span class="o">.</span><span class="n">NONE</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
@@ -445,17 +445,17 @@ window.addEventListener("load", () => mermaid.run());
             <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_spatial_junction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_spatial_junction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial_junction</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_regular</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_regular</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spatial_junction</span>
 
 <div class="viewcode-block" id="CubeSpec.from_cube">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.compile.CubeSpec.html#tqec.compile.CubeSpec.from_cube">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CubeSpec</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CubeSpec</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the cube spec from a cube in a block graph.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_spatial_junction</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">CubeSpec</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
@@ -471,10 +471,10 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockBuilder">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.compile.BlockBuilder.html#tqec.compile.BlockBuilder">[docs]</a>
-<span class="k">class</span> <span class="nc">BlockBuilder</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BlockBuilder</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for building a `CompiledBlock` based on a `CubeSpec`.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledBlock</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledBlock</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a `CompiledBlock` instance from a `CubeSpec`.</span>
 
 <span class="sd">        Args:</span>
@@ -490,7 +490,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="PipeSpec">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.compile.PipeSpec.html#tqec.compile.PipeSpec">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">PipeSpec</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PipeSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Specification of a pipe in a block graph.</span>
 
 <span class="sd">    The `PipeSpec` is used to determine the substitution rules between the two</span>
@@ -513,7 +513,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Substitution</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Substitution</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Collection of plaquettes categorized by the layer index.</span>
 
 <span class="sd">    This specifies how to substitute plaquettes in the two `CompiledBlock`s</span>
@@ -537,10 +537,10 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="SubstitutionBuilder">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.compile.SubstitutionBuilder.html#tqec.compile.SubstitutionBuilder">[docs]</a>
-<span class="k">class</span> <span class="nc">SubstitutionBuilder</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubstitutionBuilder</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for building the `Substitution` based on a `PipeSpec`.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="n">PipeSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Substitution</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="n">PipeSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Substitution</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a `Substitution` instance from a `PipeSpec`.</span>
 
 <span class="sd">        Args:</span>

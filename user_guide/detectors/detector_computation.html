@@ -30,7 +30,7 @@
   <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
   
   <!-- So that users can add custom icons -->
@@ -415,7 +415,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">stim</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">QUBIT_COORDS(0) 0</span>
@@ -464,7 +464,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.circuit.detectors.fragment</span> <span class="kn">import</span> <span class="n">split_stim_circuit_into_fragments</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.detectors.fragment</span><span class="w"> </span><span class="kn">import</span> <span class="n">split_stim_circuit_into_fragments</span>
 
 <span class="n">fragments</span> <span class="o">=</span> <span class="n">split_stim_circuit_into_fragments</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
 </pre></div>
@@ -528,7 +528,7 @@ Fragment(circuit=stim.Circuit(&#39;&#39;&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.circuit.detectors.flow</span> <span class="kn">import</span> <span class="n">build_flows_from_fragments</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.detectors.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_flows_from_fragments</span>
 
 <span class="n">flows</span> <span class="o">=</span> <span class="n">build_flows_from_fragments</span><span class="p">(</span><span class="n">fragments</span><span class="p">)</span>
 </pre></div>
@@ -615,7 +615,7 @@ total_number_of_measurements = 3
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">IFrame</span>
 
 <span class="n">IFrame</span><span class="p">(</span>
     <span class="s2">&quot;https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)0;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;M_1_3&quot;</span><span class="p">,</span>
@@ -653,7 +653,7 @@ total_number_of_measurements = 3
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">IFrame</span>
 
 <span class="n">IFrame</span><span class="p">(</span>
     <span class="s2">&quot;https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)1;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;M_1_3;MARKZ(0)1&quot;</span><span class="p">,</span>
@@ -692,7 +692,7 @@ total_number_of_measurements = 3
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">IFrame</span>
 
 <span class="n">IFrame</span><span class="p">(</span>
     <span class="s2">&quot;https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)0_1_2;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;M_1_3;MARKZ(0)1&quot;</span><span class="p">,</span>
@@ -742,7 +742,7 @@ total_number_of_measurements = 3
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">IFrame</span>
 
 <span class="n">IFrame</span><span class="p">(</span>
     <span class="s2">&quot;https://algassert.com/crumble#circuit=Q(0,0)0;Q(1,0)1;Q(2,0)2;Q(3,0)3;Q(4,0)4;R_0_1_2_3_4;MARKZ(0)1;TICK;CX_0_1_2_3;TICK;CX_2_1_4_3;TICK;H_1;TICK;M_1_3;MARKZ(0)1&quot;</span><span class="p">,</span>
@@ -782,7 +782,7 @@ total_number_of_measurements = 3
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.circuit.detectors.match</span> <span class="kn">import</span> <span class="n">match_detectors_from_flows_shallow</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.detectors.match</span><span class="w"> </span><span class="kn">import</span> <span class="n">match_detectors_from_flows_shallow</span>
 
 <span class="n">qubit_coordinates</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">q</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">get_final_qubit_coordinates</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
@@ -828,8 +828,8 @@ Detectors found for fragment number 2:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.circuit.detectors.construction</span> <span class="kn">import</span> <span class="n">annotate_detectors_automatically</span>
-<span class="kn">from</span> <span class="nn">tqec.circuit.detectors.utils</span> <span class="kn">import</span> <span class="n">remove_annotations</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.detectors.construction</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotate_detectors_automatically</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.detectors.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">remove_annotations</span>
 
 <span class="n">base_circuit</span> <span class="o">=</span> <span class="n">remove_annotations</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
 <span class="n">base_circuit</span><span class="o">.</span><span class="n">diagram</span><span class="p">(</span><span class="s2">&quot;timeline-svg&quot;</span><span class="p">)</span>

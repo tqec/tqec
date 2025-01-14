@@ -29,7 +29,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -405,24 +405,24 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.computation.block_graph</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Block graph representation of a logical computation.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 
-<span class="kn">from</span> <span class="nn">tqec.computation._base_graph</span> <span class="kn">import</span> <span class="n">ComputationGraph</span>
-<span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.cube</span> <span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.pipe</span> <span class="kn">import</span> <span class="n">Pipe</span><span class="p">,</span> <span class="n">PipeKind</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.zx_graph</span> <span class="kn">import</span> <span class="n">ZXGraph</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.correlation</span> <span class="kn">import</span> <span class="n">CorrelationSurface</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation._base_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputationGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipe</span><span class="p">,</span> <span class="n">PipeKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">tqec.interop.collada.html_viewer</span> <span class="kn">import</span> <span class="n">_ColladaHTMLViewer</span>
-    <span class="kn">from</span> <span class="nn">tqec.computation.abstract_observable</span> <span class="kn">import</span> <span class="n">AbstractObservable</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.html_viewer</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ColladaHTMLViewer</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractObservable</span>
 
 
 <span class="n">BlockKind</span> <span class="o">=</span> <span class="n">CubeKind</span> <span class="o">|</span> <span class="n">PipeKind</span>
@@ -430,7 +430,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockGraph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph">[docs]</a>
-<span class="k">class</span> <span class="nc">BlockGraph</span><span class="p">(</span><span class="n">ComputationGraph</span><span class="p">[</span><span class="n">Cube</span><span class="p">,</span> <span class="n">Pipe</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BlockGraph</span><span class="p">(</span><span class="n">ComputationGraph</span><span class="p">[</span><span class="n">Cube</span><span class="p">,</span> <span class="n">Pipe</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Block graph representation of a logical computation.</span>
 
 <span class="sd">    A block graph consists of building blocks that fully define the boundary</span>
@@ -454,7 +454,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockGraph.add_edge">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.add_edge">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">PipeKind</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">PipeKind</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an edge to the graph. If the nodes of the edge do not exist in</span>
 <span class="sd">        the graph, the nodes will be created and added to the graph.</span>
 
@@ -479,7 +479,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockGraph.validate">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.validate">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check the validity of the block graph to represent a logical</span>
 <span class="sd">        computation.</span>
 
@@ -501,7 +501,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_locally_at_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_validate_locally_at_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_locally_at_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check the validity of the block structures locally at a cube.&quot;&quot;&quot;</span>
         <span class="n">pipes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_at</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
         <span class="c1"># a). no fanout</span>
@@ -533,7 +533,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockGraph.to_zx_graph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_zx_graph">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_zx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_zx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the block graph to a</span>
 <span class="sd">        :py:class:`~tqec.computation.zx_graph.ZXGraph`.</span>
 
@@ -549,7 +549,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returns:</span>
 <span class="sd">            The :py:class:`~tqec.computation.zx_graph.ZXGraph` object converted from the block graph.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">tqec.computation.conversion</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
             <span class="n">convert_block_graph_to_zx_graph</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -558,7 +558,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockGraph.to_dae_file">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_dae_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_dae_file</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dae_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
@@ -574,7 +574,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">                This is useful for visualizing the internal structure of the blocks. Default is None.</span>
 <span class="sd">            show_correlation_surface: The correlation surface to show in the block graph. Default is None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">tqec.interop.collada.read_write</span> <span class="kn">import</span> <span class="n">write_block_graph_to_dae_file</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.read_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_block_graph_to_dae_file</span>
 
         <span class="n">write_block_graph_to_dae_file</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -588,7 +588,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="BlockGraph.from_dae_file">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.from_dae_file">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_dae_file</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dae_file</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a block graph from a COLLADA DAE file.</span>
 
 <span class="sd">        Args:</span>
@@ -598,14 +598,14 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returns:</span>
 <span class="sd">            The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">tqec.interop.collada.read_write</span> <span class="kn">import</span> <span class="n">read_block_graph_from_dae_file</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.read_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_block_graph_from_dae_file</span>
 
         <span class="k">return</span> <span class="n">read_block_graph_from_dae_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BlockGraph.view_as_html">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.view_as_html">[docs]</a>
-    <span class="k">def</span> <span class="nf">view_as_html</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">view_as_html</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">write_html_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
@@ -628,8 +628,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            A helper class to display the 3D model, which implements the ``_repr_html_`` method and</span>
 <span class="sd">            can be directly displayed in IPython compatible environments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">tqec.interop.collada.read_write</span> <span class="kn">import</span> <span class="n">write_block_graph_to_dae_file</span>
-        <span class="kn">from</span> <span class="nn">tqec.interop.collada.html_viewer</span> <span class="kn">import</span> <span class="n">display_collada_model</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.read_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_block_graph_to_dae_file</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.html_viewer</span><span class="w"> </span><span class="kn">import</span> <span class="n">display_collada_model</span>
 
         <span class="n">bytes_buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
         <span class="n">write_block_graph_to_dae_file</span><span class="p">(</span>
@@ -647,7 +647,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockGraph.get_abstract_observables">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.get_abstract_observables">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_abstract_observables</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_abstract_observables</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">correlation_surfaces</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]]:</span>
@@ -665,7 +665,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            A tuple containing the list of abstract observables and the list of correlation surfaces corresponding</span>
 <span class="sd">            to the observables.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">tqec.computation.abstract_observable</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
             <span class="n">correlation_surface_to_abstract_observable</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -683,7 +683,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockGraph.shift_min_z_to_zero">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.shift_min_z_to_zero">[docs]</a>
-    <span class="k">def</span> <span class="nf">shift_min_z_to_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shift_min_z_to_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Shift the whole graph in the z direction to make the minimum z equal</span>
 <span class="sd">        zero.</span>
 
@@ -703,6 +703,37 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">new_graph</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.rotate">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.rotate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">rotation_axis</span><span class="p">:</span> <span class="n">Direction3D</span> <span class="o">=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span>
+        <span class="n">num_90_degree_rotation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">counterclockwise</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and</span>
+<span class="sd">        return a new rotated graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rotation_axis: The axis around which to rotate the graph.</span>
+<span class="sd">            num_90_degree_rotation: The number of 90-degree rotations to apply to the graph.</span>
+<span class="sd">            counterclockwise: Whether to rotate the graph counterclockwise. If set to False,</span>
+<span class="sd">                the graph will be rotated clockwise. Defaults to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A data-independent copy of the graph rotated by the given number of 90-degree rotations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">num_90_degree_rotation</span> <span class="o">%</span> <span class="mi">4</span>
+
+        <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">zx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
+        <span class="n">rotated_zx</span> <span class="o">=</span> <span class="n">zx</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">counterclockwise</span><span class="p">)</span>
+        <span class="n">name_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; rotated by </span><span class="si">{</span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">90</span><span class="si">}</span><span class="s2"> degrees </span><span class="si">{</span><span class="s1">&#39;counter&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">counterclockwise</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">clockwise around the </span><span class="si">{</span><span class="n">rotation_axis</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> axis&quot;</span>
+        <span class="k">return</span> <span class="n">rotated_zx</span><span class="o">.</span><span class="n">to_block_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">name_suffix</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

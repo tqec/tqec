@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -439,7 +439,7 @@ height=500
 <h2>2. Import your computation<a class="headerlink" href="#import-your-computation" title="Link to this heading">#</a></h2>
 <p>In order to use the computation with the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> library you need to import it
 using <code class="docutils literal notranslate"><span class="pre">tqec.BlockGraph</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec</span> <span class="kn">import</span> <span class="n">BlockGraph</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 
 <span class="n">block_graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dae_file</span><span class="p">(</span><span class="s2">&quot;logical_cnot.dae&quot;</span><span class="p">)</span>
 </pre></div>
@@ -450,7 +450,7 @@ using <code class="docutils literal notranslate"><span class="pre">tqec.BlockGra
 <p>The <code class="docutils literal notranslate"><span class="pre">tqec.gallery</span></code> sub-module contains several pre-defined computation that
 have already been implemented. If you only want to test the library on a simple
 pre-defined computation, you can use to following code:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.gallery.logical_cnot</span> <span class="kn">import</span> <span class="n">logical_cnot_block_graph</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery.logical_cnot</span><span class="w"> </span><span class="kn">import</span> <span class="n">logical_cnot_block_graph</span>
 
 <span class="n">block_graph</span> <span class="o">=</span> <span class="n">logical_cnot_block_graph</span><span class="p">(</span><span class="n">port_type</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
 </pre></div>
@@ -476,7 +476,7 @@ specific example, the command line</p>
 <section id="compile-and-export-the-computation">
 <h2>4. Compile and export the computation<a class="headerlink" href="#compile-and-export-the-computation" title="Link to this heading">#</a></h2>
 <p>In order to get a <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> instance, the computation first need to be compiled.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec</span> <span class="kn">import</span> <span class="n">compile_block_graph</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span>
 
 <span class="c1"># You can pick any number of observables from the output of</span>
 <span class="c1"># block_graph.get_abstract_observables() and provide them here.</span>
@@ -486,7 +486,7 @@ specific example, the command line</p>
 </pre></div>
 </div>
 <p>From this compiled computation, the final <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> instance can be generated.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.noise_model</span> <span class="kn">import</span> <span class="n">NoiseModel</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">compiled_computation</span><span class="o">.</span><span class="n">generate_stim_circuit</span><span class="p">(</span>
     <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -515,12 +515,12 @@ for multiple observables.
 Multiple runs can be done in parallel using the <code class="docutils literal notranslate"><span class="pre">sinter</span></code> library using the
 <code class="docutils literal notranslate"><span class="pre">start_simulation_using_sinter</span></code>.
 The compilation of the block graph is done automatically based on the inputs.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cpu_count</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">tqec.noise_model</span> <span class="kn">import</span> <span class="n">NoiseModel</span>
-<span class="kn">from</span> <span class="nn">tqec.simulation.simulation</span> <span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
 
 <span class="c1"># returns a iterator</span>
 <span class="n">stats</span> <span class="o">=</span> <span class="n">start_simulation_using_sinter</span><span class="p">(</span>
@@ -560,10 +560,10 @@ the <a class="reference external" href="https://docs.python.org/3/library/multip
 <h2>7. Plot the results<a class="headerlink" href="#plot-the-results" title="Link to this heading">#</a></h2>
 <p>Simulation results can be plotted with <code class="docutils literal notranslate"><span class="pre">matplolib</span></code> using the
 <code class="docutils literal notranslate"><span class="pre">plot_simulation_results</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">sinter</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 
-<span class="kn">from</span> <span class="nn">tqec.simulation.plotting.inset</span> <span class="kn">import</span> <span class="n">plot_observable_as_inset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.plotting.inset</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_observable_as_inset</span>
 
 <span class="n">zx_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
 

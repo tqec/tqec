@@ -29,7 +29,7 @@
   <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -406,15 +406,15 @@ window.addEventListener("load", () => mermaid.run());
 <span></span><span class="sd">&quot;&quot;&quot;Defines some helper functions to plot into insets.&quot;&quot;&quot;</span>
 
 <span class="c1"># required for &quot;3d&quot; projection even though not explicitly used</span>
-<span class="kn">from</span> <span class="nn">matplotlib.axes</span> <span class="kn">import</span> <span class="n">Axes</span>
-<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d.axes3d</span> <span class="kn">import</span> <span class="n">Axes3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.mplot3d.axes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes3D</span>
 
-<span class="kn">from</span> <span class="nn">tqec.computation.correlation</span> <span class="kn">import</span> <span class="n">CorrelationSurface</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.zx_plot</span> <span class="kn">import</span> <span class="n">draw_correlation_surface_on</span><span class="p">,</span> <span class="n">draw_zx_graph_on</span>
-<span class="kn">from</span> <span class="nn">tqec.computation.zx_graph</span> <span class="kn">import</span> <span class="n">ZXGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">draw_correlation_surface_on</span><span class="p">,</span> <span class="n">draw_zx_graph_on</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXGraph</span>
 
 
-<span class="k">def</span> <span class="nf">add_inset_axes3d</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_inset_axes3d</span><span class="p">(</span>
     <span class="n">ax_target</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes3D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper around `fig.add_axes` to achieve `ax.inset_axes` functionality</span>
@@ -426,7 +426,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="plot_observable_as_inset">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.simulation.plot_observable_as_inset.html#tqec.simulation.plot_observable_as_inset">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_observable_as_inset</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_observable_as_inset</span><span class="p">(</span>
     <span class="n">ax_target</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span>
     <span class="n">zx_graph</span><span class="p">:</span> <span class="n">ZXGraph</span><span class="p">,</span>
     <span class="n">correlation_surface</span><span class="p">:</span> <span class="n">CorrelationSurface</span><span class="p">,</span>

@@ -29,7 +29,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -405,16 +405,16 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.interop.color</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Defines the color representation used in the TQEC interop layer.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
 
 <div class="viewcode-block" id="RGBA">
 <a class="viewcode-back" href="../../../_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">RGBA</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RGBA</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;RGBA representation of a color.</span>
 
 <span class="sd">    Attributes:</span>
@@ -431,7 +431,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="RGBA.with_alpha">
 <a class="viewcode-back" href="../../../_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.with_alpha">[docs]</a>
-    <span class="k">def</span> <span class="nf">with_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RGBA</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RGBA</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a new RGBA with the same color but a different alpha value.</span>
 
 <span class="sd">        Args:</span>
@@ -445,7 +445,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="RGBA.as_floats">
 <a class="viewcode-back" href="../../../_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.as_floats">[docs]</a>
-    <span class="k">def</span> <span class="nf">as_floats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_floats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the color as a tuple of floats. The RGB values are</span>
 <span class="sd">        normalized to the range [0, 1].</span>
 
@@ -457,7 +457,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="RGBA.to_hex">
 <a class="viewcode-back" href="../../../_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.to_hex">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the color as a hexadecimal string.</span>
 
 <span class="sd">        Returns:</span>
@@ -470,7 +470,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="TQECColor">
 <a class="viewcode-back" href="../../../_autosummary/tqec.interop.TQECColor.html#tqec.interop.TQECColor">[docs]</a>
-<span class="k">class</span> <span class="nc">TQECColor</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TQECColor</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Predefined and commonly used colors in TQEC.&quot;&quot;&quot;</span>
 
     <span class="n">X</span> <span class="o">=</span> <span class="s2">&quot;X&quot;</span>
@@ -481,7 +481,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">Z_CORRELATION</span> <span class="o">=</span> <span class="s2">&quot;Z_CORRELATION&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rgba</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RGBA</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rgba</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RGBA</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the RGBA representation of the color.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">TQECColor</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">RGBA</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
@@ -498,7 +498,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="TQECColor.with_zx_flipped">
 <a class="viewcode-back" href="../../../_autosummary/tqec.interop.TQECColor.html#tqec.interop.TQECColor.with_zx_flipped">[docs]</a>
-    <span class="k">def</span> <span class="nf">with_zx_flipped</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TQECColor</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_zx_flipped</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TQECColor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a ``X`` or ``Z`` color from a ``Z`` or ``X`` color and vice</span>
 <span class="sd">        versa.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">TQECColor</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>

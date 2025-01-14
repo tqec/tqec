@@ -29,7 +29,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -405,29 +405,30 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.computation.zx_graph</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;ZX graph representation of a logical computation.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Generator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Generator</span>
 
-<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
-<span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
-<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d.axes3d</span> <span class="kn">import</span> <span class="n">Axes3D</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.mplot3d.axes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes3D</span>
 
-<span class="kn">from</span> <span class="nn">tqec.computation._base_graph</span> <span class="kn">import</span> <span class="n">ComputationGraph</span>
-<span class="kn">from</span> <span class="nn">tqec.exceptions</span> <span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span> <span class="nn">tqec.position</span> <span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation._base_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputationGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_or_fail</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">tqec.computation.block_graph</span> <span class="kn">import</span> <span class="n">BlockGraph</span>
-    <span class="kn">from</span> <span class="nn">tqec.computation.correlation</span> <span class="kn">import</span> <span class="n">CorrelationSurface</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 
 
 <div class="viewcode-block" id="ZXKind">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXKind.html#tqec.computation.ZXKind">[docs]</a>
-<span class="k">class</span> <span class="nc">ZXKind</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZXKind</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The kind of the node in the ZX graph.&quot;&quot;&quot;</span>
 
     <span class="n">X</span> <span class="o">=</span> <span class="s2">&quot;X&quot;</span>
@@ -441,7 +442,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="ZXKind.with_zx_flipped">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXKind.html#tqec.computation.ZXKind.with_zx_flipped">[docs]</a>
-    <span class="k">def</span> <span class="nf">with_zx_flipped</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXKind</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_zx_flipped</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXKind</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a X/Z kind from a Z/X kind.</span>
 
 <span class="sd">        Otherwise, return itself.</span>
@@ -454,10 +455,10 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">return</span> <span class="bp">self</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
 
-    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ZXKind</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ZXKind</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span></div>
 
 
@@ -465,7 +466,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="ZXNode">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXNode.html#tqec.computation.ZXNode">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">ZXNode</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZXNode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A node in the ZX graph.</span>
 
 <span class="sd">    Attributes:</span>
@@ -479,33 +480,33 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">kind</span><span class="p">:</span> <span class="n">ZXKind</span>
     <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">P</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;A port node must have a non-empty label.&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_port</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_port</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the node is a port.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">P</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_y_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_y_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True is the node is of ``Y`` kind.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Y</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_zx_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_zx_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the node is of kind ``X`` or ``Z``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ZXKind</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
 
 <div class="viewcode-block" id="ZXNode.with_zx_flipped">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXNode.html#tqec.computation.ZXNode.with_zx_flipped">[docs]</a>
-    <span class="k">def</span> <span class="nf">with_zx_flipped</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXNode</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_zx_flipped</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXNode</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new node with the flipped kind.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">ZXNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">with_zx_flipped</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
@@ -513,7 +514,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="ZXEdge">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXEdge.html#tqec.computation.ZXEdge">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">ZXEdge</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZXEdge</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An edge connecting two neighboring nodes in the ZX graph.</span>
 
 <span class="sd">    .. warning::</span>
@@ -532,17 +533,19 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">v</span><span class="p">:</span> <span class="n">ZXNode</span>
     <span class="n">has_hadamard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">is_neighbour</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;An edge must connect two nearby nodes.&quot;</span><span class="p">)</span>
-        <span class="c1"># Ensure position of u is less than v</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">is_neighbour</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;An edge must connect two nearby nodes, but got </span><span class="si">{</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># Ensure position of u is less than v</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>
             <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;u&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
             <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">direction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Direction3D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">direction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Direction3D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;3D direction of the edge.&quot;&quot;&quot;</span>
         <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span>
         <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">x</span> <span class="o">!=</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">:</span>
@@ -551,11 +554,11 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">return</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span>
         <span class="k">return</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">ZXNode</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">ZXNode</span><span class="p">]:</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">strs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">)]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_hadamard</span><span class="p">:</span>
             <span class="n">strs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">)</span>
@@ -565,7 +568,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="ZXGraph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph">[docs]</a>
-<span class="k">class</span> <span class="nc">ZXGraph</span><span class="p">(</span><span class="n">ComputationGraph</span><span class="p">[</span><span class="n">ZXNode</span><span class="p">,</span> <span class="n">ZXEdge</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZXGraph</span><span class="p">(</span><span class="n">ComputationGraph</span><span class="p">[</span><span class="n">ZXNode</span><span class="p">,</span> <span class="n">ZXEdge</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;ZX graph representation of a logical computation.</span>
 
 <span class="sd">    This is a restricted form of the ZX diagram from the ZX-calculus.</span>
@@ -591,7 +594,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="ZXGraph.add_edge">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.add_edge">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">u</span><span class="p">:</span> <span class="n">ZXNode</span><span class="p">,</span>
         <span class="n">v</span><span class="p">:</span> <span class="n">ZXNode</span><span class="p">,</span>
@@ -617,7 +620,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="ZXGraph.fill_ports">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.fill_ports">[docs]</a>
-    <span class="k">def</span> <span class="nf">fill_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fill</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ZXKind</span><span class="p">]</span> <span class="o">|</span> <span class="n">ZXKind</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fill_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fill</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ZXKind</span><span class="p">]</span> <span class="o">|</span> <span class="n">ZXKind</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Fill the ports at specified positions with nodes of the given kind.</span>
 
 <span class="sd">        Args:</span>
@@ -656,7 +659,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="ZXGraph.to_block_graph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.to_block_graph">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_block_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_block_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the ZX graph to a</span>
 <span class="sd">        :py:class:`~tqec.computation.block_graph.BlockGraph`.</span>
 
@@ -697,7 +700,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            TQECException: If the ZX graph does not satisfy the necessary conditions</span>
 <span class="sd">                or there are inference conflicts during the conversion.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">tqec.computation.conversion</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
             <span class="n">convert_zx_graph_to_block_graph</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -706,7 +709,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="ZXGraph.find_correration_surfaces">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.find_correration_surfaces">[docs]</a>
-    <span class="k">def</span> <span class="nf">find_correration_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_correration_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Find all the</span>
 <span class="sd">        :py:class:`~tqec.computation.correlation.CorrelationSurface` in a ZX</span>
 <span class="sd">        graph.</span>
@@ -743,14 +746,14 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Raises:</span>
 <span class="sd">            TQECException: If the graph does not contain any leaf node.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">tqec.computation.correlation</span> <span class="kn">import</span> <span class="n">find_correlation_surfaces</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_correlation_surfaces</span>
 
         <span class="k">return</span> <span class="n">find_correlation_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ZXGraph.draw">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.draw">[docs]</a>
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
@@ -777,7 +780,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returns:</span>
 <span class="sd">            A tuple of the figure and the axes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">tqec.computation.zx_plot</span> <span class="kn">import</span> <span class="n">plot_zx_graph</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_zx_graph</span>
 
         <span class="k">return</span> <span class="n">plot_zx_graph</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -792,7 +795,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="ZXGraph.check_invariants">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.check_invariants">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_invariants</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_invariants</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check the invariants of a valid ZX graph.</span>
 
 <span class="sd">        To represent a valid ZX graph, the graph must fulfill the following</span>
@@ -809,6 +812,58 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">is_zx_node</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_degree</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">position</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;The port/Y node must be a leaf node.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ZXGraph.rotate">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXGraph.html#tqec.computation.ZXGraph.rotate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">rotation_axis</span><span class="p">:</span> <span class="n">Direction3D</span> <span class="o">=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span>
+        <span class="n">num_90_degree_rotation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">counterclockwise</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and</span>
+<span class="sd">        return a new rotated graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rotation_axis: The axis around which to rotate the graph.</span>
+<span class="sd">            num_90_degree_rotation: The number of 90-degree rotations to apply to the graph.</span>
+<span class="sd">            counterclockwise: Whether to rotate the graph counterclockwise. If set to False,</span>
+<span class="sd">                the graph will be rotated clockwise. Defaults to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A data-independent copy of the graph rotated by the given number of 90-degree rotations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">num_90_degree_rotation</span> <span class="o">%</span> <span class="mi">4</span>
+
+        <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rotation</span> <span class="k">as</span> <span class="n">R</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_rotate</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Position3D</span><span class="p">:</span>
+            <span class="n">rot_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">axis_idx</span> <span class="o">=</span> <span class="n">rotation_axis</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">rot_vec</span><span class="p">[</span><span class="n">axis_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">axis_idx</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">counterclockwise</span><span class="p">:</span>
+                <span class="n">rot_vec</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">rotated</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">from_rotvec</span><span class="p">(</span><span class="n">rot_vec</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">Position3D</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">round_or_fail</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rotated</span><span class="p">])</span>
+
+        <span class="n">name_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; rotated by </span><span class="si">{</span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">90</span><span class="si">}</span><span class="s2"> degrees </span><span class="si">{</span><span class="s1">&#39;counter&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">counterclockwise</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">clockwise around the </span><span class="si">{</span><span class="n">rotation_axis</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> axis&quot;</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">name_suffix</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">ZXNode</span><span class="p">(</span><span class="n">_rotate</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">position</span><span class="p">),</span> <span class="n">node</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">edge</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+                <span class="n">ZXNode</span><span class="p">(</span><span class="n">_rotate</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">),</span> <span class="n">u</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">label</span><span class="p">),</span>
+                <span class="n">ZXNode</span><span class="p">(</span><span class="n">_rotate</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">),</span> <span class="n">v</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span><span class="p">),</span>
+                <span class="n">has_hadamard</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">has_hadamard</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">g</span></div>
 </div>
 
 </pre></div>

@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
   
   <!-- So that users can add custom icons -->
@@ -430,7 +430,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec.gallery</span> <span class="kn">import</span> <span class="n">solo_node_block_graph</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery</span><span class="w"> </span><span class="kn">import</span> <span class="n">solo_node_block_graph</span>
 
 <span class="n">graph</span> <span class="o">=</span> <span class="n">solo_node_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
 <span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">()</span>
@@ -666,7 +666,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec</span> <span class="kn">import</span> <span class="n">SignedDirection3D</span><span class="p">,</span> <span class="n">Direction3D</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">SignedDirection3D</span><span class="p">,</span> <span class="n">Direction3D</span>
 
 <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span><span class="o">.</span><span class="n">find_correration_surfaces</span><span class="p">()</span>
 <span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">(</span>
@@ -909,7 +909,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqec</span> <span class="kn">import</span> <span class="n">compile_block_graph</span><span class="p">,</span> <span class="n">NoiseModel</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span><span class="p">,</span> <span class="n">NoiseModel</span>
 
 <span class="n">compiled_graph</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">compiled_graph</span><span class="o">.</span><span class="n">generate_stim_circuit</span><span class="p">(</span>
@@ -922,23 +922,23 @@
 <section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Link to this heading">#</a></h2>
 <p>Here we show the simulation results of both Z-basis and X-basis memory experiments. The simulated surface code is <strong>CSS type</strong> and the noise model is <strong>uniform depolarizing</strong>.</p>
-<details><p>Click to show the full code used for simulation</p>
-<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<details><summary><p>Click to show the full code used for simulation</p>
+</summary><div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">import</span> <span class="nn">sinter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 
-<span class="kn">from</span> <span class="nn">tqec.gallery.solo_node</span> <span class="kn">import</span> <span class="n">solo_node_block_graph</span>
-<span class="kn">from</span> <span class="nn">tqec.noise_model</span> <span class="kn">import</span> <span class="n">NoiseModel</span>
-<span class="kn">from</span> <span class="nn">tqec.simulation.plotting.inset</span> <span class="kn">import</span> <span class="n">plot_observable_as_inset</span>
-<span class="kn">from</span> <span class="nn">tqec.simulation.simulation</span> <span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery.solo_node</span><span class="w"> </span><span class="kn">import</span> <span class="n">solo_node_block_graph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.plotting.inset</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_observable_as_inset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
 
 <span class="n">SAVE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">generate_graphs</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_graphs</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">block_graph</span> <span class="o">=</span> <span class="n">solo_node_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">)</span>
     <span class="n">zx_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
 
@@ -980,7 +980,7 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">SAVE_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">generate_graphs</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
     <span class="n">generate_graphs</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)</span>
@@ -992,11 +992,11 @@
 </div>
 </details><section id="X-basis">
 <h3>X-basis<a class="headerlink" href="#X-basis" title="Link to this heading">#</a></h3>
-<p><img alt="X-basis" src="../_images/x_memory.png" /></p>
+<img alt="X-basis" src="../_images/x_memory.png" />
 </section>
 <section id="Z-basis">
 <h3>Z-basis<a class="headerlink" href="#Z-basis" title="Link to this heading">#</a></h3>
-<p><img alt="Z-basis" src="../_images/z_memory.png" /></p>
+<img alt="Z-basis" src="../_images/z_memory.png" />
 </section>
 </section>
 <section id="References">
