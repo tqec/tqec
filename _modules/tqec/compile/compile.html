@@ -421,7 +421,11 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.detectors.compute</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_detectors_for_fixed_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.detectors.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DetectorDatabase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.detectors.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">Detector</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.observables</span><span class="w"> </span><span class="kn">import</span> <span class="n">inplace_add_observables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.observables.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AbstractObservable</span><span class="p">,</span>
+    <span class="n">compile_correlation_surface_to_abstract_observable</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.observables.builder</span><span class="w"> </span><span class="kn">import</span> <span class="n">inplace_add_observable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BlockBuilder</span><span class="p">,</span>
     <span class="n">CubeSpec</span><span class="p">,</span>
@@ -429,8 +433,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">SubstitutionBuilder</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.library.css</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractObservable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquettes</span><span class="p">,</span> <span class="n">RepeatedPlaquettes</span>
@@ -453,7 +457,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            instances that represent the compiled blocks at contiguous time</span>
 <span class="sd">            slices.</span>
 <span class="sd">        observables: a list of</span>
-<span class="sd">            :class:`~tqec.computation.abstract_observable.AbstractObservable`</span>
+<span class="sd">            :class:`~tqec.compile.observables.AbstractObservable`</span>
 <span class="sd">            instances that represent the observables to be included in the</span>
 <span class="sd">            compiled circuit.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -514,12 +518,14 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">global_qubit_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relabel_circuits_qubit_indices_inplace</span><span class="p">(</span><span class="n">circuits</span><span class="p">)</span>
 
         <span class="c1"># Construct the observables and add them in-place to the built circuits.</span>
-        <span class="n">inplace_add_observables</span><span class="p">(</span>
-            <span class="n">circuits</span><span class="p">,</span>
-            <span class="p">[</span><span class="n">layout</span><span class="o">.</span><span class="n">template</span> <span class="k">for</span> <span class="n">layout</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_slices</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">observables</span><span class="p">,</span>
-            <span class="n">k</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">observable_index</span><span class="p">,</span> <span class="n">observable</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observables</span><span class="p">):</span>
+            <span class="n">inplace_add_observable</span><span class="p">(</span>
+                <span class="n">k</span><span class="p">,</span>
+                <span class="n">circuits</span><span class="p">,</span>
+                <span class="n">template_slices</span><span class="o">=</span><span class="p">[</span><span class="n">layout</span><span class="o">.</span><span class="n">template</span> <span class="k">for</span> <span class="n">layout</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_slices</span><span class="p">],</span>
+                <span class="n">abstract_observable</span><span class="o">=</span><span class="n">observable</span><span class="p">,</span>
+                <span class="n">observable_index</span><span class="o">=</span><span class="n">observable_index</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="c1"># Compute the detectors and add them in-place in circuits</span>
         <span class="n">flattened_circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
@@ -710,7 +716,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
     <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span>
     <span class="n">substitution_builder</span><span class="p">:</span> <span class="n">SubstitutionBuilder</span> <span class="o">=</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span><span class="p">,</span>
-    <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a block graph.</span>
 
@@ -724,13 +730,13 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            substitution plaquettes from the specified</span>
 <span class="sd">            :class:`~.specs.base.PipeSpec`. Defaults to the substitution builder</span>
 <span class="sd">            for the CSS type surface code.</span>
-<span class="sd">        observables: The abstract observables to be included in the compiled</span>
-<span class="sd">            circuit.</span>
-<span class="sd">            If set to ``&quot;auto&quot;``, the observables will be automatically</span>
-<span class="sd">            determined from the block graph. If a list of abstract observables</span>
-<span class="sd">            is provided, only those observables will be included in the compiled</span>
-<span class="sd">            circuit. If set to ``None``, no observables will be included in the</span>
-<span class="sd">            compiled circuit.</span>
+<span class="sd">        observables: correlation surfaces that should be compiled into</span>
+<span class="sd">            observables and included in the compiled circuit.</span>
+<span class="sd">            If set to ``&quot;auto&quot;``, the correlation surfaces will be automatically</span>
+<span class="sd">            determined from the block graph. If a list of correlation surfaces</span>
+<span class="sd">            is provided, only those surfaces will be compiled into observables</span>
+<span class="sd">            and included in the compiled circuit. If set to ``None``, no</span>
+<span class="sd">            observables will be included in the compiled circuit.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`CompiledGraph` object that can be used to generate a</span>
@@ -777,13 +783,14 @@ window.addEventListener("load", () => mermaid.run());
     <span class="p">]</span>
 
     <span class="c1"># 4. Get the abstract observables to be included in the compiled circuit.</span>
-    <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">obs_included</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">elif</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
-        <span class="n">obs_included</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">get_abstract_observables</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">obs_included</span> <span class="o">=</span> <span class="n">observables</span>
+    <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="n">observables</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
+        <span class="n">obs_included</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">compile_correlation_surface_to_abstract_observable</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">surface</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">observables</span>
+        <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">CompiledGraph</span><span class="p">(</span><span class="n">layout_slices</span><span class="p">,</span> <span class="n">obs_included</span><span class="p">)</span></div>
 

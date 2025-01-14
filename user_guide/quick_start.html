@@ -462,7 +462,7 @@ pre-defined computation, you can use to following code:</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> library can automatically search for valid observables in the
 imported computation. To get a list of all the valid observables, you can
 use the following code</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">observables</span><span class="p">,</span> <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">get_abstract_observables</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Any observable can be plotted using the <code class="docutils literal notranslate"><span class="pre">tqec</span> <span class="pre">dae2observables</span></code> command line. For our
@@ -479,10 +479,10 @@ specific example, the command line</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span>
 
 <span class="c1"># You can pick any number of observables from the output of</span>
-<span class="c1"># block_graph.get_abstract_observables() and provide them here.</span>
+<span class="c1"># block_graph.find_correlation_surfaces() and provide them here.</span>
 <span class="c1"># In this example, picking only the second observable for demonstration</span>
 <span class="c1"># purposes.</span>
-<span class="n">compiled_computation</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">observables</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+<span class="n">compiled_computation</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
 </pre></div>
 </div>
 <p>From this compiled computation, the final <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> instance can be generated.</p>
@@ -529,7 +529,7 @@ The compilation of the block graph is done automatically based on the inputs.</p
     <span class="n">ps</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span>  <span class="c1"># error rates</span>
     <span class="n">noise_model_factory</span><span class="o">=</span><span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">,</span>  <span class="c1"># noise model</span>
     <span class="n">manhattan_radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># parameter for automatic detector computation</span>
-    <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">observables</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>  <span class="c1"># observable of interest</span>
+    <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>  <span class="c1"># observable of interest</span>
     <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pymatching&quot;</span><span class="p">],</span>
     <span class="n">num_workers</span><span class="o">=</span><span class="n">cpu_count</span><span class="p">(),</span>
     <span class="n">max_shots</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>

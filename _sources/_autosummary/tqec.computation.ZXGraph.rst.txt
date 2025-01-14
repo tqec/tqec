@@ -19,7 +19,7 @@ ZXGraph
       ~ZXGraph.draw
       ~ZXGraph.edges_at
       ~ZXGraph.fill_ports
-      ~ZXGraph.find_correration_surfaces
+      ~ZXGraph.find_correlation_surfaces
       ~ZXGraph.get_degree
       ~ZXGraph.get_edge
       ~ZXGraph.has_edge_between
@@ -58,7 +58,7 @@ ZXGraph
    .. automethod:: draw
    .. automethod:: edges_at
    .. automethod:: fill_ports
-   .. automethod:: find_correration_surfaces
+   .. automethod:: find_correlation_surfaces
    .. automethod:: get_degree
    .. automethod:: get_edge
    .. automethod:: has_edge_between

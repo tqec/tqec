@@ -411,6 +411,8 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_block_graph.html">solo_node_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html">solo_node_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
 </ul>
@@ -527,13 +529,13 @@ the CSS type surface code.</p></li>
 substitution plaquettes from the specified
 <a class="reference internal" href="tqec.compile.PipeSpec.html#tqec.compile.PipeSpec" title="tqec.compile.specs.base.PipeSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">PipeSpec</span></code></a>. Defaults to the substitution builder
 for the CSS type surface code.</p></li>
-<li><p><strong>observables</strong> (<em>list</em><em>[</em><em>AbstractObservable</em><em>] </em><em>| </em><em>Literal</em><em>[</em><em>'auto'</em><em>] </em><em>| </em><em>None</em>) – The abstract observables to be included in the compiled
-circuit.
-If set to <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, the observables will be automatically
-determined from the block graph. If a list of abstract observables
-is provided, only those observables will be included in the compiled
-circuit. If set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, no observables will be included in the
-compiled circuit.</p></li>
+<li><p><strong>observables</strong> (<em>list</em><em>[</em><em>CorrelationSurface</em><em>] </em><em>| </em><em>Literal</em><em>[</em><em>'auto'</em><em>] </em><em>| </em><em>None</em>) – correlation surfaces that should be compiled into
+observables and included in the compiled circuit.
+If set to <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, the correlation surfaces will be automatically
+determined from the block graph. If a list of correlation surfaces
+is provided, only those surfaces will be compiled into observables
+and included in the compiled circuit. If set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, no
+observables will be included in the compiled circuit.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

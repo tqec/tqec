@@ -422,7 +422,6 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.html_viewer</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ColladaHTMLViewer</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractObservable</span>
 
 
 <span class="n">BlockKind</span> <span class="o">=</span> <span class="n">CubeKind</span> <span class="o">|</span> <span class="n">PipeKind</span>
@@ -645,42 +644,6 @@ window.addEventListener("load", () => mermaid.run());
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BlockGraph.get_abstract_observables">
-<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.get_abstract_observables">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_abstract_observables</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">correlation_surfaces</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the</span>
-<span class="sd">        :py:class:`~tqec.computation.abstract_observable.AbstractObservable` in</span>
-<span class="sd">        the graph.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            correlation_surfaces: The correlation surfaces to convert to abstract observables. If not</span>
-<span class="sd">                provided, all the possible correlation surfaces will be constructed from the corresponding ZX graph</span>
-<span class="sd">                of the block graph. Abstract observables will be created for each correlation surface.</span>
-<span class="sd">                Default is None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A tuple containing the list of abstract observables and the list of correlation surfaces corresponding</span>
-<span class="sd">            to the observables.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-            <span class="n">correlation_surface_to_abstract_observable</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">correlation_surfaces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span><span class="o">.</span><span class="n">find_correration_surfaces</span><span class="p">()</span>
-        <span class="n">abstract_observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">correlation_surface_to_abstract_observable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surface</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">correlation_surfaces</span>
-        <span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">abstract_observables</span><span class="p">,</span> <span class="n">correlation_surfaces</span></div>
-
-
 <div class="viewcode-block" id="BlockGraph.shift_min_z_to_zero">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.shift_min_z_to_zero">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shift_min_z_to_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
@@ -703,6 +666,18 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">new_graph</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.find_correlation_surfaces">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.find_correlation_surfaces">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_correlation_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the `~tqec.computation.correlation.CorrelationSurface`s from the corresponding</span>
+<span class="sd">        ZXGraph of the block graph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The list of correlation surfaces.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="BlockGraph.rotate">

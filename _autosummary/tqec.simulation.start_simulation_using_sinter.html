@@ -411,6 +411,8 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_block_graph.html">solo_node_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html">solo_node_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
 </ul>
@@ -548,8 +550,9 @@ surface code.</p></li>
 <li><p><strong>substitution_builder</strong> (<a class="reference internal" href="tqec.compile.SubstitutionBuilder.html#tqec.compile.SubstitutionBuilder" title="tqec.compile.specs.base.SubstitutionBuilder"><em>SubstitutionBuilder</em></a>) – A callable that specifies how to build the substitution
 plaquettes from the specified <cite>PipeSpec</cite>. Defaults to the substitution
 builder for the css type surface code.</p></li>
-<li><p><strong>observables</strong> (<em>list</em><em>[</em><em>AbstractObservable</em><em>] </em><em>| </em><em>None</em>) – a list of observables to generate statistics for. If
-<cite>None</cite>, all the observables of the provided computation are used.</p></li>
+<li><p><strong>observables</strong> (<em>list</em><em>[</em><em>CorrelationSurface</em><em>] </em><em>| </em><em>None</em>) – a list of correlation surfaces to compile to logical
+observables and generate statistics for. If <cite>None</cite>, all the correlation
+surfaces of the provided computation are used.</p></li>
 <li><p><strong>num_workers</strong> (<em>int</em>) – The number of worker processes to use.</p></li>
 <li><p><strong>progress_callback</strong> (<em>Callable</em><em>[</em><em>[</em><em>Progress</em><em>]</em><em>, </em><em>None</em><em>] </em><em>| </em><em>None</em>) – Defaults to None (unused). If specified, then each
 time new sample statistics are acquired from a worker this method

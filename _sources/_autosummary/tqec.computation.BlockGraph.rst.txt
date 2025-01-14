@@ -16,8 +16,8 @@ BlockGraph
       ~BlockGraph.add_node
       ~BlockGraph.copy
       ~BlockGraph.edges_at
+      ~BlockGraph.find_correlation_surfaces
       ~BlockGraph.from_dae_file
-      ~BlockGraph.get_abstract_observables
       ~BlockGraph.get_degree
       ~BlockGraph.get_edge
       ~BlockGraph.has_edge_between
@@ -57,8 +57,8 @@ BlockGraph
    .. automethod:: add_node
    .. automethod:: copy
    .. automethod:: edges_at
+   .. automethod:: find_correlation_surfaces
    .. automethod:: from_dae_file
-   .. automethod:: get_abstract_observables
    .. automethod:: get_degree
    .. automethod:: get_edge
    .. automethod:: has_edge_between

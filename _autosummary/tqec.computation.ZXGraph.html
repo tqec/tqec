@@ -411,6 +411,8 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_block_graph.html">solo_node_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html">solo_node_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
 </ul>
@@ -561,7 +563,7 @@ not implemented yet but might be added in the future.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.fill_ports" title="tqec.computation.ZXGraph.fill_ports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_ports</span></code></a>(fill)</p></td>
 <td><p>Fill the ports at specified positions with nodes of the given kind.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.find_correration_surfaces" title="tqec.computation.ZXGraph.find_correration_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correration_surfaces</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.find_correlation_surfaces" title="tqec.computation.ZXGraph.find_correlation_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correlation_surfaces</span></code></a>()</p></td>
 <td><p>Find all the <code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelationSurface</span></code> in a ZX graph.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXGraph.get_degree" title="tqec.computation.ZXGraph.get_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_degree</span></code></a>(position)</p></td>
@@ -781,8 +783,8 @@ same kind.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.computation.ZXGraph.find_correration_surfaces">
-<span class="sig-name descname"><span class="pre">find_correration_surfaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/zx_graph.html#ZXGraph.find_correration_surfaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.ZXGraph.find_correration_surfaces" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.computation.ZXGraph.find_correlation_surfaces">
+<span class="sig-name descname"><span class="pre">find_correlation_surfaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/zx_graph.html#ZXGraph.find_correlation_surfaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.ZXGraph.find_correlation_surfaces" title="Link to this definition">#</a></dt>
 <dd><p>Find all the
 <code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelationSurface</span></code> in a ZX
 graph.</p>
@@ -1016,7 +1018,7 @@ converted from the ZX graph.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.draw"><code class="docutils literal notranslate"><span class="pre">ZXGraph.draw()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.edges_at"><code class="docutils literal notranslate"><span class="pre">ZXGraph.edges_at()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.fill_ports"><code class="docutils literal notranslate"><span class="pre">ZXGraph.fill_ports()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.find_correration_surfaces"><code class="docutils literal notranslate"><span class="pre">ZXGraph.find_correration_surfaces()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.find_correlation_surfaces"><code class="docutils literal notranslate"><span class="pre">ZXGraph.find_correlation_surfaces()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.get_degree"><code class="docutils literal notranslate"><span class="pre">ZXGraph.get_degree()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.get_edge"><code class="docutils literal notranslate"><span class="pre">ZXGraph.get_edge()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXGraph.has_edge_between"><code class="docutils literal notranslate"><span class="pre">ZXGraph.has_edge_between()</span></code></a></li>

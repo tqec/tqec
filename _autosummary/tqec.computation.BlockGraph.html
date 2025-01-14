@@ -411,6 +411,8 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_block_graph.html">solo_node_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html">solo_node_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
 </ul>
@@ -548,11 +550,11 @@ connects. Pipes are represented as edges in the graph.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.edges_at" title="tqec.computation.BlockGraph.edges_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edges_at</span></code></a>(position)</p></td>
 <td><p>Get the edges incident to a position.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_dae_file" title="tqec.computation.BlockGraph.from_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dae_file</span></code></a>(filename[, graph_name])</p></td>
-<td><p>Construct a block graph from a COLLADA DAE file.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="tqec.computation.BlockGraph.find_correlation_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correlation_surfaces</span></code></a>()</p></td>
+<td><p>Get the <a href="#id1"><span class="problematic" id="id2">`</span></a>~tqec.computation.correlation.CorrelationSurface`s from the corresponding ZXGraph of the block graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_abstract_observables" title="tqec.computation.BlockGraph.get_abstract_observables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_abstract_observables</span></code></a>([correlation_surfaces])</p></td>
-<td><p>Get the <code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractObservable</span></code> in the graph.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_dae_file" title="tqec.computation.BlockGraph.from_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dae_file</span></code></a>(filename[, graph_name])</p></td>
+<td><p>Construct a block graph from a COLLADA DAE file.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_degree" title="tqec.computation.BlockGraph.get_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_degree</span></code></a>(position)</p></td>
 <td><p>Get the degree of a node in the graph, i.e. the number of edges incident to it.</p></td>
@@ -715,6 +717,21 @@ True.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.BlockGraph.find_correlation_surfaces">
+<span class="sig-name descname"><span class="pre">find_correlation_surfaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.find_correlation_surfaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="Link to this definition">#</a></dt>
+<dd><p>Get the <a href="#id3"><span class="problematic" id="id4">`</span></a>~tqec.computation.correlation.CorrelationSurface`s from the corresponding
+ZXGraph of the block graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of correlation surfaces.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<em>CorrelationSurface</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.from_dae_file">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dae_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.from_dae_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.from_dae_file" title="Link to this definition">#</a></dt>
 <dd><p>Construct a block graph from a COLLADA DAE file.</p>
@@ -730,29 +747,6 @@ True.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.computation.BlockGraph.get_abstract_observables">
-<span class="sig-name descname"><span class="pre">get_abstract_observables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">correlation_surfaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.get_abstract_observables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.get_abstract_observables" title="Link to this definition">#</a></dt>
-<dd><p>Get the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractObservable</span></code> in
-the graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>correlation_surfaces</strong> (<em>list</em><em>[</em><em>CorrelationSurface</em><em>] </em><em>| </em><em>None</em>) – The correlation surfaces to convert to abstract observables. If not
-provided, all the possible correlation surfaces will be constructed from the corresponding ZX graph
-of the block graph. Abstract observables will be created for each correlation surface.
-Default is None.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the list of abstract observables and the list of correlation surfaces corresponding
-to the observables.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[list[AbstractObservable], list[CorrelationSurface]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1010,8 +1004,8 @@ can be directly displayed in IPython compatible environments.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.add_node"><code class="docutils literal notranslate"><span class="pre">BlockGraph.add_node()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.copy"><code class="docutils literal notranslate"><span class="pre">BlockGraph.copy()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.edges_at"><code class="docutils literal notranslate"><span class="pre">BlockGraph.edges_at()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.find_correlation_surfaces"><code class="docutils literal notranslate"><span class="pre">BlockGraph.find_correlation_surfaces()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.from_dae_file"><code class="docutils literal notranslate"><span class="pre">BlockGraph.from_dae_file()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.get_abstract_observables"><code class="docutils literal notranslate"><span class="pre">BlockGraph.get_abstract_observables()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.get_degree"><code class="docutils literal notranslate"><span class="pre">BlockGraph.get_degree()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.get_edge"><code class="docutils literal notranslate"><span class="pre">BlockGraph.get_edge()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.has_edge_between"><code class="docutils literal notranslate"><span class="pre">BlockGraph.has_edge_between()</span></code></a></li>
