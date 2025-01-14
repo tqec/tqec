@@ -1,8 +1,13 @@
 import logo from './tqec_logo.svg';
 import './App.css';
 import {Stage} from '@pixi/react'
-import TqecLibrary from './library'
-import TqecCode from './code'
+import React, { useState } from 'react';
+import DropdownMenu from './dropdown';
+
+// Implementation of the workspace of the various tabs.
+import TqecLibrary from './tab_library'
+import TqecCode from './tab_code'
+import TqecTemplates from './tab_template'
 import formattedInfoTabContent from './formattedInfoTab';
 
 /* The logo has been created as the SVG rendering of the ASCII:
@@ -32,6 +37,17 @@ const handleTabClick = (tabId) => {
 };
 
 function App() {
+  // Variable and method to react to a change of state.
+  // In this case to the dropdown menu in tab 4, selecting
+  // which template the user wants to fill.
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  // Expected behavior when the template is selected in tab 4.
+  const handleSelect = (value) => {
+    setSelectedOption(value);
+    console.log('INFO: from App.js, selected option:', value);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -42,6 +58,7 @@ function App() {
         <button className="Tab-button" id="tab1" onClick={() => handleTabClick(1)}>Info</button>
         <button className="Tab-button" id="tab2" onClick={() => handleTabClick(2)}>Compose library</button>
         <button className="Tab-button" id="tab3" onClick={() => handleTabClick(3)}>Create code</button>
+        <button className="Tab-button" id="tab4" onClick={() => handleTabClick(4)}>Populate template</button>
         {/* -- Add more tabs as needed -- */}
       </div>
 
@@ -81,8 +98,7 @@ function App() {
               id="editableCircuitArea"
               placeholder="Edit the circuit here..."
             />
-        </div>
-
+          </div>
         </div>
 
         <div id="content3" className="Tab-content">
@@ -99,9 +115,24 @@ function App() {
               id="codeSummary"
               placeholder="Code will appear here..."
             />
+          </div>
         </div>
 
+        <div id="content4" className="Tab-content">
+          {/*-- Content for Tab 4 -- */}
+          {/* Dropdown Menu Component */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <p className="Comment-paragraph">Select the template:</p>
+            <DropdownMenu onSelect={handleSelect} />
+          </div>
+          <Stage width={1400} height={900} options={{backgroundColor: 'rgb(225, 193, 110)', antialias: true}}>
+            {/* Pass the selectedOption to TqecApp */}
+            <TqecTemplates selectedTemplate={selectedOption}/>
+          </Stage>
+
+          <pre id="result"></pre>
         </div>
+
         {/*-- Add more content areas as needed -- */}
       </div>
     </div>

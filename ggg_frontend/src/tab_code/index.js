@@ -1,14 +1,21 @@
 import { useApp } from '@pixi/react'
-import { makeGrid } from '../library/grid'
 import { Container, Graphics } from 'pixi.js'
-import Position from '../library/position'
-import { button } from '../library/button'
-import Plaquette from '../library/plaquette'
+
+// From the implementation of the tab 'library'
+import { makeGrid } from '../tab_library/grid'
+import Position from '../tab_library/position'
+import { button } from '../tab_library/button'
+import Plaquette from '../tab_library/plaquette'
+import Circuit from '../tab_library/circuit'
+import { savedPlaquettes, libraryColors } from '../tab_library'
+import { Qubit } from '../tab_library/qubit'
+
+// From the implementation of the tab 'code'
 import PlaquetteType from './plaquette-type'
-import Circuit from '../library/circuit'
-import { savedPlaquettes, libraryColors } from '../library'
-import { Qubit } from '../library/qubit'
+
+// From the main src folder
 import { GRID_SIZE_CODE_WORKSPACE, GUIDE_MAX_BOTTOM_RIGHT_CORNER_CODE_WORKSPACE, GUIDE_TOP_LEFT_CORNER_CODE_WORKSPACE } from '../constants'
+import { drawSquareFromTopLeft } from '../utils/graphics-utils'
 
 /////////////////////////////////////////////////////////////
 
@@ -76,18 +83,12 @@ export default function TqecCode() {
 		libraryTopLeftCorners = [[21, 3], [21, 3+plaquetteDy+2], [21, 3+(plaquetteDy+2)*2], [21, 3+(plaquetteDy*2)*3]]
 		outline.lineStyle(2, 'lightcoral');
 		// Add workspace guidelines.
-		let y0 = guideTopLeftCorner[1];
+		let y0 = guideTopLeftCorner.y;
 		let message = '';
-		while (y0 + plaquetteDy <= GUIDE_MAX_BOTTOM_RIGHT_CORNER_CODE_WORKSPACE[0]) {
-			let x0 = guideTopLeftCorner[0];
-			while (x0 + plaquetteDx <= GUIDE_MAX_BOTTOM_RIGHT_CORNER_CODE_WORKSPACE[1]) {
-				const x1 = x0 + plaquetteDx;
-				const y1 = y0 + plaquetteDy;
-				outline.moveTo(x0*gridSize, y0*gridSize);
-				outline.lineTo(x1*gridSize, y0*gridSize);
-				outline.lineTo(x1*gridSize, y1*gridSize);
-				outline.lineTo(x0*gridSize, y1*gridSize);
-				outline.lineTo(x0*gridSize, y0*gridSize);
+		while (y0 + plaquetteDy <= GUIDE_MAX_BOTTOM_RIGHT_CORNER_CODE_WORKSPACE.y) {
+			let x0 = guideTopLeftCorner.x;
+			while (x0 + plaquetteDx <= GUIDE_MAX_BOTTOM_RIGHT_CORNER_CODE_WORKSPACE.x) {
+				drawSquareFromTopLeft(outline, {x: x0*gridSize, y: y0*gridSize}, plaquetteDx*gridSize, plaquetteDy*gridSize)
 				x0 += plaquetteDx;
 				message += '  .';
 			}
@@ -96,13 +97,7 @@ export default function TqecCode() {
 		}
 		// Add library guidelines.
 		for (const [x0, y0] of libraryTopLeftCorners) {
-			const x1 = x0 + plaquetteDx;
-			const y1 = y0 + plaquetteDy;
-			outline.moveTo(x0*gridSize, y0*gridSize);
-			outline.lineTo(x1*gridSize, y0*gridSize);
-			outline.lineTo(x1*gridSize, y1*gridSize);
-			outline.lineTo(x0*gridSize, y1*gridSize);
-			outline.lineTo(x0*gridSize, y0*gridSize);
+			drawSquareFromTopLeft(outline, {x: x0*gridSize, y: y0*gridSize}, plaquetteDx*gridSize, plaquetteDy*gridSize)
 		}
         // Create the compact representation of the (empty) QEC code
         const codesummary = document.getElementById('codeSummary');
@@ -123,9 +118,9 @@ export default function TqecCode() {
 				});
 				// Recall that plaquette names are like "plaquette 12", starting from "plaquette 1"
 				const plaquette_id = parseInt(plaq.name.match(/\d+/)[0]);
-				const base_translate_vector = {x: guideTopLeftCorner[0] - libraryTopLeftCorners[plaquette_id-1][0],
-				                               y: guideTopLeftCorner[1] - libraryTopLeftCorners[plaquette_id-1][1]};
-				const p_type = new PlaquetteType(qubits, libraryColors[index], num_background_children, base_translate_vector)
+				const base_translate_vector = {x: guideTopLeftCorner.x - libraryTopLeftCorners[plaquette_id-1][0],
+				                               y: guideTopLeftCorner.y - libraryTopLeftCorners[plaquette_id-1][1]};
+				const p_type = new PlaquetteType(qubits, libraryColors[index], plaq.topLeftCorner, num_background_children, base_translate_vector)
 				p_type.name = plaq.name;
 				plaquetteTypes.push(p_type);
 				workspace.addChildAt(p_type, num_background_children);
