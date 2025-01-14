@@ -26,10 +26,13 @@ class AbstractObservable:
         top_readout_cubes: A set of cubes of which a straight line of data
             qubit readouts on the top face should be included in the observable.
         top_readout_pipes: A set of pipes of which a single data qubit readout
-            on the top face should be included in the observable.
+            on the top face should be included in the observable. The data qubit
+            is on the center of the interface between the two cubes. The other
+            data qubit readouts that may be included in the observable will be
+            handled by the ``top_readout_cubes`` set.
         bottom_stabilizer_pipes: A set of pipes of which a region of stabilizer
-            measurements on the bottom face(in the cubes it connects) should be
-            included in the observable.
+            measurements on the bottom face, which actually takes place in the
+            cubes it connects, should be included in the observable.
         top_readout_spatial_junctions: A set of spatial junctions with the arm
             flags, of which the data qubit readouts on the top face should be
             included in the observable.
@@ -66,22 +69,23 @@ def compile_correlation_surface_to_abstract_observable(
     measurements need to be included in the tracked logical observable to account
     for the correlation between logical operators at different spatial locations.
     We choose the stabilizer measurements at the first layer (i.e., the earliest
-    in time or the bottom face of the block) because these are typically better
-    error-corrected by the decoder.
+    in time or the bottom face of the block), since with sufficiently advanced
+    software we will have greater confidence in these measurements earlier and
+    in principle be able to make decisions based on these measurements earlier.
 
     The compilation process is as follows:
 
     1. Find all the spatial junctions involved in the correlation surface. For
     each junction:
 
-    - If a surface is perpendicular to the junction's normal direction, include
-    the stabilizer measurements at the bottom of the junction in the observable,
-    and add the junction to the ``bottom_stabilizer_spatial_junctions`` set.
+    - If a surface is in the XY plane, include the stabilizer measurements at
+    the bottom of the junction in the observable, and add the junction to the
+    ``bottom_stabilizer_spatial_junctions`` set.
 
-    - If a surface is parallel to the junction's normal direction, include data
-    qubit readouts on the top face of the junction in the observable. Correlation
-    surfaces parallel to the junction's normal direction are guaranteed to attach
-    to an even number of arms.
+    - If a surface is perpendicular to the XY plane, include data qubit readouts
+    on the top face of the junction in the observable. Correlation surfaces
+    parallel to the junction's normal direction are guaranteed to attach to an
+    even number of arms.
         - If exactly two arms touch the surface, add the junction and arms to the
         ``top_readout_spatial_junctions`` set.
         - If four arms touch the surface, split the arms into two pairs (e.g.

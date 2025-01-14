@@ -218,14 +218,19 @@ def _get_bottom_stabilizer_cube_qubits(
     connect_to: SignedDirection3D,
 ) -> list[tuple[float, float]]:
     """The stabilizer measurements at the bottom of the cube will be included
-    in the logical observable.
+    in the logical observable. Note that only half of the stabilizers in the
+    basis of the boundary that the cube connects to will be included. Each
+    cube is only responsible for the stabilizer measurements within its
+    bounding box. Collecting the measurements from the two cubes connected by
+    the pipe will give the full stabilizer measurements, of which the product
+    determines the parity of the logical operators.
 
     This function calculates the coordinates of the measurement qubits
     in the local coordinate system of the cube.
     """
     stabilizers: list[tuple[float, float]] = []
     # We calculate the qubits for the connect_to=SignedDirection3D(Direction3D.X, True) case
-    # and post-process(reflect, rotate) to get the correct orientation.
+    # and rotate to get the correct orientation.
     for i in range(cube_shape.x // 2):
         x = cube_shape.x - i - 0.5
         for j in range(cube_shape.y // 2):
