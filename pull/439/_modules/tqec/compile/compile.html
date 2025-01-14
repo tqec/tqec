@@ -716,7 +716,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
     <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span>
     <span class="n">substitution_builder</span><span class="p">:</span> <span class="n">SubstitutionBuilder</span> <span class="o">=</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span><span class="p">,</span>
-    <span class="n">correlation_surfaces</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a block graph.</span>
 
@@ -730,7 +730,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            substitution plaquettes from the specified</span>
 <span class="sd">            :class:`~.specs.base.PipeSpec`. Defaults to the substitution builder</span>
 <span class="sd">            for the CSS type surface code.</span>
-<span class="sd">        correlation_surfaces: correlation surfaces that should be compiled into</span>
+<span class="sd">        observables: correlation surfaces that should be compiled into</span>
 <span class="sd">            observables and included in the compiled circuit.</span>
 <span class="sd">            If set to ``&quot;auto&quot;``, the correlation surfaces will be automatically</span>
 <span class="sd">            determined from the block graph. If a list of correlation surfaces</span>
@@ -784,12 +784,12 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="c1"># 4. Get the abstract observables to be included in the compiled circuit.</span>
     <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">correlation_surfaces</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">correlation_surfaces</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
-            <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="n">observables</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
         <span class="n">obs_included</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">compile_correlation_surface_to_abstract_observable</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">surface</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">correlation_surfaces</span>
+            <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">observables</span>
         <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">CompiledGraph</span><span class="p">(</span><span class="n">layout_slices</span><span class="p">,</span> <span class="n">obs_included</span><span class="p">)</span></div>

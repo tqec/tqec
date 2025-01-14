@@ -582,7 +582,7 @@
     "        list(numpy.logspace(-4, -1, 10)),\n",
     "        NoiseModel.uniform_depolarizing,\n",
     "        manhattan_radius=2,\n",
-    "        correlation_surfaces=correlation_surfaces,\n",
+    "        observables=correlation_surfaces,\n",
     "        num_workers=20,\n",
     "        max_shots=10_000_000,\n",
     "        max_errors=5_000,\n",

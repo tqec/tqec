@@ -427,7 +427,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">manhattan_radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span>
     <span class="n">substitution_builder</span><span class="p">:</span> <span class="n">SubstitutionBuilder</span> <span class="o">=</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span><span class="p">,</span>
-    <span class="n">correlation_surfaces</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
     <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">sinter</span><span class="o">.</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -471,7 +471,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        substitution_builder: A callable that specifies how to build the substitution</span>
 <span class="sd">            plaquettes from the specified `PipeSpec`. Defaults to the substitution</span>
 <span class="sd">            builder for the css type surface code.</span>
-<span class="sd">        correlation_surfaces: a list of correlation surfaces to compile to logical</span>
+<span class="sd">        observables: a list of correlation surfaces to compile to logical</span>
 <span class="sd">             observables and generate statistics for. If `None`, all the correlation</span>
 <span class="sd">             surfaces of the provided computation are used.</span>
 <span class="sd">        num_workers: The number of worker processes to use.</span>
@@ -499,20 +499,20 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        one simulation result (of type `list[sinter.TaskStats]`) per provided</span>
 <span class="sd">        observable in `observables`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">correlation_surfaces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">observables</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
 
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">correlation_surface</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">correlation_surfaces</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">correlation_surface</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">observables</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">print_progress</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Generating statistics for observable </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">correlation_surfaces</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Generating statistics for observable </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">observables</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">compiled_graph</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span>
             <span class="n">block_graph</span><span class="p">,</span>
             <span class="n">block_builder</span><span class="p">,</span>
             <span class="n">substitution_builder</span><span class="p">,</span>
-            <span class="n">correlation_surfaces</span><span class="o">=</span><span class="p">[</span><span class="n">correlation_surface</span><span class="p">],</span>
+            <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">correlation_surface</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">stats</span> <span class="o">=</span> <span class="n">sinter</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span>
             <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>

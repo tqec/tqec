@@ -429,7 +429,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_observable_as_inset</span><span class="p">(</span>
     <span class="n">ax_target</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span>
     <span class="n">zx_graph</span><span class="p">:</span> <span class="n">ZXGraph</span><span class="p">,</span>
-    <span class="n">correlation_surface</span><span class="p">:</span> <span class="n">CorrelationSurface</span><span class="p">,</span>
+    <span class="n">observable</span><span class="p">:</span> <span class="n">CorrelationSurface</span><span class="p">,</span>
     <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the provided observable as an inset in the provided ax.</span>
@@ -441,12 +441,12 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            [0, 1] meaning that an input of (0, 0, 1, 1) will span the whole</span>
 <span class="sd">            `ax_target`.</span>
 <span class="sd">        zx_graph: ZX graph used.</span>
-<span class="sd">        correlation_surface: correlation surface over the provided `zx_graph` to</span>
+<span class="sd">        observable: correlation surface over the provided `zx_graph` to</span>
 <span class="sd">            draw.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">add_inset_axes3d</span><span class="p">(</span><span class="n">ax_target</span><span class="p">,</span> <span class="n">bounds</span><span class="p">)</span>
     <span class="n">draw_zx_graph_on</span><span class="p">(</span><span class="n">zx_graph</span><span class="p">,</span> <span class="n">inset_ax</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-    <span class="n">draw_correlation_surface_on</span><span class="p">(</span><span class="n">correlation_surface</span><span class="p">,</span> <span class="n">inset_ax</span><span class="p">)</span>
+    <span class="n">draw_correlation_surface_on</span><span class="p">(</span><span class="n">observable</span><span class="p">,</span> <span class="n">inset_ax</span><span class="p">)</span>
     <span class="n">inset_ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span></div>
 
 </pre></div>
