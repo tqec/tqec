@@ -303,7 +303,7 @@ def compile_block_graph(
     block_graph: BlockGraph,
     block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
     substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
-    correlation_surfaces: list[CorrelationSurface] | Literal["auto"] | None = "auto",
+    observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
 ) -> CompiledGraph:
     """Compile a block graph.
 
@@ -317,7 +317,7 @@ def compile_block_graph(
             substitution plaquettes from the specified
             :class:`~.specs.base.PipeSpec`. Defaults to the substitution builder
             for the CSS type surface code.
-        correlation_surfaces: correlation surfaces that should be compiled into
+        observables: correlation surfaces that should be compiled into
             observables and included in the compiled circuit.
             If set to ``"auto"``, the correlation surfaces will be automatically
             determined from the block graph. If a list of correlation surfaces
@@ -371,12 +371,12 @@ def compile_block_graph(
 
     # 4. Get the abstract observables to be included in the compiled circuit.
     obs_included: list[AbstractObservable] = []
-    if correlation_surfaces is not None:
-        if correlation_surfaces == "auto":
-            correlation_surfaces = block_graph.find_correlation_surfaces()
+    if observables is not None:
+        if observables == "auto":
+            observables = block_graph.find_correlation_surfaces()
         obs_included = [
             compile_correlation_surface_to_abstract_observable(block_graph, surface)
-            for surface in correlation_surfaces
+            for surface in observables
         ]
 
     return CompiledGraph(layout_slices, obs_included)

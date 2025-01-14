@@ -47,7 +47,7 @@ def generate_graphs(
         manhattan_radius=2,
         block_builder=block_builder,
         substitution_builder=substitution_builder,
-        correlation_surfaces=correlation_surfaces,
+        observables=correlation_surfaces,
         num_workers=20,
         max_shots=10_000_000,
         max_errors=5_000,

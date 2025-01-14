@@ -132,7 +132,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             manhattan_radius=2,
             block_builder=block_builder,
             substitution_builder=substitution_builder,
-            correlation_surfaces=[correlation_surfaces[i] for i in obs_indices],
+            observables=[correlation_surfaces[i] for i in obs_indices],
             num_workers=cpu_count(),
             max_shots=10_000_000,
             max_errors=5_000,

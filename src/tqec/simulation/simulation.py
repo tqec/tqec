@@ -20,7 +20,7 @@ def start_simulation_using_sinter(
     manhattan_radius: int,
     block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
     substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
-    correlation_surfaces: list[CorrelationSurface] | None = None,
+    observables: list[CorrelationSurface] | None = None,
     num_workers: int = multiprocessing.cpu_count(),
     progress_callback: Callable[[sinter.Progress], None] | None = None,
     max_shots: int | None = None,
@@ -64,7 +64,7 @@ def start_simulation_using_sinter(
         substitution_builder: A callable that specifies how to build the substitution
             plaquettes from the specified `PipeSpec`. Defaults to the substitution
             builder for the css type surface code.
-        correlation_surfaces: a list of correlation surfaces to compile to logical
+        observables: a list of correlation surfaces to compile to logical
              observables and generate statistics for. If `None`, all the correlation
              surfaces of the provided computation are used.
         num_workers: The number of worker processes to use.
@@ -92,20 +92,20 @@ def start_simulation_using_sinter(
         one simulation result (of type `list[sinter.TaskStats]`) per provided
         observable in `observables`.
     """
-    if correlation_surfaces is None:
-        correlation_surfaces = block_graph.find_correlation_surfaces()
+    if observables is None:
+        observables = block_graph.find_correlation_surfaces()
 
-    for i, correlation_surface in enumerate(correlation_surfaces):
+    for i, correlation_surface in enumerate(observables):
         if print_progress:
             print(
-                f"Generating statistics for observable {i + 1}/{len(correlation_surfaces)}",
+                f"Generating statistics for observable {i + 1}/{len(observables)}",
                 end="\r",
             )
         compiled_graph = compile_block_graph(
             block_graph,
             block_builder,
             substitution_builder,
-            correlation_surfaces=[correlation_surface],
+            observables=[correlation_surface],
         )
         stats = sinter.collect(
             num_workers=num_workers,

@@ -37,7 +37,7 @@ def generate_cnot_circuits(*ks: int) -> None:
         block_graph,
         block_builder=CSS_BLOCK_BUILDER,
         substitution_builder=CSS_SUBSTITUTION_BUILDER,
-        correlation_surfaces=[correlation_surfaces[1]],
+        observables=[correlation_surfaces[1]],
     )
 
     for k in ks:

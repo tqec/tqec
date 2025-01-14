@@ -101,7 +101,7 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             block_graph,
             CSS_BLOCK_BUILDER,
             CSS_SUBSTITUTION_BUILDER,
-            correlation_surfaces=[correlation_surfaces[i] for i in obs_indices],
+            observables=[correlation_surfaces[i] for i in obs_indices],
         )
         ks: list[int] = args.k
         add_detectors: bool = args.add_detectors
