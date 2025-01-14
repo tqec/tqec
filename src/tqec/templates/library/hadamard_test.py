@@ -3,7 +3,8 @@ from typing import Final
 from tqec.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
-from tqec.templates.library.hadamard import (
+
+from ._testing import (
     get_spatial_horizontal_hadamard_rpng_template,
     get_spatial_vertical_hadamard_rpng_template,
     get_temporal_hadamard_rpng_template,

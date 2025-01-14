@@ -7,7 +7,6 @@ from tqec.templates.indices.qubit import (
     QubitTemplate,
     QubitVerticalBorders,
 )
-from tqec.templates.rpng import RPNGTemplate
 
 
 def get_memory_qubit_raw_template() -> QubitTemplate:
@@ -88,38 +87,6 @@ def get_memory_qubit_rpng_descriptions(
             13: RPNGDescription.from_string(f"{r}{bv}1{m} {r}{bv}2{m} ---- ----"),
         },
         default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
-    )
-
-
-def get_memory_qubit_rpng_template(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
-    reset: Basis | None = None,
-    measurement: Basis | None = None,
-) -> RPNGTemplate[QubitTemplate]:
-    """Implementation of standard memory rounds.
-
-    Note:
-        this function does not enforce anything on the input values. As such, it
-        is possible to generate a description of a round that will both reset and
-        measure the data-qubits.
-
-    Arguments:
-        orientation: orientation of the Z observable. Used to compute the
-            stabilizers that should be measured on the boundaries and in the
-            bulk of the returned logical qubit description.
-        reset: basis of the reset operation performed on data-qubits. Defaults
-            to ``None`` that translates to no reset being applied on data-qubits.
-        measurement: basis of the measurement operation performed on data-qubits.
-            Defaults to ``None`` that translates to no measurement being applied
-            on data-qubits.
-
-    Returns:
-        a description of a standard memory round, optionally with resets or
-        measurements on the data-qubits too.
-    """
-    return RPNGTemplate(
-        template=get_memory_qubit_raw_template(),
-        mapping=get_memory_qubit_rpng_descriptions(orientation, reset, measurement),
     )
 
 
@@ -222,52 +189,6 @@ def get_memory_vertical_boundary_rpng_descriptions(
     )
 
 
-def get_memory_vertical_boundary_rpng_template(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
-    reset: Basis | None = None,
-    measurement: Basis | None = None,
-) -> RPNGTemplate[QubitVerticalBorders]:
-    """Implementation of standard memory rounds on a junction arm aligned with the
-    X-axis.
-
-    This function returns the RPNGTemplate that represents a memory operation
-    on the (spatial) boundaries between two qubits aligned on the X-axis.
-
-    Note:
-        this function does not enforce anything on the input values. As such, it
-        is possible to generate a description of a round that will both reset and
-        measure the data-qubits.
-
-    Note:
-        if ``reset`` (resp. ``measurement``) is not ``None``, a reset (resp.
-        measurement) operation in the provided basis will be inserted **only on
-        internal data-qubits**. Here, internal data-qubits are all the qubits
-        that are in the middle of the template.
-
-    Arguments:
-        orientation: orientation of the Z observable. Used to compute the
-            stabilizers that should be measured on the boundaries and in the
-            bulk of the returned junction description.
-        reset: basis of the reset operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no reset being
-            applied on data-qubits.
-        measurement: basis of the measurement operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no measurement
-            being applied on data-qubits.
-
-    Returns:
-        a description of a standard memory round performed on the 2-plaquette
-        large spatial boundary between 2 logical qubits aligned on the X-axis,
-        optionally with resets or measurements on the data-qubits too.
-    """
-    return RPNGTemplate(
-        template=get_memory_vertical_boundary_raw_template(),
-        mapping=get_memory_vertical_boundary_rpng_descriptions(
-            orientation, reset, measurement
-        ),
-    )
-
-
 def get_memory_horizontal_boundary_raw_template() -> QubitHorizontalBorders:
     """Implementation of standard memory rounds on a junction arm aligned with the
     Y-axis.
@@ -364,50 +285,4 @@ def get_memory_horizontal_boundary_rpng_descriptions(
             8: RPNGDescription.from_string(f"{r}{bv}1{m} {r}{bv}2{m} -{bv}3- -{bv}4-"),
         },
         default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
-    )
-
-
-def get_memory_horizontal_boundary_rpng_template(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
-    reset: Basis | None = None,
-    measurement: Basis | None = None,
-) -> RPNGTemplate[QubitHorizontalBorders]:
-    """Implementation of standard memory rounds on a junction arm aligned with the
-    Y-axis.
-
-    This function returns the RPNGTemplate that represents a memory operation
-    on the (spatial) boundaries between two qubits aligned on the Y-axis.
-
-    Note:
-        this function does not enforce anything on the input values. As such, it
-        is possible to generate a description of a round that will both reset and
-        measure the data-qubits.
-
-    Note:
-        if ``reset`` (resp. ``measurement``) is not ``None``, a reset (resp.
-        measurement) operation in the provided basis will be inserted **only on
-        internal data-qubits**. Here, internal data-qubits are all the qubits
-        that are in the middle of the template.
-
-    Arguments:
-        orientation: orientation of the Z observable. Used to compute the
-            stabilizers that should be measured on the boundaries and in the
-            bulk of the returned junction description.
-        reset: basis of the reset operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no reset being
-            applied on data-qubits.
-        measurement: basis of the measurement operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no measurement
-            being applied on data-qubits.
-
-    Returns:
-        a description of a standard memory round performed on the 2-plaquette
-        large spatial boundary between 2 logical qubits aligned on the Y-axis,
-        optionally with resets or measurements on the data-qubits too.
-    """
-    return RPNGTemplate(
-        template=get_memory_horizontal_boundary_raw_template(),
-        mapping=get_memory_horizontal_boundary_rpng_descriptions(
-            orientation, reset, measurement
-        ),
     )
