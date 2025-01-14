@@ -118,7 +118,7 @@ class ZXEdge:
         u, v = self.u, self.v
         if not u.position.is_neighbour(v.position):
             raise TQECException(
-                f"An edge must connect two nearby nodes, but get {u.position} and {v.position}."
+                f"An edge must connect two nearby nodes, but got {u.position} and {v.position}."
             )
         # Ensure position of u is less than v
         if self.u.position > self.v.position:
