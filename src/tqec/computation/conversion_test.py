@@ -7,6 +7,7 @@ from tqec.computation.pipe import PipeKind
 from tqec.computation.zx_graph import ZXGraph, ZXKind, ZXNode
 from tqec.exceptions import TQECException
 from tqec.gallery.logical_cnot import logical_cnot_block_graph, logical_cnot_zx_graph
+from tqec.gallery.logical_cz import logical_cz_block_graph, logical_cz_zx_graph
 from tqec.gallery.three_cnots import three_cnots_block_graph, three_cnots_zx_graph
 from tqec.position import Position3D
 
@@ -136,3 +137,11 @@ def test_conversion_three_cnots(
 ) -> None:
     block = three_cnots_block_graph(support_observable_basis)
     assert block.to_zx_graph() == three_cnots_zx_graph(port_kind)
+
+
+@pytest.mark.parametrize(
+    "support_flows", (None, "XI -> XZ", "IX -> ZX", "ZI -> ZI", "IZ -> IZ")
+)
+def test_conversion_logical_cz(support_flows: str | None) -> None:
+    block = logical_cz_block_graph(support_flows)
+    assert block.to_zx_graph() == logical_cz_zx_graph(support_flows)

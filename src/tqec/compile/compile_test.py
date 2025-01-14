@@ -30,10 +30,10 @@ def test_compile_single_block_memory(spec: str, kind: str, k: int) -> None:
     g = BlockGraph("Single Block Memory Experiment")
     g.add_node(Cube(Position3D(0, 0, 0), ZXCube.from_str(kind)))
     block_builder, substitution_builder = SPECS[spec]
-    observables, _ = g.get_abstract_observables()
-    assert len(observables) == 1
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
-        g, block_builder, substitution_builder, observables
+        g, block_builder, substitution_builder, correlation_surfaces
     )
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
@@ -60,10 +60,10 @@ def test_compile_two_same_blocks_connected_in_time(
     g.add_edge(cube1, cube2, pipe_kind)
 
     block_builder, substitution_builder = SPECS[spec]
-    observables, _ = g.get_abstract_observables()
-    assert len(observables) == 1
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
-        g, block_builder, substitution_builder, observables
+        g, block_builder, substitution_builder, correlation_surfaces
     )
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
@@ -103,10 +103,10 @@ def test_compile_two_same_blocks_connected_in_space(
     g.add_edge(cube1, cube2, pipe_kind)
 
     block_builder, substitution_builder = SPECS[spec]
-    observables, _ = g.get_abstract_observables()
-    assert len(observables) == 1
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
-        g, block_builder, substitution_builder, observables
+        g, block_builder, substitution_builder, correlation_surfaces
     )
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
@@ -150,10 +150,10 @@ def test_compile_L_shape_in_space_time(
     g.add_edge(cube2, cube3, time_pipe_type)
 
     block_builder, substitution_builder = SPECS[spec]
-    observables, _ = g.get_abstract_observables()
-    assert len(observables) == 1
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
-        g, block_builder, substitution_builder, observables
+        g, block_builder, substitution_builder, correlation_surfaces
     )
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
@@ -183,10 +183,10 @@ def test_compile_logical_cnot(
     g = logical_cnot_block_graph(support_observable_basis)
 
     block_builder, substitution_builder = SPECS[spec]
-    observables, _ = g.get_abstract_observables()
-    assert len(observables) == 3
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 3
     compiled_graph = compile_block_graph(
-        g, block_builder, substitution_builder, observables
+        g, block_builder, substitution_builder, correlation_surfaces
     )
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2

@@ -18,6 +18,9 @@ class CorrelationSurface:
     values determine the parity of the logical operators at the inputs and
     outputs associated with the surface.
 
+    Note:
+        We use the term "correlation surface" and "observable" interchangeably in the library.
+
     Here we represent the correlation surface in terms of the ZX graph. The insight is that the spiders
     pose parity constraints on the operators supported on the incident edges. The flow of the logical
     operators through the ZX graph, respecting the parity constraints, forms the correlation between the

@@ -57,7 +57,7 @@ use the following code
 
 .. code-block:: python
 
-    observables, correlation_surfaces = block_graph.get_abstract_observables()
+    correlation_surfaces = block_graph.find_correlation_surfaces()
 
 Any observable can be plotted using the ``tqec dae2observables`` command line. For our
 specific example, the command line
@@ -79,10 +79,10 @@ In order to get a ``stim.Circuit`` instance, the computation first need to be co
     from tqec import compile_block_graph
 
     # You can pick any number of observables from the output of
-    # block_graph.get_abstract_observables() and provide them here.
+    # block_graph.find_correlation_surfaces() and provide them here.
     # In this example, picking only the second observable for demonstration
     # purposes.
-    compiled_computation = compile_block_graph(block_graph, observables=[observables[1]])
+    compiled_computation = compile_block_graph(block_graph, observables=[correlation_surfaces[1]])
 
 From this compiled computation, the final ``stim.Circuit`` instance can be generated.
 
@@ -134,7 +134,7 @@ The compilation of the block graph is done automatically based on the inputs.
         ps=list(np.logspace(-4, -1, 10)),  # error rates
         noise_model_factory=NoiseModel.uniform_depolarizing,  # noise model
         manhattan_radius=2,  # parameter for automatic detector computation
-        observables=[observables[1]],  # observable of interest
+        observables=[correlation_surfaces[1]],  # observable of interest
         decoders=["pymatching"],
         num_workers=cpu_count(),
         max_shots=10_000_000,

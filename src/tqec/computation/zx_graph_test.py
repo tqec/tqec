@@ -1,6 +1,7 @@
 import pytest
 
 from tqec.exceptions import TQECException
+from tqec.gallery.logical_cz import logical_cz_zx_graph
 from tqec.position import Direction3D, Position3D
 from tqec.computation.zx_graph import ZXKind, ZXEdge, ZXGraph, ZXNode
 
@@ -193,3 +194,27 @@ def test_zx_graph_check_invariants() -> None:
     )
     with pytest.raises(TQECException, match="The port/Y node must be a leaf node."):
         g.check_invariants()
+
+
+def test_zx_graph_rotate() -> None:
+    g = logical_cz_zx_graph("XI -> XZ")
+
+    g2 = g.rotate(Direction3D.Y, 1)
+    assert g2[Position3D(0, 0, 0)].kind == ZXKind.Z
+    assert g2[Position3D(-1, 0, 0)].kind == ZXKind.Z
+    assert g2[Position3D(-2, 0, 0)].kind == ZXKind.Z
+    assert g2[Position3D(-1, 0, 1)].kind == ZXKind.Z
+    assert g2[Position3D(-1, -1, 1)].kind == ZXKind.X
+    assert g2[Position3D(-1, 1, 1)].kind == ZXKind.X
+    assert g2.has_edge_between(Position3D(-1, 0, 0), Position3D(-1, 0, 1))
+    assert g2.rotate(Direction3D.Y, 1, False) == g
+
+    g3 = g.rotate(Direction3D.X, 1, False)
+    assert g3[Position3D(1, 1, -1)].kind == ZXKind.X
+    assert g3.has_edge_between(Position3D(0, 1, 0), Position3D(1, 1, 0))
+    assert g3.rotate(Direction3D.X, 1) == g
+
+    g4 = g.rotate(Direction3D.Z, 1)
+    assert g4[Position3D(-1, 1, 1)].kind == ZXKind.X
+    assert g4.has_edge_between(Position3D(0, 0, 1), Position3D(0, 1, 1))
+    assert g4.rotate(Direction3D.Z, 1, False) == g

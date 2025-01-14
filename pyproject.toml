@@ -43,7 +43,7 @@ Repository = "https://github.com/tqec/tqec"
 Issues = "https://github.com/tqec/tqec/issues"
 
 [project.optional-dependencies]
-test = ["pytest", "mypy", "pytest-cov", "types-networkx"]
+test = ["pytest", "mypy", "pytest-cov", "types-networkx", "scipy-stubs"]
 dev = [
     "pymatching",
     "jupyterlab",
