@@ -22,7 +22,13 @@ from tqec.scale import LinearFunction
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.indices.base import RectangularTemplate
 from tqec.templates.indices.enums import TemplateBorder
-from tqec.templates.library.hadamard import get_temporal_hadamard_rpng_descriptions
+from tqec.templates.library.hadamard import (
+    get_spatial_horizontal_hadamard_raw_template,
+    get_spatial_horizontal_hadamard_rpng_descriptions,
+    get_spatial_vertical_hadamard_raw_template,
+    get_spatial_vertical_hadamard_rpng_descriptions,
+    get_temporal_hadamard_rpng_descriptions,
+)
 from tqec.templates.library.memory import (
     get_memory_horizontal_boundary_raw_template,
     get_memory_horizontal_boundary_rpng_descriptions,
@@ -243,10 +249,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         x_axis_basis_at_head = spec.pipe_kind.get_basis_along(
             Direction3D.X, at_head=True
         )
-        if x_axis_basis_at_head is None:
-            raise TQECException(
-                "A temporal pipe should have a non-None basis on the X-axis."
-            )
+        assert x_axis_basis_at_head is not None, (
+            "A temporal pipe should have a non-None basis on the X-axis."
+        )
 
         first_layer_orientation: ZObservableOrientation
         second_layer_orientation: ZObservableOrientation
@@ -402,44 +407,81 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
             )
         return Substitution(src_substitution, dst_substitution)
 
-    def _get_spatial_regular_pipe_substitution(self, spec: PipeSpec) -> Substitution:
-        assert all(not spec.is_spatial_junction for spec in spec.cube_specs)
-        # Depending on the position of the pipe (basically, is it oriented in the
-        # X or Y axis?), we have to change a few variables for later:
-        # - the two mappings from the pipe plaquette indices to each of the
-        #   provided ``spec.cube_specs`` plaquette indices.
-        # - the function that will create the RPNG descriptions.
-        # - the Z observable orientation.
-        mappings: tuple[dict[int, int], dict[int, int]]
-        description_factory: Callable[
-            [ZObservableOrientation, Basis | None, Basis | None],
-            FrozenDefaultDict[int, RPNGDescription],
-        ]
-        template_factory: Callable[[], RectangularTemplate]
-        z_observable_orientation: ZObservableOrientation
-        match spec.pipe_kind.direction:
-            case Direction3D.X:
-                template_factory = get_memory_vertical_boundary_raw_template
-                description_factory = get_memory_vertical_boundary_rpng_descriptions
+    @staticmethod
+    def _get_spatial_regular_pipe_template(spec: PipeSpec) -> RectangularTemplate:
+        """Returns the ``Template`` instance needed to implement the pipe
+        representing the provided ``spec``."""
+        assert spec.pipe_kind.is_spatial
+        match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
+            case Direction3D.X, False:
+                return get_memory_vertical_boundary_raw_template()
+            case Direction3D.X, True:
+                return get_spatial_vertical_hadamard_raw_template()
+            case Direction3D.Y, False:
+                return get_memory_horizontal_boundary_raw_template()
+            case Direction3D.Y, True:
+                return get_spatial_horizontal_hadamard_raw_template()
+            case _:
+                raise TQECException(
+                    "Spatial pipes cannot have a direction equal to Direction3D.Z."
+                )
+
+    @staticmethod
+    def _get_spatial_regular_pipe_descriptions_factory(
+        spec: PipeSpec,
+    ) -> Callable[
+        [Basis | None, Basis | None], FrozenDefaultDict[int, RPNGDescription]
+    ]:
+        assert spec.pipe_kind.is_spatial
+        match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
+            case Direction3D.X, False:
+                # Non-Hadamard pipe in the X direction.
                 z_observable_orientation = (
                     ZObservableOrientation.HORIZONTAL
                     if spec.pipe_kind.y == Basis.X
                     else ZObservableOrientation.VERTICAL
                 )
-            case Direction3D.Y:
-                template_factory = get_memory_horizontal_boundary_raw_template
-                description_factory = get_memory_horizontal_boundary_rpng_descriptions
+                return lambda r, m: get_memory_vertical_boundary_rpng_descriptions(
+                    z_observable_orientation, r, m
+                )
+            case Direction3D.X, True:
+                # Hadamard pipe in the X direction.
+                top_left_basis = spec.pipe_kind.get_basis_along(
+                    Direction3D.Y, at_head=True
+                )
+                return lambda r, m: get_spatial_vertical_hadamard_rpng_descriptions(
+                    top_left_basis == Basis.Z, r, m
+                )
+            case Direction3D.Y, False:
+                # Non-Hadamard pipe in the Y direction.
                 z_observable_orientation = (
                     ZObservableOrientation.HORIZONTAL
                     if spec.pipe_kind.x == Basis.Z
                     else ZObservableOrientation.VERTICAL
                 )
-            case Direction3D.Z:
+                return lambda r, m: get_memory_horizontal_boundary_rpng_descriptions(
+                    z_observable_orientation, r, m
+                )
+
+            case Direction3D.Y, True:
+                # Hadamard pipe in the Y direction.
+                top_left_basis = spec.pipe_kind.get_basis_along(
+                    Direction3D.X, at_head=True
+                )
+                return lambda r, m: get_spatial_horizontal_hadamard_rpng_descriptions(
+                    top_left_basis == Basis.Z, r, m
+                )
+            case _:
                 raise TQECException(
                     "Spatial pipes cannot have a direction equal to Direction3D.Z."
                 )
+
+    def _get_spatial_regular_pipe_substitution(self, spec: PipeSpec) -> Substitution:
+        assert all(not spec.is_spatial_junction for spec in spec.cube_specs)
+        description_factory = self._get_spatial_regular_pipe_descriptions_factory(spec)
+        template = self._get_spatial_regular_pipe_template(spec)
         mappings = BaseSubstitutionBuilder._get_plaquette_indices_mapping(
-            spec.cube_templates, template_factory(), spec.pipe_kind.direction
+            spec.cube_templates, template, spec.pipe_kind.direction
         )
 
         # The end goal of this function is to fill in the following 2 variables
@@ -449,9 +491,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         for layer_index, (reset, measurement) in enumerate(
             [(spec.pipe_kind.z, None), (None, None), (None, spec.pipe_kind.z)]
         ):
-            rpng_descriptions = description_factory(
-                z_observable_orientation, reset, measurement
-            )
+            rpng_descriptions = description_factory(reset, measurement)
             plaquettes = rpng_descriptions.map_values(self._get_plaquette)
             src_substitution[layer_index] = Plaquettes(
                 plaquettes.map_keys_if_present(mappings[0])
