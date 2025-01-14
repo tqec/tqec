@@ -191,9 +191,11 @@ class ComputationGraph(Generic[_NODE, _EDGE]):
 
     def copy(self) -> Self:
         """Create a data-independent copy of the graph."""
+        from copy import deepcopy
+
         graph = self.__class__(self.name)
-        graph._graph = self._graph.copy()
-        graph._ports = dict(self._ports)
+        graph._graph = deepcopy(self._graph)
+        graph._ports = deepcopy(self._ports)
         return graph
 
     def __contains__(self, position: Position3D) -> bool:
