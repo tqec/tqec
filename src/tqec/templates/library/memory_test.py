@@ -3,7 +3,8 @@ from typing import Final
 from tqec.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
-from tqec.templates.library.memory import (
+
+from ._testing import (
     get_memory_horizontal_boundary_rpng_template,
     get_memory_qubit_rpng_template,
     get_memory_vertical_boundary_rpng_template,

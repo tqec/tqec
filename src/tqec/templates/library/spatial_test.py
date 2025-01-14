@@ -1,5 +1,5 @@
 import itertools
-from typing import Final, Literal
+from typing import Final
 
 import pytest
 
@@ -7,8 +7,9 @@ from tqec.compile.specs.enums import JunctionArms
 from tqec.enums import Basis
 from tqec.exceptions import TQECException, TQECWarning
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.templates.library.spatial import (
-    get_spatial_junction_arm_template,
+
+from ._testing import (
+    get_spatial_junction_arm_rpng_template,
     get_spatial_junction_qubit_rpng_template,
 )
 
@@ -204,7 +205,7 @@ def test_spatial_junction_junctions_never_overwrite_corners(
     reset: Basis | None,
     measurement: Basis | None,
 ) -> None:
-    template = get_spatial_junction_arm_template(
+    template = get_spatial_junction_arm_rpng_template(
         spatial_boundary_basis, arms, reset, measurement
     )
     match arms:
