@@ -156,6 +156,7 @@ def compile_correlation_surface_to_abstract_observable(
                 edges = endpoints_to_edge.get(
                     frozenset({cube.position, cube.position.shift_by(*shift)})
                 )
+                # The OR operation works because JunctionArms.NONE.value == 0
                 if edges is not None and any(n == zx for edge in edges for n in edge):
                     arms |= arm
             assert len(arms) in {

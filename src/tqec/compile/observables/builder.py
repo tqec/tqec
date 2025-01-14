@@ -274,10 +274,7 @@ def _get_top_readout_spatial_junction_qubits(
     """
     assert len(arms) == 2
     half_x, half_y = junction_shape.x // 2, junction_shape.y // 2
-    # could use match expressions here
-    # but not sure how is `|` operator evaluated in
-    # `case JunctionArms.LEFT | JunctionArms.RIGHT:`
-    # Is that used as case separator or bitwise OR?
+
     if arms == JunctionArms.LEFT | JunctionArms.RIGHT:
         return [(x, half_y) for x in range(junction_shape.x + 1)]
     elif arms == JunctionArms.UP | JunctionArms.DOWN:
