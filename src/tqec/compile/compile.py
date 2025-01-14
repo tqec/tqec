@@ -33,6 +33,7 @@ from tqec.compile.specs.library.standard import (
 )
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
+from tqec.computation.zx_graph import ZXEdge, ZXNode
 from tqec.exceptions import TQECException, TQECWarning
 from tqec.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
@@ -341,6 +342,7 @@ def compile_block_graph(
     }
 
     # 0. Set the minimum z of block graph to 0.(time starts from zero)
+    shift_z = -min(cube.position.z for cube in block_graph.nodes)
     block_graph = block_graph.shift_min_z_to_zero()
 
     # 1. Get the base compiled blocks before applying the substitution rules.
@@ -383,9 +385,32 @@ def compile_block_graph(
     if observables is not None:
         if observables == "auto":
             observables = block_graph.find_correlation_surfaces()
+        elif shift_z != 0:  # need to shift the provided correlation surfaces as well
+            observables = [
+                _shift_z_of_correlation_surface(observable, shift_z)
+                for observable in observables
+            ]
         obs_included = [
             compile_correlation_surface_to_abstract_observable(block_graph, surface)
             for surface in observables
         ]
 
     return CompiledGraph(layout_slices, obs_included)
+
+
+def _shift_z_of_correlation_surface(
+    correlation_surface: CorrelationSurface, shift_z: int
+) -> CorrelationSurface:
+    """Shift the z coordinate of the nodes in the correlation surface by the specified amount."""
+
+    def _shift_node(node: ZXNode) -> ZXNode:
+        return ZXNode(node.position.shift_by(dz=shift_z), node.kind, node.label)
+
+    def _shift_edge(edge: ZXEdge) -> ZXEdge:
+        return ZXEdge(_shift_node(edge.u), _shift_node(edge.v), edge.has_hadamard)
+
+    return CorrelationSurface(
+        nodes=frozenset(_shift_node(node) for node in correlation_surface.nodes),
+        span=frozenset(_shift_edge(edge) for edge in correlation_surface.span),
+        external_stabilizer=correlation_surface.external_stabilizer,
+    )
