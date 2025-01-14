@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Generic, Protocol, TypeVar, cast
+from typing_extensions import Self
 
 import networkx as nx
 
@@ -187,6 +188,15 @@ class ComputationGraph(Generic[_NODE, _EDGE]):
             cast(_EDGE, data[self._EDGE_DATA_KEY])
             for _, _, data in self._graph.edges(position, data=True)
         ]
+
+    def copy(self) -> Self:
+        """Create a data-independent copy of the graph."""
+        from copy import deepcopy
+
+        graph = self.__class__(self.name)
+        graph._graph = deepcopy(self._graph)
+        graph._ports = deepcopy(self._ports)
+        return graph
 
     def __contains__(self, position: Position3D) -> bool:
         return position in self._graph
