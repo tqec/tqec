@@ -47,8 +47,6 @@ def test_logical_cnot_correlation_surface() -> None:
     correlation_surfaces = g.find_correration_surfaces()
     assert len(correlation_surfaces) == 3
 
-    correlation_surfaces = g.find_correration_surfaces()
-    assert len(correlation_surfaces) == 3
     g = logical_cnot_zx_graph("OPEN")
     correlation_surfaces = g.find_correration_surfaces()
     all_external_stabilizers = [cs.external_stabilizer for cs in correlation_surfaces]
