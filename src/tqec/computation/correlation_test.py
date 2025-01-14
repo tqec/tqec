@@ -6,7 +6,7 @@ from tqec.position import Position3D
 
 def test_correlation_single_xz_node() -> None:
     g = solo_node_zx_graph("X")
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
     surface = correlation_surfaces[0]
     assert surface.has_single_node
@@ -21,7 +21,7 @@ def test_correlation_two_xz_node() -> None:
             ZXNode(Position3D(0, 0, 0), kind),
             ZXNode(Position3D(0, 0, 1), kind),
         )
-        assert g.find_correration_surfaces() == [
+        assert g.find_correlation_surfaces() == [
             CorrelationSurface.from_span(
                 g,
                 frozenset(
@@ -40,7 +40,7 @@ def test_correlation_two_xz_node() -> None:
         ZXNode(Position3D(0, 0, 0), ZXKind.X),
         ZXNode(Position3D(0, 0, 1), ZXKind.Z),
     )
-    assert g.find_correration_surfaces() == []
+    assert g.find_correlation_surfaces() == []
 
 
 def test_correlation_hadamard() -> None:
@@ -50,7 +50,7 @@ def test_correlation_hadamard() -> None:
         ZXNode(Position3D(0, 0, 1), ZXKind.Z),
         has_hadamard=True,
     )
-    assert g.find_correration_surfaces() == [
+    assert g.find_correlation_surfaces() == [
         CorrelationSurface.from_span(
             g,
             frozenset(
@@ -72,7 +72,7 @@ def test_correlation_y_node() -> None:
         ZXNode(Position3D(0, 0, 0), ZXKind.Y),
         ZXNode(Position3D(0, 0, 1), ZXKind.P, "out"),
     )
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     assert correlation_surfaces == [
         CorrelationSurface.from_span(
             g,
@@ -121,7 +121,7 @@ def test_correlation_port_passthrough() -> None:
     x_span = _span(ZXKind.X)
     z_span = _span(ZXKind.Z)
 
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     assert set(correlation_surfaces) == {
         CorrelationSurface.from_span(g, x_span),
         CorrelationSurface.from_span(g, z_span),
@@ -148,7 +148,7 @@ def test_correlation_logical_s_via_gate_teleportation() -> None:
         ZXNode(Position3D(1, 0, 1), ZXKind.Z),
         ZXNode(Position3D(1, 0, 2), ZXKind.Y),
     )
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     impl_external_stabilizers = [cs.external_stabilizer for cs in correlation_surfaces]
     assert all(
         [
@@ -198,7 +198,7 @@ def test_correlation_four_node_circle() -> None:
         ZXNode(Position3D(0, 0, 0), ZXKind.Z),
     )
 
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
     assert correlation_surfaces[0].external_stabilizer == {"p1": "X"}
 
@@ -206,7 +206,7 @@ def test_correlation_four_node_circle() -> None:
         ZXNode(Position3D(0, 0, 0), ZXKind.Z),
         ZXNode(Position3D(0, -1, 0), ZXKind.P, "p2"),
     )
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 3
     assert correlation_surfaces[0].external_stabilizer == {"p1": "X", "p2": "X"}
     assert correlation_surfaces[1].external_stabilizer == {"p1": "Z", "p2": "Z"}

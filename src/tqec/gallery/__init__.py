@@ -9,6 +9,8 @@ including:
 - :mod:`.three_cnots`: three logical CNOT gates compressed in spacetime
 """
 
+from .solo_node import solo_node_zx_graph as solo_node_zx_graph
+from .solo_node import solo_node_block_graph as solo_node_block_graph
 from .logical_cnot import logical_cnot_block_graph as logical_cnot_block_graph
 from .logical_cnot import logical_cnot_zx_graph as logical_cnot_zx_graph
 from .logical_cz import logical_cz_zx_graph as logical_cz_zx_graph

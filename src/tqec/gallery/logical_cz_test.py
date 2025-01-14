@@ -72,11 +72,11 @@ def test_logical_cz_resolve_ports() -> None:
 
 def test_logical_cz_correlation_surface() -> None:
     g = logical_cz_zx_graph("XI -> XZ")
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 3
 
     g = logical_cz_zx_graph(None)
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     all_external_stabilizers = [cs.external_stabilizer for cs in correlation_surfaces]
     assert all(
         [

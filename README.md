@@ -39,9 +39,9 @@ from tqec.noise_model import NoiseModel
 # 1. Construct the logical computation
 block_graph = BlockGraph.from_dae_file("assets/logical_cnot.dae")
 
-# 2. Get the logical observables of interest and compile the computation
-observables, _ = block_graph.get_abstract_observables()
-compiled_computation = compile_block_graph(block_graph, observables=[observables[1]])
+# 2. Get the correlation surfaces of interest and compile the computation
+correlation_surfaces = block_graph.find_correlation_surfaces()
+compiled_computation = compile_block_graph(block_graph, observables=[correlation_surfaces[1]])
 
 # 3. Generate the `stim.Circuit` of target code distance
 circuit = compiled_computation.generate_stim_circuit(

@@ -7,7 +7,7 @@ from tqec.compile.compile import compile_block_graph
 from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.abstract_observable import AbstractObservable
+from tqec.computation.correlation import CorrelationSurface
 from tqec.noise_model import NoiseModel
 from tqec.simulation.generation import generate_sinter_tasks
 
@@ -20,7 +20,7 @@ def start_simulation_using_sinter(
     manhattan_radius: int,
     block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
     substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
-    observables: list[AbstractObservable] | None = None,
+    observables: list[CorrelationSurface] | None = None,
     num_workers: int = multiprocessing.cpu_count(),
     progress_callback: Callable[[sinter.Progress], None] | None = None,
     max_shots: int | None = None,
@@ -64,8 +64,9 @@ def start_simulation_using_sinter(
         substitution_builder: A callable that specifies how to build the substitution
             plaquettes from the specified `PipeSpec`. Defaults to the substitution
             builder for the css type surface code.
-        observables: a list of observables to generate statistics for. If
-            `None`, all the observables of the provided computation are used.
+        observables: a list of correlation surfaces to compile to logical
+             observables and generate statistics for. If `None`, all the correlation
+             surfaces of the provided computation are used.
         num_workers: The number of worker processes to use.
         progress_callback: Defaults to None (unused). If specified, then each
             time new sample statistics are acquired from a worker this method
@@ -92,19 +93,19 @@ def start_simulation_using_sinter(
         observable in `observables`.
     """
     if observables is None:
-        observables, _ = block_graph.get_abstract_observables()
+        observables = block_graph.find_correlation_surfaces()
 
-    for i, observable in enumerate(observables):
+    for i, correlation_surface in enumerate(observables):
         if print_progress:
             print(
-                f"Generating statistics for observable {i+1}/{len(observables)}",
+                f"Generating statistics for observable {i + 1}/{len(observables)}",
                 end="\r",
             )
         compiled_graph = compile_block_graph(
             block_graph,
             block_builder,
             substitution_builder,
-            observables=[observable],
+            observables=[correlation_surface],
         )
         stats = sinter.collect(
             num_workers=num_workers,

@@ -44,7 +44,7 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
             dae_absolute_path, graph_name=str(dae_absolute_path)
         )
         zx_graph = block_graph.to_zx_graph()
-        correlation_surfaces = zx_graph.find_correration_surfaces()
+        correlation_surfaces = zx_graph.find_correlation_surfaces()
 
         if args.out_dir is None:
             print(
