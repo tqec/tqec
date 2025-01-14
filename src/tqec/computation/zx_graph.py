@@ -402,19 +402,15 @@ class ZXGraph(ComputationGraph[ZXNode, ZXEdge]):
 
         def _rotate(p: Position3D) -> Position3D:
             rot_vec = np.array([0, 0, 0])
-            if rotation_axis == Direction3D.X:
-                rot_vec[0] = 1
-            # account for the flipped y-axis by our convention
-            elif rotation_axis == Direction3D.Y:
-                rot_vec[1] = -1
-            elif rotation_axis == Direction3D.Z:
-                rot_vec[2] = 1
+            axis_idx = rotation_axis.value
+            rot_vec[axis_idx] = 1 if axis_idx != 1 else -1
             if not counterclockwise:
                 rot_vec *= -1
             rotated = R.from_rotvec(rot_vec * n * np.pi / 2).apply(p.as_tuple())
             return Position3D(*[round_or_fail(i) for i in rotated])
 
-        g = self.__class__(self.name + " rotated")
+        name_suffix = f" rotated by {n * 90} degrees {'counter' if counterclockwise else ''}clockwise around the {rotation_axis.name} axis"
+        g = self.__class__(self.name + name_suffix)
         for node in self.nodes:
             g.add_node(ZXNode(_rotate(node.position), node.kind, node.label))
 

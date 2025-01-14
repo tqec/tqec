@@ -299,4 +299,5 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
 
         zx = self.to_zx_graph()
         rotated_zx = zx.rotate(rotation_axis, n, counterclockwise)
-        return rotated_zx.to_block_graph(self.name + " rotated")
+        name_suffix = f" rotated by {n * 90} degrees {'counter' if counterclockwise else ''}clockwise around the {rotation_axis.name} axis"
+        return rotated_zx.to_block_graph(self.name + name_suffix)
