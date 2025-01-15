@@ -7,6 +7,7 @@ from tqec.compile.specs.enums import JunctionArms
 from tqec.enums import Basis
 from tqec.exceptions import TQECException, TQECWarning
 from tqec.plaquette.rpng import RPNGDescription
+from tqec.templates.rpng import RPNGTemplate
 
 from ._testing import (
     get_spatial_junction_arm_rpng_template,
@@ -31,7 +32,7 @@ def test_4_way_spatial_junction() -> None:
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _ZVHD, _XXXX, _EMPT],
+        [_EMPT, _ZVHD, _XXXX, _ZVHD, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZHHE, _XXXX, _ZVHE, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
@@ -43,7 +44,7 @@ def test_4_way_spatial_junction() -> None:
         instantiation = description.instantiate(k=1)
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _EMPT],
+        [_EMPT, _ZVHD, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _3SBR],
     ]
@@ -55,7 +56,8 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
     )
     instantiation = description.instantiate(k=2)
 
-    __Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
+    __Z_Z = RPNGDescription.from_string("---- -z2- ---- -z3-")
+    _2Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
     _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
     _ZVHD = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
@@ -65,9 +67,9 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
     assert instantiation == [
         [__Z_Z, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
         [_EMPT, _ZVHE, _XXXX, _ZVHD, _XXXX, _EMPT],
-        [__Z_Z, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
+        [_2Z_Z, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
-        [__Z_Z, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
+        [_2Z_Z, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
@@ -77,7 +79,7 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
     assert instantiation == [
         [__Z_Z, _EMPT, _EMPT, _EMPT],
         [_EMPT, _ZVHE, _XXXX, _EMPT],
-        [__Z_Z, _XXXX, _ZVHE, _EMPT],
+        [_2Z_Z, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
@@ -97,7 +99,7 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
 
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _ZVHD, _XXXX, _EMPT],
+        [_EMPT, _ZVHD, _XXXX, _ZVHD, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZHHE, _XXXX, _ZHHE, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZHHE, _XXXX, _ZHHE, _EMPT],
@@ -109,7 +111,7 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
         instantiation = description.instantiate(k=1)
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _EMPT],
+        [_EMPT, _ZVHD, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZZ__, _EMPT, _ZZ__],
     ]
@@ -222,16 +224,35 @@ def test_spatial_junction_junctions_never_overwrite_corners(
             assert 3 not in template.mapping
 
 
+def _get_qubit_schedules(
+    template: RPNGTemplate,
+    k: int,
+    template_position_offset: complex,
+) -> dict[complex, list[int | None]]:
+    rpngs = template.instantiate(k)
+    schedules: dict[complex, list[int | None]] = {}
+    for i, row in enumerate(rpngs):
+        for j, des in enumerate(row):
+            for k, (rpng, shift) in enumerate(
+                zip(des.corners, [-0.5 - 0.5j, 0.5 - 0.5j, -0.5 + 0.5j, 0.5 + 0.5j])
+            ):
+                pos = complex(j, i) + shift + template_position_offset
+                # record the schedule at data qubits in order
+                #  0|1
+                #  -+-
+                #  2|3
+                schedules.setdefault(pos, [None] * 4)[3 - k] = rpng.n
+    return schedules
+
+
 @pytest.mark.parametrize(
     ["spatial_boundary_basis", "arms", "k"],
     itertools.product(
         [Basis.X, Basis.Z],
         [
-            JunctionArms.NONE,
-            *JunctionArms.single_arms(),
-            *JunctionArms.L_shaped_arms(),
-            *JunctionArms.T_shaped_arms(),
-            *JunctionArms.X_shaped_arms(),
+            arms
+            for arms in JunctionArms.arm_combinations()
+            if arms not in JunctionArms.I_shaped_arms()
         ],
         [1, 2],
     ),
@@ -242,19 +263,10 @@ def test_spatial_cube_schedules_not_overlap(
     template = get_spatial_junction_qubit_rpng_template(
         spatial_boundary_basis, arms, None, None
     )
-    rpngs = template.instantiate(k)
-    schedules: dict[complex, set[int]] = {}
-    for i, row in enumerate(rpngs):
-        for j, des in enumerate(row):
-            for rpng, shift in zip(
-                des.corners, [-0.5 - 0.5j, 0.5 - 0.5j, -0.5 + 0.5j, 0.5 + 0.5j]
-            ):
-                if not rpng.is_null:
-                    pos = complex(j, i) + shift
-                    schedules.setdefault(pos, set())
-                    assert rpng.n is not None
-                    assert rpng.n not in schedules[pos], f"Overlap detected at {pos}."
-                    schedules[pos].add(rpng.n)
+    schedules = _get_qubit_schedules(template, k, 0)
+    for pos, ss in schedules.items():
+        filter_none = [s for s in ss if s is not None]
+        assert len(set(filter_none)) == len(filter_none), f"Overlap detected at {pos}."
 
 
 @pytest.mark.parametrize(
@@ -262,11 +274,9 @@ def test_spatial_cube_schedules_not_overlap(
     itertools.product(
         [Basis.X, Basis.Z],
         [
-            JunctionArms.NONE,
-            *JunctionArms.single_arms(),
-            *JunctionArms.L_shaped_arms(),
-            *JunctionArms.T_shaped_arms(),
-            *JunctionArms.X_shaped_arms(),
+            arms
+            for arms in JunctionArms.arm_combinations()
+            if arms not in JunctionArms.I_shaped_arms()
         ],
         [1, 2],
     ),
@@ -313,3 +323,53 @@ def test_spatial_cube_schedules_make_xz_stabilizer_measurement_circuits_commute(
                 and ss2[1] is not None
             ):
                 assert (ss[2] - ss2[0]) * (ss[3] - ss2[1]) > 0
+
+
+@pytest.mark.parametrize(
+    ["spatial_boundary_basis", "arm", "k"],
+    itertools.product([Basis.X, Basis.Z], JunctionArms.single_arms(), [1, 2]),
+)
+def test_spatial_arm_and_cube_schedules_not_overlap(
+    spatial_boundary_basis: Basis, arm: JunctionArms, k: int
+) -> None:
+    arm_template = get_spatial_junction_arm_rpng_template(
+        spatial_boundary_basis, arm, None, None
+    )
+    arm_template_offset: complex = 0j
+    match arm:
+        case JunctionArms.UP:
+            arm_template_offset = -1j
+        case JunctionArms.DOWN:
+            arm_template_offset = complex(0, 2 * k + 1)
+        case JunctionArms.LEFT:
+            arm_template_offset = -1
+        case _:  # JunctionArms.RIGHT:
+            arm_template_offset = complex(2 * k + 1, 0)
+
+    schedules_in_arm = _get_qubit_schedules(arm_template, k, arm_template_offset)
+
+    for arms in JunctionArms.arm_combinations():
+        if arms in JunctionArms.I_shaped_arms():
+            continue
+        if arm not in arms:
+            continue
+        print(arm, arms)
+        cube_template = get_spatial_junction_qubit_rpng_template(
+            spatial_boundary_basis, arms, None, None
+        )
+
+        schedules = _get_qubit_schedules(cube_template, k, 0)
+
+        for pos, ss in schedules_in_arm.items():
+            if pos in schedules:
+                for i, s in enumerate(ss):
+                    if s is not None:
+                        schedules[pos][i] = s
+            else:
+                schedules[pos] = ss
+
+        for pos, ss in schedules.items():
+            filter_none = [s for s in ss if s is not None]
+            assert len(set(filter_none)) == len(
+                filter_none
+            ), f"Overlap detected at {pos}."

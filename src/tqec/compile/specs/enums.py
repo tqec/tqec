@@ -60,6 +60,17 @@ class JunctionArms(Flag):
             JunctionArms.LEFT,
         ]
 
+    @staticmethod
+    def arm_combinations() -> list[JunctionArms]:
+        return (
+            [JunctionArms.NONE]
+            + JunctionArms.single_arms()
+            + JunctionArms.I_shaped_arms()
+            + JunctionArms.L_shaped_arms()
+            + JunctionArms.T_shaped_arms()
+            + JunctionArms.X_shaped_arms()
+        )
+
     def __len__(self) -> int:
         return sum(arm in self for arm in JunctionArms.single_arms())
 

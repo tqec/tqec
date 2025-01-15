@@ -212,9 +212,8 @@ def get_spatial_cube_qubit_rpng_descriptions(
             f"{r}{be}1{m} {r}{be}2{m} ---- ----"
         )
     if JunctionArms.LEFT not in arms:
-        mapping[1] = mapping[12] = RPNGDescription.from_string(
-            f"---- {r}{be}3{m} ---- {r}{be}4{m}"
-        )
+        mapping[1] = RPNGDescription.from_string(f"---- {r}{be}2{m} ---- {r}{be}3{m}")
+        mapping[12] = RPNGDescription.from_string(f"---- {r}{be}3{m} ---- {r}{be}4{m}")
 
     # TODO: Edit comments
     # If we have a down-right or top-left L-shaped junction, the opposite corner
@@ -248,8 +247,15 @@ def get_spatial_cube_qubit_rpng_descriptions(
     bevhp2 = RPNGDescription.from_string(
         f"{r}{be}1{m} {r}{be}4{m} {r}{be}3{m} {r}{be}5{m}"
     )
-    mapping[5] = bevhp1 if JunctionArms.UP in arms else behhp
-    mapping[13] = bevhp2 if JunctionArms.UP in arms else behhp
+    if JunctionArms.UP in arms:
+        if JunctionArms.LEFT in arms:
+            mapping[5] = bevhp2
+        else:
+            mapping[5] = bevhp1
+        mapping[13] = bevhp2
+    else:
+        mapping[5] = behhp
+        mapping[13] = behhp
     mapping[14] = behhp if JunctionArms.RIGHT in arms else bevhp2
     mapping[8] = mapping[15] = bevhp1 if JunctionArms.DOWN in arms else behhp
     mapping[16] = behhp if JunctionArms.LEFT in arms else bevhp1
