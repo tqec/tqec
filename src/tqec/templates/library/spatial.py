@@ -243,7 +243,7 @@ def get_spatial_cube_qubit_rpng_descriptions(
         f"{r}{be}1{m} {r}{be}2{m} {r}{be}3{m} {r}{be}4{m}"
     )
     bevhp = RPNGDescription.from_string(
-        f"{r}{be}1{m} {r}{be}4{m} {r}{be}3{m} {r}{be}5{m}"
+        f"{r}{be}1{m} {r}{be}4{m} {r}{be}2{m} {r}{be}5{m}"
     )
     mapping[5] = mapping[13] = bevhp if JunctionArms.UP in arms else behhp
     mapping[14] = behhp if JunctionArms.RIGHT in arms else bevhp

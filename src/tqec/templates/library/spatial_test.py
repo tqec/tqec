@@ -25,7 +25,7 @@ def test_4_way_spatial_junction() -> None:
 
     _3STL = RPNGDescription.from_string("---- -z3- -z4- -z5-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
-    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
+    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
     assert instantiation == [
@@ -56,7 +56,7 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
 
     __Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
-    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
+    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
 
@@ -88,7 +88,7 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
 
     _3STL = RPNGDescription.from_string("---- -z3- -z4- -z5-")
     _ZZ__ = RPNGDescription.from_string("-z1- -z2- ---- ----")
-    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
+    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
 
@@ -129,7 +129,7 @@ def test_2_way_L_shape_spatial_junction() -> None:
     T__ZZ = RPNGDescription.from_string("---- ---- -z3- -z4-")
     _3STL = RPNGDescription.from_string("---- -z2- -z4- -z5-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
-    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
+    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
 
@@ -225,7 +225,6 @@ def test_spatial_junction_junctions_never_overwrite_corners(
         [Basis.X, Basis.Z],
         [
             *JunctionArms.single_arms(),
-            *JunctionArms.I_shaped_arms(),
             *JunctionArms.L_shaped_arms(),
             *JunctionArms.T_shaped_arms(),
             *JunctionArms.X_shaped_arms(),
@@ -233,7 +232,7 @@ def test_spatial_junction_junctions_never_overwrite_corners(
         [1, 2],
     ),
 )
-def test_spatial_cubes_schedule_not_overlap(
+def test_spatial_cube_schedules_not_overlap(
     spatial_boundary_basis: Basis, arms: JunctionArms, k: int
 ) -> None:
     template = get_spatial_junction_qubit_rpng_template(
@@ -250,4 +249,61 @@ def test_spatial_cubes_schedule_not_overlap(
                     pos = complex(j, i) + shift
                     schedules.setdefault(pos, set())
                     assert rpng.n is not None
-                    assert rpng.n not in schedules[pos]
+                    assert rpng.n not in schedules[pos], f"Overlap detected at {pos}."
+
+
+@pytest.mark.parametrize(
+    ["spatial_boundary_basis", "arms", "k"],
+    itertools.product(
+        [Basis.X, Basis.Z],
+        [
+            *JunctionArms.single_arms(),
+            *JunctionArms.L_shaped_arms(),
+            *JunctionArms.T_shaped_arms(),
+            *JunctionArms.X_shaped_arms(),
+        ],
+        [1, 2],
+    ),
+)
+def test_spatial_cube_schedules_make_xz_stabilizer_measurement_circuits_commute(
+    spatial_boundary_basis: Basis, arms: JunctionArms, k: int
+) -> None:
+    """Check schedules of the two qubits on the overlapping sites of neighboring X/Z plaquettes.
+    ------------
+    |   a||c   |
+    |    ||    |
+    |   b||d   |
+    ------------
+
+    assert (a - b) * (c - d) > 0
+    """
+    template = get_spatial_junction_qubit_rpng_template(
+        spatial_boundary_basis, arms, None, None
+    )
+    rpngs = template.instantiate(k)
+    # schedules at each plaquette
+    schedules: dict[complex, list[int | None]] = {
+        complex(j, i): [rpng.n for rpng in des.corners]
+        for i, row in enumerate(rpngs)
+        for j, des in enumerate(row)
+    }
+    for pos, ss in schedules.items():
+        # check for right and bottom neighbors
+        if (pos + 1) in schedules:
+            ss2 = schedules[pos + 1]
+            if (
+                ss[1] is not None
+                and ss[3] is not None
+                and ss2[0] is not None
+                and ss2[2] is not None
+            ):
+                assert (ss[1] - ss2[0]) * (ss[3] - ss2[2]) > 0
+        if (pos + 1j) in schedules:
+            ss2 = schedules[pos + 1j]
+            if (
+                ss[2] is not None
+                and ss[3] is not None
+                and ss2[0] is not None
+                and ss2[1] is not None
+            ):
+                assert (ss[2] - ss2[0]) * (ss[3] - ss2[1]) > 0

@@ -201,7 +201,7 @@ def test_compile_logical_cnot(
 
 @pytest.mark.parametrize(
     ("spec", "spatial_boundary", "k"),
-    itertools.product(SPECS.keys(), ("Z", "X"), (1,)),
+    itertools.product(SPECS.keys(), ("Z", "X"), (1, 2)),
 )
 def test_compile_single_block_stability(
     spec: str, spatial_boundary: Literal["X", "Z"], k: int
@@ -218,6 +218,14 @@ def test_compile_single_block_stability(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
     assert circuit.num_observables == 1
+
+    num_spatial_basis_stabilizers = (d - 1) // 2 * 4 + (d - 1) ** 2 // 2
+    num_temporal_basis_stabilizers = (d - 1) ** 2 // 2
+    assert (
+        circuit.num_detectors
+        == (d - 1) * num_spatial_basis_stabilizers
+        + (d + 1) * num_temporal_basis_stabilizers
+    )
     assert len(circuit.shortest_graphlike_error()) == d
 
 
