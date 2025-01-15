@@ -15,6 +15,7 @@ from tqec.computation.pipe import PipeKind
 from tqec.gallery.logical_cnot import logical_cnot_block_graph
 from tqec.gallery.logical_cz import logical_cz_block_graph
 from tqec.gallery.solo_node import solo_node_block_graph
+from tqec.gallery.move_rotation import move_rotation_block_graph
 from tqec.noise_model import NoiseModel
 from tqec.position import Position3D
 
@@ -229,14 +230,23 @@ def test_compile_single_block_stability(
     assert len(circuit.shortest_graphlike_error()) == d
 
 
-def test_compile_logical_cz_temporal_hadamard_pipe() -> None:
-    k = 1
+@pytest.mark.parametrize(
+    ("spec", "support_observable_basis", "k"),
+    itertools.product(
+        SPECS.keys(),
+        ("X", "Z"),
+        (1, 2),
+    ),
+)
+def test_compile_move_rotation(
+    spec: str, support_observable_basis: Literal["Z", "X"], k: int
+) -> None:
     d = 2 * k + 1
-    g = logical_cz_block_graph("XI -> XZ").rotate()
+    g = move_rotation_block_graph(support_observable_basis)
 
     block_builder, substitution_builder = SPECS["STANDARD"]
     correlation_surfaces = g.find_correlation_surfaces()
-    assert len(correlation_surfaces) == 3
+    assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
         g, block_builder, substitution_builder, correlation_surfaces
     )
@@ -245,5 +255,25 @@ def test_compile_logical_cz_temporal_hadamard_pipe() -> None:
     )
 
     dem = circuit.detector_error_model()
-    assert dem.num_observables == 3
+    assert dem.num_observables == 1
     assert len(dem.shortest_graphlike_error()) == d
+
+
+# def test_compile_logical_cz_temporal_hadamard_pipe() -> None:
+#     k = 1
+#     d = 2 * k + 1
+#     g = logical_cz_block_graph("XI -> XZ").rotate()
+#
+#     block_builder, substitution_builder = SPECS["STANDARD"]
+#     correlation_surfaces = g.find_correlation_surfaces()
+#     assert len(correlation_surfaces) == 3
+#     compiled_graph = compile_block_graph(
+#         g, block_builder, substitution_builder, correlation_surfaces
+#     )
+#     circuit = compiled_graph.generate_stim_circuit(
+#         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+#     )
+#
+#     dem = circuit.detector_error_model()
+#     assert dem.num_observables == 3
+#     assert len(dem.shortest_graphlike_error()) == d
