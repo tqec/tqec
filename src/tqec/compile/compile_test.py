@@ -201,11 +201,12 @@ def test_compile_logical_cnot(
 
 @pytest.mark.parametrize(
     ("spec", "spatial_boundary", "k"),
-    itertools.product(SPECS.keys(), ("Z",), (1,)),
+    itertools.product(SPECS.keys(), ("Z", "X"), (1,)),
 )
 def test_compile_single_block_stability(
     spec: str, spatial_boundary: Literal["X", "Z"], k: int
 ) -> None:
+    d = 2 * k + 1
     g = solo_node_block_graph(spatial_boundary, is_stability_experiment=True)
     block_builder, substitution_builder = SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
@@ -216,12 +217,8 @@ def test_compile_single_block_stability(
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
-    print(circuit)
-    print(len(circuit.shortest_graphlike_error()))
-    assert circuit.num_observables == 2
-
-    # assert circuit.num_detectors == (d**2 - 1) * d
-    # assert len(circuit.shortest_graphlike_error()) == d
+    assert circuit.num_observables == 1
+    assert len(circuit.shortest_graphlike_error()) == d
 
 
 def test_compile_logical_cz_temporal_hadamard_pipe() -> None:
