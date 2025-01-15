@@ -26,14 +26,13 @@ def test_4_way_spatial_junction() -> None:
 
     _3STL = RPNGDescription.from_string("---- -z3- -z4- -z5-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
-    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
-    _ZVHD = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
+    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHD, _XXXX, _ZVHD, _XXXX, _EMPT],
-        [_EMPT, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
+        [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
+        [_EMPT, _XXXX, _ZVHE, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZHHE, _XXXX, _ZVHE, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
@@ -44,7 +43,7 @@ def test_4_way_spatial_junction() -> None:
         instantiation = description.instantiate(k=1)
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHD, _XXXX, _EMPT],
+        [_EMPT, _ZVHE, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _3SBR],
     ]
@@ -57,17 +56,16 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
     instantiation = description.instantiate(k=2)
 
     __Z_Z = RPNGDescription.from_string("---- -z2- ---- -z3-")
-    _2Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
+    _2Z_Z = RPNGDescription.from_string("---- -z4- ---- -z5-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
-    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
-    _ZVHD = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
+    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
 
     assert instantiation == [
         [__Z_Z, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _ZVHD, _XXXX, _EMPT],
-        [_2Z_Z, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
+        [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
+        [_2Z_Z, _XXXX, _ZVHE, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
         [_2Z_Z, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
@@ -130,11 +128,11 @@ def test_2_way_L_shape_spatial_junction() -> None:
     )
     instantiation = description.instantiate(k=2)
 
-    L__ZZ = RPNGDescription.from_string("---- -z3- ---- -z4-")
+    L__ZZ = RPNGDescription.from_string("---- -z4- ---- -z5-")
     T__ZZ = RPNGDescription.from_string("---- ---- -z3- -z4-")
-    _3STL = RPNGDescription.from_string("---- -z2- -z4- -z5-")
+    _3STL = RPNGDescription.from_string("---- -z2- -z3- -z5-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
-    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
+    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
 
@@ -353,7 +351,6 @@ def test_spatial_arm_and_cube_schedules_not_overlap(
             continue
         if arm not in arms:
             continue
-        print(arm, arms)
         cube_template = get_spatial_junction_qubit_rpng_template(
             spatial_boundary_basis, arms, None, None
         )
