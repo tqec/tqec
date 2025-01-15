@@ -260,7 +260,7 @@ def get_spatial_cube_qubit_rpng_descriptions(
         )
     if JunctionArms.DOWN not in arms and JunctionArms.RIGHT not in arms:
         mapping[8] = RPNGDescription.from_string(
-            f"{r}{be}1{m} {r}{be}2{m} {r}{be}4{m} ----"
+            f"{r}{be}1{m} {r}{be}3{m} {r}{be}4{m} ----"
         )
 
     ####################
