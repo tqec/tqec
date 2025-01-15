@@ -242,13 +242,17 @@ def get_spatial_cube_qubit_rpng_descriptions(
     behhp = RPNGDescription.from_string(
         f"{r}{be}1{m} {r}{be}2{m} {r}{be}3{m} {r}{be}4{m}"
     )
-    bevhp = RPNGDescription.from_string(
+    bevhp1 = RPNGDescription.from_string(
         f"{r}{be}1{m} {r}{be}4{m} {r}{be}2{m} {r}{be}5{m}"
     )
-    mapping[5] = mapping[13] = bevhp if JunctionArms.UP in arms else behhp
-    mapping[14] = behhp if JunctionArms.RIGHT in arms else bevhp
-    mapping[8] = mapping[15] = bevhp if JunctionArms.DOWN in arms else behhp
-    mapping[16] = behhp if JunctionArms.LEFT in arms else bevhp
+    bevhp2 = RPNGDescription.from_string(
+        f"{r}{be}1{m} {r}{be}4{m} {r}{be}3{m} {r}{be}5{m}"
+    )
+    mapping[5] = bevhp1 if JunctionArms.UP in arms else behhp
+    mapping[13] = bevhp2 if JunctionArms.UP in arms else behhp
+    mapping[14] = behhp if JunctionArms.RIGHT in arms else bevhp2
+    mapping[8] = mapping[15] = bevhp1 if JunctionArms.DOWN in arms else behhp
+    mapping[16] = behhp if JunctionArms.LEFT in arms else bevhp1
 
     # TODO: Edit comments
     # In the special cases of an L-shaped junction TOP/LEFT or DOWN/RIGHT, the
