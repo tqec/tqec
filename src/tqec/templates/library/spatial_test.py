@@ -224,6 +224,7 @@ def test_spatial_junction_junctions_never_overwrite_corners(
     itertools.product(
         [Basis.X, Basis.Z],
         [
+            JunctionArms.NONE,
             *JunctionArms.single_arms(),
             *JunctionArms.L_shaped_arms(),
             *JunctionArms.T_shaped_arms(),
@@ -250,6 +251,7 @@ def test_spatial_cube_schedules_not_overlap(
                     schedules.setdefault(pos, set())
                     assert rpng.n is not None
                     assert rpng.n not in schedules[pos], f"Overlap detected at {pos}."
+                    schedules[pos].add(rpng.n)
 
 
 @pytest.mark.parametrize(
@@ -257,6 +259,7 @@ def test_spatial_cube_schedules_not_overlap(
     itertools.product(
         [Basis.X, Basis.Z],
         [
+            JunctionArms.NONE,
             *JunctionArms.single_arms(),
             *JunctionArms.L_shaped_arms(),
             *JunctionArms.T_shaped_arms(),
