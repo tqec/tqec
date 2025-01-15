@@ -217,3 +217,37 @@ def test_spatial_junction_junctions_never_overwrite_corners(
             assert 2 not in template.mapping
         case JunctionArms.RIGHT:
             assert 3 not in template.mapping
+
+
+@pytest.mark.parametrize(
+    ["spatial_boundary_basis", "arms", "k"],
+    itertools.product(
+        [Basis.X, Basis.Z],
+        [
+            *JunctionArms.single_arms(),
+            *JunctionArms.I_shaped_arms(),
+            *JunctionArms.L_shaped_arms(),
+            *JunctionArms.T_shaped_arms(),
+            *JunctionArms.X_shaped_arms(),
+        ],
+        [1, 2],
+    ),
+)
+def test_spatial_cubes_schedule_not_overlap(
+    spatial_boundary_basis: Basis, arms: JunctionArms, k: int
+) -> None:
+    template = get_spatial_junction_qubit_rpng_template(
+        spatial_boundary_basis, arms, None, None
+    )
+    rpngs = template.instantiate(k)
+    schedules: dict[complex, set[int]] = {}
+    for i, row in enumerate(rpngs):
+        for j, des in enumerate(row):
+            for rpng, shift in zip(
+                des.corners, [-0.5 - 0.5j, 0.5 - 0.5j, -0.5 + 0.5j, 0.5 + 0.5j]
+            ):
+                if not rpng.is_null:
+                    pos = complex(j, i) + shift
+                    schedules.setdefault(pos, set())
+                    assert rpng.n is not None
+                    assert rpng.n not in schedules[pos]
