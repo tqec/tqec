@@ -156,10 +156,10 @@ def get_spatial_junction_qubit_rpng_descriptions(
     #     12   7  15  17  15  17  15  17   8  19
     #      3  20  21  20  21  20  21  20  21   4
 
-    if len(arms) < 2:
-        raise TQECException(
-            f"Expected two or more arms. Got {arms} that contains {len(arms)} arm."
-        )
+    # if len(arms) < 2:
+    #     raise TQECException(
+    #         f"Expected two or more arms. Got {arms} that contains {len(arms)} arm."
+    #     )
     if arms in JunctionArms.I_shaped_arms():
         raise TQECException(
             "I-shaped spatial junctions (i.e., spatial junctions with only two "
@@ -216,13 +216,14 @@ def get_spatial_junction_qubit_rpng_descriptions(
             f"---- {r}{be}3{m} ---- {r}{be}4{m}"
         )
 
+    # TODO: Edit comments
     # If we have a down-right or top-left L-shaped junction, the opposite corner
     # plaquette should be removed from the mapping (this is the case where it
     # has been set twice in the ifs above).
-    if arms == JunctionArms.UP | JunctionArms.LEFT:
-        del mapping[4]
-    elif arms == JunctionArms.DOWN | JunctionArms.RIGHT:
+    if JunctionArms.UP not in arms and JunctionArms.LEFT not in arms:
         del mapping[1]
+    if JunctionArms.DOWN not in arms and JunctionArms.RIGHT not in arms:
+        del mapping[4]
 
     ####################
     #       Bulk       #
@@ -249,16 +250,17 @@ def get_spatial_junction_qubit_rpng_descriptions(
     mapping[8] = mapping[15] = bevhp if JunctionArms.DOWN in arms else behhp
     mapping[16] = behhp if JunctionArms.LEFT in arms else bevhp
 
+    # TODO: Edit comments
     # In the special cases of an L-shaped junction TOP/LEFT or DOWN/RIGHT, the
     # opposite corner **within the bulk** should be overwritten to become a
     # 3-body stabilizer measurement.
-    if arms == JunctionArms.UP | JunctionArms.LEFT:
-        mapping[8] = RPNGDescription.from_string(
-            f"{r}{be}1{m} {r}{be}2{m} {r}{be}4{m} ----"
-        )
-    elif arms == JunctionArms.DOWN | JunctionArms.RIGHT:
+    if JunctionArms.UP not in arms and JunctionArms.LEFT not in arms:
         mapping[5] = RPNGDescription.from_string(
             f"---- {r}{be}2{m} {r}{be}4{m} {r}{be}5{m}"
+        )
+    if JunctionArms.DOWN not in arms and JunctionArms.RIGHT not in arms:
+        mapping[8] = RPNGDescription.from_string(
+            f"{r}{be}1{m} {r}{be}2{m} {r}{be}4{m} ----"
         )
 
     ####################
