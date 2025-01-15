@@ -403,11 +403,12 @@ window.addEventListener("load", () => mermaid.run());
                 <article class="bd-article">
                   
   <h1>Source code for tqec.gallery.solo_node</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Build a single node computation graph that represents a logical memory.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Build a single node computation graph that represents a logical memory or stability experiment.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">ZXCube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXGraph</span><span class="p">,</span> <span class="n">ZXKind</span><span class="p">,</span> <span class="n">ZXNode</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Position3D</span>
 
@@ -431,13 +432,17 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="solo_node_block_graph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.gallery.solo_node_block_graph.html#tqec.gallery.solo_node_block_graph">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">solo_node_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">solo_node_block_graph</span><span class="p">(</span>
+    <span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">is_stability_experiment</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a block graph with a single cube that can support the given</span>
 <span class="sd">    observable basis.</span>
 
-<span class="sd">    A single cube represents a simple logical memory experiment. When the supported observable basis is &quot;Z&quot;,</span>
-<span class="sd">    it corresponds to preserving a logical qubit in the zero state. When the supported observable basis is &quot;X&quot;,</span>
-<span class="sd">    it corresponds to preserving a logical qubit in the plus state.</span>
+<span class="sd">    A single cube represents a simple logical memory experiment or a stability experiment.</span>
+<span class="sd">    For a memory experiment, the cube is initialized in a logical basis state corresponding to the given</span>
+<span class="sd">    ``support_observable_basis``. For a stability experiment, all the data qubits are initialized in the</span>
+<span class="sd">    basis opposite to the given ``support_observable_basis``. And the spatial boundary of the cube should</span>
+<span class="sd">    support the given ``support_observable_basis``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        support_observable_basis: The observable basis that the block graph can support. Either &quot;Z&quot; or &quot;X&quot;.</span>
@@ -446,8 +451,20 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        A :py:class:`~tqec.computation.block_graph.BlockGraph` instance with a single cube that can support the</span>
 <span class="sd">        given observable basis.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">zx_graph</span> <span class="o">=</span> <span class="n">solo_node_zx_graph</span><span class="p">(</span><span class="s2">&quot;X&quot;</span> <span class="k">if</span> <span class="n">support_observable_basis</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span> <span class="k">else</span> <span class="s2">&quot;Z&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">zx_graph</span><span class="o">.</span><span class="n">to_block_graph</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Logica </span><span class="si">{</span><span class="n">support_observable_basis</span><span class="si">}</span><span class="s2"> Memory&quot;</span><span class="p">)</span></div>
+    <span class="c1"># Memory experiment</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_stability_experiment</span><span class="p">:</span>
+        <span class="n">zx_graph</span> <span class="o">=</span> <span class="n">solo_node_zx_graph</span><span class="p">(</span><span class="s2">&quot;X&quot;</span> <span class="k">if</span> <span class="n">support_observable_basis</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span> <span class="k">else</span> <span class="s2">&quot;Z&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">zx_graph</span><span class="o">.</span><span class="n">to_block_graph</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Logica </span><span class="si">{</span><span class="n">support_observable_basis</span><span class="si">}</span><span class="s2"> Memory&quot;</span><span class="p">)</span>
+    <span class="c1"># Stability experiment</span>
+    <span class="c1"># We can not directly build a block graph out of a ZX graph with a single node,</span>
+    <span class="c1"># it will always be constructed as a memory experiment. So we need to manually</span>
+    <span class="c1"># create a block graph for a stability experiment.</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stability </span><span class="si">{</span><span class="n">support_observable_basis</span><span class="si">}</span><span class="s2"> Experiment&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">support_observable_basis</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZZX&quot;</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># support_observable_basis == &quot;X&quot;</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">g</span></div>
 
 </pre></div>
 

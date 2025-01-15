@@ -439,26 +439,35 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">junction_arms</span><span class="p">:</span> <span class="n">JunctionArms</span> <span class="o">=</span> <span class="n">JunctionArms</span><span class="o">.</span><span class="n">NONE</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># arm_flags is not None iff cube_type is ZZX or XXZ(Spatial Junctions)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_spatial_junction</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_arms</span> <span class="o">!=</span> <span class="n">JunctionArms</span><span class="o">.</span><span class="n">NONE</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;junction_arms is not NONE if and only if cube_type is spatial junctions(ZZX or XXZ).&quot;</span>
-            <span class="p">)</span>
+        <span class="c1"># Only spatial cubes can have not None junction arms attributes.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">junction_arms</span> <span class="o">!=</span> <span class="n">JunctionArms</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spatial</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                    <span class="s2">&quot;Non-spatial cube should not have not None junction arms attributes.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_spatial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the cube is a spatial cube, i.e. all the spatial boundaries are</span>
+<span class="sd">        of the same basis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_spatial_junction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial_junction</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_regular</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spatial_junction</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the cube is a spatial junction, i.e. a spatial cube with two or more arms.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_arms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="CubeSpec.from_cube">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.compile.CubeSpec.html#tqec.compile.CubeSpec.from_cube">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CubeSpec</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the cube spec from a cube in a block graph.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_spatial_junction</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_spatial</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">CubeSpec</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span>
         <span class="n">junction_arms</span> <span class="o">=</span> <span class="n">JunctionArms</span><span class="o">.</span><span class="n">NONE</span>

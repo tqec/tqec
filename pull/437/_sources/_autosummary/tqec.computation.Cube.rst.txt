@@ -23,7 +23,7 @@ Cube
    .. autosummary::
    
       ~Cube.is_port
-      ~Cube.is_spatial_junction
+      ~Cube.is_spatial
       ~Cube.is_y_cube
       ~Cube.is_zx_cube
       ~Cube.label
