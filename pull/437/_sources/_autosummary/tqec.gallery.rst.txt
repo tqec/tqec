@@ -20,6 +20,8 @@
       logical_cnot_zx_graph
       logical_cz_block_graph
       logical_cz_zx_graph
+      move_rotation_block_graph
+      move_rotation_zx_graph
       solo_node_block_graph
       solo_node_zx_graph
       three_cnots_block_graph
