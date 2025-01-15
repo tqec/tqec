@@ -26,12 +26,13 @@ def test_4_way_spatial_junction() -> None:
     _3STL = RPNGDescription.from_string("---- -z3- -z4- -z5-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
     _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
+    _ZVHD = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
-        [_EMPT, _XXXX, _ZVHE, _XXXX, _ZHHE, _EMPT],
+        [_EMPT, _ZVHE, _XXXX, _ZVHD, _XXXX, _EMPT],
+        [_EMPT, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZHHE, _XXXX, _ZVHE, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
@@ -57,13 +58,14 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
     __Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
     _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
+    _ZVHD = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
 
     assert instantiation == [
         [__Z_Z, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
-        [__Z_Z, _XXXX, _ZVHE, _XXXX, _ZHHE, _EMPT],
+        [_EMPT, _ZVHE, _XXXX, _ZVHD, _XXXX, _EMPT],
+        [__Z_Z, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
         [__Z_Z, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
@@ -89,13 +91,14 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
     _3STL = RPNGDescription.from_string("---- -z3- -z4- -z5-")
     _ZZ__ = RPNGDescription.from_string("-z1- -z2- ---- ----")
     _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
+    _ZVHD = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
 
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
-        [_EMPT, _XXXX, _ZVHE, _XXXX, _ZHHE, _EMPT],
+        [_EMPT, _ZVHE, _XXXX, _ZVHD, _XXXX, _EMPT],
+        [_EMPT, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZHHE, _XXXX, _ZHHE, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZHHE, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZZ__, _EMPT, _ZZ__, _EMPT, _ZZ__],
