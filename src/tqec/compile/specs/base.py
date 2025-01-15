@@ -32,24 +32,33 @@ class CubeSpec:
     junction_arms: JunctionArms = JunctionArms.NONE
 
     def __post_init__(self) -> None:
-        # arm_flags is not None iff cube_type is ZZX or XXZ(Spatial Junctions)
-        if (self.is_spatial_junction) ^ (self.junction_arms != JunctionArms.NONE):
-            raise TQECException(
-                "junction_arms is not NONE if and only if cube_type is spatial junctions(ZZX or XXZ)."
-            )
+        # Only spatial cubes can have not None junction arms attributes.
+        if self.junction_arms != JunctionArms.NONE:
+            if not self.is_spatial:
+                raise TQECException(
+                    "Non-spatial cube should not have not None junction arms attributes."
+                )
+
+    @property
+    def is_spatial(self) -> bool:
+        """Return True if the cube is a spatial cube, i.e. all the spatial boundaries are
+        of the same basis.
+        """
+        return isinstance(self.kind, ZXCube) and self.kind.is_spatial
 
     @property
     def is_spatial_junction(self) -> bool:
-        return isinstance(self.kind, ZXCube) and self.kind.is_spatial_junction
-
-    @property
-    def is_regular(self) -> bool:
-        return not self.is_spatial_junction
+        """Return True if the cube is a spatial junction, i.e. a spatial cube with two or more arms."""
+        return (
+            isinstance(self.kind, ZXCube)
+            and self.kind.is_spatial
+            and len(self.junction_arms) > 1
+        )
 
     @staticmethod
     def from_cube(cube: Cube, graph: BlockGraph) -> CubeSpec:
         """Returns the cube spec from a cube in a block graph."""
-        if not cube.is_spatial_junction:
+        if not cube.is_spatial:
             return CubeSpec(cube.kind)
         pos = cube.position
         junction_arms = JunctionArms.NONE

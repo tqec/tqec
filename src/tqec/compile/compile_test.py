@@ -14,6 +14,7 @@ from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.logical_cnot import logical_cnot_block_graph
 from tqec.gallery.logical_cz import logical_cz_block_graph
+from tqec.gallery.solo_node import solo_node_block_graph
 from tqec.noise_model import NoiseModel
 from tqec.position import Position3D
 
@@ -196,6 +197,31 @@ def test_compile_logical_cnot(
     dem = circuit.detector_error_model()
     assert dem.num_observables == 3
     assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("spec", "spatial_boundary", "k"),
+    itertools.product(SPECS.keys(), ("Z",), (1,)),
+)
+def test_compile_single_block_stability(
+    spec: str, spatial_boundary: Literal["X", "Z"], k: int
+) -> None:
+    g = solo_node_block_graph(spatial_boundary, is_stability_experiment=True)
+    block_builder, substitution_builder = SPECS[spec]
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 1
+    compiled_graph = compile_block_graph(
+        g, block_builder, substitution_builder, correlation_surfaces
+    )
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    print(circuit)
+    print(len(circuit.shortest_graphlike_error()))
+    assert circuit.num_observables == 2
+
+    # assert circuit.num_detectors == (d**2 - 1) * d
+    # assert len(circuit.shortest_graphlike_error()) == d
 
 
 def test_compile_logical_cz_temporal_hadamard_pipe() -> None:

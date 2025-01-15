@@ -4,8 +4,8 @@ instances representing spatial junctions and arms.
 This module provides 2 functions to create
 :class:`~tqec.templates.rpng.RPNGTemplate` instances:
 
-- :func:`get_spatial_junction_qubit_template` that creates spatial junctions,
-- and :func:`get_spatial_junction_arm_template` that creates the arms.
+- :func:`get_spatial_cube_qubit_template` that creates spatial junctions,
+- and :func:`get_spatial_cube_arm_template` that creates the arms.
 
 ## Terminology
 
@@ -22,12 +22,12 @@ from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
-    QubitSpatialJunctionTemplate,
+    QubitSpatialCubeTemplate,
     QubitVerticalBorders,
 )
 
 
-def get_spatial_junction_qubit_raw_template() -> QubitSpatialJunctionTemplate:
+def get_spatial_cube_qubit_raw_template() -> QubitSpatialCubeTemplate:
     """Implementation of a logical qubit acting as a spatial junction.
 
     This function returns a RPNGTemplate instance representing a logical qubit
@@ -80,10 +80,10 @@ def get_spatial_junction_qubit_raw_template() -> QubitSpatialJunctionTemplate:
         a description of a logical qubit performing a memory operation while
         being enclosed by 2 or more arms.
     """
-    return QubitSpatialJunctionTemplate()
+    return QubitSpatialCubeTemplate()
 
 
-def get_spatial_junction_qubit_rpng_descriptions(
+def get_spatial_cube_qubit_rpng_descriptions(
     spatial_boundary_basis: Basis,
     arms: JunctionArms,
     reset: Basis | None = None,
@@ -164,7 +164,7 @@ def get_spatial_junction_qubit_rpng_descriptions(
         raise TQECException(
             "I-shaped spatial junctions (i.e., spatial junctions with only two "
             "arms that are the opposite of each other: LEFT/RIGHT or UP/DOWN) "
-            "should not use get_spatial_junction_qubit_template but rather use "
+            "should not use get_spatial_cube_qubit_template but rather use "
             "a conventional memory logical qubit with get_memory_qubit_template."
         )
 
@@ -280,7 +280,7 @@ def get_spatial_junction_qubit_rpng_descriptions(
     )
 
 
-def get_spatial_junction_arm_raw_template(
+def get_spatial_cube_arm_raw_template(
     arm: JunctionArms,
 ) -> QubitVerticalBorders | QubitHorizontalBorders:
     """Implementation of arms for a spatial junction around a logical qubit.
@@ -297,11 +297,11 @@ def get_spatial_junction_arm_raw_template(
 
     Warning:
         by convention, this function should **not** populate the plaquettes on
-        the corners as :func:`get_spatial_junction_qubit_template` should take
+        the corners as :func:`get_spatial_cube_qubit_template` should take
         care of that.
 
     Warning:
-        Using this function without :func:`get_spatial_junction_qubit_template`
+        Using this function without :func:`get_spatial_cube_qubit_template`
         is very likely a programming error. Please double-check what you are
         doing if that is your case, in particular how the plaquettes on each
         corner of the center logical qubit are set.
@@ -336,7 +336,7 @@ def get_spatial_junction_arm_raw_template(
             )
 
 
-def get_spatial_junction_arm_rpng_descriptions(
+def get_spatial_cube_arm_rpng_descriptions(
     spatial_boundary_basis: Basis,
     arm: JunctionArms,
     reset: Basis | None = None,
@@ -356,11 +356,11 @@ def get_spatial_junction_arm_rpng_descriptions(
 
     Warning:
         by convention, this function should **not** populate the plaquettes on
-        the corners as :func:`get_spatial_junction_qubit_template` should take
+        the corners as :func:`get_spatial_cube_qubit_template` should take
         care of that.
 
     Warning:
-        Using this function without :func:`get_spatial_junction_qubit_template`
+        Using this function without :func:`get_spatial_cube_qubit_template`
         is very likely a programming error. Please double-check what you are
         doing if that is your case, in particular how the plaquettes on each
         corner of the center logical qubit are set.
@@ -386,19 +386,19 @@ def get_spatial_junction_arm_rpng_descriptions(
     """
     match arm:
         case JunctionArms.LEFT:
-            return _get_left_spatial_junction_arm_rpng_descriptions(
+            return _get_left_spatial_cube_arm_rpng_descriptions(
                 spatial_boundary_basis, reset, measurement
             )
         case JunctionArms.RIGHT:
-            return _get_right_spatial_junction_arm_rpng_descriptions(
+            return _get_right_spatial_cube_arm_rpng_descriptions(
                 spatial_boundary_basis, reset, measurement
             )
         case JunctionArms.UP:
-            return _get_up_spatial_junction_arm_rpng_descriptions(
+            return _get_up_spatial_cube_arm_rpng_descriptions(
                 spatial_boundary_basis, reset, measurement
             )
         case JunctionArms.DOWN:
-            return _get_down_spatial_junction_arm_rpng_descriptions(
+            return _get_down_spatial_cube_arm_rpng_descriptions(
                 spatial_boundary_basis, reset, measurement
             )
         case _:
@@ -407,7 +407,7 @@ def get_spatial_junction_arm_rpng_descriptions(
             )
 
 
-def _get_left_spatial_junction_arm_rpng_descriptions(
+def _get_left_spatial_cube_arm_rpng_descriptions(
     spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
@@ -436,7 +436,7 @@ def _get_left_spatial_junction_arm_rpng_descriptions(
     )
 
 
-def _get_right_spatial_junction_arm_rpng_descriptions(
+def _get_right_spatial_cube_arm_rpng_descriptions(
     spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
@@ -465,7 +465,7 @@ def _get_right_spatial_junction_arm_rpng_descriptions(
     )
 
 
-def _get_up_spatial_junction_arm_rpng_descriptions(
+def _get_up_spatial_cube_arm_rpng_descriptions(
     spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
@@ -494,7 +494,7 @@ def _get_up_spatial_junction_arm_rpng_descriptions(
     )
 
 
-def _get_down_spatial_junction_arm_rpng_descriptions(
+def _get_down_spatial_cube_arm_rpng_descriptions(
     spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,

@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 
+from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import JunctionArms
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, ZXCube
@@ -36,7 +37,7 @@ class AbstractObservable:
         top_readout_spatial_junctions: A set of spatial junctions with the arm
             flags, of which the data qubit readouts on the top face should be
             included in the observable.
-        bottom_stabilizer_spatial_junctions: A set of spatial junctions of which
+        bottom_stabilizer_spatial_cubes: A set of spatial cubes of which
             the stabilizer measurements on the bottom face should be included in
             the observable.
     """
@@ -45,7 +46,7 @@ class AbstractObservable:
     top_readout_pipes: frozenset[Pipe] = frozenset()
     bottom_stabilizer_pipes: frozenset[Pipe] = frozenset()
     top_readout_spatial_junctions: frozenset[tuple[Cube, JunctionArms]] = frozenset()
-    bottom_stabilizer_spatial_junctions: frozenset[Cube] = frozenset()
+    bottom_stabilizer_spatial_cubes: frozenset[Cube] = frozenset()
 
 
 def compile_correlation_surface_to_abstract_observable(
@@ -75,17 +76,17 @@ def compile_correlation_surface_to_abstract_observable(
 
     The compilation process is as follows:
 
-    1. Find all the spatial junctions involved in the correlation surface. For
-    each junction:
+    1. Find all the spatial cubes involved in the correlation surface. For
+    each cube:
 
     - If a surface is in the XY plane, include the stabilizer measurements at
-    the bottom of the junction in the observable, and add the junction to the
-    ``bottom_stabilizer_spatial_junctions`` set.
+    the bottom of the cube in the observable, and add the cube to the
+    ``bottom_stabilizer_spatial_cubes`` set.
 
-    - If a surface is perpendicular to the XY plane, include data qubit readouts
-    on the top face of the junction in the observable. Correlation surfaces
-    parallel to the junction's normal direction are guaranteed to attach to an
-    even number of arms.
+    - If a surface is perpendicular to the XY plane, it must be a spatial junction
+    include data qubit readouts on the top face of the junction in the observable.
+    Correlation surfaces parallel to the junction's normal direction are guaranteed
+    to attach to an even number of arms.
         - If exactly two arms touch the surface, add the junction and arms to the
         ``top_readout_spatial_junctions`` set.
         - If four arms touch the surface, split the arms into two pairs (e.g.
@@ -99,7 +100,7 @@ def compile_correlation_surface_to_abstract_observable(
     - If the edge is horizontal, check if the surface is attached to the top face
     of the pipe. If so, add the pipe to the ``top_readout_pipes`` set; otherwise,
     add the pipe to the ``bottom_stabilizer_pipes`` set.
-    - For each cube in the pipe, ignore the spatial junctions (already handled),
+    - For each cube in the pipe, ignore the spatial cubes (already handled),
     and check if the surface is attached to the top face of the cube. If so, add
     the cube to the ``top_readout_cubes`` set.
 
@@ -121,6 +122,12 @@ def compile_correlation_surface_to_abstract_observable(
     """
     # 0. Handle single node edge case
     if correlation_surface.has_single_node:
+        # single stability experiment
+        if block_graph.nodes[0].is_spatial:
+            return AbstractObservable(
+                bottom_stabilizer_spatial_cubes=frozenset(block_graph.nodes)
+            )
+        # single memory experiment
         return AbstractObservable(top_readout_cubes=frozenset(block_graph.nodes))
 
     endpoints_to_edge: dict[frozenset[Position3D], list[ZXEdge]] = {}
@@ -132,24 +139,27 @@ def compile_correlation_surface_to_abstract_observable(
     top_readout_pipes: set[Pipe] = set()
     bottom_stabilizer_pipes: set[Pipe] = set()
     top_readout_spatial_junctions: set[tuple[Cube, JunctionArms]] = set()
-    bottom_stabilizer_spatial_junctions: set[Cube] = set()
+    bottom_stabilizer_spatial_cubes: set[Cube] = set()
 
-    # 1. Handle all spatial junctions
+    # 1. Handle all spatial cubes
     for node in correlation_surface.nodes:
         cube = block_graph[node.position]
-        if not cube.is_spatial_junction:
+        if not cube.is_spatial:
             continue
         zx = cube.to_zx_node()
         zx_flipped = zx.with_zx_flipped()
-        # correlation surface perpendicular to the normal direction of the junction
+        # correlation surface perpendicular to the normal direction of the cube
         # accounts for the bottom stabilizer measurements
         if zx.kind != node.kind:
-            bottom_stabilizer_spatial_junctions.add(cube)
-        # correlation surface parallel to the normal direction of the junction
+            bottom_stabilizer_spatial_cubes.add(cube)
+        # correlation surface parallel to the normal direction of the cube
         # accounts for the top readout measurements
         # we need to record the arm flags to specify different shapes of the
         # observable lines, e.g. L-shape, 7-shape, -- shape, etc.
         if zx_flipped.kind != node.kind:
+            # spatial cubes with 0 or 1 arms cannot support correlation surfaces
+            # parallel to the normal direction, so it must be a spatial junction
+            assert CubeSpec.from_cube(cube, block_graph).is_spatial
             # check correlation edges in the junction arms
             arms = JunctionArms.NONE
             for arm, shift in JunctionArms.get_map_from_arm_to_shift().items():
@@ -202,12 +212,12 @@ def compile_correlation_surface_to_abstract_observable(
         if pipe_top_face.value == edge.u.kind.value:
             top_readout_pipes.add(pipe)
             for cube, node in zip(pipe, edge):
-                # Spatial junctions have already been handled
-                if cube.is_spatial_junction:
+                # Spatial cubes have already been handled
+                if cube.is_spatial:
                     continue
                 if has_obs_include(cube, node.kind):
                     top_readout_cubes.add(cube)
-        elif not all(cube.is_spatial_junction for cube in pipe):
+        elif not all(cube.is_spatial for cube in pipe):
             bottom_stabilizer_pipes.add(pipe)
 
     return AbstractObservable(
@@ -215,5 +225,5 @@ def compile_correlation_surface_to_abstract_observable(
         frozenset(top_readout_pipes),
         frozenset(bottom_stabilizer_pipes),
         frozenset(top_readout_spatial_junctions),
-        frozenset(bottom_stabilizer_spatial_junctions),
+        frozenset(bottom_stabilizer_spatial_cubes),
     )

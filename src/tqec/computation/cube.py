@@ -90,10 +90,10 @@ class ZXCube(CubeKind):
         return ZXKind.X
 
     @property
-    def is_spatial_junction(self) -> bool:
-        """Return whether a cube of this kind is a spatial junction.
+    def is_spatial(self) -> bool:
+        """Return whether a cube of this kind is a spatial cube.
 
-        A spatial junction is a cube whose all spatial boundaries are in the same basis.
+        A spatial cube is a cube whose all spatial boundaries are in the same basis.
         And there are only two possible spatial junctions: ``XXZ`` and ``ZZX``.
         """
         return self.x == self.y
@@ -204,14 +204,14 @@ class Cube:
         return isinstance(self.kind, YCube)
 
     @property
-    def is_spatial_junction(self) -> bool:
-        """Return whether the cube is a spatial junction.
+    def is_spatial(self) -> bool:
+        """Return whether the cube is a spatial cube.
 
-        A spatial junction is of kind :py:class:`~tqec.computation.cube.ZXCube` and its all
+        A spatial cube is of kind :py:class:`~tqec.computation.cube.ZXCube` and its all
         spatial boundaries are in the same basis. There are only two possible spatial
         junctions: ``XXZ`` and ``ZZX``.
         """
-        return isinstance(self.kind, ZXCube) and self.kind.is_spatial_junction
+        return isinstance(self.kind, ZXCube) and self.kind.is_spatial
 
     def to_zx_node(self) -> ZXNode:
         """Convert the cube to a :py:class:`~tqec.computation.zx_graph.ZXNode`
