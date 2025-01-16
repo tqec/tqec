@@ -52,17 +52,28 @@ def get_spatial_junction_qubit_rpng_descriptions(
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
-    """Implementation of a logical qubit acting as a spatial junction.
+    """Returns a description of the plaquettes needed to implement a spatial
+    cube.
 
-    This function returns a RPNGTemplate instance representing a logical qubit
-    connecting to others in space and forming a spatial junction. The returned
-    template is carefully crafted to avoid hook errors damaging the logical
-    distance.
+    Note:
+        A spatial cube is defined as a cube with all its spatial boundaries in
+        the same basis.
+        Such a cube might appear in stability experiments (e.g.,
+        http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
+        with more than one pipe in the spatial plane) or in other QEC gadgets
+        such as the lattice surgery implementation of a ``CZ`` gate.
 
     Note:
         this function does not enforce anything on the input values. As such, it
         is possible to generate a description of a round that will both reset and
         measure the data-qubits.
+
+    Warning:
+        This function is tightly coupled with
+        :func:`get_spatial_junction_qubit_raw_template` and the returned
+        ``RPNG`` descriptions should only be considered valid when used in
+        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        instance returned by this function.
 
     Warning:
         By convention, this function does not populate the plaquettes on the
@@ -82,7 +93,6 @@ def get_spatial_junction_qubit_rpng_descriptions(
         descriptions on the corners (i.e., not include an explicit mapping, even
         to the empty plaquette, from the index of the corner to a plaquette).
 
-
     Arguments:
         spatial_boundary_basis: stabilizers that are measured at each boundaries
             of the spatial junction.
@@ -101,8 +111,8 @@ def get_spatial_junction_qubit_rpng_descriptions(
             LEFT/RIGHT).
 
     Returns:
-        a description of a logical qubit performing a memory operation while
-        being enclosed by 2 or more arms.
+        a description of the plaquettes needed to implement a spatial cube.
+
     """
     # In this function implementation, all the indices used are referring to the
     # indices returned by the QubitSpatialJunctionTemplate template. They are
@@ -280,7 +290,8 @@ def get_spatial_junction_arm_rpng_descriptions(
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
-    """Implementation of arms for a spatial junction around a logical qubit.
+    """Returns a description of the plaquettes needed to implement **one** pipe
+    connecting to a spatial cube.
 
     This function returns a RPNGTemplate instance representing the arms
     required to perform a spatial junction on a logical qubit that has 2 or more
@@ -288,20 +299,29 @@ def get_spatial_junction_arm_rpng_descriptions(
     damaging the logical distance.
 
     Note:
+        A spatial cube is defined as a cube with all its spatial boundaries in
+        the same basis.
+        Such a cube might appear in stability experiments (e.g.,
+        http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
+        with more than one pipe in the spatial plane) or in other QEC gadgets
+        such as the lattice surgery implementation of a ``CZ`` gate.
+
+    Note:
         this function does not enforce anything on the input values. As such, it
         is possible to generate a description of a round that will both reset and
         measure the data-qubits.
 
     Warning:
+        This function is tightly coupled with
+        :func:`get_spatial_junction_arm_raw_template` and the returned
+        ``RPNG`` descriptions should only be considered valid when used in
+        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        instance returned by this function.
+
+    Warning:
         by convention, this function should **not** populate the plaquettes on
         the corners as :func:`get_spatial_junction_qubit_template` should take
         care of that.
-
-    Warning:
-        Using this function without :func:`get_spatial_junction_qubit_template`
-        is very likely a programming error. Please double-check what you are
-        doing if that is your case, in particular how the plaquettes on each
-        corner of the center logical qubit are set.
 
     Arguments:
         spatial_boundary_basis: stabilizers that are measured at each boundaries
@@ -320,7 +340,8 @@ def get_spatial_junction_arm_rpng_descriptions(
             contains 0 or 2+ flags).
 
     Returns:
-        a description of the provided ``arm``.
+        a description of the plaquettes needed to implement **one** pipe
+        connecting to a spatial cube.
     """
     match arm:
         case JunctionArms.LEFT:
