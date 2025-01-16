@@ -610,13 +610,13 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instr</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">Moment</span><span class="o">.</span><span class="n">check_is_valid_moment</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">TQECException</span><span class="p">:</span>
+    <span class="k">except</span> <span class="n">TQECException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;The instructions obtained at the end of the &quot;</span>
             <span class="s2">&quot;`remove_duplicate_instructions` function do not form a valid &quot;</span>
             <span class="s2">&quot;moment. You are likely misusing the function. Final instructions &quot;</span>
             <span class="s2">&quot;obtained and gathered into a single stim.Circuit: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">circuit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">circuit</span><span class="si">}</span><span class="se">\n</span><span class="s2">Reason:</span><span class="se">\n</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">TQECWarning</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">final_operations</span>

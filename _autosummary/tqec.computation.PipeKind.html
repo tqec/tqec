@@ -357,7 +357,6 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.FrozenDefaultDict.html">FrozenDefaultDict</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.MeasurementBasis.html">MeasurementBasis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquette.html">Plaquette</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteOrientation.html">PlaquetteOrientation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html">PlaquetteQubits</a></li>
@@ -369,7 +368,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RepeatedPlaquettes.html">RepeatedPlaquettes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.ResetBasis.html">ResetBasis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.SquarePlaquetteQubits.html">SquarePlaquetteQubits</a></li>
 </ul>
 </details></li>
@@ -525,9 +523,9 @@ should be None.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>ZXBasis</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>y</strong> (<em>ZXBasis</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>z</strong> (<em>ZXBasis</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>x</strong> (<em>Basis</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>y</strong> (<em>Basis</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>z</strong> (<em>Basis</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>has_hadamard</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -540,7 +538,7 @@ of the walls observed. Can be None if the pipe connects two cubes along
 the x-axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tqec.computation.cube.ZXBasis | None</p>
+<dd class="field-odd"><p>tqec.enums.Basis | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -553,7 +551,7 @@ of the walls observed. Can be None if the pipe connects two cubes along
 the y-axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tqec.computation.cube.ZXBasis | None</p>
+<dd class="field-odd"><p>tqec.enums.Basis | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -566,7 +564,7 @@ of the walls observed. Can be None if the pipe connects two cubes along
 the z-axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tqec.computation.cube.ZXBasis | None</p>
+<dd class="field-odd"><p>tqec.enums.Basis | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -631,9 +629,9 @@ the z-axis.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>ZXBasis</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>y</strong> (<em>ZXBasis</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>z</strong> (<em>ZXBasis</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>x</strong> (<em>Basis</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>y</strong> (<em>Basis</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>z</strong> (<em>Basis</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>has_hadamard</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -684,7 +682,7 @@ the pipe. This matters when the pipe has hadamard transition.</p></li>
 basis of the wall in the specified direction.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>ZXBasis</em> | None</p>
+<dd class="field-odd"><p><em>Basis</em> | None</p>
 </dd>
 </dl>
 </dd></dl>

@@ -357,7 +357,6 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.FrozenDefaultDict.html">FrozenDefaultDict</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.MeasurementBasis.html">MeasurementBasis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquette.html">Plaquette</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteOrientation.html">PlaquetteOrientation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html">PlaquetteQubits</a></li>
@@ -369,7 +368,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RepeatedPlaquettes.html">RepeatedPlaquettes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.ResetBasis.html">ResetBasis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.SquarePlaquetteQubits.html">SquarePlaquetteQubits</a></li>
 </ul>
 </details></li>
@@ -521,9 +519,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>ZXBasis</em>)</p></li>
-<li><p><strong>y</strong> (<em>ZXBasis</em>)</p></li>
-<li><p><strong>z</strong> (<em>ZXBasis</em>)</p></li>
+<li><p><strong>x</strong> (<em>Basis</em>)</p></li>
+<li><p><strong>y</strong> (<em>Basis</em>)</p></li>
+<li><p><strong>z</strong> (<em>Basis</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -533,7 +531,7 @@
 <dd><p>Looking at the cube along the x-axis, the basis of the walls observed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tqec.computation.cube.ZXBasis</p>
+<dd class="field-odd"><p>tqec.enums.Basis</p>
 </dd>
 </dl>
 </dd></dl>
@@ -544,7 +542,7 @@
 <dd><p>Looking at the cube along the y-axis, the basis of the walls observed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tqec.computation.cube.ZXBasis</p>
+<dd class="field-odd"><p>tqec.enums.Basis</p>
 </dd>
 </dl>
 </dd></dl>
@@ -555,7 +553,7 @@
 <dd><p>Looking at the cube along the z-axis, the basis of the walls observed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tqec.computation.cube.ZXBasis</p>
+<dd class="field-odd"><p>tqec.enums.Basis</p>
 </dd>
 </dl>
 </dd></dl>
@@ -609,9 +607,9 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>ZXBasis</em>)</p></li>
-<li><p><strong>y</strong> (<em>ZXBasis</em>)</p></li>
-<li><p><strong>z</strong> (<em>ZXBasis</em>)</p></li>
+<li><p><strong>x</strong> (<em>Basis</em>)</p></li>
+<li><p><strong>y</strong> (<em>Basis</em>)</p></li>
+<li><p><strong>z</strong> (<em>Basis</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -643,7 +641,7 @@
 <dd class="field-odd"><p>A tuple of <code class="docutils literal notranslate"><span class="pre">(self.x,</span> <span class="pre">self.y,</span> <span class="pre">self.z)</span></code>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple[<em>ZXBasis</em>, <em>ZXBasis</em>, <em>ZXBasis</em>]</p>
+<dd class="field-even"><p>tuple[<em>Basis</em>, <em>Basis</em>, <em>Basis</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -683,7 +681,7 @@ the string representation.</p>
 <dd class="field-even"><p>The basis of the walls along the given direction axis.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>ZXBasis</em></p>
+<dd class="field-odd"><p><em>Basis</em></p>
 </dd>
 </dl>
 </dd></dl>

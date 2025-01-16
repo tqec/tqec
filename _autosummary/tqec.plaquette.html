@@ -357,7 +357,6 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">tqec.plaquette</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.FrozenDefaultDict.html">FrozenDefaultDict</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.MeasurementBasis.html">MeasurementBasis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquette.html">Plaquette</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteOrientation.html">PlaquetteOrientation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html">PlaquetteQubits</a></li>
@@ -369,7 +368,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RepeatedPlaquettes.html">RepeatedPlaquettes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.ResetBasis.html">ResetBasis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.SquarePlaquetteQubits.html">SquarePlaquetteQubits</a></li>
 </ul>
 </details></li>
@@ -527,44 +525,38 @@ get the qubits on a specific side of the plaquette).</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict" title="tqec.plaquette.FrozenDefaultDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FrozenDefaultDict</span></code></a>([arg, default_factory])</p></td>
 <td><p>A defaultdict implementation that cannot be mutated.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.MeasurementBasis.html#tqec.plaquette.MeasurementBasis" title="tqec.plaquette.MeasurementBasis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MeasurementBasis</span></code></a>(value[, names, module, ...])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette" title="tqec.plaquette.Plaquette"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Plaquette</span></code></a>(name, qubits, circuit[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette" title="tqec.plaquette.Plaquette"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Plaquette</span></code></a>(name, qubits, circuit[, ...])</p></td>
 <td><p>Represents a QEC plaquette.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.PlaquetteOrientation.html#tqec.plaquette.PlaquetteOrientation" title="tqec.plaquette.PlaquetteOrientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlaquetteOrientation</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.PlaquetteOrientation.html#tqec.plaquette.PlaquetteOrientation" title="tqec.plaquette.PlaquetteOrientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlaquetteOrientation</span></code></a>(value[, names, module, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits" title="tqec.plaquette.PlaquetteQubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlaquetteQubits</span></code></a>(data_qubits, syndrome_qubits)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits" title="tqec.plaquette.PlaquetteQubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlaquetteQubits</span></code></a>(data_qubits, syndrome_qubits)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.PlaquetteSide.html#tqec.plaquette.PlaquetteSide" title="tqec.plaquette.PlaquetteSide"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlaquetteSide</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.PlaquetteSide.html#tqec.plaquette.PlaquetteSide" title="tqec.plaquette.PlaquetteSide"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlaquetteSide</span></code></a>(value[, names, module, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.Plaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Plaquettes</span></code></a>(collection)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.Plaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Plaquettes</span></code></a>(collection)</p></td>
 <td><p>Represent a collection of plaquettes that might be applied to a <code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code> instance.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.RAPNG.html#tqec.plaquette.RAPNG" title="tqec.plaquette.RAPNG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RAPNG</span></code></a>(r, a, p, n, g)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.RAPNG.html#tqec.plaquette.RAPNG" title="tqec.plaquette.RAPNG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RAPNG</span></code></a>(r, a, p, n, g)</p></td>
 <td><p>Organize a single RAPNG value</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription" title="tqec.plaquette.RAPNGDescription"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RAPNGDescription</span></code></a>(corners[, ancilla])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.RAPNGDescription.html#tqec.plaquette.RAPNGDescription" title="tqec.plaquette.RAPNGDescription"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RAPNGDescription</span></code></a>(corners[, ancilla])</p></td>
 <td><p>Organize the description of a plaquette in RAPNG format</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.RG.html#tqec.plaquette.RG" title="tqec.plaquette.RG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RG</span></code></a>([r, g])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.RG.html#tqec.plaquette.RG" title="tqec.plaquette.RG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RG</span></code></a>([r, g])</p></td>
 <td><p>Organize the prep and meas bases for the ancilla, together with the meas time</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.RPNG.html#tqec.plaquette.RPNG" title="tqec.plaquette.RPNG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RPNG</span></code></a>(r, p, n, g)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.RPNG.html#tqec.plaquette.RPNG" title="tqec.plaquette.RPNG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RPNG</span></code></a>(r, p, n, g)</p></td>
 <td><p>Organize a single RPNG value</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription" title="tqec.plaquette.RPNGDescription"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RPNGDescription</span></code></a>(corners[, ancilla])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription" title="tqec.plaquette.RPNGDescription"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RPNGDescription</span></code></a>(corners[, ancilla])</p></td>
 <td><p>Organize the description of a plaquette in RPNG format</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes" title="tqec.plaquette.RepeatedPlaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RepeatedPlaquettes</span></code></a>(collection, repetitions)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes" title="tqec.plaquette.RepeatedPlaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RepeatedPlaquettes</span></code></a>(collection, repetitions)</p></td>
 <td><p>Represent plaquettes that should be repeated for several rounds.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.plaquette.ResetBasis.html#tqec.plaquette.ResetBasis" title="tqec.plaquette.ResetBasis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResetBasis</span></code></a>(value[, names, module, qualname, ...])</p></td>
-<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="tqec.plaquette.SquarePlaquetteQubits.html#tqec.plaquette.SquarePlaquetteQubits" title="tqec.plaquette.SquarePlaquetteQubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SquarePlaquetteQubits</span></code></a>()</p></td>
 <td><p></p></td>

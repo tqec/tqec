@@ -406,20 +406,22 @@ window.addEventListener("load", () => mermaid.run());
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeVar</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Orientation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.frozendefaultdict</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenDefaultDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.rpng</span><span class="w"> </span><span class="kn">import</span> <span class="n">RPNGDescription</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Displacement</span><span class="p">,</span> <span class="n">Position2D</span><span class="p">,</span> <span class="n">Shape2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scalable2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.indices.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
 
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Template</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="RPNGTemplate">
 <a class="viewcode-back" href="../../../_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">RPNGTemplate</span><span class="p">:</span>
-    <span class="n">template</span><span class="p">:</span> <span class="n">Template</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RPNGTemplate</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+    <span class="n">template</span><span class="p">:</span> <span class="n">T</span>
     <span class="n">mapping</span><span class="p">:</span> <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RPNGDescription</span><span class="p">]</span>
 
 <div class="viewcode-block" id="RPNGTemplate.instantiate">

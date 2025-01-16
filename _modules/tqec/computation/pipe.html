@@ -410,9 +410,10 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">ZXCube</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">ZXBasis</span><span class="p">,</span> <span class="n">ZXCube</span>
 
 
 <div class="viewcode-block" id="PipeKind">
@@ -439,9 +440,9 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        has_hadamard: Whether the pipe has a hadamard transition.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">x</span><span class="p">:</span> <span class="n">ZXBasis</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">y</span><span class="p">:</span> <span class="n">ZXBasis</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">z</span><span class="p">:</span> <span class="n">ZXBasis</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">Basis</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">Basis</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">z</span><span class="p">:</span> <span class="n">Basis</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">has_hadamard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -478,7 +479,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">string</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
         <span class="n">has_hadamard</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">string</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span>
         <span class="k">return</span> <span class="n">PipeKind</span><span class="p">(</span>
-            <span class="o">*</span><span class="p">(</span><span class="n">ZXBasis</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span> <span class="o">!=</span> <span class="s2">&quot;O&quot;</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">string</span><span class="p">[:</span><span class="mi">3</span><span class="p">]),</span>  <span class="c1"># type: ignore</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">Basis</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span> <span class="o">!=</span> <span class="s2">&quot;O&quot;</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">string</span><span class="p">[:</span><span class="mi">3</span><span class="p">]),</span>  <span class="c1"># type: ignore</span>
             <span class="n">has_hadamard</span><span class="o">=</span><span class="n">has_hadamard</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -492,7 +493,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.PipeKind.html#tqec.computation.PipeKind.get_basis_along">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_basis_along</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">at_head</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXBasis</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Basis</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the wall basis of the pipe in the specified direction.</span>
 
 <span class="sd">        Args:</span>
@@ -507,9 +508,9 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">head_basis</span> <span class="o">=</span> <span class="n">ZXBasis</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)[</span><span class="n">direction</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
+        <span class="n">head_basis</span> <span class="o">=</span> <span class="n">Basis</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)[</span><span class="n">direction</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">at_head</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_hadamard</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">head_basis</span><span class="o">.</span><span class="n">with_zx_flipped</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">head_basis</span><span class="o">.</span><span class="n">flipped</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">head_basis</span></div>
 
 
@@ -545,9 +546,9 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returns:</span>
 <span class="sd">            The inferred pipe kind.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">bases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ZXBasis</span><span class="p">]</span>
+        <span class="n">bases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Basis</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cube_at_head</span> <span class="ow">and</span> <span class="n">has_hadamard</span><span class="p">:</span>
-            <span class="n">bases</span> <span class="o">=</span> <span class="p">[</span><span class="n">basis</span><span class="o">.</span><span class="n">with_zx_flipped</span><span class="p">()</span> <span class="k">for</span> <span class="n">basis</span> <span class="ow">in</span> <span class="n">cube_kind</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">()]</span>
+            <span class="n">bases</span> <span class="o">=</span> <span class="p">[</span><span class="n">basis</span><span class="o">.</span><span class="n">flipped</span><span class="p">()</span> <span class="k">for</span> <span class="n">basis</span> <span class="ow">in</span> <span class="n">cube_kind</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">()]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">bases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cube_kind</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">())</span>
         <span class="n">bases_str</span> <span class="o">=</span> <span class="p">[</span><span class="n">basis</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">basis</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">]</span>
