@@ -17,6 +17,7 @@ FrozenDefaultDict
       ~FrozenDefaultDict.items
       ~FrozenDefaultDict.keys
       ~FrozenDefaultDict.map_keys
+      ~FrozenDefaultDict.map_values
       ~FrozenDefaultDict.values
    
    
@@ -42,6 +43,7 @@ FrozenDefaultDict
    .. automethod:: items
    .. automethod:: keys
    .. automethod:: map_keys
+   .. automethod:: map_values
    .. automethod:: values
    
    
