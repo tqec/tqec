@@ -1,8 +1,8 @@
 import stim
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.enums import Basis
 from tqec.plaquette.compilation.passes.reset_basis import ChangeResetBasisPass
-from tqec.plaquette.enums import Basis
 
 
 def _s(circuit: str) -> ScheduledCircuit:

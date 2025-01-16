@@ -5,11 +5,12 @@ from typing import Protocol
 
 from tqec.compile.block import CompiledBlock
 from tqec.compile.specs.enums import JunctionArms
-from tqec.computation.cube import Cube, CubeKind, ZXCube
 from tqec.computation.block_graph import BlockGraph
+from tqec.computation.cube import Cube, CubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.templates.indices.base import RectangularTemplate
 
 
 @dataclass(frozen=True)
@@ -31,29 +32,38 @@ class CubeSpec:
     junction_arms: JunctionArms = JunctionArms.NONE
 
     def __post_init__(self) -> None:
-        # arm_flags is not None iff cube_type is ZZX or XXZ(Spatial Junctions)
-        if (self.is_spatial_junction) ^ (self.junction_arms != JunctionArms.NONE):
-            raise TQECException(
-                "junction_arms is not NONE if and only if cube_type is spatial junctions(ZZX or XXZ)."
-            )
+        # Only spatial cubes can have not None junction arms attributes.
+        if self.junction_arms != JunctionArms.NONE:
+            if not self.is_spatial:
+                raise TQECException(
+                    "Non-spatial cube should not have not None junction arms attributes."
+                )
+
+    @property
+    def is_spatial(self) -> bool:
+        """Return True if the cube is a spatial cube, i.e. all the spatial boundaries are
+        of the same basis.
+        """
+        return isinstance(self.kind, ZXCube) and self.kind.is_spatial
 
     @property
     def is_spatial_junction(self) -> bool:
-        return isinstance(self.kind, ZXCube) and self.kind.is_spatial_junction
-
-    @property
-    def is_regular(self) -> bool:
-        return not self.is_spatial_junction
+        """Return True if the cube is a spatial junction, i.e. a spatial cube with two or more arms."""
+        return (
+            isinstance(self.kind, ZXCube)
+            and self.kind.is_spatial
+            and len(self.junction_arms) > 1
+        )
 
     @staticmethod
     def from_cube(cube: Cube, graph: BlockGraph) -> CubeSpec:
         """Returns the cube spec from a cube in a block graph."""
-        if not cube.is_spatial_junction:
+        if not cube.is_spatial:
             return CubeSpec(cube.kind)
         pos = cube.position
         junction_arms = JunctionArms.NONE
         for flag, shift in JunctionArms.get_map_from_arm_to_shift().items():
-            if graph.get_edge(pos, pos.shift_by(*shift)) is not None:
+            if graph.has_edge_between(pos, pos.shift_by(*shift)):
                 junction_arms |= flag
         return CubeSpec(cube.kind, junction_arms)
 
@@ -83,15 +93,16 @@ class PipeSpec:
     `Substitution`.
 
     Attributes:
-        spec1: the cube specification of the first cube. By convention, the cube
-            corresponding to `spec1` should have a smaller position than the cube
-            corresponding to `spec2`.
-        spec2: the cube specification of the second cube.
+        cube_specs: the ordered cube specifications. By convention, the cube
+            corresponding to ``cube_specs[0]`` should have a smaller position
+            than the cube corresponding to ``cube_specs[1]``.
+        cube_templates: templates used to implement the respective entry in
+            ``cube_specs``.
         pipe_type: the type of the pipe connecting the two cubes.
     """
 
-    spec1: CubeSpec
-    spec2: CubeSpec
+    cube_specs: tuple[CubeSpec, CubeSpec]
+    cube_templates: tuple[RectangularTemplate, RectangularTemplate]
     pipe_kind: PipeKind
 
 

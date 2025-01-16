@@ -1,10 +1,10 @@
+from tqec.enums import Basis
 from tqec.plaquette.compilation.passes.transformer import (
     InstructionCreator,
     ScheduledCircuitTransformation,
     ScheduledCircuitTransformationPass,
     ScheduleOffset,
 )
-from tqec.plaquette.enums import Basis
 
 
 class ChangeMeasurementBasisPass(ScheduledCircuitTransformationPass):

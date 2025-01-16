@@ -1,7 +1,8 @@
 from typing import Literal, Protocol
 
+from tqec.enums import Basis
+from tqec.plaquette.enums import PlaquetteSide
 from tqec.plaquette.plaquette import Plaquette
-from tqec.plaquette.enums import MeasurementBasis, PlaquetteSide, ResetBasis
 
 
 class PlaquetteBuilder(Protocol):
@@ -10,8 +11,8 @@ class PlaquetteBuilder(Protocol):
     def __call__(
         self,
         basis: Literal["X", "Z"],
-        data_initialization: ResetBasis | None = None,
-        data_measurement: MeasurementBasis | None = None,
+        data_initialization: Basis | None = None,
+        data_measurement: Basis | None = None,
         x_boundary_orientation: Literal["HORIZONTAL", "VERTICAL"] = "HORIZONTAL",
         init_meas_only_on_side: PlaquetteSide | None = None,
     ) -> Plaquette: ...

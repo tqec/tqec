@@ -1,3 +1,4 @@
+from tqec.enums import Basis
 from tqec.plaquette.compilation.passes.transformer import (
     InstructionCreator,
     ScheduledCircuitTransformation,
@@ -8,7 +9,6 @@ from tqec.plaquette.compilation.passes.transformer import (
 from tqec.plaquette.compilation.passes.transformer.simplifiers import (
     SelfInverseGateSimplification,
 )
-from tqec.plaquette.enums import Basis
 
 
 class ChangeControlledGateBasisPass(ScheduledCircuitTransformationPass):

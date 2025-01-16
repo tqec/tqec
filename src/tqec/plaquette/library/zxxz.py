@@ -9,15 +9,16 @@ import stim
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.plaquette.enums import MeasurementBasis, PlaquetteSide, ResetBasis
+from tqec.enums import Basis
+from tqec.plaquette.enums import PlaquetteSide
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import SquarePlaquetteQubits
 
 
 def make_zxxz_surface_code_plaquette(
     basis: Literal["X", "Z"],
-    data_initialization: ResetBasis | None = None,
-    data_measurement: MeasurementBasis | None = None,
+    data_initialization: Basis | None = None,
+    data_measurement: Basis | None = None,
     x_boundary_orientation: Literal["HORIZONTAL", "VERTICAL"] = "VERTICAL",
     init_meas_only_on_side: PlaquetteSide | None = None,
 ) -> Plaquette:
@@ -35,9 +36,11 @@ def make_zxxz_surface_code_plaquette(
     """
     builder = _ZXXZPlaquetteBuilder(basis, x_boundary_orientation)
     if data_initialization is not None:
-        builder.add_data_init_or_meas(data_initialization, init_meas_only_on_side)
+        builder.add_data_init_or_meas(
+            data_initialization, False, init_meas_only_on_side
+        )
     if data_measurement is not None:
-        builder.add_data_init_or_meas(data_measurement, init_meas_only_on_side)
+        builder.add_data_init_or_meas(data_measurement, True, init_meas_only_on_side)
     return builder.build()
 
 
@@ -58,8 +61,8 @@ class _ZXXZPlaquetteBuilder:
             {0: self._qubits.syndrome_qubits[0]}
             | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
         )
-        self._data_init: tuple[ResetBasis, PlaquetteSide | None] | None = None
-        self._data_meas: tuple[MeasurementBasis, PlaquetteSide | None] | None = None
+        self._data_init: tuple[Basis, PlaquetteSide | None] | None = None
+        self._data_meas: tuple[Basis, PlaquetteSide | None] | None = None
 
     def _get_plaquette_name(self) -> str:
         parts = [
@@ -93,11 +96,12 @@ class _ZXXZPlaquetteBuilder:
 
     def add_data_init_or_meas(
         self,
-        basis: ResetBasis | MeasurementBasis,
+        basis: Basis,
+        is_measurement: bool,
         only_on_side: PlaquetteSide | None = None,
     ) -> None:
         dqs_considered = self._get_data_qubits(only_on_side)
-        if isinstance(basis, ResetBasis):
+        if not is_measurement:
             self._moments[0].append("R", dqs_considered, [])
             h_moment_idx = 1
             self._data_init = basis, only_on_side

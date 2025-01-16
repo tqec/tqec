@@ -5,21 +5,22 @@ import pytest
 
 from tqec.compile.compile import compile_block_graph
 from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
-from tqec.compile.specs.library.zxxz import (
-    ZXXZ_BLOCK_BUILDER,
-    ZXXZ_SUBSTITUTION_BUILDER,
+from tqec.compile.specs.library.standard import (
+    STANDARD_BLOCK_BUILDER,
+    STANDARD_SUBSTITUTION_BUILDER,
 )
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.logical_cnot import logical_cnot_block_graph
+from tqec.gallery.logical_cz import logical_cz_block_graph
+from tqec.gallery.solo_node import solo_node_block_graph
+from tqec.gallery.move_rotation import move_rotation_block_graph
 from tqec.noise_model import NoiseModel
 from tqec.position import Position3D
 
 SPECS: dict[str, tuple[BlockBuilder, SubstitutionBuilder]] = {
-    "CSS": (CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER),
-    "ZXXZ": (ZXXZ_BLOCK_BUILDER, ZXXZ_SUBSTITUTION_BUILDER),
+    "STANDARD": (STANDARD_BLOCK_BUILDER, STANDARD_SUBSTITUTION_BUILDER)
 }
 
 
@@ -197,3 +198,116 @@ def test_compile_logical_cnot(
     dem = circuit.detector_error_model()
     assert dem.num_observables == 3
     assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("spec", "spatial_boundary", "k"),
+    itertools.product(SPECS.keys(), ("Z", "X"), (1, 2)),
+)
+def test_compile_single_block_stability(
+    spec: str, spatial_boundary: Literal["X", "Z"], k: int
+) -> None:
+    d = 2 * k + 1
+    g = solo_node_block_graph(spatial_boundary, is_stability_experiment=True)
+    block_builder, substitution_builder = SPECS[spec]
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 1
+    compiled_graph = compile_block_graph(
+        g, block_builder, substitution_builder, correlation_surfaces
+    )
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    assert circuit.num_observables == 1
+
+    num_spatial_basis_stabilizers = (d - 1) // 2 * 4 + (d - 1) ** 2 // 2
+    num_temporal_basis_stabilizers = (d - 1) ** 2 // 2
+    assert (
+        circuit.num_detectors
+        == (d - 1) * num_spatial_basis_stabilizers
+        + (d + 1) * num_temporal_basis_stabilizers
+    )
+    assert len(circuit.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("spec", "k"),
+    itertools.product(
+        SPECS.keys(),
+        (1,),
+    ),
+)
+def test_compile_L_spatial_junction(spec: str, k: int) -> None:
+    d = 2 * k + 1
+    g = BlockGraph("L Spatial Junction")
+    g.add_edge(
+        Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXX")),
+        Cube(Position3D(0, 1, 0), ZXCube.from_str("ZZX")),
+    )
+    g.add_edge(
+        Cube(Position3D(0, 1, 0), ZXCube.from_str("ZZX")),
+        Cube(Position3D(1, 1, 0), ZXCube.from_str("XZX")),
+    )
+
+    block_builder, substitution_builder = SPECS[spec]
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 1
+    compiled_graph = compile_block_graph(
+        g, block_builder, substitution_builder, correlation_surfaces
+    )
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("spec", "support_observable_basis", "k"),
+    itertools.product(
+        SPECS.keys(),
+        ("X", "Z"),
+        (1, 2),
+    ),
+)
+def test_compile_move_rotation(
+    spec: str, support_observable_basis: Literal["Z", "X"], k: int
+) -> None:
+    d = 2 * k + 1
+    g = move_rotation_block_graph(support_observable_basis)
+
+    block_builder, substitution_builder = SPECS[spec]
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 1
+    compiled_graph = compile_block_graph(
+        g, block_builder, substitution_builder, correlation_surfaces
+    )
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+# def test_compile_logical_cz_temporal_hadamard_pipe() -> None:
+#     k = 1
+#     d = 2 * k + 1
+#     g = logical_cz_block_graph("XI -> XZ").rotate()
+#
+#     block_builder, substitution_builder = SPECS["STANDARD"]
+#     correlation_surfaces = g.find_correlation_surfaces()
+#     assert len(correlation_surfaces) == 3
+#     compiled_graph = compile_block_graph(
+#         g, block_builder, substitution_builder, correlation_surfaces
+#     )
+#     circuit = compiled_graph.generate_stim_circuit(
+#         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+#     )
+#
+#     dem = circuit.detector_error_model()
+#     assert dem.num_observables == 3
+#     assert len(dem.shortest_graphlike_error()) == d

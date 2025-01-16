@@ -1,23 +1,25 @@
 import itertools
-from typing import Final, Literal
+from typing import Final
 
 import pytest
 
 from tqec.compile.specs.enums import JunctionArms
+from tqec.enums import Basis
 from tqec.exceptions import TQECException, TQECWarning
-from tqec.plaquette.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.templates.library.spatial import (
-    get_spatial_junction_arm_template,
-    get_spatial_junction_qubit_template,
+from tqec.templates.rpng import RPNGTemplate
+
+from ._testing import (
+    get_spatial_junction_arm_rpng_template,
+    get_spatial_junction_qubit_rpng_template,
 )
 
-_EMPT: Final[RPNGDescription] = RPNGDescription.from_string("---- ---- ---- ----")
+_EMPT: Final[RPNGDescription] = RPNGDescription.empty()
 
 
 def test_4_way_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
-        "z",
+    description = get_spatial_junction_qubit_rpng_template(
+        Basis.Z,
         JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN | JunctionArms.LEFT,
     )
     instantiation = description.instantiate(k=2)
@@ -48,12 +50,13 @@ def test_4_way_spatial_junction() -> None:
 
 
 def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
-        "z", JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN
+    description = get_spatial_junction_qubit_rpng_template(
+        Basis.Z, JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN
     )
     instantiation = description.instantiate(k=2)
 
-    __Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
+    __Z_Z = RPNGDescription.from_string("---- -z2- ---- -z3-")
+    _2Z_Z = RPNGDescription.from_string("---- -z4- ---- -z5-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
     _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
@@ -62,9 +65,9 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
     assert instantiation == [
         [__Z_Z, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
         [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
-        [__Z_Z, _XXXX, _ZVHE, _XXXX, _ZHHE, _EMPT],
+        [_2Z_Z, _XXXX, _ZVHE, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
-        [__Z_Z, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
+        [_2Z_Z, _XXXX, _ZVHE, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
@@ -74,27 +77,28 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
     assert instantiation == [
         [__Z_Z, _EMPT, _EMPT, _EMPT],
         [_EMPT, _ZVHE, _XXXX, _EMPT],
-        [__Z_Z, _XXXX, _ZVHE, _EMPT],
+        [_2Z_Z, _XXXX, _ZVHE, _EMPT],
         [_EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
 
 def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
-        "z", JunctionArms.LEFT | JunctionArms.UP | JunctionArms.RIGHT
+    description = get_spatial_junction_qubit_rpng_template(
+        Basis.Z, JunctionArms.LEFT | JunctionArms.UP | JunctionArms.RIGHT
     )
     instantiation = description.instantiate(k=2)
 
     _3STL = RPNGDescription.from_string("---- -z3- -z4- -z5-")
     _ZZ__ = RPNGDescription.from_string("-z1- -z2- ---- ----")
-    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
+    _ZVHE = RPNGDescription.from_string("-z1- -z4- -z2- -z5-")
+    _ZVHD = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x5-")
 
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _ZVHE, _XXXX, _EMPT],
-        [_EMPT, _XXXX, _ZVHE, _XXXX, _ZHHE, _EMPT],
+        [_EMPT, _ZVHD, _XXXX, _ZVHD, _XXXX, _EMPT],
+        [_EMPT, _XXXX, _ZVHD, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZHHE, _XXXX, _ZHHE, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZHHE, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZZ__, _EMPT, _ZZ__, _EMPT, _ZZ__],
@@ -105,7 +109,7 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
         instantiation = description.instantiate(k=1)
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT],
-        [_EMPT, _ZVHE, _XXXX, _EMPT],
+        [_EMPT, _ZVHD, _XXXX, _EMPT],
         [_EMPT, _XXXX, _ZHHE, _EMPT],
         [_EMPT, _ZZ__, _EMPT, _ZZ__],
     ]
@@ -113,18 +117,20 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
 
 def test_2_way_through_spatial_junction() -> None:
     with pytest.raises(TQECException, match=".*I-shaped spatial junctions.*"):
-        get_spatial_junction_qubit_template("z", JunctionArms.LEFT | JunctionArms.RIGHT)
+        get_spatial_junction_qubit_rpng_template(
+            Basis.Z, JunctionArms.LEFT | JunctionArms.RIGHT
+        )
 
 
 def test_2_way_L_shape_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
-        "z", JunctionArms.DOWN | JunctionArms.RIGHT
+    description = get_spatial_junction_qubit_rpng_template(
+        Basis.Z, JunctionArms.DOWN | JunctionArms.RIGHT
     )
     instantiation = description.instantiate(k=2)
 
-    L__ZZ = RPNGDescription.from_string("---- -z3- ---- -z4-")
+    L__ZZ = RPNGDescription.from_string("---- -z4- ---- -z5-")
     T__ZZ = RPNGDescription.from_string("---- ---- -z3- -z4-")
-    _3STL = RPNGDescription.from_string("---- -z2- -z4- -z5-")
+    _3STL = RPNGDescription.from_string("---- -z2- -z3- -z5-")
     _3SBR = RPNGDescription.from_string("-z1- -z2- -z4- ----")
     _ZVHE = RPNGDescription.from_string("-z1- -z4- -z3- -z5-")
     _ZHHE = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
@@ -153,7 +159,7 @@ def test_2_way_L_shape_spatial_junction() -> None:
 @pytest.mark.parametrize(
     ["spatial_boundary_basis", "arms", "reset", "measurement"],
     itertools.product(
-        ["x", "z"],
+        [Basis.X, Basis.Z],
         (
             JunctionArms.L_shaped_arms()
             + JunctionArms.T_shaped_arms()
@@ -164,45 +170,45 @@ def test_2_way_L_shape_spatial_junction() -> None:
     ),
 )
 def test_spatial_junction_logical_qubit_always_defines_corners(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     arms: JunctionArms,
     reset: Basis | None,
     measurement: Basis | None,
 ) -> None:
-    template = get_spatial_junction_qubit_template(
+    template = get_spatial_junction_qubit_rpng_template(
         spatial_boundary_basis, arms, reset, measurement
     )
     rpng_inst = template.instantiate(k=3)
     if arms == JunctionArms.RIGHT | JunctionArms.DOWN:
-        assert rpng_inst[0][0] == RPNGDescription.from_string("---- ---- ---- ----")
+        assert rpng_inst[0][0] == RPNGDescription.empty()
     else:
-        assert rpng_inst[0][0] != RPNGDescription.from_string("---- ---- ---- ----")
+        assert rpng_inst[0][0] != RPNGDescription.empty()
 
     if arms == JunctionArms.LEFT | JunctionArms.UP:
-        assert rpng_inst[-1][-1] == RPNGDescription.from_string("---- ---- ---- ----")
+        assert rpng_inst[-1][-1] == RPNGDescription.empty()
     else:
-        assert rpng_inst[-1][-1] != RPNGDescription.from_string("---- ---- ---- ----")
+        assert rpng_inst[-1][-1] != RPNGDescription.empty()
 
-    assert rpng_inst[0][-1] == RPNGDescription.from_string("---- ---- ---- ----")
-    assert rpng_inst[-1][0] == RPNGDescription.from_string("---- ---- ---- ----")
+    assert rpng_inst[0][-1] == RPNGDescription.empty()
+    assert rpng_inst[-1][0] == RPNGDescription.empty()
 
 
 @pytest.mark.parametrize(
     ["spatial_boundary_basis", "arms", "reset", "measurement"],
     itertools.product(
-        ["x", "z"],
+        [Basis.X, Basis.Z],
         JunctionArms.single_arms(),
         [None, Basis.X, Basis.Z],
         [None, Basis.X, Basis.Z],
     ),
 )
 def test_spatial_junction_junctions_never_overwrite_corners(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     arms: JunctionArms,
     reset: Basis | None,
     measurement: Basis | None,
 ) -> None:
-    template = get_spatial_junction_arm_template(
+    template = get_spatial_junction_arm_rpng_template(
         spatial_boundary_basis, arms, reset, measurement
     )
     match arms:
@@ -214,3 +220,153 @@ def test_spatial_junction_junctions_never_overwrite_corners(
             assert 2 not in template.mapping
         case JunctionArms.RIGHT:
             assert 3 not in template.mapping
+
+
+def _get_qubit_schedules(
+    template: RPNGTemplate,
+    k: int,
+    template_position_offset: complex,
+) -> dict[complex, list[int | None]]:
+    rpngs = template.instantiate(k)
+    schedules: dict[complex, list[int | None]] = {}
+    for i, row in enumerate(rpngs):
+        for j, des in enumerate(row):
+            for k, (rpng, shift) in enumerate(
+                zip(des.corners, [-0.5 - 0.5j, 0.5 - 0.5j, -0.5 + 0.5j, 0.5 + 0.5j])
+            ):
+                pos = complex(j, i) + shift + template_position_offset
+                # record the schedule at data qubits in order
+                #  0|1
+                #  -+-
+                #  2|3
+                schedules.setdefault(pos, [None] * 4)[3 - k] = rpng.n
+    return schedules
+
+
+@pytest.mark.parametrize(
+    ["spatial_boundary_basis", "arms", "k"],
+    itertools.product(
+        [Basis.X, Basis.Z],
+        [
+            arms
+            for arms in JunctionArms.arm_combinations()
+            if arms not in JunctionArms.I_shaped_arms()
+        ],
+        [1, 2],
+    ),
+)
+def test_spatial_cube_schedules_not_overlap(
+    spatial_boundary_basis: Basis, arms: JunctionArms, k: int
+) -> None:
+    template = get_spatial_junction_qubit_rpng_template(
+        spatial_boundary_basis, arms, None, None
+    )
+    schedules = _get_qubit_schedules(template, k, 0)
+    for pos, ss in schedules.items():
+        filter_none = [s for s in ss if s is not None]
+        assert len(set(filter_none)) == len(filter_none), f"Overlap detected at {pos}."
+
+
+@pytest.mark.parametrize(
+    ["spatial_boundary_basis", "arms", "k"],
+    itertools.product(
+        [Basis.X, Basis.Z],
+        [
+            arms
+            for arms in JunctionArms.arm_combinations()
+            if arms not in JunctionArms.I_shaped_arms()
+        ],
+        [1, 2],
+    ),
+)
+def test_spatial_cube_schedules_make_xz_stabilizer_measurement_circuits_commute(
+    spatial_boundary_basis: Basis, arms: JunctionArms, k: int
+) -> None:
+    """Check schedules of the two qubits on the overlapping sites of neighboring X/Z plaquettes.
+    ------------
+    |   a||c   |
+    |    ||    |
+    |   b||d   |
+    ------------
+
+    assert (a - b) * (c - d) > 0
+    """
+    template = get_spatial_junction_qubit_rpng_template(
+        spatial_boundary_basis, arms, None, None
+    )
+    rpngs = template.instantiate(k)
+    # schedules at each plaquette
+    schedules: dict[complex, list[int | None]] = {
+        complex(j, i): [rpng.n for rpng in des.corners]
+        for i, row in enumerate(rpngs)
+        for j, des in enumerate(row)
+    }
+    for pos, ss in schedules.items():
+        # check for right and bottom neighbors
+        if (pos + 1) in schedules:
+            ss2 = schedules[pos + 1]
+            if (
+                ss[1] is not None
+                and ss[3] is not None
+                and ss2[0] is not None
+                and ss2[2] is not None
+            ):
+                assert (ss[1] - ss2[0]) * (ss[3] - ss2[2]) > 0
+        if (pos + 1j) in schedules:
+            ss2 = schedules[pos + 1j]
+            if (
+                ss[2] is not None
+                and ss[3] is not None
+                and ss2[0] is not None
+                and ss2[1] is not None
+            ):
+                assert (ss[2] - ss2[0]) * (ss[3] - ss2[1]) > 0
+
+
+@pytest.mark.parametrize(
+    ["spatial_boundary_basis", "arm", "k"],
+    itertools.product([Basis.X, Basis.Z], JunctionArms.single_arms(), [1, 2]),
+)
+def test_spatial_arm_and_cube_schedules_not_overlap(
+    spatial_boundary_basis: Basis, arm: JunctionArms, k: int
+) -> None:
+    arm_template = get_spatial_junction_arm_rpng_template(
+        spatial_boundary_basis, arm, None, None
+    )
+    arm_template_offset: complex = 0j
+    match arm:
+        case JunctionArms.UP:
+            arm_template_offset = -1j
+        case JunctionArms.DOWN:
+            arm_template_offset = complex(0, 2 * k + 1)
+        case JunctionArms.LEFT:
+            arm_template_offset = -1
+        case _:  # JunctionArms.RIGHT:
+            arm_template_offset = complex(2 * k + 1, 0)
+
+    schedules_in_arm = _get_qubit_schedules(arm_template, k, arm_template_offset)
+
+    for arms in JunctionArms.arm_combinations():
+        if arms in JunctionArms.I_shaped_arms():
+            continue
+        if arm not in arms:
+            continue
+        cube_template = get_spatial_junction_qubit_rpng_template(
+            spatial_boundary_basis, arms, None, None
+        )
+
+        schedules = _get_qubit_schedules(cube_template, k, 0)
+
+        for pos, ss in schedules_in_arm.items():
+            if pos in schedules:
+                for i, s in enumerate(ss):
+                    if s is not None:
+                        schedules[pos][i] = s
+            else:
+                schedules[pos] = ss
+
+        for pos, ss in schedules.items():
+            filter_none = [s for s in ss if s is not None]
+            assert len(set(filter_none)) == len(
+                filter_none
+            ), f"Overlap detected at {pos}."

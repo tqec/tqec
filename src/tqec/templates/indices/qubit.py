@@ -83,7 +83,7 @@ class QubitTemplate(RectangularTemplate):
                 return BorderIndices(2, 11, 12, 4)
 
 
-class QubitSpatialJunctionTemplate(RectangularTemplate):
+class QubitSpatialCubeTemplate(RectangularTemplate):
     """An error-corrected qubit that is making a 4-way junction with other
     logical qubits.
 

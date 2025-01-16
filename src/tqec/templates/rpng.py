@@ -1,18 +1,20 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Generic, TypeVar
 
-from tqec.enums import Orientation
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.position import Displacement, Position2D, Shape2D
 from tqec.scale import Scalable2D
 from tqec.templates.indices.base import Template
 
+T = TypeVar("T", bound=Template, covariant=True)
+
 
 @dataclass
-class RPNGTemplate:
-    template: Template
+class RPNGTemplate(Generic[T]):
+    template: T
     mapping: FrozenDefaultDict[int, RPNGDescription]
 
     def instantiate(self, k: int) -> list[list[RPNGDescription]]:

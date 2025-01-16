@@ -5,7 +5,7 @@ from tqec.compile.observables.builder import (
     _get_top_readout_cube_qubits,
     _get_top_readout_pipe_qubits,
     _get_bottom_stabilizer_cube_qubits,
-    _get_bottom_stabilizer_spatial_junction_qubits,
+    _get_bottom_stabilizer_spatial_cube_qubits,
     _get_top_readout_spatial_junction_qubits,
     _transform_coords_into_grid,
 )
@@ -127,7 +127,7 @@ def test_get_bottom_stabilizer_cube_qubits(
 def test_get_bottom_stabilizer_spatial_junction_qubits(k: int) -> None:
     w = 2 * k + 2
     shape = Shape2D(w, w)
-    coords = set(_get_bottom_stabilizer_spatial_junction_qubits(shape))
+    coords = set(_get_bottom_stabilizer_spatial_cube_qubits(shape))
     assert len(coords) == w**2 // 2
     assert all(c % 0.5 == 0 for cs in coords for c in cs)
 

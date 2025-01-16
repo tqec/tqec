@@ -12,10 +12,10 @@ import sinter
 from typing_extensions import override
 
 from tqec._cli.subcommands.base import TQECSubCommand
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
-from tqec.compile.specs.library.zxxz import (
-    ZXXZ_BLOCK_BUILDER,
-    ZXXZ_SUBSTITUTION_BUILDER,
+from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
+from tqec.compile.specs.library.standard import (
+    STANDARD_BLOCK_BUILDER,
+    STANDARD_SUBSTITUTION_BUILDER,
 )
 from tqec.gallery import logical_cnot_block_graph
 from tqec.noise_model import NoiseModel
@@ -24,6 +24,11 @@ from tqec.simulation.simulation import start_simulation_using_sinter
 
 
 class RunExampleTQECSubCommand(TQECSubCommand):
+    BLOCK_BUILDERS: dict[str, BlockBuilder] = {"STANDARD": STANDARD_BLOCK_BUILDER}
+    SUBSTITUTION_BUILDERS: dict[str, SubstitutionBuilder] = {
+        "STANDARD": STANDARD_SUBSTITUTION_BUILDER
+    }
+
     @staticmethod
     @override
     def add_subcommand(
@@ -69,9 +74,9 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         )
         parser.add_argument(
             "--code-style",
-            help="Use the CSS or ZXXZ code style.",
-            choices=["CSS", "ZXXZ"],
-            default="CSS",
+            help="Change the code style.",
+            choices=RunExampleTQECSubCommand.BLOCK_BUILDERS.keys(),
+            default="STANDARD",
         )
         parser.add_argument(
             "--basis",
@@ -118,10 +123,8 @@ class RunExampleTQECSubCommand(TQECSubCommand):
                 + f"but requested indices up to {max(obs_indices)}."
             )
 
-        block_builder = CSS_BLOCK_BUILDER if style == "CSS" else ZXXZ_BLOCK_BUILDER
-        substitution_builder = (
-            CSS_SUBSTITUTION_BUILDER if style == "CSS" else ZXXZ_SUBSTITUTION_BUILDER
-        )
+        block_builder = RunExampleTQECSubCommand.BLOCK_BUILDERS[style]
+        substitution_builder = RunExampleTQECSubCommand.SUBSTITUTION_BUILDERS[style]
 
         logging.info("Start the simulation, this might take some time.")
         stats = start_simulation_using_sinter(

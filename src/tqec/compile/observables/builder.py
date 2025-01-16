@@ -61,9 +61,9 @@ def inplace_add_observable(
     # 1. The stabilizer measurements that will be added to the end of the first layer of circuits at z.
     for pipe in abstract_observable.bottom_stabilizer_pipes:
         for cube in pipe:
-            # the stabilizer measurements included in spatial junctions will be
+            # the stabilizer measurements included in spatial cubes will be
             # handled later
-            if cube.is_spatial_junction:
+            if cube.is_spatial:
                 continue
             _collect_into(
                 bottom_stabilizer_qubits,
@@ -73,12 +73,12 @@ def inplace_add_observable(
                     SignedDirection3D(pipe.direction, cube == pipe.u),
                 ),
             )
-    for junction in abstract_observable.bottom_stabilizer_spatial_junctions:
+    for cube in abstract_observable.bottom_stabilizer_spatial_cubes:
         _collect_into(
             bottom_stabilizer_qubits,
-            junction.position,
-            _get_bottom_stabilizer_spatial_junction_qubits(
-                _block_shape(junction.position.z, k)
+            cube.position,
+            _get_bottom_stabilizer_spatial_cube_qubits(
+                _block_shape(cube.position.z, k)
             ),
         )
 
@@ -98,12 +98,12 @@ def inplace_add_observable(
             cube.position,
             _get_top_readout_cube_qubits(_block_shape(cube.position.z, k), cube.kind),
         )
-    for junction, arms in abstract_observable.top_readout_spatial_junctions:
+    for cube, arms in abstract_observable.top_readout_spatial_junctions:
         _collect_into(
             top_data_qubits,
-            junction.position,
+            cube.position,
             _get_top_readout_spatial_junction_qubits(
-                _block_shape(junction.position.z, k), arms
+                _block_shape(cube.position.z, k), arms
             ),
         )
 
@@ -297,10 +297,10 @@ def _get_top_readout_spatial_junction_qubits(
         ]
 
 
-def _get_bottom_stabilizer_spatial_junction_qubits(
-    junction_shape: Shape2D,
+def _get_bottom_stabilizer_spatial_cube_qubits(
+    cube_shape: Shape2D,
 ) -> list[tuple[float, float]]:
-    """The stabilizer measurements at the spatial junctions will be included in
+    """The stabilizer measurements at the spatial cubes will be included in
     the logical observable.
 
     For simplicity of implementation, this function
@@ -310,7 +310,7 @@ def _get_bottom_stabilizer_spatial_junction_qubits(
     """
     return [
         (i + 0.5, j + 0.5)
-        for i in range(junction_shape.x)
-        for j in range(junction_shape.y)
+        for i in range(cube_shape.x)
+        for j in range(cube_shape.y)
         if (i + j) % 2 == 0
     ]
