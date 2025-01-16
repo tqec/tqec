@@ -119,8 +119,8 @@ This module also includes a few sub-classes implementing the
 
 1. :py:class:`~tqec.templates.indices.qubit.QubitTemplate` that has already been used in
    documentation and that represents a logical qubit.
-2. :py:class:`~tqec.templates.indices.qubit.Qubit4WayJunctionTemplate` that represents a
-   logical qubit that has 4 junctions in space and is still a work in progress.
+2. :py:class:`~tqec.templates.indices.qubit.QubitSpatialCubeTemplate` that represents a
+   a logical qubit with all the spatial boundaries in the same basis.
 3. :py:class:`~tqec.templates.indices.layout.LayoutTemplate` that represent an arbitrary
    layout of other templates arranged on a regular grid.
 
