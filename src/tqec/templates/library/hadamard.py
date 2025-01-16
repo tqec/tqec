@@ -4,6 +4,7 @@ from tqec.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
+from tqec.templates.indices.base import RectangularTemplate
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
     QubitTemplate,
