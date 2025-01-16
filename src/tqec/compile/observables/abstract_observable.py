@@ -121,6 +121,12 @@ def compile_correlation_surface_to_abstract_observable(
     """
     # 0. Handle single node edge case
     if correlation_surface.has_single_node:
+        # single stability experiment
+        if block_graph.nodes[0].is_spatial_junction:
+            return AbstractObservable(
+                bottom_stabilizer_spatial_junctions=frozenset(block_graph.nodes)
+            )
+
         return AbstractObservable(top_readout_cubes=frozenset(block_graph.nodes))
 
     endpoints_to_edge: dict[frozenset[Position3D], list[ZXEdge]] = {}

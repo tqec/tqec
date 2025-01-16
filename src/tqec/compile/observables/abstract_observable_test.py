@@ -12,7 +12,7 @@ from tqec.gallery.solo_node import solo_node_block_graph
 from tqec.position import Position3D
 
 
-def test_abstract_observable_for_single_cube() -> None:
+def test_abstract_observable_for_single_memory_cube() -> None:
     g = solo_node_block_graph("Z")
     correlation_surfaces = g.find_correlation_surfaces()
     abstract_observable = compile_correlation_surface_to_abstract_observable(
@@ -21,6 +21,19 @@ def test_abstract_observable_for_single_cube() -> None:
     assert abstract_observable == AbstractObservable(
         top_readout_cubes=frozenset(
             {Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))}
+        ),
+    )
+
+
+def test_abstract_observable_for_single_stability_cube() -> None:
+    g = solo_node_block_graph("Z", is_stability_experiment=True)
+    correlation_surfaces = g.find_correlation_surfaces()
+    abstract_observable = compile_correlation_surface_to_abstract_observable(
+        g, correlation_surfaces[0]
+    )
+    assert abstract_observable == AbstractObservable(
+        bottom_stabilizer_spatial_junctions=frozenset(
+            {Cube(Position3D(0, 0, 0), ZXCube.from_str("ZZX"))}
         ),
     )
 
