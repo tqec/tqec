@@ -4,7 +4,6 @@ from tqec.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
-from tqec.templates.indices.base import RectangularTemplate
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
     QubitTemplate,
@@ -13,24 +12,12 @@ from tqec.templates.indices.qubit import (
 
 
 def get_temporal_hadamard_raw_template() -> QubitTemplate:
-    """Returns a representation of a transversal Hadamard gate applied on one
-    logical qubit.
-
-    This function returns a RPNGTemplate instance that performs a transversal
-    Hadamard gate. It is basically performing a standard memory operation, but
-    also include a Hadamard gate on each data-qubit, effectively performing a
-    fault-tolerant Hadamard gate by transversal application of physical gates.
-
-    Arguments:
-        orientation: orientation of the Z observable at the beginning of the
-            generated circuit description. The Z observable orientation will be
-            flipped at the end of the returned circuit description, which is
-            exactly the expected behaviour for a Hadamard transition.
-            Used to compute the stabilizers that should be measured on the
-            boundaries and in the bulk of the returned logical qubit description.
+    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    needed to implement a transversal Hadamard gate applied on one logical
+    qubit.
 
     Returns:
-        an implementation of transversal Hadamard gate.
+        an instance of :class:`~tqec.templates.indices.qubit.QubitTemplate`.
     """
     return QubitTemplate()
 
@@ -38,24 +25,27 @@ def get_temporal_hadamard_raw_template() -> QubitTemplate:
 def get_temporal_hadamard_rpng_descriptions(
     orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
-    """Returns a representation of a transversal Hadamard gate applied on one
-    logical qubit.
+    """Returns a description of the plaquettes needed to implement a transversal
+    Hadamard gate applied on one logical qubit.
 
-    This function returns a RPNGTemplate instance that performs a transversal
-    Hadamard gate. It is basically performing a standard memory operation, but
-    also include a Hadamard gate on each data-qubit, effectively performing a
-    fault-tolerant Hadamard gate by transversal application of physical gates.
+    Warning:
+        This function is tightly coupled with
+        :func:`get_temporal_hadamard_raw_template` and the returned ``RPNG``
+        descriptions should only be considered valid when used in conjunction
+        with the :class:`~tqec.templates.indices.base.Template` instance
+        returned by this function.
 
     Arguments:
-        orientation: orientation of the Z observable at the beginning of the
-            generated circuit description. The Z observable orientation will be
-            flipped at the end of the returned circuit description, which is
+        orientation: orientation of the ``Z`` observable at the beginning of the
+            generated circuit description. The ``Z`` observable orientation will
+            be flipped at the end of the returned circuit description, which is
             exactly the expected behaviour for a Hadamard transition.
             Used to compute the stabilizers that should be measured on the
             boundaries and in the bulk of the returned logical qubit description.
 
     Returns:
-        an implementation of transversal Hadamard gate.
+        a description of the plaquettes needed to implement a transversal
+        Hadamard gate applied on one logical qubit.
     """
     bh = orientation.horizontal_basis()
     bv = orientation.vertical_basis()
@@ -80,30 +70,13 @@ def get_temporal_hadamard_rpng_descriptions(
 
 
 def get_spatial_horizontal_hadamard_raw_template() -> QubitHorizontalBorders:
-    """Returns a representation of a "transversal" Hadamard gate at the interface
-    between two logical qubits aligned on the Y-axis
-
-    Note:
-        by convention, the hadamard-like transition is performed at the top-most
-        plaquettes.
-
-    Arguments:
-        top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-            :class:`~tqec.templates.indices.qubit.QubitHorizontalBorders`
-            should be measuring a Z stabilizer on its 2 top-most data-qubits and
-            a X stabilizer on its 2 bottom-most data-qubits. Else, it measures a
-            X stabilizer on its two top-most data-qubits and a Z stabilizer on
-            its two bottom-most data-qubits.
-        reset: basis of the reset operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no reset being
-            applied on data-qubits.
-        measurement: basis of the measurement operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no measurement
-            being applied on data-qubits.
+    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    needed to implement a spatial Hadamard pipe between two neighbouring logical
+    qubits aligned on the ``Y`` axis.
 
     Returns:
-        a description of a junction in the Y-axis and performing a logical
-        Hadamard operation.
+        an instance of
+        :class:`~tqec.templates.indices.qubit.QubitHorizontalBorders`.
     """
     return QubitHorizontalBorders()
 
@@ -113,20 +86,32 @@ def get_spatial_horizontal_hadamard_rpng_descriptions(
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
-    """Returns a representation of a "transversal" Hadamard gate at the interface
-    between two logical qubits aligned on the Y-axis
+    """Returns a description of the plaquettes needed to implement a Hadamard
+    spatial transition between two neighbouring logical qubits aligned on the
+    ``Y`` axis.
+
+    The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
+    observables between two neighbouring logical qubits aligned on the ``Y``
+    axis.
 
     Note:
         by convention, the hadamard-like transition is performed at the top-most
         plaquettes.
 
+    Warning:
+        This function is tightly coupled with
+        :func:`get_spatial_horizontal_hadamard_raw_template` and the returned
+        ``RPNG`` descriptions should only be considered valid when used in
+        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        instance returned by this function.
+
     Arguments:
         top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
             :class:`~tqec.templates.indices.qubit.QubitHorizontalBorders`
-            should be measuring a Z stabilizer on its 2 top-most data-qubits and
-            a X stabilizer on its 2 bottom-most data-qubits. Else, it measures a
-            X stabilizer on its two top-most data-qubits and a Z stabilizer on
-            its two bottom-most data-qubits.
+            should be measuring a ``Z`` stabilizer on its 2 top-most data-qubits
+            and a ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
+            measures a ``X`` stabilizer on its two top-most data-qubits and a
+            ``Z`` stabilizer on its two bottom-most data-qubits.
         reset: basis of the reset operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no reset being
             applied on data-qubits.
@@ -135,8 +120,9 @@ def get_spatial_horizontal_hadamard_rpng_descriptions(
             being applied on data-qubits.
 
     Returns:
-        a description of a junction in the Y-axis and performing a logical
-        Hadamard operation.
+        a description of the plaquettes needed to implement a Hadamard spatial
+        transition between two neighbouring logical qubits aligned on the ``Y``
+        axis.
     """
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
@@ -163,30 +149,13 @@ def get_spatial_horizontal_hadamard_rpng_descriptions(
 
 
 def get_spatial_vertical_hadamard_raw_template() -> QubitVerticalBorders:
-    """Returns a representation of a "transversal" Hadamard gate at the interface
-    between two logical qubits aligned on the X-axis.
-
-    Note:
-        by convention, the hadamard-like transition is performed at the left-most
-        plaquettes.
-
-    Arguments:
-        top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-            :class:`~tqec.templates.indices.qubit.QubitVerticalBorders`
-            should be measuring a Z stabilizer on its 2 left-most data-qubits
-            and a X stabilizer on its 2 right-most data-qubits. Else, it
-            measures a X stabilizer on its two left-most data-qubits and a Z
-            stabilizer on its two right-most data-qubits.
-        reset: basis of the reset operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no reset being
-            applied on data-qubits.
-        measurement: basis of the measurement operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no measurement
-            being applied on data-qubits.
+    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    needed to implement a spatial Hadamard pipe between two logical qubits
+    aligned on the ``X`` axis.
 
     Returns:
-        a description of a junction in the X-axis and performing a logical
-        Hadamard operation.
+        an instance of
+        :class:`~tqec.templates.indices.qubit.QubitVerticalBorders`.
     """
     return QubitVerticalBorders()
 
@@ -196,20 +165,32 @@ def get_spatial_vertical_hadamard_rpng_descriptions(
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
-    """Returns a representation of a "transversal" Hadamard gate at the interface
-    between two logical qubits aligned on the X-axis.
+    """Returns a description of the plaquettes needed to implement a Hadamard
+    spatial transition between two neighbouring logical qubits aligned on the
+    ``X`` axis.
+
+    The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
+    observables between two neighbouring logical qubits aligned on the ``X``
+    axis.
 
     Note:
-        by convention, the hadamard-like transition is performed at the left-most
+        by convention, the hadamard-like transition is performed at the top-most
         plaquettes.
+
+    Warning:
+        This function is tightly coupled with
+        :func:`get_spatial_vertical_hadamard_raw_template` and the returned
+        ``RPNG`` descriptions should only be considered valid when used in
+        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        instance returned by this function.
 
     Arguments:
         top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
             :class:`~tqec.templates.indices.qubit.QubitVerticalBorders`
-            should be measuring a Z stabilizer on its 2 left-most data-qubits
-            and a X stabilizer on its 2 right-most data-qubits. Else, it
-            measures a X stabilizer on its two left-most data-qubits and a Z
-            stabilizer on its two right-most data-qubits.
+            should be measuring a ``Z`` stabilizer on its 2 left-most data-qubits
+            and a ``X`` stabilizer on its 2 right-most data-qubits. Else, it
+            measures a ``X`` stabilizer on its two left-most data-qubits and a
+            ``Z`` stabilizer on its two right-most data-qubits.
         reset: basis of the reset operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no reset being
             applied on data-qubits.
@@ -218,8 +199,9 @@ def get_spatial_vertical_hadamard_rpng_descriptions(
             being applied on data-qubits.
 
     Returns:
-        a description of a junction in the X-axis and performing a logical
-        Hadamard operation.
+        a description of the plaquettes needed to implement a Hadamard spatial
+        transition between two neighbouring logical qubits aligned on the ``X``
+        axis.
     """
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
