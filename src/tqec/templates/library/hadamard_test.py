@@ -3,17 +3,18 @@ from typing import Final
 from tqec.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
-from tqec.templates.library.hadamard import (
-    get_spatial_horizontal_hadamard_template,
-    get_spatial_vertical_hadamard_template,
-    get_temporal_hadamard_template,
+
+from ._testing import (
+    get_spatial_horizontal_hadamard_rpng_template,
+    get_spatial_vertical_hadamard_rpng_template,
+    get_temporal_hadamard_rpng_template,
 )
 
 _EMPT: Final[RPNGDescription] = RPNGDescription.from_string("---- ---- ---- ----")
 
 
 def test_hadamard_horizontal_z_observable() -> None:
-    hadamard_template = get_temporal_hadamard_template(
+    hadamard_template = get_temporal_hadamard_rpng_template(
         ZObservableOrientation.HORIZONTAL
     )
     instantiation = hadamard_template.instantiate(k=2)
@@ -36,7 +37,9 @@ def test_hadamard_horizontal_z_observable() -> None:
 
 
 def test_hadamard_vertical_z_observable() -> None:
-    hadamard_template = get_temporal_hadamard_template(ZObservableOrientation.VERTICAL)
+    hadamard_template = get_temporal_hadamard_rpng_template(
+        ZObservableOrientation.VERTICAL
+    )
     instantiation = hadamard_template.instantiate(k=2)
 
     _XXXX = RPNGDescription.from_string("-x1h -x3h -x2h -x4h")
@@ -57,7 +60,7 @@ def test_hadamard_vertical_z_observable() -> None:
 
 
 def test_hadamard_vertical_boundary_top_left_is_z_stabilizer() -> None:
-    hadamard_template = get_spatial_vertical_hadamard_template(
+    hadamard_template = get_spatial_vertical_hadamard_rpng_template(
         top_left_is_z_stabilizer=True
     )
     instantiation = hadamard_template.instantiate(k=2)
@@ -80,7 +83,7 @@ def test_hadamard_vertical_boundary_top_left_is_z_stabilizer() -> None:
 
 
 def test_hadamard_vertical_boundary_top_left_is_x_stabilizer() -> None:
-    hadamard_template = get_spatial_vertical_hadamard_template(
+    hadamard_template = get_spatial_vertical_hadamard_rpng_template(
         top_left_is_z_stabilizer=False
     )
     instantiation = hadamard_template.instantiate(k=2)
@@ -103,7 +106,7 @@ def test_hadamard_vertical_boundary_top_left_is_x_stabilizer() -> None:
 
 
 def test_hadamard_vertical_boundary_top_left_is_z_stabilizer_reset_z() -> None:
-    hadamard_template = get_spatial_vertical_hadamard_template(
+    hadamard_template = get_spatial_vertical_hadamard_rpng_template(
         top_left_is_z_stabilizer=True, reset=Basis.Z
     )
     instantiation = hadamard_template.instantiate(k=2)
@@ -126,7 +129,7 @@ def test_hadamard_vertical_boundary_top_left_is_z_stabilizer_reset_z() -> None:
 
 
 def test_hadamard_vertical_boundary_top_left_is_z_stabilizer_measurement_xz() -> None:
-    hadamard_template = get_spatial_vertical_hadamard_template(
+    hadamard_template = get_spatial_vertical_hadamard_rpng_template(
         top_left_is_z_stabilizer=True, measurement=Basis.X
     )
     instantiation = hadamard_template.instantiate(k=2)
@@ -149,7 +152,7 @@ def test_hadamard_vertical_boundary_top_left_is_z_stabilizer_measurement_xz() ->
 
 
 def test_hadamard_horizontal_boundary_horizontal_z_observable() -> None:
-    hadamard_template = get_spatial_horizontal_hadamard_template(
+    hadamard_template = get_spatial_horizontal_hadamard_rpng_template(
         top_left_is_z_stabilizer=True
     )
     instantiation = hadamard_template.instantiate(k=2)
@@ -168,7 +171,7 @@ def test_hadamard_horizontal_boundary_horizontal_z_observable() -> None:
 
 
 def test_hadamard_horizontal_boundary_vertical_z_observable() -> None:
-    hadamard_template = get_spatial_horizontal_hadamard_template(
+    hadamard_template = get_spatial_horizontal_hadamard_rpng_template(
         top_left_is_z_stabilizer=False
     )
     instantiation = hadamard_template.instantiate(k=2)
@@ -187,7 +190,7 @@ def test_hadamard_horizontal_boundary_vertical_z_observable() -> None:
 
 
 def test_hadamard_horizontal_boundary_horizontal_z_observable_reset_z() -> None:
-    hadamard_template = get_spatial_horizontal_hadamard_template(
+    hadamard_template = get_spatial_horizontal_hadamard_rpng_template(
         top_left_is_z_stabilizer=True, reset=Basis.Z
     )
     instantiation = hadamard_template.instantiate(k=2)
@@ -206,7 +209,7 @@ def test_hadamard_horizontal_boundary_horizontal_z_observable_reset_z() -> None:
 
 
 def test_hadamard_horizontal_boundary_horizontal_z_observable_measurement_x() -> None:
-    hadamard_template = get_spatial_horizontal_hadamard_template(
+    hadamard_template = get_spatial_horizontal_hadamard_rpng_template(
         top_left_is_z_stabilizer=True, measurement=Basis.X
     )
     instantiation = hadamard_template.instantiate(k=2)
