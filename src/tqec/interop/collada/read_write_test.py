@@ -63,7 +63,7 @@ def test_y_cube_positioning_during_roundtrip() -> None:
 
 def test_collada_write_read_with_correlation_surface() -> None:
     block_graph = logical_cnot_block_graph("X")
-    correlation_surfaces = block_graph.to_zx_graph().find_correration_surfaces()
+    correlation_surfaces = block_graph.to_zx_graph().find_correlation_surfaces()
 
     with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
         for correlation_surface in correlation_surfaces:

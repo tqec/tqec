@@ -22,7 +22,7 @@ def add_inset_axes3d(
 def plot_observable_as_inset(
     ax_target: Axes,
     zx_graph: ZXGraph,
-    correlation_surface: CorrelationSurface,
+    observable: CorrelationSurface,
     bounds: tuple[float, float, float, float] = (0.5, 0.0, 0.5, 0.5),
 ) -> None:
     """Plot the provided observable as an inset in the provided ax.
@@ -34,10 +34,10 @@ def plot_observable_as_inset(
             [0, 1] meaning that an input of (0, 0, 1, 1) will span the whole
             `ax_target`.
         zx_graph: ZX graph used.
-        correlation_surface: correlation surface over the provided `zx_graph` to
+        observable: correlation surface over the provided `zx_graph` to
             draw.
     """
     inset_ax = add_inset_axes3d(ax_target, bounds)
     draw_zx_graph_on(zx_graph, inset_ax, node_size=50)
-    draw_correlation_surface_on(correlation_surface, inset_ax)
+    draw_correlation_surface_on(observable, inset_ax)
     inset_ax.set_facecolor((0.0, 0.0, 0.0, 0.0))
