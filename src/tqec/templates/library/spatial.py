@@ -28,57 +28,20 @@ from tqec.templates.indices.qubit import (
 
 
 def get_spatial_junction_qubit_raw_template() -> QubitSpatialJunctionTemplate:
-    """Implementation of a logical qubit acting as a spatial junction.
-
-    This function returns a RPNGTemplate instance representing a logical qubit
-    connecting to others in space and forming a spatial junction. The returned
-    template is carefully crafted to avoid hook errors damaging the logical
-    distance.
+    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    needed to implement a spatial cube.
 
     Note:
-        this function does not enforce anything on the input values. As such, it
-        is possible to generate a description of a round that will both reset and
-        measure the data-qubits.
-
-    Warning:
-        By convention, this function does not populate the plaquettes on the
-        boundaries where an arm is present **BUT** do populate the corners (that
-        are part of the boundaries, so this is an exception to the first part of
-        the sentence).
-
-        The rationale behind that convention is that the logical qubit
-        representing the spatial junction is completely aware of all the arms
-        that should be implemented whereas each arm in isolation does not know
-        if the other arms are present or not. That means that corners, whose
-        plaquette depends on the presence or absence of the two arms it belongs
-        to, require information that is given to this function, but not to the
-        arm-generation function.
-
-        Arms should follow that convention and should not replace the plaquette
-        descriptions on the corners (i.e., not include an explicit mapping, even
-        to the empty plaquette, from the index of the corner to a plaquette).
-
-
-    Arguments:
-        spatial_boundary_basis: stabilizers that are measured at each boundaries
-            of the spatial junction.
-        arms: flag-like enumeration listing the arms that are used around the
-            logical qubit. The returned template will be adapted to be
-            compatible with such a layout.
-        reset: basis of the reset operation performed on data-qubits. Defaults
-            to ``None`` that translates to no reset being applied on data-qubits.
-        measurement: basis of the measurement operation performed on data-qubits.
-            Defaults to ``None`` that translates to no measurement being applied
-            on data-qubits.
-
-    Raises:
-        TQECException: if ``arms`` only contains 0 or 1 flag.
-        TQECException: if ``arms`` describes an I-shaped junction (TOP/DOWN or
-            LEFT/RIGHT).
+        A spatial cube is defined as a cube with all its spatial boundaries in
+        the same basis.
+        Such a cube might appear in stability experiments (e.g.,
+        http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
+        with more than one pipe in the spatial plane) or in other QEC gadgets
+        such as the lattice surgery implementation of a ``CZ`` gate.
 
     Returns:
-        a description of a logical qubit performing a memory operation while
-        being enclosed by 2 or more arms.
+        an instance of
+        :class:`~tqec.templates.indices.qubit.QubitSpatialJunctionTemplate`.
     """
     return QubitSpatialJunctionTemplate()
 
@@ -281,57 +244,34 @@ def get_spatial_junction_qubit_rpng_descriptions(
 def get_spatial_junction_arm_raw_template(
     arm: JunctionArms,
 ) -> QubitVerticalBorders | QubitHorizontalBorders:
-    """Implementation of arms for a spatial junction around a logical qubit.
+    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    needed to implement the given spatial ``arm``.
 
-    This function returns a RPNGTemplate instance representing the arms
-    required to perform a spatial junction on a logical qubit that has 2 or more
-    arms. The returned template is carefully crafted to avoid hook errors
-    damaging the logical distance.
-
-    Note:
-        this function does not enforce anything on the input values. As such, it
-        is possible to generate a description of a round that will both reset and
-        measure the data-qubits.
-
-    Warning:
-        by convention, this function should **not** populate the plaquettes on
-        the corners as :func:`get_spatial_junction_qubit_template` should take
-        care of that.
-
-    Warning:
-        Using this function without :func:`get_spatial_junction_qubit_template`
-        is very likely a programming error. Please double-check what you are
-        doing if that is your case, in particular how the plaquettes on each
-        corner of the center logical qubit are set.
-
-    Arguments:
-        spatial_boundary_basis: stabilizers that are measured at each boundaries
-            of the spatial junction.
-        arm: arm to return a spatial junction for. Should contain exactly
-            **one** of the possible arm flags.
-        reset: basis of the reset operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no reset being
-            applied on data-qubits.
-        measurement: basis of the measurement operation performed on **internal**
-            data-qubits. Defaults to ``None`` that translates to no measurement
-            being applied on data-qubits.
+    Args:
+        arm: specification of the spatial arm we want a template for.
 
     Raises:
-        TQECException: if ``arm`` does not contain exactly 1 flag (i.e., if it
-            contains 0 or 2+ flags).
+        TQECException: if the provided ``arm`` is not composed of exactly one
+            flag (e.g. ``arm == (JunctionArms.UP | JunctionArms.LEFT)`` would
+            raise).
 
     Returns:
-        a description of the provided ``arm``.
+        an instance of
+        :class:`~tqec.templates.indices.qubit.QubitHorizontalBorders` or
+        :class:`~tqec.templates.indices.qubit.QubitVerticalBorders` depending on
+        the provided ``arm``.
     """
-    match arm:
-        case JunctionArms.LEFT | JunctionArms.RIGHT:
-            return QubitVerticalBorders()
-        case JunctionArms.UP | JunctionArms.DOWN:
-            return QubitHorizontalBorders()
-        case _:
-            raise TQECException(
-                f"The 'arm' parameter should contain exactly 1 flag. Got {arm}."
-            )
+    if len(arm) != 1:
+        raise TQECException(
+            f"The 'arm' parameter should contain exactly 1 flag. Got {arm}."
+        )
+
+    if arm == JunctionArms.LEFT or arm == JunctionArms.RIGHT:
+        return QubitVerticalBorders()
+    elif arm == JunctionArms.UP or arm == JunctionArms.DOWN:
+        return QubitHorizontalBorders()
+    else:
+        raise TQECException(f"Unrecognized junction arm: {arm}.")
 
 
 def get_spatial_junction_arm_rpng_descriptions(
