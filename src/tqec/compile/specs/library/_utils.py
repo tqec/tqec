@@ -2,13 +2,9 @@ from typing import Literal
 
 from tqec.compile.block import CompiledBlock
 from tqec.compile.specs.base import CubeSpec, PipeSpec, Substitution
-from tqec.computation.cube import CubeKind, ZXBasis, ZXCube
-from tqec.plaquette.enums import (
-    MeasurementBasis,
-    PlaquetteOrientation,
-    PlaquetteSide,
-    ResetBasis,
-)
+from tqec.computation.cube import CubeKind, ZXCube
+from tqec.enums import Basis
+from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library import PlaquetteBuilder, empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
@@ -51,7 +47,7 @@ def _build_plaquette_for_different_basis(
     builder: PlaquetteBuilder,
     x_boundary_orientation: Literal["VERTICAL", "HORIZONTAL"],
     *,
-    temporal_basis: ZXBasis | None = None,
+    temporal_basis: Basis | None = None,
     data_init: bool = False,
     data_meas: bool = False,
     init_meas_only_on_side: PlaquetteSide | None = None,
@@ -71,10 +67,8 @@ def _build_plaquette_for_different_basis(
     def factory(b: Literal["X", "Z"]) -> Plaquette:
         return builder(
             basis=b,
-            data_initialization=ResetBasis(str(temporal_basis)) if data_init else None,
-            data_measurement=MeasurementBasis(str(temporal_basis))
-            if data_meas
-            else None,
+            data_initialization=temporal_basis if data_init else None,
+            data_measurement=temporal_basis if data_meas else None,
             x_boundary_orientation=x_boundary_orientation,
             init_meas_only_on_side=init_meas_only_on_side,
         )
@@ -86,7 +80,7 @@ def _build_plaquettes_for_rotated_surface_code(
     builder: PlaquetteBuilder,
     x_boundary_orientation: Literal["VERTICAL", "HORIZONTAL"],
     *,
-    temporal_basis: ZXBasis | None = None,
+    temporal_basis: Basis | None = None,
     data_init: bool = False,
     data_meas: bool = False,
     repetitions: LinearFunction | None = None,
@@ -122,7 +116,7 @@ def _build_plaquettes_for_rotated_surface_code(
 
 def _build_regular_block(
     builder: PlaquetteBuilder,
-    temporal_basis: ZXBasis,
+    temporal_basis: Basis,
     x_boundary_orientation: Literal["VERTICAL", "HORIZONTAL"],
     repetitions: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
 ) -> CompiledBlock:
@@ -171,7 +165,7 @@ def _build_plaquettes_for_space_regular_pipe(
     substitution_side: PlaquetteSide,
     x_boundary_orientation: Literal["VERTICAL", "HORIZONTAL"],
     *,
-    temporal_basis: ZXBasis | None = None,
+    temporal_basis: Basis | None = None,
     data_init: bool = False,
     data_meas: bool = False,
     repetitions: LinearFunction | None = None,
@@ -282,4 +276,4 @@ def _get_x_boundary_orientation(
     cube_kind: CubeKind,
 ) -> Literal["VERTICAL", "HORIZONTAL"]:
     assert isinstance(cube_kind, ZXCube)
-    return "VERTICAL" if cube_kind.x == ZXBasis.X else "HORIZONTAL"
+    return "VERTICAL" if cube_kind.x == Basis.X else "HORIZONTAL"

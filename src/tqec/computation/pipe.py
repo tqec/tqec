@@ -5,9 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Generator
 
+from tqec.computation.cube import Cube, ZXCube
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
 from tqec.position import Direction3D
-from tqec.computation.cube import Cube, ZXBasis, ZXCube
 
 
 @dataclass(frozen=True)
@@ -32,9 +33,9 @@ class PipeKind:
         has_hadamard: Whether the pipe has a hadamard transition.
     """
 
-    x: ZXBasis | None
-    y: ZXBasis | None
-    z: ZXBasis | None
+    x: Basis | None
+    y: Basis | None
+    z: Basis | None
     has_hadamard: bool = False
 
     def __post_init__(self) -> None:
@@ -69,7 +70,7 @@ class PipeKind:
         string = string.upper()
         has_hadamard = len(string) == 4 and string[3] == "H"
         return PipeKind(
-            *(ZXBasis(s) if s != "O" else None for s in string[:3]),  # type: ignore
+            *(Basis(s) if s != "O" else None for s in string[:3]),  # type: ignore
             has_hadamard=has_hadamard,
         )
 
@@ -80,7 +81,7 @@ class PipeKind:
 
     def get_basis_along(
         self, direction: Direction3D, at_head: bool = True
-    ) -> ZXBasis | None:
+    ) -> Basis | None:
         """Get the wall basis of the pipe in the specified direction.
 
         Args:
@@ -95,9 +96,9 @@ class PipeKind:
         """
         if direction == self.direction:
             return None
-        head_basis = ZXBasis(str(self)[direction.value])
+        head_basis = Basis(str(self)[direction.value])
         if not at_head and self.has_hadamard:
-            return head_basis.with_zx_flipped()
+            return head_basis.flipped()
         return head_basis
 
     @property
@@ -132,9 +133,9 @@ class PipeKind:
         Returns:
             The inferred pipe kind.
         """
-        bases: list[ZXBasis]
+        bases: list[Basis]
         if not cube_at_head and has_hadamard:
-            bases = [basis.with_zx_flipped() for basis in cube_kind.as_tuple()]
+            bases = [basis.flipped() for basis in cube_kind.as_tuple()]
         else:
             bases = list(cube_kind.as_tuple())
         bases_str = [basis.value for basis in bases]

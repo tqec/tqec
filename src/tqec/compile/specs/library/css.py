@@ -7,7 +7,6 @@ from tqec.compile.specs.library._utils import (
 )
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 
-
 CSS_BLOCK_BUILDER: BlockBuilder = partial(
     default_compiled_block_builder, plaquette_builder=make_css_surface_code_plaquette
 )

@@ -1,27 +1,28 @@
 import pytest
 
-from tqec.computation.cube import Cube, ZXBasis, ZXCube
+from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe, PipeKind
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
 from tqec.position import Direction3D, Position3D
 
 
 def test_pipe_kind() -> None:
     with pytest.raises(Exception, match="Exactly one basis must be None for a pipe."):
-        PipeKind(ZXBasis.X, ZXBasis.Z, ZXBasis.X)
+        PipeKind(Basis.X, Basis.Z, Basis.X)
 
     with pytest.raises(Exception, match="Exactly one basis must be None for a pipe."):
-        PipeKind(None, None, ZXBasis.X)
+        PipeKind(None, None, Basis.X)
 
     with pytest.raises(Exception, match="Pipe must have different basis walls."):
-        PipeKind(None, ZXBasis.X, ZXBasis.X)
+        PipeKind(None, Basis.X, Basis.X)
 
     kind = PipeKind.from_str("OXZ")
     assert str(kind) == "OXZ"
     assert kind.direction == Direction3D.X
     assert kind.get_basis_along(Direction3D.X) is None
-    assert kind.get_basis_along(Direction3D.Y) == ZXBasis.X
-    assert kind.get_basis_along(Direction3D.Z, False) == ZXBasis.Z
+    assert kind.get_basis_along(Direction3D.Y) == Basis.X
+    assert kind.get_basis_along(Direction3D.Z, False) == Basis.Z
     assert kind.is_spatial
 
     kind = PipeKind.from_str("XZOH")

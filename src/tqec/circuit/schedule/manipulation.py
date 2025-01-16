@@ -205,13 +205,13 @@ def remove_duplicate_instructions(
         circuit.append(instr)
     try:
         Moment.check_is_valid_moment(circuit)
-    except TQECException:
+    except TQECException as e:
         warnings.warn(
             "The instructions obtained at the end of the "
             "`remove_duplicate_instructions` function do not form a valid "
             "moment. You are likely misusing the function. Final instructions "
             "obtained and gathered into a single stim.Circuit: "
-            f"\n{circuit}",
+            f"\n{circuit}\nReason:\n{e}",
             TQECWarning,
         )
     return final_operations

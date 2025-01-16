@@ -15,11 +15,9 @@ has at least 2 pipes in the spatial plane (``X`` or ``Y`` axis).
 The pipes connected to the spatial junction are called **arms**.
 """
 
-from typing import Literal
-
 from tqec.compile.specs.enums import JunctionArms
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
-from tqec.plaquette.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.indices.qubit import (
@@ -31,11 +29,11 @@ from tqec.templates.rpng import RPNGTemplate
 
 
 def get_spatial_junction_qubit_template(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     arms: JunctionArms,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitSpatialJunctionTemplate]:
     """Implementation of a logical qubit acting as a spatial junction.
 
     This function returns a RPNGTemplate instance representing a logical qubit
@@ -119,8 +117,8 @@ def get_spatial_junction_qubit_template(
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
     mapping: dict[int, RPNGDescription] = {}
     ####################
@@ -229,11 +227,11 @@ def get_spatial_junction_qubit_template(
 
 
 def get_spatial_junction_arm_template(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     arm: JunctionArms,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitVerticalBorders | QubitHorizontalBorders]:
     """Implementation of arms for a spatial junction around a logical qubit.
 
     This function returns a RPNGTemplate instance representing the arms
@@ -300,16 +298,16 @@ def get_spatial_junction_arm_template(
 
 
 def _get_left_spatial_junction_arm(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitVerticalBorders]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
     mapping = {
         # TOP_RIGHT: NOT included to avoid overwriting the corner
@@ -333,16 +331,16 @@ def _get_left_spatial_junction_arm(
 
 
 def _get_right_spatial_junction_arm(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitVerticalBorders]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
     mapping = {
         # TOP_RIGHT
@@ -366,16 +364,16 @@ def _get_right_spatial_junction_arm(
 
 
 def _get_up_spatial_junction_arm(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitHorizontalBorders]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
     mapping = {
         # TOP_LEFT
@@ -399,16 +397,16 @@ def _get_up_spatial_junction_arm(
 
 
 def _get_down_spatial_junction_arm(
-    spatial_boundary_basis: Literal["x", "z"],
+    spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> RPNGTemplate[QubitHorizontalBorders]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
     mapping = {
         # TOP_RIGHT: NOT included to avoid overwriting the corner

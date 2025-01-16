@@ -1,7 +1,7 @@
 """Introduces :class:`~tqec.plaquette.compilation.base.PlaquetteCompiler`, the class
 used to implement a plaquette compiler."""
 
-from typing import Callable, Iterable
+from typing import Callable, Final, Iterable
 
 from tqec.plaquette.compilation.passes.base import CompilationPass
 from tqec.plaquette.plaquette import Plaquette
@@ -41,3 +41,8 @@ class PlaquetteCompiler:
             circuit,
             self._mergeable_instructions_modifier(plaquette.mergeable_instructions),
         )
+
+
+IdentityPlaquetteCompiler: Final[PlaquetteCompiler] = PlaquetteCompiler(
+    "ID", [], lambda x: x
+)

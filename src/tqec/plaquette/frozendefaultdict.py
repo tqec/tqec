@@ -8,6 +8,7 @@ from typing_extensions import override
 
 K = TypeVar("K")
 V = TypeVar("V")
+Vp = TypeVar("Vp")
 
 
 class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
@@ -95,4 +96,13 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         return FrozenDefaultDict(
             {callable(k): v for k, v in self.items()},
             default_factory=self._default_factory,
+        )
+
+    def map_values(self, callable: Callable[[V], Vp]) -> FrozenDefaultDict[K, Vp]:
+        default_factory: Callable[[], Vp] | None = None
+        if self.default_factory is not None:
+            default_value = callable(self.default_factory())
+            default_factory = lambda: default_value  # noqa: E731
+        return FrozenDefaultDict(
+            {k: callable(v) for k, v in self.items()}, default_factory=default_factory
         )

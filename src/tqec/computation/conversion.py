@@ -1,17 +1,12 @@
 """Conversion between ``ZXGraph`` and ``BlockGraph``."""
 
 from typing import cast
-from tqec.computation.cube import (
-    Cube,
-    CubeKind,
-    Port,
-    YCube,
-    ZXBasis,
-    ZXCube,
-)
+
 from tqec.computation.block_graph import BlockGraph
+from tqec.computation.cube import Cube, CubeKind, Port, YCube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.computation.zx_graph import ZXEdge, ZXGraph, ZXKind, ZXNode
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
 from tqec.position import Direction3D
 
@@ -120,8 +115,8 @@ def _handle_corners(
         normal_direction = (
             set(Direction3D.all_directions()).difference(directions).pop()
         )
-        normal_direction_basis = ZXBasis(node.kind.value)
-        bases = [normal_direction_basis.with_zx_flipped() for _ in range(3)]
+        normal_direction_basis = Basis(node.kind.value)
+        bases = [normal_direction_basis.flipped() for _ in range(3)]
         bases[normal_direction.value] = normal_direction_basis
         kind = ZXCube(*bases)
         block_graph.add_node(Cube(node.position, kind, node.label))
@@ -261,5 +256,5 @@ def _infer_cube_kind_from_pipe(
         pipe_kind.get_basis_along(direction, at_pipe_head)
         for direction in Direction3D.all_directions()
     ]
-    bases[pipe_kind.direction.value] = ZXBasis(node_kind.value).with_zx_flipped()
-    return ZXCube(*cast(list[ZXBasis], bases))
+    bases[pipe_kind.direction.value] = Basis(node_kind.value).flipped()
+    return ZXCube(*cast(list[Basis], bases))
