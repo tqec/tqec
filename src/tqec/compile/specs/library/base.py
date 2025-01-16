@@ -364,9 +364,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
             case (False, Direction3D.X):
                 return JunctionArms.LEFT
             case (True, Direction3D.Y):
-                return JunctionArms.UP
-            case (False, Direction3D.Y):
                 return JunctionArms.DOWN
+            case (False, Direction3D.Y):
+                return JunctionArms.UP
             case _:
                 raise TQECException(
                     "Should never happen as we are in a spatial (i.e., X/Y plane) junction."

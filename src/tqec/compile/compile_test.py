@@ -231,6 +231,40 @@ def test_compile_single_block_stability(
 
 
 @pytest.mark.parametrize(
+    ("spec", "k"),
+    itertools.product(
+        SPECS.keys(),
+        (1,),
+    ),
+)
+def test_compile_L_spatial_junction(spec: str, k: int) -> None:
+    d = 2 * k + 1
+    g = BlockGraph("L Spatial Junction")
+    g.add_edge(
+        Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXX")),
+        Cube(Position3D(0, 1, 0), ZXCube.from_str("ZZX")),
+    )
+    g.add_edge(
+        Cube(Position3D(0, 1, 0), ZXCube.from_str("ZZX")),
+        Cube(Position3D(1, 1, 0), ZXCube.from_str("XZX")),
+    )
+
+    block_builder, substitution_builder = SPECS[spec]
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 1
+    compiled_graph = compile_block_graph(
+        g, block_builder, substitution_builder, correlation_surfaces
+    )
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
     ("spec", "support_observable_basis", "k"),
     itertools.product(
         SPECS.keys(),
@@ -244,7 +278,7 @@ def test_compile_move_rotation(
     d = 2 * k + 1
     g = move_rotation_block_graph(support_observable_basis)
 
-    block_builder, substitution_builder = SPECS["STANDARD"]
+    block_builder, substitution_builder = SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
