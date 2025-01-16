@@ -1,0 +1,38 @@
+ZXEdge
+======
+
+.. currentmodule:: tqec.computation
+
+.. autoclass:: ZXEdge
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ZXEdge.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ZXEdge.direction
+      ~ZXEdge.has_hadamard
+      ~ZXEdge.u
+      ~ZXEdge.v
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   
+   
