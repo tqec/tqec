@@ -1,11 +1,11 @@
 """Internal module defining a few useful functions to test the template library."""
 
-from tqec.compile.specs.enums import JunctionArms
+from tqec.compile.specs.enums import SpatialArms
 from tqec.enums import Basis
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
-    QubitSpatialJunctionTemplate,
+    QubitSpatialCubeTemplate,
     QubitTemplate,
     QubitVerticalBorders,
 )
@@ -26,10 +26,10 @@ from tqec.templates.library.memory import (
     get_memory_vertical_boundary_rpng_descriptions,
 )
 from tqec.templates.library.spatial import (
-    get_spatial_junction_arm_raw_template,
-    get_spatial_junction_arm_rpng_descriptions,
-    get_spatial_junction_qubit_raw_template,
-    get_spatial_junction_qubit_rpng_descriptions,
+    get_spatial_cube_arm_raw_template,
+    get_spatial_cube_arm_rpng_descriptions,
+    get_spatial_cube_qubit_raw_template,
+    get_spatial_cube_qubit_rpng_descriptions,
 )
 from tqec.templates.rpng import RPNGTemplate
 
@@ -106,29 +106,29 @@ def get_memory_horizontal_boundary_rpng_template(
     )
 
 
-def get_spatial_junction_qubit_rpng_template(
+def get_spatial_cube_qubit_rpng_template(
     spatial_boundary_basis: Basis,
-    arms: JunctionArms,
+    arms: SpatialArms,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate[QubitSpatialJunctionTemplate]:
+) -> RPNGTemplate[QubitSpatialCubeTemplate]:
     return RPNGTemplate(
-        template=get_spatial_junction_qubit_raw_template(),
-        mapping=get_spatial_junction_qubit_rpng_descriptions(
+        template=get_spatial_cube_qubit_raw_template(),
+        mapping=get_spatial_cube_qubit_rpng_descriptions(
             spatial_boundary_basis, arms, reset, measurement
         ),
     )
 
 
-def get_spatial_junction_arm_rpng_template(
+def get_spatial_cube_arm_rpng_template(
     spatial_boundary_basis: Basis,
-    arm: JunctionArms,
+    arm: SpatialArms,
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> RPNGTemplate[QubitVerticalBorders | QubitHorizontalBorders]:
     return RPNGTemplate(
-        template=get_spatial_junction_arm_raw_template(arm),
-        mapping=get_spatial_junction_arm_rpng_descriptions(
+        template=get_spatial_cube_arm_raw_template(arm),
+        mapping=get_spatial_cube_arm_rpng_descriptions(
             spatial_boundary_basis, arm, reset, measurement
         ),
     )

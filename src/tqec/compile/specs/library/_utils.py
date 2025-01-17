@@ -19,7 +19,7 @@ def default_compiled_block_builder(
     spec: CubeSpec, *, plaquette_builder: PlaquetteBuilder
 ) -> CompiledBlock:
     """Default rule for generating a `CompiledBlock` based on a `CubeSpec`."""
-    if spec.is_regular:
+    if not spec.is_spatial:
         assert isinstance(spec.kind, ZXCube)
         return _build_regular_block(
             plaquette_builder,
@@ -221,7 +221,7 @@ def _build_substitution_in_space(
     plaquette_builder: PlaquetteBuilder,
 ) -> Substitution:
     """Build a substitution for a pipe in space."""
-    if pipe_spec.spec1.is_regular and pipe_spec.spec2.is_regular:
+    if not pipe_spec.spec1.is_spatial and not pipe_spec.spec2.is_spatial:
         return _build_substitution_in_space_with_regular_cubes(
             pipe_spec, plaquette_builder
         )

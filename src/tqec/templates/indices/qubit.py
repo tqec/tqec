@@ -83,9 +83,8 @@ class QubitTemplate(RectangularTemplate):
                 return BorderIndices(2, 11, 12, 4)
 
 
-class QubitSpatialJunctionTemplate(RectangularTemplate):
-    """An error-corrected qubit that is making a 4-way junction with other
-    logical qubits.
+class QubitSpatialCubeTemplate(RectangularTemplate):
+    """An error-corrected qubit that has all the spatial boundaries in the same basis.
 
     The below text represents this template for an input ``k == 4`` ::
 
@@ -115,7 +114,7 @@ class QubitSpatialJunctionTemplate(RectangularTemplate):
 
         if k == 1:
             warnings.warn(
-                "Instantiating Qubit4WayJunctionTemplate with k=1. The "
+                "Instantiating QubitSpatialCubeTemplate with k=1. The "
                 "instantiation array returned will not have any plaquette with "
                 "an index in [13, 17], which might break other parts of the "
                 "library.",

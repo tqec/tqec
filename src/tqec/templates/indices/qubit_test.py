@@ -6,7 +6,7 @@ from tqec.scale import LinearFunction, Scalable2D
 from tqec.templates.indices.enums import TemplateBorder
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
-    QubitSpatialJunctionTemplate,
+    QubitSpatialCubeTemplate,
     QubitTemplate,
     QubitVerticalBorders,
 )
@@ -16,14 +16,14 @@ def test_creation() -> None:
     QubitTemplate()
     QubitHorizontalBorders()
     QubitVerticalBorders()
-    QubitSpatialJunctionTemplate()
+    QubitSpatialCubeTemplate()
 
 
 def test_expected_plaquettes_number() -> None:
     assert QubitTemplate().expected_plaquettes_number == 14
     assert QubitHorizontalBorders().expected_plaquettes_number == 8
     assert QubitVerticalBorders().expected_plaquettes_number == 8
-    assert QubitSpatialJunctionTemplate().expected_plaquettes_number == 21
+    assert QubitSpatialCubeTemplate().expected_plaquettes_number == 21
 
 
 def test_scalable_shape() -> None:
@@ -36,7 +36,7 @@ def test_scalable_shape() -> None:
     assert QubitVerticalBorders().scalable_shape == Scalable2D(
         LinearFunction(0, 2), LinearFunction(2, 2)
     )
-    assert QubitSpatialJunctionTemplate().scalable_shape == Scalable2D(
+    assert QubitSpatialCubeTemplate().scalable_shape == Scalable2D(
         LinearFunction(2, 2), LinearFunction(2, 2)
     )
 
@@ -177,10 +177,10 @@ def test_vertical_borders_template_borders_indices() -> None:
     ]
 
 
-def test_qubit_spatial_junction_template_instantiation() -> None:
-    template = QubitSpatialJunctionTemplate()
+def test_qubit_spatial_cube_template_instantiation() -> None:
+    template = QubitSpatialCubeTemplate()
 
-    expected_warning_message = "^Instantiating Qubit4WayJunctionTemplate with k=1\\..*"
+    expected_warning_message = "^Instantiating QubitSpatialCubeTemplate with k=1\\..*"
     with pytest.warns(TQECWarning, match=expected_warning_message):
         numpy.testing.assert_array_equal(
             template.instantiate(1),
@@ -204,8 +204,8 @@ def test_qubit_spatial_junction_template_instantiation() -> None:
     )
 
 
-def test_qubit_spatial_junction_template_borders_indices() -> None:
-    template = QubitSpatialJunctionTemplate()
+def test_qubit_spatial_cube_template_borders_indices() -> None:
+    template = QubitSpatialCubeTemplate()
     instantiation = template.instantiate(2)
 
     assert list(template.get_border_indices(TemplateBorder.TOP)) == [

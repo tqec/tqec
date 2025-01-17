@@ -6,7 +6,7 @@ import stim
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.compile.specs.enums import JunctionArms
+from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
 from tqec.position import (
     Direction3D,
@@ -61,9 +61,9 @@ def inplace_add_observable(
     # 1. The stabilizer measurements that will be added to the end of the first layer of circuits at z.
     for pipe in abstract_observable.bottom_stabilizer_pipes:
         for cube in pipe:
-            # the stabilizer measurements included in spatial junctions will be
+            # the stabilizer measurements included in spatial cubes will be
             # handled later
-            if cube.is_spatial_junction:
+            if cube.is_spatial:
                 continue
             _collect_into(
                 bottom_stabilizer_qubits,
@@ -73,12 +73,12 @@ def inplace_add_observable(
                     SignedDirection3D(pipe.direction, cube == pipe.u),
                 ),
             )
-    for junction in abstract_observable.bottom_stabilizer_spatial_junctions:
+    for cube in abstract_observable.bottom_stabilizer_spatial_cubes:
         _collect_into(
             bottom_stabilizer_qubits,
-            junction.position,
-            _get_bottom_stabilizer_spatial_junction_qubits(
-                _block_shape(junction.position.z, k)
+            cube.position,
+            _get_bottom_stabilizer_spatial_cube_qubits(
+                _block_shape(cube.position.z, k)
             ),
         )
 
@@ -98,12 +98,12 @@ def inplace_add_observable(
             cube.position,
             _get_top_readout_cube_qubits(_block_shape(cube.position.z, k), cube.kind),
         )
-    for junction, arms in abstract_observable.top_readout_spatial_junctions:
+    for cube, arms in abstract_observable.top_readout_spatial_cubes:
         _collect_into(
             top_data_qubits,
-            junction.position,
-            _get_top_readout_spatial_junction_qubits(
-                _block_shape(junction.position.z, k), arms
+            cube.position,
+            _get_top_readout_spatial_cube_qubits(
+                _block_shape(cube.position.z, k), arms
             ),
         )
 
@@ -120,7 +120,7 @@ def inplace_add_observable(
                 for q in qubits
                 # Filter out those qubits that are not in the circuit.
                 # This is required because the current implementation of
-                # bottom stabilizer calculation for spatial junctions
+                # bottom stabilizer calculation for spatial cubes
                 # may include qubits that are not in the circuit, as
                 # intended for simplifying the calculation.
                 # This has the risk of not catching the coordinate
@@ -261,46 +261,46 @@ def _get_bottom_stabilizer_cube_qubits(
     ]
 
 
-def _get_top_readout_spatial_junction_qubits(
-    junction_shape: Shape2D,
-    arms: JunctionArms,
+def _get_top_readout_spatial_cube_qubits(
+    cube_shape: Shape2D,
+    arms: SpatialArms,
 ) -> list[tuple[int, int]]:
-    """The data qubits at the spatial junctions will be read out and included
+    """The data qubits at the spatial cubes will be read out and included
     in the logical observable.
 
     This function calculates the coordinates of the data qubits in the
-    local coordinate system of the junction based on which arms the
+    local coordinate system of the cube based on which arms the
     correlation surface touches.
     """
     assert len(arms) == 2
-    half_x, half_y = junction_shape.x // 2, junction_shape.y // 2
+    half_x, half_y = cube_shape.x // 2, cube_shape.y // 2
 
-    if arms == JunctionArms.LEFT | JunctionArms.RIGHT:
-        return [(x, half_y) for x in range(junction_shape.x + 1)]
-    elif arms == JunctionArms.UP | JunctionArms.DOWN:
-        return [(half_x, y) for y in range(junction_shape.y + 1)]
-    elif arms == JunctionArms.LEFT | JunctionArms.UP:
+    if arms == SpatialArms.LEFT | SpatialArms.RIGHT:
+        return [(x, half_y) for x in range(cube_shape.x + 1)]
+    elif arms == SpatialArms.UP | SpatialArms.DOWN:
+        return [(half_x, y) for y in range(cube_shape.y + 1)]
+    elif arms == SpatialArms.LEFT | SpatialArms.UP:
         return [(x, half_y) for x in range(half_x)] + [
             (half_x, y) for y in range(half_y)
         ]
-    elif arms == JunctionArms.DOWN | JunctionArms.RIGHT:
-        return [(x, half_y) for x in range(junction_shape.x, half_x, -1)] + [
-            (half_x, y) for y in range(junction_shape.y, half_y, -1)
+    elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
+        return [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
+            (half_x, y) for y in range(cube_shape.y, half_y, -1)
         ]
-    elif arms == JunctionArms.UP | JunctionArms.RIGHT:
-        return [(x, half_y) for x in range(junction_shape.x, half_x, -1)] + [
+    elif arms == SpatialArms.UP | SpatialArms.RIGHT:
+        return [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
             (half_x, y) for y in range(half_y + 1)
         ]
-    else:  # arms == JunctionArms.LEFT | JunctionArms.DOWN:
+    else:  # arms == SpatialArms.LEFT | SpatialArms.DOWN:
         return [(x, half_y) for x in range(half_x + 1)] + [
-            (half_x, y) for y in range(junction_shape.y, half_y, -1)
+            (half_x, y) for y in range(cube_shape.y, half_y, -1)
         ]
 
 
-def _get_bottom_stabilizer_spatial_junction_qubits(
-    junction_shape: Shape2D,
+def _get_bottom_stabilizer_spatial_cube_qubits(
+    cube_shape: Shape2D,
 ) -> list[tuple[float, float]]:
-    """The stabilizer measurements at the spatial junctions will be included in
+    """The stabilizer measurements at the spatial cubes will be included in
     the logical observable.
 
     For simplicity of implementation, this function
@@ -310,7 +310,7 @@ def _get_bottom_stabilizer_spatial_junction_qubits(
     """
     return [
         (i + 0.5, j + 0.5)
-        for i in range(junction_shape.x)
-        for j in range(junction_shape.y)
+        for i in range(cube_shape.x)
+        for j in range(cube_shape.y)
         if (i + j) % 2 == 0
     ]

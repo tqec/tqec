@@ -5,11 +5,11 @@ from tqec.compile.observables.builder import (
     _get_top_readout_cube_qubits,
     _get_top_readout_pipe_qubits,
     _get_bottom_stabilizer_cube_qubits,
-    _get_bottom_stabilizer_spatial_junction_qubits,
-    _get_top_readout_spatial_junction_qubits,
+    _get_bottom_stabilizer_spatial_cube_qubits,
+    _get_top_readout_spatial_cube_qubits,
     _transform_coords_into_grid,
 )
-from tqec.compile.specs.enums import JunctionArms
+from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
 from tqec.position import (
     Direction3D,
@@ -124,10 +124,10 @@ def test_get_bottom_stabilizer_cube_qubits(
 
 
 @pytest.mark.parametrize("k", (1, 2, 10))
-def test_get_bottom_stabilizer_spatial_junction_qubits(k: int) -> None:
+def test_get_bottom_stabilizer_spatial_cube_qubits(k: int) -> None:
     w = 2 * k + 2
     shape = Shape2D(w, w)
-    coords = set(_get_bottom_stabilizer_spatial_junction_qubits(shape))
+    coords = set(_get_bottom_stabilizer_spatial_cube_qubits(shape))
     assert len(coords) == w**2 // 2
     assert all(c % 0.5 == 0 for cs in coords for c in cs)
 
@@ -135,32 +135,32 @@ def test_get_bottom_stabilizer_spatial_junction_qubits(k: int) -> None:
 @pytest.mark.parametrize(
     "arms, expected",
     [
-        (JunctionArms.LEFT | JunctionArms.UP, {(0, 2), (1, 2), (2, 0), (2, 1)}),
+        (SpatialArms.LEFT | SpatialArms.UP, {(0, 2), (1, 2), (2, 0), (2, 1)}),
         (
-            JunctionArms.LEFT | JunctionArms.DOWN,
+            SpatialArms.LEFT | SpatialArms.DOWN,
             {(0, 2), (1, 2), (2, 2), (2, 3), (2, 4)},
         ),
         (
-            JunctionArms.UP | JunctionArms.RIGHT,
+            SpatialArms.UP | SpatialArms.RIGHT,
             {(2, 1), (2, 0), (4, 2), (2, 2), (3, 2)},
         ),
-        (JunctionArms.DOWN | JunctionArms.RIGHT, {(2, 3), (2, 4), (4, 2), (3, 2)}),
+        (SpatialArms.DOWN | SpatialArms.RIGHT, {(2, 3), (2, 4), (4, 2), (3, 2)}),
         (
-            JunctionArms.LEFT | JunctionArms.RIGHT,
+            SpatialArms.LEFT | SpatialArms.RIGHT,
             {(0, 2), (1, 2), (2, 2), (3, 2), (4, 2)},
         ),
         (
-            JunctionArms.UP | JunctionArms.DOWN,
+            SpatialArms.UP | SpatialArms.DOWN,
             {(2, 0), (2, 1), (2, 2), (2, 3), (2, 4)},
         ),
     ],
 )
-def test_get_top_readout_spatial_junction_qubits(
-    arms: JunctionArms,
+def test_get_top_readout_spatial_cube_qubits(
+    arms: SpatialArms,
     expected: set[tuple[int, int]],
 ) -> None:
     shape = Shape2D(4, 4)
-    coords = set(_get_top_readout_spatial_junction_qubits(shape, arms))
+    coords = set(_get_top_readout_spatial_cube_qubits(shape, arms))
     assert coords == expected
 
 
