@@ -194,9 +194,9 @@ def get_spatial_cube_qubit_rpng_descriptions(
     # Below, we simply delete the mapping entry if needed. The plaquette on the
     # bulk corner will be overwritten in the following code, so we will set it
     # to its correct value later.
-    if SpatialArms.DOWN not in arms or SpatialArms.RIGHT not in arms:
+    if SpatialArms.DOWN not in arms and SpatialArms.RIGHT not in arms:
         del mapping[4]
-    elif SpatialArms.UP not in arms or SpatialArms.LEFT not in arms:
+    elif SpatialArms.UP not in arms and SpatialArms.LEFT not in arms:
         del mapping[1]
 
     ####################
@@ -233,11 +233,11 @@ def get_spatial_cube_qubit_rpng_descriptions(
     # This is when we set the mapping entry at the corner within the bulk, if
     # needed, overwriting the default plaquette that has been set in the code
     # just before.
-    if SpatialArms.DOWN not in arms or SpatialArms.RIGHT not in arms:
+    if SpatialArms.DOWN not in arms and SpatialArms.RIGHT not in arms:
         mapping[8] = RPNGDescription.from_string(
             f"{r}{be}1{m} {r}{be}2{m} {r}{be}4{m} ----"
         )
-    elif SpatialArms.UP not in arms or SpatialArms.LEFT not in arms:
+    elif SpatialArms.UP not in arms and SpatialArms.LEFT not in arms:
         mapping[5] = RPNGDescription.from_string(
             f"---- {r}{be}2{m} {r}{be}4{m} {r}{be}5{m}"
         )
