@@ -1,0 +1,48 @@
+RAPNGDescription
+================
+
+.. currentmodule:: tqec.plaquette
+
+.. autoclass:: RAPNGDescription
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RAPNGDescription.__init__
+      ~RAPNGDescription.from_extended_string
+      ~RAPNGDescription.from_string
+      ~RAPNGDescription.get_g_op
+      ~RAPNGDescription.get_n
+      ~RAPNGDescription.get_plaquette
+      ~RAPNGDescription.get_r_op
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RAPNGDescription.ancilla
+      ~RAPNGDescription.corners
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: from_extended_string
+   .. automethod:: from_string
+   .. automethod:: get_g_op
+   .. automethod:: get_n
+   .. automethod:: get_plaquette
+   .. automethod:: get_r_op
+   
+   
