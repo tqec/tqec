@@ -231,7 +231,7 @@ def get_spatial_junction_qubit_rpng_descriptions(
     # empty and the 3-body stabilizer measurement is pushed in the neighbouring
     # corner within the bulk of the logical qubit.
     # This is when we set the mapping entry at the corner within the bulk, if
-    # needed, overwritting the default plaquette that has been set in the code
+    # needed, overwriting the default plaquette that has been set in the code
     # just before.
     if JunctionArms.UP not in arms and JunctionArms.LEFT not in arms:
         mapping[5] = RPNGDescription.from_string(
