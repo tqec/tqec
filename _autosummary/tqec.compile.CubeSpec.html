@@ -515,7 +515,7 @@
 <h1>CubeSpec<a class="headerlink" href="#cubespec" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.CubeSpec">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">CubeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">junction_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">JunctionArms.NONE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">CubeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">JunctionArms.NONE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Specification of a cube in a block graph.</p>
 <p>The template of the <cite>CompiledBlock</cite> will be determined based on the specification.
@@ -525,7 +525,7 @@ applying the substitution rules.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kind</strong> (<a class="reference internal" href="tqec.computation.CubeKind.html#tqec.computation.CubeKind" title="tqec.computation.cube.CubeKind"><em>CubeKind</em></a>)</p></li>
-<li><p><strong>junction_arms</strong> (<em>JunctionArms</em>)</p></li>
+<li><p><strong>spatial_arms</strong> (<em>SpatialArms</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -536,14 +536,14 @@ applying the substitution rules.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tqec.compile.CubeSpec.junction_arms">
-<span class="sig-name descname"><span class="pre">junction_arms</span></span><a class="headerlink" href="#tqec.compile.CubeSpec.junction_arms" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.compile.CubeSpec.spatial_arms">
+<span class="sig-name descname"><span class="pre">spatial_arms</span></span><a class="headerlink" href="#tqec.compile.CubeSpec.spatial_arms" title="Link to this definition">#</a></dt>
 <dd><p>Flag indicating the spatial directions the cube connects to the
-adjacent cubes. This is useful for spatial junctions (XXZ and ZZX) where
+adjacent cubes. This is useful for spatial cubes (XXZ and ZZX) where
 the arms can determine the template used to implement the cube.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tqec.compile.specs.enums.JunctionArms</p>
+<dd class="field-odd"><p>tqec.compile.specs.enums.SpatialArms</p>
 </dd>
 </dl>
 </dd></dl>
@@ -551,7 +551,7 @@ the arms can determine the template used to implement the cube.</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.__init__" title="tqec.compile.CubeSpec.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(kind[, junction_arms])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.__init__" title="tqec.compile.CubeSpec.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(kind[, spatial_arms])</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.from_cube" title="tqec.compile.CubeSpec.from_cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_cube</span></code></a>(cube, graph)</p></td>
@@ -563,16 +563,13 @@ the arms can determine the template used to implement the cube.</p>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_regular</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_spatial</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_spatial_junction</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.spatial_arms" title="tqec.compile.CubeSpec.spatial_arms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spatial_arms</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.junction_arms" title="tqec.compile.CubeSpec.junction_arms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">junction_arms</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kind</span></code></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -581,12 +578,12 @@ the arms can determine the template used to implement the cube.</p>
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.CubeSpec.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">junction_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">JunctionArms.NONE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.CubeSpec.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">JunctionArms.NONE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.CubeSpec.__init__" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kind</strong> (<a class="reference internal" href="tqec.computation.CubeKind.html#tqec.computation.CubeKind" title="tqec.computation.cube.CubeKind"><em>CubeKind</em></a>)</p></li>
-<li><p><strong>junction_arms</strong> (<em>JunctionArms</em>)</p></li>
+<li><p><strong>spatial_arms</strong> (<em>SpatialArms</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -665,7 +662,7 @@ the arms can determine the template used to implement the cube.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec"><code class="docutils literal notranslate"><span class="pre">CubeSpec</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.cube_kind"><code class="docutils literal notranslate"><span class="pre">CubeSpec.cube_kind</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.junction_arms"><code class="docutils literal notranslate"><span class="pre">CubeSpec.junction_arms</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.spatial_arms"><code class="docutils literal notranslate"><span class="pre">CubeSpec.spatial_arms</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.__init__"><code class="docutils literal notranslate"><span class="pre">CubeSpec.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.from_cube"><code class="docutils literal notranslate"><span class="pre">CubeSpec.from_cube()</span></code></a></li>
 </ul>

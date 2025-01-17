@@ -515,11 +515,11 @@ window.addEventListener("load", () => mermaid.run());
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_spatial_junction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether a cube of this kind is a spatial junction.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_spatial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether a cube of this kind is a spatial cube.</span>
 
-<span class="sd">        A spatial junction is a cube whose all spatial boundaries are in the same basis.</span>
-<span class="sd">        And there are only two possible spatial junctions: ``XXZ`` and ``ZZX``.</span>
+<span class="sd">        A spatial cube is a cube whose all spatial boundaries are in the same basis.</span>
+<span class="sd">        There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
 
@@ -647,14 +647,13 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">YCube</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_spatial_junction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether the cube is a spatial junction.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_spatial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether the cube is a spatial cube.</span>
 
-<span class="sd">        A spatial junction is of kind :py:class:`~tqec.computation.cube.ZXCube` and its all</span>
-<span class="sd">        spatial boundaries are in the same basis. There are only two possible spatial</span>
-<span class="sd">        junctions: ``XXZ`` and ``ZZX``.</span>
+<span class="sd">        A spatial cube is a cube whose all spatial boundaries are in the same basis.</span>
+<span class="sd">        There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial_junction</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial</span>
 
 <div class="viewcode-block" id="Cube.to_zx_node">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.Cube.html#tqec.computation.Cube.to_zx_node">[docs]</a>

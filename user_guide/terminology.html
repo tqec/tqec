@@ -456,10 +456,10 @@ figure above has <code class="docutils literal notranslate"><span class="pre">Z<
 <p>Note that <code class="docutils literal notranslate"><span class="pre">ZXZ</span></code>, <code class="docutils literal notranslate"><span class="pre">XZZ</span></code>, <code class="docutils literal notranslate"><span class="pre">ZXX</span></code> and <code class="docutils literal notranslate"><span class="pre">XZX</span></code> cubes can represent a (trivial) logical computation by themselves, i.e. a logical memory experiment.
 For example, the <code class="docutils literal notranslate"><span class="pre">XZX</span></code> cube can be used to represent a logical qubit with <code class="docutils literal notranslate"><span class="pre">Z</span></code>/<code class="docutils literal notranslate"><span class="pre">X</span></code> boundaries parallel to the X/Y axes. And the time boundary
 is of <code class="docutils literal notranslate"><span class="pre">X</span></code> type, which means that the logical qubit is initialized and measured in the logical <code class="docutils literal notranslate"><span class="pre">X</span></code> basis.</p>
-<section id="spatial-junction">
-<h4>Spatial Junction<a class="headerlink" href="#spatial-junction" title="Link to this heading">#</a></h4>
-<p>Unlike the other <code class="docutils literal notranslate"><span class="pre">ZXCube</span></code>, <code class="docutils literal notranslate"><span class="pre">XXZ</span></code> and <code class="docutils literal notranslate"><span class="pre">ZZX</span></code> cubes can not represent a logical computation by themselves. They need to be connected to other cubes
-in space to form part of a logical computation:</p>
+<section id="spatial-cube">
+<h4>Spatial Cube<a class="headerlink" href="#spatial-cube" title="Link to this heading">#</a></h4>
+<p>Unlike the other <code class="docutils literal notranslate"><span class="pre">ZXCube</span></code>, <code class="docutils literal notranslate"><span class="pre">XXZ</span></code> and <code class="docutils literal notranslate"><span class="pre">ZZX</span></code> cubes have all the spatial boundaries in the same basis. These cubes cannot connect to temporal pipes.
+When connected with two or more spatial pipes, they form <strong>spatial junctions</strong>:</p>
 <figure class="align-center" id="id7">
 <a class="reference internal image-reference" href="../_images/spatial_junctions.png"><img alt="../_images/spatial_junctions.png" src="../_images/spatial_junctions.png" style="width: 450px;" />
 </a>
@@ -467,7 +467,7 @@ in space to form part of a logical computation:</p>
 <p><span class="caption-text">Spatial junctions</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>The circuits that implement these spatial junctions are more complex than the circuits for the other cubes, and special care needs to be taken to avoid
+<p>The circuits that implement these spatial cubes are more complex than the circuits for the other cubes, and special care needs to be taken to avoid
 the hook errors from decreasing the circuit-level code distance.</p>
 </section>
 </section>
@@ -761,7 +761,7 @@ supposed to have a deterministic parity in the absence of errors.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#block">Block</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cube">Cube</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#zxcube"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXCube</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-junction">Spatial Junction</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-cube">Spatial Cube</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ycube"><code class="xref py py-class docutils literal notranslate"><span class="pre">YCube</span></code></a></li>
