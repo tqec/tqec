@@ -46,7 +46,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="solo_node_zx_graph" href="tqec.gallery.solo_node_zx_graph.html" />
-    <link rel="prev" title="logical_cz_zx_graph" href="tqec.gallery.logical_cz_zx_graph.html" />
+    <link rel="prev" title="move_rotation_zx_graph" href="tqec.gallery.move_rotation_zx_graph.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -409,6 +409,8 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_block_graph.html">move_rotation_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_zx_graph.html">move_rotation_zx_graph</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">solo_node_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html">solo_node_zx_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
@@ -513,15 +515,20 @@
 <h1>solo_node_block_graph<a class="headerlink" href="#solo-node-block-graph" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tqec.gallery.solo_node_block_graph">
-<span class="sig-prename descclassname"><span class="pre">tqec.gallery.</span></span><span class="sig-name descname"><span class="pre">solo_node_block_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">support_observable_basis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/gallery/solo_node.html#solo_node_block_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.gallery.solo_node_block_graph" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tqec.gallery.</span></span><span class="sig-name descname"><span class="pre">solo_node_block_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">support_observable_basis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_stability_experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/gallery/solo_node.html#solo_node_block_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.gallery.solo_node_block_graph" title="Link to this definition">#</a></dt>
 <dd><p>Create a block graph with a single cube that can support the given
 observable basis.</p>
-<p>A single cube represents a simple logical memory experiment. When the supported observable basis is “Z”,
-it corresponds to preserving a logical qubit in the zero state. When the supported observable basis is “X”,
-it corresponds to preserving a logical qubit in the plus state.</p>
+<p>A single cube represents a simple logical memory experiment or a stability experiment.
+For a memory experiment, the cube is initialized in a logical basis state corresponding to the given
+<code class="docutils literal notranslate"><span class="pre">support_observable_basis</span></code>. For a stability experiment, all the data qubits are initialized in the
+basis opposite to the given <code class="docutils literal notranslate"><span class="pre">support_observable_basis</span></code>. And the spatial boundary of the cube should
+support the given <code class="docutils literal notranslate"><span class="pre">support_observable_basis</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>support_observable_basis</strong> (<em>Literal</em><em>[</em><em>'Z'</em><em>, </em><em>'X'</em><em>]</em>) – The observable basis that the block graph can support. Either “Z” or “X”.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>support_observable_basis</strong> (<em>Literal</em><em>[</em><em>'Z'</em><em>, </em><em>'X'</em><em>]</em>) – The observable basis that the block graph can support. Either “Z” or “X”.</p></li>
+<li><p><strong>is_stability_experiment</strong> (<em>bool</em>)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a> instance with a single cube that can support the
@@ -546,12 +553,12 @@ given observable basis.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tqec.gallery.logical_cz_zx_graph.html"
+       href="tqec.gallery.move_rotation_zx_graph.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">logical_cz_zx_graph</p>
+        <p class="prev-next-title">move_rotation_zx_graph</p>
       </div>
     </a>
     <a class="right-next"
