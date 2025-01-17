@@ -243,9 +243,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         x_axis_basis_at_head = spec.pipe_kind.get_basis_along(
             Direction3D.X, at_head=True
         )
-        assert x_axis_basis_at_head is not None, (
-            "A temporal pipe should have a non-None basis on the X-axis."
-        )
+        assert (
+            x_axis_basis_at_head is not None
+        ), "A temporal pipe should have a non-None basis on the X-axis."
 
         first_layer_orientation: ZObservableOrientation
         second_layer_orientation: ZObservableOrientation
