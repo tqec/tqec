@@ -48,11 +48,11 @@ Note that ``ZXZ``, ``XZZ``, ``ZXX`` and ``XZX`` cubes can represent a (trivial) 
 For example, the ``XZX`` cube can be used to represent a logical qubit with ``Z``/``X`` boundaries parallel to the X/Y axes. And the time boundary
 is of ``X`` type, which means that the logical qubit is initialized and measured in the logical ``X`` basis.
 
-Spatial Junction
+Spatial Cube
 ++++++++++++++++
 
-Unlike the other ``ZXCube``, ``XXZ`` and ``ZZX`` cubes can not represent a logical computation by themselves. They need to be connected to other cubes
-in space to form part of a logical computation:
+Unlike the other ``ZXCube``, ``XXZ`` and ``ZZX`` cubes have all the spatial boundaries in the same basis. These cubes cannot connect to temporal pipes.
+When connected with two or more spatial pipes, they form **spatial junctions**:
 
 .. figure:: ../media/user_guide/terminology/spatial_junctions.png
    :width: 450px
@@ -60,7 +60,7 @@ in space to form part of a logical computation:
 
    Spatial junctions
 
-The circuits that implement these spatial junctions are more complex than the circuits for the other cubes, and special care needs to be taken to avoid
+The circuits that implement these spatial cubes are more complex than the circuits for the other cubes, and special care needs to be taken to avoid
 the hook errors from decreasing the circuit-level code distance.
 
 :py:class:`~tqec.computation.YCube`

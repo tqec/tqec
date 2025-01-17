@@ -4,7 +4,7 @@ from enum import Flag, auto
 from typing import Iterator
 
 
-class JunctionArms(Flag):
+class SpatialArms(Flag):
     NONE = 0
     UP = auto()
     RIGHT = auto()
@@ -12,8 +12,7 @@ class JunctionArms(Flag):
     LEFT = auto()
 
     @classmethod
-    def get_map_from_arm_to_shift(cls) -> dict[JunctionArms, tuple[int, int]]:
-        # Note that in tqec, the y-axis is pointing downwards!
+    def get_map_from_arm_to_shift(cls) -> dict[SpatialArms, tuple[int, int]]:
         return {
             cls.UP: (0, -1),
             cls.RIGHT: (1, 0),
@@ -22,52 +21,52 @@ class JunctionArms(Flag):
         }
 
     @staticmethod
-    def I_shaped_arms() -> list[JunctionArms]:
+    def I_shaped_arms() -> list[SpatialArms]:
         return [
-            JunctionArms.DOWN | JunctionArms.UP,
-            JunctionArms.LEFT | JunctionArms.RIGHT,
+            SpatialArms.DOWN | SpatialArms.UP,
+            SpatialArms.LEFT | SpatialArms.RIGHT,
         ]
 
     @staticmethod
-    def L_shaped_arms() -> list[JunctionArms]:
+    def L_shaped_arms() -> list[SpatialArms]:
         return [
-            JunctionArms.DOWN | JunctionArms.LEFT,
-            JunctionArms.DOWN | JunctionArms.RIGHT,
-            JunctionArms.UP | JunctionArms.LEFT,
-            JunctionArms.UP | JunctionArms.RIGHT,
+            SpatialArms.DOWN | SpatialArms.LEFT,
+            SpatialArms.DOWN | SpatialArms.RIGHT,
+            SpatialArms.UP | SpatialArms.LEFT,
+            SpatialArms.UP | SpatialArms.RIGHT,
         ]
 
     @staticmethod
-    def T_shaped_arms() -> list[JunctionArms]:
+    def T_shaped_arms() -> list[SpatialArms]:
         return [
-            JunctionArms.DOWN | JunctionArms.LEFT | JunctionArms.UP,
-            JunctionArms.LEFT | JunctionArms.UP | JunctionArms.RIGHT,
-            JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN,
-            JunctionArms.RIGHT | JunctionArms.DOWN | JunctionArms.LEFT,
+            SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP,
+            SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT,
+            SpatialArms.UP | SpatialArms.RIGHT | SpatialArms.DOWN,
+            SpatialArms.RIGHT | SpatialArms.DOWN | SpatialArms.LEFT,
         ]
 
     @staticmethod
-    def X_shaped_arms() -> list[JunctionArms]:
+    def X_shaped_arms() -> list[SpatialArms]:
         return [
-            JunctionArms.DOWN | JunctionArms.LEFT | JunctionArms.UP | JunctionArms.RIGHT
+            SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT
         ]
 
     @staticmethod
-    def single_arms() -> list[JunctionArms]:
+    def single_arms() -> list[SpatialArms]:
         return [
-            JunctionArms.UP,
-            JunctionArms.RIGHT,
-            JunctionArms.DOWN,
-            JunctionArms.LEFT,
+            SpatialArms.UP,
+            SpatialArms.RIGHT,
+            SpatialArms.DOWN,
+            SpatialArms.LEFT,
         ]
 
     def __len__(self) -> int:
-        return sum(arm in self for arm in JunctionArms.single_arms())
+        return sum(arm in self for arm in SpatialArms.single_arms())
 
-    def __iter__(self) -> Iterator[JunctionArms]:
-        yield from (arm for arm in JunctionArms.single_arms() if arm in self)
+    def __iter__(self) -> Iterator[SpatialArms]:
+        yield from (arm for arm in SpatialArms.single_arms() if arm in self)
 
     def __repr__(self) -> str:
-        if self == JunctionArms.NONE:
+        if self == SpatialArms.NONE:
             return "JunctionArms.NONE"
         return " | ".join(f"JunctionArms.{arm.name}" for arm in self)

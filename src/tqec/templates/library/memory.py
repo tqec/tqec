@@ -124,7 +124,7 @@ def get_memory_vertical_boundary_rpng_descriptions(
     Arguments:
         orientation: orientation of the ``Z`` observable. Used to compute the
             stabilizers that should be measured on the boundaries and in the
-            bulk of the returned junction description.
+            bulk of the returned memory description.
         reset: basis of the reset operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no reset being
             applied on data-qubits.
@@ -203,7 +203,7 @@ def get_memory_horizontal_boundary_rpng_descriptions(
     Arguments:
         orientation: orientation of the ``Z`` observable. Used to compute the
             stabilizers that should be measured on the boundaries and in the
-            bulk of the returned junction description.
+            bulk of the returned memory description.
         reset: basis of the reset operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no reset being
             applied on data-qubits.

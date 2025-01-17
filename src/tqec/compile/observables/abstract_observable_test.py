@@ -2,7 +2,7 @@ from tqec.compile.observables.abstract_observable import (
     AbstractObservable,
     compile_correlation_surface_to_abstract_observable,
 )
-from tqec.compile.specs.enums import JunctionArms
+from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe, PipeKind
@@ -12,7 +12,7 @@ from tqec.gallery.solo_node import solo_node_block_graph
 from tqec.position import Position3D
 
 
-def test_abstract_observable_for_single_cube() -> None:
+def test_abstract_observable_for_single_memory_cube() -> None:
     g = solo_node_block_graph("Z")
     correlation_surfaces = g.find_correlation_surfaces()
     abstract_observable = compile_correlation_surface_to_abstract_observable(
@@ -21,6 +21,19 @@ def test_abstract_observable_for_single_cube() -> None:
     assert abstract_observable == AbstractObservable(
         top_readout_cubes=frozenset(
             {Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))}
+        ),
+    )
+
+
+def test_abstract_observable_for_single_stability_cube() -> None:
+    g = solo_node_block_graph("Z", is_stability_experiment=True)
+    correlation_surfaces = g.find_correlation_surfaces()
+    abstract_observable = compile_correlation_surface_to_abstract_observable(
+        g, correlation_surfaces[0]
+    )
+    assert abstract_observable == AbstractObservable(
+        bottom_stabilizer_spatial_cubes=frozenset(
+            {Cube(Position3D(0, 0, 0), ZXCube.from_str("ZZX"))}
         ),
     )
 
@@ -151,11 +164,11 @@ def test_abstract_observable_for_three_cnots() -> None:
                 ),
             ]
         ),
-        top_readout_spatial_junctions=frozenset(
+        top_readout_spatial_cubes=frozenset(
             [
                 (
                     Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-                    JunctionArms.LEFT | JunctionArms.DOWN,
+                    SpatialArms.LEFT | SpatialArms.DOWN,
                 ),
             ]
         ),
@@ -196,19 +209,19 @@ def test_abstract_observable_for_three_cnots() -> None:
                 ),
             ]
         ),
-        top_readout_spatial_junctions=frozenset(
+        top_readout_spatial_cubes=frozenset(
             [
                 (
                     Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-                    JunctionArms.LEFT | JunctionArms.DOWN,
+                    SpatialArms.LEFT | SpatialArms.DOWN,
                 ),
                 (
                     Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-                    JunctionArms.RIGHT | JunctionArms.UP,
+                    SpatialArms.RIGHT | SpatialArms.UP,
                 ),
                 (
                     Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
-                    JunctionArms.RIGHT | JunctionArms.DOWN,
+                    SpatialArms.RIGHT | SpatialArms.DOWN,
                 ),
             ]
         ),
@@ -225,28 +238,28 @@ def test_abstract_observable_for_three_cnots() -> None:
     assert len(obs.top_readout_cubes) == 3
     assert len(obs.top_readout_pipes) == 4
     assert len(obs.bottom_stabilizer_pipes) == 1
-    assert len(obs.top_readout_spatial_junctions) == 2
+    assert len(obs.top_readout_spatial_cubes) == 2
 
     obs = observables[3]
     assert len(obs.top_readout_cubes) == 2
     assert len(obs.top_readout_pipes) == 2
     assert len(obs.bottom_stabilizer_pipes) == 0
-    assert len(obs.top_readout_spatial_junctions) == 1
+    assert len(obs.top_readout_spatial_cubes) == 1
 
     obs = observables[4]
     assert len(obs.top_readout_cubes) == 3
     assert len(obs.top_readout_pipes) == 4
     assert len(obs.bottom_stabilizer_pipes) == 1
-    assert len(obs.top_readout_spatial_junctions) == 2
+    assert len(obs.top_readout_spatial_cubes) == 2
 
     obs = observables[5]
     assert len(obs.top_readout_cubes) == 2
     assert len(obs.top_readout_pipes) == 2
     assert len(obs.bottom_stabilizer_pipes) == 0
-    assert len(obs.top_readout_spatial_junctions) == 1
+    assert len(obs.top_readout_spatial_cubes) == 1
 
     obs = observables[6]
     assert len(obs.top_readout_cubes) == 1
     assert len(obs.top_readout_pipes) == 4
     assert len(obs.bottom_stabilizer_pipes) == 1
-    assert len(obs.top_readout_spatial_junctions) == 2
+    assert len(obs.top_readout_spatial_cubes) == 2

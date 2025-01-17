@@ -14,7 +14,7 @@ def test_solo_node_zx_graph() -> None:
     assert g.nodes[0].kind == ZXKind.X
 
 
-def test_solo_node_block_graph() -> None:
+def test_solo_node_memory_block_graph() -> None:
     g = solo_node_block_graph("X")
     assert len(g.nodes) == 1
     assert g.nodes[0] == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXX"))
@@ -22,3 +22,13 @@ def test_solo_node_block_graph() -> None:
     g = solo_node_block_graph("Z")
     assert len(g.nodes) == 1
     assert g.nodes[0] == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))
+
+
+def test_solo_node_stability_block_graph() -> None:
+    g = solo_node_block_graph("X", is_stability_experiment=True)
+    assert len(g.nodes) == 1
+    assert g.nodes[0] == Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ"))
+
+    g = solo_node_block_graph("Z", is_stability_experiment=True)
+    assert len(g.nodes) == 1
+    assert g.nodes[0] == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZZX"))
