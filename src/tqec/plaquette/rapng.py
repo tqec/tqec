@@ -126,7 +126,7 @@ class RAPNGDescription:
     """
 
     corners: tuple[RAPNG, RAPNG, RAPNG, RAPNG]
-    ancilla: RG = RG()
+    ancilla: RG = RG(BasisEnum.X, BasisEnum.X)
 
     def __post_init__(self) -> None:
         """Validation of the initialization arguments
@@ -207,8 +207,10 @@ class RAPNGDescription:
             if rapng.g:
                 circuit_as_list[-1] += f"{rapng.get_g_op()} {q}\n"
         # Ancilla reset and measurement.
-        circuit_as_list[0] += f"R{self.ancilla.r.value.upper()} 4\n"
-        circuit_as_list[-1] += f"M{self.ancilla.g.value.upper()} 4\n"
+        if self.ancilla.r is not None:
+            circuit_as_list[0] += f"R{self.ancilla.r.value.upper()} 4\n"
+        if self.ancilla.g is not None:
+            circuit_as_list[-1] += f"M{self.ancilla.g.value.upper()} 4\n"
         q_map = QubitMap.from_qubits(qubits)
         circuit_as_str = "TICK\n".join(circuit_as_list)
         circuit = stim_Circuit(circuit_as_str)
