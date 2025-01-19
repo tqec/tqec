@@ -4,8 +4,8 @@ the functions to find the correlation surfaces in the ZX graph."""
 from __future__ import annotations
 
 import itertools
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from tqec.computation.zx_graph import ZXEdge, ZXGraph, ZXKind, ZXNode
 from tqec.exceptions import TQECException
