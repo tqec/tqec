@@ -39,7 +39,7 @@ class CorrelationSurface:
     represented as a mapping from the the input/output labels to the logical operator type there.
 
     Attributes:
-        nodes: A set of ``ZXNode`` representing the logical operators appeared in the correlation surface.
+        nodes: A set of ``ZXNode`` representing the logical operators appearing in the correlation surface.
             For example, if either a logical X operator or Z operator has appeared at this node position in
             the span, then the node is of X or Z kind. If both X and Z logical operators have appeared at
             this node position in the span, then the node is of Y kind.
@@ -201,19 +201,24 @@ def _find_correlation_surfaces_from_leaf(
             _find_spans_with_flood_fill(zx_graph, {ZXNode(leaf.position, leaf.kind.with_zx_flipped())}, set()) or []
         )
         return _construct_compatible_correlation_surfaces(zx_graph, spans)
+
     x_spans = (
         _find_spans_with_flood_fill(zx_graph, {ZXNode(leaf.position, ZXKind.X)}, set())
         or []
     )
+
     z_spans = (
         _find_spans_with_flood_fill(zx_graph, {ZXNode(leaf.position, ZXKind.Z)}, set())
         or []
     )
+
     # For the port node, try to construct both the x and z type correlation surfaces.
     if leaf.is_port:
         return _construct_compatible_correlation_surfaces(zx_graph, x_spans + z_spans)
+
     # For the Y type node, the correlation surface must be the product of the x and z type.
     assert leaf.is_y_node
+
     return _construct_compatible_correlation_surfaces(
         zx_graph, [sx | sz for sx, sz in itertools.product(x_spans, z_spans)]
     )
@@ -337,6 +342,7 @@ def _find_spans_with_flood_fill(
         spans = _find_spans_with_flood_fill(zx_graph, product_frontier, product_span)
         if spans is not None:
             final_spans.extend(spans)
+
     return final_spans or None
 
 
