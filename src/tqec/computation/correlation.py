@@ -198,7 +198,7 @@ def _find_correlation_surfaces_from_leaf(
     # Z/X type node can only support the correlation surface with the opposite type.
     if leaf.is_zx_node:
         spans = (
-            _find_spans_with_flood_fill(zx_graph, {leaf.with_zx_flipped()}, set()) or []
+            _find_spans_with_flood_fill(zx_graph, {ZXNode(leaf.position, leaf.kind.with_zx_flipped())}, set()) or []
         )
         return _construct_compatible_correlation_surfaces(zx_graph, spans)
     x_spans = (
