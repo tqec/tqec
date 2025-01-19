@@ -7,6 +7,8 @@ from typing import Literal, TextIO
 
 import sinter
 
+from tqec.exceptions import TQECException
+
 
 def write_sinter_stats_to_csv(
     filepath: str | Path,
@@ -15,23 +17,23 @@ def write_sinter_stats_to_csv(
 ) -> None:
     """Write simulation data to csv file.
 
-    This is a convenience function because `sinter` does not expose this functionality. To read
-    simulation data use `sinter.read_stats_from_csv_files`.
+    This is a convenience function because ``sinter`` does not expose this functionality. To read
+    simulation data use ``sinter.read_stats_from_csv_files``.
 
     Args:
         filepath: The file to be written to.
         stats: List of simulation results. Each element corresponds to a line in a csv file.
-        if_file_exists: How to react if `filepath` points to an existing file.
-            - raise: Raise an `AssertionError` if the file exists.
+        if_file_exists: How to react if ``filepath`` points to an existing file.
+            - raise: Raise a ``TQECException`` if the file exists.
             - overwrite: Effectively delete the file and pretend none exists.
-            - merge: Read the file and try to match entries with the simulation data from `stats`
+            - merge: Read the file and try to match entries with the simulation data from ``stats``
                 by strong id. In case of a match merge the entries.
     """
     filepath = Path(filepath)
 
     if filepath.exists():
         if if_file_exists == "raise":
-            raise AssertionError(f"File '{filepath}' already exists.")
+            raise TQECException(f"File '{filepath}' already exists.")
         elif if_file_exists == "overwrite":
             # Overwrite happens later automatically.
             pass
