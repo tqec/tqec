@@ -15,6 +15,7 @@ def test_correlation_single_xz_node() -> None:
     assert surface.external_stabilizer == {}
     assert surface.observables_at_nodes == {Position3D(0, 0, 0): ZXKind.Z}
 
+
 @pytest.mark.parametrize("label_u", [None, "foo"])
 @pytest.mark.parametrize("kind", [ZXKind.X, ZXKind.Z])
 def test_correlation_two_xz_nodes(kind: ZXKind, label_u: str | None) -> None:
@@ -36,6 +37,7 @@ def test_correlation_two_xz_nodes(kind: ZXKind, label_u: str | None) -> None:
             ),
         )
     ]
+
 
 def test_correlation_two_xz_nodes_impossible() -> None:
     g = ZXGraph()
