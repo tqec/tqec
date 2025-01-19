@@ -66,7 +66,7 @@ def stats_b() -> list[sinter.TaskStats]:
     ]
 
 
-def test_write_read_consistent(tmp_path: Path, stats_a: list[sinter.TaskStats]):
+def test_write_read_consistent(tmp_path: Path, stats_a: list[sinter.TaskStats]) -> None:
     filepath = tmp_path / "data.csv"
     write_sinter_stats_to_csv(filepath, stats_a)
     stats_from_csv = sinter.read_stats_from_csv_files(filepath)
@@ -74,7 +74,7 @@ def test_write_read_consistent(tmp_path: Path, stats_a: list[sinter.TaskStats]):
     assert stats_a == stats_from_csv
 
 
-def test_raise_if_file_exists(tmp_path: Path, stats_a: list[sinter.TaskStats]):
+def test_raise_if_file_exists(tmp_path: Path, stats_a: list[sinter.TaskStats]) -> None:
     filepath = tmp_path / "data.csv"
     write_sinter_stats_to_csv(filepath, stats_a)
 
@@ -86,7 +86,7 @@ def test_raise_if_file_exists(tmp_path: Path, stats_a: list[sinter.TaskStats]):
 
 def test_overwrite_if_file_exists(
     tmp_path: Path, stats_a: list[sinter.TaskStats], stats_b: list[sinter.TaskStats]
-):
+) -> None:
     filepath = tmp_path / "data.csv"
     write_sinter_stats_to_csv(filepath, stats_a)
     write_sinter_stats_to_csv(filepath, stats_b, if_file_exists="overwrite")
@@ -98,7 +98,7 @@ def test_overwrite_if_file_exists(
 
 def test_merge_if_file_exists(
     tmp_path: Path, stats_a: list[sinter.TaskStats], stats_b: list[sinter.TaskStats]
-):
+) -> None:
     filepath = tmp_path / "data.csv"
     write_sinter_stats_to_csv(filepath, stats_a)
     write_sinter_stats_to_csv(filepath, stats_b, if_file_exists="merge")
