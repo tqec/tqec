@@ -1,5 +1,7 @@
+import pytest
+
 from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.zx_graph import ZXKind, ZXEdge, ZXGraph, ZXNode
+from tqec.computation.zx_graph import ZXEdge, ZXGraph, ZXKind, ZXNode
 from tqec.gallery.solo_node import solo_node_zx_graph
 from tqec.position import Position3D
 
@@ -13,28 +15,29 @@ def test_correlation_single_xz_node() -> None:
     assert surface.external_stabilizer == {}
     assert surface.observables_at_nodes == {Position3D(0, 0, 0): ZXKind.Z}
 
-
-def test_correlation_two_xz_node() -> None:
-    for kind in [ZXKind.X, ZXKind.Z]:
-        g = ZXGraph()
-        g.add_edge(
-            ZXNode(Position3D(0, 0, 0), kind),
-            ZXNode(Position3D(0, 0, 1), kind),
+@pytest.mark.parametrize("label_u", [None, "foo"])
+@pytest.mark.parametrize("kind", [ZXKind.X, ZXKind.Z])
+def test_correlation_two_xz_nodes(kind: ZXKind, label_u: str | None) -> None:
+    g = ZXGraph()
+    g.add_edge(
+        ZXNode(Position3D(0, 0, 0), kind, label=label_u or ""),
+        ZXNode(Position3D(0, 0, 1), kind),
+    )
+    assert g.find_correlation_surfaces() == [
+        CorrelationSurface.from_span(
+            g,
+            frozenset(
+                [
+                    ZXEdge(
+                        ZXNode(Position3D(0, 0, 0), kind.with_zx_flipped()),
+                        ZXNode(Position3D(0, 0, 1), kind.with_zx_flipped()),
+                    )
+                ]
+            ),
         )
-        assert g.find_correlation_surfaces() == [
-            CorrelationSurface.from_span(
-                g,
-                frozenset(
-                    [
-                        ZXEdge(
-                            ZXNode(Position3D(0, 0, 0), kind.with_zx_flipped()),
-                            ZXNode(Position3D(0, 0, 1), kind.with_zx_flipped()),
-                        )
-                    ]
-                ),
-            )
-        ]
+    ]
 
+def test_correlation_two_xz_nodes_impossible() -> None:
     g = ZXGraph()
     g.add_edge(
         ZXNode(Position3D(0, 0, 0), ZXKind.X),
