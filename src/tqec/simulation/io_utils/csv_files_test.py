@@ -107,7 +107,7 @@ def test_merge_if_file_exists(
 
     assert len(stats_from_csv) == 4
     assert next(
-        (s for s in stats_from_csv if s.strong_id == "id_a0")
+        s for s in stats_from_csv if s.strong_id == "id_a0"
     ) == sinter.TaskStats(
         strong_id="id_a0",
         decoder="pymatching",
