@@ -11,9 +11,7 @@ import sinter
 def write_sinter_stats_to_csv(
     filepath: str | Path,
     stats: Iterable[sinter.TaskStats],
-    if_file_exists: Literal["merge"]
-    | Literal["overwrite"]
-    | Literal["raise"] = "raise",
+    if_file_exists: Literal["merge", "overwrite", "raise"] = "raise",
 ) -> None:
     """Write simulation data to csv file.
 
