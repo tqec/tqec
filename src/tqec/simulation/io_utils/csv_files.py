@@ -31,7 +31,7 @@ def write_sinter_stats_to_csv(
 
     if filepath.exists():
         if if_file_exists == "raise":
-            raise AssertionError(f"File `{filepath}` already exists.")
+            raise AssertionError(f"File '{filepath}' already exists.")
         elif if_file_exists == "overwrite":
             # Overwrite happens later automatically.
             pass
