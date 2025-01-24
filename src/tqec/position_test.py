@@ -1,6 +1,3 @@
-import pytest
-
-from tqec.exceptions import TQECException
 from tqec.position import Position2D, Position3D, Shape2D
 
 

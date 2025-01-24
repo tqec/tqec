@@ -283,11 +283,7 @@ def _svg_path_directions_2_corners(
         return q2p(d) - q2p(0)
 
     pba = transform_dif(b - a)
-    return (
-        f"M {_complex_str(pa)} "
-        f"a 1,1 0 0,0 {_complex_str(pba)} "
-        f"L {_complex_str(pa)}"
-    )
+    return f"M {_complex_str(pa)} a 1,1 0 0,0 {_complex_str(pba)} L {_complex_str(pa)}"
 
 
 def _svg_path_directions_3_corners(

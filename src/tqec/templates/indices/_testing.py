@@ -4,7 +4,6 @@ import numpy
 import numpy.typing as npt
 from typing_extensions import override
 
-from tqec.exceptions import TQECException
 from tqec.position import Shift2D
 from tqec.scale import LinearFunction, Scalable2D
 from tqec.templates.indices.base import BorderIndices, RectangularTemplate

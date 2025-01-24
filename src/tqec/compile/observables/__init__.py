@@ -1,4 +1,6 @@
 from .abstract_observable import (
-    AbstractObservable,
-    compile_correlation_surface_to_abstract_observable,
+    AbstractObservable as AbstractObservable,
+)
+from .abstract_observable import (
+    compile_correlation_surface_to_abstract_observable as compile_correlation_surface_to_abstract_observable,
 )

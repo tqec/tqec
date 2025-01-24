@@ -1,7 +1,5 @@
 import pytest
-from stim import Circuit
 
-from tqec.plaquette.qubit import SquarePlaquetteQubits
 from tqec.plaquette.rpng import RPNGDescription
 
 

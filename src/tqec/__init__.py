@@ -1,4 +1,4 @@
-from ._version import __version__
+from ._version import __version__ as __version__
 from .circuit import QubitMap as QubitMap
 from .circuit import ScheduledCircuit as ScheduledCircuit
 from .circuit import ScheduleException as ScheduleException
