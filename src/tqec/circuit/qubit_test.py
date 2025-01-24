@@ -1,7 +1,7 @@
 import stim
 
 from tqec.circuit.qubit import GridQubit, count_qubit_accesses, get_used_qubit_indices
-from tqec.position import Displacement, PhysicalQubitPosition2D
+from tqec.position import PhysicalQubitPosition2D, Shift2D
 
 
 def test_grid_qubit_creation() -> None:
@@ -18,21 +18,21 @@ def test_grid_qubit_coordinates() -> None:
 
 def test_grid_qubit_operators() -> None:
     q = GridQubit(0, 0)
-    assert q + Displacement(0, 0) == q
+    assert q + Shift2D(0, 0) == q
     assert q + PhysicalQubitPosition2D(0, 0) == q
     assert q + q == q
-    assert q - Displacement(0, 0) == q
+    assert q - Shift2D(0, 0) == q
     assert q - PhysicalQubitPosition2D(0, 0) == q
     assert q - q == q
     assert 3 * q == q
     assert q * 3 == q
 
-    assert q + Displacement(1, 3) == GridQubit(1, 3)
+    assert q + Shift2D(1, 3) == GridQubit(1, 3)
     assert q + PhysicalQubitPosition2D(1, 3) == GridQubit(1, 3)
     assert q + GridQubit(1, 3) == GridQubit(1, 3)
 
     q = GridQubit(-1, 0)
-    assert q + Displacement(0, 0) == q
+    assert q + Shift2D(0, 0) == q
     assert q + q == 2 * q
     assert q - q == GridQubit(0, 0)
 

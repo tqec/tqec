@@ -21,7 +21,7 @@ from tqec.circuit.instructions import (
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.exceptions import TQECException
-from tqec.position import Displacement
+from tqec.position import Shift2D
 
 
 class AbstractMeasurement(ABC):
@@ -100,7 +100,7 @@ class Measurement(AbstractMeasurement):
 
     @override
     def offset_spatially_by(self, x: int, y: int) -> Measurement:
-        return Measurement(self.qubit + Displacement(x, y), self.offset)
+        return Measurement(self.qubit + Shift2D(x, y), self.offset)
 
     @override
     def offset_temporally_by(self, t: int) -> Measurement:

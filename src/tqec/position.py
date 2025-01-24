@@ -63,18 +63,11 @@ class Position2D(Vec2D):
 class PhysicalQubitPosition2D(Position2D):
     """Represents the position of a physical qubit on a 2-dimensional plane."""
 
-    def to_grid_qubit(self) -> tuple[int, int]:
-        """Returns the position as a tuple following the cirq.GridQubit
-        coordinate system."""
-        return (self.y, self.x)
-
 
 class PlaquettePosition2D(Position2D):
     """Represents the position of a plaquette on a 2-dimensional plane."""
 
-    def get_origin_position(
-        self, displacement: Displacement
-    ) -> PhysicalQubitPosition2D:
+    def get_origin_position(self, displacement: Shift2D) -> PhysicalQubitPosition2D:
         """Returns the position of the plaquette origin."""
         return PhysicalQubitPosition2D(displacement.x * self.x, displacement.y * self.y)
 
@@ -101,11 +94,11 @@ class Shape2D(Vec2D):
         return (self.y, self.x)
 
 
-class Displacement(Vec2D):
-    def __mul__(self, factor: int) -> Displacement:
-        return Displacement(factor * self.x, factor * self.y)
+class Shift2D(Vec2D):
+    def __mul__(self, factor: int) -> Shift2D:
+        return Shift2D(factor * self.x, factor * self.y)
 
-    def __rmul__(self, factor: int) -> Displacement:
+    def __rmul__(self, factor: int) -> Shift2D:
         return self.__mul__(factor)
 
 

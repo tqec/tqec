@@ -18,7 +18,7 @@ from tqec.circuit.schedule import (
 from tqec.compile.detectors.detector import Detector
 from tqec.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import Displacement
+from tqec.position import Shift2D
 from tqec.templates.indices.subtemplates import SubTemplateType
 
 
@@ -113,7 +113,7 @@ class _DetectorDatabaseKey:
             and self.plaquette_names == rhs.plaquette_names
         )
 
-    def circuit(self, plaquette_increments: Displacement) -> ScheduledCircuit:
+    def circuit(self, plaquette_increments: Shift2D) -> ScheduledCircuit:
         """Get the `stim.Circuit` instance represented by `self`.
 
         Args:
@@ -244,7 +244,7 @@ class DetectorDatabase:
         self.frozen = False
 
     def to_crumble_urls(
-        self, plaquette_increments: Displacement = Displacement(2, 2)
+        self, plaquette_increments: Shift2D = Shift2D(2, 2)
     ) -> list[str]:
         """Returns one URL pointing to https://algassert.com/crumble for each of
         the registered situations.
