@@ -14,7 +14,7 @@ from collections import defaultdict
 import stim
 
 from tqec.circuit.coordinates import StimCoordinates
-from tqec.position import Displacement, Position2D
+from tqec.position import PhysicalQubitPosition2D, Shift2D
 
 
 class GridQubit:
@@ -43,10 +43,14 @@ class GridQubit:
             StimCoordinates(self.x, self.y).to_stim_coordinates(),
         )
 
-    def __add__(self, other: GridQubit | Position2D | Displacement) -> GridQubit:
+    def __add__(
+        self, other: GridQubit | PhysicalQubitPosition2D | Shift2D
+    ) -> GridQubit:
         return GridQubit(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other: GridQubit | Position2D | Displacement) -> GridQubit:
+    def __sub__(
+        self, other: GridQubit | PhysicalQubitPosition2D | Shift2D
+    ) -> GridQubit:
         return GridQubit(self.x - other.x, self.y - other.y)
 
     def __mul__(self, other: int) -> GridQubit:

@@ -6,7 +6,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
 from tqec.exceptions import TQECException
-from tqec.position import Displacement
+from tqec.position import Shift2D
 
 _grid_qubits: list[GridQubit] = [GridQubit(0, 0), GridQubit(-1, -1)]
 
@@ -25,10 +25,10 @@ def test_measurement_construction(qubit: GridQubit) -> None:
 def test_measurement_offset(qubit: GridQubit) -> None:
     assert Measurement(qubit, -1).offset_spatially_by(0, 0) == Measurement(qubit, -1)
     assert Measurement(qubit, -1).offset_spatially_by(1, 0) == Measurement(
-        qubit + Displacement(1, 0), -1
+        qubit + Shift2D(1, 0), -1
     )
     assert Measurement(qubit, -1).offset_spatially_by(-3, 12) == Measurement(
-        qubit + Displacement(-3, 12), -1
+        qubit + Shift2D(-3, 12), -1
     )
     assert Measurement(qubit, -2).offset_spatially_by(0, 0) == Measurement(qubit, -2)
 
@@ -39,7 +39,7 @@ def test_measurement_offset(qubit: GridQubit) -> None:
 
 
 def test_measurement_map_qubit() -> None:
-    qubit_map = {q: q + Displacement(3, 8) for q in _grid_qubits}
+    qubit_map = {q: q + Shift2D(3, 8) for q in _grid_qubits}
 
     for qubit in _grid_qubits:
         assert Measurement(qubit, -1).map_qubit(qubit_map) == Measurement(

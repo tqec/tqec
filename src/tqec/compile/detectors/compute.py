@@ -21,7 +21,7 @@ from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
 from tqec.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import Displacement, Position2D
+from tqec.position import PhysicalQubitPosition2D, Shift2D
 from tqec.templates.indices.base import Template
 from tqec.templates.indices.display import (
     get_template_representation_from_instantiation,
@@ -86,7 +86,7 @@ def _matched_detectors_to_detectors(
 
 
 def _center_plaquette_syndrome_qubits(
-    subtemplate: SubTemplateType, plaquettes: Plaquettes, increments: Displacement
+    subtemplate: SubTemplateType, plaquettes: Plaquettes, increments: Shift2D
 ) -> list[GridQubit]:
     """Return a collection of qubits that are used as syndrome qubits by the
     central plaquette of the provided `subtemplate`.
@@ -116,7 +116,7 @@ def _center_plaquette_syndrome_qubits(
 
     central_plaquette = plaquettes[central_plaquette_index]
     origin = central_plaquette.origin
-    offset = Displacement(r * increments.x + origin.x, r * increments.y + origin.y)
+    offset = Shift2D(r * increments.x + origin.x, r * increments.y + origin.y)
     return [q + offset for q in central_plaquette.qubits.syndrome_qubits]
 
 
@@ -124,7 +124,7 @@ def _filter_detectors(
     detectors: list[Detector],
     subtemplates: Sequence[SubTemplateType],
     plaquettes: Sequence[Plaquettes],
-    increments: Displacement,
+    increments: Shift2D,
 ) -> frozenset[Detector]:
     """Filter detectors that do not involve at least one measurement on a
     syndrome qubit of the central plaquette, in the last round.
@@ -173,7 +173,7 @@ def _filter_detectors(
 def _compute_detectors_at_end_of_situation(
     subtemplates: Sequence[SubTemplateType],
     plaquettes: Sequence[Plaquettes],
-    increments: Displacement,
+    increments: Shift2D,
 ) -> frozenset[Detector]:
     if len(plaquettes) != len(subtemplates):
         raise TQECException(
@@ -276,7 +276,7 @@ def _get_database_access_exception(
 def compute_detectors_at_end_of_situation(
     subtemplates: Sequence[SubTemplateType],
     plaquettes_by_timestep: Sequence[Plaquettes],
-    increments: Displacement,
+    increments: Shift2D,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
 ) -> frozenset[Detector]:
@@ -452,7 +452,7 @@ def _compute_superimposed_template_instantiations(
 
     top_left = origins[-1]
     n, m = instantiations[-1].shape
-    bottom_right = Position2D(top_left.x + m, top_left.y + n)
+    bottom_right = PhysicalQubitPosition2D(top_left.x + m, top_left.y + n)
 
     # Get the correct instantiations
     ret: list[npt.NDArray[numpy.int_]] = []

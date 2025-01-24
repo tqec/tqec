@@ -2,18 +2,18 @@ import pytest
 
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.observables.builder import (
-    _get_top_readout_cube_qubits,
-    _get_top_readout_pipe_qubits,
     _get_bottom_stabilizer_cube_qubits,
     _get_bottom_stabilizer_spatial_cube_qubits,
+    _get_top_readout_cube_qubits,
+    _get_top_readout_pipe_qubits,
     _get_top_readout_spatial_cube_qubits,
     _transform_coords_into_grid,
 )
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
 from tqec.position import (
+    BlockPosition2D,
     Direction3D,
-    Position2D,
     Position3D,
     Shape2D,
     SignedDirection3D,
@@ -167,9 +167,9 @@ def test_get_top_readout_spatial_cube_qubits(
 def test_transform_coords_into_grid() -> None:
     template = LayoutTemplate(
         {
-            Position2D(0, 0): QubitTemplate(),
-            Position2D(1, 0): QubitTemplate(),
-            Position2D(1, 1): QubitTemplate(),
+            BlockPosition2D(0, 0): QubitTemplate(),
+            BlockPosition2D(1, 0): QubitTemplate(),
+            BlockPosition2D(1, 1): QubitTemplate(),
         }
     )
     qubit = _transform_coords_into_grid(

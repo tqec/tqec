@@ -10,7 +10,7 @@ from typing import Iterator, Sequence
 import numpy
 import numpy.typing as npt
 
-from tqec.position import Displacement, Position2D, Shape2D
+from tqec.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
 from tqec.scale import Scalable2D, round_or_fail
 from tqec.templates.indices.enums import TemplateBorder
 from tqec.templates.indices.subtemplates import (
@@ -27,7 +27,7 @@ class Template(ABC):
     library.
     """
 
-    def __init__(self, default_increments: Displacement | None = None) -> None:
+    def __init__(self, default_increments: Shift2D | None = None) -> None:
         """Construct an instance of the template.
 
         Args:
@@ -35,7 +35,7 @@ class Template(ABC):
                 to ``Displacement(2, 2)`` when ``None``
         """
         super().__init__()
-        self._default_increments = default_increments or Displacement(2, 2)
+        self._default_increments = default_increments or Shift2D(2, 2)
 
     @abstractmethod
     def instantiate(
@@ -74,7 +74,7 @@ class Template(ABC):
             the number of plaquettes expected from the :py:meth:`instantiate` method.
         """
 
-    def get_increments(self) -> Displacement:
+    def get_increments(self) -> Shift2D:
         """Get the default increments of the template.
 
         Returns:
@@ -112,7 +112,7 @@ class Template(ABC):
             self.instantiate(k), manhattan_radius, avoid_zero_plaquettes
         )
 
-    def instantiation_origin(self, k: int) -> Position2D:
+    def instantiation_origin(self, k: int) -> PlaquettePosition2D:
         """Coordinates of the top-left entry origin.
 
         This property returns the coordinates of the origin of the plaquette
@@ -135,7 +135,7 @@ class Template(ABC):
             to the top-left entry of the array returned by
             :meth:`~tqec.templates.indices.base.Template.instantiate`.
         """
-        return Position2D(0, 0)
+        return BlockPosition2D(0, 0).get_top_left_plaquette_position(self.shape(k))
 
 
 @dataclass(frozen=True)

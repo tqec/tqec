@@ -5,7 +5,7 @@ import numpy.typing as npt
 from typing_extensions import override
 
 from tqec.exceptions import TQECException
-from tqec.position import Displacement
+from tqec.position import Shift2D
 from tqec.scale import LinearFunction, Scalable2D
 from tqec.templates.indices.base import BorderIndices, RectangularTemplate
 from tqec.templates.indices.enums import TemplateBorder
@@ -17,7 +17,7 @@ class FixedTemplate(RectangularTemplate):
     def __init__(
         self,
         indices: Sequence[Sequence[int]],
-        default_increments: Displacement | None = None,
+        default_increments: Shift2D | None = None,
     ) -> None:
         super().__init__(default_increments)
         self._indices: npt.NDArray[numpy.int_] = numpy.array(

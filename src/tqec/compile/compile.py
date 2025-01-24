@@ -365,7 +365,13 @@ def compile_block_graph(
     min_z = min(pos.z for pos in blocks.keys())
     max_z = max(pos.z for pos in blocks.keys())
     layout_slices: list[BlockLayout] = [
-        BlockLayout({pos.as_2d(): block for pos, block in blocks.items() if pos.z == z})
+        BlockLayout(
+            {
+                pos.as_2d().with_block_coordinate_system(): block
+                for pos, block in blocks.items()
+                if pos.z == z
+            }
+        )
         for z in range(min_z, max_z + 1)
     ]
 

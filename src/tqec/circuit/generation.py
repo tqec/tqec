@@ -27,7 +27,7 @@ from tqec.circuit.schedule import (
     relabel_circuits_qubit_indices,
 )
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import Displacement
+from tqec.position import Shift2D
 from tqec.templates.indices.base import Template
 
 
@@ -78,7 +78,7 @@ def generate_circuit(
 def generate_circuit_from_instantiation(
     plaquette_array: npt.NDArray[numpy.int_],
     plaquettes: Plaquettes,
-    increments: Displacement,
+    increments: Shift2D,
 ) -> ScheduledCircuit:
     """Generate a quantum circuit from an array of plaquette indices and the
     associated plaquettes.
@@ -135,7 +135,7 @@ def generate_circuit_from_instantiation(
             if plaquette_index != 0:
                 # Computing the offset that should be applied to each qubits.
                 plaquette = plaquettes[plaquette_index]
-                qubit_offset = Displacement(
+                qubit_offset = Shift2D(
                     plaquette.origin.x + column_index * increments.x,
                     plaquette.origin.y + row_index * increments.y,
                 )

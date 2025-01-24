@@ -12,7 +12,7 @@ from tqec.exceptions import TQECException
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.qubit import PlaquetteQubits
-from tqec.position import Position2D
+from tqec.position import PhysicalQubitPosition2D
 from tqec.scale import LinearFunction, round_or_fail
 
 
@@ -62,8 +62,8 @@ class Plaquette:
             )
 
     @property
-    def origin(self) -> Position2D:
-        return Position2D(0, 0)
+    def origin(self) -> PhysicalQubitPosition2D:
+        return PhysicalQubitPosition2D(0, 0)
 
     def __eq__(self, rhs: object) -> bool:
         return isinstance(rhs, Plaquette) and self.name == rhs.name
