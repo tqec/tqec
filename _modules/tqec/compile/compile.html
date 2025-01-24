@@ -778,7 +778,13 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">min_z</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">max_z</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">layout_slices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BlockLayout</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">BlockLayout</span><span class="p">({</span><span class="n">pos</span><span class="o">.</span><span class="n">as_2d</span><span class="p">():</span> <span class="n">block</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="n">z</span><span class="p">})</span>
+        <span class="n">BlockLayout</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">pos</span><span class="o">.</span><span class="n">as_2d</span><span class="p">()</span><span class="o">.</span><span class="n">with_block_coordinate_system</span><span class="p">():</span> <span class="n">block</span>
+                <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="n">z</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_z</span><span class="p">,</span> <span class="n">max_z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="p">]</span>
 

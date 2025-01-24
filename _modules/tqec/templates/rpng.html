@@ -410,7 +410,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.frozendefaultdict</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenDefaultDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.rpng</span><span class="w"> </span><span class="kn">import</span> <span class="n">RPNGDescription</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Displacement</span><span class="p">,</span> <span class="n">Position2D</span><span class="p">,</span> <span class="n">Shape2D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquettePosition2D</span><span class="p">,</span> <span class="n">Shape2D</span><span class="p">,</span> <span class="n">Shift2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scalable2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.indices.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
 
@@ -445,7 +445,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="RPNGTemplate.get_increments">
 <a class="viewcode-back" href="../../../_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.get_increments">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_increments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Displacement</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_increments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shift2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the default increments of the template.</span>
 
 <span class="sd">        Returns:</span>
@@ -456,7 +456,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="RPNGTemplate.instantiation_origin">
 <a class="viewcode-back" href="../../../_autosummary/tqec.templates.RPNGTemplate.html#tqec.templates.RPNGTemplate.instantiation_origin">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">instantiation_origin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Position2D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">instantiation_origin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlaquettePosition2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Coordinates of the top-left entry origin.</span>
 
 <span class="sd">        This property returns the coordinates of the origin of the plaquette</span>

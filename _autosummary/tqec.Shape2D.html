@@ -439,8 +439,6 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Others</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tqec.Direction3D.html">Direction3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Displacement.html">Displacement</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Position2D.html">Position2D</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tqec.Position3D.html">Position3D</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Shape2D</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tqec.SignedDirection3D.html">SignedDirection3D</a></li>
@@ -513,14 +511,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.Shape2D">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.</span></span><span class="sig-name descname"><span class="pre">Shape2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/position.html#Shape2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.Shape2D" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Simple wrapper around tuple[int, int].</p>
-<p>This class is here to explicitly name the type of variables as shapes
-instead of having a tuple[int, int] that could be:
-- a position,
-- a shape,
-- coefficients for positions,
-- displacements.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Vec2D</span></code></p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>

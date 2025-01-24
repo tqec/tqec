@@ -437,53 +437,59 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 
-
-<div class="viewcode-block" id="Position2D">
-<a class="viewcode-back" href="../../_autosummary/tqec.Position2D.html#tqec.Position2D">[docs]</a>
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">Position2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple wrapper around tuple[int, int].</span>
-
-<span class="sd">    This class is here to explicitly name the type of variables as positions</span>
-<span class="sd">    instead of having a tuple[int, int] that could be:</span>
-<span class="sd">    - a position,</span>
-<span class="sd">    - a shape,</span>
-<span class="sd">    - coefficients for positions,</span>
-<span class="sd">    - displacements.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Vec2D</span><span class="p">:</span>
     <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">y</span><span class="p">:</span> <span class="nb">int</span>
 
-<div class="viewcode-block" id="Position2D.to_grid_qubit">
-<a class="viewcode-back" href="../../_autosummary/tqec.Position2D.html#tqec.Position2D.to_grid_qubit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_grid_qubit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the position as a tuple following the cirq.GridQubit</span>
-<span class="sd">        coordinate system.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span></div>
-</div>
 
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Vec3D</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">z</span><span class="p">:</span> <span class="nb">int</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Position2D</span><span class="p">(</span><span class="n">Vec2D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a position on a 2-dimensional plane.</span>
+
+<span class="sd">    Warning:</span>
+<span class="sd">        This class represents a position without any knowledge of the coordinate</span>
+<span class="sd">        system being used. As such, it should only be used when the coordinate</span>
+<span class="sd">        system is meaningless or in localised places where the coordinate system</span>
+<span class="sd">        is obvious. In particular, this class should be avoided in interfaces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_block_coordinate_system</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockPosition2D</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">BlockPosition2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PhysicalQubitPosition2D</span><span class="p">(</span><span class="n">Position2D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the position of a physical qubit on a 2-dimensional plane.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PlaquettePosition2D</span><span class="p">(</span><span class="n">Position2D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the position of a plaquette on a 2-dimensional plane.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_origin_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">displacement</span><span class="p">:</span> <span class="n">Shift2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitPosition2D</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the position of the plaquette origin.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PhysicalQubitPosition2D</span><span class="p">(</span><span class="n">displacement</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">displacement</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BlockPosition2D</span><span class="p">(</span><span class="n">Position2D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the position of a block on a 2-dimensional plane.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_top_left_plaquette_position</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">block_shape</span><span class="p">:</span> <span class="n">Shape2D</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlaquettePosition2D</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the position of the top-left plaquette of the block.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PlaquettePosition2D</span><span class="p">(</span><span class="n">block_shape</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">block_shape</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Shape2D">
 <a class="viewcode-back" href="../../_autosummary/tqec.Shape2D.html#tqec.Shape2D">[docs]</a>
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple wrapper around tuple[int, int].</span>
-
-<span class="sd">    This class is here to explicitly name the type of variables as shapes</span>
-<span class="sd">    instead of having a tuple[int, int] that could be:</span>
-<span class="sd">    - a position,</span>
-<span class="sd">    - a shape,</span>
-<span class="sd">    - coefficients for positions,</span>
-<span class="sd">    - displacements.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">y</span><span class="p">:</span> <span class="nb">int</span>
-
+<span class="k">class</span><span class="w"> </span><span class="nc">Shape2D</span><span class="p">(</span><span class="n">Vec2D</span><span class="p">):</span>
 <div class="viewcode-block" id="Shape2D.to_numpy_shape">
 <a class="viewcode-back" href="../../_autosummary/tqec.Shape2D.html#tqec.Shape2D.to_numpy_shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_numpy_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
@@ -499,44 +505,22 @@ window.addEventListener("load", () => mermaid.run());
 
 
 
-<div class="viewcode-block" id="Displacement">
-<a class="viewcode-back" href="../../_autosummary/tqec.Displacement.html#tqec.Displacement">[docs]</a>
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">Displacement</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple wrapper around tuple[int, int].</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Shift2D</span><span class="p">(</span><span class="n">Vec2D</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shift2D</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Shift2D</span><span class="p">(</span><span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
-<span class="sd">    This class is here to explicitly name the type of variables as displacements</span>
-<span class="sd">    instead of having a tuple[int, int] that could be:</span>
-<span class="sd">    - a position,</span>
-<span class="sd">    - a shape,</span>
-<span class="sd">    - coefficients for positions,</span>
-<span class="sd">    - displacements.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">y</span><span class="p">:</span> <span class="nb">int</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Displacement</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Displacement</span><span class="p">(</span><span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Displacement</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__mul__</span><span class="p">(</span><span class="n">factor</span><span class="p">)</span></div>
-
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shift2D</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__mul__</span><span class="p">(</span><span class="n">factor</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Position3D">
 <a class="viewcode-back" href="../../_autosummary/tqec.Position3D.html#tqec.Position3D">[docs]</a>
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">Position3D</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Position3D</span><span class="p">(</span><span class="n">Vec3D</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A 3D integer position.&quot;&quot;&quot;</span>
 
     <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">y</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">z</span><span class="p">:</span> <span class="nb">int</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">astuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;Position must be an integer.&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Position3D.shift_by">
 <a class="viewcode-back" href="../../_autosummary/tqec.Position3D.html#tqec.Position3D.shift_by">[docs]</a>
