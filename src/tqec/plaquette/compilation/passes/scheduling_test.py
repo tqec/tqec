@@ -26,13 +26,7 @@ def test_simple_instantiation() -> None:
 def test_identity() -> None:
     compilation_pass = ChangeSchedulePass({0: 0, 1: 1, 2: 2})
     circ = _s(
-        "QUBIT_COORDS(0, 0) 0\n"
-        "QUBIT_COORDS(0, 1) 1\n"
-        "H 0\n"
-        "TICK\n"
-        "CX 0 1\n"
-        "TICK\n"
-        "M 1"
+        "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 1) 1\nH 0\nTICK\nCX 0 1\nTICK\nM 1"
     )
     assert compilation_pass.run(circ) == circ
 
@@ -40,22 +34,9 @@ def test_identity() -> None:
 def test_new_moments() -> None:
     compilation_pass = ChangeSchedulePass({0: 0, 1: 1, 2: 3})
     circ = _s(
-        "QUBIT_COORDS(0, 0) 0\n"
-        "QUBIT_COORDS(0, 1) 1\n"
-        "H 0\n"
-        "TICK\n"
-        "CX 0 1\n"
-        "TICK\n"
-        "M 1"
+        "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 1) 1\nH 0\nTICK\nCX 0 1\nTICK\nM 1"
     )
     target_circ = _s(
-        "QUBIT_COORDS(0, 0) 0\n"
-        "QUBIT_COORDS(0, 1) 1\n"
-        "H 0\n"
-        "TICK\n"
-        "CX 0 1\n"
-        "TICK\n"
-        "TICK\n"
-        "M 1"
+        "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 1) 1\nH 0\nTICK\nCX 0 1\nTICK\nTICK\nM 1"
     )
     assert compilation_pass.run(circ) == target_circ
