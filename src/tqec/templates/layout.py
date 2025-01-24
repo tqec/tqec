@@ -71,8 +71,8 @@ import numpy
 import numpy.typing as npt
 from typing_extensions import override
 
-from tqec.utils.exceptions import TQECException
 from tqec.templates.base import RectangularTemplate, Template
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
 from tqec.utils.scale import Scalable2D
 
