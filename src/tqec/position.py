@@ -56,6 +56,9 @@ class Position2D(Vec2D):
         is obvious. In particular, this class should be avoided in interfaces.
     """
 
+    def with_block_coordinate_system(self) -> BlockPosition2D:
+        return BlockPosition2D(self.x, self.y)
+
 
 class PhysicalQubitPosition2D(Position2D):
     """Represents the position of a physical qubit on a 2-dimensional plane."""
