@@ -72,12 +72,7 @@ import numpy.typing as npt
 from typing_extensions import override
 
 from tqec.exceptions import TQECException
-from tqec.position import (
-    BlockPosition2D,
-    Displacement,
-    PhysicalQubitPosition2D,
-    Shape2D,
-)
+from tqec.position import BlockPosition2D, Displacement, PlaquettePosition2D, Shape2D
 from tqec.scale import Scalable2D
 from tqec.templates.indices.base import RectangularTemplate, Template
 
@@ -170,29 +165,6 @@ class LayoutTemplate(Template):
         return indices_map
 
     @property
-    def block_origin(self) -> BlockPosition2D:
-        """Returns the shift that should be applied to the global origin to
-        become the template origin.
-
-        Due to how :class:`LayoutTemplate` organizes the
-        :class:`~tqec.templates.indices.base.Template` instances it manages, it is entirely
-        possible (and valid) for the template to not be aligned with the global
-        origin.
-
-        For example, the following instance exhibit this behaviour:
-
-        .. code-block:: python
-
-            not_on_origin = LayoutTemplate({BlockPosition2D(1, 1): QubitTemplate()})
-            assert not_on_origin.block_origin == BlockPosition2D(1, 1)
-
-        Returns:
-            the shift that should be applied to the global origin to become the
-            template origin.
-        """
-        return self._block_origin
-
-    @property
     @override
     def scalable_shape(self) -> Scalable2D:
         """Returns a scalable version of the template shape."""
@@ -245,7 +217,7 @@ class LayoutTemplate(Template):
             ]
             element_instantiation = element.instantiate(k, indices)
             shifted_pos = BlockPosition2D(
-                pos.x - self.block_origin.x, pos.y - self.block_origin.y
+                pos.x - self._block_origin.x, pos.y - self._block_origin.y
             )
             ret[
                 shifted_pos.y * element_shape[0] : (shifted_pos.y + 1)
@@ -256,7 +228,5 @@ class LayoutTemplate(Template):
         return ret
 
     @override
-    def instantiation_origin(self, k: int) -> PhysicalQubitPosition2D:
-        return self.block_origin.get_top_left_plaquette_position(
-            self.element_shape(k)
-        ).get_origin_position(self.get_increments())
+    def instantiation_origin(self, k: int) -> PlaquettePosition2D:
+        return self._block_origin.get_top_left_plaquette_position(self.element_shape(k))

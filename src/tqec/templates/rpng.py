@@ -5,7 +5,7 @@ from typing import Generic, TypeVar
 
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.position import Displacement, PhysicalQubitPosition2D, Shape2D
+from tqec.position import Displacement, PlaquettePosition2D, Shape2D
 from tqec.scale import Scalable2D
 from tqec.templates.indices.base import Template
 
@@ -38,7 +38,7 @@ class RPNGTemplate(Generic[T]):
         """
         return self.template.get_increments()
 
-    def instantiation_origin(self, k: int) -> PhysicalQubitPosition2D:
+    def instantiation_origin(self, k: int) -> PlaquettePosition2D:
         """Coordinates of the top-left entry origin.
 
         This property returns the coordinates of the origin of the plaquette
