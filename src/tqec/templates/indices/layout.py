@@ -14,17 +14,17 @@ A grid of :math:`2 \\times 2` logical qubits can be represented with
 
 .. code-block:: python
 
-    from tqec.position import Position2D
+    from tqec.position import BlockPosition2D
     from tqec.templates.indices.layout import LayoutTemplate
     from tqec.templates.indices.qubit import QubitTemplate
 
     qubit = QubitTemplate()
     grid = LayoutTemplate(
         {
-            Position2D(0, 0): qubit,
-            Position2D(0, 1): qubit,
-            Position2D(1, 0): qubit,
-            Position2D(1, 1): qubit,
+            BlockPosition2D(0, 0): qubit,
+            BlockPosition2D(0, 1): qubit,
+            BlockPosition2D(1, 0): qubit,
+            BlockPosition2D(1, 1): qubit,
         }
     )
 
@@ -72,7 +72,12 @@ import numpy.typing as npt
 from typing_extensions import override
 
 from tqec.exceptions import TQECException
-from tqec.position import Displacement, Position2D, Shape2D
+from tqec.position import (
+    BlockPosition2D,
+    Displacement,
+    PhysicalQubitPosition2D,
+    Shape2D,
+)
 from tqec.scale import Scalable2D
 from tqec.templates.indices.base import RectangularTemplate, Template
 
@@ -80,7 +85,7 @@ from tqec.templates.indices.base import RectangularTemplate, Template
 class LayoutTemplate(Template):
     def __init__(
         self,
-        element_layout: dict[Position2D, RectangularTemplate],
+        element_layout: dict[BlockPosition2D, RectangularTemplate],
         default_increments: Displacement | None = None,
     ) -> None:
         """A template representing a layout of other templates.
@@ -120,7 +125,7 @@ class LayoutTemplate(Template):
         min_y = min(position.y for position in all_positions)
         max_y = max(position.y for position in all_positions)
         # Shift the bounding box to the origin
-        self._origin_shift = Displacement(min_x, min_y)
+        self._block_origin = BlockPosition2D(min_x, min_y)
         self._nx = max_x - min_x + 1
         self._ny = max_y - min_y + 1
 
@@ -129,7 +134,7 @@ class LayoutTemplate(Template):
     def get_indices_map_for_instantiation(
         self,
         instantiate_indices: Sequence[int] | None = None,
-    ) -> dict[Position2D, dict[int, int]]:
+    ) -> dict[BlockPosition2D, dict[int, int]]:
         """Get one index map for each of the templates in the layout.
 
         This method is used internally by :meth:`LayoutTemplate.instantiate` and
@@ -155,7 +160,7 @@ class LayoutTemplate(Template):
         if instantiate_indices is None:
             instantiate_indices = list(range(1, self.expected_plaquettes_number + 1))
         index_count = 0
-        indices_map: dict[Position2D, dict[int, int]] = {}
+        indices_map: dict[BlockPosition2D, dict[int, int]] = {}
         for position, template in self._layout.items():
             indices_map[position] = {
                 i + 1: instantiate_indices[i + index_count]
@@ -165,7 +170,7 @@ class LayoutTemplate(Template):
         return indices_map
 
     @property
-    def origin_shift(self) -> Displacement:
+    def block_origin(self) -> BlockPosition2D:
         """Returns the shift that should be applied to the global origin to
         become the template origin.
 
@@ -178,14 +183,14 @@ class LayoutTemplate(Template):
 
         .. code-block:: python
 
-            not_on_origin = LayoutTemplate({Position2D(1, 1): QubitTemplate()})
-            assert not_on_origin.origin_shift == Position2D(1, 1)
+            not_on_origin = LayoutTemplate({BlockPosition2D(1, 1): QubitTemplate()})
+            assert not_on_origin.block_origin == BlockPosition2D(1, 1)
 
         Returns:
             the shift that should be applied to the global origin to become the
             template origin.
         """
-        return self._origin_shift
+        return self._block_origin
 
     @property
     @override
@@ -239,8 +244,8 @@ class LayoutTemplate(Template):
                 imap[i] for i in range(1, element.expected_plaquettes_number + 1)
             ]
             element_instantiation = element.instantiate(k, indices)
-            shifted_pos = Position2D(
-                pos.x - self.origin_shift.x, pos.y - self.origin_shift.y
+            shifted_pos = BlockPosition2D(
+                pos.x - self.block_origin.x, pos.y - self.block_origin.y
             )
             ret[
                 shifted_pos.y * element_shape[0] : (shifted_pos.y + 1)
@@ -251,9 +256,7 @@ class LayoutTemplate(Template):
         return ret
 
     @override
-    def instantiation_origin(self, k: int) -> Position2D:
-        origin_shift = self.origin_shift
-        element_shape = self.element_shape(k)
-        return Position2D(
-            origin_shift.x * element_shape.x, origin_shift.y * element_shape.y
-        )
+    def instantiation_origin(self, k: int) -> PhysicalQubitPosition2D:
+        return self.block_origin.get_top_left_plaquette_position(
+            self.element_shape(k)
+        ).get_origin_position(self.get_increments())

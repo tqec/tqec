@@ -21,7 +21,7 @@ from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
 from tqec.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import Displacement, Position2D
+from tqec.position import Displacement, PhysicalQubitPosition2D
 from tqec.templates.indices.base import Template
 from tqec.templates.indices.display import (
     get_template_representation_from_instantiation,
@@ -452,7 +452,7 @@ def _compute_superimposed_template_instantiations(
 
     top_left = origins[-1]
     n, m = instantiations[-1].shape
-    bottom_right = Position2D(top_left.x + m, top_left.y + n)
+    bottom_right = PhysicalQubitPosition2D(top_left.x + m, top_left.y + n)
 
     # Get the correct instantiations
     ret: list[npt.NDArray[numpy.int_]] = []

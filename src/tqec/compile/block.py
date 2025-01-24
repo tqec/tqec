@@ -9,7 +9,7 @@ from tqec.exceptions import TQECException
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes, RepeatedPlaquettes
-from tqec.position import Displacement, Position2D
+from tqec.position import BlockPosition2D, Displacement
 from tqec.scale import LinearFunction
 from tqec.templates.indices.base import RectangularTemplate
 from tqec.templates.indices.layout import LayoutTemplate
@@ -72,13 +72,13 @@ class CompiledBlock:
 
 
 class BlockLayout:
-    def __init__(self, blocks_layout: dict[Position2D, CompiledBlock]):
+    def __init__(self, blocks_layout: dict[BlockPosition2D, CompiledBlock]):
         """Create a layout of :class:`CompiledBlock` instances in the 2D grid.
 
         We require that all the blocks in the layout have the same
         scalable shape.
         """
-        template_layout: dict[Position2D, RectangularTemplate] = {}
+        template_layout: dict[BlockPosition2D, RectangularTemplate] = {}
         for pos, block in blocks_layout.items():
             template_layout[pos] = block.template
         self._template = LayoutTemplate(element_layout=template_layout)
@@ -97,7 +97,7 @@ class BlockLayout:
         return self._layers
 
     def _merge_layers(
-        self, layers_layout: dict[Position2D, list[Plaquettes]]
+        self, layers_layout: dict[BlockPosition2D, list[Plaquettes]]
     ) -> list[Plaquettes]:
         """Merge the layers of the different blocks in the layout."""
         # Check if all the blocks have the same number of layers.

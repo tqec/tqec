@@ -26,7 +26,7 @@ from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import Displacement, Position2D
+from tqec.position import BlockPosition2D, Displacement
 from tqec.templates.indices._testing import FixedTemplate
 from tqec.templates.indices.layout import LayoutTemplate
 from tqec.templates.indices.qubit import QubitTemplate
@@ -373,20 +373,22 @@ def test_compute_superimposed_template_instantiations_shifted(k: int) -> None:
     templates = [
         LayoutTemplate(
             {
-                Position2D(0, 0): template,
-                Position2D(0, 1): template,
-                Position2D(1, 0): template,
-                Position2D(1, 1): template,
+                BlockPosition2D(0, 0): template,
+                BlockPosition2D(0, 1): template,
+                BlockPosition2D(1, 0): template,
+                BlockPosition2D(1, 1): template,
             }
         ),
-        LayoutTemplate({Position2D(0, 0): template, Position2D(1, 1): template}),
-        LayoutTemplate({Position2D(1, 1): template}),
+        LayoutTemplate(
+            {BlockPosition2D(0, 0): template, BlockPosition2D(1, 1): template}
+        ),
+        LayoutTemplate({BlockPosition2D(1, 1): template}),
     ]
     instantiations = _compute_superimposed_template_instantiations(templates, k)
     # The only template that should be left in the returned instantiations is the
     # one at the following position, because this is the only position at which
     # `templates[-1]` is non-zero.
-    pos = Position2D(1, 1)
+    pos = BlockPosition2D(1, 1)
     for i, inst in enumerate(instantiations):
         # There might be indices shifts.
         indices_map = templates[i].get_indices_map_for_instantiation()[pos]

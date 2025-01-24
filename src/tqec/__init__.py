@@ -36,9 +36,11 @@ from .plaquette import RAPNGDescription as RAPNGDescription
 from .plaquette import RPNGDescription as RPNGDescription
 from .plaquette import SquarePlaquetteQubits as SquarePlaquetteQubits
 from .plaquette.enums import PlaquetteOrientation as PlaquetteOrientation
+from .position import BlockPosition2D as BlockPosition2D
 from .position import Direction3D as Direction3D
 from .position import Displacement as Displacement
-from .position import Position2D as Position2D
+from .position import PhysicalQubitPosition2D as PhysicalQubitPosition2D
+from .position import PlaquettePosition2D as PlaquettePosition2D
 from .position import Position3D as Position3D
 from .position import Shape2D as Shape2D
 from .position import SignedDirection3D as SignedDirection3D
