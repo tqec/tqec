@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import itertools
 import warnings
-from typing import Iterable, Sequence, cast
+from typing import Iterable, Sequence
 
 import stim
 
