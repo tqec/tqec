@@ -9,7 +9,7 @@ from tqec.exceptions import TQECException
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes, RepeatedPlaquettes
-from tqec.position import BlockPosition2D, Displacement
+from tqec.position import BlockPosition2D, Shift2D
 from tqec.scale import LinearFunction
 from tqec.templates.indices.base import RectangularTemplate
 from tqec.templates.indices.layout import LayoutTemplate
@@ -166,7 +166,7 @@ class BlockLayout:
         # We need to shift the circuit based on the shift of the layout template.
         top_left_plaquette = self._template.instantiation_origin(k)
         increments = self._template.get_increments()
-        offset = Displacement(
+        offset = Shift2D(
             top_left_plaquette.x * increments.x, top_left_plaquette.y * increments.y
         )
         return [

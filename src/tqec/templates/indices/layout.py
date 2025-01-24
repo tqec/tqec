@@ -72,7 +72,7 @@ import numpy.typing as npt
 from typing_extensions import override
 
 from tqec.exceptions import TQECException
-from tqec.position import BlockPosition2D, Displacement, PlaquettePosition2D, Shape2D
+from tqec.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
 from tqec.scale import Scalable2D
 from tqec.templates.indices.base import RectangularTemplate, Template
 
@@ -81,7 +81,7 @@ class LayoutTemplate(Template):
     def __init__(
         self,
         element_layout: dict[BlockPosition2D, RectangularTemplate],
-        default_increments: Displacement | None = None,
+        default_increments: Shift2D | None = None,
     ) -> None:
         """A template representing a layout of other templates.
 

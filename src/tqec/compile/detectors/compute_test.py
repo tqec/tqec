@@ -26,7 +26,7 @@ from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import BlockPosition2D, Displacement
+from tqec.position import BlockPosition2D, Shift2D
 from tqec.templates.indices._testing import FixedTemplate
 from tqec.templates.indices.layout import LayoutTemplate
 from tqec.templates.indices.qubit import QubitTemplate
@@ -133,7 +133,7 @@ def test_center_plaquette_syndrome_qubits_empty(
         _center_plaquette_syndrome_qubits(
             empty_center_plaquette_subtemplate,
             Plaquettes(FrozenDefaultDict({})),
-            Displacement(2, 2),
+            Shift2D(2, 2),
         )
         == []
     )
@@ -145,7 +145,7 @@ def test_center_plaquette_syndrome_qubits_empty(
                     {}, default_factory=lambda: make_css_surface_code_plaquette("X")
                 )
             ),
-            Displacement(2, 2),
+            Shift2D(2, 2),
         )
         == []
     )
@@ -157,7 +157,7 @@ def test_center_plaquette_syndrome_qubits_empty(
                     {}, default_factory=lambda: make_css_surface_code_plaquette("X")
                 )
             ),
-            Displacement(4, 2),
+            Shift2D(4, 2),
         )
         == []
     )
@@ -179,7 +179,7 @@ def test_center_plaquette_syndrome_qubits(
                 default_factory=lambda: empty_square_plaquette(),
             )
         ),
-        Displacement(2, 2),
+        Shift2D(2, 2),
     ) == [GridQubit(2 * r, 2 * r)]
     assert _center_plaquette_syndrome_qubits(
         center_plaquette_subtemplate,
@@ -189,14 +189,14 @@ def test_center_plaquette_syndrome_qubits(
                 default_factory=lambda: empty_square_plaquette(),
             )
         ),
-        Displacement(4, 2),
+        Shift2D(4, 2),
     ) == [GridQubit(4 * r, 2 * r)]
 
 
 def test_filter_detectors(
     alternating_subtemplate: SubTemplateType, init_plaquettes: Plaquettes
 ) -> None:
-    increments = Displacement(2, 2)
+    increments = Shift2D(2, 2)
     syndrome_qubits = _center_plaquette_syndrome_qubits(
         alternating_subtemplate, init_plaquettes, increments
     )
@@ -253,7 +253,7 @@ def test_compute_detectors_at_end_of_situation(
     memory_plaquettes: Plaquettes,
 ) -> None:
     # No detector due to empty plaquette
-    increments = Displacement(2, 2)
+    increments = Shift2D(2, 2)
     assert (
         _compute_detectors_at_end_of_situation(
             [numpy.array([[0]])], [Plaquettes(FrozenDefaultDict({}))], increments
@@ -301,7 +301,7 @@ def test_compute_detectors_at_end_of_situation(
 def test_public_compute_detectors_at_end_of_situation(
     alternating_subtemplate: SubTemplateType, init_plaquettes: Plaquettes
 ) -> None:
-    increments = Displacement(2, 2)
+    increments = Shift2D(2, 2)
     database = DetectorDatabase()
     # No database
     detectors = compute_detectors_at_end_of_situation(
