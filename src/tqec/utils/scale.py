@@ -124,6 +124,9 @@ class LinearFunction:
             return f"{self.slope}*x"
         return f"{self.slope}*x + {self.offset}"
 
+    def integer_eval(self, x: int) -> int:
+        return round_or_fail(self.slope * x + self.offset)
+
 
 def round_or_fail(f: float, atol: float = 1e-8) -> int:
     """Try to round the provided ``f`` to the nearest integer and raise if
