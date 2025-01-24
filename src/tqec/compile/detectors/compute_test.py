@@ -1,7 +1,6 @@
 import numpy.testing
 import pytest
 import stim
-
 from tqecd.match import MatchedDetector
 from tqecd.measurement import RelativeMeasurementLocation
 
@@ -21,13 +20,13 @@ from tqec.compile.detectors.compute import (
 )
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
-from tqec.plaquette.enums import ResetBasis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import Displacement, Position2D
+from tqec.position import BlockPosition2D, Shift2D
 from tqec.templates.indices._testing import FixedTemplate
 from tqec.templates.indices.layout import LayoutTemplate
 from tqec.templates.indices.qubit import QubitTemplate
@@ -44,12 +43,8 @@ def init_plaquettes_fixture() -> Plaquettes:
     return Plaquettes(
         FrozenDefaultDict(
             {
-                1: make_css_surface_code_plaquette(
-                    "Z", data_initialization=ResetBasis.Z
-                ),
-                2: make_css_surface_code_plaquette(
-                    "X", data_initialization=ResetBasis.Z
-                ),
+                1: make_css_surface_code_plaquette("Z", data_initialization=Basis.Z),
+                2: make_css_surface_code_plaquette("X", data_initialization=Basis.Z),
             }
         )
     )
@@ -138,7 +133,7 @@ def test_center_plaquette_syndrome_qubits_empty(
         _center_plaquette_syndrome_qubits(
             empty_center_plaquette_subtemplate,
             Plaquettes(FrozenDefaultDict({})),
-            Displacement(2, 2),
+            Shift2D(2, 2),
         )
         == []
     )
@@ -150,7 +145,7 @@ def test_center_plaquette_syndrome_qubits_empty(
                     {}, default_factory=lambda: make_css_surface_code_plaquette("X")
                 )
             ),
-            Displacement(2, 2),
+            Shift2D(2, 2),
         )
         == []
     )
@@ -162,7 +157,7 @@ def test_center_plaquette_syndrome_qubits_empty(
                     {}, default_factory=lambda: make_css_surface_code_plaquette("X")
                 )
             ),
-            Displacement(4, 2),
+            Shift2D(4, 2),
         )
         == []
     )
@@ -184,7 +179,7 @@ def test_center_plaquette_syndrome_qubits(
                 default_factory=lambda: empty_square_plaquette(),
             )
         ),
-        Displacement(2, 2),
+        Shift2D(2, 2),
     ) == [GridQubit(2 * r, 2 * r)]
     assert _center_plaquette_syndrome_qubits(
         center_plaquette_subtemplate,
@@ -194,14 +189,14 @@ def test_center_plaquette_syndrome_qubits(
                 default_factory=lambda: empty_square_plaquette(),
             )
         ),
-        Displacement(4, 2),
+        Shift2D(4, 2),
     ) == [GridQubit(4 * r, 2 * r)]
 
 
 def test_filter_detectors(
     alternating_subtemplate: SubTemplateType, init_plaquettes: Plaquettes
 ) -> None:
-    increments = Displacement(2, 2)
+    increments = Shift2D(2, 2)
     syndrome_qubits = _center_plaquette_syndrome_qubits(
         alternating_subtemplate, init_plaquettes, increments
     )
@@ -258,7 +253,7 @@ def test_compute_detectors_at_end_of_situation(
     memory_plaquettes: Plaquettes,
 ) -> None:
     # No detector due to empty plaquette
-    increments = Displacement(2, 2)
+    increments = Shift2D(2, 2)
     assert (
         _compute_detectors_at_end_of_situation(
             [numpy.array([[0]])], [Plaquettes(FrozenDefaultDict({}))], increments
@@ -306,7 +301,7 @@ def test_compute_detectors_at_end_of_situation(
 def test_public_compute_detectors_at_end_of_situation(
     alternating_subtemplate: SubTemplateType, init_plaquettes: Plaquettes
 ) -> None:
-    increments = Displacement(2, 2)
+    increments = Shift2D(2, 2)
     database = DetectorDatabase()
     # No database
     detectors = compute_detectors_at_end_of_situation(
@@ -378,20 +373,22 @@ def test_compute_superimposed_template_instantiations_shifted(k: int) -> None:
     templates = [
         LayoutTemplate(
             {
-                Position2D(0, 0): template,
-                Position2D(0, 1): template,
-                Position2D(1, 0): template,
-                Position2D(1, 1): template,
+                BlockPosition2D(0, 0): template,
+                BlockPosition2D(0, 1): template,
+                BlockPosition2D(1, 0): template,
+                BlockPosition2D(1, 1): template,
             }
         ),
-        LayoutTemplate({Position2D(0, 0): template, Position2D(1, 1): template}),
-        LayoutTemplate({Position2D(1, 1): template}),
+        LayoutTemplate(
+            {BlockPosition2D(0, 0): template, BlockPosition2D(1, 1): template}
+        ),
+        LayoutTemplate({BlockPosition2D(1, 1): template}),
     ]
     instantiations = _compute_superimposed_template_instantiations(templates, k)
     # The only template that should be left in the returned instantiations is the
     # one at the following position, because this is the only position at which
     # `templates[-1]` is non-zero.
-    pos = Position2D(1, 1)
+    pos = BlockPosition2D(1, 1)
     for i, inst in enumerate(instantiations):
         # There might be indices shifts.
         indices_map = templates[i].get_indices_map_for_instantiation()[pos]

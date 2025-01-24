@@ -1,24 +1,25 @@
 import itertools
-from typing import Final, Literal
+from typing import Final
 
 import pytest
 
-from tqec.compile.specs.enums import JunctionArms
+from tqec.compile.specs.enums import SpatialArms
+from tqec.enums import Basis
 from tqec.exceptions import TQECException, TQECWarning
-from tqec.plaquette.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.templates.library.spatial import (
-    get_spatial_junction_arm_template,
-    get_spatial_junction_qubit_template,
+
+from ._testing import (
+    get_spatial_cube_arm_rpng_template,
+    get_spatial_cube_qubit_rpng_template,
 )
 
 _EMPT: Final[RPNGDescription] = RPNGDescription.from_string("---- ---- ---- ----")
 
 
 def test_4_way_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
-        "z",
-        JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN | JunctionArms.LEFT,
+    description = get_spatial_cube_qubit_rpng_template(
+        Basis.Z,
+        SpatialArms.UP | SpatialArms.RIGHT | SpatialArms.DOWN | SpatialArms.LEFT,
     )
     instantiation = description.instantiate(k=2)
 
@@ -36,7 +37,7 @@ def test_4_way_spatial_junction() -> None:
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
-    expected_warning_message = "^Instantiating Qubit4WayJunctionTemplate with k=1\\..*"
+    expected_warning_message = "^Instantiating QubitSpatialCubeTemplate with k=1\\..*"
     with pytest.warns(TQECWarning, match=expected_warning_message):
         instantiation = description.instantiate(k=1)
     assert instantiation == [
@@ -48,8 +49,8 @@ def test_4_way_spatial_junction() -> None:
 
 
 def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
-        "z", JunctionArms.UP | JunctionArms.RIGHT | JunctionArms.DOWN
+    description = get_spatial_cube_qubit_rpng_template(
+        Basis.Z, SpatialArms.UP | SpatialArms.RIGHT | SpatialArms.DOWN
     )
     instantiation = description.instantiate(k=2)
 
@@ -68,7 +69,7 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
-    expected_warning_message = "^Instantiating Qubit4WayJunctionTemplate with k=1\\..*"
+    expected_warning_message = "^Instantiating QubitSpatialCubeTemplate with k=1\\..*"
     with pytest.warns(TQECWarning, match=expected_warning_message):
         instantiation = description.instantiate(k=1)
     assert instantiation == [
@@ -80,8 +81,8 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
 
 
 def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
-        "z", JunctionArms.LEFT | JunctionArms.UP | JunctionArms.RIGHT
+    description = get_spatial_cube_qubit_rpng_template(
+        Basis.Z, SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT
     )
     instantiation = description.instantiate(k=2)
 
@@ -100,7 +101,7 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
         [_EMPT, _ZZ__, _EMPT, _ZZ__, _EMPT, _ZZ__],
     ]
 
-    expected_warning_message = "^Instantiating Qubit4WayJunctionTemplate with k=1\\..*"
+    expected_warning_message = "^Instantiating QubitSpatialCubeTemplate with k=1\\..*"
     with pytest.warns(TQECWarning, match=expected_warning_message):
         instantiation = description.instantiate(k=1)
     assert instantiation == [
@@ -113,12 +114,14 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
 
 def test_2_way_through_spatial_junction() -> None:
     with pytest.raises(TQECException, match=".*I-shaped spatial junctions.*"):
-        get_spatial_junction_qubit_template("z", JunctionArms.LEFT | JunctionArms.RIGHT)
+        get_spatial_cube_qubit_rpng_template(
+            Basis.Z, SpatialArms.LEFT | SpatialArms.RIGHT
+        )
 
 
 def test_2_way_L_shape_spatial_junction() -> None:
-    description = get_spatial_junction_qubit_template(
-        "z", JunctionArms.DOWN | JunctionArms.RIGHT
+    description = get_spatial_cube_qubit_rpng_template(
+        Basis.Z, SpatialArms.DOWN | SpatialArms.RIGHT
     )
     instantiation = description.instantiate(k=2)
 
@@ -139,7 +142,7 @@ def test_2_way_L_shape_spatial_junction() -> None:
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
-    expected_warning_message = "^Instantiating Qubit4WayJunctionTemplate with k=1\\..*"
+    expected_warning_message = "^Instantiating QubitSpatialCubeTemplate with k=1\\..*"
     with pytest.warns(TQECWarning, match=expected_warning_message):
         instantiation = description.instantiate(k=1)
     assert instantiation == [
@@ -153,32 +156,32 @@ def test_2_way_L_shape_spatial_junction() -> None:
 @pytest.mark.parametrize(
     ["spatial_boundary_basis", "arms", "reset", "measurement"],
     itertools.product(
-        ["x", "z"],
+        [Basis.X, Basis.Z],
         (
-            JunctionArms.L_shaped_arms()
-            + JunctionArms.T_shaped_arms()
-            + JunctionArms.X_shaped_arms()
+            SpatialArms.L_shaped_arms()
+            + SpatialArms.T_shaped_arms()
+            + SpatialArms.X_shaped_arms()
         ),
         [None, Basis.X, Basis.Z],
         [None, Basis.X, Basis.Z],
     ),
 )
-def test_spatial_junction_logical_qubit_always_defines_corners(
-    spatial_boundary_basis: Literal["x", "z"],
-    arms: JunctionArms,
+def test_spatial_cube_logical_qubit_always_defines_corners(
+    spatial_boundary_basis: Basis,
+    arms: SpatialArms,
     reset: Basis | None,
     measurement: Basis | None,
 ) -> None:
-    template = get_spatial_junction_qubit_template(
+    template = get_spatial_cube_qubit_rpng_template(
         spatial_boundary_basis, arms, reset, measurement
     )
     rpng_inst = template.instantiate(k=3)
-    if arms == JunctionArms.RIGHT | JunctionArms.DOWN:
+    if arms == SpatialArms.RIGHT | SpatialArms.DOWN:
         assert rpng_inst[0][0] == RPNGDescription.from_string("---- ---- ---- ----")
     else:
         assert rpng_inst[0][0] != RPNGDescription.from_string("---- ---- ---- ----")
 
-    if arms == JunctionArms.LEFT | JunctionArms.UP:
+    if arms == SpatialArms.LEFT | SpatialArms.UP:
         assert rpng_inst[-1][-1] == RPNGDescription.from_string("---- ---- ---- ----")
     else:
         assert rpng_inst[-1][-1] != RPNGDescription.from_string("---- ---- ---- ----")
@@ -190,27 +193,27 @@ def test_spatial_junction_logical_qubit_always_defines_corners(
 @pytest.mark.parametrize(
     ["spatial_boundary_basis", "arms", "reset", "measurement"],
     itertools.product(
-        ["x", "z"],
-        JunctionArms.single_arms(),
+        [Basis.X, Basis.Z],
+        SpatialArms.single_arms(),
         [None, Basis.X, Basis.Z],
         [None, Basis.X, Basis.Z],
     ),
 )
-def test_spatial_junction_junctions_never_overwrite_corners(
-    spatial_boundary_basis: Literal["x", "z"],
-    arms: JunctionArms,
+def test_spatial_cube_arms_never_overwrite_corners(
+    spatial_boundary_basis: Basis,
+    arms: SpatialArms,
     reset: Basis | None,
     measurement: Basis | None,
 ) -> None:
-    template = get_spatial_junction_arm_template(
+    template = get_spatial_cube_arm_rpng_template(
         spatial_boundary_basis, arms, reset, measurement
     )
     match arms:
-        case JunctionArms.UP:
+        case SpatialArms.UP:
             assert 3 not in template.mapping
-        case JunctionArms.DOWN:
+        case SpatialArms.DOWN:
             assert 2 not in template.mapping
-        case JunctionArms.LEFT:
+        case SpatialArms.LEFT:
             assert 2 not in template.mapping
-        case JunctionArms.RIGHT:
+        case SpatialArms.RIGHT:
             assert 3 not in template.mapping

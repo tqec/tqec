@@ -14,6 +14,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 from tqec.computation._base_graph import ComputationGraph
 from tqec.exceptions import TQECException
 from tqec.position import Direction3D, Position3D
+from tqec.scale import round_or_fail
 
 if TYPE_CHECKING:
     from tqec.computation.block_graph import BlockGraph
@@ -114,10 +115,12 @@ class ZXEdge:
     has_hadamard: bool = False
 
     def __post_init__(self) -> None:
-        if not self.u.position.is_neighbour(self.v.position):
-            raise TQECException("An edge must connect two nearby nodes.")
-        # Ensure position of u is less than v
         u, v = self.u, self.v
+        if not u.position.is_neighbour(v.position):
+            raise TQECException(
+                f"An edge must connect two nearby nodes, but got {u.position} and {v.position}."
+            )
+        # Ensure position of u is less than v
         if self.u.position > self.v.position:
             object.__setattr__(self, "u", v)
             object.__setattr__(self, "v", u)
@@ -273,7 +276,7 @@ class ZXGraph(ComputationGraph[ZXNode, ZXEdge]):
 
         return convert_zx_graph_to_block_graph(self, name)
 
-    def find_correration_surfaces(self) -> list[CorrelationSurface]:
+    def find_correlation_surfaces(self) -> list[CorrelationSurface]:
         """Find all the
         :py:class:`~tqec.computation.correlation.CorrelationSurface` in a ZX
         graph.
@@ -370,3 +373,52 @@ class ZXGraph(ComputationGraph[ZXNode, ZXEdge]):
         for node in self.nodes:
             if not node.is_zx_node and self.get_degree(node.position) != 1:
                 raise TQECException("The port/Y node must be a leaf node.")
+
+    def rotate(
+        self,
+        rotation_axis: Direction3D = Direction3D.Y,
+        num_90_degree_rotation: int = 1,
+        counterclockwise: bool = True,
+    ) -> ZXGraph:
+        """Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and
+        return a new rotated graph.
+
+        Args:
+            rotation_axis: The axis around which to rotate the graph.
+            num_90_degree_rotation: The number of 90-degree rotations to apply to the graph.
+            counterclockwise: Whether to rotate the graph counterclockwise. If set to False,
+                the graph will be rotated clockwise. Defaults to True.
+
+        Returns:
+            A data-independent copy of the graph rotated by the given number of 90-degree rotations.
+        """
+        n = num_90_degree_rotation % 4
+
+        if n == 0:
+            return self.copy()
+
+        import numpy as np
+        from scipy.spatial.transform import Rotation as R
+
+        def _rotate(p: Position3D) -> Position3D:
+            rot_vec = np.array([0, 0, 0])
+            axis_idx = rotation_axis.value
+            rot_vec[axis_idx] = 1 if axis_idx != 1 else -1
+            if not counterclockwise:
+                rot_vec *= -1
+            rotated = R.from_rotvec(rot_vec * n * np.pi / 2).apply(p.as_tuple())
+            return Position3D(*[round_or_fail(i) for i in rotated])
+
+        name_suffix = f" rotated by {n * 90} degrees {'counter' if counterclockwise else ''}clockwise around the {rotation_axis.name} axis"
+        g = self.__class__(self.name + name_suffix)
+        for node in self.nodes:
+            g.add_node(ZXNode(_rotate(node.position), node.kind, node.label))
+
+        for edge in self.edges:
+            u, v = edge
+            g.add_edge(
+                ZXNode(_rotate(u.position), u.kind, u.label),
+                ZXNode(_rotate(v.position), v.kind, v.label),
+                has_hadamard=edge.has_hadamard,
+            )
+        return g

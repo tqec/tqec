@@ -32,45 +32,57 @@ from enum import Enum
 import numpy as np
 import numpy.typing as npt
 
-from tqec.exceptions import TQECException
 
-
-@dataclass(frozen=True)
-class Position2D:
-    """Simple wrapper around tuple[int, int].
-
-    This class is here to explicitly name the type of variables as positions
-    instead of having a tuple[int, int] that could be:
-    - a position,
-    - a shape,
-    - coefficients for positions,
-    - displacements.
-    """
-
+@dataclass(frozen=True, order=True)
+class Vec2D:
     x: int
     y: int
 
-    def to_grid_qubit(self) -> tuple[int, int]:
-        """Returns the position as a tuple following the cirq.GridQubit
-        coordinate system."""
-        return (self.y, self.x)
 
-
-@dataclass(frozen=True)
-class Shape2D:
-    """Simple wrapper around tuple[int, int].
-
-    This class is here to explicitly name the type of variables as shapes
-    instead of having a tuple[int, int] that could be:
-    - a position,
-    - a shape,
-    - coefficients for positions,
-    - displacements.
-    """
-
+@dataclass(frozen=True, order=True)
+class Vec3D:
     x: int
     y: int
+    z: int
 
+
+class Position2D(Vec2D):
+    """Represents a position on a 2-dimensional plane.
+
+    Warning:
+        This class represents a position without any knowledge of the coordinate
+        system being used. As such, it should only be used when the coordinate
+        system is meaningless or in localised places where the coordinate system
+        is obvious. In particular, this class should be avoided in interfaces.
+    """
+
+    def with_block_coordinate_system(self) -> BlockPosition2D:
+        return BlockPosition2D(self.x, self.y)
+
+
+class PhysicalQubitPosition2D(Position2D):
+    """Represents the position of a physical qubit on a 2-dimensional plane."""
+
+
+class PlaquettePosition2D(Position2D):
+    """Represents the position of a plaquette on a 2-dimensional plane."""
+
+    def get_origin_position(self, displacement: Shift2D) -> PhysicalQubitPosition2D:
+        """Returns the position of the plaquette origin."""
+        return PhysicalQubitPosition2D(displacement.x * self.x, displacement.y * self.y)
+
+
+class BlockPosition2D(Position2D):
+    """Represents the position of a block on a 2-dimensional plane."""
+
+    def get_top_left_plaquette_position(
+        self, block_shape: Shape2D
+    ) -> PlaquettePosition2D:
+        """Returns the position of the top-left plaquette of the block."""
+        return PlaquettePosition2D(block_shape.x * self.x, block_shape.y * self.y)
+
+
+class Shape2D(Vec2D):
     def to_numpy_shape(self) -> tuple[int, int]:
         """Returns the shape according to numpy indexing.
 
@@ -82,39 +94,20 @@ class Shape2D:
         return (self.y, self.x)
 
 
-@dataclass(frozen=True)
-class Displacement:
-    """Simple wrapper around tuple[int, int].
+class Shift2D(Vec2D):
+    def __mul__(self, factor: int) -> Shift2D:
+        return Shift2D(factor * self.x, factor * self.y)
 
-    This class is here to explicitly name the type of variables as displacements
-    instead of having a tuple[int, int] that could be:
-    - a position,
-    - a shape,
-    - coefficients for positions,
-    - displacements.
-    """
-
-    x: int
-    y: int
-
-    def __mul__(self, factor: int) -> Displacement:
-        return Displacement(factor * self.x, factor * self.y)
-
-    def __rmul__(self, factor: int) -> Displacement:
+    def __rmul__(self, factor: int) -> Shift2D:
         return self.__mul__(factor)
 
 
-@dataclass(frozen=True, order=True)
-class Position3D:
+class Position3D(Vec3D):
     """A 3D integer position."""
 
     x: int
     y: int
     z: int
-
-    def __post_init__(self) -> None:
-        if any(not isinstance(i, int) for i in astuple(self)):
-            raise TQECException("Position must be an integer.")
 
     def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> Position3D:
         """Shift the position by the given offset."""

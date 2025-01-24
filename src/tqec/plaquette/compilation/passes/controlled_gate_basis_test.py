@@ -4,7 +4,7 @@ from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.circuit.schedule.schedule import Schedule
+from tqec.enums import Basis
 from tqec.plaquette.compilation.passes.controlled_gate_basis import (
     ChangeControlledGateBasisPass,
 )
@@ -12,7 +12,6 @@ from tqec.plaquette.compilation.passes.transformer import (
     ScheduleConstant,
     ScheduleOffset,
 )
-from tqec.plaquette.enums import Basis
 
 
 def _s(circuit: str) -> ScheduledCircuit:

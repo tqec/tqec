@@ -109,12 +109,12 @@ class RunExampleTQECSubCommand(TQECSubCommand):
 
         # observables to a subdirectory
         logging.info("Find the observables.")
-        observables, correlation_surfaces = block_graph.get_abstract_observables()
+        correlation_surfaces = block_graph.find_correlation_surfaces()
         if not obs_indices:
-            obs_indices = list(range(len(observables)))
-        if max(obs_indices) >= len(observables):
+            obs_indices = list(range(len(correlation_surfaces)))
+        if max(obs_indices) >= len(correlation_surfaces):
             raise ValueError(
-                f"Found {len(observables)} observables,"
+                f"Found {len(correlation_surfaces)} observables,"
                 + f"but requested indices up to {max(obs_indices)}."
             )
 
@@ -132,7 +132,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             manhattan_radius=2,
             block_builder=block_builder,
             substitution_builder=substitution_builder,
-            observables=[observables[i] for i in obs_indices],
+            observables=[correlation_surfaces[i] for i in obs_indices],
             num_workers=cpu_count(),
             max_shots=10_000_000,
             max_errors=5_000,

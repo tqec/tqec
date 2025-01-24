@@ -31,9 +31,9 @@ def generate_graphs(
     zx_graph = block_graph.to_zx_graph()
 
     # 2. Find and choose the logical observables
-    observables, correlation_surfaces = block_graph.get_abstract_observables()
+    correlation_surfaces = block_graph.find_correlation_surfaces()
     # Optional: filter observables here
-    # observables = [observables[0]]
+    # correlation_surfaces = [correlation_surfaces[0]]
 
     block_builder = CSS_BLOCK_BUILDER if style == "css" else ZXXZ_BLOCK_BUILDER
     substitution_builder = (
@@ -47,7 +47,7 @@ def generate_graphs(
         manhattan_radius=2,
         block_builder=block_builder,
         substitution_builder=substitution_builder,
-        observables=observables,
+        observables=correlation_surfaces,
         num_workers=20,
         max_shots=10_000_000,
         max_errors=5_000,

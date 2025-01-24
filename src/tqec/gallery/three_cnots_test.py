@@ -42,15 +42,15 @@ def test_three_cnots_zx_graph_filled() -> None:
 
 def test_three_cnots_correlation_surface() -> None:
     g = three_cnots_zx_graph("X")
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 7
 
     g = three_cnots_zx_graph("X")
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 7
 
     g = three_cnots_zx_graph("OPEN")
-    correlation_surfaces = g.find_correration_surfaces()
+    correlation_surfaces = g.find_correlation_surfaces()
     all_external_stabilizers = [cs.external_stabilizer for cs in correlation_surfaces]
     assert all(
         [

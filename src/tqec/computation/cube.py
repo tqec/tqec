@@ -4,25 +4,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import astuple, dataclass
-from enum import Enum
 
 from tqec.computation.zx_graph import ZXKind, ZXNode
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
 from tqec.position import Direction3D, Position3D
-
-
-class ZXBasis(Enum):
-    """Z or X basis."""
-
-    Z = "Z"
-    X = "X"
-
-    def with_zx_flipped(self) -> ZXBasis:
-        """Return the flipped basis, i.e. ``Z -> X``, ``X -> Z``."""
-        return ZXBasis.Z if self == ZXBasis.X else ZXBasis.X
-
-    def __str__(self) -> str:
-        return self.value
 
 
 class CubeKind(ABC):
@@ -49,9 +35,9 @@ class ZXCube(CubeKind):
         z: Looking at the cube along the z-axis, the basis of the walls observed.
     """
 
-    x: ZXBasis
-    y: ZXBasis
-    z: ZXBasis
+    x: Basis
+    y: Basis
+    z: Basis
 
     def __post_init__(self) -> None:
         if self.x == self.y == self.z:
@@ -59,7 +45,7 @@ class ZXCube(CubeKind):
                 "The cube with the same basis along all axes is not allowed."
             )
 
-    def as_tuple(self) -> tuple[ZXBasis, ZXBasis, ZXBasis]:
+    def as_tuple(self) -> tuple[Basis, Basis, Basis]:
         """Return a tuple of ``(self.x, self.y, self.z)``.
 
         Returns:
@@ -96,23 +82,23 @@ class ZXCube(CubeKind):
             The :py:class:`~tqec.computation.cube.ZXCube` instance constructed from
             the string representation.
         """
-        return ZXCube(*map(ZXBasis, string.upper()))
+        return ZXCube(*map(Basis, string.upper()))
 
     def to_zx_kind(self) -> ZXKind:
-        if sum(basis == ZXBasis.Z for basis in astuple(self)) == 1:
+        if sum(basis == Basis.Z for basis in astuple(self)) == 1:
             return ZXKind.Z
         return ZXKind.X
 
     @property
-    def is_spatial_junction(self) -> bool:
-        """Return whether a cube of this kind is a spatial junction.
+    def is_spatial(self) -> bool:
+        """Return whether a cube of this kind is a spatial cube.
 
-        A spatial junction is a cube whose all spatial boundaries are in the same basis.
-        And there are only two possible spatial junctions: ``XXZ`` and ``ZZX``.
+        A spatial cube is a cube whose all spatial boundaries are in the same basis.
+        There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.
         """
         return self.x == self.y
 
-    def get_basis_along(self, direction: Direction3D) -> ZXBasis:
+    def get_basis_along(self, direction: Direction3D) -> Basis:
         """Get the basis of the walls along the given direction axis.
 
         Args:
@@ -218,14 +204,13 @@ class Cube:
         return isinstance(self.kind, YCube)
 
     @property
-    def is_spatial_junction(self) -> bool:
-        """Return whether the cube is a spatial junction.
+    def is_spatial(self) -> bool:
+        """Return whether the cube is a spatial cube.
 
-        A spatial junction is of kind :py:class:`~tqec.computation.cube.ZXCube` and its all
-        spatial boundaries are in the same basis. There are only two possible spatial
-        junctions: ``XXZ`` and ``ZZX``.
+        A spatial cube is a cube whose all spatial boundaries are in the same basis.
+        There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.
         """
-        return isinstance(self.kind, ZXCube) and self.kind.is_spatial_junction
+        return isinstance(self.kind, ZXCube) and self.kind.is_spatial
 
     def to_zx_node(self) -> ZXNode:
         """Convert the cube to a :py:class:`~tqec.computation.zx_graph.ZXNode`

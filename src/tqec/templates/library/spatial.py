@@ -1,52 +1,79 @@
 """Provide functions building the :class:`~tqec.templates.rpng.RPNGTemplate`
-instances representing spatial junctions and arms.
+instances representing spatial cubes and arms.
 
 This module provides 2 functions to create
 :class:`~tqec.templates.rpng.RPNGTemplate` instances:
 
-- :func:`get_spatial_junction_qubit_template` that creates spatial junctions,
-- and :func:`get_spatial_junction_arm_template` that creates the arms.
+- :func:`get_spatial_cube_qubit_template` that creates spatial cubes,
+- and :func:`get_spatial_cube_arm_template` that creates the arms.
 
 ## Terminology
 
-In this module, a **spatial junction** always refers to the logical qubit that
-has at least 2 pipes in the spatial plane (``X`` or ``Y`` axis).
+In this module, a **spatial cube** always refers to the logical qubit that
+has all the spatial boundaries in the same basis.
 
-The pipes connected to the spatial junction are called **arms**.
+The spatial pipes connected to the spatial cubes are called **arms**.
 """
 
-from typing import Literal
-
-from tqec.compile.specs.enums import JunctionArms
+from tqec.compile.specs.enums import SpatialArms
+from tqec.enums import Basis
 from tqec.exceptions import TQECException
-from tqec.plaquette.enums import Basis
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
-    QubitSpatialJunctionTemplate,
+    QubitSpatialCubeTemplate,
     QubitVerticalBorders,
 )
-from tqec.templates.rpng import RPNGTemplate
 
 
-def get_spatial_junction_qubit_template(
-    spatial_boundary_basis: Literal["x", "z"],
-    arms: JunctionArms,
+def get_spatial_cube_qubit_raw_template() -> QubitSpatialCubeTemplate:
+    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    needed to implement a spatial cube.
+
+    Note:
+        A spatial cube is defined as a cube with all its spatial boundaries in
+        the same basis.
+        Such a cube might appear in stability experiments (e.g.,
+        http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
+        with more than one pipe in the spatial plane) or in other QEC gadgets
+        such as the lattice surgery implementation of a ``CZ`` gate.
+
+    Returns:
+        an instance of
+        :class:`~tqec.templates.indices.qubit.QubitSpatialCubeTemplate`.
+    """
+    return QubitSpatialCubeTemplate()
+
+
+def get_spatial_cube_qubit_rpng_descriptions(
+    spatial_boundary_basis: Basis,
+    arms: SpatialArms,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
-    """Implementation of a logical qubit acting as a spatial junction.
+) -> FrozenDefaultDict[int, RPNGDescription]:
+    """Returns a description of the plaquettes needed to implement a spatial
+    cube.
 
-    This function returns a RPNGTemplate instance representing a logical qubit
-    connecting to others in space and forming a spatial junction. The returned
-    template is carefully crafted to avoid hook errors damaging the logical
-    distance.
+    Note:
+        A spatial cube is defined as a cube with all its spatial boundaries in
+        the same basis.
+        Such a cube might appear in stability experiments (e.g.,
+        http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
+        with more than one pipe in the spatial plane) or in other QEC gadgets
+        such as the lattice surgery implementation of a ``CZ`` gate.
 
     Note:
         this function does not enforce anything on the input values. As such, it
         is possible to generate a description of a round that will both reset and
         measure the data-qubits.
+
+    Warning:
+        This function is tightly coupled with
+        :func:`get_spatial_cube_qubit_raw_template` and the returned
+        ``RPNG`` descriptions should only be considered valid when used in
+        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        instance returned by this function.
 
     Warning:
         By convention, this function does not populate the plaquettes on the
@@ -55,7 +82,7 @@ def get_spatial_junction_qubit_template(
         the sentence).
 
         The rationale behind that convention is that the logical qubit
-        representing the spatial junction is completely aware of all the arms
+        representing the spatial cube is completely aware of all the arms
         that should be implemented whereas each arm in isolation does not know
         if the other arms are present or not. That means that corners, whose
         plaquette depends on the presence or absence of the two arms it belongs
@@ -66,10 +93,9 @@ def get_spatial_junction_qubit_template(
         descriptions on the corners (i.e., not include an explicit mapping, even
         to the empty plaquette, from the index of the corner to a plaquette).
 
-
     Arguments:
         spatial_boundary_basis: stabilizers that are measured at each boundaries
-            of the spatial junction.
+            of the spatial cube.
         arms: flag-like enumeration listing the arms that are used around the
             logical qubit. The returned template will be adapted to be
             compatible with such a layout.
@@ -85,13 +111,13 @@ def get_spatial_junction_qubit_template(
             LEFT/RIGHT).
 
     Returns:
-        a description of a logical qubit performing a memory operation while
-        being enclosed by 2 or more arms.
+        a description of the plaquettes needed to implement a spatial cube.
+
     """
     # In this function implementation, all the indices used are referring to the
-    # indices returned by the QubitSpatialJunctionTemplate template. They are
+    # indices returned by the QubitSpatialCubeTemplate template. They are
     # copied below for convenience, but the only source of truth is in the
-    # QubitSpatialJunctionTemplate docstring!
+    # QubitSpatialCubeTemplate docstring!
     #      1   9  10   9  10   9  10   9  10   2
     #     11   5  17  13  17  13  17  13   6  18
     #     12  17  13  17  13  17  13  17  14  19
@@ -103,15 +129,11 @@ def get_spatial_junction_qubit_template(
     #     12   7  15  17  15  17  15  17   8  19
     #      3  20  21  20  21  20  21  20  21   4
 
-    if len(arms) < 2:
-        raise TQECException(
-            f"Expected two or more arms. Got {arms} that contains {len(arms)} arm."
-        )
-    if arms in JunctionArms.I_shaped_arms():
+    if arms in SpatialArms.I_shaped_arms():
         raise TQECException(
             "I-shaped spatial junctions (i.e., spatial junctions with only two "
             "arms that are the opposite of each other: LEFT/RIGHT or UP/DOWN) "
-            "should not use get_spatial_junction_qubit_template but rather use "
+            "should not use get_spatial_cube_qubit_template but rather use "
             "a conventional memory logical qubit with get_memory_qubit_template."
         )
 
@@ -119,8 +141,8 @@ def get_spatial_junction_qubit_template(
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
     mapping: dict[int, RPNGDescription] = {}
     ####################
@@ -131,9 +153,9 @@ def get_spatial_junction_qubit_template(
     # one of the arm is present (e.g., UP without LEFT) and where a 2-body
     # stabilizer should be inserted instead of a 3-body stabilizer is handled
     # in the next ifs, in the "Boundaries" section.
-    if JunctionArms.UP in arms and JunctionArms.LEFT in arms:
+    if SpatialArms.UP in arms and SpatialArms.LEFT in arms:
         mapping[1] = RPNGDescription.from_string(f"---- {r}{be}3{m} -{be}4- -{be}5-")
-    if JunctionArms.DOWN in arms and JunctionArms.RIGHT in arms:
+    if SpatialArms.DOWN in arms and SpatialArms.RIGHT in arms:
         mapping[4] = RPNGDescription.from_string(
             f"{r}{be}1{m} {r}{be}2{m} -{be}4- ----"
         )
@@ -142,23 +164,23 @@ def get_spatial_junction_qubit_template(
     #    Boundaries    #
     ####################
     # Fill the boundaries that should be filled in the returned template because
-    # they have no junction, and so will not be filled later.
+    # they have no arms, and so will not be filled later.
     # Note that indices 1 and 4 **might** be set twice in the 4 ifs below. These
     # cases are handled later in the function and will overwrite the description
     # on 1 and 4 if needed, so we do not have to account for those cases here.
-    if JunctionArms.UP not in arms:
+    if SpatialArms.UP not in arms:
         mapping[1] = mapping[10] = RPNGDescription.from_string(
             f"---- ---- {r}{be}3{m} {r}{be}4{m}"
         )
-    if JunctionArms.RIGHT not in arms:
+    if SpatialArms.RIGHT not in arms:
         mapping[4] = mapping[18] = RPNGDescription.from_string(
             f"{r}{be}1{m} ---- {r}{be}2{m} ----"
         )
-    if JunctionArms.DOWN not in arms:
+    if SpatialArms.DOWN not in arms:
         mapping[4] = mapping[20] = RPNGDescription.from_string(
             f"{r}{be}1{m} {r}{be}2{m} ---- ----"
         )
-    if JunctionArms.LEFT not in arms:
+    if SpatialArms.LEFT not in arms:
         mapping[1] = mapping[12] = RPNGDescription.from_string(
             f"---- {r}{be}3{m} ---- {r}{be}4{m}"
         )
@@ -166,9 +188,9 @@ def get_spatial_junction_qubit_template(
     # If we have a down-right or top-left L-shaped junction, the opposite corner
     # plaquette should be removed from the mapping (this is the case where it
     # has been set twice in the ifs above).
-    if arms == JunctionArms.UP | JunctionArms.LEFT:
+    if arms == SpatialArms.UP | SpatialArms.LEFT:
         del mapping[4]
-    elif arms == JunctionArms.DOWN | JunctionArms.RIGHT:
+    elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
         del mapping[1]
 
     ####################
@@ -191,19 +213,19 @@ def get_spatial_junction_qubit_template(
     bevhp = RPNGDescription.from_string(
         f"{r}{be}1{m} {r}{be}4{m} {r}{be}3{m} {r}{be}5{m}"
     )
-    mapping[5] = mapping[13] = bevhp if JunctionArms.UP in arms else behhp
-    mapping[14] = behhp if JunctionArms.RIGHT in arms else bevhp
-    mapping[8] = mapping[15] = bevhp if JunctionArms.DOWN in arms else behhp
-    mapping[16] = behhp if JunctionArms.LEFT in arms else bevhp
+    mapping[5] = mapping[13] = bevhp if SpatialArms.UP in arms else behhp
+    mapping[14] = behhp if SpatialArms.RIGHT in arms else bevhp
+    mapping[8] = mapping[15] = bevhp if SpatialArms.DOWN in arms else behhp
+    mapping[16] = behhp if SpatialArms.LEFT in arms else bevhp
 
     # In the special cases of an L-shaped junction TOP/LEFT or DOWN/RIGHT, the
     # opposite corner **within the bulk** should be overwritten to become a
     # 3-body stabilizer measurement.
-    if arms == JunctionArms.UP | JunctionArms.LEFT:
+    if arms == SpatialArms.UP | SpatialArms.LEFT:
         mapping[8] = RPNGDescription.from_string(
             f"{r}{be}1{m} {r}{be}2{m} {r}{be}4{m} ----"
         )
-    elif arms == JunctionArms.DOWN | JunctionArms.RIGHT:
+    elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
         mapping[5] = RPNGDescription.from_string(
             f"---- {r}{be}2{m} {r}{be}4{m} {r}{be}5{m}"
         )
@@ -219,27 +241,65 @@ def get_spatial_junction_qubit_template(
         f"RPNGDescription. Missing indices: {missing_bulk_plaquette_indices}."
     )
 
-    return RPNGTemplate(
-        template=QubitSpatialJunctionTemplate(),
-        mapping=FrozenDefaultDict(
-            mapping,
-            default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
-        ),
+    return FrozenDefaultDict(
+        mapping,
+        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
     )
 
 
-def get_spatial_junction_arm_template(
-    spatial_boundary_basis: Literal["x", "z"],
-    arm: JunctionArms,
+def get_spatial_cube_arm_raw_template(
+    arm: SpatialArms,
+) -> QubitVerticalBorders | QubitHorizontalBorders:
+    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    needed to implement the given spatial ``arm``.
+
+    Args:
+        arm: specification of the spatial arm we want a template for.
+
+    Raises:
+        TQECException: if the provided ``arm`` is not composed of exactly one
+            flag (e.g. ``arm == (SpatialArms.UP | SpatialArms.LEFT)`` would
+            raise).
+
+    Returns:
+        an instance of
+        :class:`~tqec.templates.indices.qubit.QubitHorizontalBorders` or
+        :class:`~tqec.templates.indices.qubit.QubitVerticalBorders` depending on
+        the provided ``arm``.
+    """
+    if len(arm) != 1:
+        raise TQECException(
+            f"The 'arm' parameter should contain exactly 1 flag. Got {arm}."
+        )
+
+    if arm == SpatialArms.LEFT or arm == SpatialArms.RIGHT:
+        return QubitVerticalBorders()
+    elif arm == SpatialArms.UP or arm == SpatialArms.DOWN:
+        return QubitHorizontalBorders()
+    else:
+        raise TQECException(f"Unrecognized spatial arm: {arm}.")
+
+
+def get_spatial_cube_arm_rpng_descriptions(
+    spatial_boundary_basis: Basis,
+    arm: SpatialArms,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
-    """Implementation of arms for a spatial junction around a logical qubit.
+) -> FrozenDefaultDict[int, RPNGDescription]:
+    """Returns a description of the plaquettes needed to implement **one** pipe
+    connecting to a spatial cube.
 
-    This function returns a RPNGTemplate instance representing the arms
-    required to perform a spatial junction on a logical qubit that has 2 or more
-    arms. The returned template is carefully crafted to avoid hook errors
+    This function returns a RPNGTemplate instance representing the arm of a
+    spatial cube. The returned template is carefully crafted to avoid hook errors
     damaging the logical distance.
+
+    Note:
+        A spatial cube is defined as a cube with all its spatial boundaries in
+        the same basis.
+        Such a cube might appear in stability experiments (e.g.,
+        http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
+        with more than one pipe in the spatial plane) or in other QEC gadgets
+        such as the lattice surgery implementation of a ``CZ`` gate.
 
     Note:
         this function does not enforce anything on the input values. As such, it
@@ -247,21 +307,22 @@ def get_spatial_junction_arm_template(
         measure the data-qubits.
 
     Warning:
-        by convention, this function should **not** populate the plaquettes on
-        the corners as :func:`get_spatial_junction_qubit_template` should take
-        care of that.
+        This function is tightly coupled with
+        :func:`get_spatial_cube_arm_raw_template` and the returned
+        ``RPNG`` descriptions should only be considered valid when used in
+        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        instance returned by this function.
 
     Warning:
-        Using this function without :func:`get_spatial_junction_qubit_template`
-        is very likely a programming error. Please double-check what you are
-        doing if that is your case, in particular how the plaquettes on each
-        corner of the center logical qubit are set.
+        by convention, this function should **not** populate the plaquettes on
+        the corners as :func:`get_spatial_cube_qubit_template` should take
+        care of that.
 
     Arguments:
         spatial_boundary_basis: stabilizers that are measured at each boundaries
-            of the spatial junction.
-        arm: arm to return a spatial junction for. Should contain exactly
-            **one** of the possible arm flags.
+            of the spatial cube.
+        arm: arm of the spatial cube. Should contain exactly **one** of the
+            possible arm flags.
         reset: basis of the reset operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no reset being
             applied on data-qubits.
@@ -274,23 +335,24 @@ def get_spatial_junction_arm_template(
             contains 0 or 2+ flags).
 
     Returns:
-        a description of the provided ``arm``.
+        a description of the plaquettes needed to implement **one** pipe
+        connecting to a spatial cube.
     """
     match arm:
-        case JunctionArms.LEFT:
-            return _get_left_spatial_junction_arm(
+        case SpatialArms.LEFT:
+            return _get_left_spatial_cube_arm_rpng_descriptions(
                 spatial_boundary_basis, reset, measurement
             )
-        case JunctionArms.RIGHT:
-            return _get_right_spatial_junction_arm(
+        case SpatialArms.RIGHT:
+            return _get_right_spatial_cube_arm_rpng_descriptions(
                 spatial_boundary_basis, reset, measurement
             )
-        case JunctionArms.UP:
-            return _get_up_spatial_junction_arm(
+        case SpatialArms.UP:
+            return _get_up_spatial_cube_arm_rpng_descriptions(
                 spatial_boundary_basis, reset, measurement
             )
-        case JunctionArms.DOWN:
-            return _get_down_spatial_junction_arm(
+        case SpatialArms.DOWN:
+            return _get_down_spatial_cube_arm_rpng_descriptions(
                 spatial_boundary_basis, reset, measurement
             )
         case _:
@@ -299,133 +361,117 @@ def get_spatial_junction_arm_template(
             )
 
 
-def _get_left_spatial_junction_arm(
-    spatial_boundary_basis: Literal["x", "z"],
+def _get_left_spatial_cube_arm_rpng_descriptions(
+    spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> FrozenDefaultDict[int, RPNGDescription]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
-    mapping = {
-        # TOP_RIGHT: NOT included to avoid overwriting the corner
-        # 2: RPNGDescription.from_string(f"---- {r}{be}3{m} -{be}4- -{be}5-"),
-        # BOTTOM_LEFT
-        3: RPNGDescription.from_string(f"-{be}1- {r}{be}2{m} ---- ----"),
-        # LEFT bulk
-        5: RPNGDescription.from_string(f"-{be}1- {r}{be}2{m} -{be}3- {r}{be}4{m}"),
-        6: RPNGDescription.from_string(f"-{bi}1- {r}{bi}3{m} -{bi}2- {r}{bi}4{m}"),
-        # RIGHT bulk
-        7: RPNGDescription.from_string(f"{r}{bi}1{m} -{bi}3- {r}{bi}2{m} -{bi}4-"),
-        8: RPNGDescription.from_string(f"{r}{be}1{m} -{be}2- {r}{be}3{m} -{be}4-"),
-    }
-    return RPNGTemplate(
-        template=QubitVerticalBorders(),
-        mapping=FrozenDefaultDict(
-            mapping,
-            default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
-        ),
+    return FrozenDefaultDict(
+        {
+            # TOP_RIGHT: NOT included to avoid overwriting the corner
+            # 2: RPNGDescription.from_string(f"---- {r}{be}3{m} -{be}4- -{be}5-"),
+            # BOTTOM_LEFT
+            3: RPNGDescription.from_string(f"-{be}1- {r}{be}2{m} ---- ----"),
+            # LEFT bulk
+            5: RPNGDescription.from_string(f"-{be}1- {r}{be}2{m} -{be}3- {r}{be}4{m}"),
+            6: RPNGDescription.from_string(f"-{bi}1- {r}{bi}3{m} -{bi}2- {r}{bi}4{m}"),
+            # RIGHT bulk
+            7: RPNGDescription.from_string(f"{r}{bi}1{m} -{bi}3- {r}{bi}2{m} -{bi}4-"),
+            8: RPNGDescription.from_string(f"{r}{be}1{m} -{be}2- {r}{be}3{m} -{be}4-"),
+        },
+        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
     )
 
 
-def _get_right_spatial_junction_arm(
-    spatial_boundary_basis: Literal["x", "z"],
+def _get_right_spatial_cube_arm_rpng_descriptions(
+    spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> FrozenDefaultDict[int, RPNGDescription]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
-    mapping = {
-        # TOP_RIGHT
-        2: RPNGDescription.from_string(f"---- ---- {r}{be}3{m} -{be}4-"),
-        # BOTTOM_LEFT: NOT included to avoid overwriting the corner
-        # 3: RPNGDescription.from_string(f"-{be}1- -{be}2- {r}{be}4{m} ----"),
-        # LEFT bulk
-        5: RPNGDescription.from_string(f"-{be}1- {r}{be}2{m} -{be}3- {r}{be}4{m}"),
-        6: RPNGDescription.from_string(f"-{bi}1- {r}{bi}3{m} -{bi}2- {r}{bi}4{m}"),
-        # RIGHT bulk
-        7: RPNGDescription.from_string(f"{r}{bi}1{m} -{bi}3- {r}{bi}2{m} -{bi}4-"),
-        8: RPNGDescription.from_string(f"{r}{be}1{m} -{be}2- {r}{be}3{m} -{be}4-"),
-    }
-    return RPNGTemplate(
-        template=QubitVerticalBorders(),
-        mapping=FrozenDefaultDict(
-            mapping,
-            default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
-        ),
+    return FrozenDefaultDict(
+        {
+            # TOP_RIGHT
+            2: RPNGDescription.from_string(f"---- ---- {r}{be}3{m} -{be}4-"),
+            # BOTTOM_LEFT: NOT included to avoid overwriting the corner
+            # 3: RPNGDescription.from_string(f"-{be}1- -{be}2- {r}{be}4{m} ----"),
+            # LEFT bulk
+            5: RPNGDescription.from_string(f"-{be}1- {r}{be}2{m} -{be}3- {r}{be}4{m}"),
+            6: RPNGDescription.from_string(f"-{bi}1- {r}{bi}3{m} -{bi}2- {r}{bi}4{m}"),
+            # RIGHT bulk
+            7: RPNGDescription.from_string(f"{r}{bi}1{m} -{bi}3- {r}{bi}2{m} -{bi}4-"),
+            8: RPNGDescription.from_string(f"{r}{be}1{m} -{be}2- {r}{be}3{m} -{be}4-"),
+        },
+        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
     )
 
 
-def _get_up_spatial_junction_arm(
-    spatial_boundary_basis: Literal["x", "z"],
+def _get_up_spatial_cube_arm_rpng_descriptions(
+    spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> FrozenDefaultDict[int, RPNGDescription]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
-    mapping = {
-        # TOP_LEFT
-        1: RPNGDescription.from_string(f"---- -{be}3- ---- {r}{be}5{m}"),
-        # BOTTOM_LEFT: NOT included to avoid overwriting the corner
-        # 3: RPNGDescription.from_string(f"---- {r}{be}3{m} -{be}4- -{be}5-"),
-        # TOP bulk
-        5: RPNGDescription.from_string(f"-{bi}1- -{bi}2- {r}{bi}4{m} {r}{bi}5{m}"),
-        6: RPNGDescription.from_string(f"-{be}1- -{be}3- {r}{be}2{m} {r}{be}5{m}"),
-        # BOTTOM bulk
-        7: RPNGDescription.from_string(f"{r}{bi}1{m} {r}{bi}3{m} -{bi}4- -{bi}5-"),
-        8: RPNGDescription.from_string(f"{r}{be}1{m} {r}{be}3{m} -{be}2- -{be}5-"),
-    }
-    return RPNGTemplate(
-        template=QubitHorizontalBorders(),
-        mapping=FrozenDefaultDict(
-            mapping,
-            default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
-        ),
+    return FrozenDefaultDict(
+        {
+            # TOP_LEFT
+            1: RPNGDescription.from_string(f"---- -{be}3- ---- {r}{be}5{m}"),
+            # BOTTOM_LEFT: NOT included to avoid overwriting the corner
+            # 3: RPNGDescription.from_string(f"---- {r}{be}3{m} -{be}4- -{be}5-"),
+            # TOP bulk
+            5: RPNGDescription.from_string(f"-{bi}1- -{bi}2- {r}{bi}4{m} {r}{bi}5{m}"),
+            6: RPNGDescription.from_string(f"-{be}1- -{be}3- {r}{be}2{m} {r}{be}5{m}"),
+            # BOTTOM bulk
+            7: RPNGDescription.from_string(f"{r}{bi}1{m} {r}{bi}3{m} -{bi}4- -{bi}5-"),
+            8: RPNGDescription.from_string(f"{r}{be}1{m} {r}{be}3{m} -{be}2- -{be}5-"),
+        },
+        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
     )
 
 
-def _get_down_spatial_junction_arm(
-    spatial_boundary_basis: Literal["x", "z"],
+def _get_down_spatial_cube_arm_rpng_descriptions(
+    spatial_boundary_basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-) -> RPNGTemplate:
+) -> FrozenDefaultDict[int, RPNGDescription]:
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
     # be/bi = basis external/basis internal
-    be = spatial_boundary_basis
-    bi = "x" if spatial_boundary_basis == "z" else "z"
+    be = spatial_boundary_basis.value.lower()
+    bi = spatial_boundary_basis.flipped().value.lower()
 
-    mapping = {
-        # TOP_RIGHT: NOT included to avoid overwriting the corner
-        # 1: RPNGDescription.from_string(f"-{be}1- -{be}2- {r}{be}4{m} ----"),
-        # BOTTOM_RIGHT
-        3: RPNGDescription.from_string(f"{r}{be}1{m} ---- -{be}2- ----"),
-        # TOP bulk
-        5: RPNGDescription.from_string(f"-{be}1- -{be}4- {r}{be}2{m} {r}{be}5{m}"),
-        6: RPNGDescription.from_string(f"-{bi}1- -{bi}3- {r}{bi}4{m} {r}{bi}5{m}"),
-        # BOTTOM bulk
-        7: RPNGDescription.from_string(f"{r}{be}1{m} {r}{be}3{m} -{be}2- -{be}5-"),
-        8: RPNGDescription.from_string(f"{r}{bi}1{m} {r}{bi}3{m} -{bi}4- -{bi}5-"),
-    }
-    return RPNGTemplate(
-        template=QubitHorizontalBorders(),
-        mapping=FrozenDefaultDict(
-            mapping,
-            default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
-        ),
+    return FrozenDefaultDict(
+        {
+            # TOP_RIGHT: NOT included to avoid overwriting the corner
+            # 1: RPNGDescription.from_string(f"-{be}1- -{be}2- {r}{be}4{m} ----"),
+            # BOTTOM_RIGHT
+            3: RPNGDescription.from_string(f"{r}{be}1{m} ---- -{be}2- ----"),
+            # TOP bulk
+            5: RPNGDescription.from_string(f"-{be}1- -{be}4- {r}{be}2{m} {r}{be}5{m}"),
+            6: RPNGDescription.from_string(f"-{bi}1- -{bi}3- {r}{bi}4{m} {r}{bi}5{m}"),
+            # BOTTOM bulk
+            7: RPNGDescription.from_string(f"{r}{be}1{m} {r}{be}3{m} -{be}2- -{be}5-"),
+            8: RPNGDescription.from_string(f"{r}{bi}1{m} {r}{bi}3{m} -{bi}4- -{bi}5-"),
+        },
+        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
     )

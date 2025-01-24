@@ -1,18 +1,20 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Generic, TypeVar
 
-from tqec.enums import Orientation
 from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.position import Displacement, Position2D, Shape2D
+from tqec.position import PlaquettePosition2D, Shape2D, Shift2D
 from tqec.scale import Scalable2D
 from tqec.templates.indices.base import Template
 
+T = TypeVar("T", bound=Template, covariant=True)
+
 
 @dataclass
-class RPNGTemplate:
-    template: Template
+class RPNGTemplate(Generic[T]):
+    template: T
     mapping: FrozenDefaultDict[int, RPNGDescription]
 
     def instantiate(self, k: int) -> list[list[RPNGDescription]]:
@@ -28,7 +30,7 @@ class RPNGTemplate:
         """Returns a scalable version of the template shape."""
         return self.template.scalable_shape
 
-    def get_increments(self) -> Displacement:
+    def get_increments(self) -> Shift2D:
         """Get the default increments of the template.
 
         Returns:
@@ -36,7 +38,7 @@ class RPNGTemplate:
         """
         return self.template.get_increments()
 
-    def instantiation_origin(self, k: int) -> Position2D:
+    def instantiation_origin(self, k: int) -> PlaquettePosition2D:
         """Coordinates of the top-left entry origin.
 
         This property returns the coordinates of the origin of the plaquette

@@ -1,6 +1,3 @@
-import pytest
-
-from tqec.exceptions import TQECException
 from tqec.position import Position2D, Position3D, Shape2D
 
 
@@ -26,5 +23,3 @@ def test_position_3d() -> None:
     assert p1.is_neighbour(Position3D(-1, 0, 0))
     assert not p1.is_neighbour(Position3D(1, 0, 1))
     assert not p1.is_neighbour(Position3D(0, -1, 1))
-    with pytest.raises(TQECException, match="Position must be an integer"):
-        Position3D(0.5, 0, 0)  # type: ignore[arg-type]

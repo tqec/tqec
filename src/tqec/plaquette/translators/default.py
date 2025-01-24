@@ -101,7 +101,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
         schedule.append(DefaultRPNGTranslator.MEASUREMENT_SCHEDULE)
         # Return the plaquette
         return Plaquette(
-            name=rpng_description.to_string(),
+            name=str(rpng_description),
             qubits=qubits,
             circuit=ScheduledCircuit.from_circuit(circuit, schedule, qubits.qubit_map),
         )

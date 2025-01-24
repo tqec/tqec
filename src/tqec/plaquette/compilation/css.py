@@ -1,3 +1,6 @@
+from typing import Final
+
+from tqec.enums import Basis
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.compilation.passes.controlled_gate_basis import (
     ChangeControlledGateBasisPass,
@@ -9,14 +12,13 @@ from tqec.plaquette.compilation.passes.reset_basis import ChangeResetBasisPass
 from tqec.plaquette.compilation.passes.scheduling import ChangeSchedulePass
 from tqec.plaquette.compilation.passes.sort_targets import SortTargetsPass
 from tqec.plaquette.compilation.passes.transformer import ScheduleConstant
-from tqec.plaquette.enums import Basis
 
 
 def _add_hadamard(mergeable_instructions: frozenset[str]) -> frozenset[str]:
     return mergeable_instructions | frozenset(["H"])
 
 
-CSSPlaquetteCompiler = PlaquetteCompiler(
+CSSPlaquetteCompiler: Final[PlaquetteCompiler] = PlaquetteCompiler(
     "CSS",
     [
         # Move schedules to have an empty schedule for basis change after resets

@@ -1,11 +1,7 @@
 import stim
 
-from tqec.plaquette.enums import (
-    MeasurementBasis,
-    PlaquetteOrientation,
-    PlaquetteSide,
-    ResetBasis,
-)
+from tqec.enums import Basis
+from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.library.zxxz import make_zxxz_surface_code_plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
 
@@ -114,11 +110,7 @@ M 0
 
 
 def test_zxxz_surface_code_init_meas_plaquette() -> None:
-    plaquette = make_zxxz_surface_code_plaquette(
-        "Z",
-        ResetBasis.Z,
-        MeasurementBasis.Z,
-    )
+    plaquette = make_zxxz_surface_code_plaquette("Z", Basis.Z, Basis.Z)
     assert plaquette.name == "ZXXZ_basis(Z)_VERTICAL_datainit(Z)_datameas(Z)"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(
@@ -150,11 +142,7 @@ H 0 2 3
 TICK
 M 0 1 2 3 4
 """)
-    plaquette = make_zxxz_surface_code_plaquette(
-        "X",
-        ResetBasis.X,
-        MeasurementBasis.X,
-    )
+    plaquette = make_zxxz_surface_code_plaquette("X", Basis.X, Basis.X)
     assert plaquette.name == "ZXXZ_basis(X)_VERTICAL_datainit(X)_datameas(X)"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(
@@ -188,8 +176,8 @@ M 0 1 2 3 4
 """)
     plaquette = make_zxxz_surface_code_plaquette(
         "Z",
-        ResetBasis.Z,
-        MeasurementBasis.Z,
+        Basis.Z,
+        Basis.Z,
         x_boundary_orientation="HORIZONTAL",
         init_meas_only_on_side=PlaquetteSide.RIGHT,
     )
@@ -227,7 +215,7 @@ M 0 2 4
 
 
 def test_zxxz_surface_code_projected_plaquette() -> None:
-    plaquette = make_zxxz_surface_code_plaquette("X", ResetBasis.X, MeasurementBasis.X)
+    plaquette = make_zxxz_surface_code_plaquette("X", Basis.X, Basis.X)
     assert plaquette.name == "ZXXZ_basis(X)_VERTICAL_datainit(X)_datameas(X)"
     qubits = plaquette.qubits
     plaquette_up = plaquette.project_on_boundary(PlaquetteOrientation.UP)
@@ -356,7 +344,7 @@ M 0 1 2
 
 def test_zxxz_surface_code_init_meas_only_on_side() -> None:
     plaquette = make_zxxz_surface_code_plaquette(
-        "X", ResetBasis.X, init_meas_only_on_side=PlaquetteSide.RIGHT
+        "X", Basis.X, init_meas_only_on_side=PlaquetteSide.RIGHT
     )
     assert plaquette.name == "ZXXZ_basis(X)_VERTICAL_datainit(X,RIGHT)"
     circuit = plaquette.circuit.get_circuit()
@@ -388,9 +376,7 @@ TICK
 M 0
 """)
     plaquette = make_zxxz_surface_code_plaquette(
-        "Z",
-        data_measurement=MeasurementBasis.Z,
-        init_meas_only_on_side=PlaquetteSide.UP,
+        "Z", data_measurement=Basis.Z, init_meas_only_on_side=PlaquetteSide.UP
     )
     assert plaquette.name == "ZXXZ_basis(Z)_VERTICAL_datameas(Z,UP)"
     circuit = plaquette.circuit.get_circuit()
@@ -423,7 +409,7 @@ M 0 1 2
 """)
     plaquette = make_zxxz_surface_code_plaquette(
         "X",
-        ResetBasis.X,
+        Basis.X,
         x_boundary_orientation="HORIZONTAL",
         init_meas_only_on_side=PlaquetteSide.LEFT,
     )

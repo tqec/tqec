@@ -6,8 +6,9 @@ import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.cube import Cube, ZXBasis, ZXCube
+from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.zx_graph import ZXEdge, ZXKind, ZXNode
+from tqec.enums import Basis
 from tqec.interop.collada.read_write import _Transformation
 from tqec.position import Direction3D, FloatPosition3D, Position3D
 
@@ -98,7 +99,7 @@ def _get_transformations_for_surface_in_cube(
     scaled_pos = _scale_position(pos, pipe_length)
     assert isinstance(cube.kind, ZXCube)
     cube_kind = cube.kind
-    normal_direction_basis = ZXBasis(cube_kind.to_zx_kind().value)
+    normal_direction_basis = Basis(cube_kind.to_zx_kind().value)
     cube_normal_direction = Direction3D(
         cube_kind.as_tuple().index(normal_direction_basis)
     )
@@ -226,11 +227,11 @@ def _surface_normal_direction(
     """Get the correlation surface normal direction in the pipe."""
     u, v = correlation_edge
     pipe = block_graph.get_edge(u.position, v.position)
-    correlation_basis = ZXBasis(u.kind.value)
+    correlation_basis = Basis(u.kind.value)
     return next(
         d
         for d in Direction3D.all_directions()
-        if pipe.kind.get_basis_along(d) == correlation_basis.with_zx_flipped()
+        if pipe.kind.get_basis_along(d) == correlation_basis.flipped()
     )
 
 

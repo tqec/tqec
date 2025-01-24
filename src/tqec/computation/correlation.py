@@ -4,8 +4,8 @@ the functions to find the correlation surfaces in the ZX graph."""
 from __future__ import annotations
 
 import itertools
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from tqec.computation.zx_graph import ZXEdge, ZXGraph, ZXKind, ZXNode
 from tqec.exceptions import TQECException
@@ -17,6 +17,9 @@ class CorrelationSurface:
     """A correlation surface in a computation is a set of measurements whose
     values determine the parity of the logical operators at the inputs and
     outputs associated with the surface.
+
+    Note:
+        We use the term "correlation surface" and "observable" interchangeably in the library.
 
     Here we represent the correlation surface in terms of the ZX graph. The insight is that the spiders
     pose parity constraints on the operators supported on the incident edges. The flow of the logical
@@ -36,7 +39,7 @@ class CorrelationSurface:
     represented as a mapping from the the input/output labels to the logical operator type there.
 
     Attributes:
-        nodes: A set of ``ZXNode`` representing the logical operators appeared in the correlation surface.
+        nodes: A set of ``ZXNode`` representing the logical operators appearing in the correlation surface.
             For example, if either a logical X operator or Z operator has appeared at this node position in
             the span, then the node is of X or Z kind. If both X and Z logical operators have appeared at
             this node position in the span, then the node is of Y kind.
@@ -195,22 +198,30 @@ def _find_correlation_surfaces_from_leaf(
     # Z/X type node can only support the correlation surface with the opposite type.
     if leaf.is_zx_node:
         spans = (
-            _find_spans_with_flood_fill(zx_graph, {leaf.with_zx_flipped()}, set()) or []
+            _find_spans_with_flood_fill(
+                zx_graph, {ZXNode(leaf.position, leaf.kind.with_zx_flipped())}, set()
+            )
+            or []
         )
         return _construct_compatible_correlation_surfaces(zx_graph, spans)
+
     x_spans = (
         _find_spans_with_flood_fill(zx_graph, {ZXNode(leaf.position, ZXKind.X)}, set())
         or []
     )
+
     z_spans = (
         _find_spans_with_flood_fill(zx_graph, {ZXNode(leaf.position, ZXKind.Z)}, set())
         or []
     )
+
     # For the port node, try to construct both the x and z type correlation surfaces.
     if leaf.is_port:
         return _construct_compatible_correlation_surfaces(zx_graph, x_spans + z_spans)
+
     # For the Y type node, the correlation surface must be the product of the x and z type.
     assert leaf.is_y_node
+
     return _construct_compatible_correlation_surfaces(
         zx_graph, [sx | sz for sx, sz in itertools.product(x_spans, z_spans)]
     )
@@ -334,6 +345,7 @@ def _find_spans_with_flood_fill(
         spans = _find_spans_with_flood_fill(zx_graph, product_frontier, product_span)
         if spans is not None:
             final_spans.extend(spans)
+
     return final_spans or None
 
 
