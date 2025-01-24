@@ -432,7 +432,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">relabel_circuits_qubit_indices</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquettes</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Displacement</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shift2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.indices.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
 
 
@@ -486,7 +486,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_circuit_from_instantiation</span><span class="p">(</span>
     <span class="n">plaquette_array</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">],</span>
     <span class="n">plaquettes</span><span class="p">:</span> <span class="n">Plaquettes</span><span class="p">,</span>
-    <span class="n">increments</span><span class="p">:</span> <span class="n">Displacement</span><span class="p">,</span>
+    <span class="n">increments</span><span class="p">:</span> <span class="n">Shift2D</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a quantum circuit from an array of plaquette indices and the</span>
 <span class="sd">    associated plaquettes.</span>
@@ -543,7 +543,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">if</span> <span class="n">plaquette_index</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># Computing the offset that should be applied to each qubits.</span>
                 <span class="n">plaquette</span> <span class="o">=</span> <span class="n">plaquettes</span><span class="p">[</span><span class="n">plaquette_index</span><span class="p">]</span>
-                <span class="n">qubit_offset</span> <span class="o">=</span> <span class="n">Displacement</span><span class="p">(</span>
+                <span class="n">qubit_offset</span> <span class="o">=</span> <span class="n">Shift2D</span><span class="p">(</span>
                     <span class="n">plaquette</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">column_index</span> <span class="o">*</span> <span class="n">increments</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
                     <span class="n">plaquette</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">row_index</span> <span class="o">*</span> <span class="n">increments</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
                 <span class="p">)</span>

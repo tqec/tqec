@@ -468,18 +468,11 @@ window.addEventListener("load", () => mermaid.run());
 <span class="k">class</span><span class="w"> </span><span class="nc">PhysicalQubitPosition2D</span><span class="p">(</span><span class="n">Position2D</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the position of a physical qubit on a 2-dimensional plane.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_grid_qubit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the position as a tuple following the cirq.GridQubit</span>
-<span class="sd">        coordinate system.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-
 
 <span class="k">class</span><span class="w"> </span><span class="nc">PlaquettePosition2D</span><span class="p">(</span><span class="n">Position2D</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the position of a plaquette on a 2-dimensional plane.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_origin_position</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">displacement</span><span class="p">:</span> <span class="n">Displacement</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitPosition2D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_origin_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">displacement</span><span class="p">:</span> <span class="n">Shift2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitPosition2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the position of the plaquette origin.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">PhysicalQubitPosition2D</span><span class="p">(</span><span class="n">displacement</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">displacement</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
@@ -512,15 +505,12 @@ window.addEventListener("load", () => mermaid.run());
 
 
 
-<div class="viewcode-block" id="Displacement">
-<a class="viewcode-back" href="../../_autosummary/tqec.Displacement.html#tqec.Displacement">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Displacement</span><span class="p">(</span><span class="n">Vec2D</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Displacement</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Displacement</span><span class="p">(</span><span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Shift2D</span><span class="p">(</span><span class="n">Vec2D</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shift2D</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Shift2D</span><span class="p">(</span><span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Displacement</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__mul__</span><span class="p">(</span><span class="n">factor</span><span class="p">)</span></div>
-
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shift2D</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__mul__</span><span class="p">(</span><span class="n">factor</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Position3D">
