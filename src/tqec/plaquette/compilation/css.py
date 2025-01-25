@@ -13,11 +13,6 @@ from tqec.plaquette.compilation.passes.scheduling import ChangeSchedulePass
 from tqec.plaquette.compilation.passes.sort_targets import SortTargetsPass
 from tqec.plaquette.compilation.passes.transformer import ScheduleConstant
 
-
-def _add_hadamard(mergeable_instructions: frozenset[str]) -> frozenset[str]:
-    return mergeable_instructions | frozenset(["H"])
-
-
 CSSPlaquetteCompiler: Final[PlaquetteCompiler] = PlaquetteCompiler(
     "CSS",
     [
@@ -35,5 +30,5 @@ CSSPlaquetteCompiler: Final[PlaquetteCompiler] = PlaquetteCompiler(
         # Sort the instruction targets to normalize the circuits.
         SortTargetsPass(),
     ],
-    mergeable_instructions_modifier=_add_hadamard,
+    mergeable_instructions_modifier=lambda _: frozenset(["H", "R", "RZ", "M", "MZ"]),
 )

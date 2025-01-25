@@ -65,8 +65,14 @@ class DefaultRPNGTranslator(RPNGTranslator):
             )
         syndrome_qubit_index = syndrome_qubit_indices[0]
 
-        reset_timestep_operations = {ExtendedBasisEnum.X: [syndrome_qubit_index]}
-        meas_timestep_operations = {ExtendedBasisEnum.X: [syndrome_qubit_index]}
+        # Handling syndrome qubit reset/measurement
+        reset_timestep_operations: dict[ExtendedBasisEnum, list[int]] = {}
+        meas_timestep_operations: dict[ExtendedBasisEnum, list[int]] = {}
+        if (r := rpng_description.ancilla.r) is not None:
+            reset_timestep_operations[r.to_extended_basis()] = [syndrome_qubit_index]
+        if (g := rpng_description.ancilla.g) is not None:
+            meas_timestep_operations[g.to_extended_basis()] = [syndrome_qubit_index]
+        # Handling data-qubits
         entangling_operations: list[tuple[BasisEnum, int] | None] = [
             None for _ in range(DefaultRPNGTranslator.MEASUREMENT_SCHEDULE - 1)
         ]

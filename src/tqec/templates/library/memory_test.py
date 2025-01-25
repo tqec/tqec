@@ -10,7 +10,7 @@ from ._testing import (
     get_memory_vertical_boundary_rpng_template,
 )
 
-_EMPT: Final[RPNGDescription] = RPNGDescription.from_string("---- ---- ---- ----")
+_EMPT: Final[RPNGDescription] = RPNGDescription.empty()
 
 
 def test_memory_horizontal_z_observable() -> None:
