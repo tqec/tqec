@@ -15,13 +15,17 @@ from tqec.scale import LinearFunction, Scalable2D
 
 
 @dataclass
-class ComputationBlock(WithSpatialFootprint, WithTemporalFootprint):
-    """Encodes the implementation of a block performing some kind of computation.
+class Block(WithSpatialFootprint, WithTemporalFootprint):
+    """Encodes the implementation of a block.
 
     This data structure is voluntarilly very generic. It represents blocks as a
     sequence of layers that can be instances of either
     :class:`~tqec.blocks.layers.atomic.base.BaseLayer` or
     :class:`~tqec.blocks.layers.composed.base.BaseComposedLayer`.
+
+    Depending on the stored layers, this class can be used to represent regular
+    cubes (i.e. scaling in the 2 spatial dimensions with ``k``) as well as
+    pipes (i.e. scaling in only 1 spatial dimension with ``k``).
 
     Attributes:
         layers: a non-empty, time-ordered sequence of atomic or composed layers
@@ -64,8 +68,8 @@ class ComputationBlock(WithSpatialFootprint, WithTemporalFootprint):
     @override
     def with_spatial_borders_trimed(
         self, borders: Iterable[SpatialBlockBorder]
-    ) -> ComputationBlock:
-        return ComputationBlock(
+    ) -> Block:
+        return Block(
             [layer.with_spatial_borders_trimed(borders) for layer in self.layers]
         )
 
@@ -82,7 +86,7 @@ class ComputationBlock(WithSpatialFootprint, WithTemporalFootprint):
     @override
     def with_temporal_borders_trimed(
         self, borders: Iterable[TemporalBlockBorder]
-    ) -> ComputationBlock:
+    ) -> Block:
         layers: list[BaseLayer | BaseComposedLayer] = []
         if TemporalBlockBorder.Z_NEGATIVE in borders:
             self._add_layer_with_temporal_borders_trimed(
@@ -93,4 +97,4 @@ class ComputationBlock(WithSpatialFootprint, WithTemporalFootprint):
             self._add_layer_with_temporal_borders_trimed(
                 layers, -1, TemporalBlockBorder.Z_POSITIVE
             )
-        return ComputationBlock(layers)
+        return Block(layers)
