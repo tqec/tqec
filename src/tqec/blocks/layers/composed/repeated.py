@@ -8,7 +8,7 @@ from typing_extensions import override
 from tqec.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.blocks.layers.atomic.base import BaseLayer
 from tqec.blocks.layers.composed.base import BaseComposedLayer
-from tqec.scale import LinearFunction, Scalable2D
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
 @dataclass
@@ -27,7 +27,7 @@ class RepeatedLayer(BaseComposedLayer):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
         return self.layer.scalable_shape
 
     @override

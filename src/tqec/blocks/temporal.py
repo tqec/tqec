@@ -6,7 +6,7 @@ from typing import Iterable
 from typing_extensions import Self
 
 from tqec.blocks.enums import TemporalBlockBorder
-from tqec.scale import LinearFunction
+from tqec.utils.scale import LinearFunction
 
 
 class WithTemporalFootprint(ABC):

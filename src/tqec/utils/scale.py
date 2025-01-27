@@ -18,8 +18,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from typing_extensions import Self
+
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import Shape2D
+from tqec.utils.position import PhysicalQubitShape2D, PlaquetteShape2D, Shape2D, Shift2D
 
 
 @dataclass(frozen=True)
@@ -190,5 +192,25 @@ class Scalable2D:
         """
         return self.to_shape_2d(k).to_numpy_shape()
 
-    def __add__(self, other: Scalable2D) -> Scalable2D:
-        return Scalable2D(self.x + other.x, self.y + other.y)
+    def __add__(self: Self, other: Self) -> Self:
+        return self.__class__(self.x + other.x, self.y + other.y)
+
+    def __sub__(self: Self, other: Self) -> Self:
+        return self.__class__(self.x - other.x, self.y - other.y)
+
+
+class PlaquetteScalable2D(Scalable2D):
+    """A pair of scalable quantities in plaquette coordinates."""
+
+    def to_shape_2d(self, k: int) -> PlaquetteShape2D:
+        return PlaquetteShape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
+
+    def __mul__(self, other: Shift2D) -> PhysicalQubitScalable2D:
+        return PhysicalQubitScalable2D(self.x * other.x, self.y * other.y)
+
+
+class PhysicalQubitScalable2D(Scalable2D):
+    """A pair of scalable quantities in physical qubit coordinates."""
+
+    def to_shape_2d(self, k: int) -> PhysicalQubitShape2D:
+        return PhysicalQubitShape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))

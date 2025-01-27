@@ -6,12 +6,13 @@ from typing import Iterable, Sequence
 from typing_extensions import override
 
 from tqec.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
-from tqec.blocks.layers.composed.base import BaseComposedLayer, BaseLayer
+from tqec.blocks.layers.atomic.base import BaseLayer
+from tqec.blocks.layers.composed.base import BaseComposedLayer
 from tqec.blocks.spatial import WithSpatialFootprint
 from tqec.blocks.temporal import WithTemporalFootprint
-from tqec.exceptions import TQECException
-from tqec.position import Shape2D
-from tqec.scale import LinearFunction, Scalable2D
+from tqec.utils.exceptions import TQECException
+from tqec.utils.position import Shape2D
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
 @dataclass
@@ -48,7 +49,7 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
         # __post_init__ guarantees that there is at least one item in
         # self.layer_sequence and that all the layers have the same scalable shape.
         return self.layers[0].scalable_shape

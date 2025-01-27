@@ -1,7 +1,7 @@
 from enum import Enum
 
-from tqec.position import Direction3D, SignedDirection3D
-from tqec.templates.indices.enums import TemplateBorder
+from tqec.templates.enums import TemplateBorder
+from tqec.utils.position import Direction3D, SignedDirection3D
 
 
 class SpatialBlockBorder(Enum):

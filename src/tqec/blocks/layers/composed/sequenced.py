@@ -8,8 +8,8 @@ from typing_extensions import override
 from tqec.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.blocks.layers.atomic.base import BaseLayer
 from tqec.blocks.layers.composed.base import BaseComposedLayer
-from tqec.exceptions import TQECException
-from tqec.scale import LinearFunction, Scalable2D
+from tqec.utils.exceptions import TQECException
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
 @dataclass
@@ -38,7 +38,7 @@ class SequencedLayers(BaseComposedLayer):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
         # __post_init__ guarantees that there is at least one item in
         # self.layer_sequence and that all the layers have the same scalable shape.
         return self.layer_sequence[0].scalable_shape
@@ -55,7 +55,9 @@ class SequencedLayers(BaseComposedLayer):
         )
 
     @override
-    def with_temporal_borders_trimed(self, borders: Iterable[TemporalBlockBorder]):
+    def with_temporal_borders_trimed(
+        self, borders: Iterable[TemporalBlockBorder]
+    ) -> SequencedLayers | None:
         layers: list[BaseLayer] = []
         if TemporalBlockBorder.Z_NEGATIVE in borders:
             first_layer = self.layer_sequence[0].with_temporal_borders_trimed(

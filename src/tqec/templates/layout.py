@@ -74,7 +74,7 @@ from typing_extensions import override
 from tqec.templates.base import RectangularTemplate, Template
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
-from tqec.utils.scale import Scalable2D
+from tqec.utils.scale import PlaquetteScalable2D
 
 
 class LayoutTemplate(Template):
@@ -166,9 +166,9 @@ class LayoutTemplate(Template):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PlaquetteScalable2D:
         """Returns a scalable version of the template shape."""
-        return Scalable2D(
+        return PlaquetteScalable2D(
             self._nx * self._element_scalable_shape.x,
             self._ny * self._element_scalable_shape.y,
         )
