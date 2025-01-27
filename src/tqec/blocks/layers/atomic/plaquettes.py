@@ -7,8 +7,6 @@ from typing_extensions import override
 
 from tqec.blocks.enums import SpatialBlockBorder
 from tqec.blocks.layers.composed.base import BaseLayer
-from tqec.circuit.generation import generate_circuit
-from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.scale import Scalable2D
 from tqec.templates.indices.base import RectangularTemplate
@@ -18,10 +16,6 @@ from tqec.templates.indices.base import RectangularTemplate
 class PlaquetteLayer(BaseLayer):
     template: RectangularTemplate
     plaquettes: Plaquettes
-
-    @override
-    def to_circuit(self, k: int) -> ScheduledCircuit:
-        return generate_circuit(self.template, k, self.plaquettes)
 
     @property
     @override
