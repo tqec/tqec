@@ -5,11 +5,11 @@ from typing import Iterable, Sequence
 
 from typing_extensions import override
 
+from tqec.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.blocks.layers.atomic.base import BaseLayer
 from tqec.blocks.layers.composed.base import BaseComposedLayer
 from tqec.exceptions import TQECException
 from tqec.scale import LinearFunction, Scalable2D
-from tqec.templates.indices.enums import TemplateBorder
 
 
 @dataclass
@@ -44,7 +44,30 @@ class SequencedLayers(BaseComposedLayer):
         return self.layer_sequence[0].scalable_shape
 
     @override
-    def with_borders_trimed(self, borders: Iterable[TemplateBorder]) -> SequencedLayers:
+    def with_spatial_borders_trimed(
+        self, borders: Iterable[SpatialBlockBorder]
+    ) -> SequencedLayers:
         return SequencedLayers(
-            [layer.with_borders_trimed(borders) for layer in self.layer_sequence]
+            [
+                layer.with_spatial_borders_trimed(borders)
+                for layer in self.layer_sequence
+            ]
         )
+
+    @override
+    def with_temporal_borders_trimed(self, borders: Iterable[TemporalBlockBorder]):
+        layers: list[BaseLayer] = []
+        if TemporalBlockBorder.Z_NEGATIVE in borders:
+            first_layer = self.layer_sequence[0].with_temporal_borders_trimed(
+                [TemporalBlockBorder.Z_NEGATIVE]
+            )
+            if first_layer is not None:
+                layers.append(first_layer)
+        layers.extend(self.layer_sequence[1:-1])
+        if TemporalBlockBorder.Z_POSITIVE in borders:
+            last_layer = self.layer_sequence[-1].with_temporal_borders_trimed(
+                [TemporalBlockBorder.Z_POSITIVE]
+            )
+            if last_layer is not None:
+                layers.append(last_layer)
+        return SequencedLayers(layers)
