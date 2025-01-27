@@ -94,16 +94,3 @@ class ComputationBlock(WithSpatialFootprint, WithTemporalFootprint):
                 layers, -1, TemporalBlockBorder.Z_POSITIVE
             )
         return ComputationBlock(layers)
-
-    @staticmethod
-    def _split_borders(
-        borders: Iterable[SpatialBlockBorder | TemporalBlockBorder],
-    ) -> tuple[frozenset[SpatialBlockBorder], frozenset[TemporalBlockBorder]]:
-        spatial_borders: list[SpatialBlockBorder] = []
-        temporal_borders: list[TemporalBlockBorder] = []
-        for border in borders:
-            if isinstance(border, SpatialBlockBorder):
-                spatial_borders.append(border)
-            else:
-                temporal_borders.append(border)
-        return frozenset(spatial_borders), frozenset(temporal_borders)
