@@ -6,8 +6,8 @@ from typing import Iterable
 from typing_extensions import Self
 
 from tqec.blocks.enums import SpatialBlockBorder
-from tqec.position import Shape2D
-from tqec.scale import Scalable2D
+from tqec.utils.position import Shape2D
+from tqec.utils.scale import PhysicalQubitScalable2D
 
 
 class WithSpatialFootprint(ABC):
@@ -16,7 +16,7 @@ class WithSpatialFootprint(ABC):
 
     @property
     @abstractmethod
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
         """Returns the 2-dimensional shape of the object as an exact expression
         that can then be used to compute the shape for any value of ``k``.
 

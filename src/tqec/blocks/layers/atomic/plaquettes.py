@@ -6,10 +6,10 @@ from typing import Iterable
 from typing_extensions import override
 
 from tqec.blocks.enums import SpatialBlockBorder
-from tqec.blocks.layers.composed.base import BaseLayer
+from tqec.blocks.layers.atomic.base import BaseLayer
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.scale import Scalable2D
-from tqec.templates.indices.base import RectangularTemplate
+from tqec.templates.base import RectangularTemplate
+from tqec.utils.scale import PhysicalQubitScalable2D
 
 
 @dataclass
@@ -19,8 +19,8 @@ class PlaquetteLayer(BaseLayer):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
-        return self.template.scalable_shape
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
+        return self.template.scalable_shape * self.template._default_shift
 
     @override
     def with_spatial_borders_trimed(

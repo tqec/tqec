@@ -7,7 +7,7 @@ from typing_extensions import override
 from tqec.blocks.enums import TemporalBlockBorder
 from tqec.blocks.spatial import WithSpatialFootprint
 from tqec.blocks.temporal import WithTemporalFootprint
-from tqec.scale import LinearFunction
+from tqec.utils.scale import LinearFunction
 
 
 class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
