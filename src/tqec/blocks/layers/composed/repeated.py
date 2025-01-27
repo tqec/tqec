@@ -5,10 +5,10 @@ from typing import Iterable
 
 from typing_extensions import override
 
+from tqec.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.blocks.layers.atomic.base import BaseLayer
 from tqec.blocks.layers.composed.base import BaseComposedLayer
 from tqec.scale import LinearFunction, Scalable2D
-from tqec.templates.indices.enums import TemplateBorder
 
 
 @dataclass
@@ -31,5 +31,15 @@ class RepeatedLayer(BaseComposedLayer):
         return self.layer.scalable_shape
 
     @override
-    def with_borders_trimed(self, borders: Iterable[TemplateBorder]) -> RepeatedLayer:
-        return RepeatedLayer(self.layer.with_borders_trimed(borders), self.repetitions)
+    def with_spatial_borders_trimed(
+        self, borders: Iterable[SpatialBlockBorder]
+    ) -> RepeatedLayer:
+        return RepeatedLayer(
+            self.layer.with_spatial_borders_trimed(borders), self.repetitions
+        )
+
+    @override
+    def with_temporal_borders_trimed(
+        self, borders: Iterable[TemporalBlockBorder]
+    ) -> RepeatedLayer | None:
+        return RepeatedLayer(self.layer, self.repetitions - len(frozenset(borders)))
