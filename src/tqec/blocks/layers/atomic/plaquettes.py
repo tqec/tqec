@@ -14,6 +14,12 @@ from tqec.utils.scale import PhysicalQubitScalable2D
 
 @dataclass
 class PlaquetteLayer(BaseLayer):
+    """Represents a layer with a template and some plaquettes.
+
+    This class implements the layer interface by using a template and some 
+    plaquettes. This is the preferred way of representing a layer.
+    """
+
     template: RectangularTemplate
     plaquettes: Plaquettes
 

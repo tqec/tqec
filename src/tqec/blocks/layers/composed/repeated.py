@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 from dataclasses import dataclass
 from typing import Iterable
 
@@ -13,12 +14,27 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 @dataclass
 class RepeatedLayer(BaseComposedLayer):
-    layer: BaseLayer
+    """Composed layer implementing repetition.
+
+    This composed layer repeats another layer (that can be atomic or composed)
+    multiple times.
+
+    Attributes:
+        layer: repeated layer.
+        repetitions: number of repetitions to perform. Can scale with ``k``.
+    """
+
+    layer: BaseLayer | BaseComposedLayer
     repetitions: LinearFunction
 
     @override
     def layers(self, k: int) -> Iterable[BaseLayer]:
-        yield from (self.layer for _ in range(self.timesteps(k)))
+        if isinstance(self.layer, BaseLayer):
+            yield from (self.layer for _ in range(self.timesteps(k)))
+        else:
+            yield from itertools.chain.from_iterable(
+                self.layer.layers(k) for _ in range(self.timesteps(k))
+            )
 
     @property
     @override

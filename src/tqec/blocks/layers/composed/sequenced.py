@@ -14,6 +14,17 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 @dataclass
 class SequencedLayers(BaseComposedLayer):
+    """Composed layer implementing a fixed sequence of atomic layers.
+
+    This composed layer sequentially applies layers from a fixed sequence. As
+    such, its temporal footprint is not expected to scale with ``k``.
+
+    Attributes:
+        layer_sequence: non-empty sequence of layers to apply one after the
+            other. All the layers in this sequence should have exactly the same
+            spatial footprint.
+    """
+
     layer_sequence: Sequence[BaseLayer]
 
     def __post_init__(self) -> None:
