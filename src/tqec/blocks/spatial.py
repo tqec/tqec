@@ -41,4 +41,12 @@ class WithSpatialFootprint(ABC):
     def with_spatial_borders_trimed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> Self:
+        """Returns ``self`` with the provided spatial borders removed.
+
+        Args:
+            borders: spatial borders to remove.
+
+        Returns:
+            a copy of ``self`` with the provided ``borders`` removed.
+        """
         pass

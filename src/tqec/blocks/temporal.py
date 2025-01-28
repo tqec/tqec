@@ -44,4 +44,14 @@ class WithTemporalFootprint(ABC):
     def with_temporal_borders_trimed(
         self, borders: Iterable[TemporalBlockBorder]
     ) -> Self | None:
+        """Returns ``self`` with the provided temporal borders removed.
+
+        Args:
+            borders: temporal borders to remove.
+
+        Returns:
+            a copy of ``self`` with the provided ``borders`` removed, or ``None``
+            if removing the provided ``borders`` from ``self`` result in an
+            empty temporal footprint.
+        """
         pass
