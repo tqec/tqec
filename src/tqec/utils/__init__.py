@@ -16,3 +16,5 @@ from .position import SignedDirection3D as SignedDirection3D
 from .scale import LinearFunction as LinearFunction
 from .scale import Scalable2D as Scalable2D
 from .scale import round_or_fail as round_or_fail
+from .exceptions import TQECException as TQECException
+from .noise_model import NoiseModel as NoiseModel

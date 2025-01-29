@@ -20,13 +20,11 @@ from .computation import ZXGraph as ZXGraph
 from .computation import ZXKind as ZXKind
 from .computation import ZXNode as ZXNode
 from .enums import Orientation as Orientation
-from .utils.exceptions import TQECException as TQECException
 from .interop import RGBA as RGBA
 from .interop import TQECColor as TQECColor
 from .interop import display_collada_model as display_collada_model
 from .interop import read_block_graph_from_dae_file as read_block_graph_from_dae_file
 from .interop import write_block_graph_to_dae_file as write_block_graph_to_dae_file
-from .noise_model import NoiseModel as NoiseModel
 from .plaquette import RG as RG
 from .plaquette import RPNG as RPNG
 from .plaquette import Plaquette as Plaquette
@@ -38,6 +36,7 @@ from .templates.indices import Template as Template
 from .utils import BlockPosition2D as BlockPosition2D
 from .utils import Direction3D as Direction3D
 from .utils import LinearFunction as LinearFunction
+from .utils import NoiseModel as NoiseModel
 from .utils import PhysicalQubitPosition2D as PhysicalQubitPosition2D
 from .utils import PlaquettePosition2D as PlaquettePosition2D
 from .utils import Position3D as Position3D
@@ -45,4 +44,5 @@ from .utils import Scalable2D as Scalable2D
 from .utils import Shape2D as Shape2D
 from .utils import Shift2D as Shift2D
 from .utils import SignedDirection3D as SignedDirection3D
+from .utils import TQECException as TQECException
 from .utils import round_or_fail as round_or_fail
