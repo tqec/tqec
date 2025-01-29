@@ -19,7 +19,7 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.templates.indices.qubit import (
+from tqec.templates.qubit import (
     QubitHorizontalBorders,
     QubitSpatialCubeTemplate,
     QubitVerticalBorders,
@@ -28,7 +28,7 @@ from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
 def get_spatial_cube_qubit_raw_template() -> QubitSpatialCubeTemplate:
-    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    """Returns the :class:`~tqec.templates.base.Template` instance
     needed to implement a spatial cube.
 
     Note:
@@ -41,7 +41,7 @@ def get_spatial_cube_qubit_raw_template() -> QubitSpatialCubeTemplate:
 
     Returns:
         an instance of
-        :class:`~tqec.templates.indices.qubit.QubitSpatialCubeTemplate`.
+        :class:`~tqec.templates.qubit.QubitSpatialCubeTemplate`.
     """
     return QubitSpatialCubeTemplate()
 
@@ -72,7 +72,7 @@ def get_spatial_cube_qubit_rpng_descriptions(
         This function is tightly coupled with
         :func:`get_spatial_cube_qubit_raw_template` and the returned
         ``RPNG`` descriptions should only be considered valid when used in
-        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        conjunction with the :class:`~tqec.templates.base.Template`
         instance returned by this function.
 
     Warning:
@@ -250,7 +250,7 @@ def get_spatial_cube_qubit_rpng_descriptions(
 def get_spatial_cube_arm_raw_template(
     arm: SpatialArms,
 ) -> QubitVerticalBorders | QubitHorizontalBorders:
-    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    """Returns the :class:`~tqec.templates.base.Template` instance
     needed to implement the given spatial ``arm``.
 
     Args:
@@ -263,8 +263,8 @@ def get_spatial_cube_arm_raw_template(
 
     Returns:
         an instance of
-        :class:`~tqec.templates.indices.qubit.QubitHorizontalBorders` or
-        :class:`~tqec.templates.indices.qubit.QubitVerticalBorders` depending on
+        :class:`~tqec.templates.qubit.QubitHorizontalBorders` or
+        :class:`~tqec.templates.qubit.QubitVerticalBorders` depending on
         the provided ``arm``.
     """
     if len(arm) != 1:
@@ -310,7 +310,7 @@ def get_spatial_cube_arm_rpng_descriptions(
         This function is tightly coupled with
         :func:`get_spatial_cube_arm_raw_template` and the returned
         ``RPNG`` descriptions should only be considered valid when used in
-        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        conjunction with the :class:`~tqec.templates.base.Template`
         instance returned by this function.
 
     Warning:

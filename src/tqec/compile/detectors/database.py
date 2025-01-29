@@ -17,7 +17,7 @@ from tqec.circuit.schedule import (
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.generation import generate_circuit_from_instantiation
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.templates.indices.subtemplates import SubTemplateType
+from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
 

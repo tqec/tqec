@@ -13,3 +13,10 @@ class ZObservableOrientation(Enum):
 
     def vertical_basis(self) -> Literal["x", "z"]:
         return "z" if self == ZObservableOrientation.VERTICAL else "x"
+
+
+class TemplateBorder(Enum):
+    TOP = auto()
+    BOTTOM = auto()
+    LEFT = auto()
+    RIGHT = auto()

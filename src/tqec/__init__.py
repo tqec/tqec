@@ -31,7 +31,7 @@ from .plaquette import PlaquetteQubits as PlaquetteQubits
 from .plaquette import RPNGDescription as RPNGDescription
 from .plaquette import SquarePlaquetteQubits as SquarePlaquetteQubits
 from .plaquette.enums import PlaquetteOrientation as PlaquetteOrientation
-from .templates.indices import Template as Template
+from .templates import Template as Template
 from .utils import BlockPosition2D as BlockPosition2D
 from .utils import Direction3D as Direction3D
 from .utils import LinearFunction as LinearFunction

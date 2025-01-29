@@ -3,7 +3,7 @@
 from tqec.compile.specs.enums import SpatialArms
 from tqec.utils.enums import Basis
 from tqec.templates.enums import ZObservableOrientation
-from tqec.templates.indices.qubit import (
+from tqec.templates.qubit import (
     QubitHorizontalBorders,
     QubitSpatialCubeTemplate,
     QubitTemplate,

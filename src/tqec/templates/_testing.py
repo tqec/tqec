@@ -4,8 +4,8 @@ import numpy
 import numpy.typing as npt
 from typing_extensions import override
 
-from tqec.templates.indices.base import BorderIndices, RectangularTemplate
-from tqec.templates.indices.enums import TemplateBorder
+from tqec.templates.base import BorderIndices, RectangularTemplate
+from tqec.templates.enums import TemplateBorder
 from tqec.utils.position import Shift2D
 from tqec.utils.scale import LinearFunction, Scalable2D
 

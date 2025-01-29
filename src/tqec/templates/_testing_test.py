@@ -1,6 +1,6 @@
 import numpy
 
-from tqec.templates.indices._testing import FixedTemplate
+from tqec.templates._testing import FixedTemplate
 from tqec.utils.position import Shape2D
 from tqec.utils.scale import LinearFunction, Scalable2D
 
