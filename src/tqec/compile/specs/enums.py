@@ -67,6 +67,7 @@ class SpatialArms(Flag):
         yield from (arm for arm in SpatialArms.single_arms() if arm in self)
 
     def __repr__(self) -> str:
+        clsname = self.__class__.__name__
         if self == SpatialArms.NONE:
-            return "JunctionArms.NONE"
-        return " | ".join(f"JunctionArms.{arm.name}" for arm in self)
+            return f"{clsname}.NONE"
+        return " | ".join(f"{clsname}.{arm.name}" for arm in self)
