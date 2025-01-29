@@ -7,7 +7,7 @@ from typing_extensions import Self
 
 import networkx as nx
 
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Position3D
 
 

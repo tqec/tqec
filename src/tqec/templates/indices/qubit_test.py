@@ -1,7 +1,7 @@
 import numpy
 import pytest
 
-from tqec.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.templates.indices.enums import TemplateBorder
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,

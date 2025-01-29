@@ -1,7 +1,7 @@
 import pytest
 
 from tqec.computation.zx_graph import ZXKind
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.gallery.logical_cz import logical_cz_zx_graph
 from tqec.utils.position import Position3D
 

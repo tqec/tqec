@@ -1,6 +1,6 @@
 import pytest
 
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shape2D
 from tqec.utils.scale import LinearFunction, Scalable2D, round_or_fail
 

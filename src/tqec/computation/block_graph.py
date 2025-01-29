@@ -12,7 +12,7 @@ from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, CubeKind
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.computation.zx_graph import ZXGraph
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, SignedDirection3D
 
 if TYPE_CHECKING:

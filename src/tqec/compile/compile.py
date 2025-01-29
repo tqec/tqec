@@ -30,7 +30,7 @@ from tqec.compile.specs.base import (
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
 from tqec.templates.indices.base import Template

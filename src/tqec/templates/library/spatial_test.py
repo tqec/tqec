@@ -5,7 +5,7 @@ import pytest
 
 from tqec.compile.specs.enums import SpatialArms
 from tqec.enums import Basis
-from tqec.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.plaquette.rpng import RPNGDescription
 
 from ._testing import (

@@ -8,7 +8,7 @@ from typing import Callable, Literal, Mapping
 from typing_extensions import override
 
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.qubit import PlaquetteQubits
 from tqec.utils.frozendefaultdict import FrozenDefaultDict

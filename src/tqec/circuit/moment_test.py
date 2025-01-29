@@ -2,7 +2,7 @@ import pytest
 import stim
 
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 _VALID_MOMENT_CIRCUITS: list[stim.Circuit] = [
     stim.Circuit("H 0 1 2 3"),

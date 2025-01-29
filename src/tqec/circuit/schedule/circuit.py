@@ -22,7 +22,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap, get_qubit_map
 from tqec.circuit.schedule.exception import ScheduleException
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 
 class ScheduledCircuit:

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 
 class CompilationPass(ABC):

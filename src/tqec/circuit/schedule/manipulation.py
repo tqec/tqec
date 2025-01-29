@@ -28,7 +28,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECException, TQECWarning
 
 
 class _ScheduledCircuits:

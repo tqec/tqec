@@ -5,7 +5,7 @@ from typing import Mapping
 
 from tqec.circuit.generation import generate_circuit
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes, RepeatedPlaquettes
 from tqec.templates.indices.base import RectangularTemplate

@@ -19,7 +19,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule import ScheduledCircuit, relabel_circuits_qubit_indices
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.utils.position import PhysicalQubitPosition2D, Shift2D
 from tqec.templates.indices.base import Template

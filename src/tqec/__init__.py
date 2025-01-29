@@ -20,7 +20,7 @@ from .computation import ZXGraph as ZXGraph
 from .computation import ZXKind as ZXKind
 from .computation import ZXNode as ZXNode
 from .enums import Orientation as Orientation
-from .exceptions import TQECException as TQECException
+from .utils.exceptions import TQECException as TQECException
 from .interop import RGBA as RGBA
 from .interop import TQECColor as TQECColor
 from .interop import display_collada_model as display_collada_model

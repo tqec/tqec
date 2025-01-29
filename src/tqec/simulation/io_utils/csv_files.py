@@ -7,7 +7,7 @@ from typing import Literal, TextIO
 
 import sinter
 
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 
 def write_sinter_stats_to_csv(

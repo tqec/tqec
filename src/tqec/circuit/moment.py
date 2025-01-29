@@ -16,7 +16,7 @@ import stim
 
 from tqec.circuit.instructions import is_annotation_instruction
 from tqec.circuit.qubit import count_qubit_accesses, get_used_qubit_indices
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 
 class Moment:

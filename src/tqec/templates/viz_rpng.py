@@ -4,7 +4,7 @@ from collections.abc import Callable, Iterable
 import math
 from typing import Literal, cast
 
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.interop.color import RGBA, TQECColor
 from tqec.plaquette.rpng import RPNG, ExtendedBasisEnum, RPNGDescription
 

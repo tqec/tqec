@@ -5,7 +5,7 @@ from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import Schedule, ScheduledCircuit, ScheduleException
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 _VALID_SCHEDULED_CIRCUITS = [
     stim.Circuit(""),

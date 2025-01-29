@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shape2D
 
 

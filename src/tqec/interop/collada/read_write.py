@@ -16,7 +16,7 @@ from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, CubeKind, Port, YCube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.computation.zx_graph import ZXKind
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.interop.collada._geometry import (
     BlockGeometries,
     Face,

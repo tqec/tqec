@@ -21,7 +21,7 @@ from tqec.circuit.instructions import (
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 
 @dataclass(frozen=True)

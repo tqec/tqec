@@ -20,7 +20,7 @@ from tqec.circuit.instructions import (
 )
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
 
 
