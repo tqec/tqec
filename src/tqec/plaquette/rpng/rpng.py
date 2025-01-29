@@ -13,6 +13,9 @@ class BasisEnum(Enum):
     def __str__(self) -> str:
         return self.value
 
+    def to_extended_basis(self) -> ExtendedBasisEnum:
+        return ExtendedBasisEnum(self.value)
+
 
 class ExtendedBasisEnum(Enum):
     X = BasisEnum.X.value

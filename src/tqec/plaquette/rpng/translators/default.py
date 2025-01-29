@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Final, Literal
 
 import stim
@@ -32,6 +33,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
     """
 
     MEASUREMENT_SCHEDULE: Final[int] = 6
+    QUBITS: Final[PlaquetteQubits] = SquarePlaquetteQubits()
 
     @staticmethod
     def _add_extended_basis_operation(
@@ -53,11 +55,15 @@ class DefaultRPNGTranslator(RPNGTranslator):
     def translate(
         self,
         rpng_description: RPNGDescription,
-        qubits: PlaquetteQubits = SquarePlaquetteQubits(),
     ) -> Plaquette:
+        # The current RPNG notation is very much tied to the qubit arrangement
+        # in SquarePlaquetteQubits, hence the explicit value here.
+        qubits: PlaquetteQubits = deepcopy(DefaultRPNGTranslator.QUBITS)
+
         data_qubit_indices = list(qubits.data_qubits_indices)
         if len(data_qubit_indices) != 4:
             raise TQECException("Expected 4 data-qubits, got", len(data_qubit_indices))
+        used_data_qubit_indices: set[int] = set()
         syndrome_qubit_indices = list(qubits.syndrome_qubits_indices)
         if len(syndrome_qubit_indices) != 1:
             raise TQECException(
@@ -65,8 +71,14 @@ class DefaultRPNGTranslator(RPNGTranslator):
             )
         syndrome_qubit_index = syndrome_qubit_indices[0]
 
-        reset_timestep_operations = {ExtendedBasisEnum.X: [syndrome_qubit_index]}
-        meas_timestep_operations = {ExtendedBasisEnum.X: [syndrome_qubit_index]}
+        # Handling syndrome qubit reset/measurement
+        reset_timestep_operations: dict[ExtendedBasisEnum, list[int]] = {}
+        meas_timestep_operations: dict[ExtendedBasisEnum, list[int]] = {}
+        if (r := rpng_description.ancilla.r) is not None:
+            reset_timestep_operations[r.to_extended_basis()] = [syndrome_qubit_index]
+        if (g := rpng_description.ancilla.g) is not None:
+            meas_timestep_operations[g.to_extended_basis()] = [syndrome_qubit_index]
+        # Handling data-qubits
         entangling_operations: list[tuple[BasisEnum, int] | None] = [
             None for _ in range(DefaultRPNGTranslator.MEASUREMENT_SCHEDULE - 1)
         ]
@@ -74,10 +86,13 @@ class DefaultRPNGTranslator(RPNGTranslator):
             dqi = data_qubit_indices[qi]
             if rpng.r is not None:
                 reset_timestep_operations.setdefault(rpng.r, []).append(dqi)
+                used_data_qubit_indices.add(dqi)
             if rpng.g is not None:
                 meas_timestep_operations.setdefault(rpng.g, []).append(dqi)
+                used_data_qubit_indices.add(dqi)
             if rpng.p is not None and rpng.n is not None:
                 entangling_operations[rpng.n - 1] = (rpng.p, dqi)
+                used_data_qubit_indices.add(dqi)
 
         circuit = stim.Circuit()
         schedule: list[int] = [0]
@@ -99,9 +114,20 @@ class DefaultRPNGTranslator(RPNGTranslator):
         # Add measurement operations
         self._add_extended_basis_operation(circuit, "M", meas_timestep_operations)
         schedule.append(DefaultRPNGTranslator.MEASUREMENT_SCHEDULE)
+
+        # Filter out unused qubits
+        kept_data_qubits = [qubits.data_qubits[i] for i in used_data_qubit_indices]
+        new_plaquette_qubits = PlaquetteQubits(kept_data_qubits, qubits.syndrome_qubits)
+        unfiltered_circuit = ScheduledCircuit.from_circuit(
+            circuit, schedule, qubits.qubit_map
+        )
+        filtered_circuit = unfiltered_circuit.filter_by_qubits(
+            new_plaquette_qubits.all_qubits
+        )
+
         # Return the plaquette
         return Plaquette(
             name=str(rpng_description),
-            qubits=qubits,
-            circuit=ScheduledCircuit.from_circuit(circuit, schedule, qubits.qubit_map),
+            qubits=new_plaquette_qubits,
+            circuit=filtered_circuit,
         )
