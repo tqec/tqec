@@ -8,9 +8,12 @@ from typing import Callable, Literal, Mapping
 from typing_extensions import override
 
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.utils.exceptions import TQECException
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.qubit import PlaquetteQubits
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.base import RPNGTranslator
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
+from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import PhysicalQubitPosition2D
 from tqec.utils.scale import LinearFunction, round_or_fail
@@ -116,6 +119,13 @@ class Plaquette:
     @property
     def num_measurements(self) -> int:
         return self.circuit.num_measurements
+
+    @staticmethod
+    def from_rpng(
+        description: RPNGDescription,
+        translator: RPNGTranslator = DefaultRPNGTranslator(),
+    ) -> Plaquette:
+        return translator.translate(description)
 
 
 @dataclass(frozen=True)
