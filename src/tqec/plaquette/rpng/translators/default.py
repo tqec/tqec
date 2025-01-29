@@ -4,11 +4,11 @@ import stim
 from typing_extensions import override
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.utils.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
 from tqec.plaquette.rpng import BasisEnum, ExtendedBasisEnum, RPNGDescription
-from tqec.plaquette.translators.base import RPNGTranslator
+from tqec.plaquette.rpng.translators.base import RPNGTranslator
+from tqec.utils.exceptions import TQECException
 
 
 class DefaultRPNGTranslator(RPNGTranslator):
