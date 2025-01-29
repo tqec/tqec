@@ -21,8 +21,6 @@ from .plaquette import Plaquettes as Plaquettes
 from .plaquette import RepeatedPlaquettes as RepeatedPlaquettes
 from .qubit import PlaquetteQubits as PlaquetteQubits
 from .qubit import SquarePlaquetteQubits as SquarePlaquetteQubits
-from .rapng import RAPNG as RAPNG
-from .rapng import RAPNGDescription as RAPNGDescription
 from .rpng import RG as RG
 from .rpng import RPNG as RPNG
 from .rpng import RPNGDescription as RPNGDescription

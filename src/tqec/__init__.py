@@ -27,12 +27,10 @@ from .interop import display_collada_model as display_collada_model
 from .interop import read_block_graph_from_dae_file as read_block_graph_from_dae_file
 from .interop import write_block_graph_to_dae_file as write_block_graph_to_dae_file
 from .noise_model import NoiseModel as NoiseModel
-from .plaquette import RAPNG as RAPNG
 from .plaquette import RG as RG
 from .plaquette import RPNG as RPNG
 from .plaquette import Plaquette as Plaquette
 from .plaquette import PlaquetteQubits as PlaquetteQubits
-from .plaquette import RAPNGDescription as RAPNGDescription
 from .plaquette import RPNGDescription as RPNGDescription
 from .plaquette import SquarePlaquetteQubits as SquarePlaquetteQubits
 from .plaquette.enums import PlaquetteOrientation as PlaquetteOrientation
