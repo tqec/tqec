@@ -1,7 +1,7 @@
 """Internal module defining a few useful functions to test the template library."""
 
 from tqec.compile.specs.enums import SpatialArms
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,

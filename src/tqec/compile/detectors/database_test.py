@@ -14,7 +14,7 @@ from tqec.compile.detectors.detector import Detector
 from tqec.compile.specs.library._utils import (
     _build_plaquettes_for_rotated_surface_code,  # pyright: ignore[reportPrivateUsage]
 )
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.zxxz import make_zxxz_surface_code_plaquette

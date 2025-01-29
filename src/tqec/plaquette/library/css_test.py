@@ -1,6 +1,6 @@
 import stim
 
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits

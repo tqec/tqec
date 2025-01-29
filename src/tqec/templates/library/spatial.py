@@ -16,7 +16,7 @@ The spatial pipes connected to the spatial cubes are called **arms**.
 """
 
 from tqec.compile.specs.enums import SpatialArms
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.indices.qubit import (

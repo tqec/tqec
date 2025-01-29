@@ -1,6 +1,6 @@
 from typing import Final
 
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
 

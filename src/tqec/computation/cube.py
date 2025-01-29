@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import astuple, dataclass
 
 from tqec.computation.zx_graph import ZXKind, ZXNode
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
 

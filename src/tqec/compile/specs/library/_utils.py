@@ -3,7 +3,7 @@ from typing import Literal
 from tqec.compile.block import CompiledBlock
 from tqec.compile.specs.base import CubeSpec, PipeSpec, Substitution
 from tqec.computation.cube import CubeKind, ZXCube
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.library import PlaquetteBuilder, empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes

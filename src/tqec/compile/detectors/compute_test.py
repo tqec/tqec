@@ -20,7 +20,7 @@ from tqec.compile.detectors.compute import (
 )
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.empty import empty_square_plaquette

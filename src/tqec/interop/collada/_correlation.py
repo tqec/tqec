@@ -8,7 +8,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.zx_graph import ZXEdge, ZXKind, ZXNode
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.interop.collada.read_write import _Transformation
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 
