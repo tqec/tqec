@@ -1,7 +1,6 @@
 from typing import Literal
 
 from tqec.enums import Basis
-from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.indices.qubit import (
@@ -9,6 +8,7 @@ from tqec.templates.indices.qubit import (
     QubitTemplate,
     QubitVerticalBorders,
 )
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
 def get_temporal_hadamard_raw_template() -> QubitTemplate:

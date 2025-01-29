@@ -6,13 +6,13 @@ from typing import Mapping
 from tqec.circuit.generation import generate_circuit
 from tqec.circuit.schedule import ScheduledCircuit
 from tqec.exceptions import TQECException
-from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes, RepeatedPlaquettes
 from tqec.position import BlockPosition2D, Shift2D
 from tqec.scale import LinearFunction
 from tqec.templates.indices.base import RectangularTemplate
 from tqec.templates.indices.layout import LayoutTemplate
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
 @dataclass

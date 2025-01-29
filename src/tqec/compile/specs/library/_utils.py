@@ -5,12 +5,12 @@ from tqec.compile.specs.base import CubeSpec, PipeSpec, Substitution
 from tqec.computation.cube import CubeKind, ZXCube
 from tqec.enums import Basis
 from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
-from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.library import PlaquetteBuilder, empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.position import Direction3D
 from tqec.scale import LinearFunction
 from tqec.templates.indices.qubit import QubitTemplate
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 _DEFAULT_BLOCK_REPETITIONS = LinearFunction(2, -1)
 

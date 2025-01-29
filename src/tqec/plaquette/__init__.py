@@ -13,9 +13,9 @@ the qubits a plaquette is applied to and perform some operations on them (e.g.,
 get the qubits on a specific side of the plaquette).
 """
 
+from ..utils.frozendefaultdict import FrozenDefaultDict as FrozenDefaultDict
 from .enums import PlaquetteOrientation as PlaquetteOrientation
 from .enums import PlaquetteSide as PlaquetteSide
-from .frozendefaultdict import FrozenDefaultDict as FrozenDefaultDict
 from .plaquette import Plaquette as Plaquette
 from .plaquette import Plaquettes as Plaquettes
 from .plaquette import RepeatedPlaquettes as RepeatedPlaquettes
