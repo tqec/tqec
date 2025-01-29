@@ -7,7 +7,6 @@ from functools import cached_property
 from pathlib import Path
 from typing import Sequence
 
-from tqec.circuit.generation import generate_circuit_from_instantiation
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.moment import Moment
 from tqec.circuit.schedule import (
@@ -16,9 +15,10 @@ from tqec.circuit.schedule import (
     relabel_circuits_qubit_indices,
 )
 from tqec.compile.detectors.detector import Detector
-from tqec.utils.exceptions import TQECException
+from tqec.compile.generation import generate_circuit_from_instantiation
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.indices.subtemplates import SubTemplateType
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
 
 

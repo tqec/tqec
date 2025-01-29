@@ -12,16 +12,13 @@ from tqecd.match import (
     match_detectors_within_fragment,
 )
 
-from tqec.utils.coordinates import StimCoordinates
-from tqec.circuit.generation import generate_circuit_from_instantiation
 from tqec.circuit.measurement import Measurement, get_measurements_from_circuit
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule import ScheduledCircuit, relabel_circuits_qubit_indices
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
-from tqec.utils.exceptions import TQECException
+from tqec.compile.generation import generate_circuit_from_instantiation
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.utils.position import PhysicalQubitPosition2D, Shift2D
 from tqec.templates.indices.base import Template
 from tqec.templates.indices.display import (
     get_template_representation_from_instantiation,
@@ -30,6 +27,9 @@ from tqec.templates.indices.subtemplates import (
     SubTemplateType,
     get_spatially_distinct_3d_subtemplates,
 )
+from tqec.utils.coordinates import StimCoordinates
+from tqec.utils.exceptions import TQECException
+from tqec.utils.position import PhysicalQubitPosition2D, Shift2D
 
 
 def _get_measurement_offset_mapping(circuit: stim.Circuit) -> dict[int, Measurement]:

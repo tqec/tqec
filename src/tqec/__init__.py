@@ -2,10 +2,10 @@ from ._version import __version__ as __version__
 from .circuit import QubitMap as QubitMap
 from .circuit import ScheduledCircuit as ScheduledCircuit
 from .circuit import ScheduleException as ScheduleException
-from .circuit import generate_circuit as generate_circuit
 from .circuit import merge_scheduled_circuits as merge_scheduled_circuits
 from .compile import CompiledGraph as CompiledGraph
 from .compile import compile_block_graph as compile_block_graph
+from .compile import generate_circuit as generate_circuit
 from .computation import BlockGraph as BlockGraph
 from .computation import BlockKind as BlockKind
 from .computation import Cube as Cube
