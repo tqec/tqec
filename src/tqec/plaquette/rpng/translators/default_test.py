@@ -1,6 +1,5 @@
 import stim
 
-from tqec.plaquette.qubit import SquarePlaquetteQubits
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 
@@ -67,9 +66,8 @@ MX 4
 def test_default_translator_from_arbitrary_rpng_string() -> None:
     translator = DefaultRPNGTranslator()
     # Arbitrary plaquette.
-    qubits = SquarePlaquetteQubits()
     desc = RPNGDescription.from_string("-x5h -z2z -x3x hz1-")
-    plaquette = translator.translate(desc, qubits=qubits)
+    plaquette = translator.translate(desc)
     expected_circuit = stim.Circuit("""
 QUBIT_COORDS(-1, -1) 0
 QUBIT_COORDS(1, -1) 1
