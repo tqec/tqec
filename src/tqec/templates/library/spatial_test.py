@@ -4,16 +4,16 @@ from typing import Final
 import pytest
 
 from tqec.compile.specs.enums import SpatialArms
+from tqec.plaquette.rpng import RPNGDescription
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException, TQECWarning
-from tqec.plaquette.rpng import RPNGDescription
 
 from ._testing import (
     get_spatial_cube_arm_rpng_template,
     get_spatial_cube_qubit_rpng_template,
 )
 
-_EMPT: Final[RPNGDescription] = RPNGDescription.from_string("---- ---- ---- ----")
+_EMPT: Final[RPNGDescription] = RPNGDescription.empty()
 
 
 def test_4_way_spatial_junction() -> None:
@@ -177,17 +177,17 @@ def test_spatial_cube_logical_qubit_always_defines_corners(
     )
     rpng_inst = template.instantiate(k=3)
     if arms == SpatialArms.RIGHT | SpatialArms.DOWN:
-        assert rpng_inst[0][0] == RPNGDescription.from_string("---- ---- ---- ----")
+        assert rpng_inst[0][0] == RPNGDescription.empty()
     else:
-        assert rpng_inst[0][0] != RPNGDescription.from_string("---- ---- ---- ----")
+        assert rpng_inst[0][0] != RPNGDescription.empty()
 
     if arms == SpatialArms.LEFT | SpatialArms.UP:
-        assert rpng_inst[-1][-1] == RPNGDescription.from_string("---- ---- ---- ----")
+        assert rpng_inst[-1][-1] == RPNGDescription.empty()
     else:
-        assert rpng_inst[-1][-1] != RPNGDescription.from_string("---- ---- ---- ----")
+        assert rpng_inst[-1][-1] != RPNGDescription.empty()
 
-    assert rpng_inst[0][-1] == RPNGDescription.from_string("---- ---- ---- ----")
-    assert rpng_inst[-1][0] == RPNGDescription.from_string("---- ---- ---- ----")
+    assert rpng_inst[0][-1] == RPNGDescription.empty()
+    assert rpng_inst[-1][0] == RPNGDescription.empty()
 
 
 @pytest.mark.parametrize(

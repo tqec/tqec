@@ -215,6 +215,10 @@ class RPNGDescription:
             raise ValueError("There must be 4 corners in the RPNG description.")
         return cls(rpng_objs, ancilla_rg)
 
+    @staticmethod
+    def empty() -> RPNGDescription:
+        return RPNGDescription.from_extended_string("-- ---- ---- ---- ----")
+
     def get_r_op(self, data_idx: int) -> str | None:
         """Get the reset operation or Hadamard for the specific data qubit"""
         return self.corners[data_idx].get_r_op()
