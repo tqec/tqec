@@ -2,7 +2,7 @@ import stim
 
 from tqec.plaquette.qubit import SquarePlaquetteQubits
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.plaquette.translators.default import DefaultRPNGTranslator
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 
 
 def test_default_translator_creation() -> None:
