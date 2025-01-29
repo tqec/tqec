@@ -14,13 +14,13 @@ from typing import Mapping, cast
 import stim
 from typing_extensions import override
 
-from tqec.circuit.instructions import (
-    is_multi_qubit_measurement_instruction,
-    is_single_qubit_measurement_instruction,
-)
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.utils.exceptions import TQECException
+from tqec.utils.instructions import (
+    is_multi_qubit_measurement_instruction,
+    is_single_qubit_measurement_instruction,
+)
 from tqec.utils.position import Shift2D
 
 

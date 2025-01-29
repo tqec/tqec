@@ -14,14 +14,14 @@ from typing import Sequence
 import numpy
 import stim
 
-from tqec.circuit.instructions import (
-    is_multi_qubit_measurement_instruction,
-    is_single_qubit_measurement_instruction,
-)
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
 from tqec.utils.exceptions import TQECException
+from tqec.utils.instructions import (
+    is_multi_qubit_measurement_instruction,
+    is_single_qubit_measurement_instruction,
+)
 
 
 @dataclass(frozen=True)
