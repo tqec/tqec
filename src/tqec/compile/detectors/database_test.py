@@ -3,7 +3,7 @@ from typing import Iterable, cast
 import numpy
 import pytest
 
-from tqec.circuit.coordinates import StimCoordinates
+from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.database import (

@@ -13,7 +13,7 @@ from collections import defaultdict
 
 import stim
 
-from tqec.circuit.coordinates import StimCoordinates
+from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.position import PhysicalQubitPosition2D, Shift2D
 
 

@@ -12,7 +12,7 @@ from tqecd.match import (
     match_detectors_within_fragment,
 )
 
-from tqec.circuit.coordinates import StimCoordinates
+from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.generation import generate_circuit_from_instantiation
 from tqec.circuit.measurement import Measurement, get_measurements_from_circuit
 from tqec.circuit.qubit import GridQubit

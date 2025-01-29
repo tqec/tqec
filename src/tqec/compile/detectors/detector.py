@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import stim
 
-from tqec.circuit.coordinates import StimCoordinates
+from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.exceptions import TQECException
