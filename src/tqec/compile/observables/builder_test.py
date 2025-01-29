@@ -18,8 +18,8 @@ from tqec.utils.position import (
     Shape2D,
     SignedDirection3D,
 )
-from tqec.templates.indices.layout import LayoutTemplate
-from tqec.templates.indices.qubit import QubitTemplate
+from tqec.templates.layout import LayoutTemplate
+from tqec.templates.qubit import QubitTemplate
 
 
 @pytest.mark.parametrize(

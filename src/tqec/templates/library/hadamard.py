@@ -3,7 +3,7 @@ from typing import Literal
 from tqec.utils.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
-from tqec.templates.indices.qubit import (
+from tqec.templates.qubit import (
     QubitHorizontalBorders,
     QubitTemplate,
     QubitVerticalBorders,
@@ -12,12 +12,12 @@ from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
 def get_temporal_hadamard_raw_template() -> QubitTemplate:
-    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    """Returns the :class:`~tqec.templates.base.Template` instance
     needed to implement a transversal Hadamard gate applied on one logical
     qubit.
 
     Returns:
-        an instance of :class:`~tqec.templates.indices.qubit.QubitTemplate`.
+        an instance of :class:`~tqec.templates.qubit.QubitTemplate`.
     """
     return QubitTemplate()
 
@@ -32,7 +32,7 @@ def get_temporal_hadamard_rpng_descriptions(
         This function is tightly coupled with
         :func:`get_temporal_hadamard_raw_template` and the returned ``RPNG``
         descriptions should only be considered valid when used in conjunction
-        with the :class:`~tqec.templates.indices.base.Template` instance
+        with the :class:`~tqec.templates.base.Template` instance
         returned by this function.
 
     Arguments:
@@ -70,13 +70,13 @@ def get_temporal_hadamard_rpng_descriptions(
 
 
 def get_spatial_horizontal_hadamard_raw_template() -> QubitHorizontalBorders:
-    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    """Returns the :class:`~tqec.templates.base.Template` instance
     needed to implement a spatial Hadamard pipe between two neighbouring logical
     qubits aligned on the ``Y`` axis.
 
     Returns:
         an instance of
-        :class:`~tqec.templates.indices.qubit.QubitHorizontalBorders`.
+        :class:`~tqec.templates.qubit.QubitHorizontalBorders`.
     """
     return QubitHorizontalBorders()
 
@@ -102,12 +102,12 @@ def get_spatial_horizontal_hadamard_rpng_descriptions(
         This function is tightly coupled with
         :func:`get_spatial_horizontal_hadamard_raw_template` and the returned
         ``RPNG`` descriptions should only be considered valid when used in
-        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        conjunction with the :class:`~tqec.templates.base.Template`
         instance returned by this function.
 
     Arguments:
         top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-            :class:`~tqec.templates.indices.qubit.QubitHorizontalBorders`
+            :class:`~tqec.templates.qubit.QubitHorizontalBorders`
             should be measuring a ``Z`` stabilizer on its 2 top-most data-qubits
             and a ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
             measures a ``X`` stabilizer on its two top-most data-qubits and a
@@ -149,13 +149,13 @@ def get_spatial_horizontal_hadamard_rpng_descriptions(
 
 
 def get_spatial_vertical_hadamard_raw_template() -> QubitVerticalBorders:
-    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    """Returns the :class:`~tqec.templates.base.Template` instance
     needed to implement a spatial Hadamard pipe between two logical qubits
     aligned on the ``X`` axis.
 
     Returns:
         an instance of
-        :class:`~tqec.templates.indices.qubit.QubitVerticalBorders`.
+        :class:`~tqec.templates.qubit.QubitVerticalBorders`.
     """
     return QubitVerticalBorders()
 
@@ -181,12 +181,12 @@ def get_spatial_vertical_hadamard_rpng_descriptions(
         This function is tightly coupled with
         :func:`get_spatial_vertical_hadamard_raw_template` and the returned
         ``RPNG`` descriptions should only be considered valid when used in
-        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        conjunction with the :class:`~tqec.templates.base.Template`
         instance returned by this function.
 
     Arguments:
         top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
-            :class:`~tqec.templates.indices.qubit.QubitVerticalBorders`
+            :class:`~tqec.templates.qubit.QubitVerticalBorders`
             should be measuring a ``Z`` stabilizer on its 2 left-most data-qubits
             and a ``X`` stabilizer on its 2 right-most data-qubits. Else, it
             measures a ``X`` stabilizer on its two left-most data-qubits and a

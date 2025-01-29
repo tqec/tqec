@@ -19,11 +19,11 @@ from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.generation import generate_circuit_from_instantiation
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.templates.indices.base import Template
-from tqec.templates.indices.display import (
+from tqec.templates.base import Template
+from tqec.templates.display import (
     get_template_representation_from_instantiation,
 )
-from tqec.templates.indices.subtemplates import (
+from tqec.templates.subtemplates import (
     SubTemplateType,
     get_spatially_distinct_3d_subtemplates,
 )
