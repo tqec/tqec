@@ -2,7 +2,6 @@ import numpy
 import pytest
 
 from tqec.exceptions import TQECException, TQECWarning
-from tqec.scale import LinearFunction, Scalable2D
 from tqec.templates.indices.enums import TemplateBorder
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
@@ -10,6 +9,7 @@ from tqec.templates.indices.qubit import (
     QubitTemplate,
     QubitVerticalBorders,
 )
+from tqec.utils.scale import LinearFunction, Scalable2D
 
 
 def test_creation() -> None:

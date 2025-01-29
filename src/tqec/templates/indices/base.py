@@ -11,12 +11,12 @@ import numpy
 import numpy.typing as npt
 
 from tqec.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
-from tqec.scale import Scalable2D, round_or_fail
 from tqec.templates.indices.enums import TemplateBorder
 from tqec.templates.indices.subtemplates import (
     UniqueSubTemplates,
     get_spatially_distinct_subtemplates,
 )
+from tqec.utils.scale import Scalable2D, round_or_fail
 
 
 class Template(ABC):

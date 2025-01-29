@@ -1,8 +1,8 @@
 import numpy
 
 from tqec.position import Shape2D
-from tqec.scale import LinearFunction, Scalable2D
 from tqec.templates.indices._testing import FixedTemplate
+from tqec.utils.scale import LinearFunction, Scalable2D
 
 
 def test_construction() -> None:

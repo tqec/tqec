@@ -42,7 +42,7 @@ from .position import Position3D as Position3D
 from .position import Shape2D as Shape2D
 from .position import Shift2D as Shift2D
 from .position import SignedDirection3D as SignedDirection3D
-from .scale import LinearFunction as LinearFunction
-from .scale import Scalable2D as Scalable2D
-from .scale import round_or_fail as round_or_fail
 from .templates.indices import Template as Template
+from .utils import LinearFunction as LinearFunction
+from .utils import Scalable2D as Scalable2D
+from .utils import round_or_fail as round_or_fail

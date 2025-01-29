@@ -24,7 +24,7 @@ from tqec.interop.collada._geometry import (
 )
 from tqec.interop.color import TQECColor
 from tqec.position import FloatPosition3D, Position3D, SignedDirection3D
-from tqec.scale import round_or_fail
+from tqec.utils.scale import round_or_fail
 
 _ASSET_AUTHOR = "TQEC Community"
 _ASSET_AUTHORING_TOOL_TQEC = "https://github.com/tqec/tqec"

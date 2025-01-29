@@ -5,9 +5,9 @@ from typing import Generic, TypeVar
 
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.position import PlaquettePosition2D, Shape2D, Shift2D
-from tqec.scale import Scalable2D
 from tqec.templates.indices.base import Template
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+from tqec.utils.scale import Scalable2D
 
 T = TypeVar("T", bound=Template, covariant=True)
 
