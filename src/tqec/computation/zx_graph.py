@@ -13,7 +13,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 from tqec.computation._base_graph import ComputationGraph
 from tqec.exceptions import TQECException
-from tqec.position import Direction3D, Position3D
+from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.scale import round_or_fail
 
 if TYPE_CHECKING:

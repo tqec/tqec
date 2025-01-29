@@ -15,7 +15,7 @@ from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.logical_cnot import logical_cnot_block_graph
 from tqec.noise_model import NoiseModel
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 SPECS: dict[str, tuple[BlockBuilder, SubstitutionBuilder]] = {
     "CSS": (CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER),

@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from tqec.exceptions import TQECException
-from tqec.position import Shape2D
+from tqec.utils.position import Shape2D
 
 
 @dataclass(frozen=True)

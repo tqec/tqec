@@ -1,7 +1,7 @@
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.zx_graph import ZXKind
 from tqec.gallery.solo_node import solo_node_block_graph, solo_node_zx_graph
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 
 def test_solo_node_zx_graph() -> None:

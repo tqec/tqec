@@ -25,12 +25,12 @@ from tqec.exceptions import TQECException
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import BlockPosition2D, Shift2D
 from tqec.templates.indices._testing import FixedTemplate
 from tqec.templates.indices.layout import LayoutTemplate
 from tqec.templates.indices.qubit import QubitTemplate
 from tqec.templates.indices.subtemplates import SubTemplateType
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+from tqec.utils.position import BlockPosition2D, Shift2D
 
 
 @pytest.fixture(name="alternating_subtemplate")

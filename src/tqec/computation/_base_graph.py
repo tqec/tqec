@@ -8,7 +8,7 @@ from typing_extensions import Self
 import networkx as nx
 
 from tqec.exceptions import TQECException
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 
 class ComputationNode(Protocol):

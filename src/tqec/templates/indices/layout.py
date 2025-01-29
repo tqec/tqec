@@ -14,7 +14,7 @@ A grid of :math:`2 \\times 2` logical qubits can be represented with
 
 .. code-block:: python
 
-    from tqec.position import BlockPosition2D
+    from tqec.utils.position import BlockPosition2D
     from tqec.templates.indices.layout import LayoutTemplate
     from tqec.templates.indices.qubit import QubitTemplate
 
@@ -72,8 +72,8 @@ import numpy.typing as npt
 from typing_extensions import override
 
 from tqec.exceptions import TQECException
-from tqec.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
 from tqec.templates.indices.base import RectangularTemplate, Template
+from tqec.utils.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
 from tqec.utils.scale import Scalable2D
 
 

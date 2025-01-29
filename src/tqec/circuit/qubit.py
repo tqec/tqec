@@ -14,7 +14,7 @@ from collections import defaultdict
 import stim
 
 from tqec.circuit.coordinates import StimCoordinates
-from tqec.position import PhysicalQubitPosition2D, Shift2D
+from tqec.utils.position import PhysicalQubitPosition2D, Shift2D
 
 
 class GridQubit:

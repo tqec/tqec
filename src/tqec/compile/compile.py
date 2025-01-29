@@ -33,9 +33,9 @@ from tqec.computation.correlation import CorrelationSurface
 from tqec.exceptions import TQECException, TQECWarning
 from tqec.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
-from tqec.position import Direction3D, Position3D
 from tqec.templates.indices.base import Template
 from tqec.templates.indices.layout import LayoutTemplate
+from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.scale import round_or_fail
 
 

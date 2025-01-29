@@ -9,7 +9,7 @@ from tqec.computation.pipe import Pipe, PipeKind
 from tqec.gallery.logical_cnot import logical_cnot_block_graph
 from tqec.gallery.three_cnots import three_cnots_block_graph
 from tqec.gallery.solo_node import solo_node_block_graph
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 
 def test_abstract_observable_for_single_memory_cube() -> None:

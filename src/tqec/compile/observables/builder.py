@@ -10,13 +10,13 @@ from tqec.circuit.schedule import ScheduledCircuit
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
-from tqec.position import (
+from tqec.templates.indices.layout import LayoutTemplate
+from tqec.utils.position import (
     Direction3D,
     Position3D,
     Shape2D,
     SignedDirection3D,
 )
-from tqec.templates.indices.layout import LayoutTemplate
 from tqec.utils.scale import round_or_fail
 
 

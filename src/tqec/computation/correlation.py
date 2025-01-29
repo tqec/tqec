@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 
 from tqec.computation.zx_graph import ZXEdge, ZXGraph, ZXKind, ZXNode
 from tqec.exceptions import TQECException
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 
 @dataclass(frozen=True)

@@ -5,7 +5,7 @@ from typing import Literal
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.zx_graph import ZXGraph, ZXKind, ZXNode
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 
 def solo_node_zx_graph(kind: Literal["Z", "X"]) -> ZXGraph:

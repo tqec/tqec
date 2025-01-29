@@ -3,7 +3,7 @@ import pytest
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.zx_graph import ZXEdge, ZXGraph, ZXKind, ZXNode
 from tqec.gallery.solo_node import solo_node_zx_graph
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 
 def test_correlation_single_xz_node() -> None:

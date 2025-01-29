@@ -18,8 +18,8 @@ from tqec.circuit.schedule import (
 from tqec.compile.detectors.detector import Detector
 from tqec.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import Shift2D
 from tqec.templates.indices.subtemplates import SubTemplateType
+from tqec.utils.position import Shift2D
 
 
 @dataclass(frozen=True)

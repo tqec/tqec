@@ -3,7 +3,7 @@ import pytest
 from tqec.computation.zx_graph import ZXKind
 from tqec.exceptions import TQECException
 from tqec.gallery.logical_cz import logical_cz_zx_graph
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 
 def test_logical_cz_zx_graph_open() -> None:

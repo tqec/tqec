@@ -8,7 +8,7 @@ from dataclasses import astuple, dataclass
 from tqec.computation.zx_graph import ZXKind, ZXNode
 from tqec.enums import Basis
 from tqec.exceptions import TQECException
-from tqec.position import Direction3D, Position3D
+from tqec.utils.position import Direction3D, Position3D
 
 
 class CubeKind(ABC):

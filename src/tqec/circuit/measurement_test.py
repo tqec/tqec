@@ -6,7 +6,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
 from tqec.exceptions import TQECException
-from tqec.position import Shift2D
+from tqec.utils.position import Shift2D
 
 _grid_qubits: list[GridQubit] = [GridQubit(0, 0), GridQubit(-1, -1)]
 

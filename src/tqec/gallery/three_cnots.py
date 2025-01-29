@@ -4,7 +4,7 @@ compressed in spacetime."""
 from typing import Literal, cast
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.zx_graph import ZXGraph, ZXKind, ZXNode
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 
 def three_cnots_zx_graph(port_kind: Literal["X", "Z", "OPEN"]) -> ZXGraph:

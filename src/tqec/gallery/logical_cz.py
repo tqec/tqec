@@ -4,7 +4,7 @@ import stim
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.zx_graph import ZXKind, ZXGraph, ZXNode
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 from tqec.exceptions import TQECException
 
 

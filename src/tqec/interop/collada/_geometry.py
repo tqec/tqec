@@ -12,7 +12,7 @@ from tqec.computation.cube import YCube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.computation.zx_graph import ZXKind
 from tqec.exceptions import TQECException
-from tqec.position import Direction3D, FloatPosition3D, SignedDirection3D
+from tqec.utils.position import Direction3D, FloatPosition3D, SignedDirection3D
 from tqec.interop.color import TQECColor
 
 if TYPE_CHECKING:

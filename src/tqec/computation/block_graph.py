@@ -3,17 +3,17 @@
 from __future__ import annotations
 
 import pathlib
-from typing import TYPE_CHECKING
 from copy import deepcopy
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 from tqec.computation._base_graph import ComputationGraph
-from tqec.exceptions import TQECException
-from tqec.position import Direction3D, SignedDirection3D
+from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, CubeKind
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.computation.zx_graph import ZXGraph
-from tqec.computation.correlation import CorrelationSurface
+from tqec.exceptions import TQECException
+from tqec.utils.position import Direction3D, SignedDirection3D
 
 if TYPE_CHECKING:
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
@@ -203,8 +203,8 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
             A helper class to display the 3D model, which implements the ``_repr_html_`` method and
             can be directly displayed in IPython compatible environments.
         """
-        from tqec.interop.collada.read_write import write_block_graph_to_dae_file
         from tqec.interop.collada.html_viewer import display_collada_model
+        from tqec.interop.collada.read_write import write_block_graph_to_dae_file
 
         bytes_buffer = BytesIO()
         write_block_graph_to_dae_file(

@@ -23,7 +23,7 @@ from tqec.interop.collada._geometry import (
     get_correlation_surface_geometry,
 )
 from tqec.interop.color import TQECColor
-from tqec.position import FloatPosition3D, Position3D, SignedDirection3D
+from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.utils.scale import round_or_fail
 
 _ASSET_AUTHOR = "TQEC Community"
