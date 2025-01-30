@@ -8,8 +8,9 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, CubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.utils.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.templates.base import RectangularTemplate
+from tqec.utils.exceptions import TQECException
 
 
 @dataclass(frozen=True)
@@ -49,7 +50,7 @@ class CubeSpec:
         pos = cube.position
         spatial_arms = SpatialArms.NONE
         for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
-            if graph.get_edge(pos, pos.shift_by(*shift)) is not None:
+            if graph.has_edge_between(pos, pos.shift_by(*shift)):
                 spatial_arms |= flag
         return CubeSpec(cube.kind, spatial_arms)
 
@@ -78,16 +79,18 @@ class PipeSpec:
     update the layers of the `CompiledBlock`s based on the plaquettes in the
     `Substitution`.
 
+
     Attributes:
-        spec1: the cube specification of the first cube. By convention, the cube
-            corresponding to `spec1` should have a smaller position than the cube
-            corresponding to `spec2`.
-        spec2: the cube specification of the second cube.
+        cube_specs: the ordered cube specifications. By convention, the cube
+            corresponding to ``cube_specs[0]`` should have a smaller position
+            than the cube corresponding to ``cube_specs[1]``.
+        cube_templates: templates used to implement the respective entry in
+            ``cube_specs``.
         pipe_type: the type of the pipe connecting the two cubes.
     """
 
-    spec1: CubeSpec
-    spec2: CubeSpec
+    cube_specs: tuple[CubeSpec, CubeSpec]
+    cube_templates: tuple[RectangularTemplate, RectangularTemplate]
     pipe_kind: PipeKind
 
 
