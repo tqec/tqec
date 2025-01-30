@@ -3,11 +3,11 @@ from typing import Literal
 from tqec.compile.block import CompiledBlock
 from tqec.compile.specs.base import CubeSpec, PipeSpec, Substitution
 from tqec.computation.cube import CubeKind, ZXCube
-from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.library import PlaquetteBuilder, empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.qubit import QubitTemplate
+from tqec.utils.enums import Basis
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
@@ -147,14 +147,14 @@ def _build_substitution_in_time_direction(
     src = {
         -1: _build_plaquettes_for_rotated_surface_code(
             plaquette_builder,
-            _get_x_boundary_orientation(pipe_spec.spec1.kind),
+            _get_x_boundary_orientation(pipe_spec.cube_specs[0].kind),
         )
     }
     # substitute the first layer of the dst block
     dst = {
         0: _build_plaquettes_for_rotated_surface_code(
             plaquette_builder,
-            _get_x_boundary_orientation(pipe_spec.spec2.kind),
+            _get_x_boundary_orientation(pipe_spec.cube_specs[1].kind),
         )
     }
     return Substitution(src, dst)
@@ -221,7 +221,7 @@ def _build_substitution_in_space(
     plaquette_builder: PlaquetteBuilder,
 ) -> Substitution:
     """Build a substitution for a pipe in space."""
-    if not pipe_spec.spec1.is_spatial and not pipe_spec.spec2.is_spatial:
+    if all(not spec.is_spatial for spec in pipe_spec.cube_specs):
         return _build_substitution_in_space_with_regular_cubes(
             pipe_spec, plaquette_builder
         )
@@ -237,7 +237,7 @@ def _build_substitution_in_space_with_regular_cubes(
     pipe_type = pipe_spec.pipe_kind
     temporal_basis = pipe_type.z
     # No hadamard: the two cubes have the same orientation
-    orientation = _get_x_boundary_orientation(pipe_spec.spec1.kind)
+    orientation = _get_x_boundary_orientation(pipe_spec.cube_specs[0].kind)
     # In `tqec` library, the positive y-axis is the downward direction
     substitute_side1 = (
         PlaquetteSide.RIGHT

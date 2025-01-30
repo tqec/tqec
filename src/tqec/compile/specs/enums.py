@@ -13,6 +13,7 @@ class SpatialArms(Flag):
 
     @classmethod
     def get_map_from_arm_to_shift(cls) -> dict[SpatialArms, tuple[int, int]]:
+        # Note that in tqec, the y-axis is pointing downwards!
         return {
             cls.UP: (0, -1),
             cls.RIGHT: (1, 0),
