@@ -1,7 +1,7 @@
 from tqec.utils.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
-from tqec.templates.indices.qubit import (
+from tqec.templates.qubit import (
     QubitHorizontalBorders,
     QubitTemplate,
     QubitVerticalBorders,
@@ -10,11 +10,11 @@ from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
 def get_memory_qubit_raw_template() -> QubitTemplate:
-    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    """Returns the :class:`~tqec.templates.base.Template` instance
     needed to implement a single logical qubit.
 
     Returns:
-        an instance of :class:`~tqec.templates.indices.qubit.QubitTemplate`.
+        an instance of :class:`~tqec.templates.qubit.QubitTemplate`.
     """
     return QubitTemplate()
 
@@ -36,7 +36,7 @@ def get_memory_qubit_rpng_descriptions(
         This function is tightly coupled with
         :func:`get_memory_qubit_raw_template` and the returned
         ``RPNG`` descriptions should only be considered valid when used in
-        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        conjunction with the :class:`~tqec.templates.base.Template`
         instance returned by this function.
 
     Arguments:
@@ -84,12 +84,12 @@ def get_memory_qubit_rpng_descriptions(
 
 
 def get_memory_vertical_boundary_raw_template() -> QubitVerticalBorders:
-    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    """Returns the :class:`~tqec.templates.base.Template` instance
     needed to implement a regular spatial pipe between two logical qubits
     aligned on the ``X`` axis.
 
     Returns:
-        an instance of :class:`~tqec.templates.indices.qubit.QubitVerticalBorders`.
+        an instance of :class:`~tqec.templates.qubit.QubitVerticalBorders`.
     """
     return QubitVerticalBorders()
 
@@ -118,7 +118,7 @@ def get_memory_vertical_boundary_rpng_descriptions(
         This function is tightly coupled with
         :func:`get_memory_vertical_boundary_raw_template` and the returned
         ``RPNG`` descriptions should only be considered valid when used in
-        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        conjunction with the :class:`~tqec.templates.base.Template`
         instance returned by this function.
 
     Arguments:
@@ -163,12 +163,12 @@ def get_memory_vertical_boundary_rpng_descriptions(
 
 
 def get_memory_horizontal_boundary_raw_template() -> QubitHorizontalBorders:
-    """Returns the :class:`~tqec.templates.indices.base.Template` instance
+    """Returns the :class:`~tqec.templates.base.Template` instance
     needed to implement a regular spatial pipe between two logical qubits
     aligned on the ``Y`` axis.
 
     Returns:
-        an instance of :class:`~tqec.templates.indices.qubit.QubitHorizontalBorders`.
+        an instance of :class:`~tqec.templates.qubit.QubitHorizontalBorders`.
     """
     return QubitHorizontalBorders()
 
@@ -197,7 +197,7 @@ def get_memory_horizontal_boundary_rpng_descriptions(
         This function is tightly coupled with
         :func:`get_memory_horizontal_boundary_raw_template` and the returned
         ``RPNG`` descriptions should only be considered valid when used in
-        conjunction with the :class:`~tqec.templates.indices.base.Template`
+        conjunction with the :class:`~tqec.templates.base.Template`
         instance returned by this function.
 
     Arguments:

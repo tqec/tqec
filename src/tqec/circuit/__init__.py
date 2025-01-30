@@ -18,7 +18,6 @@ Functions from this package are really the backbone of the :mod:`tqec`
 library and are re-used in higher-level packages (such as :mod:`tqec.compile`).
 """
 
-from .generation import generate_circuit as generate_circuit
 from .qubit_map import QubitMap as QubitMap
 from .schedule import ScheduledCircuit as ScheduledCircuit
 from .schedule import ScheduleException as ScheduleException

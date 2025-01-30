@@ -1,4 +1,4 @@
-"""Provides functions to pretty-print :class:`~tqec.templates.indices.base.Template`
+"""Provides functions to pretty-print :class:`~tqec.templates.base.Template`
 instances."""
 
 from __future__ import annotations
@@ -8,7 +8,7 @@ import typing as ty
 import numpy
 import numpy.typing as npt
 
-from tqec.templates.indices.base import Template
+from tqec.templates.base import Template
 
 
 def display_template(

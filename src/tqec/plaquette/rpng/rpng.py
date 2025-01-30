@@ -13,6 +13,9 @@ class BasisEnum(Enum):
     def __str__(self) -> str:
         return self.value
 
+    def to_extended_basis(self) -> ExtendedBasisEnum:
+        return ExtendedBasisEnum(self.value)
+
 
 class ExtendedBasisEnum(Enum):
     X = BasisEnum.X.value
@@ -263,7 +266,7 @@ class RPNGDescription:
         Returns:
             The SVG string representing the visualization.
         """
-        from tqec.templates.viz_rpng import rpng_svg_viewer
+        from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
 
         svg_str = rpng_svg_viewer(
             self,

@@ -1,10 +1,10 @@
 import stim
 
-from tqec.circuit.generation import generate_circuit
+from tqec.compile.generation import generate_circuit
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.library import make_css_surface_code_plaquette
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.templates.indices._testing import FixedTemplate
+from tqec.templates._testing import FixedTemplate
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 

@@ -1,4 +1,4 @@
-"""Defines :meth:`~tqec.circuit.generation.generate_circuit`, one of the core
+"""Defines :meth:`~tqec.compile.generation.generate_circuit`, one of the core
 method of the :mod:`tqec` package.
 
 This module defines two of core methods of the :mod:`tqec` package:
@@ -27,8 +27,8 @@ from tqec.circuit.schedule import (
     relabel_circuits_qubit_indices,
 )
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.templates.base import Template
 from tqec.utils.position import Shift2D
-from tqec.templates.indices.base import Template
 
 
 def generate_circuit(

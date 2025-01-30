@@ -8,9 +8,9 @@ from typing import Callable, Literal, Mapping
 from typing_extensions import override
 
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.utils.exceptions import TQECException
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.qubit import PlaquetteQubits
+from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import PhysicalQubitPosition2D
 from tqec.utils.scale import LinearFunction, round_or_fail

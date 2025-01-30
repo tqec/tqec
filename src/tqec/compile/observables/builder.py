@@ -10,7 +10,7 @@ from tqec.circuit.schedule import ScheduledCircuit
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
-from tqec.templates.indices.layout import LayoutTemplate
+from tqec.templates.layout import LayoutTemplate
 from tqec.utils.position import (
     Direction3D,
     Position3D,

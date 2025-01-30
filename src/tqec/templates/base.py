@@ -10,8 +10,8 @@ from typing import Iterator, Sequence
 import numpy
 import numpy.typing as npt
 
-from tqec.templates.indices.enums import TemplateBorder
-from tqec.templates.indices.subtemplates import (
+from tqec.templates.enums import TemplateBorder
+from tqec.templates.subtemplates import (
     UniqueSubTemplates,
     get_spatially_distinct_subtemplates,
 )
@@ -102,7 +102,7 @@ class Template(ABC):
                 plaquettes will be considered.
             avoid_zero_plaquettes: ``True`` if sub-templates with an empty plaquette
                 (i.e., 0 value in the instantiation of the
-                :class:`~tqec.templates.indices.base.Template` instance) at its center
+                :class:`~tqec.templates.base.Template` instance) at its center
                 should be ignored. Default to ``True``.
 
         Returns:
@@ -118,7 +118,7 @@ class Template(ABC):
         This property returns the coordinates of the origin of the plaquette
         (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
         to the top-left entry of the array returned by
-        :meth:`~tqec.templates.indices.base.Template.instantiate`.
+        :meth:`~tqec.templates.base.Template.instantiate`.
 
         Note:
             the returned coordinates are in plaquette coordinates. That means
@@ -133,7 +133,7 @@ class Template(ABC):
             the coordinates of the origin of the plaquette
             (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
             to the top-left entry of the array returned by
-            :meth:`~tqec.templates.indices.base.Template.instantiate`.
+            :meth:`~tqec.templates.base.Template.instantiate`.
         """
         return BlockPosition2D(0, 0).get_top_left_plaquette_position(self.shape(k))
 

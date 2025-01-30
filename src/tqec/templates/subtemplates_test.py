@@ -4,10 +4,10 @@ import numpy
 import numpy.typing as npt
 import pytest
 
-from tqec.templates.indices.base import Template
-from tqec.templates.indices.layout import LayoutTemplate
-from tqec.templates.indices.qubit import QubitSpatialCubeTemplate, QubitTemplate
-from tqec.templates.indices.subtemplates import (
+from tqec.templates.base import Template
+from tqec.templates.layout import LayoutTemplate
+from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
+from tqec.templates.subtemplates import (
     get_spatially_distinct_3d_subtemplates,
     get_spatially_distinct_subtemplates,
 )
