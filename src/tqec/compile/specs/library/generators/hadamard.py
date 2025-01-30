@@ -1,6 +1,6 @@
-from typing import Literal
+from typing import Final, Literal
 
-from tqec.utils.enums import Basis
+from tqec.compile.specs.library.generators.utils import default_plaquette_mapper
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.qubit import (
@@ -8,6 +8,7 @@ from tqec.templates.qubit import (
     QubitTemplate,
     QubitVerticalBorders,
 )
+from tqec.utils.enums import Basis
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
@@ -225,3 +226,14 @@ def get_spatial_vertical_hadamard_rpng_descriptions(
         },
         default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
     )
+
+
+get_temporal_hadamard_plaquettes: Final = default_plaquette_mapper(
+    get_temporal_hadamard_rpng_descriptions
+)
+get_spatial_horizontal_hadamard_plaquettes: Final = default_plaquette_mapper(
+    get_spatial_horizontal_hadamard_rpng_descriptions
+)
+get_spatial_vertical_hadamard_plaquettes: Final = default_plaquette_mapper(
+    get_spatial_vertical_hadamard_rpng_descriptions
+)
