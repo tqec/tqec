@@ -11,6 +11,14 @@
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      display_template
+      display_template_from_instantiation
+   
    
 
    
@@ -20,7 +28,9 @@
    .. autosummary::
       :toctree:
    
-      RPNGTemplate
+      LayoutTemplate
+      QubitTemplate
+      Template
    
    
 

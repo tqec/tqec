@@ -352,7 +352,11 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.templates.html">tqec.templates</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.RPNGTemplate.html">RPNGTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template.html">display_template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html">display_template_from_instantiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.LayoutTemplate.html">LayoutTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.QubitTemplate.html">QubitTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.Template.html">Template</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -370,7 +374,6 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.circuit.html">tqec.circuit</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.circuit.generate_circuit.html">generate_circuit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.merge_scheduled_circuits.html">merge_scheduled_circuits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.QubitMap.html">QubitMap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html">ScheduledCircuit</a></li>
@@ -394,6 +397,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.generate_circuit.html">generate_circuit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledGraph.html">CompiledGraph</a></li>
@@ -506,7 +510,7 @@
 <h1>RG<a class="headerlink" href="#rg" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.plaquette.RG">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BasisEnum.X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BasisEnum.X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RG" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BasisEnum.X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">BasisEnum.X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RG" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Organize the prep and meas bases for the ancilla, together with the meas time</p>
 <p>The initialization time is assumed to be 0.
@@ -572,14 +576,14 @@ The measurement time is not provided explicitly but determined by the time of ci
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RG.from_string">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rg_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng.html#RG.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RG.from_string" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rg_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RG.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RG.from_string" title="Link to this definition">#</a></dt>
 <dd><p>Initialize the RGN object from a 3-character string</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>rg_string</strong> (<em>str</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#tqec.plaquette.RG" title="tqec.plaquette.rpng.RG"><em>RG</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="#tqec.plaquette.RG" title="tqec.plaquette.rpng.rpng.RG"><em>RG</em></a></p>
 </dd>
 </dl>
 </dd></dl>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>generate_circuit &#8212; TQEC  documentation</title>
+    <title>QubitTemplate &#8212; TQEC  documentation</title>
   
   
   
@@ -42,11 +42,11 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.circuit.generate_circuit';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.templates.QubitTemplate';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="merge_scheduled_circuits" href="tqec.circuit.merge_scheduled_circuits.html" />
-    <link rel="prev" title="tqec.circuit" href="tqec.circuit.html" />
+    <link rel="next" title="Template" href="tqec.templates.Template.html" />
+    <link rel="prev" title="LayoutTemplate" href="tqec.templates.LayoutTemplate.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -351,8 +351,12 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.templates.html">tqec.templates</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.RPNGTemplate.html">RPNGTemplate</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.templates.html">tqec.templates</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template.html">display_template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html">display_template_from_instantiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.LayoutTemplate.html">LayoutTemplate</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">QubitTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.Template.html">Template</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -369,8 +373,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.SquarePlaquetteQubits.html">SquarePlaquetteQubits</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.circuit.html">tqec.circuit</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">generate_circuit</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.circuit.html">tqec.circuit</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.merge_scheduled_circuits.html">merge_scheduled_circuits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.QubitMap.html">QubitMap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html">ScheduledCircuit</a></li>
@@ -394,6 +397,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.generate_circuit.html">generate_circuit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledGraph.html">CompiledGraph</a></li>
@@ -483,9 +487,9 @@
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="tqec.circuit.html" class="nav-link">tqec.circuit</a></li>
+    <li class="breadcrumb-item"><a href="tqec.templates.html" class="nav-link">tqec.templates</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">generate_circuit</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">QubitTemplate</span></li>
   </ul>
 </nav>
 </div>
@@ -502,45 +506,220 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="generate-circuit">
-<h1>generate_circuit<a class="headerlink" href="#generate-circuit" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="tqec.circuit.generate_circuit">
-<span class="sig-prename descclassname"><span class="pre">tqec.circuit.</span></span><span class="sig-name descname"><span class="pre">generate_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquettes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/generation.html#generate_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.generate_circuit" title="Link to this definition">#</a></dt>
-<dd><p>Generate a quantum circuit from a template and its plaquettes.</p>
-<p>This is one of the core methods of the <code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec</span></code> package. It generates a
-quantum circuit from the description of the template that should be
-implemented as well as the plaquettes that should be used to instantiate the
-provided template.</p>
-<p>This function requires that a few pre-conditions on the inputs are met:</p>
-<ol class="arabic simple">
-<li><p>the number of plaquettes provided should match the number of plaquettes
-required by the provided template.</p></li>
-<li><p>all the provided plaquettes should be implemented on
-<code class="xref py py-class docutils literal notranslate"><span class="pre">GridQubit</span></code> instances <strong>only</strong>.</p></li>
-</ol>
-<p>If any of the above pre-conditions is not met, the inputs are considered
-invalid, in which case this function <strong>might</strong> raise an error.</p>
+  <section id="qubittemplate">
+<h1>QubitTemplate<a class="headerlink" href="#qubittemplate" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="tqec.templates.QubitTemplate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.templates.</span></span><span class="sig-name descname"><span class="pre">QubitTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_increments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/qubit.html#QubitTemplate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.QubitTemplate" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RectangularTemplate</span></code></p>
+<p>An error-corrected qubit.</p>
+<p>The below text represents this template for an input <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">==</span> <span class="pre">2</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span>  <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">2</span>
+<span class="mi">7</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span> <span class="mi">11</span>
+<span class="mi">8</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">12</span>
+<span class="mi">7</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span> <span class="mi">11</span>
+<span class="mi">8</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">10</span>  <span class="mi">9</span> <span class="mi">12</span>
+<span class="mi">3</span> <span class="mi">13</span> <span class="mi">14</span> <span class="mi">13</span> <span class="mi">14</span>  <span class="mi">4</span>
+</pre></div>
+</div>
+<p>Construct an instance of the template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>default_increments</strong> (<em>Shift2D</em><em> | </em><em>None</em>) – default increments between two plaquettes. Defaults
+to <code class="docutils literal notranslate"><span class="pre">Displacement(2,</span> <span class="pre">2)</span></code> when <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.QubitTemplate.__init__" title="tqec.templates.QubitTemplate.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([default_increments])</p></td>
+<td><p>Construct an instance of the template.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.QubitTemplate.get_border_indices" title="tqec.templates.QubitTemplate.get_border_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_border_indices</span></code></a>(border)</p></td>
+<td><p>Returns the indices on the provided <code class="docutils literal notranslate"><span class="pre">border</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.QubitTemplate.get_increments" title="tqec.templates.QubitTemplate.get_increments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_increments</span></code></a>()</p></td>
+<td><p>Get the default increments of the template.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.QubitTemplate.get_spatially_distinct_subtemplates" title="tqec.templates.QubitTemplate.get_spatially_distinct_subtemplates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_spatially_distinct_subtemplates</span></code></a>(k[, ...])</p></td>
+<td><p>Returns a representation of all the distinct sub-templates of the provided manhattan radius.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.QubitTemplate.instantiate" title="tqec.templates.QubitTemplate.instantiate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiate</span></code></a>(k[, plaquette_indices])</p></td>
+<td><p>Generate the numpy array representing the template.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.QubitTemplate.instantiation_origin" title="tqec.templates.QubitTemplate.instantiation_origin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiation_origin</span></code></a>(k)</p></td>
+<td><p>Coordinates of the top-left entry origin.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.QubitTemplate.shape" title="tqec.templates.QubitTemplate.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
+<td><p>Returns the current template shape.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_plaquettes_number</span></code></p></td>
+<td><p>Returns the number of plaquettes expected from the <a class="reference internal" href="#tqec.templates.QubitTemplate.instantiate" title="tqec.templates.QubitTemplate.instantiate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">instantiate()</span></code></a> method.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_shape</span></code></p></td>
+<td><p>Returns a scalable version of the template shape.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Detailed methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.QubitTemplate.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_increments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.templates.QubitTemplate.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Construct an instance of the template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>default_increments</strong> (<em>Shift2D</em><em> | </em><em>None</em>) – default increments between two plaquettes. Defaults
+to <code class="docutils literal notranslate"><span class="pre">Displacement(2,</span> <span class="pre">2)</span></code> when <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.QubitTemplate.get_border_indices">
+<span class="sig-name descname"><span class="pre">get_border_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/qubit.html#QubitTemplate.get_border_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.QubitTemplate.get_border_indices" title="Link to this definition">#</a></dt>
+<dd><p>Returns the indices on the provided <code class="docutils literal notranslate"><span class="pre">border</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>border</strong> (<em>TemplateBorder</em>) – side of the template instance for which the indices are
+needed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a description of the indices present on the provided <code class="docutils literal notranslate"><span class="pre">border</span></code> of
+the represented template.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>BorderIndices</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.QubitTemplate.get_increments">
+<span class="sig-name descname"><span class="pre">get_increments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tqec.templates.QubitTemplate.get_increments" title="Link to this definition">#</a></dt>
+<dd><p>Get the default increments of the template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a displacement of the default increments in the x and y directions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Shift2D</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.QubitTemplate.get_spatially_distinct_subtemplates">
+<span class="sig-name descname"><span class="pre">get_spatially_distinct_subtemplates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manhattan_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avoid_zero_plaquettes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.templates.QubitTemplate.get_spatially_distinct_subtemplates" title="Link to this definition">#</a></dt>
+<dd><p>Returns a representation of all the distinct sub-templates of the
+provided manhattan radius.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method will likely be inefficient for large templates (i.e., large
+values of <cite>k</cite>) or for large Manhattan radiuses, both in terms of memory
+used and computation time.
+Subclasses are invited to reimplement that method using a specialized
+algorithm (or hard-coded values) to speed things up.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>template</strong> (<em>Template</em>) – spatial description of the quantum error correction experiment
-we want to implement.</p></li>
-<li><p><strong>k</strong> (<em>int</em>) – scaling parameter used to instantiate the provided <code class="docutils literal notranslate"><span class="pre">template</span></code>.</p></li>
-<li><p><strong>plaquettes</strong> (<a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><em>Plaquettes</em></a>) – description of the computation that should happen at
-different time-slices of the quantum error correction experiment (or
-at least part of it).</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – scaling parameter used to instantiate the template.</p></li>
+<li><p><strong>manhattan_radius</strong> (<em>int</em>) – radius of the considered ball using the Manhattan
+distance. Only squares with sides of <code class="docutils literal notranslate"><span class="pre">2*manhattan_radius+1</span></code>
+plaquettes will be considered.</p></li>
+<li><p><strong>avoid_zero_plaquettes</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if sub-templates with an empty plaquette
+(i.e., 0 value in the instantiation of the
+<a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> instance) at its center
+should be ignored. Default to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>a <a class="reference internal" href="tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit" title="tqec.circuit.schedule.circuit.ScheduledCircuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code></a> instance implementing the
-(part of) quantum error correction experiment represented by the
-provided inputs.</p>
+<dd class="field-even"><p>a representation of all the sub-templates found.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit" title="tqec.circuit.schedule.circuit.ScheduledCircuit"><em>ScheduledCircuit</em></a></p>
+<dd class="field-odd"><p><em>UniqueSubTemplates</em></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.QubitTemplate.instantiate">
+<span class="sig-name descname"><span class="pre">instantiate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquette_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/qubit.html#QubitTemplate.instantiate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.QubitTemplate.instantiate" title="Link to this definition">#</a></dt>
+<dd><p>Generate the numpy array representing the template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<em>int</em>) – scaling parameter used to instantiate the template.</p></li>
+<li><p><strong>plaquette_indices</strong> (<em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – the plaquette indices that will be forwarded to
+the underlying Shape instance’s instantiate method. Defaults
+to <code class="docutils literal notranslate"><span class="pre">range(1,</span> <span class="pre">self.expected_plaquettes_number</span> <span class="pre">+</span> <span class="pre">1)</span></code> if <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a numpy array with the given plaquette indices arranged according to
+the underlying shape of the template.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>ndarray</em>[<em>Any</em>, <em>dtype</em>[<em>int64</em>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.QubitTemplate.instantiation_origin">
+<span class="sig-name descname"><span class="pre">instantiation_origin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.templates.QubitTemplate.instantiation_origin" title="Link to this definition">#</a></dt>
+<dd><p>Coordinates of the top-left entry origin.</p>
+<p>This property returns the coordinates of the origin of the plaquette
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">origin</span></code>) that corresponds
+to the top-left entry of the array returned by
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">instantiate()</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>the returned coordinates are in plaquette coordinates. That means
+that, if you want to get the coordinates of the top-left plaquette
+origin (which is a qubit), you should multiply the coordinates
+returned by this method by the tiling increments.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>k</strong> (<em>int</em>) – scaling parameter used to instantiate the template.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the coordinates of the origin of the plaquette
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">origin</span></code>) that corresponds
+to the top-left entry of the array returned by
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">instantiate()</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>PlaquettePosition2D</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.QubitTemplate.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.templates.QubitTemplate.shape" title="Link to this definition">#</a></dt>
+<dd><p>Returns the current template shape.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>k</strong> (<em>int</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="tqec.Shape2D.html#tqec.Shape2D" title="tqec.utils.position.Shape2D"><em>Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -556,20 +735,20 @@ provided inputs.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tqec.circuit.html"
+       href="tqec.templates.LayoutTemplate.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">tqec.circuit</p>
+        <p class="prev-next-title">LayoutTemplate</p>
       </div>
     </a>
     <a class="right-next"
-       href="tqec.circuit.merge_scheduled_circuits.html"
+       href="tqec.templates.Template.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">merge_scheduled_circuits</p>
+        <p class="prev-next-title">Template</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -592,7 +771,16 @@ provided inputs.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.circuit.generate_circuit"><code class="docutils literal notranslate"><span class="pre">generate_circuit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.QubitTemplate"><code class="docutils literal notranslate"><span class="pre">QubitTemplate</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.QubitTemplate.__init__"><code class="docutils literal notranslate"><span class="pre">QubitTemplate.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.QubitTemplate.get_border_indices"><code class="docutils literal notranslate"><span class="pre">QubitTemplate.get_border_indices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.QubitTemplate.get_increments"><code class="docutils literal notranslate"><span class="pre">QubitTemplate.get_increments()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.QubitTemplate.get_spatially_distinct_subtemplates"><code class="docutils literal notranslate"><span class="pre">QubitTemplate.get_spatially_distinct_subtemplates()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.QubitTemplate.instantiate"><code class="docutils literal notranslate"><span class="pre">QubitTemplate.instantiate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.QubitTemplate.instantiation_origin"><code class="docutils literal notranslate"><span class="pre">QubitTemplate.instantiation_origin()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.QubitTemplate.shape"><code class="docutils literal notranslate"><span class="pre">QubitTemplate.shape()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -600,7 +788,7 @@ provided inputs.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_autosummary/tqec.circuit.generate_circuit.rst.txt"
+      <li><a href="../_sources/_autosummary/tqec.templates.QubitTemplate.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

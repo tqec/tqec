@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>RPNGTemplate &#8212; TQEC  documentation</title>
+    <title>Template &#8212; TQEC  documentation</title>
   
   
   
@@ -42,11 +42,11 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.templates.RPNGTemplate';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.templates.Template';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="tqec.plaquette" href="tqec.plaquette.html" />
-    <link rel="prev" title="tqec.templates" href="tqec.templates.html" />
+    <link rel="prev" title="QubitTemplate" href="tqec.templates.QubitTemplate.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -352,7 +352,11 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.templates.html">tqec.templates</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">RPNGTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template.html">display_template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html">display_template_from_instantiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.LayoutTemplate.html">LayoutTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.QubitTemplate.html">QubitTemplate</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Template</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -370,7 +374,6 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.circuit.html">tqec.circuit</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.circuit.generate_circuit.html">generate_circuit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.merge_scheduled_circuits.html">merge_scheduled_circuits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.QubitMap.html">QubitMap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html">ScheduledCircuit</a></li>
@@ -394,6 +397,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.generate_circuit.html">generate_circuit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledGraph.html">CompiledGraph</a></li>
@@ -485,7 +489,7 @@
     
     <li class="breadcrumb-item"><a href="tqec.templates.html" class="nav-link">tqec.templates</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">RPNGTemplate</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Template</span></li>
   </ul>
 </nav>
 </div>
@@ -502,32 +506,43 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="rpngtemplate">
-<h1>RPNGTemplate<a class="headerlink" href="#rpngtemplate" title="Link to this heading">#</a></h1>
+  <section id="template">
+<h1>Template<a class="headerlink" href="#template" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="tqec.templates.RPNGTemplate">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.templates.</span></span><span class="sig-name descname"><span class="pre">RPNGTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">+T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict" title="tqec.utils.frozendefaultdict.FrozenDefaultDict"><span class="pre">tqec.utils.frozendefaultdict.FrozenDefaultDict</span></a><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription" title="tqec.plaquette.rpng.RPNGDescription"><span class="pre">tqec.plaquette.rpng.RPNGDescription</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/rpng.html#RPNGTemplate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.RPNGTemplate" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
+<dt class="sig sig-object py" id="tqec.templates.Template">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.templates.</span></span><span class="sig-name descname"><span class="pre">Template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_increments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/base.html#Template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.Template" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for all the templates.</p>
+<p>This class is the base of all templates and provide the necessary
+interface that all templates should implement to be usable by the
+library.</p>
+<p>Construct an instance of the template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>default_increments</strong> (<em>Shift2D</em><em> | </em><em>None</em>) – default increments between two plaquettes. Defaults
+to <code class="docutils literal notranslate"><span class="pre">Displacement(2,</span> <span class="pre">2)</span></code> when <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.__init__" title="tqec.templates.RPNGTemplate.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(template, mapping)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.Template.__init__" title="tqec.templates.Template.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([default_increments])</p></td>
+<td><p>Construct an instance of the template.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.get_increments" title="tqec.templates.RPNGTemplate.get_increments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_increments</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.Template.get_increments" title="tqec.templates.Template.get_increments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_increments</span></code></a>()</p></td>
 <td><p>Get the default increments of the template.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.instantiate" title="tqec.templates.RPNGTemplate.instantiate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiate</span></code></a>(k)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.Template.get_spatially_distinct_subtemplates" title="tqec.templates.Template.get_spatially_distinct_subtemplates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_spatially_distinct_subtemplates</span></code></a>(k[, ...])</p></td>
+<td><p>Returns a representation of all the distinct sub-templates of the provided manhattan radius.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.instantiation_origin" title="tqec.templates.RPNGTemplate.instantiation_origin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiation_origin</span></code></a>(k)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.Template.instantiate" title="tqec.templates.Template.instantiate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiate</span></code></a>(k[, plaquette_indices])</p></td>
+<td><p>Generate the numpy array representing the template.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.Template.instantiation_origin" title="tqec.templates.Template.instantiation_origin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiation_origin</span></code></a>(k)</p></td>
 <td><p>Coordinates of the top-left entry origin.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.shape" title="tqec.templates.RPNGTemplate.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.Template.shape" title="tqec.templates.Template.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
 <td><p>Returns the current template shape.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.RPNGTemplate.view_as_svg" title="tqec.templates.RPNGTemplate.view_as_svg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view_as_svg</span></code></a>(k[, write_to_filepath, ...])</p></td>
-<td><p>Visualize the template as an SVG image.</p></td>
 </tr>
 </tbody>
 </table>
@@ -535,36 +550,24 @@
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_shape</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">expected_plaquettes_number</span></code></p></td>
+<td><p>Returns the number of plaquettes expected from the <a class="reference internal" href="#tqec.templates.Template.instantiate" title="tqec.templates.Template.instantiate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">instantiate()</span></code></a> method.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_shape</span></code></p></td>
 <td><p>Returns a scalable version of the template shape.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">template</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mapping</span></code></p></td>
-<td><p></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p class="rubric">Detailed methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.Template.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_increments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/base.html#Template.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.Template.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Construct an instance of the template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>template</strong> (<em>T</em>)</p></li>
-<li><p><strong>mapping</strong> (<a class="reference internal" href="tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict" title="tqec.utils.frozendefaultdict.FrozenDefaultDict"><em>FrozenDefaultDict</em></a><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription" title="tqec.plaquette.rpng.RPNGDescription"><em>RPNGDescription</em></a><em>]</em>)</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.templates.RPNGTemplate.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.templates.RPNGTemplate.__init__" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>template</strong> (<em>T</em>)</p></li>
-<li><p><strong>mapping</strong> (<a class="reference internal" href="tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict" title="tqec.utils.frozendefaultdict.FrozenDefaultDict"><em>FrozenDefaultDict</em></a><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription" title="tqec.plaquette.rpng.RPNGDescription"><em>RPNGDescription</em></a><em>]</em>)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>default_increments</strong> (<em>Shift2D</em><em> | </em><em>None</em>) – default increments between two plaquettes. Defaults
+to <code class="docutils literal notranslate"><span class="pre">Displacement(2,</span> <span class="pre">2)</span></code> when <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
@@ -573,8 +576,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.templates.RPNGTemplate.get_increments">
-<span class="sig-name descname"><span class="pre">get_increments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/rpng.html#RPNGTemplate.get_increments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.RPNGTemplate.get_increments" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.templates.Template.get_increments">
+<span class="sig-name descname"><span class="pre">get_increments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/base.html#Template.get_increments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.Template.get_increments" title="Link to this definition">#</a></dt>
 <dd><p>Get the default increments of the template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -587,21 +590,66 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.templates.RPNGTemplate.instantiate">
-<span class="sig-name descname"><span class="pre">instantiate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/rpng.html#RPNGTemplate.instantiate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.RPNGTemplate.instantiate" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dt class="sig sig-object py" id="tqec.templates.Template.get_spatially_distinct_subtemplates">
+<span class="sig-name descname"><span class="pre">get_spatially_distinct_subtemplates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manhattan_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avoid_zero_plaquettes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/base.html#Template.get_spatially_distinct_subtemplates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.Template.get_spatially_distinct_subtemplates" title="Link to this definition">#</a></dt>
+<dd><p>Returns a representation of all the distinct sub-templates of the
+provided manhattan radius.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method will likely be inefficient for large templates (i.e., large
+values of <cite>k</cite>) or for large Manhattan radiuses, both in terms of memory
+used and computation time.
+Subclasses are invited to reimplement that method using a specialized
+algorithm (or hard-coded values) to speed things up.</p>
+</div>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>k</strong> (<em>int</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<em>int</em>) – scaling parameter used to instantiate the template.</p></li>
+<li><p><strong>manhattan_radius</strong> (<em>int</em>) – radius of the considered ball using the Manhattan
+distance. Only squares with sides of <code class="docutils literal notranslate"><span class="pre">2*manhattan_radius+1</span></code>
+plaquettes will be considered.</p></li>
+<li><p><strong>avoid_zero_plaquettes</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if sub-templates with an empty plaquette
+(i.e., 0 value in the instantiation of the
+<a class="reference internal" href="#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> instance) at its center
+should be ignored. Default to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[list[<a class="reference internal" href="tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription" title="tqec.plaquette.rpng.RPNGDescription"><em>RPNGDescription</em></a>]]</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a representation of all the sub-templates found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>UniqueSubTemplates</em></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.templates.RPNGTemplate.instantiation_origin">
-<span class="sig-name descname"><span class="pre">instantiation_origin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/rpng.html#RPNGTemplate.instantiation_origin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.RPNGTemplate.instantiation_origin" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.templates.Template.instantiate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">instantiate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquette_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/base.html#Template.instantiate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.Template.instantiate" title="Link to this definition">#</a></dt>
+<dd><p>Generate the numpy array representing the template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<em>int</em>) – scaling parameter used to instantiate the template.</p></li>
+<li><p><strong>plaquette_indices</strong> (<em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – the plaquette indices that will be forwarded to
+the underlying Shape instance’s instantiate method. Defaults
+to <code class="docutils literal notranslate"><span class="pre">range(1,</span> <span class="pre">self.expected_plaquettes_number</span> <span class="pre">+</span> <span class="pre">1)</span></code> if <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a numpy array with the given plaquette indices arranged according to
+the underlying shape of the template.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>ndarray</em>[<em>Any</em>, <em>dtype</em>[<em>int64</em>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.Template.instantiation_origin">
+<span class="sig-name descname"><span class="pre">instantiation_origin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/base.html#Template.instantiation_origin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.Template.instantiation_origin" title="Link to this definition">#</a></dt>
 <dd><p>Coordinates of the top-left entry origin.</p>
 <p>This property returns the coordinates of the origin of the plaquette
 (<code class="xref py py-class docutils literal notranslate"><span class="pre">origin</span></code>) that corresponds
@@ -631,8 +679,8 @@ to the top-left entry of the array returned by
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.templates.RPNGTemplate.shape">
-<span class="sig-name descname"><span class="pre">shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/rpng.html#RPNGTemplate.shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.RPNGTemplate.shape" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.templates.Template.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/base.html#Template.shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.Template.shape" title="Link to this definition">#</a></dt>
 <dd><p>Returns the current template shape.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -640,39 +688,6 @@ to the top-left entry of the array returned by
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="tqec.Shape2D.html#tqec.Shape2D" title="tqec.utils.position.Shape2D"><em>Shape2D</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.templates.RPNGTemplate.view_as_svg">
-<span class="sig-name descname"><span class="pre">view_as_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_to_filepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas_height=500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_rg_fields=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plaquette_indices=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_interaction_order=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_hook_error=&lt;function</span> <span class="pre">RPNGTemplate.&lt;lambda&gt;&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/rpng.html#RPNGTemplate.view_as_svg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.RPNGTemplate.view_as_svg" title="Link to this definition">#</a></dt>
-<dd><p>Visualize the template as an SVG image.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>k</strong> (<em>int</em>) – scaling parameter used to instantiate the template.</p></li>
-<li><p><strong>canvas_height</strong> (<em>int</em>) – The height of the canvas in pixels.</p></li>
-<li><p><strong>opacity</strong> (<em>float</em>) – The opacity of the plaquettes.</p></li>
-<li><p><strong>show_rg_fields</strong> (<em>bool</em>) – Whether to show the R/G fields on the data qubits. If True, the R
-field is shown as a small rectangle at the position of the data qubit, whose color
-corresponds to the basis. The G field is shown as a small circle at the position
-of the data qubit, whose color corresponds to the basis.</p></li>
-<li><p><strong>show_plaquette_indices</strong> (<em>bool</em>) – Whether to show the indices of the plaquettes. If True, the
-indices are shown at the center of the plaquettes.</p></li>
-<li><p><strong>show_interaction_order</strong> (<em>bool</em>) – Whether to show the interaction order of the plaquettes. If
-True, the interaction order is shown at each corner of the plaquette.</p></li>
-<li><p><strong>show_hook_error</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription" title="tqec.plaquette.rpng.RPNGDescription"><em>RPNGDescription</em></a><em>]</em><em>, </em><em>bool</em><em>]</em>) – A predicate function that takes an RPNGDescription and returns True
-if the plaquette should be highlighted with the hook error. The hook error is
-shown as a black line along the hook edge.</p></li>
-<li><p><strong>write_to_filepath</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The SVG string of the visualization.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -692,12 +707,12 @@ shown as a black line along the hook edge.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tqec.templates.html"
+       href="tqec.templates.QubitTemplate.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">tqec.templates</p>
+        <p class="prev-next-title">QubitTemplate</p>
       </div>
     </a>
     <a class="right-next"
@@ -728,13 +743,13 @@ shown as a black line along the hook edge.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.__init__"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.get_increments"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.get_increments()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.instantiate"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.instantiate()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.instantiation_origin"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.instantiation_origin()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.shape"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.shape()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.RPNGTemplate.view_as_svg"><code class="docutils literal notranslate"><span class="pre">RPNGTemplate.view_as_svg()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.Template"><code class="docutils literal notranslate"><span class="pre">Template</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.Template.__init__"><code class="docutils literal notranslate"><span class="pre">Template.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.Template.get_increments"><code class="docutils literal notranslate"><span class="pre">Template.get_increments()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.Template.get_spatially_distinct_subtemplates"><code class="docutils literal notranslate"><span class="pre">Template.get_spatially_distinct_subtemplates()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.Template.instantiate"><code class="docutils literal notranslate"><span class="pre">Template.instantiate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.Template.instantiation_origin"><code class="docutils literal notranslate"><span class="pre">Template.instantiation_origin()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.Template.shape"><code class="docutils literal notranslate"><span class="pre">Template.shape()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -744,7 +759,7 @@ shown as a black line along the hook edge.</p></li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_autosummary/tqec.templates.RPNGTemplate.rst.txt"
+      <li><a href="../_sources/_autosummary/tqec.templates.Template.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

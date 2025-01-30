@@ -42,6 +42,8 @@
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -352,7 +354,11 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="_autosummary/tqec.templates.html">tqec.templates</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.templates.RPNGTemplate.html">RPNGTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.templates.display_template.html">display_template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.templates.display_template_from_instantiation.html">display_template_from_instantiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.templates.LayoutTemplate.html">LayoutTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.templates.QubitTemplate.html">QubitTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.templates.Template.html">Template</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="_autosummary/tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -370,7 +376,6 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="_autosummary/tqec.circuit.html">tqec.circuit</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.circuit.generate_circuit.html">generate_circuit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.circuit.merge_scheduled_circuits.html">merge_scheduled_circuits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.circuit.QubitMap.html">QubitMap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.circuit.ScheduledCircuit.html">ScheduledCircuit</a></li>
@@ -394,6 +399,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="_autosummary/tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.generate_circuit.html">generate_circuit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.CompiledGraph.html">CompiledGraph</a></li>
@@ -506,7 +512,7 @@ into the <code class="xref py py-mod docutils literal notranslate"><span class="
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tqec.templates.html#module-tqec.templates" title="tqec.templates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">templates</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Defines several scalable arrays of numbers used to tile plaquettes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tqec.plaquette.html#module-tqec.plaquette" title="tqec.plaquette"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plaquette</span></code></a></p></td>
 <td><p>Defines all the necessary data-structures to represent a plaquette.</p></td>

@@ -45,7 +45,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.circuit';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="generate_circuit" href="tqec.circuit.generate_circuit.html" />
+    <link rel="next" title="merge_scheduled_circuits" href="tqec.circuit.merge_scheduled_circuits.html" />
     <link rel="prev" title="SquarePlaquetteQubits" href="tqec.plaquette.SquarePlaquetteQubits.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -352,7 +352,11 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.templates.html">tqec.templates</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.templates.RPNGTemplate.html">RPNGTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template.html">display_template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html">display_template_from_instantiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.LayoutTemplate.html">LayoutTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.QubitTemplate.html">QubitTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.Template.html">Template</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -370,7 +374,6 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">tqec.circuit</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.circuit.generate_circuit.html">generate_circuit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.merge_scheduled_circuits.html">merge_scheduled_circuits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.QubitMap.html">QubitMap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html">ScheduledCircuit</a></li>
@@ -394,6 +397,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.generate_circuit.html">generate_circuit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledGraph.html">CompiledGraph</a></li>
@@ -507,7 +511,7 @@ circuits.</p>
 that is used to represent a quantum circuit in the <cite>tqec</cite> library. It also
 defines a few core functions:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="tqec.circuit.generate_circuit.html#tqec.circuit.generate_circuit" title="tqec.circuit.generate_circuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_circuit()</span></code></a> that takes a <code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code>
+<li><p><a class="reference internal" href="tqec.compile.generate_circuit.html#tqec.compile.generate_circuit" title="tqec.compile.generate_circuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_circuit()</span></code></a> that takes a <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a>
 instance and a description of plaquettes via a
 <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> instance and generates a
 <a class="reference internal" href="tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit" title="tqec.circuit.schedule.circuit.ScheduledCircuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code></a> instance that corresponds to the
@@ -521,10 +525,7 @@ library and are re-used in higher-level packages (such as <a class="reference in
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.circuit.generate_circuit.html#tqec.circuit.generate_circuit" title="tqec.circuit.generate_circuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_circuit</span></code></a>(template, k, plaquettes)</p></td>
-<td><p>Generate a quantum circuit from a template and its plaquettes.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.circuit.merge_scheduled_circuits.html#tqec.circuit.merge_scheduled_circuits" title="tqec.circuit.merge_scheduled_circuits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_scheduled_circuits</span></code></a>(circuits, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.circuit.merge_scheduled_circuits.html#tqec.circuit.merge_scheduled_circuits" title="tqec.circuit.merge_scheduled_circuits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_scheduled_circuits</span></code></a>(circuits, ...[, ...])</p></td>
 <td><p>Merge several <a class="reference internal" href="tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit" title="tqec.circuit.schedule.circuit.ScheduledCircuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code></a> instances into one instance.</p></td>
 </tr>
 </tbody>
@@ -573,11 +574,11 @@ library and are re-used in higher-level packages (such as <a class="reference in
       </div>
     </a>
     <a class="right-next"
-       href="tqec.circuit.generate_circuit.html"
+       href="tqec.circuit.merge_scheduled_circuits.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">generate_circuit</p>
+        <p class="prev-next-title">merge_scheduled_circuits</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
