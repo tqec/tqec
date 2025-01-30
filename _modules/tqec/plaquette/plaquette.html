@@ -413,12 +413,12 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.schedule</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduledCircuit</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteOrientation</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.frozendefaultdict</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenDefaultDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.qubit</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteQubits</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalQubitPosition2D</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">round_or_fail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.frozendefaultdict</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenDefaultDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalQubitPosition2D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">round_or_fail</span>
 
 
 <div class="viewcode-block" id="Plaquette">

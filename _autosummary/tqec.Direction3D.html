@@ -46,7 +46,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Position3D" href="tqec.Position3D.html" />
-    <link rel="prev" title="tqec.exceptions.TQECWarning" href="tqec.exceptions.TQECWarning.html" />
+    <link rel="prev" title="start_simulation_using_sinter" href="tqec.simulation.start_simulation_using_sinter.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -362,8 +362,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html">PlaquetteQubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteSide.html">PlaquetteSide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquettes.html">Plaquettes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNG.html">RAPNG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNGDescription.html">RAPNGDescription</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RG.html">RG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
@@ -428,11 +426,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.simulation.html">tqec.simulation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html">plot_observable_as_inset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
-</ul>
-</details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.exceptions.html">tqec.exceptions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECException.html">tqec.exceptions.TQECException</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECWarning.html">tqec.exceptions.TQECWarning</a></li>
 </ul>
 </details></li>
 </ul>
@@ -510,7 +503,7 @@
 <h1>Direction3D<a class="headerlink" href="#direction3d" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.Direction3D">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.</span></span><span class="sig-name descname"><span class="pre">Direction3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/position.html#Direction3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.Direction3D" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.</span></span><span class="sig-name descname"><span class="pre">Direction3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/position.html#Direction3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.Direction3D" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Axis directions in the 3D spacetime diagram.</p>
 <p class="rubric">Methods</p>
@@ -540,11 +533,11 @@
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.Direction3D.all_directions">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_directions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/position.html#Direction3D.all_directions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.Direction3D.all_directions" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_directions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/position.html#Direction3D.all_directions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.Direction3D.all_directions" title="Link to this definition">#</a></dt>
 <dd><p>Return all the directions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[<a class="reference internal" href="#tqec.Direction3D" title="tqec.position.Direction3D"><em>Direction3D</em></a>]</p>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#tqec.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -564,12 +557,12 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tqec.exceptions.TQECWarning.html"
+       href="tqec.simulation.start_simulation_using_sinter.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">tqec.exceptions.TQECWarning</p>
+        <p class="prev-next-title">start_simulation_using_sinter</p>
       </div>
     </a>
     <a class="right-next"

@@ -408,17 +408,17 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation._base_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputationGraph</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipe</span><span class="p">,</span> <span class="n">PipeKind</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXGraph</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.html_viewer</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ColladaHTMLViewer</span>
@@ -627,8 +627,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            A helper class to display the 3D model, which implements the ``_repr_html_`` method and</span>
 <span class="sd">            can be directly displayed in IPython compatible environments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.read_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_block_graph_to_dae_file</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.html_viewer</span><span class="w"> </span><span class="kn">import</span> <span class="n">display_collada_model</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.read_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_block_graph_to_dae_file</span>
 
         <span class="n">bytes_buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
         <span class="n">write_block_graph_to_dae_file</span><span class="p">(</span>

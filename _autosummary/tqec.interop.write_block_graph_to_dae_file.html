@@ -362,8 +362,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html">PlaquetteQubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteSide.html">PlaquetteSide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquettes.html">Plaquettes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNG.html">RAPNG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNGDescription.html">RAPNGDescription</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RG.html">RG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
@@ -428,11 +426,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.simulation.html">tqec.simulation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html">plot_observable_as_inset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
-</ul>
-</details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.exceptions.html">tqec.exceptions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECException.html">tqec.exceptions.TQECException</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECWarning.html">tqec.exceptions.TQECWarning</a></li>
 </ul>
 </details></li>
 </ul>
@@ -522,7 +515,7 @@ Collada DAE file.</p>
 <li><p><strong>block_graph</strong> (<a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a>) – The block graph to write to the DAE file.</p></li>
 <li><p><strong>file</strong> – The output file path or file-like object that supports binary write.</p></li>
 <li><p><strong>pipe_length</strong> (<em>float</em>) – The length of the pipes in the COLLADA model. Default is 2.0.</p></li>
-<li><p><strong>pop_faces_at_direction</strong> (<a class="reference internal" href="tqec.SignedDirection3D.html#tqec.SignedDirection3D" title="tqec.position.SignedDirection3D"><em>SignedDirection3D</em></a><em> | </em><em>None</em>) – Remove the faces at the given direction for all the blocks.
+<li><p><strong>pop_faces_at_direction</strong> (<a class="reference internal" href="tqec.SignedDirection3D.html#tqec.SignedDirection3D" title="tqec.utils.position.SignedDirection3D"><em>SignedDirection3D</em></a><em> | </em><em>None</em>) – Remove the faces at the given direction for all the blocks.
 This is useful for visualizing the internal structure of the blocks. Default is None.</p></li>
 <li><p><strong>show_correlation_surface</strong> (<em>CorrelationSurface</em><em> | </em><em>None</em>) – The <code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelationSurface</span></code> to show in the block graph. Default is None.</p></li>
 <li><p><strong>file_like</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>BinaryIO</em>)</p></li>

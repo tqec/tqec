@@ -413,7 +413,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">StimCoordinates</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">StimCoordinates</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.measurement_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeasurementRecordsMap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.qubit_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">QubitMap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.schedule</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduledCircuit</span>
@@ -435,13 +435,13 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.library.css</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquettes</span><span class="p">,</span> <span class="n">RepeatedPlaquettes</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_or_fail</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.indices.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.indices.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutTemplate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_or_fail</span>
 
 
 <div class="viewcode-block" id="CompiledGraph">

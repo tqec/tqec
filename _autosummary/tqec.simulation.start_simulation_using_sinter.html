@@ -45,7 +45,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.simulation.start_simulation_using_sinter';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="tqec.exceptions" href="tqec.exceptions.html" />
+    <link rel="next" title="Direction3D" href="tqec.Direction3D.html" />
     <link rel="prev" title="plot_observable_as_inset" href="tqec.simulation.plot_observable_as_inset.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -362,8 +362,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html">PlaquetteQubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteSide.html">PlaquetteSide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquettes.html">Plaquettes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNG.html">RAPNG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNGDescription.html">RAPNGDescription</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RG.html">RG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
@@ -428,11 +426,6 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.simulation.html">tqec.simulation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html">plot_observable_as_inset</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">start_simulation_using_sinter</a></li>
-</ul>
-</details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.exceptions.html">tqec.exceptions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECException.html">tqec.exceptions.TQECException</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECWarning.html">tqec.exceptions.TQECWarning</a></li>
 </ul>
 </details></li>
 </ul>
@@ -530,7 +523,7 @@ signature arguments that we do not envision using.</p>
 circuits.</p></li>
 <li><p><strong>ps</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – values of the noise parameter <cite>p</cite> to use to instantiate a noise
 model using the provided <cite>noise_model_factory</cite>.</p></li>
-<li><p><strong>noise_model_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>float</em><em>]</em><em>, </em><a class="reference internal" href="tqec.NoiseModel.html#tqec.NoiseModel" title="tqec.noise_model.NoiseModel"><em>NoiseModel</em></a><em>]</em>) – a callable that is used to instantiate a noise
+<li><p><strong>noise_model_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>float</em><em>]</em><em>, </em><a class="reference internal" href="tqec.NoiseModel.html#tqec.NoiseModel" title="tqec.utils.noise_model.NoiseModel"><em>NoiseModel</em></a><em>]</em>) – a callable that is used to instantiate a noise
 model from each of the noise parameters in <cite>ps</cite>.</p></li>
 <li><p><strong>manhattan_radius</strong> (<em>int</em>) – radius used to automatically compute detectors. The
 best value to set this argument to is the minimum integer such that
@@ -605,11 +598,11 @@ observable in <cite>observables</cite>.</p>
       </div>
     </a>
     <a class="right-next"
-       href="tqec.exceptions.html"
+       href="tqec.Direction3D.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">tqec.exceptions</p>
+        <p class="prev-next-title">Direction3D</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

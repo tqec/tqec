@@ -362,8 +362,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html">PlaquetteQubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteSide.html">PlaquetteSide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquettes.html">Plaquettes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNG.html">RAPNG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNGDescription.html">RAPNGDescription</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RG.html">RG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
@@ -428,11 +426,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.simulation.html">tqec.simulation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html">plot_observable_as_inset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
-</ul>
-</details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.exceptions.html">tqec.exceptions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECException.html">tqec.exceptions.TQECException</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECWarning.html">tqec.exceptions.TQECWarning</a></li>
 </ul>
 </details></li>
 </ul>
@@ -542,9 +535,9 @@ provided input.</p></li>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>ScheduleError</strong> – if the provided <code class="docutils literal notranslate"><span class="pre">schedule</span></code> is invalid.</p></li>
-<li><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
+<li><p><strong>TQECException</strong> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
     <code class="docutils literal notranslate"><span class="pre">stim.CircuitRepeatBlock</span></code> instance.</p></li>
-<li><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
+<li><p><strong>TQECException</strong> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
     <code class="docutils literal notranslate"><span class="pre">QUBIT_COORDS</span></code> instruction after the first <code class="docutils literal notranslate"><span class="pre">TICK</span></code> instruction.</p></li>
 </ul>
 </dd>
@@ -652,9 +645,9 @@ provided input.</p></li>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>ScheduleError</strong> – if the provided <code class="docutils literal notranslate"><span class="pre">schedule</span></code> is invalid.</p></li>
-<li><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
+<li><p><strong>TQECException</strong> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
     <code class="docutils literal notranslate"><span class="pre">stim.CircuitRepeatBlock</span></code> instance.</p></li>
-<li><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
+<li><p><strong>TQECException</strong> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
     <code class="docutils literal notranslate"><span class="pre">QUBIT_COORDS</span></code> instruction after the first <code class="docutils literal notranslate"><span class="pre">TICK</span></code> instruction.</p></li>
 </ul>
 </dd>
@@ -696,7 +689,7 @@ schedule).</p></li>
 <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – if the provided instruction is not an annotation.</p>
+<dd class="field-even"><p><strong>TQECException</strong> – if the provided instruction is not an annotation.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
@@ -794,9 +787,9 @@ provided map will be used.</p></li>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>ScheduleError</strong> – if the provided <code class="docutils literal notranslate"><span class="pre">schedule</span></code> is invalid.</p></li>
-<li><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
+<li><p><strong>TQECException</strong> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
     <code class="docutils literal notranslate"><span class="pre">stim.CircuitRepeatBlock</span></code> instance.</p></li>
-<li><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
+<li><p><strong>TQECException</strong> – if the provided <code class="docutils literal notranslate"><span class="pre">circuit</span></code> contains at least one
     <code class="docutils literal notranslate"><span class="pre">QUBIT_COORDS</span></code> instruction after the first <code class="docutils literal notranslate"><span class="pre">TICK</span></code> instruction.</p></li>
 </ul>
 </dd>
@@ -966,7 +959,7 @@ last schedule and <code class="docutils literal notranslate"><span class="pre">-
 might not be the second to last schedule).</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – if no moment exist at the provided <code class="docutils literal notranslate"><span class="pre">schedule</span></code>.</p>
+<dd class="field-even"><p><strong>TQECException</strong> – if no moment exist at the provided <code class="docutils literal notranslate"><span class="pre">schedule</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><em>Moment</em></p>

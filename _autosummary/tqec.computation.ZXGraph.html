@@ -362,8 +362,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html">PlaquetteQubits</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteSide.html">PlaquetteSide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquettes.html">Plaquettes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNG.html">RAPNG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RAPNGDescription.html">RAPNGDescription</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RG.html">RG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
@@ -428,11 +426,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.simulation.html">tqec.simulation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html">plot_observable_as_inset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
-</ul>
-</details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.exceptions.html">tqec.exceptions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECException.html">tqec.exceptions.TQECException</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.exceptions.TQECWarning.html">tqec.exceptions.TQECWarning</a></li>
 </ul>
 </details></li>
 </ul>
@@ -646,7 +639,7 @@ the nodes will be created.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – For each node in the edge, if there is already a node
+<dd class="field-even"><p><strong>TQECException</strong> – For each node in the edge, if there is already a node
     which is not equal to it at the same position, or the node is a
     port but there is already a different port with the same label
     in the graph.</p>
@@ -678,7 +671,7 @@ True.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – If <code class="docutils literal notranslate"><span class="pre">check_conflict</span></code> is True and there is a conflict when adding the
+<dd class="field-even"><p><strong>TQECException</strong> – If <code class="docutils literal notranslate"><span class="pre">check_conflict</span></code> is True and there is a conflict when adding the
     node.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -699,7 +692,7 @@ conditions:</p>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – If the invariants are not satisfied.</p>
+<dd class="field-odd"><p><strong>TQECException</strong> – If the invariants are not satisfied.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
@@ -752,7 +745,7 @@ Default is <code class="docutils literal notranslate"><span class="pre">True</sp
 <dd><p>Get the edges incident to a position.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.position.Position3D"><em>Position3D</em></a>)</p>
+<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>list[<em>_EDGE</em>]</p>
@@ -771,7 +764,7 @@ If a single kind is given, all the ports will be filled with the
 same kind.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – if there is no port with the given label or the
+<dd class="field-even"><p><strong>TQECException</strong> – if there is no port with the given label or the
     specified kind is <code class="docutils literal notranslate"><span class="pre">P</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -816,7 +809,7 @@ at different nodes are produced to form the correlation surface.</p>
 <dd class="field-odd"><p>A list of <cite>CorrelationSurface</cite> in the graph.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – If the graph does not contain any leaf node.</p>
+<dd class="field-even"><p><strong>TQECException</strong> – If the graph does not contain any leaf node.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list[CorrelationSurface]</p>
@@ -831,7 +824,7 @@ at different nodes are produced to form the correlation surface.</p>
 incident to it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.position.Position3D"><em>Position3D</em></a>)</p>
+<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>int</p>
@@ -847,15 +840,15 @@ the given positions, an exception will be raised.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos1</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.position.Position3D"><em>Position3D</em></a>) – The first endpoint position.</p></li>
-<li><p><strong>pos2</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.position.Position3D"><em>Position3D</em></a>) – The second endpoint position.</p></li>
+<li><p><strong>pos1</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The first endpoint position.</p></li>
+<li><p><strong>pos2</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The second endpoint position.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The edge between the two positions.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – If there is no edge between the given positions.</p>
+<dd class="field-odd"><p><strong>TQECException</strong> – If there is no edge between the given positions.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>_EDGE</em></p>
@@ -870,8 +863,8 @@ the given positions, an exception will be raised.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos1</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.position.Position3D"><em>Position3D</em></a>) – The first endpoint position.</p></li>
-<li><p><strong>pos2</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.position.Position3D"><em>Position3D</em></a>) – The second endpoint position.</p></li>
+<li><p><strong>pos1</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The first endpoint position.</p></li>
+<li><p><strong>pos2</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The second endpoint position.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -891,7 +884,7 @@ return a new rotated graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rotation_axis</strong> (<a class="reference internal" href="tqec.Direction3D.html#tqec.Direction3D" title="tqec.position.Direction3D"><em>Direction3D</em></a>) – The axis around which to rotate the graph.</p></li>
+<li><p><strong>rotation_axis</strong> (<a class="reference internal" href="tqec.Direction3D.html#tqec.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a>) – The axis around which to rotate the graph.</p></li>
 <li><p><strong>num_90_degree_rotation</strong> (<em>int</em>) – The number of 90-degree rotations to apply to the graph.</p></li>
 <li><p><strong>counterclockwise</strong> (<em>bool</em>) – Whether to rotate the graph counterclockwise. If set to False,
 the graph will be rotated clockwise. Defaults to True.</p></li>
@@ -947,7 +940,7 @@ graph will be used.</p></li>
 converted from the ZX graph.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="tqec.exceptions.TQECException.html#tqec.exceptions.TQECException" title="tqec.exceptions.TQECException"><strong>TQECException</strong></a> – If the ZX graph does not satisfy the necessary conditions
+<dd class="field-odd"><p><strong>TQECException</strong> – If the ZX graph does not satisfy the necessary conditions
     or there are inference conflicts during the conversion.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
