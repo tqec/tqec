@@ -1,15 +1,7 @@
 """Internal module defining a few useful functions to test the template library."""
 
 from tqec.compile.specs.enums import SpatialArms
-from tqec.utils.enums import Basis
-from tqec.templates.enums import ZObservableOrientation
-from tqec.templates.qubit import (
-    QubitHorizontalBorders,
-    QubitSpatialCubeTemplate,
-    QubitTemplate,
-    QubitVerticalBorders,
-)
-from tqec.templates.library.hadamard import (
+from tqec.compile.specs.library.generators.hadamard import (
     get_spatial_horizontal_hadamard_raw_template,
     get_spatial_horizontal_hadamard_rpng_descriptions,
     get_spatial_vertical_hadamard_raw_template,
@@ -17,7 +9,7 @@ from tqec.templates.library.hadamard import (
     get_temporal_hadamard_raw_template,
     get_temporal_hadamard_rpng_descriptions,
 )
-from tqec.templates.library.memory import (
+from tqec.compile.specs.library.generators.memory import (
     get_memory_horizontal_boundary_raw_template,
     get_memory_horizontal_boundary_rpng_descriptions,
     get_memory_qubit_raw_template,
@@ -25,13 +17,21 @@ from tqec.templates.library.memory import (
     get_memory_vertical_boundary_raw_template,
     get_memory_vertical_boundary_rpng_descriptions,
 )
-from tqec.templates.library.spatial import (
+from tqec.compile.specs.library.generators.spatial import (
     get_spatial_cube_arm_raw_template,
     get_spatial_cube_arm_rpng_descriptions,
     get_spatial_cube_qubit_raw_template,
     get_spatial_cube_qubit_rpng_descriptions,
 )
+from tqec.templates.enums import ZObservableOrientation
+from tqec.templates.qubit import (
+    QubitHorizontalBorders,
+    QubitSpatialCubeTemplate,
+    QubitTemplate,
+    QubitVerticalBorders,
+)
 from tqec.templates.rpng import RPNGTemplate
+from tqec.utils.enums import Basis
 
 
 def get_temporal_hadamard_rpng_template(
