@@ -185,12 +185,18 @@ def get_spatial_cube_qubit_rpng_descriptions(
             f"---- {r}{be}3{m} ---- {r}{be}4{m}"
         )
 
-    # If we have a down-right or top-left L-shaped junction, the opposite corner
-    # plaquette should be removed from the mapping (this is the case where it
-    # has been set twice in the ifs above).
-    if arms == SpatialArms.UP | SpatialArms.LEFT:
+    # In the case where either mapping[1] or mapping[4] has been set twice in
+    # the 4 ifs above, that means that either [both the UP and LEFT arms are
+    # empty] or [both the DOWN and RIGHT arms are empty]. In this specific case
+    # only, the corresponding plaquette (either mapping[1] or mapping[4]) is
+    # empty and the 3-body stabilizer measurement is pushed in the neighbouring
+    # corner within the bulk of the logical qubit.
+    # Below, we simply delete the mapping entry if needed. The plaquette on the
+    # bulk corner will be overwritten in the following code, so we will set it
+    # to its correct value later.
+    if SpatialArms.DOWN not in arms and SpatialArms.RIGHT not in arms:
         del mapping[4]
-    elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
+    elif SpatialArms.UP not in arms and SpatialArms.LEFT not in arms:
         del mapping[1]
 
     ####################
@@ -218,14 +224,20 @@ def get_spatial_cube_qubit_rpng_descriptions(
     mapping[8] = mapping[15] = bevhp if SpatialArms.DOWN in arms else behhp
     mapping[16] = behhp if SpatialArms.LEFT in arms else bevhp
 
-    # In the special cases of an L-shaped junction TOP/LEFT or DOWN/RIGHT, the
-    # opposite corner **within the bulk** should be overwritten to become a
-    # 3-body stabilizer measurement.
-    if arms == SpatialArms.UP | SpatialArms.LEFT:
+    # In the case where either mapping[1] or mapping[4] has been set twice in
+    # the 4 ifs above, that means that either [both the UP and LEFT arms are
+    # empty] or [both the DOWN and RIGHT arms are empty]. In this specific case
+    # only, the corresponding plaquette (either mapping[1] or mapping[4]) is
+    # empty and the 3-body stabilizer measurement is pushed in the neighbouring
+    # corner within the bulk of the logical qubit.
+    # This is when we set the mapping entry at the corner within the bulk, if
+    # needed, overwriting the default plaquette that has been set in the code
+    # just before.
+    if SpatialArms.DOWN not in arms and SpatialArms.RIGHT not in arms:
         mapping[8] = RPNGDescription.from_string(
             f"{r}{be}1{m} {r}{be}2{m} {r}{be}4{m} ----"
         )
-    elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
+    elif SpatialArms.UP not in arms and SpatialArms.LEFT not in arms:
         mapping[5] = RPNGDescription.from_string(
             f"---- {r}{be}2{m} {r}{be}4{m} {r}{be}5{m}"
         )
@@ -241,10 +253,7 @@ def get_spatial_cube_qubit_rpng_descriptions(
         f"RPNGDescription. Missing indices: {missing_bulk_plaquette_indices}."
     )
 
-    return FrozenDefaultDict(
-        mapping,
-        default_factory=RPNGDescription.empty,
-    )
+    return FrozenDefaultDict(mapping, default_factory=RPNGDescription.empty)
 
 
 def get_spatial_cube_arm_raw_template(
