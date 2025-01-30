@@ -5,11 +5,14 @@ import sinter
 
 from tqec.compile.compile import compile_block_graph
 from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
+from tqec.compile.specs.library import (
+    STANDARD_BLOCK_BUILDER,
+    STANDARD_SUBSTITUTION_BUILDER,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.utils.noise_model import NoiseModel
 from tqec.simulation.generation import generate_sinter_tasks
+from tqec.utils.noise_model import NoiseModel
 
 
 def start_simulation_using_sinter(
@@ -18,8 +21,8 @@ def start_simulation_using_sinter(
     ps: Sequence[float],
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
-    block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
-    substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
+    block_builder: BlockBuilder = STANDARD_BLOCK_BUILDER,
+    substitution_builder: SubstitutionBuilder = STANDARD_SUBSTITUTION_BUILDER,
     observables: list[CorrelationSurface] | None = None,
     num_workers: int = multiprocessing.cpu_count(),
     progress_callback: Callable[[sinter.Progress], None] | None = None,
