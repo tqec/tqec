@@ -1,4 +1,4 @@
-from tqec.circuit.coordinates import StimCoordinates
+from tqec.utils.coordinates import StimCoordinates
 
 
 def test_creation() -> None:

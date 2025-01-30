@@ -1,22 +1,23 @@
 """Provides helper functions to add observables to circuits."""
 
 from typing import Iterable
+
 import stim
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule import ScheduledCircuit
+from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
-from tqec.position import (
+from tqec.templates.indices.layout import LayoutTemplate
+from tqec.utils.position import (
     Direction3D,
     Position3D,
     Shape2D,
     SignedDirection3D,
 )
-from tqec.scale import round_or_fail
-from tqec.compile.observables.abstract_observable import AbstractObservable
-from tqec.templates.indices.layout import LayoutTemplate
+from tqec.utils.scale import round_or_fail
 
 
 def inplace_add_observable(

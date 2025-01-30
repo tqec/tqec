@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from typing import Generator
 
 from tqec.computation.cube import Cube, ZXCube
-from tqec.enums import Basis
-from tqec.exceptions import TQECException
-from tqec.position import Direction3D
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECException
+from tqec.utils.position import Direction3D
 
 
 @dataclass(frozen=True)

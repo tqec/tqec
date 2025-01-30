@@ -3,8 +3,8 @@ import pytest
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, Port, YCube, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.exceptions import TQECException
-from tqec.position import Position3D
+from tqec.utils.exceptions import TQECException
+from tqec.utils.position import Position3D
 
 
 def test_block_graph_construction() -> None:

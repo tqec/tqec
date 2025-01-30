@@ -4,7 +4,6 @@ import numpy
 import numpy.typing as npt
 import pytest
 
-from tqec.position import BlockPosition2D
 from tqec.templates.indices.base import Template
 from tqec.templates.indices.layout import LayoutTemplate
 from tqec.templates.indices.qubit import QubitSpatialCubeTemplate, QubitTemplate
@@ -12,6 +11,7 @@ from tqec.templates.indices.subtemplates import (
     get_spatially_distinct_3d_subtemplates,
     get_spatially_distinct_subtemplates,
 )
+from tqec.utils.position import BlockPosition2D
 
 _TEMPLATES_TO_TEST = [
     QubitTemplate(),

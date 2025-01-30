@@ -4,7 +4,7 @@ from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.plaquette.compilation.passes.controlled_gate_basis import (
     ChangeControlledGateBasisPass,
 )

@@ -1,4 +1,4 @@
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 
 
 def test_zx_basis() -> None:

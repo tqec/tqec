@@ -16,15 +16,15 @@ The spatial pipes connected to the spatial cubes are called **arms**.
 """
 
 from tqec.compile.specs.enums import SpatialArms
-from tqec.enums import Basis
-from tqec.exceptions import TQECException
-from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECException
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.indices.qubit import (
     QubitHorizontalBorders,
     QubitSpatialCubeTemplate,
     QubitVerticalBorders,
 )
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
 def get_spatial_cube_qubit_raw_template() -> QubitSpatialCubeTemplate:

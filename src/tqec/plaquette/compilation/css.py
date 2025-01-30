@@ -1,6 +1,6 @@
 from typing import Final
 
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.compilation.passes.controlled_gate_basis import (
     ChangeControlledGateBasisPass,

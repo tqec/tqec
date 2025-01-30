@@ -18,8 +18,8 @@ from typing import Callable, Iterable
 import stim
 
 from tqec.circuit.qubit import GridQubit
-from tqec.exceptions import TQECException
-from tqec.scale import round_or_fail
+from tqec.utils.exceptions import TQECException
+from tqec.utils.scale import round_or_fail
 
 
 @dataclass(frozen=True)

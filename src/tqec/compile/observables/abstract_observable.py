@@ -6,7 +6,7 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe
-from tqec.position import Direction3D, Position3D
+from tqec.utils.position import Direction3D, Position3D
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.zx_graph import ZXEdge, ZXKind
 

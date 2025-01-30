@@ -8,7 +8,7 @@ from typing import Literal, Sequence, cast
 
 import stim
 
-from tqec.circuit.coordinates import StimCoordinates
+from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
@@ -30,13 +30,13 @@ from tqec.compile.specs.base import (
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.exceptions import TQECException, TQECWarning
-from tqec.noise_model import NoiseModel
+from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
-from tqec.position import Direction3D, Position3D
-from tqec.scale import round_or_fail
 from tqec.templates.indices.base import Template
 from tqec.templates.indices.layout import LayoutTemplate
+from tqec.utils.position import Direction3D, Position3D
+from tqec.utils.scale import round_or_fail
 
 
 @dataclass

@@ -7,7 +7,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.zx_graph import ZXGraph, ZXKind, ZXNode
 from tqec.gallery.logical_cnot import logical_cnot_block_graph, logical_cnot_zx_graph
 from tqec.gallery.three_cnots import three_cnots_block_graph, three_cnots_zx_graph
-from tqec.position import Direction3D, Position3D, SignedDirection3D
+from tqec.utils.position import Direction3D, Position3D, SignedDirection3D
 
 
 @pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])

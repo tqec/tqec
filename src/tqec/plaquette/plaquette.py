@@ -8,12 +8,12 @@ from typing import Callable, Literal, Mapping
 from typing_extensions import override
 
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.qubit import PlaquetteQubits
-from tqec.position import PhysicalQubitPosition2D
-from tqec.scale import LinearFunction, round_or_fail
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
+from tqec.utils.position import PhysicalQubitPosition2D
+from tqec.utils.scale import LinearFunction, round_or_fail
 
 
 @dataclass(frozen=True)

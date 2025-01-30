@@ -7,7 +7,7 @@ import sinter
 import stim
 
 from tqec.compile.compile import CompiledGraph
-from tqec.noise_model import NoiseModel
+from tqec.utils.noise_model import NoiseModel
 
 
 def _parallel_func(

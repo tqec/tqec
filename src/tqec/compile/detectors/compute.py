@@ -12,16 +12,16 @@ from tqecd.match import (
     match_detectors_within_fragment,
 )
 
-from tqec.circuit.coordinates import StimCoordinates
+from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.generation import generate_circuit_from_instantiation
 from tqec.circuit.measurement import Measurement, get_measurements_from_circuit
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule import ScheduledCircuit, relabel_circuits_qubit_indices
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import PhysicalQubitPosition2D, Shift2D
+from tqec.utils.position import PhysicalQubitPosition2D, Shift2D
 from tqec.templates.indices.base import Template
 from tqec.templates.indices.display import (
     get_template_representation_from_instantiation,

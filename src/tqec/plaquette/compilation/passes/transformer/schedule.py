@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from typing_extensions import override
 
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 
 class ScheduleFunction(ABC):

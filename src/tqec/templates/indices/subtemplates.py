@@ -8,7 +8,7 @@ from typing import Sequence
 import numpy
 import numpy.typing as npt
 
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 SubTemplateType = npt.NDArray[numpy.int_]
 

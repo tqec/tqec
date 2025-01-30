@@ -4,7 +4,7 @@ from typing import Literal, cast
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.zx_graph import ZXKind, ZXGraph, ZXNode
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 
 
 def move_rotation_zx_graph(port_kind: Literal["Z", "X", "OPEN"]) -> ZXGraph:

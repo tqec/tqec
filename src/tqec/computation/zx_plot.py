@@ -11,7 +11,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 from tqec.computation.correlation import CorrelationSurface
 from tqec.interop.color import RGBA, TQECColor
-from tqec.position import Position3D
+from tqec.utils.position import Position3D
 from tqec.computation.zx_graph import ZXKind, ZXGraph, ZXNode
 
 NODE_COLOR: dict[ZXKind, RGBA] = {

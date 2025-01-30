@@ -16,15 +16,15 @@ from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, CubeKind, Port, YCube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.computation.zx_graph import ZXKind
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.interop.collada._geometry import (
     BlockGeometries,
     Face,
     get_correlation_surface_geometry,
 )
 from tqec.interop.color import TQECColor
-from tqec.position import FloatPosition3D, Position3D, SignedDirection3D
-from tqec.scale import round_or_fail
+from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
+from tqec.utils.scale import round_or_fail
 
 _ASSET_AUTHOR = "TQEC Community"
 _ASSET_AUTHORING_TOOL_TQEC = "https://github.com/tqec/tqec"

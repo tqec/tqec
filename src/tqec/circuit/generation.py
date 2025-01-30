@@ -27,7 +27,7 @@ from tqec.circuit.schedule import (
     relabel_circuits_qubit_indices,
 )
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.position import Shift2D
+from tqec.utils.position import Shift2D
 from tqec.templates.indices.base import Template
 
 

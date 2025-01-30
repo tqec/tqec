@@ -1,4 +1,4 @@
-from tqec.position import Position2D, Position3D, Shape2D
+from tqec.utils.position import Position2D, Position3D, Shape2D
 
 
 def test_position() -> None:

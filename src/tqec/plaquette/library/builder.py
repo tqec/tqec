@@ -1,6 +1,6 @@
 from typing import Literal, Protocol
 
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteSide
 from tqec.plaquette.plaquette import Plaquette
 

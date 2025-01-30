@@ -8,7 +8,7 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, CubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
 
 

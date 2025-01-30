@@ -9,7 +9,7 @@ import stim
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteSide
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import SquarePlaquetteQubits

@@ -5,7 +5,7 @@ import stim
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap, get_qubit_map
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 
 
 def test_qubit_map_creation() -> None:
