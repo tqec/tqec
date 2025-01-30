@@ -9,26 +9,22 @@ from tqec.compile.specs.base import (
     SubstitutionBuilder,
 )
 from tqec.compile.specs.enums import SpatialArms
-from tqec.compile.specs.library.generators.hadamard import (
-    get_spatial_horizontal_hadamard_raw_template,
-    get_spatial_horizontal_hadamard_rpng_descriptions,
-    get_spatial_vertical_hadamard_raw_template,
-    get_spatial_vertical_hadamard_rpng_descriptions,
-    get_temporal_hadamard_rpng_descriptions,
-)
-from tqec.compile.specs.library.generators.memory import (
+from tqec.compile.specs.library.generators import (
+    get_memory_horizontal_boundary_plaquettes,
     get_memory_horizontal_boundary_raw_template,
-    get_memory_horizontal_boundary_rpng_descriptions,
+    get_memory_qubit_plaquettes,
     get_memory_qubit_raw_template,
-    get_memory_qubit_rpng_descriptions,
+    get_memory_vertical_boundary_plaquettes,
     get_memory_vertical_boundary_raw_template,
-    get_memory_vertical_boundary_rpng_descriptions,
-)
-from tqec.compile.specs.library.generators.spatial import (
+    get_spatial_cube_arm_plaquettes,
     get_spatial_cube_arm_raw_template,
-    get_spatial_cube_arm_rpng_descriptions,
+    get_spatial_cube_qubit_plaquettes,
     get_spatial_cube_qubit_raw_template,
-    get_spatial_cube_qubit_rpng_descriptions,
+    get_spatial_horizontal_hadamard_plaquettes,
+    get_spatial_horizontal_hadamard_raw_template,
+    get_spatial_vertical_hadamard_plaquettes,
+    get_spatial_vertical_hadamard_raw_template,
+    get_temporal_hadamard_plaquettes,
 )
 from tqec.computation.cube import Port, YCube, ZXCube
 from tqec.plaquette.compilation.base import PlaquetteCompiler
@@ -39,7 +35,6 @@ from tqec.templates.base import RectangularTemplate
 from tqec.templates.enums import TemplateBorder, ZObservableOrientation
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
-from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
 
@@ -64,19 +59,12 @@ class BaseBlockBuilder(BlockBuilder):
         self._translator = DefaultRPNGTranslator()
         self._compiler = compiler
 
-    def _get_plaquette(self, description: RPNGDescription) -> Plaquette:
-        return self._compiler.compile(self._translator.translate(description))
-
     @staticmethod
     def _get_template_and_plaquettes(
         spec: CubeSpec,
     ) -> tuple[
         RectangularTemplate,
-        tuple[
-            FrozenDefaultDict[int, RPNGDescription],
-            FrozenDefaultDict[int, RPNGDescription],
-            FrozenDefaultDict[int, RPNGDescription],
-        ],
+        tuple[Plaquettes, Plaquettes, Plaquettes],
     ]:
         """Get the template and plaquettes corresponding to the provided ``spec``.
 
@@ -97,15 +85,15 @@ class BaseBlockBuilder(BlockBuilder):
                 else ZObservableOrientation.VERTICAL
             )
             return get_memory_qubit_raw_template(), (
-                get_memory_qubit_rpng_descriptions(orientation, z, None),
-                get_memory_qubit_rpng_descriptions(orientation, None, None),
-                get_memory_qubit_rpng_descriptions(orientation, None, z),
+                get_memory_qubit_plaquettes(orientation, z, None),
+                get_memory_qubit_plaquettes(orientation, None, None),
+                get_memory_qubit_plaquettes(orientation, None, z),
             )
         # else:
         return get_spatial_cube_qubit_raw_template(), (
-            get_spatial_cube_qubit_rpng_descriptions(x, spec.spatial_arms, z, None),
-            get_spatial_cube_qubit_rpng_descriptions(x, spec.spatial_arms, None, None),
-            get_spatial_cube_qubit_rpng_descriptions(x, spec.spatial_arms, None, z),
+            get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, z, None),
+            get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, None, None),
+            get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, None, z),
         )
 
     def __call__(self, spec: CubeSpec) -> CompiledBlock:
@@ -119,12 +107,12 @@ class BaseBlockBuilder(BlockBuilder):
             BaseBlockBuilder._get_template_and_plaquettes(spec)
         )
         plaquettes = [
-            Plaquettes(init.map_values(self._get_plaquette)),
+            init,
             RepeatedPlaquettes(
-                repeat.map_values(self._get_plaquette),
+                repeat.collection,
                 repetitions=BaseBlockBuilder.DEFAULT_BLOCK_REPETITIONS,
             ),
-            Plaquettes(measure.map_values(self._get_plaquette)),
+            measure,
         ]
         return CompiledBlock(template, plaquettes)
 
@@ -206,12 +194,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
             if spec.pipe_kind.x == Basis.Z
             else ZObservableOrientation.VERTICAL
         )
-        memory_descriptions = get_memory_qubit_rpng_descriptions(
-            z_observable_orientation
-        )
-        memory_plaquettes = Plaquettes(
-            memory_descriptions.map_values(self._get_plaquette)
-        )
+        memory_plaquettes = get_memory_qubit_plaquettes(z_observable_orientation)
         return Substitution({-1: memory_plaquettes}, {0: memory_plaquettes})
 
     def _get_temporal_hadamard_pipe_substitution(self, spec: PipeSpec) -> Substitution:
@@ -254,19 +237,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         else:
             first_layer_orientation = ZObservableOrientation.VERTICAL
             second_layer_orientation = ZObservableOrientation.HORIZONTAL
-        hadamard_descriptions = get_temporal_hadamard_rpng_descriptions(
-            first_layer_orientation
-        )
-        hadamard_plaquettes = Plaquettes(
-            hadamard_descriptions.map_values(self._get_plaquette)
-        )
+        hadamard_plaquettes = get_temporal_hadamard_plaquettes(first_layer_orientation)
+        memory_plaquettes = get_memory_qubit_plaquettes(second_layer_orientation)
 
-        memory_descriptions = get_memory_qubit_rpng_descriptions(
-            second_layer_orientation
-        )
-        memory_plaquettes = Plaquettes(
-            memory_descriptions.map_values(self._get_plaquette)
-        )
         return Substitution({-1: hadamard_plaquettes}, {0: memory_plaquettes})
 
     ##############################
@@ -388,15 +361,14 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         for layer_index, (reset, measurement) in enumerate(
             [(spec.pipe_kind.z, None), (None, None), (None, spec.pipe_kind.z)]
         ):
-            rpng_descriptions = get_spatial_cube_arm_rpng_descriptions(
+            plaquettes = get_spatial_cube_arm_plaquettes(
                 spatial_boundary_basis, arm, reset, measurement
             )
-            plaquettes = rpng_descriptions.map_values(self._get_plaquette)
             src_substitution[layer_index] = Plaquettes(
-                plaquettes.map_keys_if_present(mappings[0])
+                plaquettes.collection.map_keys_if_present(mappings[0])
             )
             dst_substitution[layer_index] = Plaquettes(
-                plaquettes.map_keys_if_present(mappings[1])
+                plaquettes.collection.map_keys_if_present(mappings[1])
             )
         return Substitution(src_substitution, dst_substitution)
 
@@ -420,11 +392,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                 )
 
     @staticmethod
-    def _get_spatial_regular_pipe_descriptions_factory(
+    def _get_spatial_regular_pipe_plaquettes_factory(
         spec: PipeSpec,
-    ) -> Callable[
-        [Basis | None, Basis | None], FrozenDefaultDict[int, RPNGDescription]
-    ]:
+    ) -> Callable[[Basis | None, Basis | None], Plaquettes]:
         assert spec.pipe_kind.is_spatial
         match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
             case Direction3D.X, False:
@@ -434,7 +404,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                     if spec.pipe_kind.y == Basis.X
                     else ZObservableOrientation.VERTICAL
                 )
-                return lambda r, m: get_memory_vertical_boundary_rpng_descriptions(
+                return lambda r, m: get_memory_vertical_boundary_plaquettes(
                     z_observable_orientation, r, m
                 )
             case Direction3D.X, True:
@@ -442,7 +412,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                 top_left_basis = spec.pipe_kind.get_basis_along(
                     Direction3D.Y, at_head=True
                 )
-                return lambda r, m: get_spatial_vertical_hadamard_rpng_descriptions(
+                return lambda r, m: get_spatial_vertical_hadamard_plaquettes(
                     top_left_basis == Basis.Z, r, m
                 )
             case Direction3D.Y, False:
@@ -452,7 +422,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                     if spec.pipe_kind.x == Basis.Z
                     else ZObservableOrientation.VERTICAL
                 )
-                return lambda r, m: get_memory_horizontal_boundary_rpng_descriptions(
+                return lambda r, m: get_memory_horizontal_boundary_plaquettes(
                     z_observable_orientation, r, m
                 )
 
@@ -461,7 +431,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
                 top_left_basis = spec.pipe_kind.get_basis_along(
                     Direction3D.X, at_head=True
                 )
-                return lambda r, m: get_spatial_horizontal_hadamard_rpng_descriptions(
+                return lambda r, m: get_spatial_horizontal_hadamard_plaquettes(
                     top_left_basis == Basis.Z, r, m
                 )
             case _:
@@ -471,7 +441,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
 
     def _get_spatial_regular_pipe_substitution(self, spec: PipeSpec) -> Substitution:
         assert all(not spec.is_spatial for spec in spec.cube_specs)
-        description_factory = self._get_spatial_regular_pipe_descriptions_factory(spec)
+        plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
         template = self._get_spatial_regular_pipe_template(spec)
         mappings = BaseSubstitutionBuilder._get_plaquette_indices_mapping(
             spec.cube_templates, template, spec.pipe_kind.direction
@@ -484,13 +454,12 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         for layer_index, (reset, measurement) in enumerate(
             [(spec.pipe_kind.z, None), (None, None), (None, spec.pipe_kind.z)]
         ):
-            rpng_descriptions = description_factory(reset, measurement)
-            plaquettes = rpng_descriptions.map_values(self._get_plaquette)
+            plaquettes = plaquettes_factory(reset, measurement)
             src_substitution[layer_index] = Plaquettes(
-                plaquettes.map_keys_if_present(mappings[0])
+                plaquettes.collection.map_keys_if_present(mappings[0])
             )
             dst_substitution[layer_index] = Plaquettes(
-                plaquettes.map_keys_if_present(mappings[1])
+                plaquettes.collection.map_keys_if_present(mappings[1])
             )
         return Substitution(src_substitution, dst_substitution)
 

@@ -1,3 +1,6 @@
+from typing import Final
+
+from tqec.compile.specs.library.generators.utils import default_plaquette_mapper
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.qubit import (
@@ -239,3 +242,14 @@ def get_memory_horizontal_boundary_rpng_descriptions(
         },
         default_factory=RPNGDescription.empty,
     )
+
+
+get_memory_qubit_plaquettes: Final = default_plaquette_mapper(
+    get_memory_qubit_rpng_descriptions
+)
+get_memory_vertical_boundary_plaquettes: Final = default_plaquette_mapper(
+    get_memory_vertical_boundary_rpng_descriptions
+)
+get_memory_horizontal_boundary_plaquettes: Final = default_plaquette_mapper(
+    get_memory_horizontal_boundary_rpng_descriptions
+)

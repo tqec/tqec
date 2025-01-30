@@ -15,7 +15,10 @@ has all the spatial boundaries in the same basis.
 The spatial pipes connected to the spatial cubes are called **arms**.
 """
 
+from typing import Final
+
 from tqec.compile.specs.enums import SpatialArms
+from tqec.compile.specs.library.generators.utils import default_plaquette_mapper
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.qubit import (
     QubitHorizontalBorders,
@@ -484,3 +487,11 @@ def _get_down_spatial_cube_arm_rpng_descriptions(
         },
         default_factory=RPNGDescription.empty,
     )
+
+
+get_spatial_cube_qubit_plaquettes: Final = default_plaquette_mapper(
+    get_spatial_cube_qubit_rpng_descriptions
+)
+get_spatial_cube_arm_plaquettes: Final = default_plaquette_mapper(
+    get_spatial_cube_arm_rpng_descriptions
+)
