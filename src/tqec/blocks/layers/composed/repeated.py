@@ -9,6 +9,7 @@ from typing_extensions import override
 from tqec.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.blocks.layers.atomic.base import BaseLayer
 from tqec.blocks.layers.composed.base import BaseComposedLayer
+from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
@@ -27,6 +28,17 @@ class RepeatedLayer(BaseComposedLayer):
     layer: BaseLayer | BaseComposedLayer
     repetitions: LinearFunction
 
+    def __post_init__(self) -> None:
+        # Check that the number of timesteps of self is a linear function.
+        if self.layer.scalable_timesteps.slope != 0 and self.repetitions.slope != 0:
+            raise TQECException(
+                "Layers with a non-constant number of timesteps cannot be "
+                "repeated a non-constant number of times as that would lead to "
+                "a non-linear number of timesteps, which is not supported yet. "
+                f"Got a layer with {self.layer.scalable_timesteps} timesteps "
+                f"and tried to repeat it {self.repetitions} times."
+            )
+
     @override
     def layers(self, k: int) -> Iterable[BaseLayer]:
         if isinstance(self.layer, BaseLayer):
@@ -39,7 +51,10 @@ class RepeatedLayer(BaseComposedLayer):
     @property
     @override
     def scalable_timesteps(self) -> LinearFunction:
-        return self.repetitions
+        if self.repetitions.slope == 0:
+            return self.repetitions.offset * self.layer.scalable_timesteps
+        else:
+            return self.repetitions * self.layer.scalable_timesteps.offset
 
     @property
     @override
