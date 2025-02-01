@@ -24,6 +24,7 @@ from tqec.interop.collada._geometry import (
 )
 from tqec.interop.color import TQECColor
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
+from tqec.utils.rotations import calc_rotation_angles, symbolic_multiplication
 from tqec.utils.scale import round_or_fail
 
 _ASSET_AUTHOR = "TQEC Community"
@@ -63,7 +64,9 @@ def read_block_graph_from_dae_file(
     Raises:
         TQECException: If the COLLADA model cannot be parsed and converted to a block graph.
     """
+    # Bring the mesh in
     mesh = collada.Collada(str(filepath))
+
     # Check some invariants about the DAE file
     if mesh.scene is None:
         raise TQECException("No scene found in the DAE file.")
@@ -76,7 +79,10 @@ def read_block_graph_from_dae_file(
     pipe_length: float | None = None
     parsed_cubes: list[tuple[FloatPosition3D, CubeKind]] = []
     parsed_pipes: list[tuple[FloatPosition3D, PipeKind]] = []
+
+    # Handle nodes in scene/sketchup_node
     for node in sketchup_node.children:
+        # If everything needed is present
         if (
             isinstance(node, collada.scene.Node)
             and node.matrix is not None
@@ -84,19 +90,46 @@ def read_block_graph_from_dae_file(
             and len(node.children) == 1
             and isinstance(node.children[0], collada.scene.NodeNode)
         ):
+            # Extract key info from collada scene
             instance = cast(collada.scene.NodeNode, node.children[0])
             library_node: collada.scene.Node = instance.node
             name: str = library_node.name
+
             # Skip the correlation surface nodes
             if name.endswith(_CORRELATION_SUFFIX):
                 continue
             kind = _block_kind_from_str(name)
+
+            # Extract transformation and translation matrix
             transformation = _Transformation.from_4d_affine_matrix(node.matrix)
             translation = FloatPosition3D(*transformation.translation)
+
+            # Rotation health checks
+            # - If matrix NOT rotated: proceed automatically
+            # - If matrix YES rotated: check closer & make necessary adjustments
             if not np.allclose(transformation.rotation, np.eye(3), atol=1e-9):
-                raise TQECException(
-                    f"There is a non-identity rotation for {kind} block at position {translation}."
+                # Calculate rotation
+                rotation_angles = calc_rotation_angles(transformation.rotation)
+
+                # Reject invalid rotations:
+                # - Any != 0 or != 90 (degrees) rotation: partially rotated block/pipe
+                # - Less than 2 valid rotations: dimensional collapse.
+                if (
+                    any([abs(int(angle)) not in [0, 90] for angle in rotation_angles])
+                    or sum([abs(angle) for angle in rotation_angles]) < 180
+                ):
+                    raise TQECException(
+                        f"Forbidden rotation for {kind} block at position {translation}."
+                    )
+
+                # Rotate node name
+                rot_name = symbolic_multiplication(
+                    transformation.rotation, str(kind)[:3]
                 )
+                rot_name = rot_name if len(str(kind)) == 3 else rot_name + str(kind)[-1]
+                kind = _block_kind_from_str(rot_name)
+
+            # Scaling health checks
             if isinstance(kind, PipeKind):
                 pipe_direction = kind.direction
                 scale = transformation.scale[pipe_direction.value]
