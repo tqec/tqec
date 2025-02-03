@@ -28,6 +28,12 @@ class SequencedLayers(BaseComposedLayer):
     layer_sequence: Sequence[BaseLayer]
 
     def __post_init__(self) -> None:
+        if len(self.layer_sequence) <= 1:
+            clsname = SequencedLayers.__name__
+            raise TQECException(
+                f"An instance of {clsname} is expected to have multiple "
+                f"layers in sequence. Found {len(self.layer_sequence)}."
+            )
         shapes = frozenset(layer.scalable_shape for layer in self.layer_sequence)
         if len(shapes) == 0:
             raise TQECException(f"Cannot build an empty {self.__class__.__name__}")
