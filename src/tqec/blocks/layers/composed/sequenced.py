@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Sequence
+from typing import Generic, Iterable, Sequence, TypeVar
 
 from typing_extensions import override
 
@@ -11,9 +11,11 @@ from tqec.blocks.layers.composed.base import BaseComposedLayer
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
+T = TypeVar("T", bound=BaseLayer)
+
 
 @dataclass
-class SequencedLayers(BaseComposedLayer):
+class SequencedLayers(BaseComposedLayer, Generic[T]):
     """Composed layer implementing a fixed sequence of atomic layers.
 
     This composed layer sequentially applies layers from a fixed sequence. As
@@ -25,7 +27,7 @@ class SequencedLayers(BaseComposedLayer):
             spatial footprint.
     """
 
-    layer_sequence: Sequence[BaseLayer]
+    layer_sequence: Sequence[T]
 
     def __post_init__(self) -> None:
         if len(self.layer_sequence) <= 1:
@@ -43,10 +45,6 @@ class SequencedLayers(BaseComposedLayer):
                 "which is forbidden. All the provided layers should have the same "
                 f"shape. Found shapes: {shapes}."
             )
-
-    @override
-    def layers(self, k: int) -> Iterable[BaseLayer]:
-        yield from self.layer_sequence
 
     @property
     @override
@@ -75,7 +73,7 @@ class SequencedLayers(BaseComposedLayer):
     def with_temporal_borders_trimed(
         self, borders: Iterable[TemporalBlockBorder]
     ) -> SequencedLayers | None:
-        layers: list[BaseLayer] = []
+        layers: list[T] = []
         if TemporalBlockBorder.Z_NEGATIVE in borders:
             first_layer = self.layer_sequence[0].with_temporal_borders_trimed(
                 [TemporalBlockBorder.Z_NEGATIVE]

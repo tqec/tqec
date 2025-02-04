@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from typing_extensions import override
+from typing_extensions import Self, override
 
 from tqec.blocks.enums import TemporalBlockBorder
 from tqec.blocks.spatial import WithSpatialFootprint
@@ -28,7 +28,7 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
     @override
     def with_temporal_borders_trimed(
         self, borders: Iterable[TemporalBlockBorder]
-    ) -> BaseLayer | None:
+    ) -> Self | None:
         # Removing any temporal border from a layer means removing the whole
         # layer.
         trimed_borders = frozenset(borders)
