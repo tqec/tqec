@@ -8,6 +8,10 @@ from typing_extensions import override
 
 from tqec.blocks.enums import SpatialBlockBorder
 from tqec.blocks.layers.atomic.base import BaseLayer
+from tqec.blocks.layers.atomic.plaquettes import PlaquetteLayer
+from tqec.plaquette.plaquette import Plaquettes
+from tqec.templates.base import RectangularTemplate
+from tqec.templates.layout import LayoutTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import PhysicalQubitScalable2D
@@ -43,6 +47,21 @@ class LayoutLayer(BaseLayer):
     @cached_property
     def _element_shape(self) -> PhysicalQubitScalable2D:
         return next(iter(self.layers.values())).scalable_shape
+
+    def to_layout_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
+        templates: dict[BlockPosition2D, RectangularTemplate] = {}
+        local_plaquettes: dict[BlockPosition2D, Plaquettes] = {}
+        for pos, layer in self.layers.items():
+            if not isinstance(layer, PlaquetteLayer):
+                raise TQECException(
+                    f"Cannot include a layer of type {type(layer)} in a "
+                    "LayoutTemplate instance."
+                )
+            templates[pos] = layer.template
+            local_plaquettes[pos] = layer.plaquettes
+        layout_template = LayoutTemplate(templates)
+        plaquettes = layout_template.global_plaquettes_from_local_ones(local_plaquettes)
+        return layout_template, plaquettes
 
     @property
     @override
