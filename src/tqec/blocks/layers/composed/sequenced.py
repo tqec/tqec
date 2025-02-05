@@ -64,7 +64,7 @@ class SequencedLayers(BaseComposedLayer[T], Generic[T]):
     @override
     def with_spatial_borders_trimed(
         self, borders: Iterable[SpatialBlockBorder]
-    ) -> SequencedLayers:
+    ) -> SequencedLayers[T]:
         return SequencedLayers(
             [
                 layer.with_spatial_borders_trimed(borders)
@@ -75,7 +75,7 @@ class SequencedLayers(BaseComposedLayer[T], Generic[T]):
     @override
     def with_temporal_borders_trimed(
         self, borders: Iterable[TemporalBlockBorder]
-    ) -> SequencedLayers | None:
+    ) -> SequencedLayers[T] | None:
         layers: list[T | BaseComposedLayer[T]] = []
         if TemporalBlockBorder.Z_NEGATIVE in borders:
             first_layer = self.layer_sequence[0].with_temporal_borders_trimed(

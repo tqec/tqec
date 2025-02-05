@@ -33,7 +33,7 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
             that all have the same spatial footprint.
     """
 
-    layers: Sequence[BaseLayer | BaseComposedLayer]
+    layers: Sequence[BaseLayer | BaseComposedLayer[BaseLayer]]
 
     def __post_init__(self) -> None:
         shapes = frozenset(layer.scalable_shape for layer in self.layers)
@@ -76,7 +76,7 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
 
     def _add_layer_with_temporal_borders_trimed(
         self,
-        layers: list[BaseLayer | BaseComposedLayer],
+        layers: list[BaseLayer | BaseComposedLayer[BaseLayer]],
         layer_index: int,
         border: TemporalBlockBorder,
     ) -> None:
@@ -88,7 +88,7 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
     def with_temporal_borders_trimed(
         self, borders: Iterable[TemporalBlockBorder]
     ) -> Block:
-        layers: list[BaseLayer | BaseComposedLayer] = []
+        layers: list[BaseLayer | BaseComposedLayer[BaseLayer]] = []
         if TemporalBlockBorder.Z_NEGATIVE in borders:
             self._add_layer_with_temporal_borders_trimed(
                 layers, 0, TemporalBlockBorder.Z_NEGATIVE
