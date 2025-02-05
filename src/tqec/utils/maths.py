@@ -4,28 +4,48 @@ from typing import Sequence
 
 
 def product(numbers: Sequence[int]) -> int:
+    """Returns the product of the provided numbers."""
     ret = 1
     for n in numbers:
         ret *= n
     return ret
 
 
-def prime_factors(number: int) -> list[int]:
-    """Unoptimized prime factor computation."""
+def prime_factors(n: int) -> list[int]:
+    """Unoptimized prime factor computation.
+
+    Args:
+        n: number to find the prime factors of.
+
+    Returns:
+        a list of the prime factors of the provided ``n``.
+    """
     i = 2
     factors = []
-    while i * i <= number:
-        if number % i:
+    while i * i <= n:
+        if n % i:
             i += 1
         else:
-            number //= i
+            n //= i
             factors.append(i)
-    if number > 1:
-        factors.append(number)
+    if n > 1:
+        factors.append(n)
     return factors
 
 
 def least_common_multiple(numbers: Sequence[int]) -> int:
+    """Returns the least common multiple of the provided numbers.
+
+    This function returns a number ``n`` such that for all ``k`` in the provided
+    ``numbers``, ``n`` is a multiple of ``k``.
+
+    Args:
+        numbers: numbers to find the least common multiple of.
+
+    Returns:
+        a number ``n`` such that for all ``k`` in the provided ``numbers``,
+        ``n`` is a multiple of ``k``.
+    """
     factorisations = [Counter(prime_factors(n)) for n in numbers]
     factors: frozenset[int] = frozenset(
         chain.from_iterable(counter.keys() for counter in factorisations)
