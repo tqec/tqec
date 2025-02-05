@@ -13,10 +13,11 @@ class SpatialArms(Flag):
 
     @classmethod
     def get_map_from_arm_to_shift(cls) -> dict[SpatialArms, tuple[int, int]]:
+        # Note that in tqec, the y-axis is pointing downwards!
         return {
-            cls.UP: (0, 1),
+            cls.UP: (0, -1),
             cls.RIGHT: (1, 0),
-            cls.DOWN: (0, -1),
+            cls.DOWN: (0, 1),
             cls.LEFT: (-1, 0),
         }
 
@@ -67,6 +68,7 @@ class SpatialArms(Flag):
         yield from (arm for arm in SpatialArms.single_arms() if arm in self)
 
     def __repr__(self) -> str:
+        clsname = self.__class__.__name__
         if self == SpatialArms.NONE:
-            return "JunctionArms.NONE"
-        return " | ".join(f"JunctionArms.{arm.name}" for arm in self)
+            return f"{clsname}.NONE"
+        return " | ".join(f"{clsname}.{arm.name}" for arm in self)
