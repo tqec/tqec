@@ -65,14 +65,16 @@ which outputs
 """
 
 from copy import deepcopy
-from typing import Sequence
+from typing import Callable, Sequence
 
 import numpy
 import numpy.typing as npt
 from typing_extensions import override
 
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.base import RectangularTemplate, Template
 from tqec.utils.exceptions import TQECException
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
 from tqec.utils.scale import PlaquetteScalable2D
 
@@ -163,6 +165,50 @@ class LayoutTemplate(Template):
             }
             index_count += template.expected_plaquettes_number
         return indices_map
+
+    def global_plaquettes_from_local_ones(
+        self,
+        local_plaquettes: dict[BlockPosition2D, Plaquettes],
+        instantiate_indices: Sequence[int] | None = None,
+    ) -> Plaquettes:
+        different_positions = frozenset(self._layout.keys()).symmetric_difference(
+            local_plaquettes.keys()
+        )
+        if different_positions:
+            raise TQECException(
+                "Expected one Plaquettes instance for EACH block in the layout "
+                "but found the following position(s) that are not in both the "
+                "provided local_plaquette and in the stored layout: "
+                f"{different_positions}."
+            )
+        indices_maps = self.get_indices_map_for_instantiation(instantiate_indices)
+        final_mapping: dict[int, Plaquette] = {}
+        default_factories: list[Callable[[], Plaquette] | None] = []
+        for position, plaquettes in local_plaquettes.items():
+            index_map = indices_maps[position]
+            collection = plaquettes.collection
+            final_mapping.update(collection.map_keys(lambda i: index_map[i]))
+            default_factories.append(collection.default_factory)
+        # If all the factories are None, that is a valid merge and we can
+        # early-return.
+        if all(f is None for f in default_factories):
+            return Plaquettes(FrozenDefaultDict(final_mapping, default_factory=None))
+        if any(f is None for f in default_factories):
+            raise TQECException(
+                "Trying to merge Plaquettes instances with at least one having "
+                "a default factory and another not having a default factory."
+            )
+        # We know for sure that all the factories are not None here.
+        default_values = frozenset(f() for f in default_factories)  # type:ignore
+        if len(default_values) > 1:
+            raise TQECException(
+                "Cannot merge Plaquettes instances with different default "
+                "factories. Found factories returning different elements: "
+                f"{default_values}."
+            )
+        return Plaquettes(
+            FrozenDefaultDict(final_mapping, default_factory=default_factories[0])
+        )
 
     @property
     @override
