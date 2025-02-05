@@ -31,7 +31,7 @@ def calc_rotation_angles(M: np.ndarray) -> np.ndarray:
     return rotations
 
 
-def symbolic_multiplication(M, name):
+def symbolic_multiplication(M: np.ndarray, name: str) -> tuple[str, dict[str, int]]:
     """Multiplies a numerical matrix (M) with a symbolic vector (passed as string).
         - M is NOT rotated: name remains untouched
         - M is rotated: name rotated accordingly
@@ -41,14 +41,16 @@ def symbolic_multiplication(M, name):
         name (string): original name of the node, extracted from `.dae` file.
 
     Returns:
-        rotated_name: rotated name for the node.
+        rotated_name (str): rotated name for the node.
+        axes_directions (dict): up/down multipliers for each axis
     """
 
     rotated_name = ""
-    for row in M:
+    axes_directions = {"X": 1, "Y": 1, "Z": 1}
+    for i, row in enumerate(M):
         entry = ""
-        for i, element in enumerate(row):
-            entry += abs(int(element)) * name[i]
+        for j, element in enumerate(row):
+            entry += abs(int(element)) * name[j]
+        axes_directions["XYZ"[i]] = -1 if sum(row) < 0 else 1
         rotated_name += entry
-
-    return rotated_name
+    return rotated_name, axes_directions

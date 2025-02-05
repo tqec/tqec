@@ -64,6 +64,7 @@ def read_block_graph_from_dae_file(
     Raises:
         TQECException: If the COLLADA model cannot be parsed and converted to a block graph.
     """
+
     # Bring the mesh in
     mesh = collada.Collada(str(filepath))
 
@@ -71,14 +72,16 @@ def read_block_graph_from_dae_file(
     if mesh.scene is None:
         raise TQECException("No scene found in the DAE file.")
     scene: collada.scene.Scene = mesh.scene
+
     if not (len(scene.nodes) == 1 and scene.nodes[0].name == "SketchUp"):
         raise TQECException(
             "The <visual_scene> node must have a single child node with the name 'SketchUp'."
         )
+
     sketchup_node: collada.scene.Node = scene.nodes[0]
     pipe_length: float | None = None
-    parsed_cubes: list[tuple[FloatPosition3D, CubeKind]] = []
-    parsed_pipes: list[tuple[FloatPosition3D, PipeKind]] = []
+    parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
+    parsed_pipes: list[tuple[FloatPosition3D, PipeKind, dict[str, int]]] = []
 
     # Handle nodes in scene/sketchup_node
     for node in sketchup_node.children:
@@ -104,6 +107,12 @@ def read_block_graph_from_dae_file(
             transformation = _Transformation.from_4d_affine_matrix(node.matrix)
             translation = FloatPosition3D(*transformation.translation)
 
+            # Calculate rotated name and directions for all axes in case it is needed
+            # (rot_name not used unless structure is rotated, but axes_directions is needed)
+            rot_name, axes_directions = symbolic_multiplication(
+                transformation.rotation, str(kind)[:3]
+            )
+
             # Rotation health checks
             # - If matrix NOT rotated: proceed automatically
             # - If matrix YES rotated: check closer & make necessary adjustments
@@ -115,19 +124,27 @@ def read_block_graph_from_dae_file(
                 # - Any != 0 or != 90 (degrees) rotation: partially rotated block/pipe
                 # - Less than 2 valid rotations: dimensional collapse.
                 if (
-                    any([abs(int(angle)) not in [0, 90] for angle in rotation_angles])
+                    any(
+                        [
+                            abs(int(angle)) not in [0, 90, 180]
+                            for angle in rotation_angles
+                        ]
+                    )
                     or sum([abs(angle) for angle in rotation_angles]) < 180
                 ):
                     raise TQECException(
-                        f"Forbidden rotation for {kind} block at position {translation}."
+                        f"There is a non-identity rotation for {kind} block at position {translation}."
                     )
 
                 # Rotate node name
-                rot_name = symbolic_multiplication(
-                    transformation.rotation, str(kind)[:3]
-                )
                 rot_name = rot_name if len(str(kind)) == 3 else rot_name + str(kind)[-1]
                 kind = _block_kind_from_str(rot_name)
+
+                # Shift nodes slightly according to rotation
+                translation = FloatPosition3D(
+                    *transformation.translation
+                    + transformation.rotation.dot(transformation.scale)
+                )
 
             # Scaling health checks
             if isinstance(kind, PipeKind):
@@ -143,21 +160,22 @@ def read_block_graph_from_dae_file(
                     raise TQECException(
                         f"Only the dimension along the pipe can be scaled, which is not the case at {translation}."
                     )
-                parsed_pipes.append((translation, kind))
+                parsed_pipes.append((translation, kind, axes_directions))
+
             else:
                 if not np.allclose(transformation.scale, np.ones(3), atol=1e-9):
                     raise TQECException(
                         f"Cube at {translation} has a non-identity scale."
                     )
-                parsed_cubes.append((translation, kind))
+                parsed_cubes.append((translation, kind, axes_directions))
 
     pipe_length = 2.0 if pipe_length is None else pipe_length
 
     def int_position_before_scale(pos: FloatPosition3D) -> Position3D:
         return Position3D(
-            x=round_or_fail(pos.x / (1 + pipe_length)),
-            y=round_or_fail(pos.y / (1 + pipe_length)),
-            z=round_or_fail(pos.z / (1 + pipe_length)),
+            x=round_or_fail(pos.x / (1 + pipe_length), atol=0.35),
+            y=round_or_fail(pos.y / (1 + pipe_length), atol=0.35),
+            z=round_or_fail(pos.z / (1 + pipe_length), atol=0.35),
         )
 
     def offset_y_cube_position(pos: FloatPosition3D) -> FloatPosition3D:
@@ -165,18 +183,29 @@ def read_block_graph_from_dae_file(
             pos = pos.shift_by(dz=-0.5)
         return FloatPosition3D(pos.x, pos.y, pos.z / (1 + pipe_length))
 
-    # Construct the block graph
+    # Construct graph
+    # Create graph
     graph = BlockGraph(graph_name)
-    for pos, cube_kind in parsed_cubes:
+
+    # Add cubes
+    for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YCube):
             pos = offset_y_cube_position(pos)
         graph.add_node(Cube(int_position_before_scale(pos), cube_kind))
     port_index = 0
-    for pos, pipe_kind in parsed_pipes:
+
+    # Add pipes
+    for pos, pipe_kind, axes_directions in parsed_pipes:
+        # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers from previous operations
         head_pos = int_position_before_scale(
-            pos.shift_in_direction(pipe_kind.direction, -1)
+            pos.shift_in_direction(
+                pipe_kind.direction, -1 * axes_directions[str(pipe_kind.direction)]
+            )
         )
-        tail_pos = head_pos.shift_in_direction(pipe_kind.direction, 1)
+        tail_pos = head_pos.shift_in_direction(
+            pipe_kind.direction, 1 * axes_directions[str(pipe_kind.direction)]
+        )
+        # Add pipe
         if head_pos not in graph:
             graph.add_node(Cube(head_pos, Port(), label=f"Port{port_index}"))
             port_index += 1
@@ -184,6 +213,8 @@ def read_block_graph_from_dae_file(
             graph.add_node(Cube(tail_pos, Port(), label=f"Port{port_index}"))
             port_index += 1
         graph.add_edge(graph[head_pos], graph[tail_pos], pipe_kind)
+
+    # Return the graph
     return graph
 
 
