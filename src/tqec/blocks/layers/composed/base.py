@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from typing import Generic, TypeVar
+
+from tqec.blocks.layers.atomic.base import BaseLayer
 from tqec.blocks.spatial import WithSpatialFootprint
 from tqec.blocks.temporal import WithTemporalFootprint
 
+T = TypeVar("T", bound=BaseLayer)
 
-class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
+
+class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T]):
     """Base class representing a composed "layer".
 
     A composed layer is defined as a sequence (in time) of atomic layers. As
