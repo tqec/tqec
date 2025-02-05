@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Generic, TypeVar
+from abc import abstractmethod
+from typing import Generic, Iterable, TypeVar
 
 from tqec.blocks.layers.atomic.base import BaseLayer
 from tqec.blocks.spatial import WithSpatialFootprint
@@ -18,6 +19,6 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T])
     greater than ``1``.
     """
 
-    # @abstractmethod
-    # def layers(self, k: int) -> Iterable[BaseLayer]:
-    #     pass
+    @abstractmethod
+    def all_layers(self, k: int) -> Iterable[BaseLayer]:
+        pass

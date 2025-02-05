@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import chain
 from typing import Generic, Iterable, Sequence, TypeVar
 
 from typing_extensions import override
@@ -90,3 +91,10 @@ class SequencedLayers(BaseComposedLayer[T], Generic[T]):
             if last_layer is not None:
                 layers.append(last_layer)
         return SequencedLayers(layers)
+
+    @override
+    def all_layers(self, k: int) -> Iterable[BaseLayer]:
+        yield from chain.from_iterable(
+            ((layer,) if isinstance(layer, BaseLayer) else layer.all_layers(k))
+            for layer in self.layer_sequence
+        )
