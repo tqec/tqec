@@ -67,9 +67,9 @@ class PhysicalQubitPosition2D(Position2D):
 class PlaquettePosition2D(Position2D):
     """Represents the position of a plaquette on a 2-dimensional plane."""
 
-    def get_origin_position(self, displacement: Shift2D) -> PhysicalQubitPosition2D:
+    def get_origin_position(self, shift: Shift2D) -> PhysicalQubitPosition2D:
         """Returns the position of the plaquette origin."""
-        return PhysicalQubitPosition2D(displacement.x * self.x, displacement.y * self.y)
+        return PhysicalQubitPosition2D(shift.x * self.x, shift.y * self.y)
 
 
 class BlockPosition2D(Position2D):
@@ -92,6 +92,14 @@ class Shape2D(Vec2D):
         the user.
         """
         return (self.y, self.x)
+
+
+class PlaquetteShape2D(Shape2D):
+    """Represents a 2-dimensional shape using plaquette coordinate system."""
+
+
+class PhysicalQubitShape2D(Shape2D):
+    """Represents a 2-dimensional shape using physical qubit coordinate system."""
 
 
 class Shift2D(Vec2D):
