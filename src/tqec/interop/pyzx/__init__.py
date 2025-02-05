@@ -6,4 +6,10 @@ from tqec.interop.pyzx.utils import (
     cube_kind_to_zx as cube_kind_to_zx,
 )
 
-from tqec.interop.pyzx.positioned_graph import PositionedZX as PositionedZX
+from tqec.interop.pyzx.positioned import PositionedZX as PositionedZX
+
+from tqec.interop.pyzx.synthesis import (
+    positioned_block_synthesis as positioned_block_synthesis,
+    SynthesisStrategy as SynthesisStrategy,
+    block_synthesis as block_synthesis,
+)
