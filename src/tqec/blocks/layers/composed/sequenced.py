@@ -15,11 +15,10 @@ T = TypeVar("T", bound=BaseLayer)
 
 
 @dataclass
-class SequencedLayers(BaseComposedLayer, Generic[T]):
-    """Composed layer implementing a fixed sequence of atomic layers.
+class SequencedLayers(BaseComposedLayer[T], Generic[T]):
+    """Composed layer implementing a fixed sequence of layers.
 
-    This composed layer sequentially applies layers from a fixed sequence. As
-    such, its temporal footprint is not expected to scale with ``k``.
+    This composed layer sequentially applies layers from a fixed sequence.
 
     Attributes:
         layer_sequence: non-empty sequence of layers to apply one after the
@@ -27,7 +26,7 @@ class SequencedLayers(BaseComposedLayer, Generic[T]):
             spatial footprint.
     """
 
-    layer_sequence: Sequence[T]
+    layer_sequence: Sequence[T | BaseComposedLayer[T]]
 
     def __post_init__(self) -> None:
         if len(self.layer_sequence) <= 1:
@@ -49,7 +48,10 @@ class SequencedLayers(BaseComposedLayer, Generic[T]):
     @property
     @override
     def scalable_timesteps(self) -> LinearFunction:
-        return LinearFunction(0, len(self.layer_sequence))
+        return sum(
+            (layer.scalable_timesteps for layer in self.layer_sequence),
+            start=LinearFunction(0, 0),
+        )
 
     @property
     @override
@@ -73,7 +75,7 @@ class SequencedLayers(BaseComposedLayer, Generic[T]):
     def with_temporal_borders_trimed(
         self, borders: Iterable[TemporalBlockBorder]
     ) -> SequencedLayers | None:
-        layers: list[T] = []
+        layers: list[T | BaseComposedLayer[T]] = []
         if TemporalBlockBorder.Z_NEGATIVE in borders:
             first_layer = self.layer_sequence[0].with_temporal_borders_trimed(
                 [TemporalBlockBorder.Z_NEGATIVE]

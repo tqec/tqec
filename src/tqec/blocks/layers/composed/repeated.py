@@ -8,7 +8,6 @@ from typing_extensions import override
 from tqec.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.blocks.layers.atomic.base import BaseLayer
 from tqec.blocks.layers.composed.base import BaseComposedLayer
-from tqec.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -16,7 +15,7 @@ T = TypeVar("T", bound=BaseLayer)
 
 
 @dataclass
-class RepeatedLayer(BaseComposedLayer, Generic[T]):
+class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
     """Composed layer implementing repetition.
 
     This composed layer repeats another layer (that can be atomic or composed)
@@ -27,7 +26,7 @@ class RepeatedLayer(BaseComposedLayer, Generic[T]):
         repetitions: number of repetitions to perform. Can scale with ``k``.
     """
 
-    internal_layer: T | SequencedLayers[T]
+    internal_layer: T | BaseComposedLayer[T]
     repetitions: LinearFunction
 
     def __post_init__(self) -> None:
