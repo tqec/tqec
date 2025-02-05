@@ -129,6 +129,30 @@ class LinearFunction:
     def integer_eval(self, x: int) -> int:
         return round_or_fail(self.slope * x + self.offset)
 
+    def exact_integer_div(self, div: int) -> LinearFunction:
+        slope, offset = round_or_fail(self.slope), round_or_fail(self.offset)
+        if slope % div != 0:
+            raise TQECException(
+                "Trying to divide exactly a LinearFunction by an integer that "
+                f"is not a multiple of the slope. Divisor: {div}. Slope: {slope}."
+            )
+        if offset % div != 0:
+            raise TQECException(
+                "Trying to divide exactly a LinearFunction by an integer that "
+                f"is not a multiple of the offset. Divisor: {div}. Offset: "
+                f"{offset}."
+            )
+        return LinearFunction(slope // div, offset // div)
+
+    def is_constant(self, atol: float = 1e-8) -> bool:
+        return abs(self.slope) < atol
+
+    def is_close_to(self, other: LinearFunction, atol: float = 1e-8) -> bool:
+        return (
+            abs(self.slope - other.slope) < atol
+            and abs(self.offset - other.offset) < atol
+        )
+
 
 def round_or_fail(f: float, atol: float = 1e-8) -> int:
     """Try to round the provided ``f`` to the nearest integer and raise if
