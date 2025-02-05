@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import chain
 from typing import Generic, Iterable, TypeVar
 
 from typing_extensions import override
@@ -70,4 +71,15 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
     ) -> RepeatedLayer | None:
         return RepeatedLayer(
             self.internal_layer, self.repetitions - len(frozenset(borders))
+        )
+
+    @override
+    def all_layers(self, k: int) -> Iterable[BaseLayer]:
+        yield from chain.from_iterable(
+            (
+                (self.internal_layer,)
+                if isinstance(self.internal_layer, BaseLayer)
+                else self.internal_layer.all_layers(k)
+            )
+            for _ in range(self.repetitions.integer_eval(k))
         )
