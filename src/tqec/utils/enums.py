@@ -19,3 +19,9 @@ class Basis(Enum):
 
     def __str__(self) -> str:
         return self.value
+
+    def __repr__(self) -> str:
+        return f"Basis.{self.value}"
+
+    def __lt__(self, other: Basis) -> bool:
+        return self.value < other.value
