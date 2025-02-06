@@ -4,12 +4,13 @@ correlation surfaces in the ZX graph."""
 from __future__ import annotations
 
 from fractions import Fraction
+from functools import reduce
 import itertools
 from dataclasses import dataclass
 from typing import Iterator
 
 from pyzx.graph.graph_s import GraphS
-from pyzx.pauliweb import PauliWeb
+from pyzx.pauliweb import PauliWeb, multiply_paulis
 from pyzx.utils import FractionLike, VertexType
 
 from tqec.interop.pyzx.utils import (
@@ -50,7 +51,40 @@ class CorrelationSurface:
     span: frozenset[ZXEdge]
 
     def to_pauli_web(self, g: GraphS) -> PauliWeb:
-        raise NotImplementedError
+        """Convert the correlation surface to a Pauli web.
+
+        Args:
+            g: The ZX graph the correlation surface is based on.
+
+        Returns:
+            A `PauliWeb` representation of the correlation surface.
+        """
+        half_edge_bases: dict[tuple[int, int], set[str]] = {}
+        for edge in self.span:
+            u, v = edge.u, edge.v
+            half_edge_bases.setdefault((u.id, v.id), set()).add(u.basis.value)
+            half_edge_bases.setdefault((v.id, u.id), set()).add(v.basis.value)
+
+        pauli_web = PauliWeb(g)
+        for e, bases in half_edge_bases.items():
+            pauli = reduce(multiply_paulis, bases, "I")
+            pauli_web.add_half_edge(e, pauli)
+        return pauli_web
+
+    @staticmethod
+    def from_pauli_web(pauli_web: PauliWeb) -> CorrelationSurface:
+        """Create a correlation surface from a Pauli web."""
+        span: set[ZXEdge] = set()
+        half_edges: dict[tuple[int, int], str] = pauli_web.half_edges()
+        while half_edges:
+            (u, v), pauli_u = half_edges.popitem()
+            pauli_v = half_edges.pop((v, u))
+            if pauli_u == "Y":
+                span.add(ZXEdge(ZXNode(u, Basis.X), ZXNode(v, Basis.Z)))
+                span.add(ZXEdge(ZXNode(u, Basis.Z), ZXNode(v, Basis.Z)))
+                continue
+            span.add(ZXEdge(ZXNode(u, Basis(pauli_u)), ZXNode(v, Basis(pauli_v))))
+        return CorrelationSurface(frozenset(span))
 
     @property
     def is_single_node(self) -> bool:

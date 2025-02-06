@@ -163,7 +163,11 @@ def test_correlation_four_node_circle() -> None:
         g.set_type(i, VertexType.Z)
     g.add_edges([(0, 1), (1, 2), (2, 3), (3, 4), (1, 4)])
 
-    assert len(find_correlation_surfaces(g)) == 1
+    surfaces = find_correlation_surfaces(g)
+    assert len(surfaces) == 1
+    surface = surfaces[0]
+    pauli_web = surface.to_pauli_web(g)
+    assert CorrelationSurface.from_pauli_web(pauli_web) == surface
 
     g.add_vertex()
     g.add_edge((1, 5))
