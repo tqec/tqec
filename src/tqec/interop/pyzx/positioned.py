@@ -1,14 +1,18 @@
 """ZX graph with 3D positions."""
 
+from __future__ import annotations
+
 from fractions import Fraction
 from typing import Mapping
 
 import pyzx as zx
 from pyzx.graph.graph_s import GraphS
 
+from tqec.computation.block_graph import BlockGraph
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
-from tqec.interop.pyzx.utils import is_boundary
+from tqec.interop.pyzx.utils import cube_kind_to_zx, is_boundary
+from tqec.utils.scale import round_or_fail
 
 
 class PositionedZX:
@@ -113,6 +117,83 @@ class PositionedZX:
         """Return the direction connecting two vertices."""
         p1, p2 = self[v1], self[v2]
         return _get_direction(p1, p2)
+
+    @staticmethod
+    def from_block_graph(block_graph: BlockGraph) -> PositionedZX:
+        """Convert a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
+        ZX graph with 3D positions.
+
+        The conversion process is as follows:
+
+        1. For each cube in the block graph, convert it to a ZX vertex.
+        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.
+
+        Args:
+            block_graph: The block graph to be converted to a ZX graph.
+
+        Returns:
+            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from the block
+            graph.
+        """
+        v2p: dict[int, Position3D] = {}
+        p2v: dict[Position3D, int] = {}
+        g = GraphS()
+
+        for cube in block_graph.nodes:
+            vt, phase = cube_kind_to_zx(cube.kind)
+            v = g.add_vertex(vt, phase=phase)
+            v2p[v] = cube.position
+            p2v[cube.position] = v
+
+        for edge in block_graph.edges:
+            et = zx.EdgeType.HADAMARD if edge.kind.has_hadamard else zx.EdgeType.SIMPLE
+            g.add_edge((p2v[edge.u.position], p2v[edge.v.position]), et)
+
+        return PositionedZX(g, v2p)
+
+    def rotate(
+        self,
+        rotation_axis: Direction3D = Direction3D.Y,
+        num_90_degree_rotation: int = 1,
+        counterclockwise: bool = True,
+    ) -> PositionedZX:
+        """Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and
+        return a new rotated graph.
+
+        Args:
+            rotation_axis: The axis around which to rotate the graph.
+            num_90_degree_rotation: The number of 90-degree rotations to apply to the graph.
+            counterclockwise: Whether to rotate the graph counterclockwise. If set to False,
+                the graph will be rotated clockwise. Defaults to True.
+
+        Returns:
+            A graph with positions rotated by the given number of 90-degree rotations.
+        """
+        n = num_90_degree_rotation % 4
+
+        if n == 0:
+            return self
+
+        import numpy as np
+        from scipy.spatial.transform import Rotation as R
+
+        def _rotate(p: Position3D) -> Position3D:
+            rot_vec = np.array([0, 0, 0])
+            axis_idx = rotation_axis.value
+            rot_vec[axis_idx] = 1 if axis_idx != 1 else -1
+            if not counterclockwise:
+                rot_vec *= -1
+            rotated = R.from_rotvec(rot_vec * n * np.pi / 2).apply(p.as_tuple())
+            return Position3D(*[round_or_fail(i) for i in rotated])
+
+        rotated_positions = {v: _rotate(p) for v, p in self._positions.items()}
+        return PositionedZX(self._g, rotated_positions)
+
+    def to_block_graph(self) -> BlockGraph:
+        """Convert the positioned ZX graph to a block graph."""
+        from tqec.interop.pyzx.synthesis.positioned import positioned_block_synthesis
+
+        return positioned_block_synthesis(self)
 
 
 def _get_direction(p1: Position3D, p2: Position3D) -> Direction3D:

@@ -42,8 +42,16 @@ class ZXEdge:
             object.__setattr__(self, "u", u)
             object.__setattr__(self, "v", v)
 
+    def __iter__(self) -> Iterator[ZXNode]:
+        yield self.u
+        yield self.v
+
     def is_self_loop(self) -> bool:
         return self.u.id == self.v.id
+
+    @property
+    def has_hadamard(self) -> bool:
+        return self.u.basis != self.v.basis
 
 
 @dataclass(frozen=True)
@@ -94,9 +102,13 @@ class CorrelationSurface:
         """
         return len(self.span) == 1 and next(iter(self.span)).is_self_loop()
 
-    def touches(self, v: int) -> bool:
-        """Whether the correlation surface touches the node."""
-        return any(e.u == v or e.v == v for e in self.span)
+    def span_vertices(self) -> set[int]:
+        """Return the set of vertices in the correlation surface."""
+        return {v.id for edge in self.span for v in edge}
+
+    def edges_at(self, v: int) -> set[ZXEdge]:
+        """Return the set of edges incident to the vertex in the correlation surface."""
+        return {edge for edge in self.span if any(n.id == v for n in edge)}
 
 
 def find_correlation_surfaces(

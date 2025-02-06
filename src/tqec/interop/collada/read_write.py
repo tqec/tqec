@@ -12,10 +12,8 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind
-from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, CubeKind, Port, YCube, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.computation.zx_graph import ZXKind
 from tqec.utils.exceptions import TQECException
 from tqec.interop.collada._geometry import (
     BlockGeometries,
@@ -23,6 +21,7 @@ from tqec.interop.collada._geometry import (
     get_correlation_surface_geometry,
 )
 from tqec.interop.color import TQECColor
+from tqec.interop.pyzx.correlation import CorrelationSurface
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.utils.scale import round_or_fail
 
@@ -238,7 +237,7 @@ class _BaseColladaData:
         self.geometry_nodes: dict[Face, collada.scene.GeometryNode] = {}
         self.root_node = collada.scene.Node("SketchUp", name="SketchUp")
         self.block_library: dict[_BlockLibraryKey, collada.scene.Node] = {}
-        self.surface_library: dict[ZXKind, collada.scene.Node] = {}
+        self.surface_library: dict[str, collada.scene.Node] = {}
         self._pop_faces_at_direction: frozenset[SignedDirection3D] = (
             frozenset({pop_faces_at_direction})
             if pop_faces_at_direction
@@ -362,7 +361,7 @@ class _BaseColladaData:
         self.root_node.children.append(child_node)
         self._num_instances += 1
 
-    def _add_surface_library_node(self, kind: ZXKind) -> None:
+    def _add_surface_library_node(self, kind: str) -> None:
         if kind in self.surface_library:
             return
         surface = get_correlation_surface_geometry(kind)

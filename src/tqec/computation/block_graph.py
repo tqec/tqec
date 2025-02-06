@@ -8,15 +8,15 @@ from io import BytesIO
 from typing import TYPE_CHECKING
 
 from tqec.computation._base_graph import ComputationGraph
-from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, CubeKind
 from tqec.computation.pipe import Pipe, PipeKind
-from tqec.computation.zx_graph import ZXGraph
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, SignedDirection3D
 
 if TYPE_CHECKING:
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
+    from tqec.interop.pyzx.positioned import PositionedZX
+    from tqec.interop.pyzx.correlation import CorrelationSurface
 
 
 BlockKind = CubeKind | PipeKind
@@ -117,27 +117,15 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         for pipe in pipes:
             pipe.check_compatible_with_cubes()
 
-    def to_zx_graph(self, name: str | None = None) -> ZXGraph:
-        """Convert the block graph to a
-        :py:class:`~tqec.computation.zx_graph.ZXGraph`.
-
-        The conversion process is as follows:
-
-        1. For each cube in the block graph, convert it to a ZX node by calling :py:meth:`~tqec.computation.cube.Cube.to_zx_node`.
-        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.
-
-        Args:
-            block_graph: The block graph to be converted to a ZX graph.
-            name: The name of the new ZX graph. If None, the name of the block graph will be used.
+    def to_zx_graph(self) -> PositionedZX:
+        """Convert the block graph to a positioned PyZX graph.
 
         Returns:
-            The :py:class:`~tqec.computation.zx_graph.ZXGraph` object converted from the block graph.
+            A :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` object converted from the block graph.
         """
-        from tqec.computation.conversion import (
-            convert_block_graph_to_zx_graph,
-        )
+        from tqec.interop.pyzx.positioned import PositionedZX
 
-        return convert_block_graph_to_zx_graph(self, name)
+        return PositionedZX.from_block_graph(self)
 
     def to_dae_file(
         self,
@@ -241,13 +229,16 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         return new_graph
 
     def find_correlation_surfaces(self) -> list[CorrelationSurface]:
-        """Get the `~tqec.computation.correlation.CorrelationSurface`s from the corresponding
-        ZXGraph of the block graph.
+        """Find the correlation surfaces in the block graph.
 
         Returns:
             The list of correlation surfaces.
         """
-        return self.to_zx_graph().find_correlation_surfaces()
+        from tqec.interop.pyzx.correlation import find_correlation_surfaces
+
+        zx_graph = self.to_zx_graph()
+
+        return find_correlation_surfaces(zx_graph.g)
 
     def rotate(
         self,
@@ -271,8 +262,6 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
 
         if n == 0:
             return self.copy()
-
-        zx = self.to_zx_graph()
-        rotated_zx = zx.rotate(rotation_axis, n, counterclockwise)
-        name_suffix = f" rotated by {n * 90} degrees {'counter' if counterclockwise else ''}clockwise around the {rotation_axis.name} axis"
-        return rotated_zx.to_block_graph(self.name + name_suffix)
+        g = self.to_zx_graph()
+        rotated_g = g.rotate(rotation_axis, n, counterclockwise)
+        return rotated_g.to_block_graph()
