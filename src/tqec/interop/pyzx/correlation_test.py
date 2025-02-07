@@ -4,10 +4,9 @@ import pytest
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, VertexType
 
+from tqec.gallery.cnot import cnot
+from tqec.computation.correlation import CorrelationSurface, ZXNode, ZXEdge
 from tqec.interop.pyzx.correlation import (
-    CorrelationSurface,
-    ZXNode,
-    ZXEdge,
     find_correlation_surfaces,
 )
 from tqec.utils.enums import Basis
@@ -106,6 +105,20 @@ def test_correlation_port_passthrough() -> None:
             )
         ),
     ]
+
+
+def test_correlation_cnot() -> None:
+    g = cnot("X")
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 3
+
+    g = cnot("Z")
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 3
+
+    g = cnot()
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 6
 
 
 def test_correlation_logical_s_via_gate_teleportation() -> None:

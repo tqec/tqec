@@ -16,7 +16,7 @@ from tqec.utils.position import Direction3D, SignedDirection3D
 if TYPE_CHECKING:
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
     from tqec.interop.pyzx.positioned import PositionedZX
-    from tqec.interop.pyzx.correlation import CorrelationSurface
+    from tqec.computation.correlation import CorrelationSurface
 
 
 BlockKind = CubeKind | PipeKind

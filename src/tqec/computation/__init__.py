@@ -21,7 +21,4 @@ from tqec.computation.cube import YCube as YCube
 from tqec.computation.cube import ZXCube as ZXCube
 from tqec.computation.pipe import Pipe as Pipe
 from tqec.computation.pipe import PipeKind as PipeKind
-from tqec.computation.zx_graph import ZXEdge as ZXEdge
-from tqec.computation.zx_graph import ZXGraph as ZXGraph
-from tqec.computation.zx_graph import ZXKind as ZXKind
-from tqec.computation.zx_graph import ZXNode as ZXNode
+from tqec.computation.correlation import CorrelationSurface as CorrelationSurface

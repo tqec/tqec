@@ -13,3 +13,7 @@ from tqec.interop.pyzx.synthesis import (
     SynthesisStrategy as SynthesisStrategy,
     block_synthesis as block_synthesis,
 )
+
+from tqec.interop.pyzx.correlation import (
+    find_correlation_surfaces as find_correlation_surfaces,
+)

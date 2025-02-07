@@ -6,13 +6,13 @@ from __future__ import annotations
 from fractions import Fraction
 from functools import reduce
 import itertools
-from dataclasses import dataclass
 from typing import Iterator
 
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb, multiply_paulis
 from pyzx.utils import FractionLike, VertexType
 
+from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.utils import (
     is_boundary,
     is_hardmard,
@@ -25,101 +25,44 @@ from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 
 
-@dataclass(frozen=True, order=True)
-class ZXNode:
-    id: int
-    basis: Basis
+def correlation_surface_to_pauli_web(
+    correlation_surface: CorrelationSurface, g: GraphS
+) -> PauliWeb[int, tuple[int, int]]:
+    """Convert the correlation surface to a Pauli web.
+
+    Args:
+        correlation_surface: The correlation surface to convert.
+        g: The ZX graph the correlation surface is based on.
+
+    Returns:
+        A `PauliWeb` representation of the correlation surface.
+    """
+    half_edge_bases: dict[tuple[int, int], set[str]] = {}
+    for edge in correlation_surface.span:
+        u, v = edge.u, edge.v
+        half_edge_bases.setdefault((u.id, v.id), set()).add(u.basis.value)
+        half_edge_bases.setdefault((v.id, u.id), set()).add(v.basis.value)
+
+    pauli_web = PauliWeb(g)
+    for e, bases in half_edge_bases.items():
+        pauli = reduce(multiply_paulis, bases, "I")
+        pauli_web.add_half_edge(e, pauli)
+    return pauli_web
 
 
-@dataclass(frozen=True, order=True)
-class ZXEdge:
-    u: ZXNode
-    v: ZXNode
-
-    def __post_init__(self) -> None:
-        if self.u.id > self.v.id:
-            u, v = self.v, self.u
-            object.__setattr__(self, "u", u)
-            object.__setattr__(self, "v", v)
-
-    def __iter__(self) -> Iterator[ZXNode]:
-        yield self.u
-        yield self.v
-
-    def is_self_loop(self) -> bool:
-        return self.u.id == self.v.id
-
-    @property
-    def has_hadamard(self) -> bool:
-        return self.u.basis != self.v.basis
-
-
-@dataclass(frozen=True)
-class CorrelationSurface:
-    span: frozenset[ZXEdge]
-
-    def bases_at(self, v: int) -> set[Basis]:
-        """Get the bases of the present surfaces at the vertex."""
-        edges = self.edges_at(v)
-        bases = set()
-        for edge in edges:
-            if edge.u.id == v:
-                bases.add(edge.u.basis)
-            else:
-                bases.add(edge.v.basis)
-        return bases
-
-    def to_pauli_web(self, g: GraphS) -> PauliWeb[int, tuple[int, int]]:
-        """Convert the correlation surface to a Pauli web.
-
-        Args:
-            g: The ZX graph the correlation surface is based on.
-
-        Returns:
-            A `PauliWeb` representation of the correlation surface.
-        """
-        half_edge_bases: dict[tuple[int, int], set[str]] = {}
-        for edge in self.span:
-            u, v = edge.u, edge.v
-            half_edge_bases.setdefault((u.id, v.id), set()).add(u.basis.value)
-            half_edge_bases.setdefault((v.id, u.id), set()).add(v.basis.value)
-
-        pauli_web = PauliWeb(g)
-        for e, bases in half_edge_bases.items():
-            pauli = reduce(multiply_paulis, bases, "I")
-            pauli_web.add_half_edge(e, pauli)
-        return pauli_web
-
-    @staticmethod
-    def from_pauli_web(pauli_web: PauliWeb) -> CorrelationSurface:
-        """Create a correlation surface from a Pauli web."""
-        span: set[ZXEdge] = set()
-        half_edges: dict[tuple[int, int], str] = pauli_web.half_edges()
-        while half_edges:
-            (u, v), pauli_u = half_edges.popitem()
-            pauli_v = half_edges.pop((v, u))
-            if pauli_u == "Y":
-                span.add(ZXEdge(ZXNode(u, Basis.X), ZXNode(v, Basis.Z)))
-                span.add(ZXEdge(ZXNode(u, Basis.Z), ZXNode(v, Basis.Z)))
-                continue
-            span.add(ZXEdge(ZXNode(u, Basis(pauli_u)), ZXNode(v, Basis(pauli_v))))
-        return CorrelationSurface(frozenset(span))
-
-    @property
-    def is_single_node(self) -> bool:
-        """Whether the correlation surface contains only a single node.
-        This is an edge case where the ZX graph only contains a single node.
-        The span of the correlation surface is a self-loop edge at the node.
-        """
-        return len(self.span) == 1 and next(iter(self.span)).is_self_loop()
-
-    def span_vertices(self) -> set[int]:
-        """Return the set of vertices in the correlation surface."""
-        return {v.id for edge in self.span for v in edge}
-
-    def edges_at(self, v: int) -> set[ZXEdge]:
-        """Return the set of edges incident to the vertex in the correlation surface."""
-        return {edge for edge in self.span if any(n.id == v for n in edge)}
+def pauli_web_to_correlation_surface(pauli_web: PauliWeb) -> CorrelationSurface:
+    """Create a correlation surface from a Pauli web."""
+    span: set[ZXEdge] = set()
+    half_edges: dict[tuple[int, int], str] = pauli_web.half_edges()
+    while half_edges:
+        (u, v), pauli_u = half_edges.popitem()
+        pauli_v = half_edges.pop((v, u))
+        if pauli_u == "Y":
+            span.add(ZXEdge(ZXNode(u, Basis.X), ZXNode(v, Basis.Z)))
+            span.add(ZXEdge(ZXNode(u, Basis.Z), ZXNode(v, Basis.Z)))
+            continue
+        span.add(ZXEdge(ZXNode(u, Basis(pauli_u)), ZXNode(v, Basis(pauli_v))))
+    return CorrelationSurface(frozenset(span))
 
 
 def find_correlation_surfaces(

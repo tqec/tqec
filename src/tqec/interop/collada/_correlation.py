@@ -6,7 +6,7 @@ import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, ZXCube
-from tqec.interop.pyzx.correlation import CorrelationSurface, ZXEdge
+from tqec.computation.correlation import CorrelationSurface, ZXEdge
 from tqec.utils.enums import Basis
 from tqec.interop.collada.read_write import _Transformation
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
