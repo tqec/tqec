@@ -215,11 +215,11 @@ def compile_correlation_surface_to_abstract_observable(
         # There is correlation surface attached to the top of the pipe
         if pipe_top_face.value == edge.u.basis.value:
             top_readout_pipes.add(pipe)
-            for cube, node in zip(pipe, edge):
+            for cube, n in zip(pipe, edge):
                 # Spatial cubes have already been handled
                 if cube.is_spatial:
                     continue
-                if has_obs_include(cube, node.basis):
+                if has_obs_include(cube, n.basis):
                     top_readout_cubes.add(cube)
         elif not all(cube.is_spatial for cube in pipe):
             bottom_stabilizer_pipes.add(pipe)

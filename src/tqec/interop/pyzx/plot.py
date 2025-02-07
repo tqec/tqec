@@ -10,7 +10,7 @@ import numpy.typing as npt
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 from pyzx.graph.graph_s import GraphS
 
-from tqec.interop.pyzx.correlation import CorrelationSurface
+from tqec.computation.correlation import CorrelationSurface
 from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phase
 from tqec.interop.color import RGBA, TQECColor
 from tqec.interop.pyzx.positioned import PositionedZX

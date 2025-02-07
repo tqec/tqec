@@ -44,13 +44,17 @@ Issues = "https://github.com/tqec/tqec/issues"
 
 [project.optional-dependencies]
 test = ["pytest", "mypy", "pytest-cov", "types-networkx", "scipy-stubs"]
-dev = [
-    "pymatching",
-    "jupyterlab",
-    "tqec[test, doc, bench]",
-    "pre-commit",
+dev = ["pymatching", "jupyterlab", "tqec[test, doc, bench]", "pre-commit"]
+doc = [
+    "sphinx",
+    "myst-parser",
+    "pydata-sphinx-theme",
+    "nbsphinx",
+    "pandoc",
+    "sphinxcontrib-mermaid",
+    "docformatter",
+    "sphinx-autobuild",
 ]
-doc = ["sphinx", "myst-parser", "pydata-sphinx-theme", "nbsphinx", "pandoc", "sphinxcontrib-mermaid", "docformatter", "sphinx-autobuild"]
 bench = ["pyinstrument"]
 all = ["tqec[test, dev, doc, bench]"]
 
@@ -119,6 +123,14 @@ module = [
     "mpl_toolkits.mplot3d.axes3d",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pyzx"
+no_implicit_reexport = false
+
+[[tool.mypy.overrides]]
+module = "tqec.interop.pyzx.*"
+disallow_untyped_calls = false
 
 [tool.coverage.run]
 omit = ["*/*_test.py"]

@@ -50,7 +50,9 @@ def correlation_surface_to_pauli_web(
     return pauli_web
 
 
-def pauli_web_to_correlation_surface(pauli_web: PauliWeb) -> CorrelationSurface:
+def pauli_web_to_correlation_surface(
+    pauli_web: PauliWeb[int, tuple[int, int]],
+) -> CorrelationSurface:
     """Create a correlation surface from a Pauli web."""
     span: set[ZXEdge] = set()
     half_edges: dict[tuple[int, int], str] = pauli_web.half_edges()
@@ -279,8 +281,8 @@ def _can_broadcast(g: GraphS, n: ZXNode) -> bool:
         return True
     vt = g.type(n.id)
     if n.basis == Basis.X:
-        return vt == VertexType.Z
-    return vt == VertexType.X
+        return vt is VertexType.Z
+    return vt is VertexType.X
 
 
 _SUPPORTED_SPIDERS: set[tuple[VertexType, FractionLike]] = {

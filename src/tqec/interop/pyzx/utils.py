@@ -17,27 +17,27 @@ def is_zx_no_phase(g: GraphS, v: int) -> bool:
 
 def is_z_no_phase(g: GraphS, v: int) -> bool:
     """Check if a vertex in a PyZX graph is a Z spider with phase 0."""
-    return g.type(v) == VertexType.Z and g.phase(v) == 0
+    return g.type(v) is VertexType.Z and g.phase(v) == 0
 
 
 def is_x_no_phase(g: GraphS, v: int) -> bool:
     """Check if a vertex in a PyZX graph is a X spider with phase 0."""
-    return g.type(v) == VertexType.X and g.phase(v) == 0
+    return g.type(v) is VertexType.X and g.phase(v) == 0
 
 
 def is_boundary(g: GraphS, v: int) -> bool:
     """Check if a vertex in a PyZX graph is a boundary type spider."""
-    return g.type(v) == zx.VertexType.BOUNDARY
+    return g.type(v) is zx.VertexType.BOUNDARY
 
 
 def is_s(g: GraphS, v: int) -> bool:
     """Check if a vertex in a PyZX graph is a S node."""
-    return g.type(v) == zx.VertexType.Z and g.phase(v) == Fraction(1, 2)
+    return g.type(v) is zx.VertexType.Z and g.phase(v) == Fraction(1, 2)
 
 
 def is_hardmard(g: GraphS, edge: tuple[int, int]) -> bool:
     """Check if an edge in a PyZX graph is a Hadamard edge."""
-    return g.edge_type(edge) == zx.EdgeType.HADAMARD
+    return g.edge_type(edge) is zx.EdgeType.HADAMARD
 
 
 def cube_kind_to_zx(kind: CubeKind) -> tuple[zx.VertexType, FractionLike]:

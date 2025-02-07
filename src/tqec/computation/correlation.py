@@ -72,7 +72,7 @@ class CorrelationSurface:
         return correlation_surface_to_pauli_web(self, g)
 
     @staticmethod
-    def from_pauli_web(pauli_web: PauliWeb) -> CorrelationSurface:
+    def from_pauli_web(pauli_web: PauliWeb[int, tuple[int, int]]) -> CorrelationSurface:
         """Create a correlation surface from a Pauli web."""
         from tqec.interop.pyzx.correlation import pauli_web_to_correlation_surface
 
