@@ -146,10 +146,24 @@ def read_block_graph_from_dae_file(
                     + transformation.rotation.dot(transformation.scale)
                 )
 
-            # Scaling health checks
+            # Adjust hadamards if pipe direction is negative
             if isinstance(kind, PipeKind):
+                if axes_directions[str(kind.direction)] == -1 and "H" in str(kind):
+                    hdm_equivalences = {"ZXOH": "XZOH", "XOZH": "ZOXH", "OXZH": "OZXH"}
+                    if str(kind) in hdm_equivalences.keys():
+                        kind = _block_kind_from_str(hdm_equivalences[str(kind)])
+                    else:
+                        inv_equivalences = {
+                            value: key for key, value in hdm_equivalences.items()
+                        }
+                        kind = _block_kind_from_str(inv_equivalences[str(kind)])
+
+            # Direction, scaling and checks for pipes
+            if isinstance(kind, PipeKind):
+                # Get direction and scale of pipe
                 pipe_direction = kind.direction
                 scale = transformation.scale[pipe_direction.value]
+                # Checks
                 if pipe_length is None:
                     pipe_length = scale * 2.0
                 elif not np.isclose(pipe_length, scale * 2.0, atol=1e-9):
@@ -160,13 +174,16 @@ def read_block_graph_from_dae_file(
                     raise TQECException(
                         f"Only the dimension along the pipe can be scaled, which is not the case at {translation}."
                     )
+                # Append
                 parsed_pipes.append((translation, kind, axes_directions))
 
             else:
+                # Checks
                 if not np.allclose(transformation.scale, np.ones(3), atol=1e-9):
                     raise TQECException(
                         f"Cube at {translation} has a non-identity scale."
                     )
+                # Append
                 parsed_cubes.append((translation, kind, axes_directions))
 
     pipe_length = 2.0 if pipe_length is None else pipe_length
@@ -197,13 +214,12 @@ def read_block_graph_from_dae_file(
     # Add pipes
     for pos, pipe_kind, axes_directions in parsed_pipes:
         # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers from previous operations
+        directional_multiplier = axes_directions[str(pipe_kind.direction)]
         head_pos = int_position_before_scale(
-            pos.shift_in_direction(
-                pipe_kind.direction, -1 * axes_directions[str(pipe_kind.direction)]
-            )
+            pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier)
         )
         tail_pos = head_pos.shift_in_direction(
-            pipe_kind.direction, 1 * axes_directions[str(pipe_kind.direction)]
+            pipe_kind.direction, 1 * directional_multiplier
         )
         # Add pipe
         if head_pos not in graph:
