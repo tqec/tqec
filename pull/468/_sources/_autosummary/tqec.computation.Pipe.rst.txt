@@ -1,0 +1,42 @@
+Pipe
+====
+
+.. currentmodule:: tqec.computation
+
+.. autoclass:: Pipe
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Pipe.__init__
+      ~Pipe.check_compatible_with_cubes
+      ~Pipe.from_cubes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Pipe.direction
+      ~Pipe.u
+      ~Pipe.v
+      ~Pipe.kind
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: check_compatible_with_cubes
+   .. automethod:: from_cubes
+   
+   
