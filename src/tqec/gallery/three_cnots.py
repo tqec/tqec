@@ -1,14 +1,14 @@
-"""Build the computation graphs that represent three logical CNOT gates
-compressed in spacetime."""
+"""Block graph that represents three logical CNOT gates compressed in spacetime."""
 
-from typing import Literal, cast
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.zx_graph import ZXGraph, ZXKind, ZXNode
+from tqec.computation.cube import Cube, Port, ZXCube
+from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
 
-def three_cnots_zx_graph(port_kind: Literal["X", "Z", "OPEN"]) -> ZXGraph:
-    """Create a ZX graph for three logical CNOT gates compressed in spacetime.
+def three_cnots(observable_basis: Basis | None = None) -> BlockGraph:
+    """Create a block graph for three logical CNOT gates compressed in
+    spacetime.
 
     The three CNOT gates are applied in the following order:
 
@@ -21,91 +21,84 @@ def three_cnots_zx_graph(port_kind: Literal["X", "Z", "OPEN"]) -> ZXGraph:
         q2: ---X-X-
 
     Args:
-        port_kind: The node kind to fill the six ports of the ZX graph
-            It can be either "Z", "X", or "OPEN". If "OPEN", the ports are
-            left open. Otherwise, the ports are filled with the given node kind.
-
-    Returns:
-        A :py:class:`~tqec.computation.zx_graph.ZXGraph` instance representing the
-        three logical CNOT gates compressed in spacetime.
-    """
-    g = ZXGraph("Three CNOTs")
-    g.add_edge(
-        ZXNode(Position3D(-1, 0, 0), ZXKind.P, "Out_a"),
-        ZXNode(Position3D(0, 0, 0), ZXKind.Z),
-    )
-    g.add_edge(
-        ZXNode(Position3D(0, -1, 0), ZXKind.P, "In_a"),
-        ZXNode(Position3D(0, 0, 0), ZXKind.Z),
-    )
-    g.add_edge(
-        ZXNode(Position3D(0, 0, 0), ZXKind.Z),
-        ZXNode(Position3D(0, 1, 0), ZXKind.Z),
-    )
-    g.add_edge(
-        ZXNode(Position3D(0, 0, 0), ZXKind.Z),
-        ZXNode(Position3D(1, 0, 0), ZXKind.X),
-    )
-    g.add_edge(
-        ZXNode(Position3D(0, 1, 0), ZXKind.Z),
-        ZXNode(Position3D(1, 1, 0), ZXKind.X),
-    )
-    g.add_edge(
-        ZXNode(Position3D(1, 0, -1), ZXKind.P, "In_b"),
-        ZXNode(Position3D(1, 0, 0), ZXKind.X),
-    )
-    g.add_edge(
-        ZXNode(Position3D(1, 1, -1), ZXKind.P, "In_c"),
-        ZXNode(Position3D(1, 1, 0), ZXKind.X),
-    )
-    g.add_edge(
-        ZXNode(Position3D(1, 1, 0), ZXKind.X),
-        ZXNode(Position3D(2, 1, 0), ZXKind.P, "Out_c"),
-    )
-    g.add_edge(
-        ZXNode(Position3D(1, 0, 0), ZXKind.X),
-        ZXNode(Position3D(1, 0, 1), ZXKind.Z),
-    )
-    g.add_edge(
-        ZXNode(Position3D(1, 0, 1), ZXKind.Z),
-        ZXNode(Position3D(1, 0, 2), ZXKind.P, "Out_b"),
-    )
-    g.add_edge(
-        ZXNode(Position3D(1, 0, 1), ZXKind.Z),
-        ZXNode(Position3D(1, 1, 1), ZXKind.Z),
-    )
-    g.add_edge(
-        ZXNode(Position3D(1, 1, 0), ZXKind.X),
-        ZXNode(Position3D(1, 1, 1), ZXKind.Z),
-    )
-
-    if port_kind != "OPEN":
-        g.fill_ports(ZXKind(port_kind.upper()))
-    return g
-
-
-def three_cnots_block_graph(
-    support_observable_basis: Literal["X", "Z", "BOTH"],
-) -> BlockGraph:
-    """Create a block graph for three logical CNOT gates compressed in
-    spacetime.
-
-    Args:
-        support_observable_basis: The observable basis that the block graph can support.
-            It can be either "Z", "X", or "BOTH". Note that a cube at the port can only
-            support the observable basis opposite to the cube. If "Z", the six ports of
-            the block graph are filled with X basis cubes. If "X", the six ports are
-            filled with Z basis cubes. If "BOTH", the ports are left open.
+        observable_basis: The observable basis that the block graph can support. If
+            None, the block graph will have open ports. Otherwise, the ports will be
+            filled with the given observable basis.
 
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing the
         three logical CNOT gates compressed in spacetime.
     """
-    if support_observable_basis == "BOTH":
-        port_kind = "OPEN"
-    elif support_observable_basis == "Z":
-        port_kind = "X"
-    else:
-        port_kind = "Z"
-    zx_graph = three_cnots_zx_graph(cast(Literal["Z", "X", "OPEN"], port_kind))
-    return zx_graph.to_block_graph("Three CNOTs")
+    g = BlockGraph("Three CNOTs")
+    g.add_edge(
+        Cube(Position3D(-1, 0, 0), Port(), "Out_a"),
+        Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+    )
+    g.add_edge(
+        Cube(Position3D(0, -1, 0), Port(), "In_a"),
+        Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+    )
+    g.add_edge(
+        Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+        Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
+    )
+    g.add_edge(
+        Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+        Cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ")),
+    )
+    g.add_edge(
+        Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
+        Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
+    )
+    g.add_edge(
+        Cube(Position3D(1, 0, -1), Port(), "In_b"),
+        Cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ")),
+    )
+    g.add_edge(
+        Cube(Position3D(1, 1, -1), Port(), "In_c"),
+        Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
+    )
+    g.add_edge(
+        Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
+        Cube(Position3D(2, 1, 0), Port(), "Out_c"),
+    )
+    g.add_edge(
+        Cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ")),
+        Cube(Position3D(1, 0, 1), ZXCube.from_str("ZXX")),
+    )
+    g.add_edge(
+        Cube(Position3D(1, 0, 1), ZXCube.from_str("ZXX")),
+        Cube(Position3D(1, 0, 2), Port(), "Out_b"),
+    )
+    g.add_edge(
+        Cube(Position3D(1, 0, 1), ZXCube.from_str("ZXX")),
+        Cube(Position3D(1, 1, 1), ZXCube.from_str("ZXX")),
+    )
+    g.add_edge(
+        Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
+        Cube(Position3D(1, 1, 1), ZXCube.from_str("ZXX")),
+    )
+
+    if observable_basis == Basis.Z:
+        g.fill_ports(
+            {
+                "In_a": ZXCube.from_str("XZZ"),
+                "In_b": ZXCube.from_str("ZXZ"),
+                "In_c": ZXCube.from_str("ZXZ"),
+                "Out_a": ZXCube.from_str("ZXZ"),
+                "Out_b": ZXCube.from_str("ZXZ"),
+                "Out_c": ZXCube.from_str("ZXZ"),
+            }
+        )
+    elif observable_basis == Basis.X:
+        g.fill_ports(
+            {
+                "In_a": ZXCube.from_str("XXZ"),
+                "In_b": ZXCube.from_str("ZXX"),
+                "In_c": ZXCube.from_str("ZXX"),
+                "Out_a": ZXCube.from_str("XXZ"),
+                "Out_b": ZXCube.from_str("ZXX"),
+                "Out_c": ZXCube.from_str("XXZ"),
+            }
+        )
+    return g
