@@ -4,7 +4,6 @@ import argparse
 import logging
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,7 +16,8 @@ from tqec.compile.specs.library.zxxz import (
     ZXXZ_BLOCK_BUILDER,
     ZXXZ_SUBSTITUTION_BUILDER,
 )
-from tqec.gallery import logical_cnot_block_graph
+from tqec.gallery.cnot import cnot
+from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.simulation.plotting.inset import plot_observable_as_inset
 from tqec.simulation.simulation import start_simulation_using_sinter
@@ -89,7 +89,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         out_dir: Path = args.out_dir.resolve()
         obs_indices: list[int] = args.obs_include
         style: str = args.code_style
-        port_type: Literal["X", "Z"] = args.basis
+        obs_basis = Basis(args.basis.upper())
         ks: list[int] = args.k
         ps: list[float] = args.p
 
@@ -104,7 +104,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         plots_out_dir.mkdir(exist_ok=True)
 
         logging.info("Generating CNOT block graph and zx graph.")
-        block_graph = logical_cnot_block_graph(port_type)
+        block_graph = cnot(obs_basis)
         zx_graph = block_graph.to_zx_graph()
 
         # observables to a subdirectory
@@ -145,7 +145,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         for i, stat in enumerate(stats):
             with open(
                 simulations_out_dir
-                / f"{style}_logical_cnot_result_{port_type.upper()}_observable_{i}.csv",
+                / f"{style}_logical_cnot_result_{obs_basis.value}_observable_{i}.csv",
                 "w+",
                 encoding="utf-8",
             ) as stats_file:
@@ -167,5 +167,5 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             ax.set_title(f"{style} Logical CNOT Error Rate")
             fig.savefig(
                 plots_out_dir
-                / f"{style}_logical_cnot_result_{port_type.upper()}_observable_{i}.png"
+                / f"{style}_logical_cnot_result_{obs_basis.value}_observable_{i}.png"
             )
