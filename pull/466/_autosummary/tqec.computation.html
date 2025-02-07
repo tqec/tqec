@@ -504,16 +504,7 @@
 <span id="tqec-computation"></span><h1>tqec.computation<a class="headerlink" href="#module-tqec.computation" title="Link to this heading">#</a></h1>
 <p>Defines the data structures to represent the logical computations.</p>
 <p>This module provides high-level abstractions to represent the fault-tolerant logical
-computations protected by surface code. There are two representations of the logical
-computation:</p>
-<ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXGraph</span></code>: A restricted form of the ZX diagram from
-the ZX-calculus.</p></li>
-<li><p><a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a>: A graph consisting of individual
-building blocks that fully specify the boundary conditions and topological structures
-of the logical computation. It corresponds to the commonly used 3D spacetime diagram
-representation of a surface code logical computation.</p></li>
-</ul>
+computations protected by surface code.</p>
 <p class="rubric">Classes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
@@ -521,7 +512,7 @@ representation of a surface code logical computation.</p></li>
 <td><p>Block graph representation of a logical computation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface" title="tqec.computation.CorrelationSurface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CorrelationSurface</span></code></a>(span)</p></td>
-<td><p></p></td>
+<td><p>A correlation surface in a computation is a set of measurements whose values determine the parity of the logical operators at the inputs and outputs associated with the surface.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.Cube.html#tqec.computation.Cube" title="tqec.computation.Cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cube</span></code></a>(position, kind[, label])</p></td>
 <td><p>A fundamental building block of the logical computation.</p></td>

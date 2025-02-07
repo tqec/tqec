@@ -421,12 +421,36 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ZXNode</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent a node in the ZX graph spanned by the correlation surface.</span>
+
+<span class="sd">    Correlation surface is represented by a set of edges in the ZX graph. Each edge</span>
+<span class="sd">    consists of two nodes. The node id refers to the vertex index in the graph</span>
+<span class="sd">    and the basis represents the Pauli operator on the half edge incident to the node.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id: The index of the vertex in the graph.</span>
+<span class="sd">        basis: The Pauli operator on the half edge incident to the node.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">basis</span><span class="p">:</span> <span class="n">Basis</span>
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ZXEdge</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent an edge in the ZX graph spanned by the correlation surface.</span>
+
+<span class="sd">    Correlation surface is represented by a set of edges in the ZX graph. Each edge</span>
+<span class="sd">    consists of two nodes. The edge can be decomposed into two half edges, each</span>
+<span class="sd">    incident to a node. The half edges are labeled with the Pauli operator.</span>
+<span class="sd">    If the edge has no hadamard effect, the Pauli operators on the two half edges</span>
+<span class="sd">    should be the same. Otherwise, the Pauli operators should be flipped.</span>
+
+<span class="sd">    Note that the Pauli operators are represented by `Basis` enum, which only</span>
+<span class="sd">    contains `X` and `Z` operators. The `Y` operator is represented by two</span>
+<span class="sd">    edges with `X` and `Z` operators respectively.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">u</span><span class="p">:</span> <span class="n">ZXNode</span>
     <span class="n">v</span><span class="p">:</span> <span class="n">ZXNode</span>
 
@@ -441,10 +465,17 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">is_self_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the edge is a self-loop edge.</span>
+
+<span class="sd">        By definition, a self-loop edge represents a correlation surface within</span>
+<span class="sd">        a single node. This is an edge case where the ZX graph only contains a</span>
+<span class="sd">        single node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">id</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_hadamard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the edge has a hadamard effect.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">basis</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">basis</span>
 
 
@@ -452,12 +483,36 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CorrelationSurface</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A correlation surface in a computation is a set of measurements whose</span>
+<span class="sd">    values determine the parity of the logical operators at the inputs and</span>
+<span class="sd">    outputs associated with the surface.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        We use the term &quot;correlation surface&quot;, &quot;pauli web&quot; and &quot;observable&quot; interchangeably in</span>
+<span class="sd">        the library.</span>
+
+<span class="sd">    Here we represent the correlation surface by the set of edges it spans in the ZX graph.</span>
+<span class="sd">    The insight is that the spiders pose parity constraints on the operators supported on</span>
+<span class="sd">    the incident edges. The flow of the logical operators through the ZX graph, respecting</span>
+<span class="sd">    the parity constraints, forms the correlation between the inputs and outputs. However,</span>
+<span class="sd">    the sign of measurement outcomes is neglected in this representation. And we need to</span>
+<span class="sd">    recover the measurements when instantiating an explicit logical observable from the</span>
+<span class="sd">    correlation surface.</span>
+
+<span class="sd">    Each edge establishes a correlation between the logical operators at the two ends of</span>
+<span class="sd">    the edge. For example, an edge connecting two Z nodes represents the correlation</span>
+<span class="sd">    between the logical Z operators at the two nodes.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        span: A set of ``ZXEdge`` representing the span of the correlation surface.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">span</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">ZXEdge</span><span class="p">]</span>
 
 <div class="viewcode-block" id="CorrelationSurface.bases_at">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.bases_at">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">bases_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">Basis</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the bases of the present surfaces at the vertex.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the bases of the surfaces present at the vertex.&quot;&quot;&quot;</span>
         <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_at</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="n">bases</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
