@@ -115,3 +115,22 @@ def test_graph_shift() -> None:
         Position3D(1, 0, 0),
         Position3D(0, 0, 1),
     }
+
+
+def test_fill_ports() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "P", "in")
+    g.add_cube(Position3D(1, 0, 0), "P", "out")
+    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0), "OZX")
+    assert g.num_ports == 2
+    assert g.num_cubes == 2
+
+    g1 = g.clone()
+    g1.fill_ports(ZXCube.from_str("XZX"))
+    assert g1.num_ports == 0
+    assert g1.num_cubes == 2
+
+    g2 = g.clone()
+    g2.fill_ports({"in": ZXCube.from_str("XZX")})
+    assert g2.num_ports == 1
+    assert g2.num_cubes == 2
