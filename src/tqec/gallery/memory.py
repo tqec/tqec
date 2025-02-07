@@ -16,6 +16,6 @@ def memory(observable_basis: Basis = Basis.Z) -> BlockGraph:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance.
     """
     g = BlockGraph(f"Logical {observable_basis} Memory Experiment")
-    node_kind = "ZXZ" if observable_basis == Basis.Z else "ZXX"
+    node_kind = f"ZX{observable_basis.value}"
     g.add_node(Cube(Position3D(0, 0, 0), ZXCube.from_str(node_kind)))
     return g
