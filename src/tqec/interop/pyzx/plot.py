@@ -1,4 +1,4 @@
-"""Defines functions to plot ZX graphs and correlation surfaces on 3D axes with
+"""Defines functions to plot positioned ZX graphs and correlation surfaces on 3D axes with
 ``matplotlib``."""
 
 from dataclasses import astuple
@@ -8,72 +8,67 @@ from matplotlib.figure import Figure
 import numpy
 import numpy.typing as npt
 from mpl_toolkits.mplot3d.axes3d import Axes3D
+from pyzx.graph.graph_s import GraphS
 
-from tqec.computation.correlation import CorrelationSurface
+from tqec.interop.pyzx.correlation import CorrelationSurface
+from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phase
 from tqec.interop.color import RGBA, TQECColor
+from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.utils.position import Position3D
-from tqec.computation.zx_graph import ZXKind, ZXGraph, ZXNode
 
-NODE_COLOR: dict[ZXKind, RGBA] = {
-    ZXKind.X: TQECColor.X.rgba,
-    ZXKind.Y: TQECColor.Y.rgba,
-    ZXKind.Z: TQECColor.Z.rgba,
-}
+
+def _node_color(g: GraphS, v: int) -> RGBA:
+    assert not is_boundary(g, v)
+    if is_s(g, v):
+        return TQECColor.Y.rgba
+    if is_z_no_phase(g, v):
+        return TQECColor.Z.rgba
+    return TQECColor.X.rgba
 
 
 def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:
     return numpy.array([astuple(p) for p in positions]).T
 
 
-def draw_zx_graph_on(
-    graph: ZXGraph,
+def draw_positioned_zx_graph_on(
+    graph: PositionedZX,
     ax: Axes3D,
     *,
     node_size: int = 400,
     hadamard_size: int = 200,
     edge_width: int = 1,
-    annotate_ports: bool = True,
 ) -> None:
-    """Draw the :py:class:`~tqec.computation.zx_graph.ZXGraph` on the provided
+    """Draw the :py:class:`~tqec.interop.pyzx.PositionedZX` on the provided
     axes.
 
     Args:
-        graph: The ZX graph to draw.
+        graph: The positioned ZX graph to draw.
         ax: a 3-dimensional ax to draw on.
         node_size: The size of the node. Default is 400.
         hadamard_size: The size of the Hadamard transition. Default is 200.
         edge_width: The width of the edge. Default is 1.
-        annotate_ports: Whether to annotate the ports if they are present. Default is True.
     """
-    vis_nodes = [n for n in graph.nodes if not n.is_port]
-    vis_nodes_array = _positions_array(*[n.position for n in vis_nodes])
+    g = graph.g
+    pmap = graph.positions
+    vis_nodes = [n for n in g.vertices() if not is_boundary(g, n)]
+    vis_nodes_array = _positions_array(*[pmap[n] for n in vis_nodes])
     if vis_nodes_array.size > 0:
         ax.scatter(
             *vis_nodes_array,
             s=node_size,
-            c=[NODE_COLOR[n.kind].as_floats() for n in vis_nodes],
+            c=[_node_color(g, n).as_floats() for n in vis_nodes],
             alpha=1.0,
             edgecolors="black",
         )
-    if graph.ports and annotate_ports:
-        for label, port in graph.ports.items():
-            ax.text(
-                *port.as_tuple(),
-                s=label,
-                color="black",
-                fontsize=15,
-                ha="center",
-                va="center",
-            )
 
-    for edge in graph.edges:
-        pos_array = _positions_array(edge.u.position, edge.v.position)
+    for edge in g.edges():
+        pos_array = _positions_array(pmap[edge[0]], pmap[edge[1]])
         ax.plot(
             *pos_array,
             color="tab:gray",
             linewidth=edge_width,
         )
-        if edge.has_hadamard:
+        if is_hardmard(g, edge):
             hadamard_position = numpy.mean(pos_array, axis=1)
             # use yellow square to indicate Hadamard transition
             ax.scatter(
@@ -106,6 +101,7 @@ def draw_zx_graph_on(
 
 def draw_correlation_surface_on(
     correlation_surface: CorrelationSurface,
+    graph: PositionedZX,
     ax: Axes3D,
     correlation_edge_width: int = 3,
 ) -> None:
@@ -113,73 +109,47 @@ def draw_correlation_surface_on(
 
     Args:
         correlation_surface: The correlation surface to draw.
+        positioned_graph: The positioned ZX graph to draw the correlation surface on.
         ax: The 3-dimensional ax to draw on.
         correlation_edge_width: The width of the correlation edges. Default is 3.
     """
-    span = correlation_surface.span
-    if isinstance(span, ZXNode):
+    if correlation_surface.is_single_node:
         return
-    correlation_types = correlation_surface.observables_at_nodes
-    processed_edges: set[tuple[Position3D, Position3D]] = set()
-    for edge in span:
-        positions = (edge.u.position, edge.v.position)
-        if positions in processed_edges:
-            continue
-        types = tuple(correlation_types[p] for p in positions)
-        pos_array = _positions_array(*positions)
-        if not edge.has_hadamard or all(t == ZXKind.Y for t in types):
-            if any(t == ZXKind.Z for t in types):
-                correlation = ZXKind.Z
-            elif any(t == ZXKind.X for t in types):
-                correlation = ZXKind.X
-            else:
-                correlation = ZXKind.Y
-            ax.plot(
-                *pos_array,
-                color=NODE_COLOR[correlation].as_floats(),
-                linewidth=correlation_edge_width,
-            )
-        else:
-            hadamard_position = numpy.mean(pos_array, axis=1)
-            for i in [0, 1]:
-                if types[i] != ZXKind.Y:
-                    correlation = types[i]
-                else:
-                    correlation = types[1 - i].with_zx_flipped()
-                ax.plot(
-                    *numpy.hstack(
-                        [
-                            hadamard_position.reshape(3, 1),
-                            _positions_array(positions[i]),
-                        ]
-                    ),
-                    color=NODE_COLOR[correlation].as_floats(),
-                    linewidth=correlation_edge_width,
-                )
-        processed_edges.add(positions)
+
+    pmap = graph.positions
+    pauli_web = correlation_surface.to_pauli_web(graph.g)
+
+    for edge, pauli in pauli_web.half_edges().items():
+        up, vp = pmap[edge[0]], pmap[edge[1]]
+        pos_array = _positions_array(up, vp)
+        middle = numpy.mean(pos_array, axis=1).reshape(3, 1)
+        start = _positions_array(up)
+        ax.plot(
+            *numpy.hstack([start, middle]),
+            color=TQECColor(pauli).rgba.as_floats(),
+            linewidth=correlation_edge_width,
+        )
 
 
-def plot_zx_graph(
-    graph: ZXGraph,
+def plot_positioned_zx_graph(
+    graph: PositionedZX,
     *,
     figsize: tuple[float, float] = (5, 6),
     title: str | None = None,
     node_size: int = 400,
     hadamard_size: int = 200,
     edge_width: int = 1,
-    annotate_ports: bool = True,
 ) -> tuple[Figure, Axes3D]:
-    """Plot the :py:class:`~tqec.computation.zx_graph.ZXGraph` using
+    """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using
     matplotlib.
 
     Args:
-        graph: The ZX graph to plot.
+        graph: The positioned ZX graph to plot.
         figsize: The figure size. Default is (5, 6).
         title: The title of the plot. Default to the name of the graph.
         node_size: The size of the node in the plot. Default is 400.
         hadamard_size: The size of the Hadamard square in the plot. Default is 200.
         edge_width: The width of the edge in the plot. Default is 1.
-        annotate_ports: Whether to annotate the ports if they are present. Default is True.
 
     Returns:
         A tuple of the figure and the axes.
@@ -189,15 +159,15 @@ def plot_zx_graph(
     fig = plt.figure(figsize=figsize)
     ax = cast(Axes3D, fig.add_subplot(111, projection="3d"))
 
-    draw_zx_graph_on(
+    draw_positioned_zx_graph_on(
         graph,
         ax,
         node_size=node_size,
         hadamard_size=hadamard_size,
         edge_width=edge_width,
-        annotate_ports=annotate_ports,
     )
 
-    ax.set_title(title or graph.name)
+    if title:
+        ax.set_title(title)
     fig.tight_layout()
     return fig, ax
