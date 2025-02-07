@@ -150,20 +150,20 @@ def test_abstract_observable_for_three_cnots() -> None:
     ]
     assert observables[0] == AbstractObservable(
         top_readout_cubes=frozenset(
-            [
-                Cube(Position3D(-1, 0, 0), ZXCube.from_str("ZXZ")),
+            [   
                 Cube(Position3D(0, -1, 0), ZXCube.from_str("XZZ")),
+                Cube(Position3D(-1, 0, 0), ZXCube.from_str("ZXZ")),
             ]
         ),
         top_readout_pipes=frozenset(
-            [
-                Pipe.from_cubes(
-                    Cube(Position3D(-1, 0, 0), ZXCube.from_str("ZXZ")),
-                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-                ),
+            [   
                 Pipe.from_cubes(
                     Cube(Position3D(0, -1, 0), ZXCube.from_str("XZZ")),
                     Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+                ),
+                Pipe.from_cubes(
+                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+                    Cube(Position3D(-1, 0, 0), ZXCube.from_str("ZXZ")),
                 ),
             ]
         ),
@@ -171,7 +171,7 @@ def test_abstract_observable_for_three_cnots() -> None:
             [
                 (
                     Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-                    SpatialArms.LEFT | SpatialArms.DOWN,
+                    SpatialArms.UP | SpatialArms.LEFT,
                 ),
             ]
         ),
@@ -179,13 +179,17 @@ def test_abstract_observable_for_three_cnots() -> None:
     assert observables[1] == AbstractObservable(
         top_readout_cubes=frozenset(
             [
-                Cube(Position3D(-1, 0, 0), ZXCube.from_str("ZXZ")),
                 Cube(Position3D(0, -1, 0), ZXCube.from_str("XZZ")),
                 Cube(Position3D(2, 1, 0), ZXCube.from_str("ZXZ")),
+                Cube(Position3D(-1, 0, 0), ZXCube.from_str("ZXZ")),
             ]
         ),
         top_readout_pipes=frozenset(
             [
+                Pipe.from_cubes(
+                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+                    Cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ")),
+                ),
                 Pipe.from_cubes(
                     Cube(Position3D(-1, 0, 0), ZXCube.from_str("ZXZ")),
                     Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
@@ -195,44 +199,40 @@ def test_abstract_observable_for_three_cnots() -> None:
                     Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
                 ),
                 Pipe.from_cubes(
-                    Cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ")),
-                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-                ),
-                Pipe.from_cubes(
-                    Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
-                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-                ),
-                Pipe.from_cubes(
                     Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
                     Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
                 ),
                 Pipe.from_cubes(
+                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+                    Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
+                ),
+                Pipe.from_cubes(
+                    Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
                     Cube(Position3D(2, 1, 0), ZXCube.from_str("ZXZ")),
-                    Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
-                ),
-            ]
-        ),
-        top_readout_spatial_cubes=frozenset(
-            [
-                (
-                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-                    SpatialArms.LEFT | SpatialArms.DOWN,
-                ),
-                (
-                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-                    SpatialArms.RIGHT | SpatialArms.UP,
-                ),
-                (
-                    Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
-                    SpatialArms.RIGHT | SpatialArms.DOWN,
                 ),
             ]
         ),
         bottom_stabilizer_pipes=frozenset(
             [
                 Pipe.from_cubes(
-                    Cube(Position3D(1, 1, 1), ZXCube.from_str("ZXX")),
                     Cube(Position3D(1, 0, 1), ZXCube.from_str("ZXX")),
+                    Cube(Position3D(1, 1, 1), ZXCube.from_str("ZXX")),
+                ),
+            ]
+        ),
+        top_readout_spatial_cubes=frozenset(
+            [
+                (
+                    Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
+                    SpatialArms.UP | SpatialArms.RIGHT,
+                ),
+                (
+                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+                    SpatialArms.UP | SpatialArms.RIGHT,
+                ),
+                (
+                    Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
+                    SpatialArms.DOWN | SpatialArms.LEFT,
                 ),
             ]
         ),
