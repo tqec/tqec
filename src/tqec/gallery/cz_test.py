@@ -27,13 +27,13 @@ def test_cz_resolve_ports() -> None:
         Position3D(1, 1, 1),
     )
     g = cz("XI -> XZ")
-    assert [str(g[pos].kind) for pos in port_positions] == ["XZX", "XZX", "XZZ", "XZZ"]
+    assert [str(g[pos].kind) for pos in port_positions] == ["XZX", "XZZ", "XZX", "XZZ"]
 
     g = cz(["XI -> XZ", "IZ -> IZ"])
-    assert [str(g[pos].kind) for pos in port_positions] == ["XZX", "XZX", "XZZ", "XZZ"]
+    assert [str(g[pos].kind) for pos in port_positions] == ["XZX", "XZZ", "XZX", "XZZ"]
 
     g = cz(["ZX -> IX"])
-    assert [str(g[pos].kind) for pos in port_positions] == ["XZZ", "XZZ", "XXZ", "XXZ"]
+    assert [str(g[pos].kind) for pos in port_positions] == ["XZZ", "XXZ", "XZZ", "XXZ"]
 
     g = cz(["ZZ -> ZZ"])
     assert [str(g[pos].kind) for pos in port_positions] == ["XZZ", "XZZ", "XZZ", "XZZ"]

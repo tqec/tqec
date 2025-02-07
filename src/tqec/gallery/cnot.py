@@ -22,7 +22,7 @@ def cnot(observable_basis: Basis | None = None) -> BlockGraph:
     fill_ports: CubeKind = Port()
     if observable_basis == Basis.Z:
         fill_ports = ZXCube.from_str("ZXZ")
-    else:
+    elif observable_basis == Basis.X:
         fill_ports = ZXCube.from_str("ZXX")
 
     g = BlockGraph()
