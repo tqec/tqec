@@ -502,16 +502,10 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">ports</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Z&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_vkind</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXCube</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XZZ&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XZX&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;XZ</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_hkind</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXCube</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XZZ&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;X</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">Z&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">[</span><span class="n">_vkind</span><span class="p">(</span><span class="n">ports</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">_hkind</span><span class="p">(</span><span class="n">ports</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">_vkind</span><span class="p">(</span><span class="n">ports</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">_hkind</span><span class="p">(</span><span class="n">ports</span><span class="p">[</span><span class="mi">3</span><span class="p">])]</span>
 </pre></div>
