@@ -1,5 +1,7 @@
 import pytest
 
+import pyzx as zx
+
 from tqec.utils.exceptions import TQECException
 from tqec.gallery.cz import cz
 from tqec.utils.position import Position3D
@@ -17,6 +19,29 @@ def test_cz_open() -> None:
         "In_2",
         "Out_2",
     }
+
+
+def test_cz_open_zx() -> None:
+    g = cz().to_zx_graph().g
+    for v in [0, 1, 2]:
+        g.set_qubit(v, 0)
+    for v in [3, 4, 5]:
+        g.set_qubit(v, 1)
+    g.set_row(0, 0)
+    g.set_row(4, 0)
+    g.set_row(1, 1)
+    g.set_row(3, 1)
+    g.set_row(2, 2)
+    g.set_row(5, 2)
+    g.set_inputs((0, 4))
+    g.set_outputs((2, 5))
+
+    c = zx.qasm("""
+qreg q[2];
+cz q[0], q[1];
+""")
+
+    assert zx.compare_tensors(c, g)
 
 
 def test_cz_resolve_ports() -> None:
@@ -53,3 +78,24 @@ def test_cz_resolve_ports() -> None:
         TQECException, match="Port 0 fails to support both X and Z observable."
     ):
         cz(["XI -> XZ", "ZI -> ZI"])
+
+
+@pytest.mark.parametrize(
+    "flows, num_surfaces, external_stabilizers",
+    [
+        (["ZZ -> ZZ"], 2, {"ZIZI", "IZIZ"}),
+        (["XI -> XZ"], 3, {"XIXZ", "IZIZ", "XZXI"}),
+        (None, 6, {"XIXZ", "ZIZI", "IXZX", "IZIZ", "XZXI", "ZXIX"}),
+    ],
+)
+def test_cz_correlation_surface(
+    flows: list[str] | None, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
+    io_ports = [0, 4, 2, 5]
+
+    g = cz(flows)
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == num_surfaces
+    assert {
+        s.external_stabilizer(io_ports) for s in correlation_surfaces
+    } == external_stabilizers

@@ -4,6 +4,7 @@ correlation surfaces in the ZX graph."""
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import reduce
 from typing import Iterator, TYPE_CHECKING
 
 from pyzx.graph.graph_s import GraphS
@@ -148,3 +149,20 @@ class CorrelationSurface:
     def edges_at(self, v: int) -> set[ZXEdge]:
         """Return the set of edges incident to the vertex in the correlation surface."""
         return {edge for edge in self.span if any(n.id == v for n in edge)}
+
+    def external_stabilizer(self, io_ports: list[int]) -> str:
+        """Get the Pauli operator supported on the given input/output ports.
+
+        Args:
+            io_ports: The list of input/output ports to consider.
+
+        Returns:
+            The Pauli operator supported on the given ports.
+        """
+        from pyzx.pauliweb import multiply_paulis
+
+        paulis = [
+            reduce(multiply_paulis, {b.value for b in self.bases_at(port)}, "I")
+            for port in io_ports
+        ]
+        return "".join(paulis)
