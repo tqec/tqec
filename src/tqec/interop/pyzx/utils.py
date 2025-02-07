@@ -17,7 +17,7 @@ def is_zx_no_phase(g: GraphS, v: int) -> bool:
 
 def is_boundary(g: GraphS, v: int) -> bool:
     """Check if a vertex in a PyZX graph is a boundary type spider."""
-    return g.type(v) == zx.VertexType.BOUNDARY
+    return g.type(v) is zx.VertexType.BOUNDARY
 
 
 def cube_kind_to_zx(kind: CubeKind) -> tuple[zx.VertexType, FractionLike]:

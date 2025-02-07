@@ -120,6 +120,14 @@ module = [
 ]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "pyzx"
+no_implicit_reexport = false
+
+[[tool.mypy.overrides]]
+module = "tqec.interop.pyzx.*"
+disallow_untyped_calls = false
+
 [tool.coverage.run]
 omit = ["*/*_test.py"]
 
