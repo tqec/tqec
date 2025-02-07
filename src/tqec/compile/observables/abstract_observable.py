@@ -6,9 +6,10 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe
+from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, Position3D
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.zx_graph import ZXEdge, ZXKind
+from tqec.computation.correlation import ZXEdge
 
 
 @dataclass(frozen=True)
@@ -120,7 +121,7 @@ def compile_correlation_surface_to_abstract_observable(
         TQECException: If the block graph has open ports.
     """
     # 0. Handle single node edge case
-    if correlation_surface.has_single_node:
+    if correlation_surface.is_single_node:
         # single stability experiment
         if block_graph.nodes[0].is_spatial:
             return AbstractObservable(
@@ -129,9 +130,11 @@ def compile_correlation_surface_to_abstract_observable(
 
         return AbstractObservable(top_readout_cubes=frozenset(block_graph.nodes))
 
+    pg = block_graph.to_zx_graph()
     endpoints_to_edge: dict[frozenset[Position3D], list[ZXEdge]] = {}
     for edge in correlation_surface.span:
-        endpoints = frozenset({edge.u.position, edge.v.position})
+        u, v = edge.u.id, edge.v.id
+        endpoints = frozenset({pg[u], pg[v]})
         endpoints_to_edge.setdefault(endpoints, []).append(edge)
 
     top_readout_cubes: set[Cube] = set()
@@ -141,28 +144,32 @@ def compile_correlation_surface_to_abstract_observable(
     bottom_stabilizer_spatial_cubes: set[Cube] = set()
 
     # 1. Handle all spatial cubes
-    for node in correlation_surface.nodes:
-        cube = block_graph[node.position]
+    for node in correlation_surface.span_vertices():
+        cube = block_graph[pg[node]]
         if not cube.is_spatial:
             continue
-        zx = cube.to_zx_node()
-        zx_flipped = zx.with_zx_flipped()
+        kind = cube.kind
+        assert isinstance(kind, ZXCube)
+        bases = correlation_surface.bases_at(node)
+        normal_basis = kind.normal_basis
         # correlation surface perpendicular to the normal direction of the cube
         # accounts for the bottom stabilizer measurements
-        if zx.kind != node.kind:
+        if {normal_basis} != bases:
             bottom_stabilizer_spatial_cubes.add(cube)
         # correlation surface parallel to the normal direction of the cube
         # accounts for the top readout measurements
         # we need to record the arm flags to specify different shapes of the
         # observable lines, e.g. L-shape, 7-shape, -- shape, etc.
-        if zx_flipped.kind != node.kind:
+        if {normal_basis.flipped()} != bases:
             # check correlation edges in the cube arms
             arms = SpatialArms.NONE
             for arm, shift in SpatialArms.get_map_from_arm_to_shift().items():
                 edges = endpoints_to_edge.get(
                     frozenset({cube.position, cube.position.shift_by(*shift)})
                 )
-                if edges is not None and any(n == zx for edge in edges for n in edge):
+                if edges is not None and any(
+                    n.basis == normal_basis for edge in edges for n in edge
+                ):
                     arms |= arm
             assert len(arms) in {
                 2,
@@ -181,7 +188,7 @@ def compile_correlation_surface_to_abstract_observable(
                 top_readout_spatial_cubes.add((cube, arms))
 
     # 2. Handle all the pipes
-    def has_obs_include(cube: Cube, correlation: ZXKind) -> bool:
+    def has_obs_include(cube: Cube, correlation: Basis) -> bool:
         """Check if the top data qubit readout should be included in the
         observable.
         """
@@ -195,23 +202,24 @@ def compile_correlation_surface_to_abstract_observable(
         return cube.kind.z.value == correlation.value
 
     for edge in correlation_surface.span:
-        pipe = block_graph.get_edge(edge.u.position, edge.v.position)
+        up, vp = pg[edge.u.id], pg[edge.v.id]
+        pipe = block_graph.get_edge(up, vp)
         # Vertical pipes
         if pipe.direction == Direction3D.Z:
-            if has_obs_include(pipe.v, edge.v.kind):
+            if has_obs_include(pipe.v, edge.v.basis):
                 top_readout_cubes.add(pipe.v)
             continue
         # Horizontal pipes
         pipe_top_face = pipe.kind.z
         assert pipe_top_face is not None, "The pipe is guaranteed to be spatial."
         # There is correlation surface attached to the top of the pipe
-        if pipe_top_face.value == edge.u.kind.value:
+        if pipe_top_face.value == edge.u.basis.value:
             top_readout_pipes.add(pipe)
             for cube, node in zip(pipe, edge):
                 # Spatial cubes have already been handled
                 if cube.is_spatial:
                     continue
-                if has_obs_include(cube, node.kind):
+                if has_obs_include(cube, node.basis):
                     top_readout_cubes.add(cube)
         elif not all(cube.is_spatial for cube in pipe):
             bottom_stabilizer_pipes.add(pipe)

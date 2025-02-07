@@ -1,7 +1,7 @@
 """Block graph that represent a CNOT gate."""
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, CubeKind, Port, ZXCube
+from tqec.computation.cube import Cube, Port, ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
@@ -19,15 +19,10 @@ def cnot(observable_basis: Basis | None = None) -> BlockGraph:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing
         the logical CNOT gate.
     """
-    fill_ports: CubeKind = Port()
-    if observable_basis == Basis.Z:
-        fill_ports = ZXCube.from_str("ZXZ")
-    elif observable_basis == Basis.X:
-        fill_ports = ZXCube.from_str("ZXX")
 
     g = BlockGraph()
     g.add_edge(
-        Cube(Position3D(0, 0, 0), fill_ports, label="In_Control"),
+        Cube(Position3D(0, 0, 0), Port(), label="In_Control"),
         Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
     )
     g.add_edge(
@@ -36,7 +31,7 @@ def cnot(observable_basis: Basis | None = None) -> BlockGraph:
     )
     g.add_edge(
         Cube(Position3D(0, 0, 2), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(0, 0, 3), fill_ports, label="Out_Control"),
+        Cube(Position3D(0, 0, 3), Port(), label="Out_Control"),
     )
     g.add_edge(
         Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
@@ -51,7 +46,7 @@ def cnot(observable_basis: Basis | None = None) -> BlockGraph:
         Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
     )
     g.add_edge(
-        Cube(Position3D(1, 1, 0), fill_ports, label="In_Target"),
+        Cube(Position3D(1, 1, 0), Port(), label="In_Target"),
         Cube(Position3D(1, 1, 1), ZXCube.from_str("ZXZ")),
     )
     g.add_edge(
@@ -60,6 +55,10 @@ def cnot(observable_basis: Basis | None = None) -> BlockGraph:
     )
     g.add_edge(
         Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(1, 1, 3), fill_ports, label="Out_Target"),
+        Cube(Position3D(1, 1, 3), Port(), label="Out_Target"),
     )
+    if observable_basis == Basis.Z:
+        g.fill_ports(ZXCube.from_str("ZXZ"))
+    elif observable_basis == Basis.X:
+        g.fill_ports(ZXCube.from_str("ZXX"))
     return g
