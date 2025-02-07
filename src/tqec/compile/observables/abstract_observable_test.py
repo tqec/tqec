@@ -139,7 +139,7 @@ def test_abstract_observable_for_logical_cnot() -> None:
     )
 
 
-@pytest.mark.skip(reason="Observable to be checked later")
+
 def test_abstract_observable_for_three_cnots() -> None:
     g = three_cnots_block_graph("Z")
     correlation_surfaces = g.find_correlation_surfaces()
