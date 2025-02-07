@@ -58,6 +58,17 @@ class ZXEdge:
 class CorrelationSurface:
     span: frozenset[ZXEdge]
 
+    def bases_at(self, v: int) -> set[Basis]:
+        """Get the bases of the present surfaces at the vertex."""
+        edges = self.edges_at(v)
+        bases = set()
+        for edge in edges:
+            if edge.u.id == v:
+                bases.add(edge.u.basis)
+            else:
+                bases.add(edge.v.basis)
+        return bases
+
     def to_pauli_web(self, g: GraphS) -> PauliWeb:
         """Convert the correlation surface to a Pauli web.
 
