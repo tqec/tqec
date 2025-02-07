@@ -86,15 +86,9 @@ def _resolve_ports(flows: list[str]) -> list[ZXCube]:
             ports[i] = "Z"
 
     def _vkind(p: str) -> ZXCube:
-        if p == "Z":
-            return ZXCube.from_str("XZZ")
-        else:
-            return ZXCube.from_str("XZX")
+        return ZXCube.from_str(f"XZ{p}")
 
     def _hkind(p: str) -> ZXCube:
-        if p == "Z":
-            return ZXCube.from_str("XZZ")
-        else:
-            return ZXCube.from_str("XXZ")
+        return ZXCube.from_str(f"X{p}Z")
 
     return [_vkind(ports[0]), _hkind(ports[1]), _vkind(ports[2]), _hkind(ports[3])]

@@ -9,6 +9,7 @@ import numpy
 import numpy.typing as npt
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 from pyzx.graph.graph_s import GraphS
+from pyzx.pauliweb import PauliWeb
 
 from tqec.computation.correlation import CorrelationSurface
 from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phase
@@ -171,3 +172,24 @@ def plot_positioned_zx_graph(
         ax.set_title(title)
     fig.tight_layout()
     return fig, ax
+
+
+def pyzx_draw_positioned_zx_3d(
+    g: PositionedZX, id_labels: bool = True, pauli_web: PauliWeb | None = None
+) -> None:
+    """Draw the positioned ZX graph in 3D with ``pyzx.draw_3d``.
+
+    Args:
+        g: The positioned ZX graph to draw.
+        id_labels: Whether to show the vertex id labels. Default is True.
+        pauli_web: The Pauli web to draw. Default is None.
+    """
+    from pyzx import draw_3d
+
+    plot_g = g.g.clone()
+    for v in plot_g.vertices():
+        position = g.positions[v]
+        plot_g.set_qubit(v, position.x)
+        plot_g.set_row(v, position.y)
+        plot_g.set_vdata(v, "z", position.z)
+    draw_3d(plot_g, labels=id_labels, pauli_web=pauli_web)

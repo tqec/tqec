@@ -7,6 +7,8 @@ from typing import Mapping
 
 import pyzx as zx
 from pyzx.graph.graph_s import GraphS
+from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.utils.exceptions import TQECException
@@ -184,6 +186,41 @@ class PositionedZX:
         from tqec.interop.pyzx.synthesis.positioned import positioned_block_synthesis
 
         return positioned_block_synthesis(self)
+
+    def draw(
+        self,
+        *,
+        figsize: tuple[float, float] = (5, 6),
+        title: str | None = None,
+        node_size: int = 400,
+        hadamard_size: int = 200,
+        edge_width: int = 1,
+    ) -> tuple[Figure, Axes3D]:
+        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using
+        matplotlib.
+
+        Args:
+            graph: The ZX graph to plot.
+            figsize: The figure size. Default is ``(5, 6)``.
+            title: The title of the plot. Default to the name of the graph.
+            node_size: The size of the node in the plot. Default is ``400``.
+            hadamard_size: The size of the Hadamard square in the plot. Default
+                is ``200``.
+            edge_width: The width of the edge in the plot. Default is ``1``.
+
+        Returns:
+            A tuple of the figure and the axes.
+        """
+        from tqec.interop.pyzx.plot import plot_positioned_zx_graph
+
+        return plot_positioned_zx_graph(
+            self,
+            figsize=figsize,
+            title=title,
+            node_size=node_size,
+            hadamard_size=hadamard_size,
+            edge_width=edge_width,
+        )
 
 
 def _get_direction(p1: Position3D, p2: Position3D) -> Direction3D:
