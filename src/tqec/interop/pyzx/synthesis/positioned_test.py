@@ -10,7 +10,7 @@ from tqec.interop.pyzx.synthesis.positioned import positioned_block_synthesis
 from tqec.utils.position import Position3D
 
 
-def test_one_to_one_synthesis_single_zx_edge() -> None:
+def test_positioned_synthesis_single_zx_edge() -> None:
     g = make_positioned_zx_graph(
         vertex_types=[VertexType.Z, VertexType.X],
         positions=[
@@ -46,7 +46,7 @@ def test_one_to_one_synthesis_single_zx_edge() -> None:
     assert block == expected_block
 
 
-def test_one_to_one_synthesis_single_y_p_edge() -> None:
+def test_positioned_synthesis_single_y_p_edge() -> None:
     g = make_positioned_zx_graph(
         vertex_types=[VertexType.Z, VertexType.BOUNDARY],
         positions=[
@@ -68,7 +68,7 @@ def test_one_to_one_synthesis_single_y_p_edge() -> None:
     assert block == expected_block
 
 
-def test_one_to_one_synthesis_L_shape() -> None:
+def test_positioned_synthesis_L_shape() -> None:
     g = make_positioned_zx_graph(
         vertex_types=[VertexType.Z, VertexType.BOUNDARY, VertexType.BOUNDARY],
         positions=[
@@ -94,7 +94,7 @@ def test_one_to_one_synthesis_L_shape() -> None:
     assert block == expected_block
 
 
-def test_one_to_one_synthesis_X_shape() -> None:
+def test_positioned_synthesis_X_shape() -> None:
     ports = [
         Position3D(1, 0, 0),
         Position3D(0, 1, 0),
