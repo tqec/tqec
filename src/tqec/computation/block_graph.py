@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import pathlib
 from copy import deepcopy
 from io import BytesIO
@@ -239,6 +240,37 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         zx_graph = self.to_zx_graph()
 
         return find_correlation_surfaces(zx_graph.g)
+
+    def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
+        """Fill the ports at specified positions with cubes of the given kind.
+
+        Args:
+            fill: A mapping from the label of the ports to the cube kind to fill.
+                If a single kind is given, all the ports will be filled with the
+                same kind.
+
+        Raises:
+            TQECException: if there is no port with the given label.
+        """
+        if isinstance(fill, CubeKind):
+            fill = {label: fill for label in self._ports}
+        for label, kind in fill.items():
+            if label not in self._ports:
+                raise TQECException(f"There is no port with label {label}.")
+            pos = self._ports[label]
+            fill_node = Cube(pos, kind)
+            # Overwrite the node at the port position
+            self._graph.add_node(pos, **{self._NODE_DATA_KEY: fill_node})
+            for edge in self.edges_at(pos):
+                self._graph.remove_edge(edge.u.position, edge.v.position)
+                other = edge.u if edge.v.position == pos else edge.v
+                self._graph.add_edge(
+                    other.position,
+                    pos,
+                    **{self._EDGE_DATA_KEY: Pipe(other, fill_node, edge.kind)},
+                )
+            # Delete the port label
+            self._ports.pop(label)
 
     def rotate(
         self,
