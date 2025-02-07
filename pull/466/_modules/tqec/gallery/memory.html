@@ -423,7 +423,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        A :py:class:`~tqec.computation.block_graph.BlockGraph` instance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Logical </span><span class="si">{</span><span class="n">observable_basis</span><span class="si">}</span><span class="s2"> Memory Experiment&quot;</span><span class="p">)</span>
-    <span class="n">node_kind</span> <span class="o">=</span> <span class="s2">&quot;ZXZ&quot;</span> <span class="k">if</span> <span class="n">observable_basis</span> <span class="o">==</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span> <span class="k">else</span> <span class="s2">&quot;ZXX&quot;</span>
+    <span class="n">node_kind</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ZX</span><span class="si">{</span><span class="n">observable_basis</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">node_kind</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">g</span></div>
 
