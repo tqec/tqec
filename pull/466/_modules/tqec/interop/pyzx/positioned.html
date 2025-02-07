@@ -412,6 +412,8 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyzx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">zx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyzx.graph.graph_s</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.mplot3d.axes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes3D</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
@@ -608,6 +610,44 @@ window.addEventListener("load", () => mermaid.run());
         <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.synthesis.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="n">positioned_block_synthesis</span>
 
         <span class="k">return</span> <span class="n">positioned_block_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PositionedZX.draw">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.interop.PositionedZX.html#tqec.interop.PositionedZX.draw">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">node_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span>
+        <span class="n">hadamard_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="n">edge_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Figure</span><span class="p">,</span> <span class="n">Axes3D</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using</span>
+<span class="sd">        matplotlib.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            graph: The ZX graph to plot.</span>
+<span class="sd">            figsize: The figure size. Default is ``(5, 6)``.</span>
+<span class="sd">            title: The title of the plot. Default to the name of the graph.</span>
+<span class="sd">            node_size: The size of the node in the plot. Default is ``400``.</span>
+<span class="sd">            hadamard_size: The size of the Hadamard square in the plot. Default</span>
+<span class="sd">                is ``200``.</span>
+<span class="sd">            edge_width: The width of the edge in the plot. Default is ``1``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple of the figure and the axes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_positioned_zx_graph</span>
+
+        <span class="k">return</span> <span class="n">plot_positioned_zx_graph</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
+            <span class="n">hadamard_size</span><span class="o">=</span><span class="n">hadamard_size</span><span class="p">,</span>
+            <span class="n">edge_width</span><span class="o">=</span><span class="n">edge_width</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 

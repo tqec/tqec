@@ -555,13 +555,16 @@ between the logical Z operators at the two nodes.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.edges_at" title="tqec.computation.CorrelationSurface.edges_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edges_at</span></code></a>(v)</p></td>
 <td><p>Return the set of edges incident to the vertex in the correlation surface.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.from_pauli_web" title="tqec.computation.CorrelationSurface.from_pauli_web"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_pauli_web</span></code></a>(pauli_web)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.external_stabilizer" title="tqec.computation.CorrelationSurface.external_stabilizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">external_stabilizer</span></code></a>(io_ports)</p></td>
+<td><p>Get the Pauli operator supported on the given input/output ports.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.from_pauli_web" title="tqec.computation.CorrelationSurface.from_pauli_web"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_pauli_web</span></code></a>(pauli_web)</p></td>
 <td><p>Create a correlation surface from a Pauli web.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.span_vertices" title="tqec.computation.CorrelationSurface.span_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">span_vertices</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.span_vertices" title="tqec.computation.CorrelationSurface.span_vertices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">span_vertices</span></code></a>()</p></td>
 <td><p>Return the set of vertices in the correlation surface.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.to_pauli_web" title="tqec.computation.CorrelationSurface.to_pauli_web"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pauli_web</span></code></a>(g)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.to_pauli_web" title="tqec.computation.CorrelationSurface.to_pauli_web"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pauli_web</span></code></a>(g)</p></td>
 <td><p>Convert the correlation surface to a Pauli web.</p></td>
 </tr>
 </tbody>
@@ -617,6 +620,23 @@ between the logical Z operators at the two nodes.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>set[<em>ZXEdge</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.CorrelationSurface.external_stabilizer">
+<span class="sig-name descname"><span class="pre">external_stabilizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">io_ports</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/correlation.html#CorrelationSurface.external_stabilizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.CorrelationSurface.external_stabilizer" title="Link to this definition">#</a></dt>
+<dd><p>Get the Pauli operator supported on the given input/output ports.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>io_ports</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – The list of input/output ports to consider.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Pauli operator supported on the given ports.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -719,6 +739,7 @@ between the logical Z operators at the two nodes.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.CorrelationSurface.__init__"><code class="docutils literal notranslate"><span class="pre">CorrelationSurface.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.CorrelationSurface.bases_at"><code class="docutils literal notranslate"><span class="pre">CorrelationSurface.bases_at()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.CorrelationSurface.edges_at"><code class="docutils literal notranslate"><span class="pre">CorrelationSurface.edges_at()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.CorrelationSurface.external_stabilizer"><code class="docutils literal notranslate"><span class="pre">CorrelationSurface.external_stabilizer()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.CorrelationSurface.from_pauli_web"><code class="docutils literal notranslate"><span class="pre">CorrelationSurface.from_pauli_web()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.CorrelationSurface.span_vertices"><code class="docutils literal notranslate"><span class="pre">CorrelationSurface.span_vertices()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.CorrelationSurface.to_pauli_web"><code class="docutils literal notranslate"><span class="pre">CorrelationSurface.to_pauli_web()</span></code></a></li>
