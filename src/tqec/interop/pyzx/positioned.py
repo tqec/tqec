@@ -129,13 +129,13 @@ class PositionedZX:
         p2v: dict[Position3D, int] = {}
         g = GraphS()
 
-        for cube in block_graph.nodes:
+        for cube in block_graph.cubes:
             vt, phase = cube_kind_to_zx(cube.kind)
             v = g.add_vertex(vt, phase=phase)
             v2p[v] = cube.position
             p2v[cube.position] = v
 
-        for edge in block_graph.edges:
+        for edge in block_graph.pipes:
             et = zx.EdgeType.HADAMARD if edge.kind.has_hadamard else zx.EdgeType.SIMPLE
             g.add_edge((p2v[edge.u.position], p2v[edge.v.position]), et)
 

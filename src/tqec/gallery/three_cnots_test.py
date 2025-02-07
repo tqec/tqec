@@ -7,9 +7,9 @@ from tqec.utils.enums import Basis
 def test_three_cnots_OPEN() -> None:
     g = three_cnots()
     assert g.num_ports == 6
-    assert g.num_nodes == 12
-    assert g.num_edges == 12
-    assert len(g.leaf_nodes) == 6
+    assert g.num_cubes == 12
+    assert g.num_pipes == 12
+    assert len(g.leaf_cubes) == 6
     assert {*g.ports.keys()} == {
         "In_a",
         "Out_a",
@@ -24,6 +24,6 @@ def test_three_cnots_OPEN() -> None:
 def test_three_cnots_filled(obs_basis: Basis) -> None:
     g = three_cnots(obs_basis)
     assert g.num_ports == 0
-    assert g.num_nodes == 12
-    assert g.num_edges == 12
-    assert len(g.leaf_nodes) == 6
+    assert g.num_cubes == 12
+    assert g.num_pipes == 12
+    assert len(g.leaf_cubes) == 6

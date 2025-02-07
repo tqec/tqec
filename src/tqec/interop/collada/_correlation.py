@@ -73,7 +73,7 @@ class CorrelationSurfaceTransformationHelper:
         """Get the correlation surface normal direction in the pipe."""
         u, v = correlation_edge
         up, vp = self._get_position(u.id), self._get_position(v.id)
-        pipe = self.block_graph.get_edge(up, vp)
+        pipe = self.block_graph.get_pipe(up, vp)
         correlation_basis = u.basis
         return next(
             d

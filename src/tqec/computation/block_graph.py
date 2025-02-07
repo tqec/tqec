@@ -6,13 +6,14 @@ from collections.abc import Mapping
 import pathlib
 from copy import deepcopy
 from io import BytesIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
-from tqec.computation._base_graph import ComputationGraph
-from tqec.computation.cube import Cube, CubeKind
+import networkx as nx
+
+from tqec.computation.cube import Cube, CubeKind, Port, cube_kind_from_string
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import Direction3D, SignedDirection3D
+from tqec.utils.position import Direction3D, Position3D, SignedDirection3D
 
 if TYPE_CHECKING:
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
 BlockKind = CubeKind | PipeKind
 
 
-class BlockGraph(ComputationGraph[Cube, Pipe]):
+class BlockGraph:
     """Block graph representation of a logical computation.
 
     A block graph consists of building blocks that fully define the boundary
@@ -45,27 +46,195 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
     connects. Pipes are represented as edges in the graph.
     """
 
-    def add_edge(self, u: Cube, v: Cube, kind: PipeKind | None = None) -> None:
-        """Add an edge to the graph. If the nodes of the edge do not exist in
-        the graph, the nodes will be created and added to the graph.
+    _NODE_DATA_KEY: str = "tqec_node_data"
+    _EDGE_DATA_KEY: str = "tqec_edge_data"
+
+    def __init__(self, name: str = "") -> None:
+        self._name = name
+        self._graph: nx.Graph[Position3D] = nx.Graph()
+        self._ports: dict[str, Position3D] = {}
+
+    @property
+    def name(self) -> str:
+        """Name of the graph."""
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self._name = name
+
+    @property
+    def num_cubes(self) -> int:
+        """Number of cubes (nodes) in the graph, including the ports."""
+        return self._graph.number_of_nodes()
+
+    @property
+    def num_pipes(self) -> int:
+        """Number of pipes (edges) in the graph."""
+        return self._graph.number_of_edges()
+
+    @property
+    def num_ports(self) -> int:
+        """Number of ports in the graph."""
+        return len([node for node in self.cubes if node.is_port])
+
+    @property
+    def cubes(self) -> list[Cube]:
+        """The list of cubes (nodes) in the graph."""
+        return [data[self._NODE_DATA_KEY] for _, data in self._graph.nodes(data=True)]
+
+    @property
+    def pipes(self) -> list[Pipe]:
+        """The list of pipes (edges) in the graph."""
+        return [
+            data[self._EDGE_DATA_KEY] for _, _, data in self._graph.edges(data=True)
+        ]
+
+    @property
+    def ports(self) -> dict[str, Position3D]:
+        """Mapping from port labels to their positions.
+
+        A port is a virtual node with unique label that represents the
+        input/output of the computation. It should be invisible when visualizing
+        the computation model.
+        """
+        return dict(self._ports)
+
+    def get_degree(self, position: Position3D) -> int:
+        """Get the degree of a node in the graph, i.e. the number of edges
+        incident to it."""
+        return self._graph.degree(position)  # type: ignore
+
+    @property
+    def leaf_cubes(self) -> list[Cube]:
+        """Get the leaf cubes of the graph, i.e. the cubes with degree 1."""
+        return [node for node in self.cubes if self.get_degree(node.position) == 1]
+
+    def add_cube(
+        self,
+        position: Position3D,
+        kind: CubeKind | str,
+        label: str = "",
+    ) -> None:
+        """Add a cube to the graph.
 
         Args:
-            u: The cube on one end of the edge.
-            v: The cube on the other end of the edge.
+            position: The position of the cube.
+            kind: The kind of the cube. It can be a :py:class:`~tqec.computation.cube.CubeKind`
+                instance or a string representation of the cube kind.
+            label: The label of the cube. Default is None.
+
+        Raises:
+            TQECException: If there is already a cube at the same position, or
+                if the cube kind is not recognized, or if the cube is a port and
+                there is already a port with the same label in the graph.
+        """
+        if position in self:
+            raise TQECException(f"Cube already exists at position {position}.")
+        if isinstance(kind, str):
+            kind = cube_kind_from_string(kind)
+        if kind == Port() and label in self._ports:
+            raise TQECException(
+                "There is already a port with the same label in the graph."
+            )
+
+        self._graph.add_node(
+            position, **{self._NODE_DATA_KEY: Cube(position, kind, label)}
+        )
+        if kind == Port():
+            self._ports[label] = position
+
+    def add_pipe(
+        self, pos1: Position3D, pos2: Position3D, kind: PipeKind | str | None = None
+    ) -> None:
+        """Add a pipe to the graph.
+
+        Args:
+            pos1: The position of one end of the pipe.
+            pos2: The position of the other end of the pipe.
             kind: The kind of the pipe connecting the cubes. If None, the kind will be
                 automatically determined based on the cubes it connects to make the
                 boundary conditions consistent. Default is None.
 
         Raises:
-            TQECException: For each node in the edge, if there is already a node which is not
-                equal to it at the same position, or the node is a port but there is already a
-                different port with the same label in the graph.
+            TQECException: If any of the positions do not have a cube in the graph, or
+                if there is already an pipe between the given positions, or
+                if the pipe is not compatible with the cubes it connects.
         """
+        u, v = self[pos1], self[pos2]
+        if self.has_pipe_between(pos1, pos2):
+            raise TQECException(
+                "There is already a pipe between the given positions in the graph."
+            )
         if kind is None:
             pipe = Pipe.from_cubes(u, v)
         else:
+            if isinstance(kind, str):
+                kind = PipeKind.from_str(kind)
             pipe = Pipe(u, v, kind)
-        self._add_edge_and_nodes_with_checks(u, v, pipe)
+        self._graph.add_edge(pos1, pos2, **{self._EDGE_DATA_KEY: pipe})
+
+    def has_pipe_between(self, pos1: Position3D, pos2: Position3D) -> bool:
+        """Check if there is a pipe between two positions.
+
+        Args:
+            pos1: The first endpoint position.
+            pos2: The second endpoint position.
+
+        Returns:
+            True if there is an pipe between the two positions, False otherwise.
+        """
+        return self._graph.has_edge(pos1, pos2)
+
+    def get_pipe(self, pos1: Position3D, pos2: Position3D) -> Pipe:
+        """Get the pipe by its endpoint positions. If there is no pipe between
+        the given positions, an exception will be raised.
+
+        Args:
+            pos1: The first endpoint position.
+            pos2: The second endpoint position.
+
+        Returns:
+            The pipe between the two positions.
+
+        Raises:
+            TQECException: If there is no pipe between the given positions.
+        """
+        if not self.has_pipe_between(pos1, pos2):
+            raise TQECException("No pipe between the given positions is in the graph.")
+        return cast(Pipe, self._graph.edges[pos1, pos2][self._EDGE_DATA_KEY])
+
+    def pipes_at(self, position: Position3D) -> list[Pipe]:
+        """Get the pipes incident to a position."""
+        if position not in self:
+            return []
+        return [
+            cast(Pipe, data[self._EDGE_DATA_KEY])
+            for _, _, data in self._graph.edges(position, data=True)
+        ]
+
+    def clone(self) -> BlockGraph:
+        """Create a data-independent copy of the graph."""
+        graph = BlockGraph(self.name + "_clone")
+        graph._graph = deepcopy(self._graph)
+        graph._ports = dict(self._ports)
+        return graph
+
+    def __contains__(self, position: Position3D) -> bool:
+        return position in self._graph
+
+    def __getitem__(self, position: Position3D) -> Cube:
+        if position not in self:
+            raise TQECException(f"No cube at position {position}.")
+        return cast(Cube, self._graph.nodes[position][self._NODE_DATA_KEY])
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BlockGraph):
+            return False
+        return (
+            nx.utils.graphs_equal(self._graph, other._graph)  # type: ignore
+            and self._ports == other._ports
+        )
 
     def validate(self) -> None:
         """Check the validity of the block graph to represent a logical
@@ -82,15 +251,20 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         - **Match color at turn:** two pipes in a "turn" should have the matching colors on
           faces that are touching.
 
+        Additionally, the following conditions are checked:
+
+        - **Port as IO:** all the port cubes should be either inputs or outputs, and all
+            the inputs/outputs should be ports.
+
         Raises:
             TQECException: If the above conditions are not satisfied.
         """
-        for cube in self.nodes:
+        for cube in self.cubes:
             self._validate_locally_at_cube(cube)
 
     def _validate_locally_at_cube(self, cube: Cube) -> None:
         """Check the validity of the block structures locally at a cube."""
-        pipes = self.edges_at(cube.position)
+        pipes = self.pipes_at(cube.position)
         # a). no fanout
         if cube.is_port:
             if len(pipes) != 1:
@@ -208,23 +382,29 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
             write_html_filepath=write_html_filepath,
         )
 
-    def shift_min_z_to_zero(self) -> BlockGraph:
-        """Shift the whole graph in the z direction to make the minimum z equal
-        zero.
+    def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> BlockGraph:
+        """Shift the whole graph by the given offset in the x, y, z directions and
+        creat a new graph with the shifted positions.
+
+        Args:
+            dx: The offset in the x direction.
+            dy: The offset in the y direction.
+            dz: The offset in the z direction.
 
         Returns:
-            A new graph with the minimum z position of the cubes equal to zero. The new graph
-            will share no data with the original graph.
+            A new graph with the shifted positions. The new graph will share no data
+            with the original graph.
         """
-        minz = min(cube.position.z for cube in self.nodes)
-        if minz == 0:
-            return deepcopy(self)
-        new_graph = BlockGraph(self.name)
-        for pipe in self.edges:
+        new_graph = BlockGraph()
+        for cube in self.cubes:
+            new_graph.add_cube(
+                cube.position.shift_by(dx=dx, dy=dy, dz=dz), cube.kind, cube.label
+            )
+        for pipe in self.pipes:
             u, v = pipe.u, pipe.v
-            new_graph.add_edge(
-                Cube(u.position.shift_by(dz=-minz), u.kind, u.label),
-                Cube(v.position.shift_by(dz=-minz), v.kind, v.label),
+            new_graph.add_pipe(
+                u.position.shift_by(dx=dx, dy=dy, dz=dz),
+                v.position.shift_by(dx=dx, dy=dy, dz=dz),
                 pipe.kind,
             )
         return new_graph
@@ -261,13 +441,13 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
             fill_node = Cube(pos, kind)
             # Overwrite the node at the port position
             self._graph.add_node(pos, **{self._NODE_DATA_KEY: fill_node})
-            for edge in self.edges_at(pos):
-                self._graph.remove_edge(edge.u.position, edge.v.position)
-                other = edge.u if edge.v.position == pos else edge.v
+            for pipe in self.pipes_at(pos):
+                self._graph.remove_edge(pipe.u.position, pipe.v.position)
+                other = pipe.u if pipe.v.position == pos else pipe.v
                 self._graph.add_edge(
                     other.position,
                     pos,
-                    **{self._EDGE_DATA_KEY: Pipe(other, fill_node, edge.kind)},
+                    **{self._EDGE_DATA_KEY: Pipe(other, fill_node, pipe.kind)},
                 )
             # Delete the port label
             self._ports.pop(label)
@@ -293,7 +473,7 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         n = num_90_degree_rotation % 4
 
         if n == 0:
-            return self.copy()
+            return self.clone()
         g = self.to_zx_graph()
         rotated_g = g.rotate(rotation_axis, n, counterclockwise)
         return rotated_g.to_block_graph()

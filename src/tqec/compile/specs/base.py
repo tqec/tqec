@@ -49,7 +49,7 @@ class CubeSpec:
         pos = cube.position
         spatial_arms = SpatialArms.NONE
         for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
-            if graph.get_edge(pos, pos.shift_by(*shift)) is not None:
+            if graph.get_pipe(pos, pos.shift_by(*shift)) is not None:
                 spatial_arms |= flag
         return CubeSpec(cube.kind, spatial_arms)
 

@@ -123,12 +123,12 @@ def compile_correlation_surface_to_abstract_observable(
     # 0. Handle single node edge case
     if correlation_surface.is_single_node:
         # single stability experiment
-        if block_graph.nodes[0].is_spatial:
+        if block_graph.cubes[0].is_spatial:
             return AbstractObservable(
-                bottom_stabilizer_spatial_cubes=frozenset(block_graph.nodes)
+                bottom_stabilizer_spatial_cubes=frozenset(block_graph.cubes)
             )
 
-        return AbstractObservable(top_readout_cubes=frozenset(block_graph.nodes))
+        return AbstractObservable(top_readout_cubes=frozenset(block_graph.cubes))
 
     pg = block_graph.to_zx_graph()
     endpoints_to_edge: dict[frozenset[Position3D], list[ZXEdge]] = {}
@@ -196,14 +196,14 @@ def compile_correlation_surface_to_abstract_observable(
             return True
         assert isinstance(cube.kind, ZXCube)
         # No pipe at the top
-        if block_graph.has_edge_between(cube.position, cube.position.shift_by(0, 0, 1)):
+        if block_graph.has_pipe_between(cube.position, cube.position.shift_by(0, 0, 1)):
             return False
         # The correlation surface must be attached to the top face
         return cube.kind.z.value == correlation.value
 
     for edge in correlation_surface.span:
         up, vp = pg[edge.u.id], pg[edge.v.id]
-        pipe = block_graph.get_edge(up, vp)
+        pipe = block_graph.get_pipe(up, vp)
         # Vertical pipes
         if pipe.direction == Direction3D.Z:
             if has_obs_include(pipe.v, edge.v.basis):
