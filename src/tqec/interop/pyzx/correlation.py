@@ -69,7 +69,7 @@ class CorrelationSurface:
                 bases.add(edge.v.basis)
         return bases
 
-    def to_pauli_web(self, g: GraphS) -> PauliWeb:
+    def to_pauli_web(self, g: GraphS) -> PauliWeb[int, tuple[int, int]]:
         """Convert the correlation surface to a Pauli web.
 
         Args:
