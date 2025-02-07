@@ -108,11 +108,11 @@ def test_correlation_port_passthrough() -> None:
 
 
 def test_correlation_cnot() -> None:
-    g = cnot("X")
+    g = cnot(Basis.X)
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 3
 
-    g = cnot("Z")
+    g = cnot(Basis.Z)
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 3
 

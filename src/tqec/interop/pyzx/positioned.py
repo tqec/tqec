@@ -11,7 +11,7 @@ from pyzx.graph.graph_s import GraphS
 from tqec.computation.block_graph import BlockGraph
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
-from tqec.interop.pyzx.utils import cube_kind_to_zx, is_boundary
+from tqec.interop.pyzx.utils import cube_kind_to_zx
 from tqec.utils.scale import round_or_fail
 
 
@@ -21,7 +21,6 @@ class PositionedZX:
 
         The constraints are:
 
-        0. All the Boundary vertices are labeled as inputs or outputs.
         1. The vertex IDs in the graph match the position keys exactly.
         2. The neighbors are all shifted by 1 in the 3D positions.
         3. All the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders.
@@ -44,15 +43,6 @@ class PositionedZX:
     @staticmethod
     def check_preconditions(g: GraphS, positions: Mapping[int, Position3D]) -> None:
         """Check the preconditions for the ZX graph with 3D positions."""
-        # 0. Check all the Boundary vertices are labeled as inputs or outputs
-        iset, oset = set(g.inputs()), set(g.outputs())
-        boundaries = {v for v in g.vertices() if is_boundary(g, v)}
-        if len(iset) != len(g.inputs()) or len(oset) != len(g.outputs()):
-            raise TQECException("Duplicate vertices are labeled as inputs or outputs.")
-        if boundaries != iset | oset:
-            raise TQECException(
-                "Inputs + Outputs must be equal to all the boundary vertices."
-            )
         # 1. Check the vertex IDs in the graph match the positions
         if g.vertex_set() != set(positions.keys()):
             raise TQECException(
