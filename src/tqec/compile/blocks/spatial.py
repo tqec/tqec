@@ -5,7 +5,7 @@ from typing import Iterable
 
 from typing_extensions import Self
 
-from tqec.blocks.enums import SpatialBlockBorder
+from tqec.compile.blocks.enums import SpatialBlockBorder
 from tqec.utils.position import Shape2D
 from tqec.utils.scale import PhysicalQubitScalable2D
 

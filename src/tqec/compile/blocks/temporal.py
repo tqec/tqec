@@ -5,7 +5,7 @@ from typing import Iterable
 
 from typing_extensions import Self
 
-from tqec.blocks.enums import TemporalBlockBorder
+from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.utils.scale import LinearFunction
 
 

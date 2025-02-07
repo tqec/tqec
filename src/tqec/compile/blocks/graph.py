@@ -1,12 +1,12 @@
 from itertools import chain, repeat
 from typing import Final, Iterator, Mapping, Sequence, cast
 
-from tqec.blocks.block import Block
-from tqec.blocks.layers.atomic.base import BaseLayer
-from tqec.blocks.layers.atomic.layout import LayoutLayer
-from tqec.blocks.layers.composed.base import BaseComposedLayer
-from tqec.blocks.layers.composed.repeated import RepeatedLayer
-from tqec.blocks.layers.composed.sequenced import SequencedLayers
+from tqec.compile.blocks.block import Block
+from tqec.compile.blocks.layers.atomic.base import BaseLayer
+from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
+from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
+from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
+from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.utils.exceptions import TQECException
 from tqec.utils.maths import least_common_multiple
 from tqec.utils.position import BlockPosition2D, Position3D

@@ -5,11 +5,11 @@ from typing import Iterable, Sequence
 
 from typing_extensions import override
 
-from tqec.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
-from tqec.blocks.layers.atomic.base import BaseLayer
-from tqec.blocks.layers.composed.base import BaseComposedLayer
-from tqec.blocks.spatial import WithSpatialFootprint
-from tqec.blocks.temporal import WithTemporalFootprint
+from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
+from tqec.compile.blocks.layers.atomic.base import BaseLayer
+from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
+from tqec.compile.blocks.spatial import WithSpatialFootprint
+from tqec.compile.blocks.temporal import WithTemporalFootprint
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shape2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -21,8 +21,8 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
 
     This data structure is voluntarilly very generic. It represents blocks as a
     sequence of layers that can be instances of either
-    :class:`~tqec.blocks.layers.atomic.base.BaseLayer` or
-    :class:`~tqec.blocks.layers.composed.base.BaseComposedLayer`.
+    :class:`~tqec.compile.blocks.layers.atomic.base.BaseLayer` or
+    :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer`.
 
     Depending on the stored layers, this class can be used to represent regular
     cubes (i.e. scaling in the 2 spatial dimensions with ``k``) as well as

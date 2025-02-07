@@ -6,9 +6,9 @@ from typing import Generic, Iterable, TypeVar
 
 from typing_extensions import override
 
-from tqec.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
-from tqec.blocks.layers.atomic.base import BaseLayer
-from tqec.blocks.layers.composed.base import BaseComposedLayer
+from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
+from tqec.compile.blocks.layers.atomic.base import BaseLayer
+from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 

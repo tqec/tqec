@@ -3,9 +3,9 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import Generic, Iterable, TypeVar
 
-from tqec.blocks.layers.atomic.base import BaseLayer
-from tqec.blocks.spatial import WithSpatialFootprint
-from tqec.blocks.temporal import WithTemporalFootprint
+from tqec.compile.blocks.layers.atomic.base import BaseLayer
+from tqec.compile.blocks.spatial import WithSpatialFootprint
+from tqec.compile.blocks.temporal import WithTemporalFootprint
 
 T = TypeVar("T", bound=BaseLayer)
 

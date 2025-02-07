@@ -4,9 +4,9 @@ from typing import Iterable
 
 from typing_extensions import Self, override
 
-from tqec.blocks.enums import TemporalBlockBorder
-from tqec.blocks.spatial import WithSpatialFootprint
-from tqec.blocks.temporal import WithTemporalFootprint
+from tqec.compile.blocks.enums import TemporalBlockBorder
+from tqec.compile.blocks.spatial import WithSpatialFootprint
+from tqec.compile.blocks.temporal import WithTemporalFootprint
 from tqec.utils.scale import LinearFunction
 
 

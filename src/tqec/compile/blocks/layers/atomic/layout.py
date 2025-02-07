@@ -6,9 +6,9 @@ from typing import Iterable
 
 from typing_extensions import override
 
-from tqec.blocks.enums import SpatialBlockBorder
-from tqec.blocks.layers.atomic.base import BaseLayer
-from tqec.blocks.layers.atomic.plaquettes import PlaquetteLayer
+from tqec.compile.blocks.enums import SpatialBlockBorder
+from tqec.compile.blocks.layers.atomic.base import BaseLayer
+from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import RectangularTemplate
 from tqec.templates.layout import LayoutTemplate
