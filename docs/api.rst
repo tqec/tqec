@@ -39,7 +39,6 @@ Some other objects that can be accessed from the top level module.
    :toctree: _autosummary
    :nosignatures:
 
-   Interval
    Direction3D
    Displacement
    utils.position.Position2D
