@@ -16,4 +16,4 @@ User Guide
 
    build_computations.ipynb
    collada_interop.ipynb
-   Detectors Computation <detectors/index>
+   Detectors Computation <detectors/detector_computation.ipynb>
