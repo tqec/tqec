@@ -51,6 +51,9 @@ extensions = [
     # Include Mermaid diagrams in the documentation
     # https://sphinxcontrib-mermaid-demo.readthedocs.io/en/latest/
     "sphinxcontrib.mermaid",
+    "sphinx_copybutton"
+    # Adds a copy button to each code block in the documentation
+    # https://sphinx-copybutton.readthedocs.io/en/latest/
 ]
 
 templates_path = ["_templates"]
