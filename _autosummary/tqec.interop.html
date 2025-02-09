@@ -48,7 +48,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.interop';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="display_collada_model" href="tqec.interop.display_collada_model.html" />
+    <link rel="next" title="block_synthesis" href="tqec.interop.block_synthesis.html" />
     <link rel="prev" title="three_cnots_zx_graph" href="tqec.gallery.three_cnots_zx_graph.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -423,10 +423,14 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">tqec.interop</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.block_synthesis.html">block_synthesis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.interop.display_collada_model.html">display_collada_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.positioned_block_synthesis.html">positioned_block_synthesis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.interop.read_block_graph_from_dae_file.html">read_block_graph_from_dae_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.interop.write_block_graph_to_dae_file.html">write_block_graph_to_dae_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.PositionedZX.html">PositionedZX</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.interop.RGBA.html">RGBA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.SynthesisStrategy.html">SynthesisStrategy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.interop.TQECColor.html">TQECColor</a></li>
 </ul>
 </details></li>
@@ -513,8 +517,14 @@ formats.</p>
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.interop.display_collada_model.html#tqec.interop.display_collada_model" title="tqec.interop.display_collada_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_collada_model</span></code></a>(filepath_or_bytes[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.interop.block_synthesis.html#tqec.interop.block_synthesis" title="tqec.interop.block_synthesis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">block_synthesis</span></code></a>(zx_graph[, strategy, positions])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.interop.display_collada_model.html#tqec.interop.display_collada_model" title="tqec.interop.display_collada_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_collada_model</span></code></a>(filepath_or_bytes[, ...])</p></td>
 <td><p>Display the 3D COLLADA model from a Collada DAE file in IPython compatible environments, or write the generated HTML content to a file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.interop.positioned_block_synthesis.html#tqec.interop.positioned_block_synthesis" title="tqec.interop.positioned_block_synthesis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">positioned_block_synthesis</span></code></a>(g)</p></td>
+<td><p>Convert a positioned ZX graph to a <a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="tqec.interop.read_block_graph_from_dae_file.html#tqec.interop.read_block_graph_from_dae_file" title="tqec.interop.read_block_graph_from_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_block_graph_from_dae_file</span></code></a>(filepath[, ...])</p></td>
 <td><p>Read a Collada DAE file and construct a <a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a> from it.</p></td>
@@ -528,8 +538,14 @@ formats.</p>
 <p class="rubric">Classes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.interop.RGBA.html#tqec.interop.RGBA" title="tqec.interop.RGBA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RGBA</span></code></a>(r, g, b, a)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.interop.PositionedZX.html#tqec.interop.PositionedZX" title="tqec.interop.PositionedZX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PositionedZX</span></code></a>(g, positions)</p></td>
+<td><p>A ZX graph with 3D positions and additional constraints.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.interop.RGBA.html#tqec.interop.RGBA" title="tqec.interop.RGBA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RGBA</span></code></a>(r, g, b, a)</p></td>
 <td><p>RGBA representation of a color.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.interop.SynthesisStrategy.html#tqec.interop.SynthesisStrategy" title="tqec.interop.SynthesisStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SynthesisStrategy</span></code></a>(value[, names, module, ...])</p></td>
+<td><p>Strategy for synthesizing a block graph from a ZX graph.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="tqec.interop.TQECColor.html#tqec.interop.TQECColor" title="tqec.interop.TQECColor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TQECColor</span></code></a>(value[, names, module, qualname, ...])</p></td>
 <td><p>Predefined and commonly used colors in TQEC.</p></td>
@@ -559,11 +575,11 @@ formats.</p>
       </div>
     </a>
     <a class="right-next"
-       href="tqec.interop.display_collada_model.html"
+       href="tqec.interop.block_synthesis.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">display_collada_model</p>
+        <p class="prev-next-title">block_synthesis</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
