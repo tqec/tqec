@@ -22,7 +22,7 @@ def test_cnot_open() -> None:
 
 def test_cnot_open_zx() -> None:
     g = cnot().to_zx_graph().g
-    g.set_inputs((0, 7))
+    g.set_inputs((0, 6))
     g.set_outputs((3, 9))
 
     c = zx.qasm("""
@@ -52,9 +52,8 @@ def test_cnot_filled(obs_basis: Basis) -> None:
 def test_cnot_correlation_surface(
     obs_basis: Basis | None, num_surfaces: int, external_stabilizers: set[str]
 ) -> None:
-    io_ports = [0, 7, 3, 9]
-
     g = cnot(obs_basis)
+    io_ports = [0, 6, 3, 9]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
     assert {
