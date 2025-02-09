@@ -198,6 +198,35 @@ class BlockGraph:
             pipe = Pipe(u, v, kind)
         self._graph.add_edge(pos1, pos2, **{self._EDGE_DATA_KEY: pipe})
 
+    def remove_cube(self, position: Position3D) -> None:
+        """Remove a cube from the graph, as well as the pipes connected to it.
+
+        Args:
+            position: The position of the cube to be removed.
+
+        Raises: TQECException: If there is no cube at the given position.
+        """
+        if position not in self:
+            raise TQECException(f"No cube at position {position}.")
+        cube = self[position]
+        self._graph.remove_node(position)
+        if cube.is_port:
+            self._ports.pop(cube.label)
+
+    def remove_pipe(self, pos1: Position3D, pos2: Position3D) -> None:
+        """Remove a pipe between two positions.
+
+        Args:
+            pos1: The position of one end of the pipe.
+            pos2: The position of the other end of the pipe.
+
+        Raises:
+            TQECException: If there is no pipe between the given positions.
+        """
+        if not self.has_pipe_between(pos1, pos2):
+            raise TQECException("No pipe between the given positions is in the graph.")
+        self._graph.remove_edge(pos1, pos2)
+
     def has_pipe_between(self, pos1: Position3D, pos2: Position3D) -> bool:
         """Check if there is a pipe between two positions.
 
@@ -548,3 +577,8 @@ class BlockGraph:
         )
         composed_g.name = f"{self.name}_composed_with_{other.name}"
         return composed_g
+
+    def is_single_connected(self) -> bool:
+        """Check if the graph is single connected, i.e. there is only one connected
+        component in the graph."""
+        return bool(nx.is_connected(self._graph))

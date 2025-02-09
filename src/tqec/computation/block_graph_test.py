@@ -60,6 +60,29 @@ def test_block_graph_add_pipe() -> None:
         g.get_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
 
 
+def test_remove_block() -> None:
+    g = BlockGraph()
+    n1 = g.add_cube(Position3D(0, 0, 0), "P", "In")
+    n2 = g.add_cube(Position3D(0, 0, 1), "ZXZ")
+    n3 = g.add_cube(Position3D(1, 0, 1), "P", "Out")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n2, n3)
+    assert g.num_cubes == 3
+    assert g.num_pipes == 2
+    assert g.num_ports == 2
+    g.remove_cube(n1)
+    assert g.num_cubes == 2
+    assert g.num_pipes == 1
+    assert g.num_ports == 1
+    assert "In" not in g.ports
+
+    g.remove_pipe(n2, n3)
+    assert g.num_cubes == 2
+    assert g.num_pipes == 0
+    assert g.num_ports == 1
+    assert not g.is_single_connected()
+
+
 def test_block_graph_validate_y_cube() -> None:
     g = BlockGraph()
     u = g.add_cube(Position3D(0, 0, 0), "ZXZ")
@@ -138,8 +161,22 @@ def test_compose_graphs() -> None:
     g1.add_pipe(n1, n2, "OXZ")
 
     g2 = g1.clone()
+    g2.name = "g2"
     g_composed = g1.compose(g2, "Out", "In")
+    assert g_composed.name == "g1_composed_with_g2"
     assert g_composed.num_cubes == 3
     assert g_composed.num_ports == 2
     assert g_composed.ports == {"In": n1, "Out": Position3D(2, 0, 0)}
     assert g_composed[Position3D(1, 0, 0)].kind == ZXCube.from_str("ZXZ")
+
+
+def test_single_connected() -> None:
+    g = BlockGraph()
+    n1 = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    assert g.is_single_connected()
+
+    n2 = g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    assert not g.is_single_connected()
+
+    g.add_pipe(n1, n2)
+    assert g.is_single_connected()
