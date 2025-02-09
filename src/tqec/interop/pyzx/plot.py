@@ -175,7 +175,9 @@ def plot_positioned_zx_graph(
 
 
 def pyzx_draw_positioned_zx_3d(
-    g: PositionedZX, id_labels: bool = True, pauli_web: PauliWeb | None = None
+    g: PositionedZX,
+    id_labels: bool = True,
+    pauli_web: PauliWeb[int, tuple[int, int]] | None = None,
 ) -> None:
     """Draw the positioned ZX graph in 3D with ``pyzx.draw_3d``.
 
