@@ -19,6 +19,7 @@ def test_cz_open() -> None:
         "In_2",
         "Out_2",
     }
+    assert g.spacetime_volume() == (2, 3, 3)
 
 
 def test_cz_open_zx() -> None:

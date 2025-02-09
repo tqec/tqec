@@ -91,6 +91,25 @@ class BlockGraph:
         ]
 
     @property
+    def occupy_positions(self) -> list[Position3D]:
+        """Get the positions occupied by the cubes in the graph."""
+        return list(self._graph.nodes)
+
+    def spacetime_volume(self) -> tuple[int, int, int]:
+        """Return the spacetime volume of the computation.
+
+        Returns:
+            A tuple of three integers representing the width along the X, Y, and Z
+            directions, respectively.
+        """
+        positions = self.occupy_positions
+        return (
+            max(pos.x for pos in positions) - min(pos.x for pos in positions) + 1,
+            max(pos.y for pos in positions) - min(pos.y for pos in positions) + 1,
+            max(pos.z for pos in positions) - min(pos.z for pos in positions) + 1,
+        )
+
+    @property
     def ports(self) -> dict[str, Position3D]:
         """Mapping from port labels to their positions.
 
@@ -456,28 +475,28 @@ class BlockGraph:
             # Delete the port label
             self._ports.pop(label)
 
-    def rotate(
-        self,
-        rotation_axis: Direction3D = Direction3D.Y,
-        num_90_degree_rotation: int = 1,
-        counterclockwise: bool = True,
-    ) -> BlockGraph:
-        """Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and
-        return a new rotated graph.
-
-        Args:
-            rotation_axis: The axis around which to rotate the graph.
-            num_90_degree_rotation: The number of 90-degree rotations to apply to the graph.
-            counterclockwise: Whether to rotate the graph counterclockwise. If set to False,
-                the graph will be rotated clockwise. Defaults to True.
-
-        Returns:
-            A data-independent copy of the graph rotated by the given number of 90-degree rotations.
-        """
-        n = num_90_degree_rotation % 4
-
-        if n == 0:
-            return self.clone()
-        g = self.to_zx_graph()
-        rotated_g = g.rotate(rotation_axis, n, counterclockwise)
-        return rotated_g.to_block_graph()
+    # def rotate(
+    #     self,
+    #     rotation_axis: Direction3D = Direction3D.Y,
+    #     num_90_degree_rotation: int = 1,
+    #     counterclockwise: bool = True,
+    # ) -> BlockGraph:
+    #     """Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and
+    #     return a new rotated graph.
+    #
+    #     Args:
+    #         rotation_axis: The axis around which to rotate the graph.
+    #         num_90_degree_rotation: The number of 90-degree rotations to apply to the graph.
+    #         counterclockwise: Whether to rotate the graph counterclockwise. If set to False,
+    #             the graph will be rotated clockwise. Defaults to True.
+    #
+    #     Returns:
+    #         A data-independent copy of the graph rotated by the given number of 90-degree rotations.
+    #     """
+    #     n = num_90_degree_rotation % 4
+    #
+    #     if n == 0:
+    #         return self.clone()
+    #     g = self.to_zx_graph()
+    #     rotated_g = g.rotate(rotation_axis, n, counterclockwise)
+    #     return rotated_g.to_block_graph()

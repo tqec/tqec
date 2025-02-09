@@ -15,6 +15,7 @@ def test_move_rotation_open() -> None:
         "In",
         "Out",
     }
+    assert g.spacetime_volume() == (2, 2, 3)
 
 
 def test_move_rotation_open_zx() -> None:

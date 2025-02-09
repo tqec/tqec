@@ -19,6 +19,7 @@ def test_three_cnots_OPEN() -> None:
         "In_c",
         "Out_c",
     }
+    assert g.spacetime_volume() == (4, 3, 4)
 
 
 def test_three_cnots_open_zx() -> None:

@@ -18,6 +18,7 @@ def test_cnot_open() -> None:
         "In_Target",
         "Out_Target",
     }
+    assert g.spacetime_volume() == (2, 2, 4)
 
 
 def test_cnot_open_zx() -> None:
