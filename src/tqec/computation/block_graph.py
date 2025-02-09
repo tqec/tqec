@@ -115,7 +115,7 @@ class BlockGraph:
         position: Position3D,
         kind: CubeKind | str,
         label: str = "",
-    ) -> None:
+    ) -> Position3D:
         """Add a cube to the graph.
 
         Args:
@@ -123,6 +123,9 @@ class BlockGraph:
             kind: The kind of the cube. It can be a :py:class:`~tqec.computation.cube.CubeKind`
                 instance or a string representation of the cube kind.
             label: The label of the cube. Default is None.
+
+        Returns:
+            The position of the cube added to the graph.
 
         Raises:
             TQECException: If there is already a cube at the same position, or
@@ -143,6 +146,7 @@ class BlockGraph:
         )
         if kind == Port():
             self._ports[label] = position
+        return position
 
     def add_pipe(
         self, pos1: Position3D, pos2: Position3D, kind: PipeKind | str | None = None

@@ -15,18 +15,18 @@ def test_block_graph_construction() -> None:
 
 def test_block_graph_add_cube() -> None:
     g = BlockGraph()
-    g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    v = g.add_cube(Position3D(0, 0, 0), "ZXZ")
     assert g.num_cubes == 1
-    assert g[Position3D(0, 0, 0)].kind == ZXCube.from_str("ZXZ")
-    assert Position3D(0, 0, 0) in g
+    assert g[v].kind == ZXCube.from_str("ZXZ")
+    assert v in g
 
     with pytest.raises(TQECException, match="Cube already exists at position .*"):
         g.add_cube(Position3D(0, 0, 0), "XZX")
 
-    g.add_cube(Position3D(1, 0, 0), "PORT", "P")
+    v = g.add_cube(Position3D(1, 0, 0), "PORT", "P")
     assert g.num_cubes == 2
     assert g.num_ports == 1
-    assert g[Position3D(1, 0, 0)].is_port
+    assert g[v].is_port
 
     with pytest.raises(TQECException, match=".* port with the same label .*"):
         g.add_cube(Position3D(10, 0, 0), "P", "P")
@@ -39,18 +39,15 @@ def test_block_graph_add_pipe() -> None:
             Position3D(0, 0, 0),
             Position3D(1, 0, 0),
         )
-    g.add_cube(Position3D(0, 0, 0), "ZXZ")
-    g.add_cube(Position3D(0, 0, 1), "ZXZ")
-    g.add_pipe(
-        Position3D(0, 0, 0),
-        Position3D(0, 0, 1),
-    )
+    u = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    v = g.add_cube(Position3D(0, 0, 1), "ZXZ")
+    g.add_pipe(u, v)
     assert g.num_pipes == 1
     assert g.pipes[0].kind == PipeKind.from_str("ZXO")
-    assert g.has_pipe_between(Position3D(0, 0, 0), Position3D(0, 0, 1))
+    assert g.has_pipe_between(u, v)
     assert len(g.leaf_cubes) == 2
-    assert g.get_degree(Position3D(0, 0, 0)) == 1
-    assert len(g.pipes_at(Position3D(0, 0, 0))) == 1
+    assert g.get_degree(u) == 1
+    assert len(g.pipes_at(u)) == 1
 
     with pytest.raises(TQECException, match=".* already a pipe between .*"):
         g.add_pipe(
@@ -58,42 +55,40 @@ def test_block_graph_add_pipe() -> None:
             Position3D(0, 0, 1),
         )
 
+    g.add_cube(Position3D(1, 0, 0), "ZXZ")
     with pytest.raises(TQECException, match=r"No pipe between .*"):
         g.get_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
 
 
 def test_block_graph_validate_y_cube() -> None:
     g = BlockGraph()
-    g.add_cube(Position3D(0, 0, 0), "ZXZ")
-    g.add_cube(Position3D(1, 0, 0), "Y")
-    g.add_pipe(
-        Position3D(0, 0, 0),
-        Position3D(1, 0, 0),
-    )
+    u = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    v = g.add_cube(Position3D(1, 0, 0), "Y")
+    g.add_pipe(u, v)
     with pytest.raises(TQECException, match="has non-timelike pipes connected"):
         g.validate()
 
     g = BlockGraph()
-    g.add_cube(Position3D(0, 0, 1), "Y")
+    n1 = g.add_cube(Position3D(0, 0, 1), "Y")
     with pytest.raises(TQECException, match="does not have exactly one pipe connected"):
         g.validate()
-    g.add_cube(Position3D(0, 0, 0), "ZXZ")
-    g.add_cube(Position3D(0, 0, 2), "ZXZ")
-    g.add_pipe(Position3D(0, 0, 0), Position3D(0, 0, 1))
-    g.add_pipe(Position3D(0, 0, 1), Position3D(0, 0, 2))
+    n2 = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    n3 = g.add_cube(Position3D(0, 0, 2), "ZXZ")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n1, n3)
     with pytest.raises(TQECException, match="does not have exactly one pipe connected"):
         g.validate()
 
 
 def test_block_graph_validate_3d_corner() -> None:
     g = BlockGraph()
-    g.add_cube(Position3D(0, 0, 0), "ZXZ")
-    g.add_cube(Position3D(1, 0, 0), "XZX")
-    g.add_cube(Position3D(1, 0, 1), "Y")
-    g.add_cube(Position3D(1, 1, 0), "P", "P")
-    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
-    g.add_pipe(Position3D(1, 0, 1), Position3D(1, 0, 0))
-    g.add_pipe(Position3D(1, 0, 0), Position3D(1, 1, 0), "XOZ")
+    n1 = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    n2 = g.add_cube(Position3D(1, 0, 0), "XZX")
+    n3 = g.add_cube(Position3D(1, 0, 1), "Y")
+    n4 = g.add_cube(Position3D(1, 1, 0), "P", "P")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n2, n3)
+    g.add_pipe(n2, n4, "XOZ")
 
     with pytest.raises(TQECException):
         g.validate()
@@ -101,11 +96,11 @@ def test_block_graph_validate_3d_corner() -> None:
 
 def test_graph_shift() -> None:
     g = BlockGraph()
-    g.add_cube(Position3D(0, 0, -1), ZXCube.from_str("ZXZ"))
-    g.add_cube(Position3D(1, 0, -1), ZXCube.from_str("XZX"))
-    g.add_cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))
-    g.add_pipe(Position3D(0, 0, -1), Position3D(1, 0, -1))
-    g.add_pipe(Position3D(0, 0, -1), Position3D(0, 0, 0))
+    n1 = g.add_cube(Position3D(0, 0, -1), ZXCube.from_str("ZXZ"))
+    n2 = g.add_cube(Position3D(1, 0, -1), ZXCube.from_str("XZX"))
+    n3 = g.add_cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))
+    g.add_pipe(n1, n2)
+    g.add_pipe(n1, n3)
     minz = min(cube.position.z for cube in g.cubes)
     shifted = g.shift_by(dz=-minz)
     assert shifted.num_cubes == 3
