@@ -129,3 +129,17 @@ def test_fill_ports() -> None:
     g2.fill_ports({"in": ZXCube.from_str("XZX")})
     assert g2.num_ports == 1
     assert g2.num_cubes == 2
+
+
+def test_compose_graphs() -> None:
+    g1 = BlockGraph("g1")
+    n1 = g1.add_cube(Position3D(0, 0, 0), "P", "In")
+    n2 = g1.add_cube(Position3D(1, 0, 0), "P", "Out")
+    g1.add_pipe(n1, n2, "OXZ")
+
+    g2 = g1.clone()
+    g_composed = g1.compose(g2, "Out", "In")
+    assert g_composed.num_cubes == 3
+    assert g_composed.num_ports == 2
+    assert g_composed.ports == {"In": n1, "Out": Position3D(2, 0, 0)}
+    assert g_composed[Position3D(1, 0, 0)].kind == ZXCube.from_str("ZXZ")

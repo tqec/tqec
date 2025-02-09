@@ -60,3 +60,11 @@ def test_cnot_correlation_surface(
     assert {
         s.external_stabilizer(io_ports) for s in correlation_surfaces
     } == external_stabilizers
+
+
+def test_compose_two_cnots() -> None:
+    g1 = cnot()
+    g2 = cnot()
+    g_composed = g1.compose(g2, "Out_Control", "In_Control")
+    assert g_composed.num_cubes == 18
+    assert g_composed.num_ports == 4

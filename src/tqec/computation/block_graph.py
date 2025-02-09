@@ -10,8 +10,9 @@ from typing import TYPE_CHECKING, cast
 
 import networkx as nx
 
-from tqec.computation.cube import Cube, CubeKind, Port, cube_kind_from_string
+from tqec.computation.cube import Cube, CubeKind, Port, ZXCube, cube_kind_from_string
 from tqec.computation.pipe import Pipe, PipeKind
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D, SignedDirection3D
 
@@ -474,3 +475,76 @@ class BlockGraph:
                 )
             # Delete the port label
             self._ports.pop(label)
+
+    def compose(self, other: BlockGraph, self_port: str, other_port: str) -> BlockGraph:
+        """Compose the current graph with another graph.
+
+        The other graph will be shifted to match the ports in the current graph
+        and the two graphs will be composed at the corresponding ports.
+
+        Args:
+            other: The other graph to be composed with the current graph.
+            self_port: The label of the port to be connected in the current graph.
+            other_port: The label of the port to be connected in the other graph.
+
+        Returns:
+            A new graph that is the composition of the current graph with the other graph.
+
+        Raises:
+            TQECException: If the ports are not in the graphs, or if the two graphs
+                cannot be composed because overlapping spacetime extents or incompatible
+                cube kinds.
+
+        """
+        if self_port not in self.ports:
+            raise TQECException(f"Port {self_port} is not in the current graph.")
+        if other_port not in other.ports:
+            raise TQECException(f"Port {other_port} is not in the other graph.")
+
+        p1, p2 = self.ports[self_port], other.ports[other_port]
+        shift = (p1.x - p2.x, p1.y - p2.y, p1.z - p2.z)
+        shifted_g = other.shift_by(*shift)
+
+        ports_need_fill: dict[str, Position3D] = {}
+        # Check if there is overlapping spacetime extent
+        for cube in self.cubes:
+            pos = cube.position
+            if pos in shifted_g:
+                if cube.is_port and shifted_g[pos].is_port:
+                    ports_need_fill[cube.label] = pos
+                    continue
+                raise TQECException(
+                    f"Cube at position {cube.position} is overlapping between the two graphs."
+                )
+        composed_g = self.clone()
+        # Resolve the cube kinds at the ports
+        for label, port in ports_need_fill.items():
+            bases: list[Basis] = []
+            # port is guaranteed to only have one pipe connected
+            pipe1 = self.pipes_at(port)[0]
+            pipe2 = shifted_g.pipes_at(port)[0]
+            for d in Direction3D.all_directions():
+                b1 = pipe1.kind.get_basis_along(d, pipe1.at_head(port))
+                b2 = pipe2.kind.get_basis_along(d, pipe2.at_head(port))
+                if b1 is not None and b2 is not None and b1 != b2:
+                    raise TQECException(
+                        f"Port at {port} cannot be filled with a cube that has valid boundary conditions."
+                    )
+                # choose Z basis boundary for the walls that can have arbitrary boundary
+                bases.append(b1 or b2 or Basis.Z)
+            cube_kind = ZXCube(*bases)
+            composed_g.fill_ports({label: cube_kind})
+        # Compose the graphs
+        for cube in shifted_g.cubes:
+            # Connecting ports have been filled
+            if cube.position in composed_g:
+                continue
+            composed_g.add_cube(cube.position, cube.kind, cube.label)
+        for pipe in shifted_g.pipes:
+            u, v = pipe.u.position, pipe.v.position
+            composed_g.add_pipe(u, v, pipe.kind)
+        composed_g.ports.update(
+            {s: p for s, p in shifted_g.ports.items() if composed_g[p].is_port}
+        )
+        composed_g.name = f"{self.name}_composed_with_{other.name}"
+        return composed_g
