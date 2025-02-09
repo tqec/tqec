@@ -20,8 +20,8 @@ def test_move_rotation_open() -> None:
 
 def test_move_rotation_open_zx() -> None:
     g = move_rotation().to_zx_graph().g
-    g.set_inputs((0,))
-    g.set_outputs((4,))
+    g.set_inputs((0,))  # type: ignore
+    g.set_outputs((4,))  # type: ignore
 
     c = zx.qasm("""qreg q[1];""")
 

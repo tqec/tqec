@@ -24,8 +24,8 @@ def test_cz_open() -> None:
 
 def test_cz_open_zx() -> None:
     g = cz().to_zx_graph().g
-    g.set_inputs((0, 3))
-    g.set_outputs((2, 5))
+    g.set_inputs((0, 3))  # type: ignore
+    g.set_outputs((2, 5))  # type: ignore
 
     c = zx.qasm("""
 qreg q[2];

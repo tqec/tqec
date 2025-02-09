@@ -23,8 +23,8 @@ def test_cnot_open() -> None:
 
 def test_cnot_open_zx() -> None:
     g = cnot().to_zx_graph().g
-    g.set_inputs((0, 6))
-    g.set_outputs((3, 9))
+    g.set_inputs((0, 6))  # type: ignore
+    g.set_outputs((3, 9))  # type: ignore
 
     c = zx.qasm("""
 qreg q[2];

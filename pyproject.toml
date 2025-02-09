@@ -130,7 +130,7 @@ module = "pyzx"
 no_implicit_reexport = false
 
 [[tool.mypy.overrides]]
-module = ["tqec.interop.pyzx.*", "tqec.gallery.*"]
+module = ["tqec.interop.pyzx.*"]
 disallow_untyped_calls = false
 
 [tool.coverage.run]
