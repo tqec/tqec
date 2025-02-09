@@ -1,0 +1,38 @@
+﻿LinearFunction
+==============
+
+.. currentmodule:: tqec
+
+.. autoclass:: LinearFunction
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LinearFunction.__init__
+      ~LinearFunction.intersection
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LinearFunction.offset
+      ~LinearFunction.slope
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: intersection
+   
+   
