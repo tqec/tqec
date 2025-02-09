@@ -248,23 +248,21 @@ def _check_correlation_surface_validity(
                 f"Vertex {v} in the correlation surface is not in the graph."
             )
     # 2. Check the edges in the correlation surface are in the graph
+    edges = g.edge_set()
     for edge in correlation_surface.span:
-        # Edge type 0 represents the edge is not present
-        if g.edge_type((edge.u.id, edge.v.id)) == 0:
+        e = (edge.u.id, edge.v.id)
+        if e not in edges and (e[1], e[0]) not in edges:
             raise TQECException(
-                f"Edge {edge} in the correlation surface is not in the graph."
+                f"Edge {e} in the correlation surface is not in the graph."
             )
     # 3. Check parity around each vertex
     for v in correlation_surface.span_vertices():
         if is_boundary(g, v):
             continue
         edges = correlation_surface.edges_at(v)
-        paulis: list[Basis] = []
-        for edge in edges:
-            if edge.u.id == v:
-                paulis.append(edge.u.basis)
-            else:
-                paulis.append(edge.v.basis)
+        paulis: list[Basis] = [
+            edge.u.basis if edge.u.id == v else edge.v.basis for edge in edges
+        ]
         counts = Counter(paulis)
         # Y vertex should have Y pauli
         if is_s(g, v):
