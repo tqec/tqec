@@ -14,7 +14,6 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
 from tqec.interop.pyzx.utils import cube_kind_to_zx
-from tqec.utils.scale import round_or_fail
 
 
 class PositionedZX:
@@ -147,44 +146,6 @@ class PositionedZX:
             g.add_edge((p2v[edge.u.position], p2v[edge.v.position]), et)
 
         return PositionedZX(g, v2p)
-
-    def rotate(
-        self,
-        rotation_axis: Direction3D = Direction3D.Y,
-        num_90_degree_rotation: int = 1,
-        counterclockwise: bool = True,
-    ) -> PositionedZX:
-        """Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and
-        return a new rotated graph.
-
-        Args:
-            rotation_axis: The axis around which to rotate the graph.
-            num_90_degree_rotation: The number of 90-degree rotations to apply to the graph.
-            counterclockwise: Whether to rotate the graph counterclockwise. If set to False,
-                the graph will be rotated clockwise. Defaults to True.
-
-        Returns:
-            A graph with positions rotated by the given number of 90-degree rotations.
-        """
-        n = num_90_degree_rotation % 4
-
-        if n == 0:
-            return self
-
-        import numpy as np
-        from scipy.spatial.transform import Rotation as R
-
-        def _rotate(p: Position3D) -> Position3D:
-            rot_vec = np.array([0, 0, 0])
-            axis_idx = rotation_axis.value
-            rot_vec[axis_idx] = 1 if axis_idx != 1 else -1
-            if not counterclockwise:
-                rot_vec *= -1
-            rotated = R.from_rotvec(rot_vec * n * np.pi / 2).apply(p.as_tuple())
-            return Position3D(*[round_or_fail(i) for i in rotated])
-
-        rotated_positions = {v: _rotate(p) for v, p in self._positions.items()}
-        return PositionedZX(self._g, rotated_positions)
 
     def to_block_graph(self) -> BlockGraph:
         """Convert the positioned ZX graph to a block graph."""

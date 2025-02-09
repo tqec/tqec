@@ -474,29 +474,3 @@ class BlockGraph:
                 )
             # Delete the port label
             self._ports.pop(label)
-
-    # def rotate(
-    #     self,
-    #     rotation_axis: Direction3D = Direction3D.Y,
-    #     num_90_degree_rotation: int = 1,
-    #     counterclockwise: bool = True,
-    # ) -> BlockGraph:
-    #     """Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and
-    #     return a new rotated graph.
-    #
-    #     Args:
-    #         rotation_axis: The axis around which to rotate the graph.
-    #         num_90_degree_rotation: The number of 90-degree rotations to apply to the graph.
-    #         counterclockwise: Whether to rotate the graph counterclockwise. If set to False,
-    #             the graph will be rotated clockwise. Defaults to True.
-    #
-    #     Returns:
-    #         A data-independent copy of the graph rotated by the given number of 90-degree rotations.
-    #     """
-    #     n = num_90_degree_rotation % 4
-    #
-    #     if n == 0:
-    #         return self.clone()
-    #     g = self.to_zx_graph()
-    #     rotated_g = g.rotate(rotation_axis, n, counterclockwise)
-    #     return rotated_g.to_block_graph()
