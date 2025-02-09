@@ -1,0 +1,38 @@
+RG
+==
+
+.. currentmodule:: tqec.plaquette
+
+.. autoclass:: RG
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RG.__init__
+      ~RG.from_string
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RG.g
+      ~RG.r
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: from_string
+   
+   
