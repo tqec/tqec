@@ -15,6 +15,7 @@ BlockGraph
       ~BlockGraph.add_cube
       ~BlockGraph.add_pipe
       ~BlockGraph.clone
+      ~BlockGraph.compose
       ~BlockGraph.fill_ports
       ~BlockGraph.find_correlation_surfaces
       ~BlockGraph.from_dae_file
@@ -58,6 +59,7 @@ BlockGraph
    .. automethod:: add_cube
    .. automethod:: add_pipe
    .. automethod:: clone
+   .. automethod:: compose
    .. automethod:: fill_ports
    .. automethod:: find_correlation_surfaces
    .. automethod:: from_dae_file

@@ -413,7 +413,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">ZXCube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
 
 
 <div class="viewcode-block" id="PipeKind">
@@ -682,6 +682,17 @@ window.addEventListener("load", () => mermaid.run());
                     <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;The pipe is not compatible with the cube </span><span class="si">{</span><span class="n">cube</span><span class="si">}</span><span class="s2"> along </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2"> direction.&quot;</span>
                     <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Pipe.at_head">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.at_head">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">at_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the position is at the head (u) of the pipe.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The position </span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2"> is not an endpoint of the pipe.&quot;</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Cube</span><span class="p">]:</span>

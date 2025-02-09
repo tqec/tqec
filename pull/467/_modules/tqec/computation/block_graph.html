@@ -415,8 +415,9 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">cube_kind_from_string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">,</span> <span class="n">cube_kind_from_string</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipe</span><span class="p">,</span> <span class="n">PipeKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
 
@@ -931,6 +932,82 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="p">)</span>
             <span class="c1"># Delete the port label</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">label</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.compose">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.compose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span> <span class="n">self_port</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">other_port</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compose the current graph with another graph.</span>
+
+<span class="sd">        The other graph will be shifted to match the ports in the current graph</span>
+<span class="sd">        and the two graphs will be composed at the corresponding ports.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: The other graph to be composed with the current graph.</span>
+<span class="sd">            self_port: The label of the port to be connected in the current graph.</span>
+<span class="sd">            other_port: The label of the port to be connected in the other graph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new graph that is the composition of the current graph with the other graph.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: If the ports are not in the graphs, or if the two graphs</span>
+<span class="sd">                cannot be composed because overlapping spacetime extents or incompatible</span>
+<span class="sd">                cube kinds.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">self_port</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ports</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Port </span><span class="si">{</span><span class="n">self_port</span><span class="si">}</span><span class="s2"> is not in the current graph.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">other_port</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">ports</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Port </span><span class="si">{</span><span class="n">other_port</span><span class="si">}</span><span class="s2"> is not in the other graph.&quot;</span><span class="p">)</span>
+
+        <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ports</span><span class="p">[</span><span class="n">self_port</span><span class="p">],</span> <span class="n">other</span><span class="o">.</span><span class="n">ports</span><span class="p">[</span><span class="n">other_port</span><span class="p">]</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="p">(</span><span class="n">p1</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">p2</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">p1</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">p2</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">p1</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">p2</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">shifted_g</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="o">*</span><span class="n">shift</span><span class="p">)</span>
+
+        <span class="n">ports_need_fill</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Position3D</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Check if there is overlapping spacetime extent</span>
+        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span>
+            <span class="k">if</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">shifted_g</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_port</span> <span class="ow">and</span> <span class="n">shifted_g</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">is_port</span><span class="p">:</span>
+                    <span class="n">ports_need_fill</span><span class="p">[</span><span class="n">cube</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+                    <span class="k">continue</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Cube at position </span><span class="si">{</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2"> is overlapping between the two graphs.&quot;</span>
+                <span class="p">)</span>
+        <span class="n">composed_g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+        <span class="c1"># Resolve the cube kinds at the ports</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">ports_need_fill</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">bases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Basis</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># port is guaranteed to only have one pipe connected</span>
+            <span class="n">pipe1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipes_at</span><span class="p">(</span><span class="n">port</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pipe2</span> <span class="o">=</span> <span class="n">shifted_g</span><span class="o">.</span><span class="n">pipes_at</span><span class="p">(</span><span class="n">port</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">all_directions</span><span class="p">():</span>
+                <span class="n">b1</span> <span class="o">=</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">get_basis_along</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">pipe1</span><span class="o">.</span><span class="n">at_head</span><span class="p">(</span><span class="n">port</span><span class="p">))</span>
+                <span class="n">b2</span> <span class="o">=</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">get_basis_along</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">pipe2</span><span class="o">.</span><span class="n">at_head</span><span class="p">(</span><span class="n">port</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">b1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">b2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">b1</span> <span class="o">!=</span> <span class="n">b2</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Port at </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2"> cannot be filled with a cube that has valid boundary conditions.&quot;</span>
+                    <span class="p">)</span>
+                <span class="c1"># choose Z basis boundary for the walls that can have arbitrary boundary</span>
+                <span class="n">bases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b1</span> <span class="ow">or</span> <span class="n">b2</span> <span class="ow">or</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
+            <span class="n">cube_kind</span> <span class="o">=</span> <span class="n">ZXCube</span><span class="p">(</span><span class="o">*</span><span class="n">bases</span><span class="p">)</span>
+            <span class="n">composed_g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">({</span><span class="n">label</span><span class="p">:</span> <span class="n">cube_kind</span><span class="p">})</span>
+        <span class="c1"># Compose the graphs</span>
+        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">shifted_g</span><span class="o">.</span><span class="n">cubes</span><span class="p">:</span>
+            <span class="c1"># Connecting ports have been filled</span>
+            <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span> <span class="ow">in</span> <span class="n">composed_g</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">composed_g</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">shifted_g</span><span class="o">.</span><span class="n">pipes</span><span class="p">:</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span>
+            <span class="n">composed_g</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
+        <span class="n">composed_g</span><span class="o">.</span><span class="n">ports</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">shifted_g</span><span class="o">.</span><span class="n">ports</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">composed_g</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">is_port</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">composed_g</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_composed_with_</span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">composed_g</span></div>
 </div>
 
 </pre></div>
