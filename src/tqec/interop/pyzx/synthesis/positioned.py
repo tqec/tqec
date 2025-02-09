@@ -8,11 +8,11 @@ from pyzx.utils import vertex_is_zx
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, Port, YCube, ZXCube
 from tqec.computation.pipe import PipeKind
+from tqec.interop.pyzx.positioned import PositionedZX
+from tqec.interop.pyzx.utils import is_boundary, is_zx_no_phase
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D
-from tqec.interop.pyzx.positioned import PositionedZX
-from tqec.interop.pyzx.utils import is_zx_no_phase, is_boundary
 
 
 def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
@@ -36,7 +36,8 @@ def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
         g: The positioned ZX graph to be converted to a block graph.
 
     Returns:
-        The :py:class:`~tqec.computation.block_graph.BlockGraph` object converted from the ZX graph.
+        The :py:class:`~tqec.computation.block_graph.BlockGraph` object
+        converted from the ZX graph.
 
     Raises:
         TQECException: A valid block graph cannot be constructed.

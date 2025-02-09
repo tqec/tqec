@@ -1,8 +1,8 @@
 from fractions import Fraction
 from typing import Iterable
 
+from pyzx import EdgeType, VertexType
 from pyzx.graph.graph_s import GraphS
-from pyzx import VertexType, EdgeType
 
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.utils.position import Position3D

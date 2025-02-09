@@ -16,8 +16,8 @@ class SynthesisStrategy(Enum):
     """Strategy for synthesizing a block graph from a ZX graph."""
 
     POSITIONED = "POSITIONED"
-    """Mapping from a :py:class:`~tqec.interop.pyzx.positioned_graph.PositionedZX` instance
-    to a block graph.
+    """Mapping from a :py:class:`~tqec.interop.pyzx.positioned_graph.PositionedZX`
+    instance to a block graph.
 
     This strategy requires specifying the 3D positions of each vertex explicitly
     in the ZX graph. Then the conversion converts each vertex by looking at its
@@ -36,5 +36,9 @@ def block_synthesis(
 ) -> BlockGraph:
     match strategy:
         case SynthesisStrategy.POSITIONED:
-            g = PositionedZX(zx_graph, positions or {})
+            if positions is None:
+                raise ValueError(
+                    "The POSITIONED strategy requires specifying positions, but None was given."
+                )
+            g = PositionedZX(zx_graph, positions)
             return positioned_block_synthesis(g)

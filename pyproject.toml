@@ -54,6 +54,7 @@ doc = [
     "sphinxcontrib-mermaid",
     "docformatter",
     "sphinx-autobuild",
+    "sphinx-copybutton",
 ]
 bench = ["pyinstrument"]
 all = ["tqec[test, dev, doc, bench]"]
