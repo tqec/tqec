@@ -523,6 +523,11 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 3D positions of the vertices.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">p2v</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Position3D</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the mapping from 3D positions to vertices.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
 <div class="viewcode-block" id="PositionedZX.get_direction">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.interop.PositionedZX.html#tqec.interop.PositionedZX.get_direction">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Direction3D</span><span class="p">:</span>
@@ -554,7 +559,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">p2v</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Position3D</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">g</span> <span class="o">=</span> <span class="n">GraphS</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">block_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">position</span><span class="p">):</span>
             <span class="n">vt</span><span class="p">,</span> <span class="n">phase</span> <span class="o">=</span> <span class="n">cube_kind_to_zx</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
             <span class="n">v</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">vt</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="n">phase</span><span class="p">)</span>
             <span class="n">v2p</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span>
