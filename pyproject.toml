@@ -50,7 +50,7 @@ dev = [
     "tqec[test, doc, bench]",
     "pre-commit",
 ]
-doc = ["sphinx", "myst-parser", "pydata-sphinx-theme", "nbsphinx", "pandoc", "sphinxcontrib-mermaid", "docformatter", "sphinx-autobuild"]
+doc = ["sphinx", "myst-parser", "pydata-sphinx-theme", "nbsphinx", "pandoc", "sphinxcontrib-mermaid", "docformatter", "sphinx-autobuild", "sphinx-copybutton"]
 bench = ["pyinstrument"]
 all = ["tqec[test, dev, doc, bench]"]
 
