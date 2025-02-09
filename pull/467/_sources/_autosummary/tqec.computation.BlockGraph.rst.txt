@@ -22,7 +22,10 @@ BlockGraph
       ~BlockGraph.get_degree
       ~BlockGraph.get_pipe
       ~BlockGraph.has_pipe_between
+      ~BlockGraph.is_single_connected
       ~BlockGraph.pipes_at
+      ~BlockGraph.remove_cube
+      ~BlockGraph.remove_pipe
       ~BlockGraph.shift_by
       ~BlockGraph.spacetime_volume
       ~BlockGraph.to_dae_file
@@ -66,7 +69,10 @@ BlockGraph
    .. automethod:: get_degree
    .. automethod:: get_pipe
    .. automethod:: has_pipe_between
+   .. automethod:: is_single_connected
    .. automethod:: pipes_at
+   .. automethod:: remove_cube
+   .. automethod:: remove_pipe
    .. automethod:: shift_by
    .. automethod:: spacetime_volume
    .. automethod:: to_dae_file

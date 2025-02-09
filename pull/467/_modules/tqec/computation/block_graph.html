@@ -620,6 +620,41 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDGE_DATA_KEY</span><span class="p">:</span> <span class="n">pipe</span><span class="p">})</span></div>
 
 
+<div class="viewcode-block" id="BlockGraph.remove_cube">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.remove_cube">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a cube from the graph, as well as the pipes connected to it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position: The position of the cube to be removed.</span>
+
+<span class="sd">        Raises: TQECException: If there is no cube at the given position.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">position</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No cube at position </span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">cube</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_port</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">label</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.remove_pipe">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.remove_pipe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">pos2</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a pipe between two positions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pos1: The position of one end of the pipe.</span>
+<span class="sd">            pos2: The position of the other end of the pipe.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: If there is no pipe between the given positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_pipe_between</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;No pipe between the given positions is in the graph.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="BlockGraph.has_pipe_between">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.has_pipe_between">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_pipe_between</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">pos2</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -661,7 +696,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">pipes_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Pipe</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the pipes incident to a position.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">position</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No cube at position </span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="n">cast</span><span class="p">(</span><span class="n">Pipe</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDGE_DATA_KEY</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1008,6 +1043,14 @@ window.addEventListener("load", () => mermaid.run());
         <span class="p">)</span>
         <span class="n">composed_g</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_composed_with_</span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">composed_g</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.is_single_connected">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.is_single_connected">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_single_connected</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the graph is single connected, i.e. there is only one connected</span>
+<span class="sd">        component in the graph.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">is_connected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">))</span></div>
 </div>
 
 </pre></div>
