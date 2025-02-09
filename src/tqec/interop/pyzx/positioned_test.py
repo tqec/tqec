@@ -1,22 +1,19 @@
 from fractions import Fraction
-import pytest
 
-from pyzx.graph.graph_s import GraphS
+import pytest
 from pyzx import VertexType
+from pyzx.graph.graph_s import GraphS
 
 from tqec.interop.pyzx._testing import make_positioned_zx_graph
-from tqec.utils.exceptions import TQECException
 from tqec.interop.pyzx.positioned import PositionedZX
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Position3D
 
 
 def test_positions_not_specified() -> None:
     g = GraphS()
     g.add_vertex(VertexType.Z)
-    with pytest.raises(
-        TQECException,
-        match=r".* do not match.*",
-    ):
+    with pytest.raises(TQECException, match=r".* do not match.*"):
         PositionedZX(g, {})
 
 
