@@ -449,7 +449,11 @@ window.addEventListener("load", () => mermaid.run());
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
     <span class="k">match</span> <span class="n">strategy</span><span class="p">:</span>
         <span class="k">case</span> <span class="n">SynthesisStrategy</span><span class="o">.</span><span class="n">POSITIONED</span><span class="p">:</span>
-            <span class="n">g</span> <span class="o">=</span> <span class="n">PositionedZX</span><span class="p">(</span><span class="n">zx_graph</span><span class="p">,</span> <span class="n">positions</span> <span class="ow">or</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The POSITIONED strategy requires specifying positions, but None was given.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">PositionedZX</span><span class="p">(</span><span class="n">zx_graph</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">positioned_block_synthesis</span><span class="p">(</span><span class="n">g</span><span class="p">)</span></div>
 
 </pre></div>
