@@ -23,8 +23,8 @@ def test_three_cnots_OPEN() -> None:
 
 def test_three_cnots_open_zx() -> None:
     g = three_cnots().to_zx_graph().g
-    g.set_inputs((1, 4, 8))
-    g.set_outputs((0, 7, 11))
+    g.set_inputs((1, 4, 8))  # type: ignore
+    g.set_outputs((0, 7, 11))  # type: ignore
 
     c = zx.qasm("""
 qreg q[3];
