@@ -36,5 +36,9 @@ def block_synthesis(
 ) -> BlockGraph:
     match strategy:
         case SynthesisStrategy.POSITIONED:
-            g = PositionedZX(zx_graph, positions or {})
+            if positions is None:
+                raise ValueError(
+                    "The POSITIONED strategy requires specifying positions, but None was given."
+                )
+            g = PositionedZX(zx_graph, positions)
             return positioned_block_synthesis(g)
