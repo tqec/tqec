@@ -13,10 +13,7 @@ from tqec.utils.position import Position3D
 def test_positioned_synthesis_single_zx_edge() -> None:
     g = make_positioned_zx_graph(
         vertex_types=[VertexType.Z, VertexType.X],
-        positions=[
-            Position3D(0, 0, 0),
-            Position3D(1, 0, 0),
-        ],
+        positions=[Position3D(0, 0, 0), Position3D(1, 0, 0)],
         edges=[(0, 1)],
         hadamard_edges=[False],
     )
@@ -30,10 +27,7 @@ def test_positioned_synthesis_single_zx_edge() -> None:
 
     g = make_positioned_zx_graph(
         vertex_types=[VertexType.Z, VertexType.Z],
-        positions=[
-            Position3D(0, 0, 0),
-            Position3D(0, 0, 1),
-        ],
+        positions=[Position3D(0, 0, 0), Position3D(0, 0, 1)],
         edges=[(0, 1)],
         hadamard_edges=[False],
     )
@@ -49,10 +43,7 @@ def test_positioned_synthesis_single_zx_edge() -> None:
 def test_positioned_synthesis_single_y_p_edge() -> None:
     g = make_positioned_zx_graph(
         vertex_types=[VertexType.Z, VertexType.BOUNDARY],
-        positions=[
-            Position3D(0, 0, 0),
-            Position3D(0, 0, 1),
-        ],
+        positions=[Position3D(0, 0, 0), Position3D(0, 0, 1)],
         phases={0: Fraction(1, 2)},
         edges=[(0, 1)],
         hadamard_edges=[False],
@@ -71,11 +62,7 @@ def test_positioned_synthesis_single_y_p_edge() -> None:
 def test_positioned_synthesis_L_shape() -> None:
     g = make_positioned_zx_graph(
         vertex_types=[VertexType.Z, VertexType.BOUNDARY, VertexType.BOUNDARY],
-        positions=[
-            Position3D(0, 0, 0),
-            Position3D(0, 0, 1),
-            Position3D(1, 0, 0),
-        ],
+        positions=[Position3D(0, 0, 0), Position3D(0, 0, 1), Position3D(1, 0, 0)],
         edges=[(0, 1), (0, 2)],
         hadamard_edges=[False, False],
         inputs=(1,),

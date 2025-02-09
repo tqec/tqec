@@ -6,14 +6,14 @@ from fractions import Fraction
 from typing import Mapping
 
 import pyzx as zx
-from pyzx.graph.graph_s import GraphS
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d.axes3d import Axes3D
+from pyzx.graph.graph_s import GraphS
 
 from tqec.computation.block_graph import BlockGraph
+from tqec.interop.pyzx.utils import cube_kind_to_zx
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
-from tqec.interop.pyzx.utils import cube_kind_to_zx
 from tqec.utils.scale import round_or_fail
 
 
@@ -26,7 +26,8 @@ class PositionedZX:
         1. The vertex IDs in the graph match the position keys exactly.
         2. The neighbors are all shifted by 1 in the 3D positions.
         3. All the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders.
-        4. Boundary and Z(1/2) spiders are dangling, and Z(1/2) connects to the time direction.
+        4. Boundary and Z(1/2) spiders are dangling, and Z(1/2) connects to the
+           time direction.
         5. There are no 3D corners.
 
         Args:
@@ -55,8 +56,8 @@ class PositionedZX:
             ps, pt = positions[s], positions[t]
             if not ps.is_neighbour(pt):
                 raise TQECException(
-                    f"The 3D positions of the endpoints of the edge {s}--{t} must be neighbors, but "
-                    f"got {ps} and {pt}."
+                    f"The 3D positions of the endpoints of the edge {s}--{t} "
+                    f"must be neighbors, but got {ps} and {pt}."
                 )
         # 3. Check all the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders
         for v in g.vertices():
@@ -71,12 +72,13 @@ class PositionedZX:
                 raise TQECException(
                     f"Unsupported vertex type and phase: {vt} and {phase}."
                 )
-            # 4. Check Boundary and Z(1/2) spiders are dangling, additionally Z(1/2) connects to time
-            # direction
+            # 4. Check Boundary and Z(1/2) spiders are dangling, additionally
+            # Z(1/2) connects to time direction
             if vt == zx.VertexType.BOUNDARY or phase == Fraction(1, 2):
                 if g.vertex_degree(v) != 1:
                     raise TQECException(
-                        f"Boundary or Z(1/2) spider must be dangling, but got {len(g.neighbors(v))} neighbors."
+                        "Boundary or Z(1/2) spider must be dangling, but got "
+                        f"{len(g.neighbors(v))} neighbors."
                     )
                 if phase == Fraction(1, 2):
                     nb = next(iter(g.neighbors(v)))
