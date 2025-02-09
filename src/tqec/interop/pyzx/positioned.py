@@ -107,6 +107,11 @@ class PositionedZX:
         """Return the 3D positions of the vertices."""
         return self._positions
 
+    @property
+    def p2v(self) -> dict[Position3D, int]:
+        """Return the mapping from 3D positions to vertices."""
+        return {p: v for v, p in self._positions.items()}
+
     def get_direction(self, v1: int, v2: int) -> Direction3D:
         """Return the direction connecting two vertices."""
         p1, p2 = self[v1], self[v2]
@@ -133,7 +138,7 @@ class PositionedZX:
         p2v: dict[Position3D, int] = {}
         g = GraphS()
 
-        for cube in block_graph.nodes:
+        for cube in sorted(block_graph.nodes, key=lambda c: c.position):
             vt, phase = cube_kind_to_zx(cube.kind)
             v = g.add_vertex(vt, phase=phase)
             v2p[v] = cube.position

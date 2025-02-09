@@ -23,17 +23,7 @@ def test_cz_open() -> None:
 
 def test_cz_open_zx() -> None:
     g = cz().to_zx_graph().g
-    for v in [0, 1, 2]:
-        g.set_qubit(v, 0)
-    for v in [3, 4, 5]:
-        g.set_qubit(v, 1)
-    g.set_row(0, 0)
-    g.set_row(4, 0)
-    g.set_row(1, 1)
-    g.set_row(3, 1)
-    g.set_row(2, 2)
-    g.set_row(5, 2)
-    g.set_inputs((0, 4))
+    g.set_inputs((0, 3))
     g.set_outputs((2, 5))
 
     c = zx.qasm("""
@@ -91,7 +81,7 @@ def test_cz_resolve_ports() -> None:
 def test_cz_correlation_surface(
     flows: list[str] | None, num_surfaces: int, external_stabilizers: set[str]
 ) -> None:
-    io_ports = [0, 4, 2, 5]
+    io_ports = [0, 3, 2, 5]
 
     g = cz(flows)
     correlation_surfaces = g.find_correlation_surfaces()

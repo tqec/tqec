@@ -23,8 +23,8 @@ def test_three_cnots_OPEN() -> None:
 
 def test_three_cnots_open_zx() -> None:
     g = three_cnots().to_zx_graph().g
-    g.set_inputs((2, 6, 7))
-    g.set_outputs((0, 10, 8))
+    g.set_inputs((1, 4, 8))
+    g.set_outputs((0, 7, 11))
 
     c = zx.qasm("""
 qreg q[3];
@@ -32,12 +32,8 @@ cx q[0], q[1];
 cx q[1], q[2];
 cx q[0], q[2];
 """)
-    composed = c.to_graph().adjoint() * g
-    zx.full_reduce(composed)
 
-    id = zx.qasm("""qreg q[3];""")
-
-    assert zx.compare_tensors(composed, id)
+    assert zx.compare_tensors(g, c)
 
 
 @pytest.mark.parametrize("obs_basis", (Basis.X, Basis.Z))
@@ -59,9 +55,8 @@ def test_three_cnots_filled(obs_basis: Basis) -> None:
 def test_three_cnots_correlation_surface(
     obs_basis: Basis, num_surfaces: int, external_stabilizers: set[str]
 ) -> None:
-    io_ports = [2, 6, 7, 0, 10, 8]
-
     g = three_cnots(obs_basis)
+    io_ports = [1, 4, 8, 0, 7, 11]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
     assert external_stabilizers.issubset(
