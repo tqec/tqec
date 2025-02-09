@@ -260,7 +260,7 @@ class BlockGraph:
     def pipes_at(self, position: Position3D) -> list[Pipe]:
         """Get the pipes incident to a position."""
         if position not in self:
-            return []
+            raise TQECException(f"No cube at position {position}.")
         return [
             cast(Pipe, data[self._EDGE_DATA_KEY])
             for _, _, data in self._graph.edges(position, data=True)
