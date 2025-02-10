@@ -120,6 +120,14 @@ module = [
 ]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "pyzx"
+no_implicit_reexport = false
+
+[[tool.mypy.overrides]]
+module = "tqec.interop.pyzx.*"
+disallow_untyped_calls = false
+
 [tool.coverage.run]
 omit = ["*/*_test.py"]
 
@@ -177,3 +185,8 @@ pythonVersion = "3.10"
 # setting is "standard". If set to "off", all type-checking rules are disabled, but
 # Python syntax and semantic errors are still reported.
 typeCheckingMode = "standard"
+
+# Generate or suppress diagnostics for use of a symbol from a "py.typed" module
+# that is not meant to be exported from that module. The default value for this
+# setting is "error".
+reportPrivateImportUsage = false
