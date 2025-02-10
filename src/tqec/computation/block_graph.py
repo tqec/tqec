@@ -359,7 +359,7 @@ class BlockGraph:
         self,
         file_path: str | pathlib.Path,
         pipe_length: float = 2.0,
-        pop_faces_at_direction: SignedDirection3D | None = None,
+        pop_faces_at_direction: SignedDirection3D | str | None = None,
         show_correlation_surface: CorrelationSurface | None = None,
     ) -> None:
         """Write the block graph to a Collada DAE file.

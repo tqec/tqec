@@ -158,7 +158,7 @@ def write_block_graph_to_dae_file(
     block_graph: BlockGraph,
     file_like: str | pathlib.Path | BinaryIO,
     pipe_length: float = 2.0,
-    pop_faces_at_direction: SignedDirection3D | None = None,
+    pop_faces_at_direction: SignedDirection3D | str | None = None,
     show_correlation_surface: CorrelationSurface | None = None,
 ) -> None:
     """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
@@ -172,7 +172,8 @@ def write_block_graph_to_dae_file(
             This is useful for visualizing the internal structure of the blocks. Default is None.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.
     """
-
+    if isinstance(pop_faces_at_direction, str):
+        pop_faces_at_direction = SignedDirection3D.from_string(pop_faces_at_direction)
     base = _BaseColladaData(pop_faces_at_direction)
 
     def scale_position(pos: Position3D) -> FloatPosition3D:
