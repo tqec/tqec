@@ -524,30 +524,39 @@ window.addEventListener("load", () => mermaid.run());
             <span class="p">)</span>
 
             <span class="c1"># Rotation health checks</span>
-            <span class="c1"># - If matrix NOT rotated: proceed automatically</span>
-            <span class="c1"># - If matrix YES rotated: check closer &amp; make necessary adjustments</span>
+            <span class="c1"># - If node&#39;s matrix NOT rotated: proceed automatically</span>
+            <span class="c1"># - If node&#39;s matrix YES rotated: check closer &amp; make necessary adjustments</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">transformation</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
                 <span class="c1"># Calculate rotation</span>
                 <span class="n">rotation_angles</span> <span class="o">=</span> <span class="n">calc_rotation_angles</span><span class="p">(</span><span class="n">transformation</span><span class="o">.</span><span class="n">rotation</span><span class="p">)</span>
 
-                <span class="c1"># Reject invalid rotations:</span>
-                <span class="c1"># - Any != 0 or != 90 (degrees) rotation: partially rotated block/pipe</span>
-                <span class="c1"># - Less than 2 valid rotations: dimensional collapse.</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="nb">any</span><span class="p">(</span>
-                        <span class="p">[</span>
-                            <span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">180</span><span class="p">]</span>
-                            <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">rotation_angles</span>
-                        <span class="p">]</span>
-                    <span class="p">)</span>
-                    <span class="ow">or</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">rotation_angles</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">180</span>
+                <span class="c1"># Reject invalid rotations for cultivation blocks</span>
+                <span class="c1"># - Cultivation blocks w. `rot_name` ending in anything but &quot;!&quot;: invalid rotation</span>
+                <span class="c1"># - Cultivation blocks with negative `axes_directions[&quot;Z&quot;]`: invalid rotation</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="ow">not</span> <span class="n">rot_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">axes_directions</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span>
                 <span class="p">):</span>
                     <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;There is a non-identity rotation for </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> block at position </span><span class="si">{</span><span class="n">translation</span><span class="si">}</span><span class="s2">.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;There is an invalid rotation for </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> block at position </span><span class="si">{</span><span class="n">translation</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+                <span class="c1"># Fix the rotated name if Y cube has a valid rotation</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">rot_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">):</span>
+                    <span class="n">rot_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+
+                <span class="c1"># Reject invalid rotations for all other cubes/pipes:</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="c1"># Any rotation with angle not an integer multiply of 90 degrees: partially rotated block/pipe</span>
+                    <span class="nb">any</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">180</span><span class="p">]</span> <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">rotation_angles</span><span class="p">])</span>
+                    <span class="c1"># At least 1 * 180-deg or 2 * 90-deg rotation to avoid dimensional collapse</span>
+                    <span class="c1"># (A single 90-deg rotation would put the rotated vector on the plane made by the other two axes)</span>
+                    <span class="ow">or</span> <span class="nb">sum</span><span class="p">([</span><span class="n">angle</span> <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">rotation_angles</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">180</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;There is an invalid rotation for </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> block at position </span><span class="si">{</span><span class="n">translation</span><span class="si">}</span><span class="s2">.&quot;</span>
                     <span class="p">)</span>
 
                 <span class="c1"># Rotate node name</span>
-                <span class="n">rot_name</span> <span class="o">=</span> <span class="n">rot_name</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">rot_name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">rot_name</span> <span class="o">=</span> <span class="n">rot_name</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">rot_name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">kind</span> <span class="o">=</span> <span class="n">_block_kind_from_str</span><span class="p">(</span><span class="n">rot_name</span><span class="p">)</span>
 
                 <span class="c1"># Shift nodes slightly according to rotation</span>
