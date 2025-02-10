@@ -571,7 +571,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
     <span class="n">file_like</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="n">BinaryIO</span><span class="p">,</span>
     <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
-    <span class="n">pop_faces_at_direction</span><span class="p">:</span> <span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pop_faces_at_direction</span><span class="p">:</span> <span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">show_correlation_surface</span><span class="p">:</span> <span class="n">CorrelationSurface</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a</span>
@@ -585,7 +585,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            This is useful for visualizing the internal structure of the blocks. Default is None.</span>
 <span class="sd">        show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pop_faces_at_direction</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">pop_faces_at_direction</span> <span class="o">=</span> <span class="n">SignedDirection3D</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">pop_faces_at_direction</span><span class="p">)</span>
     <span class="n">base</span> <span class="o">=</span> <span class="n">_BaseColladaData</span><span class="p">(</span><span class="n">pop_faces_at_direction</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">scale_position</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatPosition3D</span><span class="p">:</span>

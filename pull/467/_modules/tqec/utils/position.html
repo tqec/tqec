@@ -436,9 +436,12 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">astuple</span><span class="p">,</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -608,7 +611,33 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">SignedDirection3D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">towards_positive</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="si">}{</span><span class="s1">&#39;+&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">towards_positive</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="si">}</span><span class="s2">&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;+&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">towards_positive</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="SignedDirection3D.from_string">
+<a class="viewcode-back" href="../../../_autosummary/tqec.SignedDirection3D.html#tqec.SignedDirection3D.from_string">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SignedDirection3D</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the signed direction from a string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            s: The string representation of the signed direction. The string</span>
+<span class="sd">                should have the format &quot;&lt;sign&gt;&lt;direction&gt;&quot;, where &quot;&lt;direction&gt;&quot;</span>
+<span class="sd">                is one of &quot;X&quot;, &quot;Y&quot;, &quot;Z&quot; and &quot;&lt;sign&gt;&quot; is either &quot;+&quot; or &quot;-&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The signed direction.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: If the string does not match the expected format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([+-])([XYZ])&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid signed direction: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">, expected format: [+/-][XYZ]&quot;</span>
+            <span class="p">)</span>
+        <span class="n">sign</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">SignedDirection3D</span><span class="p">(</span><span class="n">Direction3D</span><span class="p">(</span><span class="s2">&quot;XYZ&quot;</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">direction</span><span class="p">)),</span> <span class="n">sign</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">)</span></div>
+</div>
 
 
 

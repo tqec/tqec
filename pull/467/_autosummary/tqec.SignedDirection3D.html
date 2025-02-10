@@ -515,6 +515,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.SignedDirection3D.__init__" title="tqec.SignedDirection3D.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(direction, towards_positive)</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.SignedDirection3D.from_string" title="tqec.SignedDirection3D.from_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_string</span></code></a>(s)</p></td>
+<td><p>Return the signed direction from a string.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -551,6 +554,28 @@
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.SignedDirection3D.from_string">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/position.html#SignedDirection3D.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.SignedDirection3D.from_string" title="Link to this definition">#</a></dt>
+<dd><p>Return the signed direction from a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – The string representation of the signed direction. The string
+should have the format “&lt;sign&gt;&lt;direction&gt;”, where “&lt;direction&gt;”
+is one of “X”, “Y”, “Z” and “&lt;sign&gt;” is either “+” or “-“.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The signed direction.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>TQECException</strong> – If the string does not match the expected format.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#tqec.SignedDirection3D" title="tqec.utils.position.SignedDirection3D"><em>SignedDirection3D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -608,6 +633,7 @@
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.SignedDirection3D"><code class="docutils literal notranslate"><span class="pre">SignedDirection3D</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.SignedDirection3D.__init__"><code class="docutils literal notranslate"><span class="pre">SignedDirection3D.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.SignedDirection3D.from_string"><code class="docutils literal notranslate"><span class="pre">SignedDirection3D.from_string()</span></code></a></li>
 </ul>
 </li>
 </ul>
