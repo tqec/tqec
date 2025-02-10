@@ -114,13 +114,26 @@ def read_block_graph_from_dae_file(
             )
 
             # Rotation health checks
-            # - If matrix NOT rotated: proceed automatically
-            # - If matrix YES rotated: check closer & make necessary adjustments
+            # - If node's matrix NOT rotated: proceed automatically
+            # - If node's matrix YES rotated: check closer & make necessary adjustments
             if not np.allclose(transformation.rotation, np.eye(3), atol=1e-9):
                 # Calculate rotation
                 rotation_angles = calc_rotation_angles(transformation.rotation)
 
-                # Reject invalid rotations:
+                # Reject invalid rotations for cultivation blocks
+                # - Cultivation blocks w. `rot_name` ending in anything but "!": invalid rotation
+                # - Cultivation blocks with negative `axes_directions["Z"]`: invalid rotation
+                if len(str(kind)) == 1 and (
+                    not rot_name.endswith("!") or axes_directions["Z"] < 0
+                ):
+                    raise TQECException(
+                        f"There is an invalid rotation for {kind} block at position {translation}."
+                    )
+                # Fix the rotated name if Y cube has a valid rotation
+                elif len(str(kind)) == 1 and rot_name.endswith("!"):
+                    rot_name = str(kind)
+
+                # Reject invalid rotations for all other cubes/pipes:
                 if (
                     # Any rotation with angle not an integer multiply of 90 degrees: partially rotated block/pipe
                     any([int(angle) not in [0, 90, 180] for angle in rotation_angles])
@@ -133,7 +146,7 @@ def read_block_graph_from_dae_file(
                     )
 
                 # Rotate node name
-                rot_name = rot_name if len(str(kind)) == 3 else rot_name + str(kind)[-1]
+                rot_name = rot_name if len(str(kind)) <= 3 else rot_name + str(kind)[-1]
                 kind = _block_kind_from_str(rot_name)
 
                 # Shift nodes slightly according to rotation
