@@ -471,9 +471,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">is_self_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the edge is a self-loop edge.</span>
 
-<span class="sd">        By definition, a self-loop edge represents a correlation surface within</span>
-<span class="sd">        a single node. This is an edge case where the ZX graph only contains a</span>
-<span class="sd">        single node.</span>
+<span class="sd">        By definition, a self-loop edge represents a correlation surface</span>
+<span class="sd">        within a single node. This is an edge case where the ZX graph</span>
+<span class="sd">        only contains a single node.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">id</span>
 
@@ -556,8 +556,10 @@ window.addEventListener("load", () => mermaid.run());
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_single_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the correlation surface contains only a single node.</span>
-<span class="sd">        This is an edge case where the ZX graph only contains a single node.</span>
-<span class="sd">        The span of the correlation surface is a self-loop edge at the node.</span>
+
+<span class="sd">        This is an edge case where the ZX graph only contains a single</span>
+<span class="sd">        node. The span of the correlation surface is a self-loop edge at</span>
+<span class="sd">        the node.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">span</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">span</span><span class="p">))</span><span class="o">.</span><span class="n">is_self_loop</span><span class="p">()</span>
 
@@ -571,7 +573,8 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="CorrelationSurface.edges_at">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.edges_at">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">edges_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">ZXEdge</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the set of edges incident to the vertex in the correlation surface.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the set of edges incident to the vertex in the correlation</span>
+<span class="sd">        surface.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">edge</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">span</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">v</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">edge</span><span class="p">)}</span></div>
 
 
