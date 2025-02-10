@@ -164,8 +164,8 @@ class PositionedZX:
         hadamard_size: int = 200,
         edge_width: int = 1,
     ) -> tuple[Figure, Axes3D]:
-        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using
-        matplotlib.
+        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX`
+        using matplotlib.
 
         Args:
             graph: The ZX graph to plot.

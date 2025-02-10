@@ -63,9 +63,9 @@ class ZXEdge:
     def is_self_loop(self) -> bool:
         """Whether the edge is a self-loop edge.
 
-        By definition, a self-loop edge represents a correlation surface within
-        a single node. This is an edge case where the ZX graph only contains a
-        single node.
+        By definition, a self-loop edge represents a correlation surface
+        within a single node. This is an edge case where the ZX graph
+        only contains a single node.
         """
         return self.u.id == self.v.id
 
@@ -137,8 +137,10 @@ class CorrelationSurface:
     @property
     def is_single_node(self) -> bool:
         """Whether the correlation surface contains only a single node.
-        This is an edge case where the ZX graph only contains a single node.
-        The span of the correlation surface is a self-loop edge at the node.
+
+        This is an edge case where the ZX graph only contains a single
+        node. The span of the correlation surface is a self-loop edge at
+        the node.
         """
         return len(self.span) == 1 and next(iter(self.span)).is_self_loop()
 
@@ -147,7 +149,8 @@ class CorrelationSurface:
         return {v.id for edge in self.span for v in edge}
 
     def edges_at(self, v: int) -> set[ZXEdge]:
-        """Return the set of edges incident to the vertex in the correlation surface."""
+        """Return the set of edges incident to the vertex in the correlation
+        surface."""
         return {edge for edge in self.span if any(n.id == v for n in edge)}
 
     def external_stabilizer(self, io_ports: list[int]) -> str:

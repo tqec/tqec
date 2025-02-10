@@ -1,4 +1,5 @@
-"""Block graph that represents three logical CNOT gates compressed in spacetime."""
+"""Block graph that represents three logical CNOT gates compressed in
+spacetime."""
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube

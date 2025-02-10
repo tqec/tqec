@@ -6,7 +6,8 @@ from tqec.utils.position import Position3D
 
 
 def memory(observable_basis: Basis = Basis.Z) -> BlockGraph:
-    """Create a block graph with a single cube that represents a logical memory experiment.
+    """Create a block graph with a single cube that represents a logical memory
+    experiment.
 
     Args:
         observable_basis: The logical observable basis for the memory experiment.
