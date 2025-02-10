@@ -40,7 +40,7 @@ Some other objects that can be accessed from the top level module.
    :nosignatures:
 
    Direction3D
-   Displacement
+   Shift2D
    utils.position.Position2D
    Position3D
    Shape2D
