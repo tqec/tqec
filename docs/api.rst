@@ -39,13 +39,16 @@ Some other objects that can be accessed from the top level module.
    :toctree: _autosummary
    :nosignatures:
 
+   BlockPosition2D
    Direction3D
-   Shift2D
-   utils.position.Position2D
+   PhysicalQubitPosition2D
+   PlaquettePosition2D
    Position3D
    Shape2D
+   Shift2D
    SignedDirection3D
    LinearFunction
    Scalable2D
    round_or_fail
    NoiseModel
+   Orientation
