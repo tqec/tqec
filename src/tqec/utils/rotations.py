@@ -13,7 +13,7 @@ import numpy as np
 
 
 def calc_rotation_angles(M: np.ndarray) -> np.ndarray:
-    """Calculates the angle between the vectors of a matrix (M) and the vectory of identity matrix (ID).
+    """Calculates the angle between the vectors of a matrix (M) and the vectors of identity matrix (ID).
 
     Args:
         M (np.ndarray): 3x3 matrix.
