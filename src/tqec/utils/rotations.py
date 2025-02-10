@@ -10,9 +10,10 @@ as the size of the computation grows.
 """
 
 import numpy as np
+import numpy.typing as npt
 
 
-def calc_rotation_angles(M: np.ndarray) -> np.ndarray:
+def calc_rotation_angles(M: npt.NDArray) -> npt.NDArray:
     """Calculates the angle between the vectors of a matrix (M) and the vectors of identity matrix (ID).
 
     Args:
@@ -26,12 +27,12 @@ def calc_rotation_angles(M: np.ndarray) -> np.ndarray:
     for i, row in enumerate(M):
         cos_theta = np.dot(ID[i], row) / (np.linalg.norm(ID[i]) * np.linalg.norm(row))
         angle_rad = np.arccos(np.clip(cos_theta, -1.0, 1.0))
-        angle_deg = sum(row) * np.degrees(angle_rad)
+        angle_deg = np.degrees(angle_rad)
         rotations = np.append(rotations, [round(angle_deg)])
     return rotations
 
 
-def symbolic_multiplication(M: np.ndarray, name: str) -> tuple[str, dict[str, int]]:
+def symbolic_multiplication(M: npt.NDArray, name: str) -> tuple[str, dict[str, int]]:
     """Multiplies a numerical matrix (M) with a symbolic vector (passed as string).
         - M is NOT rotated: name remains untouched
         - M is rotated: name rotated accordingly

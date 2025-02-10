@@ -123,15 +123,10 @@ def read_block_graph_from_dae_file(
                 # Reject invalid rotations:
                 if (
                     # Any rotation with angle not an integer multiply of 90 degrees: partially rotated block/pipe
-                    any(
-                        [
-                            abs(int(angle)) not in [0, 90, 180]
-                            for angle in rotation_angles
-                        ]
-                    )
+                    any([int(angle) not in [0, 90, 180] for angle in rotation_angles])
                     # At least 1 * 180-deg or 2 * 90-deg rotation to avoid dimensional collapse
                     # (A single 90-deg rotation would put the rotated vector on the plane made by the other two axes)
-                    or sum([abs(angle) for angle in rotation_angles]) < 180
+                    or sum([angle for angle in rotation_angles]) < 180
                 ):
                     raise TQECException(
                         f"There is an invalid rotation for {kind} block at position {translation}."
