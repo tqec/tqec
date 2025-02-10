@@ -121,7 +121,7 @@ def read_block_graph_from_dae_file(
                 rotation_angles = calc_rotation_angles(transformation.rotation)
 
                 # Reject invalid rotations:
-                # - Any != 0 or != 90 (degrees) rotation: partially rotated block/pipe
+                # - Any rotation with angle not an integer multiply of 90 degrees: partially rotated block/pipe
                 # - Less than 2 valid rotations: dimensional collapse.
                 if (
                     any(
