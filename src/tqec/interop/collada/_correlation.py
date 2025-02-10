@@ -16,8 +16,8 @@ TransformationResult = tuple[Basis, _Transformation]
 
 class CorrelationSurfaceTransformationHelper:
     def __init__(self, block_graph: BlockGraph, pipe_length: float):
-        """Helper class to compute transformations for representing correlation surfaces
-        in a COLLADA model."""
+        """Helper class to compute transformations for representing correlation
+        surfaces in a COLLADA model."""
         self.block_graph = block_graph
         self.pipe_length = pipe_length
         self.position_map = block_graph.to_zx_graph().positions
@@ -27,7 +27,8 @@ class CorrelationSurfaceTransformationHelper:
         correlation_surface: CorrelationSurface,
     ) -> list[TransformationResult]:
         """Compute the list of transformations (with corresponding bases) that
-        represent each piece of the given correlation surface in the COLLADA model."""
+        represent each piece of the given correlation surface in the COLLADA
+        model."""
         transformations: list[TransformationResult] = []
 
         # Surfaces in the pipes

@@ -294,7 +294,8 @@ _SUPPORTED_SPIDERS: set[tuple[VertexType, FractionLike]] = {
 
 
 def _check_spiders_are_supported(g: GraphS) -> None:
-    """Check the preconditions for the correlation surface finding algorithm."""
+    """Check the preconditions for the correlation surface finding
+    algorithm."""
     # 1. Check the spider types and phases are supported
     for v in g.vertices():
         vt = g.type(v)

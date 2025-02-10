@@ -1,4 +1,5 @@
-"""Block graph that rotates boundary types by moving logical qubit in spacetime."""
+"""Block graph that rotates boundary types by moving logical qubit in
+spacetime."""
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, Port, ZXCube

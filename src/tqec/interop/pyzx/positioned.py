@@ -156,8 +156,8 @@ class PositionedZX:
         num_90_degree_rotation: int = 1,
         counterclockwise: bool = True,
     ) -> PositionedZX:
-        """Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and
-        return a new rotated graph.
+        """Rotate the graph around an axis by ``num_90_degree_rotation * 90``
+        degrees and return a new rotated graph.
 
         Args:
             rotation_axis: The axis around which to rotate the graph.
@@ -203,8 +203,8 @@ class PositionedZX:
         hadamard_size: int = 200,
         edge_width: int = 1,
     ) -> tuple[Figure, Axes3D]:
-        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using
-        matplotlib.
+        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX`
+        using matplotlib.
 
         Args:
             graph: The ZX graph to plot.

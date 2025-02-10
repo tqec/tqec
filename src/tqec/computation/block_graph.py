@@ -278,8 +278,8 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         num_90_degree_rotation: int = 1,
         counterclockwise: bool = True,
     ) -> BlockGraph:
-        """Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and
-        return a new rotated graph.
+        """Rotate the graph around an axis by ``num_90_degree_rotation * 90``
+        degrees and return a new rotated graph.
 
         Args:
             rotation_axis: The axis around which to rotate the graph.
