@@ -400,7 +400,7 @@ class BlockGraph:
         self,
         write_html_filepath: str | pathlib.Path | None = None,
         pipe_length: float = 2.0,
-        pop_faces_at_direction: SignedDirection3D | None = None,
+        pop_faces_at_direction: SignedDirection3D | str | None = None,
         show_correlation_surface: CorrelationSurface | None = None,
     ) -> _ColladaHTMLViewer:
         """View COLLADA model in html with the help of ``three.js``.
