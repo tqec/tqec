@@ -157,8 +157,8 @@ def _try_to_handle_edges(
             other_cube = Cube(opos, other_cube_kind)
         else:
             other_cube = _port_or_y_cube(pg, other_node)
-        bg.add_cube(other_cube.position, other_cube.kind, other_cube.label)
         if other_node in nodes_to_handle:
+            bg.add_cube(other_cube.position, other_cube.kind, other_cube.label)
             nodes_to_handle.remove(other_node)
         bg.add_pipe(ipos, opos, pipe_kind)
         edges_to_handle.remove(edge)
