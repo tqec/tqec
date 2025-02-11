@@ -419,10 +419,12 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.gallery.move_rotation_zx_graph.html#tqec.gallery.move_rotation_zx_graph">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">move_rotation_zx_graph</span><span class="p">(</span><span class="n">port_kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;OPEN&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ZXGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ZX graph for moving and rotating the spatial boundaries of a logical qubit.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        port_kind: The node kind to fill the two ports of the graph. It can be</span>
 <span class="sd">            either &quot;Z&quot;, &quot;X&quot;, or &quot;OPEN&quot;. If &quot;OPEN&quot;, the ports are left open.</span>
 <span class="sd">            Otherwise, the ports are filled with the given node kind.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        A :py:class:`~tqec.computation.zx_graph.ZXGraph` instance representing the</span>
 <span class="sd">        move-rotation operation.</span>
@@ -457,12 +459,14 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;BOTH&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a block graph for moving and rotating the spatial boundaries of a logical qubit.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        support_observable_basis: The observable basis that the block graph can support.</span>
 <span class="sd">            It can be either &quot;Z&quot;, &quot;X&quot;, or &quot;BOTH&quot;. Note that a cube at the port can only</span>
 <span class="sd">            support the observable basis opposite to the cube. If &quot;Z&quot;, the two ports of</span>
 <span class="sd">            the block graph are filled with X basis cubes. If &quot;X&quot;, the two ports are</span>
 <span class="sd">            filled with Z basis cubes. If &quot;BOTH&quot;, the two ports are left open.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing</span>
 <span class="sd">        the move-rotation operation.</span>

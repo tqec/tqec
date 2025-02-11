@@ -431,7 +431,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <div class="viewcode-block" id="LinearFunction">
-<a class="viewcode-back" href="../../../_autosummary/tqec.LinearFunction.html#tqec.LinearFunction">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.LinearFunction.html#tqec.utils.LinearFunction">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">LinearFunction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a linear function.</span>
@@ -506,7 +506,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">LinearFunction</span><span class="p">(</span><span class="n">other</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="p">,</span> <span class="n">other</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LinearFunction.intersection">
-<a class="viewcode-back" href="../../../_autosummary/tqec.LinearFunction.html#tqec.LinearFunction.intersection">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.LinearFunction.html#tqec.utils.LinearFunction.intersection">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">LinearFunction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the intersection between two linear functions.</span>
 
@@ -540,7 +540,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <div class="viewcode-block" id="round_or_fail">
-<a class="viewcode-back" href="../../../_autosummary/tqec.round_or_fail.html#tqec.round_or_fail">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.round_or_fail.html#tqec.utils.round_or_fail">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">round_or_fail</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Try to round the provided ``f`` to the nearest integer and raise if</span>
 <span class="sd">    ``f`` was not close enough to this integer.</span>
@@ -565,7 +565,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <div class="viewcode-block" id="Scalable2D">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Scalable2D.html#tqec.Scalable2D">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Scalable2D.html#tqec.utils.Scalable2D">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Scalable2D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A pair of scalable quantities.</span>
@@ -579,7 +579,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">y</span><span class="p">:</span> <span class="n">LinearFunction</span>
 
 <div class="viewcode-block" id="Scalable2D.to_shape_2d">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Scalable2D.html#tqec.Scalable2D.to_shape_2d">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Scalable2D.html#tqec.utils.Scalable2D.to_shape_2d">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_shape_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shape2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the represented value for a given scaling parameter ``k``.</span>
 
@@ -598,7 +598,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <div class="viewcode-block" id="Scalable2D.to_numpy_shape">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Scalable2D.html#tqec.Scalable2D.to_numpy_shape">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Scalable2D.html#tqec.utils.Scalable2D.to_numpy_shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_numpy_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a tuple of coordinates in ``numpy``-coordinates.</span>
 

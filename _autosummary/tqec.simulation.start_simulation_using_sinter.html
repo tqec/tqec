@@ -48,7 +48,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.simulation.start_simulation_using_sinter';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Direction3D" href="tqec.Direction3D.html" />
+    <link rel="next" title="tqec.utils" href="tqec.utils.html" />
     <link rel="prev" title="plot_observable_as_inset" href="tqec.simulation.plot_observable_as_inset.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -439,17 +439,23 @@
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">start_simulation_using_sinter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.utils.html">tqec.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.round_or_fail.html">round_or_fail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.BlockPosition2D.html">BlockPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Direction3D.html">Direction3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.LinearFunction.html">LinearFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.NoiseModel.html">NoiseModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Orientation.html">Orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PhysicalQubitPosition2D.html">PhysicalQubitPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PlaquettePosition2D.html">PlaquettePosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Position3D.html">Position3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Scalable2D.html">Scalable2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shape2D.html">Shape2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shift2D.html">Shift2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.SignedDirection3D.html">SignedDirection3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.TQECException.html">tqec.utils.TQECException</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Others</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tqec.Direction3D.html">Direction3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Position3D.html">Position3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Shape2D.html">Shape2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.SignedDirection3D.html">SignedDirection3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.LinearFunction.html">LinearFunction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Scalable2D.html">Scalable2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.round_or_fail.html">round_or_fail</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.NoiseModel.html">NoiseModel</a></li>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -534,7 +540,7 @@ signature arguments that we do not envision using.</p>
 circuits.</p></li>
 <li><p><strong>ps</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – values of the noise parameter <cite>p</cite> to use to instantiate a noise
 model using the provided <cite>noise_model_factory</cite>.</p></li>
-<li><p><strong>noise_model_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>float</em><em>]</em><em>, </em><a class="reference internal" href="tqec.NoiseModel.html#tqec.NoiseModel" title="tqec.utils.noise_model.NoiseModel"><em>NoiseModel</em></a><em>]</em>) – a callable that is used to instantiate a noise
+<li><p><strong>noise_model_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>float</em><em>]</em><em>, </em><a class="reference internal" href="tqec.utils.NoiseModel.html#tqec.utils.NoiseModel" title="tqec.utils.noise_model.NoiseModel"><em>NoiseModel</em></a><em>]</em>) – a callable that is used to instantiate a noise
 model from each of the noise parameters in <cite>ps</cite>.</p></li>
 <li><p><strong>manhattan_radius</strong> (<em>int</em>) – radius used to automatically compute detectors. The
 best value to set this argument to is the minimum integer such that
@@ -609,11 +615,11 @@ observable in <cite>observables</cite>.</p>
       </div>
     </a>
     <a class="right-next"
-       href="tqec.Direction3D.html"
+       href="tqec.utils.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Direction3D</p>
+        <p class="prev-next-title">tqec.utils</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

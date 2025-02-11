@@ -439,17 +439,23 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.utils.html">tqec.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.round_or_fail.html">round_or_fail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.BlockPosition2D.html">BlockPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Direction3D.html">Direction3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.LinearFunction.html">LinearFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.NoiseModel.html">NoiseModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Orientation.html">Orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PhysicalQubitPosition2D.html">PhysicalQubitPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PlaquettePosition2D.html">PlaquettePosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Position3D.html">Position3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Scalable2D.html">Scalable2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shape2D.html">Shape2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shift2D.html">Shift2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.SignedDirection3D.html">SignedDirection3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.TQECException.html">tqec.utils.TQECException</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Others</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tqec.Direction3D.html">Direction3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Position3D.html">Position3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Shape2D.html">Shape2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.SignedDirection3D.html">SignedDirection3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.LinearFunction.html">LinearFunction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Scalable2D.html">Scalable2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.round_or_fail.html">round_or_fail</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.NoiseModel.html">NoiseModel</a></li>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -526,7 +532,7 @@ Collada DAE file.</p>
 <li><p><strong>block_graph</strong> (<a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a>) – The block graph to write to the DAE file.</p></li>
 <li><p><strong>file</strong> – The output file path or file-like object that supports binary write.</p></li>
 <li><p><strong>pipe_length</strong> (<em>float</em>) – The length of the pipes in the COLLADA model. Default is 2.0.</p></li>
-<li><p><strong>pop_faces_at_direction</strong> (<a class="reference internal" href="tqec.SignedDirection3D.html#tqec.SignedDirection3D" title="tqec.utils.position.SignedDirection3D"><em>SignedDirection3D</em></a><em> | </em><em>None</em>) – Remove the faces at the given direction for all the blocks.
+<li><p><strong>pop_faces_at_direction</strong> (<a class="reference internal" href="tqec.utils.SignedDirection3D.html#tqec.utils.SignedDirection3D" title="tqec.utils.position.SignedDirection3D"><em>SignedDirection3D</em></a><em> | </em><em>None</em>) – Remove the faces at the given direction for all the blocks.
 This is useful for visualizing the internal structure of the blocks. Default is None.</p></li>
 <li><p><strong>show_correlation_surface</strong> (<em>CorrelationSurface</em><em> | </em><em>None</em>) – The <code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelationSurface</span></code> to show in the block graph. Default is None.</p></li>
 <li><p><strong>file_like</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>BinaryIO</em>)</p></li>

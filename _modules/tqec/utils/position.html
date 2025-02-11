@@ -468,33 +468,48 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">BlockPosition2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="PhysicalQubitPosition2D">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.PhysicalQubitPosition2D.html#tqec.utils.PhysicalQubitPosition2D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PhysicalQubitPosition2D</span><span class="p">(</span><span class="n">Position2D</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the position of a physical qubit on a 2-dimensional plane.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the position of a physical qubit on a 2-dimensional plane.&quot;&quot;&quot;</span></div>
 
 
+
+<div class="viewcode-block" id="PlaquettePosition2D">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.PlaquettePosition2D.html#tqec.utils.PlaquettePosition2D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PlaquettePosition2D</span><span class="p">(</span><span class="n">Position2D</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the position of a plaquette on a 2-dimensional plane.&quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="PlaquettePosition2D.get_origin_position">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.PlaquettePosition2D.html#tqec.utils.PlaquettePosition2D.get_origin_position">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_origin_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">displacement</span><span class="p">:</span> <span class="n">Shift2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitPosition2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the position of the plaquette origin.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">PhysicalQubitPosition2D</span><span class="p">(</span><span class="n">displacement</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">displacement</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PhysicalQubitPosition2D</span><span class="p">(</span><span class="n">displacement</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">displacement</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span></div>
+</div>
 
 
+
+<div class="viewcode-block" id="BlockPosition2D">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.BlockPosition2D.html#tqec.utils.BlockPosition2D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BlockPosition2D</span><span class="p">(</span><span class="n">Position2D</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents the position of a block on a 2-dimensional plane.&quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="BlockPosition2D.get_top_left_plaquette_position">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.BlockPosition2D.html#tqec.utils.BlockPosition2D.get_top_left_plaquette_position">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_top_left_plaquette_position</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">block_shape</span><span class="p">:</span> <span class="n">Shape2D</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlaquettePosition2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the position of the top-left plaquette of the block.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">PlaquettePosition2D</span><span class="p">(</span><span class="n">block_shape</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">block_shape</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PlaquettePosition2D</span><span class="p">(</span><span class="n">block_shape</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">block_shape</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="Shape2D">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Shape2D.html#tqec.Shape2D">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Shape2D.html#tqec.utils.Shape2D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Shape2D</span><span class="p">(</span><span class="n">Vec2D</span><span class="p">):</span>
 <div class="viewcode-block" id="Shape2D.to_numpy_shape">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Shape2D.html#tqec.Shape2D.to_numpy_shape">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Shape2D.html#tqec.utils.Shape2D.to_numpy_shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_numpy_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the shape according to numpy indexing.</span>
 
@@ -508,16 +523,19 @@ window.addEventListener("load", () => mermaid.run());
 
 
 
+<div class="viewcode-block" id="Shift2D">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Shift2D.html#tqec.utils.Shift2D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Shift2D</span><span class="p">(</span><span class="n">Vec2D</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shift2D</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Shift2D</span><span class="p">(</span><span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shift2D</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__mul__</span><span class="p">(</span><span class="n">factor</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__mul__</span><span class="p">(</span><span class="n">factor</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="Position3D">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Position3D.html#tqec.Position3D">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Position3D.html#tqec.utils.Position3D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Position3D</span><span class="p">(</span><span class="n">Vec3D</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A 3D integer position.&quot;&quot;&quot;</span>
 
@@ -526,14 +544,14 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">z</span><span class="p">:</span> <span class="nb">int</span>
 
 <div class="viewcode-block" id="Position3D.shift_by">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Position3D.html#tqec.Position3D.shift_by">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Position3D.html#tqec.utils.Position3D.shift_by">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shift_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dy</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dz</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Position3D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Shift the position by the given offset.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Position3D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">dy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">dz</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Position3D.shift_in_direction">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Position3D.html#tqec.Position3D.shift_in_direction">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Position3D.html#tqec.utils.Position3D.shift_in_direction">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shift_in_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">shift</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Position3D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Shift the position in the given direction by the given shift.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
@@ -545,7 +563,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <div class="viewcode-block" id="Position3D.is_neighbour">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Position3D.html#tqec.Position3D.is_neighbour">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Position3D.html#tqec.utils.Position3D.is_neighbour">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_neighbour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the other position is near to this position, i.e. Manhattan</span>
 <span class="sd">        distance is 1.&quot;&quot;&quot;</span>
@@ -555,7 +573,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <div class="viewcode-block" id="Position3D.as_tuple">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Position3D.html#tqec.Position3D.as_tuple">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Position3D.html#tqec.utils.Position3D.as_tuple">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">as_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the position as a tuple.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">astuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -565,7 +583,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="si">}</span><span class="s2">)&quot;</span>
 
 <div class="viewcode-block" id="Position3D.as_2d">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Position3D.html#tqec.Position3D.as_2d">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Position3D.html#tqec.utils.Position3D.as_2d">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">as_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Position2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the position as a 2D position.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Position2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span></div>
@@ -574,7 +592,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <div class="viewcode-block" id="Direction3D">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Direction3D.html#tqec.Direction3D">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Direction3D.html#tqec.utils.Direction3D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Direction3D</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Axis directions in the 3D spacetime diagram.&quot;&quot;&quot;</span>
 
@@ -583,7 +601,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">Z</span> <span class="o">=</span> <span class="mi">2</span>
 
 <div class="viewcode-block" id="Direction3D.all_directions">
-<a class="viewcode-back" href="../../../_autosummary/tqec.Direction3D.html#tqec.Direction3D.all_directions">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Direction3D.html#tqec.utils.Direction3D.all_directions">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">all_directions</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Direction3D</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return all the directions.&quot;&quot;&quot;</span>
@@ -596,7 +614,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <div class="viewcode-block" id="SignedDirection3D">
-<a class="viewcode-back" href="../../../_autosummary/tqec.SignedDirection3D.html#tqec.SignedDirection3D">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.SignedDirection3D.html#tqec.utils.SignedDirection3D">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SignedDirection3D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Signed directions in the 3D spacetime diagram.&quot;&quot;&quot;</span>

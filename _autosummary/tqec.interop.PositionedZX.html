@@ -439,17 +439,23 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.utils.html">tqec.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.round_or_fail.html">round_or_fail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.BlockPosition2D.html">BlockPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Direction3D.html">Direction3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.LinearFunction.html">LinearFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.NoiseModel.html">NoiseModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Orientation.html">Orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PhysicalQubitPosition2D.html">PhysicalQubitPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PlaquettePosition2D.html">PlaquettePosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Position3D.html">Position3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Scalable2D.html">Scalable2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shape2D.html">Shape2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shift2D.html">Shift2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.SignedDirection3D.html">SignedDirection3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.TQECException.html">tqec.utils.TQECException</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Others</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tqec.Direction3D.html">Direction3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Position3D.html">Position3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Shape2D.html">Shape2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.SignedDirection3D.html">SignedDirection3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.LinearFunction.html">LinearFunction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Scalable2D.html">Scalable2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.round_or_fail.html">round_or_fail</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.NoiseModel.html">NoiseModel</a></li>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -534,11 +540,11 @@ time direction.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>g</strong> (<em>GraphS</em>) – The ZX graph.</p></li>
-<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a><em>]</em>) – A dictionary mapping vertex IDs to their 3D positions.</p></li>
+<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a><em>]</em>) – A dictionary mapping vertex IDs to their 3D positions.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>TQECException</strong> – If the constraints are not satisfied.</p>
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – If the constraints are not satisfied.</p>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
@@ -587,11 +593,11 @@ time direction.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>g</strong> (<em>GraphS</em>) – The ZX graph.</p></li>
-<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a><em>]</em>) – A dictionary mapping vertex IDs to their 3D positions.</p></li>
+<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a><em>]</em>) – A dictionary mapping vertex IDs to their 3D positions.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>TQECException</strong> – If the constraints are not satisfied.</p>
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – If the constraints are not satisfied.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
@@ -607,7 +613,7 @@ time direction.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>g</strong> (<em>GraphS</em>)</p></li>
-<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a><em>]</em>)</p></li>
+<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a><em>]</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -628,7 +634,7 @@ time direction.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.Direction3D.html#tqec.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.Direction3D.html#tqec.utils.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a></p>
 </dd>
 </dl>
 </dd></dl>

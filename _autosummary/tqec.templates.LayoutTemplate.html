@@ -439,17 +439,23 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.utils.html">tqec.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.round_or_fail.html">round_or_fail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.BlockPosition2D.html">BlockPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Direction3D.html">Direction3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.LinearFunction.html">LinearFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.NoiseModel.html">NoiseModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Orientation.html">Orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PhysicalQubitPosition2D.html">PhysicalQubitPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PlaquettePosition2D.html">PlaquettePosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Position3D.html">Position3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Scalable2D.html">Scalable2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shape2D.html">Shape2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shift2D.html">Shift2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.SignedDirection3D.html">SignedDirection3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.TQECException.html">tqec.utils.TQECException</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Others</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tqec.Direction3D.html">Direction3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Position3D.html">Position3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Shape2D.html">Shape2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.SignedDirection3D.html">SignedDirection3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.LinearFunction.html">LinearFunction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Scalable2D.html">Scalable2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.round_or_fail.html">round_or_fail</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.NoiseModel.html">NoiseModel</a></li>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -533,9 +539,9 @@ portion of the 2 spatial dimensions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>element_layout</strong> (<em>dict</em><em>[</em><em>BlockPosition2D</em><em>, </em><em>RectangularTemplate</em><em>]</em>) – a dictionary with the position of the element
+<li><p><strong>element_layout</strong> (<em>dict</em><em>[</em><a class="reference internal" href="tqec.utils.BlockPosition2D.html#tqec.utils.BlockPosition2D" title="tqec.utils.position.BlockPosition2D"><em>BlockPosition2D</em></a><em>, </em><em>RectangularTemplate</em><em>]</em>) – a dictionary with the position of the element
 templates in the layout as keys and the templates as values.</p></li>
-<li><p><strong>default_increments</strong> (<em>Shift2D</em><em> | </em><em>None</em>) – default increments between two plaquettes. Defaults
+<li><p><strong>default_increments</strong> (<a class="reference internal" href="tqec.utils.Shift2D.html#tqec.utils.Shift2D" title="tqec.utils.position.Shift2D"><em>Shift2D</em></a><em> | </em><em>None</em>) – default increments between two plaquettes. Defaults
 to <code class="docutils literal notranslate"><span class="pre">Displacement(2,</span> <span class="pre">2)</span></code> when <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </dd>
@@ -600,9 +606,9 @@ portion of the 2 spatial dimensions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>element_layout</strong> (<em>dict</em><em>[</em><em>BlockPosition2D</em><em>, </em><em>RectangularTemplate</em><em>]</em>) – a dictionary with the position of the element
+<li><p><strong>element_layout</strong> (<em>dict</em><em>[</em><a class="reference internal" href="tqec.utils.BlockPosition2D.html#tqec.utils.BlockPosition2D" title="tqec.utils.position.BlockPosition2D"><em>BlockPosition2D</em></a><em>, </em><em>RectangularTemplate</em><em>]</em>) – a dictionary with the position of the element
 templates in the layout as keys and the templates as values.</p></li>
-<li><p><strong>default_increments</strong> (<em>Shift2D</em><em> | </em><em>None</em>) – default increments between two plaquettes. Defaults
+<li><p><strong>default_increments</strong> (<a class="reference internal" href="tqec.utils.Shift2D.html#tqec.utils.Shift2D" title="tqec.utils.position.Shift2D"><em>Shift2D</em></a><em> | </em><em>None</em>) – default increments between two plaquettes. Defaults
 to <code class="docutils literal notranslate"><span class="pre">Displacement(2,</span> <span class="pre">2)</span></code> when <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </dd>
@@ -621,7 +627,7 @@ to <code class="docutils literal notranslate"><span class="pre">Displacement(2,<
 <dd class="field-odd"><p><strong>k</strong> (<em>int</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.Shape2D.html#tqec.Shape2D" title="tqec.utils.position.Shape2D"><em>Shape2D</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.Shape2D.html#tqec.utils.Shape2D" title="tqec.utils.position.Shape2D"><em>Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -635,7 +641,7 @@ to <code class="docutils literal notranslate"><span class="pre">Displacement(2,<
 <dd class="field-odd"><p>a displacement of the default increments in the x and y directions.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Shift2D</em></p>
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.Shift2D.html#tqec.utils.Shift2D" title="tqec.utils.position.Shift2D"><em>Shift2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -665,7 +671,7 @@ from <code class="docutils literal notranslate"><span class="pre">N</span></code
 instances managed by <code class="docutils literal notranslate"><span class="pre">self</span></code>).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict[<em>BlockPosition2D</em>, dict[int, int]]</p>
+<dd class="field-odd"><p>dict[<a class="reference internal" href="tqec.utils.BlockPosition2D.html#tqec.utils.BlockPosition2D" title="tqec.utils.position.BlockPosition2D"><em>BlockPosition2D</em></a>, dict[int, int]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -754,7 +760,7 @@ to the top-left entry of the array returned by
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">instantiate()</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>PlaquettePosition2D</em></p>
+<dd class="field-odd"><p><a class="reference internal" href="tqec.utils.PlaquettePosition2D.html#tqec.utils.PlaquettePosition2D" title="tqec.utils.position.PlaquettePosition2D"><em>PlaquettePosition2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -768,7 +774,7 @@ to the top-left entry of the array returned by
 <dd class="field-odd"><p><strong>k</strong> (<em>int</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.Shape2D.html#tqec.Shape2D" title="tqec.utils.position.Shape2D"><em>Shape2D</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.Shape2D.html#tqec.utils.Shape2D" title="tqec.utils.position.Shape2D"><em>Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>

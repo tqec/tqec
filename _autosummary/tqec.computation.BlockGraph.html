@@ -439,17 +439,23 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.utils.html">tqec.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.round_or_fail.html">round_or_fail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.BlockPosition2D.html">BlockPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Direction3D.html">Direction3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.LinearFunction.html">LinearFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.NoiseModel.html">NoiseModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Orientation.html">Orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PhysicalQubitPosition2D.html">PhysicalQubitPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PlaquettePosition2D.html">PlaquettePosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Position3D.html">Position3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Scalable2D.html">Scalable2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shape2D.html">Shape2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shift2D.html">Shift2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.SignedDirection3D.html">SignedDirection3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.TQECException.html">tqec.utils.TQECException</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Others</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tqec.Direction3D.html">Direction3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Position3D.html">Position3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Shape2D.html">Shape2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.SignedDirection3D.html">SignedDirection3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.LinearFunction.html">LinearFunction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.Scalable2D.html">Scalable2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.round_or_fail.html">round_or_fail</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tqec.NoiseModel.html">NoiseModel</a></li>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -553,7 +559,7 @@ connects. Pipes are represented as edges in the graph.</p>
 <td><p>Get the edges incident to a position.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="tqec.computation.BlockGraph.find_correlation_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correlation_surfaces</span></code></a>()</p></td>
-<td><p>Get the <a href="#id1"><span class="problematic" id="id2">`</span></a>~tqec.computation.correlation.CorrelationSurface`s from the corresponding ZXGraph of the block graph.</p></td>
+<td><p>Get the <cite>~tqec.computation.correlation.CorrelationSurface</cite> from the corresponding ZXGraph of the block graph.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_dae_file" title="tqec.computation.BlockGraph.from_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dae_file</span></code></a>(filename[, graph_name])</p></td>
 <td><p>Construct a block graph from a COLLADA DAE file.</p></td>
@@ -653,7 +659,7 @@ boundary conditions consistent. Default is None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>TQECException</strong> – For each node in the edge, if there is already a node which is not
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – For each node in the edge, if there is already a node which is not
     equal to it at the same position, or the node is a port but there is already a
     different port with the same label in the graph.</p>
 </dd>
@@ -684,7 +690,7 @@ True.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>TQECException</strong> – If <code class="docutils literal notranslate"><span class="pre">check_conflict</span></code> is True and there is a conflict when adding the
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – If <code class="docutils literal notranslate"><span class="pre">check_conflict</span></code> is True and there is a conflict when adding the
     node.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -710,7 +716,7 @@ True.</p>
 <dd><p>Get the edges incident to a position.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>)</p>
+<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>list[<em>_EDGE</em>]</p>
@@ -721,7 +727,7 @@ True.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.find_correlation_surfaces">
 <span class="sig-name descname"><span class="pre">find_correlation_surfaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.find_correlation_surfaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="Link to this definition">#</a></dt>
-<dd><p>Get the <a href="#id3"><span class="problematic" id="id4">`</span></a>~tqec.computation.correlation.CorrelationSurface`s from the corresponding
+<dd><p>Get the <cite>~tqec.computation.correlation.CorrelationSurface</cite> from the corresponding
 ZXGraph of the block graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -760,7 +766,7 @@ ZXGraph of the block graph.</p>
 incident to it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>)</p>
+<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>int</p>
@@ -776,15 +782,15 @@ the given positions, an exception will be raised.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos1</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The first endpoint position.</p></li>
-<li><p><strong>pos2</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The second endpoint position.</p></li>
+<li><p><strong>pos1</strong> (<a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The first endpoint position.</p></li>
+<li><p><strong>pos2</strong> (<a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The second endpoint position.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The edge between the two positions.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>TQECException</strong> – If there is no edge between the given positions.</p>
+<dd class="field-odd"><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – If there is no edge between the given positions.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>_EDGE</em></p>
@@ -799,8 +805,8 @@ the given positions, an exception will be raised.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos1</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The first endpoint position.</p></li>
-<li><p><strong>pos2</strong> (<a class="reference internal" href="tqec.Position3D.html#tqec.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The second endpoint position.</p></li>
+<li><p><strong>pos1</strong> (<a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The first endpoint position.</p></li>
+<li><p><strong>pos2</strong> (<a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>) – The second endpoint position.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -820,7 +826,7 @@ return a new rotated graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rotation_axis</strong> (<a class="reference internal" href="tqec.Direction3D.html#tqec.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a>) – The axis around which to rotate the graph.</p></li>
+<li><p><strong>rotation_axis</strong> (<a class="reference internal" href="tqec.utils.Direction3D.html#tqec.utils.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a>) – The axis around which to rotate the graph.</p></li>
 <li><p><strong>num_90_degree_rotation</strong> (<em>int</em>) – The number of 90-degree rotations to apply to the graph.</p></li>
 <li><p><strong>counterclockwise</strong> (<em>bool</em>) – Whether to rotate the graph counterclockwise. If set to False,
 the graph will be rotated clockwise. Defaults to True.</p></li>
@@ -860,7 +866,7 @@ will share no data with the original graph.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_path</strong> (<em>str</em><em> | </em><em>Path</em>) – The output file path.</p></li>
 <li><p><strong>pipe_length</strong> (<em>float</em>) – The length of the pipes. Default is 2.0.</p></li>
-<li><p><strong>pop_faces_at_direction</strong> (<a class="reference internal" href="tqec.SignedDirection3D.html#tqec.SignedDirection3D" title="tqec.utils.position.SignedDirection3D"><em>SignedDirection3D</em></a><em> | </em><em>None</em>) – Remove the faces at the given direction for all the blocks.
+<li><p><strong>pop_faces_at_direction</strong> (<a class="reference internal" href="tqec.utils.SignedDirection3D.html#tqec.utils.SignedDirection3D" title="tqec.utils.position.SignedDirection3D"><em>SignedDirection3D</em></a><em> | </em><em>None</em>) – Remove the faces at the given direction for all the blocks.
 This is useful for visualizing the internal structure of the blocks. Default is None.</p></li>
 <li><p><strong>show_correlation_surface</strong> (<em>CorrelationSurface</em><em> | </em><em>None</em>) – The correlation surface to show in the block graph. Default is None.</p></li>
 </ul>
@@ -915,7 +921,7 @@ faces that are touching.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>TQECException</strong> – If the above conditions are not satisfied.</p>
+<dd class="field-odd"><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – If the above conditions are not satisfied.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
@@ -934,7 +940,7 @@ faces that are touching.</p></li>
 <li><p><strong>write_html_filepath</strong> (<em>str</em><em> | </em><em>pathlib.Path</em><em> | </em><em>None</em>) – The output html file path to write the generated html content
 if provided. Default is None.</p></li>
 <li><p><strong>pipe_length</strong> (<em>float</em>) – The length of the pipes. Default is 2.0.</p></li>
-<li><p><strong>pop_faces_at_direction</strong> (<a class="reference internal" href="tqec.SignedDirection3D.html#tqec.SignedDirection3D" title="tqec.SignedDirection3D"><em>SignedDirection3D</em></a><em> | </em><em>None</em>) – Remove the faces at the given direction for all the blocks.
+<li><p><strong>pop_faces_at_direction</strong> (<a class="reference internal" href="tqec.utils.SignedDirection3D.html#tqec.utils.SignedDirection3D" title="tqec.utils.SignedDirection3D"><em>SignedDirection3D</em></a><em> | </em><em>None</em>) – Remove the faces at the given direction for all the blocks.
 This is useful for visualizing the internal structure of the blocks. Default is None.</p></li>
 <li><p><strong>show_correlation_surface</strong> (<em>CorrelationSurface</em><em> | </em><em>None</em>) – The correlation surface to show in the block graph. Default is None.</p></li>
 </ul>
