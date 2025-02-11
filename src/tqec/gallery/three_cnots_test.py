@@ -8,9 +8,9 @@ from tqec.utils.enums import Basis
 def test_three_cnots_OPEN() -> None:
     g = three_cnots()
     assert g.num_ports == 6
-    assert g.num_nodes == 12
-    assert g.num_edges == 12
-    assert len(g.leaf_nodes) == 6
+    assert g.num_cubes == 12
+    assert g.num_pipes == 12
+    assert len(g.leaf_cubes) == 6
     assert {*g.ports.keys()} == {
         "In_a",
         "Out_a",
@@ -19,6 +19,7 @@ def test_three_cnots_OPEN() -> None:
         "In_c",
         "Out_c",
     }
+    assert g.spacetime_volume() == (4, 3, 4)
 
 
 def test_three_cnots_open_zx() -> None:
@@ -32,7 +33,6 @@ cx q[0], q[1];
 cx q[1], q[2];
 cx q[0], q[2];
 """)
-
     assert zx.compare_tensors(g, c)
 
 
@@ -40,9 +40,9 @@ cx q[0], q[2];
 def test_three_cnots_filled(obs_basis: Basis) -> None:
     g = three_cnots(obs_basis)
     assert g.num_ports == 0
-    assert g.num_nodes == 12
-    assert g.num_edges == 12
-    assert len(g.leaf_nodes) == 6
+    assert g.num_cubes == 12
+    assert g.num_pipes == 12
+    assert len(g.leaf_cubes) == 6
 
 
 @pytest.mark.parametrize(

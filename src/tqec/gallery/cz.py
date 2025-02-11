@@ -3,8 +3,7 @@
 import stim
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, Port, ZXCube
-from tqec.computation.pipe import PipeKind
+from tqec.computation.cube import ZXCube
 from tqec.utils.position import Position3D
 from tqec.utils.exceptions import TQECException
 
@@ -34,27 +33,20 @@ def cz(support_flows: str | list[str] | None = None) -> BlockGraph:
             if no valid graph can be found for the given stabilizer flows.
     """
     g = BlockGraph("Logical CZ")
-    g.add_edge(
-        Cube(Position3D(0, 0, 0), Port(), "In_1"),
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("XZX")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("XZX")),
-        Cube(Position3D(0, 0, 2), Port(), "Out_1"),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("XZX")),
-        Cube(Position3D(1, 0, 1), ZXCube.from_str("XXZ")),
-        PipeKind.from_str("OZXH"),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 0, 1), ZXCube.from_str("XXZ")),
-        Cube(Position3D(1, -1, 1), Port(), "In_2"),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 0, 1), ZXCube.from_str("XXZ")),
-        Cube(Position3D(1, 1, 1), Port(), "Out_2"),
-    )
+    nodes = [
+        (Position3D(0, 0, 0), "P", "In_1"),
+        (Position3D(0, 0, 1), "XZX", ""),
+        (Position3D(0, 0, 2), "P", "Out_1"),
+        (Position3D(1, 0, 1), "XXZ", ""),
+        (Position3D(1, -1, 1), "P", "In_2"),
+        (Position3D(1, 1, 1), "P", "Out_2"),
+    ]
+    for pos, kind, label in nodes:
+        g.add_cube(pos, kind, label)
+
+    pipes = [(0, 1), (1, 2), (1, 3), (3, 4), (3, 5)]
+    for p0, p1 in pipes:
+        g.add_pipe(nodes[p0][0], nodes[p1][0])
 
     if support_flows is not None:
         flows = (

@@ -8,7 +8,7 @@ from typing import Generator
 from tqec.computation.cube import Cube, ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import Direction3D
+from tqec.utils.position import Direction3D, Position3D
 
 
 @dataclass(frozen=True)
@@ -261,6 +261,14 @@ class Pipe:
                     raise TQECException(
                         f"The pipe is not compatible with the cube {cube} along {direction} direction."
                     )
+
+    def at_head(self, position: Position3D) -> bool:
+        """Whether the position is at the head (u) of the pipe."""
+        if position == self.u.position:
+            return True
+        if position == self.v.position:
+            return False
+        raise TQECException(f"The position {position} is not an endpoint of the pipe.")
 
     def __iter__(self) -> Generator[Cube]:
         yield self.u

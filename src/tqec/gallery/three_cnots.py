@@ -2,7 +2,7 @@
 spacetime."""
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, Port, ZXCube
+from tqec.computation.cube import ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
@@ -31,54 +31,40 @@ def three_cnots(observable_basis: Basis | None = None) -> BlockGraph:
         three logical CNOT gates compressed in spacetime.
     """
     g = BlockGraph("Three CNOTs")
-    g.add_edge(
-        Cube(Position3D(-1, 0, 0), Port(), "Out_a"),
-        Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, -1, 0), Port(), "In_a"),
-        Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-        Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-        Cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 1, 0), ZXCube.from_str("XXZ")),
-        Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 0, -1), Port(), "In_b"),
-        Cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 1, -1), Port(), "In_c"),
-        Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(2, 1, 0), Port(), "Out_c"),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(1, 0, 1), ZXCube.from_str("ZXX")),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 0, 1), ZXCube.from_str("ZXX")),
-        Cube(Position3D(1, 0, 2), Port(), "Out_b"),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 0, 1), ZXCube.from_str("ZXX")),
-        Cube(Position3D(1, 1, 1), ZXCube.from_str("ZXX")),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 1, 0), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(1, 1, 1), ZXCube.from_str("ZXX")),
-    )
+    nodes = [
+        (Position3D(-1, 0, 0), "P", "Out_a"),
+        (Position3D(0, 0, 0), "XXZ", ""),
+        (Position3D(0, -1, 0), "P", "In_a"),
+        (Position3D(0, 1, 0), "XXZ", ""),
+        (Position3D(1, 0, 0), "ZXZ", ""),
+        (Position3D(1, 1, 0), "ZXZ", ""),
+        (Position3D(1, 0, -1), "P", "In_b"),
+        (Position3D(1, 1, -1), "P", "In_c"),
+        (Position3D(1, 0, 1), "ZXX", ""),
+        (Position3D(1, 1, 1), "ZXX", ""),
+        (Position3D(2, 1, 0), "P", "Out_c"),
+        (Position3D(1, 0, 2), "P", "Out_b"),
+    ]
+
+    for pos, kind, label in nodes:
+        g.add_cube(pos, kind, label)
+
+    pipes = [
+        (1, 0),
+        (1, 2),
+        (1, 3),
+        (1, 4),
+        (4, 6),
+        (4, 8),
+        (5, 3),
+        (5, 9),
+        (5, 10),
+        (5, 7),
+        (8, 11),
+        (8, 9),
+    ]
+    for p0, p1 in pipes:
+        g.add_pipe(nodes[p0][0], nodes[p1][0])
 
     if observable_basis == Basis.Z:
         g.fill_ports(

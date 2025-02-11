@@ -80,7 +80,7 @@ def _handle_corners(
         bases = [normal_direction_basis.flipped() for _ in range(3)]
         bases[normal_direction.value] = normal_direction_basis
         kind = ZXCube(*bases)
-        bg.add_node(Cube(pg[v], kind))
+        bg.add_cube(pg[v], kind)
         nodes_to_handle.remove(v)
 
 
@@ -96,11 +96,12 @@ def _handle_special_pipes(
         u, v = edge
         if is_zx_no_phase(g, u) or is_zx_no_phase(g, v):
             continue
-        bg.add_edge(
-            _port_or_y_cube(pg, u),
-            _port_or_y_cube(pg, v),
-            _choose_arbitrary_pipe_kind(pg, edge),
-        )
+        cube_u = _port_or_y_cube(pg, u)
+        cube_v = _port_or_y_cube(pg, v)
+        bg.add_cube(cube_u.position, cube_u.kind, cube_u.label)
+        bg.add_cube(cube_v.position, cube_v.kind, cube_v.label)
+        pipe_kind = _choose_arbitrary_pipe_kind(pg, edge)
+        bg.add_pipe(cube_u.position, cube_v.position, pipe_kind)
         nodes_to_handle.remove(u)
         nodes_to_handle.remove(v)
         edges_to_handle.remove(edge)
@@ -156,9 +157,10 @@ def _try_to_handle_edges(
             other_cube = Cube(opos, other_cube_kind)
         else:
             other_cube = _port_or_y_cube(pg, other_node)
-        bg.add_edge(Cube(ipos, cube_kind), other_cube)
         if other_node in nodes_to_handle:
+            bg.add_cube(other_cube.position, other_cube.kind, other_cube.label)
             nodes_to_handle.remove(other_node)
+        bg.add_pipe(ipos, opos, pipe_kind)
         edges_to_handle.remove(edge)
 
 
@@ -188,7 +190,7 @@ def _fix_kind_for_one_node(
             "X" if fix_type == zx.VertexType.Z else "Z",
         )
         specified_kind = ZXCube.from_str("".join(basis))
-    bg.add_node(Cube(fix_pos, specified_kind))
+    bg.add_cube(fix_pos, specified_kind)
     nodes_to_handle.remove(fix_node)
 
 
@@ -234,8 +236,9 @@ def _port_or_y_cube(pg: PositionedZX, v: int) -> Cube:
     if is_boundary(g, v):
         if v in g.inputs():
             label = f"IN_{g.inputs().index(v)}"
-        else:
-            assert v in g.outputs()
+        elif v in g.outputs():
             label = f"OUT_{g.outputs().index(v)}"
+        else:
+            label = f"P_{v}"
         return Cube(pg[v], Port(), label)
     return Cube(pg[v], YCube())

@@ -8,13 +8,14 @@ from tqec.utils.enums import Basis
 def test_move_rotation_open() -> None:
     g = move_rotation()
     assert g.num_ports == 2
-    assert g.num_nodes == 5
-    assert g.num_edges == 4
-    assert len(g.leaf_nodes) == 2
+    assert g.num_cubes == 5
+    assert g.num_pipes == 4
+    assert len(g.leaf_cubes) == 2
     assert {*g.ports.keys()} == {
         "In",
         "Out",
     }
+    assert g.spacetime_volume() == (2, 2, 3)
 
 
 def test_move_rotation_open_zx() -> None:
@@ -31,9 +32,9 @@ def test_move_rotation_open_zx() -> None:
 def test_move_rotation_filled(obs_basis: Basis) -> None:
     g = move_rotation(obs_basis)
     assert g.num_ports == 0
-    assert g.num_nodes == 5
-    assert g.num_edges == 4
-    assert len(g.leaf_nodes) == 2
+    assert g.num_cubes == 5
+    assert g.num_pipes == 4
+    assert len(g.leaf_cubes) == 2
 
 
 @pytest.mark.parametrize(
