@@ -174,7 +174,7 @@ class CorrelationSurfaceTransformationHelper:
                 )
 
         # Surfaces that can broadcast to all the neighbors
-        if len(correlation_edges) == 2 or kind.normal_basis not in surface_bases:
+        if len(surface_bases) == 2 or kind.normal_basis not in surface_bases:
             translation = scaled_pos.shift_in_direction(kind.normal_direction, 0.5)
             transformations.append(
                 (
