@@ -9,6 +9,7 @@ from tqec.utils.position import Position3D
 
 def move_rotation(observable_basis: Basis | None = None) -> BlockGraph:
     """Create a block graph for moving and rotating the spatial boundaries of a logical qubit.
+
     Args:
         observable_basis: The observable basis that the block graph can support. If None,
             the ports are left open. Otherwise, the ports are filled with the given basis.
