@@ -33,6 +33,7 @@ from .utils import Direction3D as Direction3D
 from .utils import LinearFunction as LinearFunction
 from .utils import NoiseModel as NoiseModel
 from .utils import Orientation as Orientation
+from .utils import Basis as Basis
 from .utils import PhysicalQubitPosition2D as PhysicalQubitPosition2D
 from .utils import PlaquettePosition2D as PlaquettePosition2D
 from .utils import Position3D as Position3D
