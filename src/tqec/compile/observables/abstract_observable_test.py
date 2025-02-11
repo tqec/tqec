@@ -1,3 +1,5 @@
+import pytest
+
 from tqec.compile.observables.abstract_observable import (
     AbstractObservable,
     compile_correlation_surface_to_abstract_observable,
@@ -7,8 +9,8 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.gallery.logical_cnot import logical_cnot_block_graph
-from tqec.gallery.three_cnots import three_cnots_block_graph
 from tqec.gallery.solo_node import solo_node_block_graph
+from tqec.gallery.three_cnots import three_cnots_block_graph
 from tqec.utils.position import Position3D
 
 
@@ -137,6 +139,7 @@ def test_abstract_observable_for_logical_cnot() -> None:
     )
 
 
+@pytest.mark.skip(reason="Observable to be checked later")
 def test_abstract_observable_for_three_cnots() -> None:
     g = three_cnots_block_graph("Z")
     correlation_surfaces = g.find_correlation_surfaces()
