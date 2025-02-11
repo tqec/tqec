@@ -12,8 +12,11 @@ from typing_extensions import override
 from tqec._cli.subcommands.base import TQECSubCommand
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.zx_graph import ZXGraph
-from tqec.computation.zx_plot import draw_correlation_surface_on, draw_zx_graph_on
+from tqec.interop.pyzx.plot import (
+    draw_correlation_surface_on,
+    draw_positioned_zx_graph_on,
+)
+from tqec.interop.pyzx.positioned import PositionedZX
 
 
 class Dae2ObservablesTQECSubCommand(TQECSubCommand):
@@ -44,7 +47,7 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
             dae_absolute_path, graph_name=str(dae_absolute_path)
         )
         zx_graph = block_graph.to_zx_graph()
-        correlation_surfaces = zx_graph.find_correlation_surfaces()
+        correlation_surfaces = block_graph.find_correlation_surfaces()
 
         if args.out_dir is None:
             print(
@@ -58,13 +61,15 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
 
 
 def save_correlation_surfaces_to(
-    zx_graph: ZXGraph, out_dir: Path, correlation_surfaces: list[CorrelationSurface]
+    zx_graph: PositionedZX,
+    out_dir: Path,
+    correlation_surfaces: list[CorrelationSurface],
 ) -> None:
     for i, correlation_surface in enumerate(correlation_surfaces):
         fig = plt.figure(figsize=(5, 6))
         ax = cast(Axes3D, fig.add_subplot(111, projection="3d"))
-        draw_zx_graph_on(zx_graph, ax)
-        draw_correlation_surface_on(correlation_surface, ax)
+        draw_positioned_zx_graph_on(zx_graph, ax)
+        draw_correlation_surface_on(correlation_surface, zx_graph, ax)
         fig.tight_layout()
         save_path = (out_dir / f"{i}.png").resolve()
         print(f"Saving correlation surface number {i} to '{save_path}'.")

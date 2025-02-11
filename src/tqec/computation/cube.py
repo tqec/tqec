@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from dataclasses import astuple, dataclass
 
-from tqec.computation.zx_graph import ZXKind, ZXNode
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
@@ -13,16 +12,6 @@ from tqec.utils.position import Direction3D, Position3D
 
 class CubeKind(ABC):
     """Base class for the kinds of cubes in the block graph."""
-
-    @abstractmethod
-    def to_zx_kind(self) -> ZXKind:
-        """Return the corresponding
-        :py:class:`~tqec.computation.zx_graph.ZXKind` of the cube kind.
-
-        Returns:
-            The corresponding ZX kind of the cube kind.
-        """
-        pass
 
 
 @dataclass(frozen=True)
@@ -84,10 +73,27 @@ class ZXCube(CubeKind):
         """
         return ZXCube(*map(Basis, string.upper()))
 
-    def to_zx_kind(self) -> ZXKind:
+    @property
+    def normal_basis(self) -> Basis:
+        """Return the normal basis of the cube.
+
+        Normal basis only appears once in the three bases of the cube. For example,
+        the normal basis of the cube ``XZZ`` is ``X`` and the normal basis of the cube
+        ``ZXX`` is ``Z``.
+        """
         if sum(basis == Basis.Z for basis in astuple(self)) == 1:
-            return ZXKind.Z
-        return ZXKind.X
+            return Basis.Z
+        return Basis.X
+
+    @property
+    def normal_direction(self) -> Direction3D:
+        """Return the normal direction of the cube.
+
+        Normal direction is the direction along which the normal basis appears.
+        For example, the normal direction of the cube ``XZZ`` is ``Direction3D.X``
+        and the normal direction of the cube ``XXZ`` is ``Direction3D.Z``.
+        """
+        return Direction3D(astuple(self).index(self.normal_basis))
 
     @property
     def is_spatial(self) -> bool:
@@ -122,9 +128,6 @@ class Port(CubeKind):
     def __str__(self) -> str:
         return "PORT"
 
-    def to_zx_kind(self) -> ZXKind:
-        return ZXKind.P
-
     def __hash__(self) -> int:
         return hash(Port)
 
@@ -137,9 +140,6 @@ class YCube(CubeKind):
 
     def __str__(self) -> str:
         return "Y"
-
-    def to_zx_kind(self) -> ZXKind:
-        return ZXKind.Y
 
     def __hash__(self) -> int:
         return hash(YCube)
@@ -211,13 +211,3 @@ class Cube:
         There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.
         """
         return isinstance(self.kind, ZXCube) and self.kind.is_spatial
-
-    def to_zx_node(self) -> ZXNode:
-        """Convert the cube to a :py:class:`~tqec.computation.zx_graph.ZXNode`
-        instance.
-
-        Returns:
-            A ZX node with the same position and label as the cube, and the kind of the
-            node is converted from the cube kind with :py:meth:`~tqec.computation.cube.CubeKind.to_zx_kind`.
-        """
-        return ZXNode(self.position, self.kind.to_zx_kind(), self.label)

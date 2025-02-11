@@ -16,7 +16,8 @@ from tqec.utils.position import Direction3D
 
 
 def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
-    """Convert a positioned ZX graph to a :py:class:`~tqec.computation.block_graph.BlockGraph`.
+    """Convert a positioned ZX graph to a
+    :py:class:`~tqec.computation.block_graph.BlockGraph`.
 
     This strategy requires specifying the 3D positions of each vertex explicitly
     in the ZX graph. Then the conversion converts each vertex by looking at its

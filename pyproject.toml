@@ -44,13 +44,18 @@ Issues = "https://github.com/tqec/tqec/issues"
 
 [project.optional-dependencies]
 test = ["pytest", "mypy", "pytest-cov", "types-networkx", "scipy-stubs"]
-dev = [
-    "pymatching",
-    "jupyterlab",
-    "tqec[test, doc, bench]",
-    "pre-commit",
+dev = ["pymatching", "jupyterlab", "tqec[test, doc, bench]", "pre-commit"]
+doc = [
+    "sphinx",
+    "myst-parser",
+    "pydata-sphinx-theme",
+    "nbsphinx",
+    "pandoc",
+    "sphinxcontrib-mermaid",
+    "docformatter",
+    "sphinx-autobuild",
+    "sphinx-copybutton",
 ]
-doc = ["sphinx", "myst-parser", "pydata-sphinx-theme", "nbsphinx", "pandoc", "sphinxcontrib-mermaid", "docformatter", "sphinx-autobuild", "sphinx-copybutton"]
 bench = ["pyinstrument"]
 all = ["tqec[test, dev, doc, bench]"]
 
@@ -125,7 +130,7 @@ module = "pyzx"
 no_implicit_reexport = false
 
 [[tool.mypy.overrides]]
-module = "tqec.interop.pyzx.*"
+module = ["tqec.interop.pyzx.*"]
 disallow_untyped_calls = false
 
 [tool.coverage.run]
