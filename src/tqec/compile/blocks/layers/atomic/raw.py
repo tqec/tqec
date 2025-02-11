@@ -25,7 +25,7 @@ class RawCircuitLayer(BaseLayer):
         return self.scalable_raw_shape
 
     @override
-    def with_spatial_borders_trimed(
+    def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> RawCircuitLayer:
         clsname = self.__class__.__name__

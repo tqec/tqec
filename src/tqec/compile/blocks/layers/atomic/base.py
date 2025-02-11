@@ -26,10 +26,10 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
         return LinearFunction(0, 1)
 
     @override
-    def with_temporal_borders_trimed(
+    def with_temporal_borders_trimmed(
         self, borders: Iterable[TemporalBlockBorder]
     ) -> Self | None:
         # Removing any temporal border from a layer means removing the whole
         # layer.
-        trimed_borders = frozenset(borders)
-        return None if trimed_borders else self
+        trimmed_borders = frozenset(borders)
+        return None if trimmed_borders else self

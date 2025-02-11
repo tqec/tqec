@@ -41,7 +41,7 @@ class WithTemporalFootprint(ABC):
         return self.scalable_timesteps.integer_eval(k)
 
     @abstractmethod
-    def with_temporal_borders_trimed(
+    def with_temporal_borders_trimmed(
         self, borders: Iterable[TemporalBlockBorder]
     ) -> Self | None:
         """Returns ``self`` with the provided temporal borders removed.

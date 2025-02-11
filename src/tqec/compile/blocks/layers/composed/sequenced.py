@@ -62,30 +62,30 @@ class SequencedLayers(BaseComposedLayer[T], Generic[T]):
         return self.layer_sequence[0].scalable_shape
 
     @override
-    def with_spatial_borders_trimed(
+    def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> SequencedLayers[T]:
         return SequencedLayers(
             [
-                layer.with_spatial_borders_trimed(borders)
+                layer.with_spatial_borders_trimmed(borders)
                 for layer in self.layer_sequence
             ]
         )
 
     @override
-    def with_temporal_borders_trimed(
+    def with_temporal_borders_trimmed(
         self, borders: Iterable[TemporalBlockBorder]
     ) -> SequencedLayers[T] | None:
         layers: list[T | BaseComposedLayer[T]] = []
         if TemporalBlockBorder.Z_NEGATIVE in borders:
-            first_layer = self.layer_sequence[0].with_temporal_borders_trimed(
+            first_layer = self.layer_sequence[0].with_temporal_borders_trimmed(
                 [TemporalBlockBorder.Z_NEGATIVE]
             )
             if first_layer is not None:
                 layers.append(first_layer)
         layers.extend(self.layer_sequence[1:-1])
         if TemporalBlockBorder.Z_POSITIVE in borders:
-            last_layer = self.layer_sequence[-1].with_temporal_borders_trimed(
+            last_layer = self.layer_sequence[-1].with_temporal_borders_trimmed(
                 [TemporalBlockBorder.Z_POSITIVE]
             )
             if last_layer is not None:

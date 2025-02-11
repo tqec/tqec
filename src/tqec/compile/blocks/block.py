@@ -19,7 +19,7 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 class Block(WithSpatialFootprint, WithTemporalFootprint):
     """Encodes the implementation of a block.
 
-    This data structure is voluntarilly very generic. It represents blocks as a
+    This data structure is voluntarily very generic. It represents blocks as a
     sequence of layers that can be instances of either
     :class:`~tqec.compile.blocks.layers.atomic.base.BaseLayer` or
     :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer`.
@@ -67,40 +67,40 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
         return self.scalable_shape.to_shape_2d(k)
 
     @override
-    def with_spatial_borders_trimed(
+    def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> Block:
         return Block(
-            [layer.with_spatial_borders_trimed(borders) for layer in self.layers]
+            [layer.with_spatial_borders_trimmed(borders) for layer in self.layers]
         )
 
-    def _add_layer_with_temporal_borders_trimed(
+    def _add_layer_with_temporal_borders_trimmed(
         self,
         layers: list[BaseLayer | BaseComposedLayer[BaseLayer]],
         layer_index: int,
         border: TemporalBlockBorder,
     ) -> None:
-        layer = self.layers[layer_index].with_temporal_borders_trimed([border])
+        layer = self.layers[layer_index].with_temporal_borders_trimmed([border])
         if layer is not None:
             layers.append(layer)
 
     @override
-    def with_temporal_borders_trimed(
+    def with_temporal_borders_trimmed(
         self, borders: Iterable[TemporalBlockBorder]
     ) -> Block:
         layers: list[BaseLayer | BaseComposedLayer[BaseLayer]] = []
         if TemporalBlockBorder.Z_NEGATIVE in borders:
-            self._add_layer_with_temporal_borders_trimed(
+            self._add_layer_with_temporal_borders_trimmed(
                 layers, 0, TemporalBlockBorder.Z_NEGATIVE
             )
         layers.extend(self.layers[1:-1])
         if TemporalBlockBorder.Z_POSITIVE in borders:
-            self._add_layer_with_temporal_borders_trimed(
+            self._add_layer_with_temporal_borders_trimmed(
                 layers, -1, TemporalBlockBorder.Z_POSITIVE
             )
         return Block(layers)
 
-    def with_borders_trimed(
+    def with_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder | TemporalBlockBorder]
     ) -> Block:
         spatial_borders: list[SpatialBlockBorder] = []
@@ -110,6 +110,6 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
                 spatial_borders.append(border)
             else:
                 temporal_borders.append(border)
-        return self.with_temporal_borders_trimed(
+        return self.with_temporal_borders_trimmed(
             temporal_borders
-        ).with_spatial_borders_trimed(spatial_borders)
+        ).with_spatial_borders_trimmed(spatial_borders)

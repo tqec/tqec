@@ -15,7 +15,7 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T])
 
     A composed layer is defined as a sequence (in time) of atomic layers. As
     such, composed layers are expected to have either a scalable time footprint
-    (i.e., that grows with ``k``) or a constant time footprint that is stricly
+    (i.e., that grows with ``k``) or a constant time footprint that is strictly
     greater than ``1``.
     """
 

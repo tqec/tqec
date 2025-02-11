@@ -73,7 +73,7 @@ class LayoutLayer(BaseLayer):
         )
 
     @override
-    def with_spatial_borders_trimed(
+    def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> LayoutLayer:
         clsname = self.__class__.__name__

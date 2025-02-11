@@ -58,15 +58,15 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
         return self.internal_layer.scalable_shape
 
     @override
-    def with_spatial_borders_trimed(
+    def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> RepeatedLayer[T]:
         return RepeatedLayer(
-            self.internal_layer.with_spatial_borders_trimed(borders), self.repetitions
+            self.internal_layer.with_spatial_borders_trimmed(borders), self.repetitions
         )
 
     @override
-    def with_temporal_borders_trimed(
+    def with_temporal_borders_trimmed(
         self, borders: Iterable[TemporalBlockBorder]
     ) -> RepeatedLayer[T] | None:
         return RepeatedLayer(

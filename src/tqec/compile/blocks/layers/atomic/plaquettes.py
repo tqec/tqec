@@ -29,7 +29,7 @@ class PlaquetteLayer(BaseLayer):
         return self.template.scalable_shape * self.template._default_shift
 
     @override
-    def with_spatial_borders_trimed(
+    def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> PlaquetteLayer:
         border_indices: set[int] = set()

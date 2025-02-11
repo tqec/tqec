@@ -38,7 +38,7 @@ class WithSpatialFootprint(ABC):
         return self.scalable_shape.to_shape_2d(k)
 
     @abstractmethod
-    def with_spatial_borders_trimed(
+    def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> Self:
         """Returns ``self`` with the provided spatial borders removed.
