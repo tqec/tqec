@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Callable, Literal, Mapping
+from typing import Callable, Collection, Literal, Mapping
 
 from typing_extensions import override
 
@@ -185,6 +185,14 @@ class Plaquettes:
         if self.collection.default_factory is not None:
             d["default"] = self.collection.default_factory().name
         return d
+
+    def without_plaquettes(self, indices: Collection[int]) -> Plaquettes:
+        return Plaquettes(
+            FrozenDefaultDict(
+                {k: v for k, v in self.collection.items() if k not in indices},
+                default_factory=self.collection.default_factory,
+            )
+        )
 
 
 @dataclass(frozen=True)
