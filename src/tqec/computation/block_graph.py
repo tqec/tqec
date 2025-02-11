@@ -241,7 +241,7 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         return new_graph
 
     def find_correlation_surfaces(self) -> list[CorrelationSurface]:
-        """Get the `~tqec.computation.correlation.CorrelationSurface`s from the corresponding
+        """Get the `~tqec.computation.correlation.CorrelationSurface` from the corresponding
         ZXGraph of the block graph.
 
         Returns:
