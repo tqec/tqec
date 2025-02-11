@@ -99,3 +99,17 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
                 layers, -1, TemporalBlockBorder.Z_POSITIVE
             )
         return Block(layers)
+
+    def with_borders_trimed(
+        self, borders: Iterable[SpatialBlockBorder | TemporalBlockBorder]
+    ) -> Block:
+        spatial_borders: list[SpatialBlockBorder] = []
+        temporal_borders: list[TemporalBlockBorder] = []
+        for border in borders:
+            if isinstance(border, SpatialBlockBorder):
+                spatial_borders.append(border)
+            else:
+                temporal_borders.append(border)
+        return self.with_temporal_borders_trimed(
+            temporal_borders
+        ).with_spatial_borders_trimed(spatial_borders)
