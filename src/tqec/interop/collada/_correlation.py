@@ -16,8 +16,15 @@ TransformationResult = tuple[Basis, _Transformation]
 
 class CorrelationSurfaceTransformationHelper:
     def __init__(self, block_graph: BlockGraph, pipe_length: float):
-        """Helper class to compute transformations for representing correlation
-        surfaces in a COLLADA model."""
+        """Helper class to compute transformations of each piece of a correlation
+        surfaces in a COLLADA model.
+
+        The correlation surface is decomposed into small pieces of surfaces
+        that can be transformed from a single 1x1 square surface in the XY-plane.
+        This class computes the transformations for each piece of the correlation
+        surface.
+
+        """
         self.block_graph = block_graph
         self.pipe_length = pipe_length
         self.position_map = block_graph.to_zx_graph().positions
@@ -86,6 +93,8 @@ class CorrelationSurfaceTransformationHelper:
         return FloatPosition3D(*(p * (1 + self.pipe_length) for p in pos.as_tuple()))
 
     def _compute_pipe_transformations(self, edge: ZXEdge) -> list[TransformationResult]:
+        """Compute the surface transformations within a pipe. If the edge is a
+        Hadamard edge, two surfaces with different basis are created."""
         transformations: list[TransformationResult] = []
         normal_direction = self._surface_normal_direction(edge)
         edge_direction = self._edge_direction(edge)
@@ -134,6 +143,7 @@ class CorrelationSurfaceTransformationHelper:
         correlation_edges: set[ZXEdge],
         surface_bases: set[Basis],
     ) -> list[TransformationResult]:
+        """Compute the transformations for the surfaces in the cube."""
         cube = self._get_cube(v)
         kind = cube.kind
         assert isinstance(kind, ZXCube)
@@ -161,16 +171,16 @@ class CorrelationSurfaceTransformationHelper:
                     )
                 # turn at corner
                 else:
-                    transformations.append(
-                        self._compute_turn_transformation(scaled_pos, v, e1, e2)
+                    transformations.extend(
+                        self._compute_turn_transformation(scaled_pos, v, (e1, e2))
                     )
             else:
                 e1, e2, e3, e4 = sorted(correlation_edges)
-                transformations.append(
-                    self._compute_turn_transformation(scaled_pos, v, e1, e2)
+                transformations.extend(
+                    self._compute_turn_transformation(scaled_pos, v, (e1, e2))
                 )
-                transformations.append(
-                    self._compute_turn_transformation(scaled_pos, v, e3, e4)
+                transformations.extend(
+                    self._compute_turn_transformation(scaled_pos, v, (e3, e4))
                 )
 
         # Surfaces that can broadcast to all the neighbors
@@ -192,55 +202,39 @@ class CorrelationSurfaceTransformationHelper:
         self,
         cube_pos: FloatPosition3D,
         v: int,
-        e1: ZXEdge,
-        e2: ZXEdge,
-    ) -> TransformationResult:
-        e1_direction = self._edge_direction(e1)
-        e2_direction = self._edge_direction(e2)
-        assert e1_direction != e2_direction
-        corner_normal_direction = (
-            set(Direction3D.all_directions()) - {e1_direction, e2_direction}
-        ).pop()
+        turn_edges: tuple[ZXEdge, ZXEdge],
+    ) -> list[TransformationResult]:
+        """Compute the transformations for the surfaces in a L-shape turn.
 
-        # whether the surface is "/" or "\" shape in the corner
-        slash_shape = (e1.u.id == v) ^ (e2.u.id == v)
-        angle = 45.0 if slash_shape else -45.0
-
-        if corner_normal_direction != Direction3D.Z:
-            corner_plane_x = (
-                Direction3D.X
-                if corner_normal_direction == Direction3D.Y
-                else Direction3D.Y
-            )
-            corner_plane_y = Direction3D.Z
-            rotation = _rotation_matrix(corner_normal_direction, angle)
-        else:
-            corner_plane_x, corner_plane_y = Direction3D.X, Direction3D.Y
-            # First rotate to the XZ-plane, then rotate around the Z-axis
-            first_rotation = _rotation_to_plane(Direction3D.Y)
-            second_rotation = _rotation_matrix(Direction3D.Z, angle)
-            rotation = second_rotation @ first_rotation
-        scale = _get_scale(corner_plane_x, np.sqrt(2) / 2)
-        if e1_direction == corner_plane_x:
-            translation = cube_pos.shift_in_direction(corner_plane_y, 0.5)
-        elif slash_shape:
-            translation = cube_pos.shift_in_direction(corner_plane_x, 0.5)
-        else:
-            translation = cube_pos.shift_in_direction(
-                corner_plane_x, 0.5
-            ).shift_in_direction(corner_plane_y, 1.0)
-
+        At turn, two surfaces in the same basis are created and form a 90 degree
+        angle.
+        """
         cube_kind = self._get_cube(v).kind
         assert isinstance(cube_kind, ZXCube)
 
-        return (
-            cube_kind.normal_basis,
-            _Transformation(
-                translation=translation.as_array(),
-                rotation=rotation,
-                scale=scale,
-            ),
-        )
+        transformations = []
+        turn_dirs = [self._edge_direction(e) for e in turn_edges]
+        for i, e in enumerate(turn_edges):
+            d, other_d = turn_dirs[i], turn_dirs[1 - i]
+            # scale transformation is applied before rotation and the primitive
+            # surface is in the XY-plane, so we also need to scale in the XY-plane.
+            scale_direction = d if d != Direction3D.Z else other_d
+            scale = _get_scale(scale_direction, 0.5)
+            rotation = _rotation_to_plane(other_d)
+            translation = cube_pos.shift_in_direction(other_d, 0.5)
+            if v == e.u.id:
+                translation = translation.shift_in_direction(d, 0.5)
+            transformations.append(
+                (
+                    cube_kind.normal_basis,
+                    _Transformation(
+                        translation=translation.as_array(),
+                        rotation=rotation,
+                        scale=scale,
+                    ),
+                )
+            )
+        return transformations
 
 
 def _rotation_to_plane(
