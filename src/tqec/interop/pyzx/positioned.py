@@ -14,7 +14,6 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.interop.pyzx.utils import cube_kind_to_zx
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
-from tqec.utils.scale import round_or_fail
 
 
 class PositionedZX:
