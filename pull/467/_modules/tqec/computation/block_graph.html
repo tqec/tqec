@@ -1009,7 +1009,8 @@ window.addEventListener("load", () => mermaid.run());
                     <span class="n">ports_need_fill</span><span class="p">[</span><span class="n">cube</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
                     <span class="k">continue</span>
                 <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Cube at position </span><span class="si">{</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2"> is overlapping between the two graphs.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Cube at position </span><span class="si">{</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2"> is overlapping between &quot;</span>
+                    <span class="s2">&quot;the two graphs.&quot;</span>
                 <span class="p">)</span>
         <span class="n">composed_g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
         <span class="c1"># Resolve the cube kinds at the ports</span>
