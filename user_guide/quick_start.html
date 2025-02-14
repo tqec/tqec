@@ -454,9 +454,10 @@ using <code class="docutils literal notranslate"><span class="pre">tqec.BlockGra
 <p>The <code class="docutils literal notranslate"><span class="pre">tqec.gallery</span></code> sub-module contains several pre-defined computation that
 have already been implemented. If you only want to test the library on a simple
 pre-defined computation, you can use to following code:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery.logical_cnot</span><span class="w"> </span><span class="kn">import</span> <span class="n">logical_cnot_block_graph</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery.cnot</span><span class="w"> </span><span class="kn">import</span> <span class="n">cnot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
 
-<span class="n">block_graph</span> <span class="o">=</span> <span class="n">logical_cnot_block_graph</span><span class="p">(</span><span class="n">port_type</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
+<span class="n">block_graph</span> <span class="o">=</span> <span class="n">cnot</span><span class="p">(</span><span class="n">Basis</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

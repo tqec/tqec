@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Logical CNOT &#8212; TQEC  documentation</title>
+    <title>CNOT &#8212; TQEC  documentation</title>
   
   
   
@@ -357,7 +357,7 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="memory.html">Memory</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Logical CNOT</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">CNOT</a></li>
 </ul>
 </div>
 </nav></div>
@@ -401,7 +401,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Computation Gallery</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Logical CNOT</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CNOT</span></li>
   </ul>
 </nav>
 </div>
@@ -422,8 +422,8 @@
     .wy-nav-content {
         max-width: 1200px !important;
     }
-</style><section id="Logical-CNOT">
-<h1>Logical CNOT<a class="headerlink" href="#Logical-CNOT" title="Link to this heading">#</a></h1>
+</style><section id="CNOT">
+<h1>CNOT<a class="headerlink" href="#CNOT" title="Link to this heading">#</a></h1>
 <p>This notebook shows the construction and simulation results of the logical CNOT gate between two logical qubits with lattice surgery.</p>
 <section id="Construction">
 <h2>Construction<a class="headerlink" href="#Construction" title="Link to this heading">#</a></h2>
@@ -433,14 +433,14 @@
 <li><p><span class="math notranslate nohighlight">\(M_{XX}\)</span> parity measurement between <span class="math notranslate nohighlight">\(Q_{target}\)</span> and <span class="math notranslate nohighlight">\(Q_{ancilla}\)</span>.</p></li>
 <li><p><span class="math notranslate nohighlight">\(M_{Z}\)</span> measurement of <span class="math notranslate nohighlight">\(Q_{ancilla}\)</span>.</p></li>
 </ol>
-<p><code class="docutils literal notranslate"><span class="pre">tqec</span></code> provides builtin functions <code class="docutils literal notranslate"><span class="pre">tqec.gallery.logical_cnot_block_graph</span></code> to construct the logical CNOT gate.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tqec</span></code> provides builtin functions <code class="docutils literal notranslate"><span class="pre">tqec.gallery.cnot</span></code> to construct the logical CNOT gate.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery</span><span class="w"> </span><span class="kn">import</span> <span class="n">logical_cnot_block_graph</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery</span><span class="w"> </span><span class="kn">import</span> <span class="n">cnot</span>
 
-<span class="n">graph</span> <span class="o">=</span> <span class="n">logical_cnot_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="o">=</span><span class="s2">&quot;BOTH&quot;</span><span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">cnot</span><span class="p">()</span>
 <span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -674,9 +674,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">SignedDirection3D</span><span class="p">,</span> <span class="n">Direction3D</span>
-
-<span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -687,7 +685,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">(</span>
-    <span class="n">pop_faces_at_direction</span><span class="o">=</span><span class="n">SignedDirection3D</span><span class="p">(</span><span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="n">pop_faces_at_direction</span><span class="o">=</span><span class="s2">&quot;-Y&quot;</span><span class="p">,</span>
     <span class="n">show_correlation_surface</span><span class="o">=</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
@@ -925,7 +923,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">(</span>
-    <span class="n">pop_faces_at_direction</span><span class="o">=</span><span class="n">SignedDirection3D</span><span class="p">(</span><span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="n">pop_faces_at_direction</span><span class="o">=</span><span class="s2">&quot;-Y&quot;</span><span class="p">,</span>
     <span class="n">show_correlation_surface</span><span class="o">=</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
@@ -1163,7 +1161,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">(</span>
-    <span class="n">pop_faces_at_direction</span><span class="o">=</span><span class="n">SignedDirection3D</span><span class="p">(</span><span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="n">pop_faces_at_direction</span><span class="o">=</span><span class="s2">&quot;-Y&quot;</span><span class="p">,</span>
     <span class="n">show_correlation_surface</span><span class="o">=</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
@@ -1401,7 +1399,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span><span class="o">.</span><span class="n">view_as_html</span><span class="p">(</span>
-    <span class="n">pop_faces_at_direction</span><span class="o">=</span><span class="n">SignedDirection3D</span><span class="p">(</span><span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="n">pop_faces_at_direction</span><span class="o">=</span><span class="s2">&quot;-Y&quot;</span><span class="p">,</span>
     <span class="n">show_correlation_surface</span><span class="o">=</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
@@ -1641,9 +1639,9 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span><span class="p">,</span> <span class="n">NoiseModel</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span><span class="p">,</span> <span class="n">NoiseModel</span><span class="p">,</span> <span class="n">Basis</span>
 
-<span class="n">graph</span> <span class="o">=</span> <span class="n">logical_cnot_block_graph</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="o">=</span><span class="s2">&quot;X&quot;</span><span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">cnot</span><span class="p">(</span><span class="n">Basis</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
 <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
 <span class="n">compiled_graph</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">compiled_graph</span><span class="o">.</span><span class="n">generate_stim_circuit</span><span class="p">(</span>
