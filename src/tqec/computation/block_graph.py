@@ -92,7 +92,7 @@ class BlockGraph:
         ]
 
     @property
-    def occupy_positions(self) -> list[Position3D]:
+    def occupied_positions(self) -> list[Position3D]:
         """Get the positions occupied by the cubes in the graph."""
         return list(self._graph.nodes)
 
@@ -103,7 +103,7 @@ class BlockGraph:
             A tuple of three integers representing the width along the X, Y, and Z
             directions, respectively.
         """
-        positions = self.occupy_positions
+        positions = self.occupied_positions
         return (
             max(pos.x for pos in positions) - min(pos.x for pos in positions) + 1,
             max(pos.y for pos in positions) - min(pos.y for pos in positions) + 1,
@@ -130,11 +130,18 @@ class BlockGraph:
         """Get the leaf cubes of the graph, i.e. the cubes with degree 1."""
         return [node for node in self.cubes if self.get_degree(node.position) == 1]
 
+    def _check_cube_exists(self, position: Position3D) -> None:
+        """Check if a cube exists at the given position."""
+        if position not in self:
+            raise TQECException(f"No cube at position {position}.")
+
+    def _check_pipe_exists(self, pos1: Position3D, pos2: Position3D) -> None:
+        """Check if a pipe exists between the given positions."""
+        if not self.has_pipe_between(pos1, pos2):
+            raise TQECException(f"No pipe between {pos1} and {pos2}.")
+
     def add_cube(
-        self,
-        position: Position3D,
-        kind: CubeKind | str,
-        label: str = "",
+        self, position: Position3D, kind: CubeKind | str, label: str = ""
     ) -> Position3D:
         """Add a cube to the graph.
 
@@ -158,7 +165,7 @@ class BlockGraph:
             kind = cube_kind_from_string(kind)
         if kind == Port() and label in self._ports:
             raise TQECException(
-                "There is already a port with the same label in the graph."
+                f"There is already a port with the same label {label} in the graph."
             )
 
         self._graph.add_node(
@@ -172,6 +179,12 @@ class BlockGraph:
         self, pos1: Position3D, pos2: Position3D, kind: PipeKind | str | None = None
     ) -> None:
         """Add a pipe to the graph.
+
+        .. note::
+            The validity of the pipe WILL NOT be checked when adding it to the graph.
+            This allows the user to construct the invalid graph and visualize it for whatever
+            purpose. To check the validity of the graph, use the
+            :py:meth:`~tqec.computation.block_graph.BlockGraph.validate`.
 
         Args:
             pos1: The position of one end of the pipe.
@@ -206,8 +219,7 @@ class BlockGraph:
 
         Raises: TQECException: If there is no cube at the given position.
         """
-        if position not in self:
-            raise TQECException(f"No cube at position {position}.")
+        self._check_cube_exists(position)
         cube = self[position]
         self._graph.remove_node(position)
         if cube.is_port:
@@ -223,8 +235,7 @@ class BlockGraph:
         Raises:
             TQECException: If there is no pipe between the given positions.
         """
-        if not self.has_pipe_between(pos1, pos2):
-            raise TQECException("No pipe between the given positions is in the graph.")
+        self._check_pipe_exists(pos1, pos2)
         self._graph.remove_edge(pos1, pos2)
 
     def has_pipe_between(self, pos1: Position3D, pos2: Position3D) -> bool:
@@ -253,8 +264,7 @@ class BlockGraph:
         Raises:
             TQECException: If there is no pipe between the given positions.
         """
-        if not self.has_pipe_between(pos1, pos2):
-            raise TQECException("No pipe between the given positions is in the graph.")
+        self._check_pipe_exists(pos1, pos2)
         return cast(Pipe, self._graph.edges[pos1, pos2][self._EDGE_DATA_KEY])
 
     def pipes_at(self, position: Position3D) -> list[Pipe]:
@@ -277,8 +287,7 @@ class BlockGraph:
         return position in self._graph
 
     def __getitem__(self, position: Position3D) -> Cube:
-        if position not in self:
-            raise TQECException(f"No cube at position {position}.")
+        self._check_cube_exists(position)
         return cast(Cube, self._graph.nodes[position][self._NODE_DATA_KEY])
 
     def __eq__(self, other: object) -> bool:
@@ -303,11 +312,6 @@ class BlockGraph:
           color orientation.
         - **Match color at turn:** two pipes in a "turn" should have the matching colors on
           faces that are touching.
-
-        Additionally, the following conditions are checked:
-
-        - **Port as IO:** all the port cubes should be either inputs or outputs, and all
-            the inputs/outputs should be ports.
 
         Raises:
             TQECException: If the above conditions are not satisfied.
@@ -511,6 +515,9 @@ class BlockGraph:
         The other graph will be shifted to match the ports in the current graph
         and the two graphs will be composed at the corresponding ports.
 
+        The two ports provided to this method will serve as an "anchor", and other
+        overlapping ports will be detected and glued automatically.
+
         Args:
             other: The other graph to be composed with the current graph.
             self_port: The label of the port to be connected in the current graph.
@@ -543,7 +550,8 @@ class BlockGraph:
                     ports_need_fill[cube.label] = pos
                     continue
                 raise TQECException(
-                    f"Cube at position {cube.position} is overlapping between the two graphs."
+                    f"Cube at position {cube.position} is overlapping between "
+                    "the two graphs."
                 )
         composed_g = self.clone()
         # Resolve the cube kinds at the ports
