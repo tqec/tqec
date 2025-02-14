@@ -108,5 +108,5 @@ def main(filename):
 
 
 if __name__ == "__main__":
-    filename = "rotated_cnot_x_180"
+    filename = "rotations_cnot_180"
     main(filename)
