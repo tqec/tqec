@@ -220,6 +220,10 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         if minz == 0:
             return deepcopy(self)
         new_graph = BlockGraph(self.name)
+        for cube in self.nodes:
+            new_graph.add_node(
+                Cube(cube.position.shift_by(dz=-minz), cube.kind, cube.label)
+            )
         for pipe in self.edges:
             u, v = pipe.u, pipe.v
             new_graph.add_edge(
