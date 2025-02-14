@@ -1,7 +1,6 @@
 """Block graph that represents a logical stability experiment."""
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
@@ -18,5 +17,5 @@ def stability(observable_basis: Basis = Basis.Z) -> BlockGraph:
     """
     g = BlockGraph(f"{observable_basis} Basis Stability Experiment")
     node_kind = "ZZX" if observable_basis == Basis.Z else "XXZ"
-    g.add_node(Cube(Position3D(0, 0, 0), ZXCube.from_str(node_kind)))
+    g.add_cube(Position3D(0, 0, 0), node_kind)
     return g

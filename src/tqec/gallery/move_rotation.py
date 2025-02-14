@@ -2,7 +2,7 @@
 spacetime."""
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, Port, ZXCube
+from tqec.computation.cube import ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
@@ -19,22 +19,20 @@ def move_rotation(observable_basis: Basis | None = None) -> BlockGraph:
         the move-rotation operation.
     """
     g = BlockGraph("Move Rotation")
-    g.add_edge(
-        Cube(Position3D(0, 0, 0), Port(), "In"),
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
-        Cube(Position3D(0, 1, 1), ZXCube.from_str("ZZX")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 1, 1), ZXCube.from_str("ZZX")),
-        Cube(Position3D(1, 1, 1), ZXCube.from_str("XZX")),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 1, 1), ZXCube.from_str("XZX")),
-        Cube(Position3D(1, 1, 2), Port(), "Out"),
-    )
+    nodes = [
+        (Position3D(0, 0, 0), "P", "In"),
+        (Position3D(0, 0, 1), "ZXX", ""),
+        (Position3D(0, 1, 1), "ZZX", ""),
+        (Position3D(1, 1, 1), "XZX", ""),
+        (Position3D(1, 1, 2), "P", "Out"),
+    ]
+    for pos, kind, label in nodes:
+        g.add_cube(pos, kind, label)
+
+    pipes = [(0, 1), (1, 2), (2, 3), (3, 4)]
+    for p0, p1 in pipes:
+        g.add_pipe(nodes[p0][0], nodes[p1][0])
+
     if observable_basis == Basis.Z:
         g.fill_ports({"In": ZXCube.from_str("ZXZ"), "Out": ZXCube.from_str("XZZ")})
     elif observable_basis == Basis.X:

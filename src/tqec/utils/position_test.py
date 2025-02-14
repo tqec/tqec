@@ -1,4 +1,10 @@
-from tqec.utils.position import Position2D, Position3D, Shape2D
+from tqec.utils.position import (
+    Direction3D,
+    Position2D,
+    Position3D,
+    Shape2D,
+    SignedDirection3D,
+)
 
 
 def test_position() -> None:
@@ -23,3 +29,13 @@ def test_position_3d() -> None:
     assert p1.is_neighbour(Position3D(-1, 0, 0))
     assert not p1.is_neighbour(Position3D(1, 0, 1))
     assert not p1.is_neighbour(Position3D(0, -1, 1))
+
+
+def test_signed_direction() -> None:
+    sd = SignedDirection3D.from_string("+X")
+    assert sd.direction == Direction3D.X
+    assert sd.towards_positive
+
+    sd = SignedDirection3D.from_string("-Z")
+    assert sd.direction == Direction3D.Z
+    assert not sd.towards_positive

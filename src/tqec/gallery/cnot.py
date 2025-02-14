@@ -1,7 +1,7 @@
 """Block graph that represent a CNOT gate."""
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, Port, ZXCube
+from tqec.computation.cube import ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
@@ -21,42 +21,26 @@ def cnot(observable_basis: Basis | None = None) -> BlockGraph:
     """
 
     g = BlockGraph()
-    g.add_edge(
-        Cube(Position3D(0, 0, 0), Port(), label="In_Control"),
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
-        Cube(Position3D(0, 0, 2), ZXCube.from_str("ZXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 0, 2), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(0, 0, 3), Port(), label="Out_Control"),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
-        Cube(Position3D(0, 1, 1), ZXCube.from_str("ZXX")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 1, 1), ZXCube.from_str("ZXX")),
-        Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 1, 0), Port(), label="In_Target"),
-        Cube(Position3D(1, 1, 1), ZXCube.from_str("ZXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 1, 1), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
-    )
-    g.add_edge(
-        Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(1, 1, 3), Port(), label="Out_Target"),
-    )
+    nodes = [
+        (Position3D(0, 0, 0), "P", "In_Control"),
+        (Position3D(0, 0, 1), "ZXX", ""),
+        (Position3D(0, 0, 2), "ZXZ", ""),
+        (Position3D(0, 0, 3), "P", "Out_Control"),
+        (Position3D(0, 1, 1), "ZXX", ""),
+        (Position3D(0, 1, 2), "ZXZ", ""),
+        (Position3D(1, 1, 0), "P", "In_Target"),
+        (Position3D(1, 1, 1), "ZXZ", ""),
+        (Position3D(1, 1, 2), "ZXZ", ""),
+        (Position3D(1, 1, 3), "P", "Out_Target"),
+    ]
+    for pos, kind, label in nodes:
+        g.add_cube(pos, kind, label)
+
+    pipes = [(0, 1), (1, 2), (2, 3), (1, 4), (4, 5), (5, 8), (6, 7), (7, 8), (8, 9)]
+
+    for p0, p1 in pipes:
+        g.add_pipe(nodes[p0][0], nodes[p1][0])
+
     if observable_basis == Basis.Z:
         g.fill_ports(ZXCube.from_str("ZXZ"))
     elif observable_basis == Basis.X:

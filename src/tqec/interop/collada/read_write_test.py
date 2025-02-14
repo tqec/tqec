@@ -4,11 +4,10 @@ import tempfile
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, YCube, ZXCube
 from tqec.gallery.cnot import cnot
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
-from tqec.utils.position import Direction3D, Position3D, SignedDirection3D
+from tqec.utils.position import Position3D
 
 
 @pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
@@ -47,10 +46,9 @@ def test_open_ports_roundtrip_not_equal() -> None:
 
 def test_y_cube_positioning_during_roundtrip() -> None:
     g = BlockGraph()
-    g.add_edge(
-        Cube(Position3D(0, 0, 0), YCube()),
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
-    )
+    u = g.add_cube(Position3D(0, 0, 0), "Y")
+    v = g.add_cube(Position3D(0, 0, 1), "ZXX")
+    g.add_pipe(u, v)
     with tempfile.NamedTemporaryFile(suffix=".dae", delete=False) as temp_file:
         g.to_dae_file(temp_file.name, 10.0)
         block_graph_from_file = BlockGraph.from_dae_file(temp_file.name)
@@ -67,7 +65,7 @@ def test_collada_write_read_with_correlation_surface() -> None:
             block_graph.to_dae_file(
                 temp_file.name,
                 2.0,
-                pop_faces_at_direction=SignedDirection3D(Direction3D.X, True),
+                pop_faces_at_direction="+X",
                 show_correlation_surface=correlation_surface,
             )
             block_graph_from_file = BlockGraph.from_dae_file(temp_file.name)

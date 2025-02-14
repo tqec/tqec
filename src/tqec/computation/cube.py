@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from abc import ABC
 from dataclasses import astuple, dataclass
 
 from tqec.utils.enums import Basis
@@ -10,12 +9,8 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
 
 
-class CubeKind(ABC):
-    """Base class for the kinds of cubes in the block graph."""
-
-
 @dataclass(frozen=True)
-class ZXCube(CubeKind):
+class ZXCube:
     """The kind of cubes consisting of only X or Z basis boundaries.
 
     Attributes:
@@ -116,7 +111,7 @@ class ZXCube(CubeKind):
         return self.as_tuple()[direction.value]
 
 
-class Port(CubeKind):
+class Port:
     """Cube kind representing the open ports in the block graph.
 
     The open ports correspond to the input/output of the computation
@@ -135,7 +130,7 @@ class Port(CubeKind):
         return isinstance(other, Port)
 
 
-class YCube(CubeKind):
+class YCube:
     """Cube kind representing the Y-basis initialization/measurements."""
 
     def __str__(self) -> str:
@@ -146,6 +141,21 @@ class YCube(CubeKind):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, YCube)
+
+
+CubeKind = ZXCube | Port | YCube
+"""All the possible kinds of cubes."""
+
+
+def cube_kind_from_string(s: str) -> CubeKind:
+    """Create a cube kind from the string representation."""
+    match s.upper():
+        case "PORT" | "P":
+            return Port()
+        case "Y":
+            return YCube()
+        case _:
+            return ZXCube.from_str(s)
 
 
 @dataclass(frozen=True)

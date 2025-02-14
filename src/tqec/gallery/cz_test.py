@@ -10,15 +10,16 @@ from tqec.utils.position import Position3D
 def test_cz_open() -> None:
     g = cz()
     assert g.num_ports == 4
-    assert g.num_nodes == 6
-    assert g.num_edges == 5
-    assert len(g.leaf_nodes) == 4
+    assert g.num_cubes == 6
+    assert g.num_pipes == 5
+    assert len(g.leaf_cubes) == 4
     assert {*g.ports.keys()} == {
         "In_1",
         "Out_1",
         "In_2",
         "Out_2",
     }
+    assert g.spacetime_volume() == (2, 3, 3)
 
 
 def test_cz_open_zx() -> None:
