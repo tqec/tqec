@@ -243,7 +243,8 @@ def _check_correlation_surface_validity(
     # 1. Check the vertices in the correlation surface are in the graph
     if missing_vertices := (correlation_surface.span_vertices() - g.vertex_set()):
         raise TQECException(
-            f"The following vertices in the correlation surface are not in the graph: {missing_vertices} "
+            "The following vertices in the correlation surface are not in the "
+            f"graph: {missing_vertices} "
         )
     # 2. Check the edges in the correlation surface are in the graph
     edges = g.edge_set()  # type: ignore

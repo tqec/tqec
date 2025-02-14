@@ -72,36 +72,42 @@ def find_correlation_surfaces(
 ) -> list[CorrelationSurface]:
     """Find the correlation surfaces in a ZX graph.
 
-    Starting from each leaf node in the graph, the function explores how can the X/Z logical observable
-    move through the graph to form a correlation surface:
+    Starting from each leaf node in the graph, the function explores how can the
+    X/Z logical observable move through the graph to form a correlation surface:
 
-    - For a X/Z type leaf node, it can only support the logical observable with the opposite type. Only
-      a single type of logical observable is explored from the leaf node.
-    - For a Y type leaf node, it can only support the Y logical observable, i.e. the presence of
-      both X and Z logical observable. Both X and Z type logical observable are explored from the leaf node.
-      And the two correlation surfaces are combined to form the Y type correlation surface.
-    - For the BOUNDARY node, it can support any type of logical observable. Both X and Z type logical observable
-      are explored from it.
+    - For a X/Z type leaf node, it can only support the logical observable with 
+      the opposite type. Only a single type of logical observable is explored 
+      from the leaf node.
+    - For a Y type leaf node, it can only support the Y logical observable, i.e. 
+      the presence of both X and Z logical observable. Both X and Z type logical 
+      observable are explored from the leaf node. And the two correlation 
+      surfaces are combined to form the Y type correlation surface.
+    - For the BOUNDARY node, it can support any type of logical observable. Both
+      X and Z type logical observable are explored from it.
 
-    The function uses a flood fill like recursive algorithm to find the correlation surface in the graph.
-    Firstly, we define two types of nodes in the graph:
+    The function uses a flood fill like recursive algorithm to find the 
+    correlation surface in the graph. Firstly, we define two types of nodes in 
+    the graph:
 
-    - *broadcast node:* A node that has seen logical observable with basis opposite to its own basis.
-      A logical observable needs to be broadcasted to all the neighbors of the node.
-    - *passthrough node:* A node that has seen logical observable with the same basis as its own basis.
-      A logical observable needs to be only supported on an even number of edges connected to the node.
+    - *broadcast node:* A node that has seen logical observable with basis 
+      opposite to its own basis. A logical observable needs to be broadcasted to 
+      all the neighbors of the node.
+    - *passthrough node:* A node that has seen logical observable with the same 
+      basis as its own basis. A logical observable needs to be only supported on
+      an even number of edges connected to the node.
 
-    The algorithm starts from a set of frontier nodes and greedily expands the correlation
-    surface until no more broadcast nodes are in the frontier. Then it explore the
-    passthrough nodes, and select even number of edges to be included in the surface. If
-    no such selection can be made, the search is pruned. For different choices, the algorithm
-    recursively explores the next frontier until the search is completed. Finally, the branches
-    at different nodes are produced to form the correlation surface.
+    The algorithm starts from a set of frontier nodes and greedily expands the 
+    correlation surface until no more broadcast nodes are in the frontier. Then 
+    it explore the passthrough nodes, and select even number of edges to be 
+    included in the surface. If no such selection can be made, the search is
+    pruned. For different choices, the algorithm recursively explores the next 
+    frontier until the search is completed. Finally, the branches at different 
+    nodes are produced to form the correlation surface.
 
     Args:
         g: The ZX graph to find the correlation surfaces.
-        roots: The set of leaf nodes to start the correlation surface finding. If not provided,
-            all the leaf nodes in the graph are used.
+        roots: The set of leaf nodes to start the correlation surface finding. 
+            If not provided, all the leaf nodes in the graph are used.
 
     Returns:
         A list of `CorrelationSurface` in the graph.
