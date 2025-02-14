@@ -549,6 +549,16 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the leaf cubes of the graph, i.e. the cubes with degree 1.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_degree</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">position</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_cube_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if a cube exists at the given position.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">position</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No cube at position </span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_pipe_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">pos2</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if a pipe exists between the given positions.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_pipe_between</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No pipe between </span><span class="si">{</span><span class="n">pos1</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">pos2</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
 <div class="viewcode-block" id="BlockGraph.add_cube">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.add_cube">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_cube</span><span class="p">(</span>
@@ -576,7 +586,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">kind</span> <span class="o">=</span> <span class="n">cube_kind_from_string</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">Port</span><span class="p">()</span> <span class="ow">and</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;There is already a port with the same label in the graph.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;There is already a port with the same label </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> in the graph.&quot;</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
@@ -593,6 +603,12 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">pos2</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">PipeKind</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a pipe to the graph.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The validity of the pipe WILL NOT be checked when adding it to the graph.</span>
+<span class="sd">            This allows the user to construct the invalid graph and visualize it for whatever</span>
+<span class="sd">            purpose. To check the validity of the graph, use the</span>
+<span class="sd">            :py:meth:`~tqec.computation.block_graph.BlockGraph.validate`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            pos1: The position of one end of the pipe.</span>
@@ -630,8 +646,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">        Raises: TQECException: If there is no cube at the given position.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">position</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No cube at position </span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_cube_exists</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
         <span class="n">cube</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_port</span><span class="p">:</span>
@@ -650,8 +665,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Raises:</span>
 <span class="sd">            TQECException: If there is no pipe between the given positions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_pipe_between</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;No pipe between the given positions is in the graph.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_pipe_exists</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)</span></div>
 
 
@@ -686,8 +700,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Raises:</span>
 <span class="sd">            TQECException: If there is no pipe between the given positions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_pipe_between</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;No pipe between the given positions is in the graph.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_pipe_exists</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Pipe</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDGE_DATA_KEY</span><span class="p">])</span></div>
 
 
@@ -717,8 +730,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">position</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Cube</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">position</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No cube at position </span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_cube_exists</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Cube</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">position</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_NODE_DATA_KEY</span><span class="p">])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -745,11 +757,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">          color orientation.</span>
 <span class="sd">        - **Match color at turn:** two pipes in a &quot;turn&quot; should have the matching colors on</span>
 <span class="sd">          faces that are touching.</span>
-
-<span class="sd">        Additionally, the following conditions are checked:</span>
-
-<span class="sd">        - **Port as IO:** all the port cubes should be either inputs or outputs, and all</span>
-<span class="sd">            the inputs/outputs should be ports.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            TQECException: If the above conditions are not satisfied.</span>
@@ -976,6 +983,9 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">        The other graph will be shifted to match the ports in the current graph</span>
 <span class="sd">        and the two graphs will be composed at the corresponding ports.</span>
+
+<span class="sd">        The two ports provided to this method will serve as an &quot;anchor&quot;, and other</span>
+<span class="sd">        overlapping ports will be detected and glued automatically.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other: The other graph to be composed with the current graph.</span>

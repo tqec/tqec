@@ -684,6 +684,13 @@ instance or a string representation of the cube kind.</p></li>
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.add_pipe">
 <span class="sig-name descname"><span class="pre">add_pipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.add_pipe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.add_pipe" title="Link to this definition">#</a></dt>
 <dd><p>Add a pipe to the graph.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The validity of the pipe WILL NOT be checked when adding it to the graph.
+This allows the user to construct the invalid graph and visualize it for whatever
+purpose. To check the validity of the graph, use the
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">validate()</span></code>.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -722,6 +729,8 @@ boundary conditions consistent. Default is None.</p></li>
 <dd><p>Compose the current graph with another graph.</p>
 <p>The other graph will be shifted to match the ports in the current graph
 and the two graphs will be composed at the corresponding ports.</p>
+<p>The two ports provided to this method will serve as an “anchor”, and other
+overlapping ports will be detected and glued automatically.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1004,14 +1013,6 @@ only check the following conditions:</p>
 color orientation.</p></li>
 <li><p><strong>Match color at turn:</strong> two pipes in a “turn” should have the matching colors on
 faces that are touching.</p></li>
-</ul>
-<p>Additionally, the following conditions are checked:</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>Port as IO:</strong> all the port cubes should be either inputs or outputs, and all</dt><dd><p>the inputs/outputs should be ports.</p>
-</dd>
-</dl>
-</li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
