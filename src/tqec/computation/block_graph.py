@@ -170,6 +170,12 @@ class BlockGraph:
     ) -> None:
         """Add a pipe to the graph.
 
+        .. note::
+            The validity of the pipe WILL NOT be checked when adding it to the graph.
+            This allows the user to construct the invalid graph and visualize it for whatever
+            purpose. To check the validity of the graph, use the
+            :py:meth:`~tqec.computation.block_graph.BlockGraph.validate`.
+
         Args:
             pos1: The position of one end of the pipe.
             pos2: The position of the other end of the pipe.
@@ -300,11 +306,6 @@ class BlockGraph:
           color orientation.
         - **Match color at turn:** two pipes in a "turn" should have the matching colors on
           faces that are touching.
-
-        Additionally, the following conditions are checked:
-
-        - **Port as IO:** all the port cubes should be either inputs or outputs, and all
-            the inputs/outputs should be ports.
 
         Raises:
             TQECException: If the above conditions are not satisfied.
