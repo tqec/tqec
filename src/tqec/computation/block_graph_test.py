@@ -141,6 +141,12 @@ def test_block_graph_validate_color_match() -> None:
 
 def test_shift_min_z_to_zero() -> None:
     g = BlockGraph()
+    g.add_node(Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXZ")))
+    shifted = g.shift_min_z_to_zero()
+    assert shifted.num_nodes == 1
+    assert shifted.nodes[0].position == Position3D(0, 0, 0)
+
+    g = BlockGraph()
     g.add_edge(
         Cube(Position3D(0, 0, -1), ZXCube.from_str("ZXZ")),
         Cube(Position3D(1, 0, -1), ZXCube.from_str("XZX")),
