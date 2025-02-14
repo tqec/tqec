@@ -135,6 +135,9 @@ def compile_correlation_surface_to_abstract_observable(
     pg = block_graph.to_zx_graph()
     _check_correlation_surface_validity(correlation_surface, pg.g)
 
+    pg = block_graph.to_zx_graph()
+    _check_correlation_surface_validity(correlation_surface, pg.g)
+
     endpoints_to_edge: dict[frozenset[Position3D], list[ZXEdge]] = {}
     for edge in correlation_surface.span:
         u, v = edge.u.id, edge.v.id
