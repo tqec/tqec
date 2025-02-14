@@ -523,16 +523,17 @@ values determine the parity of the logical operators at the inputs and
 outputs associated with the surface.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>We use the term “correlation surface”, “pauli web” and “observable” interchangeably in
-the library.</p>
+<p>We use the term “correlation surface”, “pauli web” and “observable”
+interchangeably in the library.</p>
 </div>
-<p>Here we represent the correlation surface by the set of edges it spans in the ZX graph.
-The insight is that the spiders pose parity constraints on the operators supported on
-the incident edges. The flow of the logical operators through the ZX graph, respecting
-the parity constraints, forms the correlation between the inputs and outputs. However,
-the sign of measurement outcomes is neglected in this representation. And we need to
-recover the measurements when instantiating an explicit logical observable from the
-correlation surface.</p>
+<p>Here we represent the correlation surface by the set of edges it spans in
+the ZX graph. The insight is that the spiders pose parity constraints on
+the operators supported on the incident edges. The flow of the logical
+operators through the ZX graph, respecting the parity constraints, forms
+the correlation between the inputs and outputs. However, the sign of
+measurement outcomes is neglected in this representation. And we need to
+recover the measurements when instantiating an explicit logical observable
+from the correlation surface.</p>
 <p>Each edge establishes a correlation between the logical operators at the two ends of
 the edge. For example, an edge connecting two Z nodes represents the correlation
 between the logical Z operators at the two nodes.</p>
