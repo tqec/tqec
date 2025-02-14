@@ -751,20 +751,22 @@ window.addEventListener("load", () => mermaid.run());
         <span class="p">)</span>
 
     <span class="c1"># 0. Set the minimum z of block graph to 0.(time starts from zero)</span>
-    <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_min_z_to_zero</span><span class="p">()</span>
+    <span class="n">minz</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">minz</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">)</span>
 
     <span class="n">cube_specs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">)</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">nodes</span>
+        <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">)</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span>
     <span class="p">}</span>
 
     <span class="c1"># 1. Get the base compiled blocks before applying the substitution rules.</span>
     <span class="n">blocks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Position3D</span><span class="p">,</span> <span class="n">CompiledBlock</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">:</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">cube</span><span class="p">]</span>
         <span class="n">blocks</span><span class="p">[</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
 
     <span class="c1"># 2. Apply the substitution rules to the compiled blocks inplace.</span>
-    <span class="n">pipes</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">edges</span>
+    <span class="n">pipes</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes</span>
     <span class="n">time_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
     <span class="n">space_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">!=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
     <span class="c1"># Note that the order of the pipes to apply the substitution rules is important.</span>

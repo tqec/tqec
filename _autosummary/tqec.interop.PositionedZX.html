@@ -387,7 +387,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.BlockGraph.html">BlockGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.CorrelationSurface.html">CorrelationSurface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Cube.html">Cube</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.CubeKind.html">CubeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.PipeKind.html">PipeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
@@ -557,10 +556,7 @@ time direction.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.get_direction" title="tqec.interop.PositionedZX.get_direction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_direction</span></code></a>(v1, v2)</p></td>
 <td><p>Return the direction connecting two vertices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.rotate" title="tqec.interop.PositionedZX.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>([rotation_axis, ...])</p></td>
-<td><p>Rotate the graph around an axis by <code class="docutils literal notranslate"><span class="pre">num_90_degree_rotation</span> <span class="pre">*</span> <span class="pre">90</span></code> degrees and return a new rotated graph.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.to_block_graph" title="tqec.interop.PositionedZX.to_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_block_graph</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.to_block_graph" title="tqec.interop.PositionedZX.to_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_block_graph</span></code></a>()</p></td>
 <td><p>Convert the positioned ZX graph to a block graph.</p></td>
 </tr>
 </tbody>
@@ -662,16 +658,15 @@ ZX graph with 3D positions.</p>
 <p>The conversion process is as follows:</p>
 <ol class="arabic simple">
 <li><p>For each cube in the block graph, convert it to a ZX vertex.</p></li>
-<li><p>For each pipe in the block graph, add an edge to the ZX graph with
-the corresponding endpoints and Hadamard flag.</p></li>
+<li><p>For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.</p></li>
 </ol>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>block_graph</strong> (<a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a>) – The block graph to be converted to a ZX graph.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">PositionedZX</span></code> object
-converted from the block graph.</p>
+<dd class="field-even"><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">PositionedZX</span></code> object converted from the block
+graph.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#tqec.interop.PositionedZX" title="tqec.interop.pyzx.positioned.PositionedZX"><em>PositionedZX</em></a></p>
@@ -692,29 +687,6 @@ converted from the block graph.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="tqec.utils.Direction3D.html#tqec.utils.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.interop.PositionedZX.rotate">
-<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotation_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Direction3D.Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_90_degree_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterclockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/interop/pyzx/positioned.html#PositionedZX.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.interop.PositionedZX.rotate" title="Link to this definition">#</a></dt>
-<dd><p>Rotate the graph around an axis by <code class="docutils literal notranslate"><span class="pre">num_90_degree_rotation</span> <span class="pre">*</span> <span class="pre">90</span></code>
-degrees and return a new rotated graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>rotation_axis</strong> (<a class="reference internal" href="tqec.utils.Direction3D.html#tqec.utils.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a>) – The axis around which to rotate the graph.</p></li>
-<li><p><strong>num_90_degree_rotation</strong> (<em>int</em>) – The number of 90-degree rotations to apply to the graph.</p></li>
-<li><p><strong>counterclockwise</strong> (<em>bool</em>) – Whether to rotate the graph counterclockwise. If set to False,
-the graph will be rotated clockwise. Defaults to True.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A graph with positions rotated by the given number of 90-degree rotations.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#tqec.interop.PositionedZX" title="tqec.interop.pyzx.positioned.PositionedZX"><em>PositionedZX</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -787,7 +759,6 @@ the graph will be rotated clockwise. Defaults to True.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.draw"><code class="docutils literal notranslate"><span class="pre">PositionedZX.draw()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.from_block_graph"><code class="docutils literal notranslate"><span class="pre">PositionedZX.from_block_graph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.get_direction"><code class="docutils literal notranslate"><span class="pre">PositionedZX.get_direction()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.rotate"><code class="docutils literal notranslate"><span class="pre">PositionedZX.rotate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.to_block_graph"><code class="docutils literal notranslate"><span class="pre">PositionedZX.to_block_graph()</span></code></a></li>
 </ul>
 </li>

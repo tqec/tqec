@@ -49,7 +49,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="PipeKind" href="tqec.computation.PipeKind.html" />
-    <link rel="prev" title="CubeKind" href="tqec.computation.CubeKind.html" />
+    <link rel="prev" title="Cube" href="tqec.computation.Cube.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -387,7 +387,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.BlockGraph.html">BlockGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.CorrelationSurface.html">CorrelationSurface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Cube.html">Cube</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.CubeKind.html">CubeKind</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Pipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.PipeKind.html">PipeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
@@ -574,10 +573,13 @@ is less than <cite>v</cite>.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.Pipe.__init__" title="tqec.computation.Pipe.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(u, v, kind)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.Pipe.check_compatible_with_cubes" title="tqec.computation.Pipe.check_compatible_with_cubes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_compatible_with_cubes</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.Pipe.at_head" title="tqec.computation.Pipe.at_head"><code class="xref py py-obj docutils literal notranslate"><span class="pre">at_head</span></code></a>(position)</p></td>
+<td><p>Whether the position is at the head (u) of the pipe.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.Pipe.check_compatible_with_cubes" title="tqec.computation.Pipe.check_compatible_with_cubes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_compatible_with_cubes</span></code></a>()</p></td>
 <td><p>Check if the pipe is compatible with the cubes it connects.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.Pipe.from_cubes" title="tqec.computation.Pipe.from_cubes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_cubes</span></code></a>(u, v)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.Pipe.from_cubes" title="tqec.computation.Pipe.from_cubes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_cubes</span></code></a>(u, v)</p></td>
 <td><p>Construct a pipe connecting two cubes and infer the pipe kind.</p></td>
 </tr>
 </tbody>
@@ -615,6 +617,20 @@ is less than <cite>v</cite>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.Pipe.at_head">
+<span class="sig-name descname"><span class="pre">at_head</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/pipe.html#Pipe.at_head"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.Pipe.at_head" title="Link to this definition">#</a></dt>
+<dd><p>Whether the position is at the head (u) of the pipe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -677,12 +693,12 @@ of type <a class="reference internal" href="tqec.computation.ZXCube.html#tqec.co
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tqec.computation.CubeKind.html"
+       href="tqec.computation.Cube.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">CubeKind</p>
+        <p class="prev-next-title">Cube</p>
       </div>
     </a>
     <a class="right-next"
@@ -718,6 +734,7 @@ of type <a class="reference internal" href="tqec.computation.ZXCube.html#tqec.co
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Pipe.v"><code class="docutils literal notranslate"><span class="pre">Pipe.v</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Pipe.kind"><code class="docutils literal notranslate"><span class="pre">Pipe.kind</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Pipe.__init__"><code class="docutils literal notranslate"><span class="pre">Pipe.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Pipe.at_head"><code class="docutils literal notranslate"><span class="pre">Pipe.at_head()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Pipe.check_compatible_with_cubes"><code class="docutils literal notranslate"><span class="pre">Pipe.check_compatible_with_cubes()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Pipe.from_cubes"><code class="docutils literal notranslate"><span class="pre">Pipe.from_cubes()</span></code></a></li>
 </ul>

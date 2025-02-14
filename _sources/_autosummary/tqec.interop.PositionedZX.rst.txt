@@ -16,7 +16,6 @@ PositionedZX
       ~PositionedZX.draw
       ~PositionedZX.from_block_graph
       ~PositionedZX.get_direction
-      ~PositionedZX.rotate
       ~PositionedZX.to_block_graph
    
    
@@ -43,7 +42,6 @@ PositionedZX
    .. automethod:: draw
    .. automethod:: from_block_graph
    .. automethod:: get_direction
-   .. automethod:: rotate
    .. automethod:: to_block_graph
    
    

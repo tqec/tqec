@@ -387,7 +387,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.BlockGraph.html">BlockGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.CorrelationSurface.html">CorrelationSurface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Cube.html">Cube</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.CubeKind.html">CubeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.PipeKind.html">PipeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
@@ -526,22 +525,19 @@ tolerant logical computations protected by surface code.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.Cube.html#tqec.computation.Cube" title="tqec.computation.Cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cube</span></code></a>(position, kind[, label])</p></td>
 <td><p>A fundamental building block of the logical computation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.CubeKind.html#tqec.computation.CubeKind" title="tqec.computation.CubeKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CubeKind</span></code></a>()</p></td>
-<td><p>Base class for the kinds of cubes in the block graph.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.Pipe.html#tqec.computation.Pipe" title="tqec.computation.Pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pipe</span></code></a>(u, v, kind)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.Pipe.html#tqec.computation.Pipe" title="tqec.computation.Pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pipe</span></code></a>(u, v, kind)</p></td>
 <td><p>A block connecting two <a class="reference internal" href="tqec.computation.Cube.html#tqec.computation.Cube" title="tqec.computation.cube.Cube"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cube</span></code></a> objects.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.PipeKind.html#tqec.computation.PipeKind" title="tqec.computation.PipeKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PipeKind</span></code></a>(x, y, z[, has_hadamard])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.PipeKind.html#tqec.computation.PipeKind" title="tqec.computation.PipeKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PipeKind</span></code></a>(x, y, z[, has_hadamard])</p></td>
 <td><p>The kind of a pipe in the block graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.Port"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Port</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.Port"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Port</span></code></a>()</p></td>
 <td><p>Cube kind representing the open ports in the block graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.YCube.html#tqec.computation.YCube" title="tqec.computation.YCube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">YCube</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.YCube.html#tqec.computation.YCube" title="tqec.computation.YCube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">YCube</span></code></a>()</p></td>
 <td><p>Cube kind representing the Y-basis initialization/measurements.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.ZXCube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZXCube</span></code></a>(x, y, z)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.ZXCube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZXCube</span></code></a>(x, y, z)</p></td>
 <td><p>The kind of cubes consisting of only X or Z basis boundaries.</p></td>
 </tr>
 </tbody>

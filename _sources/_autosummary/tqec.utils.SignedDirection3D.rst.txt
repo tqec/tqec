@@ -12,6 +12,7 @@ SignedDirection3D
    .. autosummary::
    
       ~SignedDirection3D.__init__
+      ~SignedDirection3D.from_string
    
    
 
@@ -32,5 +33,6 @@ SignedDirection3D
 
    
    .. automethod:: __init__
+   .. automethod:: from_string
    
    
