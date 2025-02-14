@@ -18,7 +18,12 @@ export const QUBIT_ROLES = {
 /////////////////////////////////////////////////////////////
 
 export const GRID_SIZE_CODE_WORKSPACE = 50;
-export const GUIDE_TOP_LEFT_CORNER_CODE_WORKSPACE = [3, 3];
-export const GUIDE_MAX_BOTTOM_RIGHT_CORNER_CODE_WORKSPACE = [20, 20];
+export const GUIDE_TOP_LEFT_CORNER_CODE_WORKSPACE = {x: 3, y: 3};
+export const GUIDE_MAX_BOTTOM_RIGHT_CORNER_CODE_WORKSPACE = {x: 20, y: 20};
+
+/////////////////////////////////////////////////////////////
+
+export const GRID_SIZE_TEMPLATE_WORKSPACE = 50;
+export const GUIDE_TOP_LEFT_CORNER_TEMPLATE_WORKSPACE = {x: 7, y: 7};
 
 /////////////////////////////////////////////////////////////

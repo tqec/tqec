@@ -7,6 +7,7 @@ import { button } from './button'
 import Plaquette from './plaquette'
 import Circuit from './circuit'
 import { GRID_SIZE_LIBRARY_WORKSPACE, GUIDE_TOP_LEFT_CORNER_LIBRARY_WORKSPACE } from '../constants'
+import { drawSquareFromTopLeft } from '../utils/graphics-utils'
 
 /////////////////////////////////////////////////////////////
 
@@ -47,13 +48,7 @@ export default function TqecLibrary() {
 	const outline = new Graphics();
 	outline.lineStyle(2, 'lightcoral');
 	for (const [x0, y0] of [...libraryTopLeftCorners, guideTopLeftCorner]) {
-		const x1 = x0 + plaquetteDx;
-		const y1 = y0 + plaquetteDy;
-		outline.moveTo(x0*gridSize, y0*gridSize);
-		outline.lineTo(x1*gridSize, y0*gridSize);
-		outline.lineTo(x1*gridSize, y1*gridSize);
-		outline.lineTo(x0*gridSize, y1*gridSize);
-		outline.lineTo(x0*gridSize, y0*gridSize);
+		drawSquareFromTopLeft(outline, {x: x0*gridSize, y: y0*gridSize}, plaquetteDx*gridSize, plaquetteDy*gridSize)
 	}
     workspace.addChild(outline);
 
@@ -214,11 +209,14 @@ export default function TqecLibrary() {
 		// Remove list of qubits
 		workspace.removeChild(qubitsButton);
 		workspace.removeChild(circuitArt)
+		// Move plaquette to library on the right.
 		const numPlaquettes = savedPlaquettes.length
-		const dx = libraryTopLeftCorners[numPlaquettes-1][0]-guideTopLeftCorner[0];
-		const dy = libraryTopLeftCorners[numPlaquettes-1][1]-guideTopLeftCorner[1];
+		const dx = libraryTopLeftCorners[numPlaquettes-1][0] - guideTopLeftCorner[0];
+		const dy = libraryTopLeftCorners[numPlaquettes-1][1] - guideTopLeftCorner[1];
 		savedPlaquettes[numPlaquettes-1].name = `plaquette ${numPlaquettes}`;
 		savedPlaquettes[numPlaquettes-1].translatePlaquette(dx*gridSize, dy*gridSize);
+		// Update position of its top-left corner.
+		savedPlaquettes[numPlaquettes-1].topLeftCorner = {x: libraryTopLeftCorners[numPlaquettes-1][0], y: libraryTopLeftCorners[numPlaquettes-1][1]};
 		// Make circuit disappear
 		savedPlaquettes[numPlaquettes-1].showCircuit()
 		// Reset the message in the circuit-edit area
@@ -252,17 +250,7 @@ export default function TqecLibrary() {
 		plaquetteDy = parseInt(document.getElementById('dyCell').value);
 		libraryTopLeftCorners = [[21, 3], [21, 3+plaquetteDy+2], [21, 3+(plaquetteDy+2)*2], [21, 3+(plaquetteDy*2)*3]]
 		for (const [x0, y0] of [...libraryTopLeftCorners, guideTopLeftCorner]) {
-			console.log(plaquetteDx);
-			console.log(plaquetteDy);
-			const x1 = x0 + plaquetteDx;
-			const y1 = y0 + plaquetteDy;
-			console.log(x1);
-			console.log(y1);
-			outline.moveTo(x0*gridSize, y0*gridSize);
-			outline.lineTo(x1*gridSize, y0*gridSize);
-			outline.lineTo(x1*gridSize, y1*gridSize);
-			outline.lineTo(x0*gridSize, y1*gridSize);
-			outline.lineTo(x0*gridSize, y0*gridSize);
+			drawSquareFromTopLeft(outline, {x: x0*gridSize, y: y0*gridSize}, plaquetteDx*gridSize, plaquetteDy*gridSize)
 		}
 	});
 
