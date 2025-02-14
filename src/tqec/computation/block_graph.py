@@ -515,6 +515,9 @@ class BlockGraph:
         The other graph will be shifted to match the ports in the current graph
         and the two graphs will be composed at the corresponding ports.
 
+        The two ports provided to this method will serve as an "anchor", and other
+        overlapping ports will be detected and glued automatically.
+
         Args:
             other: The other graph to be composed with the current graph.
             self_port: The label of the port to be connected in the current graph.
