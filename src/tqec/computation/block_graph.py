@@ -92,7 +92,7 @@ class BlockGraph:
         ]
 
     @property
-    def occupy_positions(self) -> list[Position3D]:
+    def occupied_positions(self) -> list[Position3D]:
         """Get the positions occupied by the cubes in the graph."""
         return list(self._graph.nodes)
 
@@ -103,7 +103,7 @@ class BlockGraph:
             A tuple of three integers representing the width along the X, Y, and Z
             directions, respectively.
         """
-        positions = self.occupy_positions
+        positions = self.occupied_positions
         return (
             max(pos.x for pos in positions) - min(pos.x for pos in positions) + 1,
             max(pos.y for pos in positions) - min(pos.y for pos in positions) + 1,
@@ -131,10 +131,7 @@ class BlockGraph:
         return [node for node in self.cubes if self.get_degree(node.position) == 1]
 
     def add_cube(
-        self,
-        position: Position3D,
-        kind: CubeKind | str,
-        label: str = "",
+        self, position: Position3D, kind: CubeKind | str, label: str = ""
     ) -> Position3D:
         """Add a cube to the graph.
 
