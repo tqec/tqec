@@ -385,6 +385,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">tqec.computation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.BlockGraph.html">BlockGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.CorrelationSurface.html">CorrelationSurface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Cube.html">Cube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.CubeKind.html">CubeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
@@ -392,10 +393,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.YCube.html">YCube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXCube.html">ZXCube</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXEdge.html">ZXEdge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXGraph.html">ZXGraph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXKind.html">ZXKind</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXNode.html">ZXNode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -410,16 +407,12 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.gallery.html">tqec.gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_block_graph.html">logical_cnot_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_block_graph.html">move_rotation_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_zx_graph.html">move_rotation_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_block_graph.html">solo_node_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html">solo_node_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cnot.html">cnot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cz.html">cz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.memory.html">memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation.html">move_rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.stability.html">stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots.html">three_cnots</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.interop.html">tqec.interop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -519,55 +512,37 @@
   <section id="module-tqec.computation">
 <span id="tqec-computation"></span><h1>tqec.computation<a class="headerlink" href="#module-tqec.computation" title="Link to this heading">#</a></h1>
 <p>Defines the data structures to represent the logical computations.</p>
-<p>This module provides high-level abstractions to represent the fault-tolerant logical
-computations protected by surface code. There are two representations of the logical
-computation:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="tqec.computation.ZXGraph.html#tqec.computation.ZXGraph" title="tqec.computation.zx_graph.ZXGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXGraph</span></code></a>: A restricted form of the ZX diagram from
-the ZX-calculus.</p></li>
-<li><p><a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a>: A graph consisting of individual
-building blocks that fully specify the boundary conditions and topological structures
-of the logical computation. It corresponds to the commonly used 3D spacetime diagram
-representation of a surface code logical computation.</p></li>
-</ul>
+<p>This module provides high-level abstractions to represent the fault-
+tolerant logical computations protected by surface code.</p>
 <p class="rubric">Classes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.BlockGraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BlockGraph</span></code></a>([name])</p></td>
 <td><p>Block graph representation of a logical computation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.Cube.html#tqec.computation.Cube" title="tqec.computation.Cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cube</span></code></a>(position, kind[, label])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface" title="tqec.computation.CorrelationSurface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CorrelationSurface</span></code></a>(span)</p></td>
+<td><p>A correlation surface in a computation is a set of measurements whose values determine the parity of the logical operators at the inputs and outputs associated with the surface.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.Cube.html#tqec.computation.Cube" title="tqec.computation.Cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cube</span></code></a>(position, kind[, label])</p></td>
 <td><p>A fundamental building block of the logical computation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.CubeKind.html#tqec.computation.CubeKind" title="tqec.computation.CubeKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CubeKind</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.CubeKind.html#tqec.computation.CubeKind" title="tqec.computation.CubeKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CubeKind</span></code></a>()</p></td>
 <td><p>Base class for the kinds of cubes in the block graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.Pipe.html#tqec.computation.Pipe" title="tqec.computation.Pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pipe</span></code></a>(u, v, kind)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.Pipe.html#tqec.computation.Pipe" title="tqec.computation.Pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pipe</span></code></a>(u, v, kind)</p></td>
 <td><p>A block connecting two <a class="reference internal" href="tqec.computation.Cube.html#tqec.computation.Cube" title="tqec.computation.cube.Cube"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cube</span></code></a> objects.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.PipeKind.html#tqec.computation.PipeKind" title="tqec.computation.PipeKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PipeKind</span></code></a>(x, y, z[, has_hadamard])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.PipeKind.html#tqec.computation.PipeKind" title="tqec.computation.PipeKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PipeKind</span></code></a>(x, y, z[, has_hadamard])</p></td>
 <td><p>The kind of a pipe in the block graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.Port"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Port</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.Port"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Port</span></code></a>()</p></td>
 <td><p>Cube kind representing the open ports in the block graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.YCube.html#tqec.computation.YCube" title="tqec.computation.YCube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">YCube</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.YCube.html#tqec.computation.YCube" title="tqec.computation.YCube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">YCube</span></code></a>()</p></td>
 <td><p>Cube kind representing the Y-basis initialization/measurements.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.ZXCube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZXCube</span></code></a>(x, y, z)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.ZXCube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZXCube</span></code></a>(x, y, z)</p></td>
 <td><p>The kind of cubes consisting of only X or Z basis boundaries.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.ZXEdge.html#tqec.computation.ZXEdge" title="tqec.computation.ZXEdge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZXEdge</span></code></a>(u, v[, has_hadamard])</p></td>
-<td><p>An edge connecting two neighboring nodes in the ZX graph.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.ZXGraph.html#tqec.computation.ZXGraph" title="tqec.computation.ZXGraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZXGraph</span></code></a>([name])</p></td>
-<td><p>ZX graph representation of a logical computation.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.computation.ZXKind.html#tqec.computation.ZXKind" title="tqec.computation.ZXKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZXKind</span></code></a>(value[, names, module, qualname, ...])</p></td>
-<td><p>The kind of the node in the ZX graph.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.computation.ZXNode.html#tqec.computation.ZXNode" title="tqec.computation.ZXNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZXNode</span></code></a>(position, kind[, label])</p></td>
-<td><p>A node in the ZX graph.</p></td>
 </tr>
 </tbody>
 </table>

@@ -16,6 +16,7 @@ BlockGraph
       ~BlockGraph.add_node
       ~BlockGraph.copy
       ~BlockGraph.edges_at
+      ~BlockGraph.fill_ports
       ~BlockGraph.find_correlation_surfaces
       ~BlockGraph.from_dae_file
       ~BlockGraph.get_degree
@@ -57,6 +58,7 @@ BlockGraph
    .. automethod:: add_node
    .. automethod:: copy
    .. automethod:: edges_at
+   .. automethod:: fill_ports
    .. automethod:: find_correlation_surfaces
    .. automethod:: from_dae_file
    .. automethod:: get_degree

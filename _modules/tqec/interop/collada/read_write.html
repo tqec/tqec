@@ -420,10 +420,9 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span><span class="p">,</span> <span class="n">BlockKind</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">YCube</span><span class="p">,</span> <span class="n">ZXCube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeKind</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada._geometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BlockGeometries</span><span class="p">,</span>
@@ -431,6 +430,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">get_correlation_surface_geometry</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECColor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatPosition3D</span><span class="p">,</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_or_fail</span>
 
@@ -652,7 +652,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">geometry_nodes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Face</span><span class="p">,</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">GeometryNode</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_node</span> <span class="o">=</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s2">&quot;SketchUp&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SketchUp&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_library</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_BlockLibraryKey</span><span class="p">,</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">ZXKind</span><span class="p">,</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Basis</span><span class="p">,</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pop_faces_at_direction</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">SignedDirection3D</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">frozenset</span><span class="p">({</span><span class="n">pop_faces_at_direction</span><span class="p">})</span>
             <span class="k">if</span> <span class="n">pop_faces_at_direction</span>
@@ -776,16 +776,16 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">root_node</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child_node</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_instances</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_add_surface_library_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">ZXKind</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_surface_library_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis</span><span class="p">:</span> <span class="n">Basis</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">basis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">surface</span> <span class="o">=</span> <span class="n">get_correlation_surface_geometry</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="n">get_correlation_surface_geometry</span><span class="p">(</span><span class="n">basis</span><span class="p">)</span>
         <span class="n">geometry_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_face_geometry_node</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span>
         <span class="n">node</span> <span class="o">=</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span>
             <span class="n">surface</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="p">[</span><span class="n">geometry_node</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">surface</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">value</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">[</span><span class="n">basis</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_correlation_surface</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -794,16 +794,16 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada._correlation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-            <span class="n">get_transformations_for_correlation_surface</span><span class="p">,</span>
+            <span class="n">CorrelationSurfaceTransformationHelper</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="n">helper</span> <span class="o">=</span> <span class="n">CorrelationSurfaceTransformationHelper</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">pipe_length</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="p">(</span>
-            <span class="n">kind</span><span class="p">,</span>
+            <span class="n">basis</span><span class="p">,</span>
             <span class="n">transformation</span><span class="p">,</span>
-        <span class="p">)</span> <span class="ow">in</span> <span class="n">get_transformations_for_correlation_surface</span><span class="p">(</span>
-            <span class="n">block_graph</span><span class="p">,</span> <span class="n">correlation_surface</span><span class="p">,</span> <span class="n">pipe_length</span>
-        <span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_add_surface_library_node</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">in</span> <span class="n">helper</span><span class="o">.</span><span class="n">get_transformations_for_correlation_surface</span><span class="p">(</span><span class="n">correlation_surface</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_surface_library_node</span><span class="p">(</span><span class="n">basis</span><span class="p">)</span>
             <span class="n">child_node</span> <span class="o">=</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;ID</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_instances</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;instance_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_instances</span><span class="si">}</span><span class="s2">_correlation_surface&quot;</span><span class="p">,</span>
@@ -813,7 +813,7 @@ window.addEventListener("load", () => mermaid.run());
                     <span class="p">)</span>
                 <span class="p">],</span>
             <span class="p">)</span>
-            <span class="n">point_to_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span>
+            <span class="n">point_to_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">[</span><span class="n">basis</span><span class="p">]</span>
             <span class="n">instance_node</span> <span class="o">=</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">NodeNode</span><span class="p">(</span><span class="n">point_to_node</span><span class="p">)</span>
             <span class="n">child_node</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instance_node</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">root_node</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child_node</span><span class="p">)</span>

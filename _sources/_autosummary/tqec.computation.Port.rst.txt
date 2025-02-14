@@ -12,7 +12,6 @@ Port
    .. autosummary::
    
       ~Port.__init__
-      ~Port.to_zx_kind
    
    
 
@@ -26,6 +25,5 @@ Port
 
    
    .. automethod:: __init__
-   .. automethod:: to_zx_kind
    
    

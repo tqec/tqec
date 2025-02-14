@@ -12,7 +12,6 @@ YCube
    .. autosummary::
    
       ~YCube.__init__
-      ~YCube.to_zx_kind
    
    
 
@@ -26,6 +25,5 @@ YCube
 
    
    .. automethod:: __init__
-   .. automethod:: to_zx_kind
    
    

@@ -385,6 +385,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.computation.html">tqec.computation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.BlockGraph.html">BlockGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.CorrelationSurface.html">CorrelationSurface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Cube.html">Cube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.CubeKind.html">CubeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
@@ -392,10 +393,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.YCube.html">YCube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXCube.html">ZXCube</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXEdge.html">ZXEdge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXGraph.html">ZXGraph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXKind.html">ZXKind</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXNode.html">ZXNode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -410,16 +407,12 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.gallery.html">tqec.gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_block_graph.html">logical_cnot_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_block_graph.html">move_rotation_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_zx_graph.html">move_rotation_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_block_graph.html">solo_node_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html">solo_node_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cnot.html">cnot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cz.html">cz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.memory.html">memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation.html">move_rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.stability.html">stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots.html">three_cnots</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.interop.html">tqec.interop</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -527,8 +520,7 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A ZX graph with 3D positions and additional constraints.</p>
 <p>The constraints are:</p>
-<ol class="arabic simple" start="0">
-<li><p>All the Boundary vertices are labeled as inputs or outputs.</p></li>
+<ol class="arabic simple">
 <li><p>The vertex IDs in the graph match the position keys exactly.</p></li>
 <li><p>The neighbors are all shifted by 1 in the 3D positions.</p></li>
 <li><p>All the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders.</p></li>
@@ -540,7 +532,7 @@ time direction.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>g</strong> (<em>GraphS</em>) – The ZX graph.</p></li>
-<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a><em>]</em>) – A dictionary mapping vertex IDs to their 3D positions.</p></li>
+<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.Position3D"><em>Position3D</em></a><em>]</em>) – A dictionary mapping vertex IDs to their 3D positions.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -556,8 +548,20 @@ time direction.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.check_preconditions" title="tqec.interop.PositionedZX.check_preconditions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_preconditions</span></code></a>(g, positions)</p></td>
 <td><p>Check the preconditions for the ZX graph with 3D positions.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.draw" title="tqec.interop.PositionedZX.draw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw</span></code></a>(*[, figsize, title, node_size, ...])</p></td>
+<td><p>Plot the <a class="reference internal" href="#tqec.interop.PositionedZX" title="tqec.interop.pyzx.positioned.PositionedZX"><code class="xref py py-class docutils literal notranslate"><span class="pre">PositionedZX</span></code></a> using matplotlib.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.from_block_graph" title="tqec.interop.PositionedZX.from_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_block_graph</span></code></a>(block_graph)</p></td>
+<td><p>Convert a <a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a> to a ZX graph with 3D positions.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.get_direction" title="tqec.interop.PositionedZX.get_direction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_direction</span></code></a>(v1, v2)</p></td>
 <td><p>Return the direction connecting two vertices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.rotate" title="tqec.interop.PositionedZX.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>([rotation_axis, ...])</p></td>
+<td><p>Rotate the graph around an axis by <code class="docutils literal notranslate"><span class="pre">num_90_degree_rotation</span> <span class="pre">*</span> <span class="pre">90</span></code> degrees and return a new rotated graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.interop.PositionedZX.to_block_graph" title="tqec.interop.PositionedZX.to_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_block_graph</span></code></a>()</p></td>
+<td><p>Convert the positioned ZX graph to a block graph.</p></td>
 </tr>
 </tbody>
 </table>
@@ -568,7 +572,10 @@ time direction.</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">g</span></code></p></td>
 <td><p>Return the internal ZX graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">positions</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">p2v</span></code></p></td>
+<td><p>Return the mapping from 3D positions to vertices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">positions</span></code></p></td>
 <td><p>Return the 3D positions of the vertices.</p></td>
 </tr>
 </tbody>
@@ -580,8 +587,7 @@ time direction.</p></li>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/interop/pyzx/positioned.html#PositionedZX.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.interop.PositionedZX.__init__" title="Link to this definition">#</a></dt>
 <dd><p>A ZX graph with 3D positions and additional constraints.</p>
 <p>The constraints are:</p>
-<ol class="arabic simple" start="0">
-<li><p>All the Boundary vertices are labeled as inputs or outputs.</p></li>
+<ol class="arabic simple">
 <li><p>The vertex IDs in the graph match the position keys exactly.</p></li>
 <li><p>The neighbors are all shifted by 1 in the 3D positions.</p></li>
 <li><p>All the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders.</p></li>
@@ -623,6 +629,57 @@ time direction.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tqec.interop.PositionedZX.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(5,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hadamard_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/interop/pyzx/positioned.html#PositionedZX.draw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.interop.PositionedZX.draw" title="Link to this definition">#</a></dt>
+<dd><p>Plot the <a class="reference internal" href="#tqec.interop.PositionedZX" title="tqec.interop.pyzx.positioned.PositionedZX"><code class="xref py py-class docutils literal notranslate"><span class="pre">PositionedZX</span></code></a>
+using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> – The ZX graph to plot.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em>) – The figure size. Default is <code class="docutils literal notranslate"><span class="pre">(5,</span> <span class="pre">6)</span></code>.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em> | </em><em>None</em>) – The title of the plot. Default to the name of the graph.</p></li>
+<li><p><strong>node_size</strong> (<em>int</em>) – The size of the node in the plot. Default is <code class="docutils literal notranslate"><span class="pre">400</span></code>.</p></li>
+<li><p><strong>hadamard_size</strong> (<em>int</em>) – The size of the Hadamard square in the plot. Default
+is <code class="docutils literal notranslate"><span class="pre">200</span></code>.</p></li>
+<li><p><strong>edge_width</strong> (<em>int</em>) – The width of the edge in the plot. Default is <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of the figure and the axes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>Figure</em>, <em>Axes3D</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.interop.PositionedZX.from_block_graph">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_block_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/interop/pyzx/positioned.html#PositionedZX.from_block_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.interop.PositionedZX.from_block_graph" title="Link to this definition">#</a></dt>
+<dd><p>Convert a <a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a> to a
+ZX graph with 3D positions.</p>
+<p>The conversion process is as follows:</p>
+<ol class="arabic simple">
+<li><p>For each cube in the block graph, convert it to a ZX vertex.</p></li>
+<li><p>For each pipe in the block graph, add an edge to the ZX graph with
+the corresponding endpoints and Hadamard flag.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>block_graph</strong> (<a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a>) – The block graph to be converted to a ZX graph.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">PositionedZX</span></code> object
+converted from the block graph.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.interop.PositionedZX" title="tqec.interop.pyzx.positioned.PositionedZX"><em>PositionedZX</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tqec.interop.PositionedZX.get_direction">
 <span class="sig-name descname"><span class="pre">get_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/interop/pyzx/positioned.html#PositionedZX.get_direction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.interop.PositionedZX.get_direction" title="Link to this definition">#</a></dt>
 <dd><p>Return the direction connecting two vertices.</p>
@@ -635,6 +692,40 @@ time direction.</p></li>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="tqec.utils.Direction3D.html#tqec.utils.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.interop.PositionedZX.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotation_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Direction3D.Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_90_degree_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterclockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/interop/pyzx/positioned.html#PositionedZX.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.interop.PositionedZX.rotate" title="Link to this definition">#</a></dt>
+<dd><p>Rotate the graph around an axis by <code class="docutils literal notranslate"><span class="pre">num_90_degree_rotation</span> <span class="pre">*</span> <span class="pre">90</span></code>
+degrees and return a new rotated graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rotation_axis</strong> (<a class="reference internal" href="tqec.utils.Direction3D.html#tqec.utils.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a>) – The axis around which to rotate the graph.</p></li>
+<li><p><strong>num_90_degree_rotation</strong> (<em>int</em>) – The number of 90-degree rotations to apply to the graph.</p></li>
+<li><p><strong>counterclockwise</strong> (<em>bool</em>) – Whether to rotate the graph counterclockwise. If set to False,
+the graph will be rotated clockwise. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A graph with positions rotated by the given number of 90-degree rotations.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.interop.PositionedZX" title="tqec.interop.pyzx.positioned.PositionedZX"><em>PositionedZX</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.interop.PositionedZX.to_block_graph">
+<span class="sig-name descname"><span class="pre">to_block_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/interop/pyzx/positioned.html#PositionedZX.to_block_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.interop.PositionedZX.to_block_graph" title="Link to this definition">#</a></dt>
+<dd><p>Convert the positioned ZX graph to a block graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -693,7 +784,11 @@ time direction.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX"><code class="docutils literal notranslate"><span class="pre">PositionedZX</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.__init__"><code class="docutils literal notranslate"><span class="pre">PositionedZX.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.check_preconditions"><code class="docutils literal notranslate"><span class="pre">PositionedZX.check_preconditions()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.draw"><code class="docutils literal notranslate"><span class="pre">PositionedZX.draw()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.from_block_graph"><code class="docutils literal notranslate"><span class="pre">PositionedZX.from_block_graph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.get_direction"><code class="docutils literal notranslate"><span class="pre">PositionedZX.get_direction()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.rotate"><code class="docutils literal notranslate"><span class="pre">PositionedZX.rotate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.interop.PositionedZX.to_block_graph"><code class="docutils literal notranslate"><span class="pre">PositionedZX.to_block_graph()</span></code></a></li>
 </ul>
 </li>
 </ul>

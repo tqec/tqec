@@ -410,10 +410,9 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">astuple</span><span class="p">,</span> <span class="n">dataclass</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXKind</span><span class="p">,</span> <span class="n">ZXNode</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
@@ -422,20 +421,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="CubeKind">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.CubeKind.html#tqec.computation.CubeKind">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CubeKind</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for the kinds of cubes in the block graph.&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="CubeKind.to_zx_kind">
-<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CubeKind.html#tqec.computation.CubeKind.to_zx_kind">[docs]</a>
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_zx_kind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXKind</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the corresponding</span>
-<span class="sd">        :py:class:`~tqec.computation.zx_graph.ZXKind` of the cube kind.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The corresponding ZX kind of the cube kind.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-</div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for the kinds of cubes in the block graph.&quot;&quot;&quot;</span></div>
 
 
 
@@ -509,13 +495,27 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">ZXCube</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">Basis</span><span class="p">,</span> <span class="n">string</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span></div>
 
 
-<div class="viewcode-block" id="ZXCube.to_zx_kind">
-<a class="viewcode-back" href="../../../_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube.to_zx_kind">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_zx_kind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXKind</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">basis</span> <span class="o">==</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span> <span class="k">for</span> <span class="n">basis</span> <span class="ow">in</span> <span class="n">astuple</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span>
-        <span class="k">return</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">X</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normal_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Basis</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the normal basis of the cube.</span>
 
+<span class="sd">        Normal basis only appears once in the three bases of the cube. For example,</span>
+<span class="sd">        the normal basis of the cube ``XZZ`` is ``X`` and the normal basis of the cube</span>
+<span class="sd">        ``ZXX`` is ``Z``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">basis</span> <span class="o">==</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span> <span class="k">for</span> <span class="n">basis</span> <span class="ow">in</span> <span class="n">astuple</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span>
+        <span class="k">return</span> <span class="n">Basis</span><span class="o">.</span><span class="n">X</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normal_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Direction3D</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the normal direction of the cube.</span>
+
+<span class="sd">        Normal direction is the direction along which the normal basis appears.</span>
+<span class="sd">        For example, the normal direction of the cube ``XZZ`` is ``Direction3D.X``</span>
+<span class="sd">        and the normal direction of the cube ``XXZ`` is ``Direction3D.Z``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Direction3D</span><span class="p">(</span><span class="n">astuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal_basis</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_spatial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -556,12 +556,6 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;PORT&quot;</span>
 
-<div class="viewcode-block" id="Port.to_zx_kind">
-<a class="viewcode-back" href="../../../_autosummary/tqec.computation.Port.html#tqec.computation.Port.to_zx_kind">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_zx_kind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXKind</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">P</span></div>
-
-
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="n">Port</span><span class="p">)</span>
 
@@ -577,12 +571,6 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;Y&quot;</span>
-
-<div class="viewcode-block" id="YCube.to_zx_kind">
-<a class="viewcode-back" href="../../../_autosummary/tqec.computation.YCube.html#tqec.computation.YCube.to_zx_kind">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_zx_kind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXKind</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Y</span></div>
-
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="n">YCube</span><span class="p">)</span>
@@ -656,20 +644,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        A spatial cube is a cube whose all spatial boundaries are in the same basis.</span>
 <span class="sd">        There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial</span>
-
-<div class="viewcode-block" id="Cube.to_zx_node">
-<a class="viewcode-back" href="../../../_autosummary/tqec.computation.Cube.html#tqec.computation.Cube.to_zx_node">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_zx_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXNode</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the cube to a :py:class:`~tqec.computation.zx_graph.ZXNode`</span>
-<span class="sd">        instance.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A ZX node with the same position and label as the cube, and the kind of the</span>
-<span class="sd">            node is converted from the cube kind with :py:meth:`~tqec.computation.cube.CubeKind.to_zx_kind`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">ZXNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">to_zx_kind</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial</span></div>
 
 </pre></div>
 

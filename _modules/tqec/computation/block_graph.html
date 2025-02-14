@@ -410,21 +410,22 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation._base_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputationGraph</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipe</span><span class="p">,</span> <span class="n">PipeKind</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.html_viewer</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ColladaHTMLViewer</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositionedZX</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 
 
 <span class="n">BlockKind</span> <span class="o">=</span> <span class="n">CubeKind</span> <span class="o">|</span> <span class="n">PipeKind</span>
@@ -535,27 +536,15 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockGraph.to_zx_graph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_zx_graph">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_zx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZXGraph</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the block graph to a</span>
-<span class="sd">        :py:class:`~tqec.computation.zx_graph.ZXGraph`.</span>
-
-<span class="sd">        The conversion process is as follows:</span>
-
-<span class="sd">        1. For each cube in the block graph, convert it to a ZX node by calling :py:meth:`~tqec.computation.cube.Cube.to_zx_node`.</span>
-<span class="sd">        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            block_graph: The block graph to be converted to a ZX graph.</span>
-<span class="sd">            name: The name of the new ZX graph. If None, the name of the block graph will be used.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_zx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PositionedZX</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the block graph to a positioned PyZX graph.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            The :py:class:`~tqec.computation.zx_graph.ZXGraph` object converted from the block graph.</span>
+<span class="sd">            A :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` object converted from the block graph.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-            <span class="n">convert_block_graph_to_zx_graph</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositionedZX</span>
 
-        <span class="k">return</span> <span class="n">convert_block_graph_to_zx_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">PositionedZX</span><span class="o">.</span><span class="n">from_block_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BlockGraph.to_dae_file">
@@ -678,13 +667,50 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="BlockGraph.find_correlation_surfaces">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.find_correlation_surfaces">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">find_correlation_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the `~tqec.computation.correlation.CorrelationSurface` from the corresponding</span>
-<span class="sd">        ZXGraph of the block graph.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the correlation surfaces in the block graph.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The list of correlation surfaces.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span></div>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_correlation_surfaces</span>
+
+        <span class="n">zx_graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">find_correlation_surfaces</span><span class="p">(</span><span class="n">zx_graph</span><span class="o">.</span><span class="n">g</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.fill_ports">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.fill_ports">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fill_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fill</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">]</span> <span class="o">|</span> <span class="n">CubeKind</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fill the ports at specified positions with cubes of the given kind.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fill: A mapping from the label of the ports to the cube kind to fill.</span>
+<span class="sd">                If a single kind is given, all the ports will be filled with the</span>
+<span class="sd">                same kind.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: if there is no port with the given label.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fill</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">):</span>
+            <span class="n">fill</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">fill</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">fill</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There is no port with label </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
+            <span class="n">fill_node</span> <span class="o">=</span> <span class="n">Cube</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">kind</span><span class="p">)</span>
+            <span class="c1"># Overwrite the node at the port position</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_NODE_DATA_KEY</span><span class="p">:</span> <span class="n">fill_node</span><span class="p">})</span>
+            <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_at</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">u</span> <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span> <span class="o">==</span> <span class="n">pos</span> <span class="k">else</span> <span class="n">edge</span><span class="o">.</span><span class="n">v</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+                    <span class="n">other</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
+                    <span class="n">pos</span><span class="p">,</span>
+                    <span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDGE_DATA_KEY</span><span class="p">:</span> <span class="n">Pipe</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">fill_node</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">kind</span><span class="p">)},</span>
+                <span class="p">)</span>
+            <span class="c1"># Delete the port label</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">label</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BlockGraph.rotate">
@@ -695,8 +721,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">num_90_degree_rotation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">counterclockwise</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and</span>
-<span class="sd">        return a new rotated graph.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the graph around an axis by ``num_90_degree_rotation * 90``</span>
+<span class="sd">        degrees and return a new rotated graph.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            rotation_axis: The axis around which to rotate the graph.</span>
@@ -711,11 +737,9 @@ window.addEventListener("load", () => mermaid.run());
 
         <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-        <span class="n">zx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
-        <span class="n">rotated_zx</span> <span class="o">=</span> <span class="n">zx</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">counterclockwise</span><span class="p">)</span>
-        <span class="n">name_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; rotated by </span><span class="si">{</span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">90</span><span class="si">}</span><span class="s2"> degrees </span><span class="si">{</span><span class="s1">&#39;counter&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">counterclockwise</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">clockwise around the </span><span class="si">{</span><span class="n">rotation_axis</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> axis&quot;</span>
-        <span class="k">return</span> <span class="n">rotated_zx</span><span class="o">.</span><span class="n">to_block_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">name_suffix</span><span class="p">)</span></div>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
+        <span class="n">rotated_g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">counterclockwise</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rotated_g</span><span class="o">.</span><span class="n">to_block_graph</span><span class="p">()</span></div>
 </div>
 
 </pre></div>

@@ -48,7 +48,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.computation.ZXCube';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ZXEdge" href="tqec.computation.ZXEdge.html" />
+    <link rel="next" title="tqec.compile" href="tqec.compile.html" />
     <link rel="prev" title="YCube" href="tqec.computation.YCube.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -385,6 +385,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.computation.html">tqec.computation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.BlockGraph.html">BlockGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.CorrelationSurface.html">CorrelationSurface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Cube.html">Cube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.CubeKind.html">CubeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
@@ -392,10 +393,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.YCube.html">YCube</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">ZXCube</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXEdge.html">ZXEdge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXGraph.html">ZXGraph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXKind.html">ZXKind</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXNode.html">ZXNode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -410,16 +407,12 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.gallery.html">tqec.gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_block_graph.html">logical_cnot_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_block_graph.html">move_rotation_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_zx_graph.html">move_rotation_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_block_graph.html">solo_node_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html">solo_node_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cnot.html">cnot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cz.html">cz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.memory.html">memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation.html">move_rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.stability.html">stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots.html">three_cnots</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.interop.html">tqec.interop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -586,9 +579,6 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXCube.get_basis_along" title="tqec.computation.ZXCube.get_basis_along"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_basis_along</span></code></a>(direction)</p></td>
 <td><p>Get the basis of the walls along the given direction axis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXCube.to_zx_kind" title="tqec.computation.ZXCube.to_zx_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_zx_kind</span></code></a>()</p></td>
-<td><p>Return the corresponding <a class="reference internal" href="tqec.computation.ZXKind.html#tqec.computation.ZXKind" title="tqec.computation.zx_graph.ZXKind"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXKind</span></code></a> of the cube kind.</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -597,6 +587,12 @@
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_spatial</span></code></p></td>
 <td><p>Return whether a cube of this kind is a spatial cube.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal_basis</span></code></p></td>
+<td><p>Return the normal basis of the cube.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal_direction</span></code></p></td>
+<td><p>Return the normal direction of the cube.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXCube.x" title="tqec.computation.ZXCube.x"><code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code></a></p></td>
 <td><p></p></td>
@@ -696,21 +692,6 @@ the string representation.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.computation.ZXCube.to_zx_kind">
-<span class="sig-name descname"><span class="pre">to_zx_kind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/cube.html#ZXCube.to_zx_kind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.ZXCube.to_zx_kind" title="Link to this definition">#</a></dt>
-<dd><p>Return the corresponding
-<a class="reference internal" href="tqec.computation.ZXKind.html#tqec.computation.ZXKind" title="tqec.computation.zx_graph.ZXKind"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXKind</span></code></a> of the cube kind.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The corresponding ZX kind of the cube kind.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.computation.ZXKind.html#tqec.computation.ZXKind" title="tqec.computation.zx_graph.ZXKind"><em>ZXKind</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -735,11 +716,11 @@ the string representation.</p>
       </div>
     </a>
     <a class="right-next"
-       href="tqec.computation.ZXEdge.html"
+       href="tqec.compile.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ZXEdge</p>
+        <p class="prev-next-title">tqec.compile</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -771,7 +752,6 @@ the string representation.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXCube.as_tuple"><code class="docutils literal notranslate"><span class="pre">ZXCube.as_tuple()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXCube.from_str"><code class="docutils literal notranslate"><span class="pre">ZXCube.from_str()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXCube.get_basis_along"><code class="docutils literal notranslate"><span class="pre">ZXCube.get_basis_along()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXCube.to_zx_kind"><code class="docutils literal notranslate"><span class="pre">ZXCube.to_zx_kind()</span></code></a></li>
 </ul>
 </li>
 </ul>

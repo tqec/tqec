@@ -48,7 +48,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.gallery';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="logical_cnot_block_graph" href="tqec.gallery.logical_cnot_block_graph.html" />
+    <link rel="next" title="cnot" href="tqec.gallery.cnot.html" />
     <link rel="prev" title="SubstitutionBuilder" href="tqec.compile.SubstitutionBuilder.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -385,6 +385,7 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.computation.html">tqec.computation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.BlockGraph.html">BlockGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.CorrelationSurface.html">CorrelationSurface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Cube.html">Cube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.CubeKind.html">CubeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
@@ -392,10 +393,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.YCube.html">YCube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXCube.html">ZXCube</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXEdge.html">ZXEdge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXGraph.html">ZXGraph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXKind.html">ZXKind</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXNode.html">ZXNode</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -410,16 +407,12 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">tqec.gallery</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_block_graph.html">logical_cnot_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html">logical_cnot_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html">logical_cz_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html">logical_cz_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_block_graph.html">move_rotation_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation_zx_graph.html">move_rotation_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_block_graph.html">solo_node_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html">solo_node_zx_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html">three_cnots_block_graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html">three_cnots_zx_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cnot.html">cnot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cz.html">cz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.memory.html">memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation.html">move_rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.stability.html">stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots.html">three_cnots</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.interop.html">tqec.interop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -519,46 +512,36 @@
   <section id="module-tqec.gallery">
 <span id="tqec-gallery"></span><h1>tqec.gallery<a class="headerlink" href="#module-tqec.gallery" title="Link to this heading">#</a></h1>
 <p>Collection of pre-built logical computations.</p>
-<p>This module contains functions that build <a class="reference internal" href="tqec.computation.ZXGraph.html#tqec.computation.ZXGraph" title="tqec.computation.zx_graph.ZXGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXGraph</span></code></a> and
-<a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a> instances representing the logical computations,
-including:</p>
+<p>This module contains functions that build <a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a>
+instances representing the logical computations, including:</p>
 <ul class="simple">
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">solo_node</span></code>: logical memory</p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">logical_cnot</span></code>: logical CNOT gate</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">memory</span></code>: memory experiment</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">stability</span></code>: stability experiment</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">cnot</span></code>: logical CNOT gate</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">cz</span></code>: logical CZ gate</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">move_rotation</span></code>: rotate spatial boundaries by moving the logical qubit in spacetime</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">three_cnots</span></code>: three logical CNOT gates compressed in spacetime</p></li>
 </ul>
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.logical_cnot_block_graph.html#tqec.gallery.logical_cnot_block_graph" title="tqec.gallery.logical_cnot_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logical_cnot_block_graph</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.cnot.html#tqec.gallery.cnot" title="tqec.gallery.cnot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cnot</span></code></a>([observable_basis])</p></td>
 <td><p>Create a block graph for the logical CNOT gate.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.logical_cnot_zx_graph.html#tqec.gallery.logical_cnot_zx_graph" title="tqec.gallery.logical_cnot_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logical_cnot_zx_graph</span></code></a>(port_kind)</p></td>
-<td><p>Create a ZX graph for the logical CNOT gate.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.cz.html#tqec.gallery.cz" title="tqec.gallery.cz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cz</span></code></a>([support_flows])</p></td>
+<td><p>Create a block graph representing the logical CZ gate.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.logical_cz_block_graph.html#tqec.gallery.logical_cz_block_graph" title="tqec.gallery.logical_cz_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logical_cz_block_graph</span></code></a>([support_flows])</p></td>
-<td><p>Create a block graph for the logical CZ gate.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.memory.html#tqec.gallery.memory" title="tqec.gallery.memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory</span></code></a>([observable_basis])</p></td>
+<td><p>Create a block graph with a single cube that represents a logical memory experiment.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.logical_cz_zx_graph.html#tqec.gallery.logical_cz_zx_graph" title="tqec.gallery.logical_cz_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logical_cz_zx_graph</span></code></a>([support_flows])</p></td>
-<td><p>Create a ZX graph for the logical CZ gate.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.move_rotation_block_graph.html#tqec.gallery.move_rotation_block_graph" title="tqec.gallery.move_rotation_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_rotation_block_graph</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.move_rotation.html#tqec.gallery.move_rotation" title="tqec.gallery.move_rotation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_rotation</span></code></a>([observable_basis])</p></td>
 <td><p>Create a block graph for moving and rotating the spatial boundaries of a logical qubit.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.move_rotation_zx_graph.html#tqec.gallery.move_rotation_zx_graph" title="tqec.gallery.move_rotation_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_rotation_zx_graph</span></code></a>(port_kind)</p></td>
-<td><p>Create a ZX graph for moving and rotating the spatial boundaries of a logical qubit.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.stability.html#tqec.gallery.stability" title="tqec.gallery.stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stability</span></code></a>([observable_basis])</p></td>
+<td><p>Create a block graph with a single cube that represents a logical stability experiment.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.solo_node_block_graph.html#tqec.gallery.solo_node_block_graph" title="tqec.gallery.solo_node_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solo_node_block_graph</span></code></a>(support_observable_basis)</p></td>
-<td><p>Create a block graph with a single cube that can support the given observable basis.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.solo_node_zx_graph.html#tqec.gallery.solo_node_zx_graph" title="tqec.gallery.solo_node_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solo_node_zx_graph</span></code></a>(kind)</p></td>
-<td><p>Create a single node ZX graph with the given kind.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.gallery.three_cnots_block_graph.html#tqec.gallery.three_cnots_block_graph" title="tqec.gallery.three_cnots_block_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">three_cnots_block_graph</span></code></a>(support_observable_basis)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.three_cnots.html#tqec.gallery.three_cnots" title="tqec.gallery.three_cnots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">three_cnots</span></code></a>([observable_basis])</p></td>
 <td><p>Create a block graph for three logical CNOT gates compressed in spacetime.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="tqec.gallery.three_cnots_zx_graph.html#tqec.gallery.three_cnots_zx_graph" title="tqec.gallery.three_cnots_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">three_cnots_zx_graph</span></code></a>(port_kind)</p></td>
-<td><p>Create a ZX graph for three logical CNOT gates compressed in spacetime.</p></td>
 </tr>
 </tbody>
 </table>
@@ -585,11 +568,11 @@ including:</p>
       </div>
     </a>
     <a class="right-next"
-       href="tqec.gallery.logical_cnot_block_graph.html"
+       href="tqec.gallery.cnot.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">logical_cnot_block_graph</p>
+        <p class="prev-next-title">cnot</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

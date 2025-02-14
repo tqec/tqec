@@ -406,19 +406,20 @@ window.addEventListener("load", () => mermaid.run());
                 <article class="bd-article">
                   
   <h1>Source code for tqec.gallery.three_cnots</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Build the computation graphs that represent three logical CNOT gates</span>
-<span class="sd">compressed in spacetime.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Block graph that represents three logical CNOT gates compressed in</span>
+<span class="sd">spacetime.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXGraph</span><span class="p">,</span> <span class="n">ZXKind</span><span class="p">,</span> <span class="n">ZXNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">ZXCube</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Position3D</span>
 
 
-<div class="viewcode-block" id="three_cnots_zx_graph">
-<a class="viewcode-back" href="../../../_autosummary/tqec.gallery.three_cnots_zx_graph.html#tqec.gallery.three_cnots_zx_graph">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">three_cnots_zx_graph</span><span class="p">(</span><span class="n">port_kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;OPEN&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ZXGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ZX graph for three logical CNOT gates compressed in spacetime.</span>
+<div class="viewcode-block" id="three_cnots">
+<a class="viewcode-back" href="../../../_autosummary/tqec.gallery.three_cnots.html#tqec.gallery.three_cnots">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">three_cnots</span><span class="p">(</span><span class="n">observable_basis</span><span class="p">:</span> <span class="n">Basis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a block graph for three logical CNOT gates compressed in</span>
+<span class="sd">    spacetime.</span>
 
 <span class="sd">    The three CNOT gates are applied in the following order:</span>
 
@@ -431,97 +432,87 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        q2: ---X-X-</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        port_kind: The node kind to fill the six ports of the ZX graph</span>
-<span class="sd">            It can be either &quot;Z&quot;, &quot;X&quot;, or &quot;OPEN&quot;. If &quot;OPEN&quot;, the ports are</span>
-<span class="sd">            left open. Otherwise, the ports are filled with the given node kind.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A :py:class:`~tqec.computation.zx_graph.ZXGraph` instance representing the</span>
-<span class="sd">        three logical CNOT gates compressed in spacetime.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">g</span> <span class="o">=</span> <span class="n">ZXGraph</span><span class="p">(</span><span class="s2">&quot;Three CNOTs&quot;</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="s2">&quot;Out_a&quot;</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="s2">&quot;In_a&quot;</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">X</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">X</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="s2">&quot;In_b&quot;</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">X</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="s2">&quot;In_c&quot;</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">X</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">X</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="s2">&quot;Out_c&quot;</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">X</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="s2">&quot;Out_b&quot;</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">X</span><span class="p">),</span>
-        <span class="n">ZXNode</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXKind</span><span class="o">.</span><span class="n">Z</span><span class="p">),</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">port_kind</span> <span class="o">!=</span> <span class="s2">&quot;OPEN&quot;</span><span class="p">:</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">(</span><span class="n">ZXKind</span><span class="p">(</span><span class="n">port_kind</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span>
-    <span class="k">return</span> <span class="n">g</span></div>
-
-
-
-<div class="viewcode-block" id="three_cnots_block_graph">
-<a class="viewcode-back" href="../../../_autosummary/tqec.gallery.three_cnots_block_graph.html#tqec.gallery.three_cnots_block_graph">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">three_cnots_block_graph</span><span class="p">(</span>
-    <span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;BOTH&quot;</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a block graph for three logical CNOT gates compressed in</span>
-<span class="sd">    spacetime.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        support_observable_basis: The observable basis that the block graph can support.</span>
-<span class="sd">            It can be either &quot;Z&quot;, &quot;X&quot;, or &quot;BOTH&quot;. Note that a cube at the port can only</span>
-<span class="sd">            support the observable basis opposite to the cube. If &quot;Z&quot;, the six ports of</span>
-<span class="sd">            the block graph are filled with X basis cubes. If &quot;X&quot;, the six ports are</span>
-<span class="sd">            filled with Z basis cubes. If &quot;BOTH&quot;, the ports are left open.</span>
+<span class="sd">        observable_basis: The observable basis that the block graph can support. If</span>
+<span class="sd">            None, the block graph will have open ports. Otherwise, the ports will be</span>
+<span class="sd">            filled with the given observable basis.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing the</span>
 <span class="sd">        three logical CNOT gates compressed in spacetime.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">support_observable_basis</span> <span class="o">==</span> <span class="s2">&quot;BOTH&quot;</span><span class="p">:</span>
-        <span class="n">port_kind</span> <span class="o">=</span> <span class="s2">&quot;OPEN&quot;</span>
-    <span class="k">elif</span> <span class="n">support_observable_basis</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
-        <span class="n">port_kind</span> <span class="o">=</span> <span class="s2">&quot;X&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">port_kind</span> <span class="o">=</span> <span class="s2">&quot;Z&quot;</span>
-    <span class="n">zx_graph</span> <span class="o">=</span> <span class="n">three_cnots_zx_graph</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;OPEN&quot;</span><span class="p">],</span> <span class="n">port_kind</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">zx_graph</span><span class="o">.</span><span class="n">to_block_graph</span><span class="p">(</span><span class="s2">&quot;Three CNOTs&quot;</span><span class="p">)</span></div>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="p">(</span><span class="s2">&quot;Three CNOTs&quot;</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Port</span><span class="p">(),</span> <span class="s2">&quot;Out_a&quot;</span><span class="p">),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Port</span><span class="p">(),</span> <span class="s2">&quot;In_a&quot;</span><span class="p">),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">)),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">)),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">)),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">Port</span><span class="p">(),</span> <span class="s2">&quot;In_b&quot;</span><span class="p">),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">Port</span><span class="p">(),</span> <span class="s2">&quot;In_c&quot;</span><span class="p">),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">)),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Port</span><span class="p">(),</span> <span class="s2">&quot;Out_c&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">)),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">)),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">Port</span><span class="p">(),</span> <span class="s2">&quot;Out_b&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">)),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">)),</span>
+        <span class="n">Cube</span><span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">)),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">observable_basis</span> <span class="o">==</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;In_a&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XZZ&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;In_b&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;In_c&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;Out_a&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;Out_b&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;Out_c&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">observable_basis</span> <span class="o">==</span> <span class="n">Basis</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;In_a&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;In_b&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;In_c&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;Out_a&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;Out_b&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;Out_c&quot;</span><span class="p">:</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;XXZ&quot;</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">g</span></div>
 
 </pre></div>
 

@@ -12,7 +12,6 @@ Cube
    .. autosummary::
    
       ~Cube.__init__
-      ~Cube.to_zx_node
    
    
 
@@ -38,6 +37,5 @@ Cube
 
    
    .. automethod:: __init__
-   .. automethod:: to_zx_node
    
    

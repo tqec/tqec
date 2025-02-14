@@ -413,8 +413,11 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.mplot3d.axes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes3D</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">draw_correlation_surface_on</span><span class="p">,</span> <span class="n">draw_zx_graph_on</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.zx_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.plot</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">draw_correlation_surface_on</span><span class="p">,</span>
+    <span class="n">draw_positioned_zx_graph_on</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositionedZX</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">add_inset_axes3d</span><span class="p">(</span>
@@ -431,7 +434,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.simulation.plot_observable_as_inset.html#tqec.simulation.plot_observable_as_inset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_observable_as_inset</span><span class="p">(</span>
     <span class="n">ax_target</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span>
-    <span class="n">zx_graph</span><span class="p">:</span> <span class="n">ZXGraph</span><span class="p">,</span>
+    <span class="n">zx_graph</span><span class="p">:</span> <span class="n">PositionedZX</span><span class="p">,</span>
     <span class="n">observable</span><span class="p">:</span> <span class="n">CorrelationSurface</span><span class="p">,</span>
     <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -448,8 +451,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            draw.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">add_inset_axes3d</span><span class="p">(</span><span class="n">ax_target</span><span class="p">,</span> <span class="n">bounds</span><span class="p">)</span>
-    <span class="n">draw_zx_graph_on</span><span class="p">(</span><span class="n">zx_graph</span><span class="p">,</span> <span class="n">inset_ax</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-    <span class="n">draw_correlation_surface_on</span><span class="p">(</span><span class="n">observable</span><span class="p">,</span> <span class="n">inset_ax</span><span class="p">)</span>
+    <span class="n">draw_positioned_zx_graph_on</span><span class="p">(</span><span class="n">zx_graph</span><span class="p">,</span> <span class="n">inset_ax</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">draw_correlation_surface_on</span><span class="p">(</span><span class="n">observable</span><span class="p">,</span> <span class="n">zx_graph</span><span class="p">,</span> <span class="n">inset_ax</span><span class="p">)</span>
     <span class="n">inset_ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span></div>
 
 </pre></div>
