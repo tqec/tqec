@@ -130,6 +130,11 @@ class BlockGraph:
         """Get the leaf cubes of the graph, i.e. the cubes with degree 1."""
         return [node for node in self.cubes if self.get_degree(node.position) == 1]
 
+    def _check_cube_exists(self, position: Position3D) -> None:
+        """Check if a cube exists at the given position."""
+        if position not in self:
+            raise TQECException(f"No cube at position {position}.")
+
     def add_cube(
         self, position: Position3D, kind: CubeKind | str, label: str = ""
     ) -> Position3D:
@@ -149,13 +154,12 @@ class BlockGraph:
                 if the cube kind is not recognized, or if the cube is a port and
                 there is already a port with the same label in the graph.
         """
-        if position in self:
-            raise TQECException(f"Cube already exists at position {position}.")
+        self._check_cube_exists(position)
         if isinstance(kind, str):
             kind = cube_kind_from_string(kind)
         if kind == Port() and label in self._ports:
             raise TQECException(
-                "There is already a port with the same label in the graph."
+                f"There is already a port with the same label {label} in the graph."
             )
 
         self._graph.add_node(
@@ -280,8 +284,7 @@ class BlockGraph:
         return position in self._graph
 
     def __getitem__(self, position: Position3D) -> Cube:
-        if position not in self:
-            raise TQECException(f"No cube at position {position}.")
+        self._check_cube_exists(position)
         return cast(Cube, self._graph.nodes[position][self._NODE_DATA_KEY])
 
     def __eq__(self, other: object) -> bool:
