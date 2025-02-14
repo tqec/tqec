@@ -333,14 +333,15 @@ def compile_block_graph(
         raise TQECException(
             "Can not compile a block graph with open ports into circuits."
         )
-    cube_specs = {
-        cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
-    }
 
     # 0. Set the minimum z of block graph to 0.(time starts from zero)
     minz = min(cube.position.z for cube in block_graph.cubes)
     if minz != 0:
         block_graph = block_graph.shift_by(dz=-minz)
+
+    cube_specs = {
+        cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
+    }
 
     # 1. Get the base compiled blocks before applying the substitution rules.
     blocks: dict[Position3D, CompiledBlock] = {}
