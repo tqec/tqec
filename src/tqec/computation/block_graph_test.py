@@ -119,6 +119,12 @@ def test_block_graph_validate_3d_corner() -> None:
 
 def test_graph_shift() -> None:
     g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 1), "ZXZ")
+    shifted = g.shift_by(dz=-1)
+    assert shifted.num_cubes == 1
+    assert shifted.cubes[0].position == Position3D(0, 0, 0)
+
+    g = BlockGraph()
     n1 = g.add_cube(Position3D(0, 0, -1), ZXCube.from_str("ZXZ"))
     n2 = g.add_cube(Position3D(1, 0, -1), ZXCube.from_str("XZX"))
     n3 = g.add_cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))

@@ -23,6 +23,19 @@ SPECS: dict[str, tuple[BlockBuilder, SubstitutionBuilder]] = {
 }
 
 
+def test_shift_min_z_to_zero_during_compilation() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 1), "ZXZ")
+
+    correlation_surface_before_shift = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(
+        g, observables=correlation_surface_before_shift
+    )
+    observables = compiled_graph.observables
+    assert len(observables) == 1
+    assert list(observables[0].top_readout_cubes)[0].position == Position3D(0, 0, 0)
+
+
 @pytest.mark.parametrize(
     ("spec", "kind", "k"),
     itertools.product(SPECS.keys(), ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
