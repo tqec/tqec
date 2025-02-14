@@ -159,7 +159,8 @@ class BlockGraph:
                 if the cube kind is not recognized, or if the cube is a port and
                 there is already a port with the same label in the graph.
         """
-        self._check_cube_exists(position)
+        if position in self:
+            raise TQECException(f"Cube already exists at position {position}.")
         if isinstance(kind, str):
             kind = cube_kind_from_string(kind)
         if kind == Port() and label in self._ports:
@@ -218,8 +219,7 @@ class BlockGraph:
 
         Raises: TQECException: If there is no cube at the given position.
         """
-        if position not in self:
-            raise TQECException(f"No cube at position {position}.")
+        self._check_cube_exists(position)
         cube = self[position]
         self._graph.remove_node(position)
         if cube.is_port:
