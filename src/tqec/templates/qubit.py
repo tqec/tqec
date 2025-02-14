@@ -7,10 +7,10 @@ import numpy
 import numpy.typing as npt
 from typing_extensions import override
 
-from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.templates.base import BorderIndices, RectangularTemplate
 from tqec.templates.enums import TemplateBorder
-from tqec.utils.scale import LinearFunction, Scalable2D
+from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
 class QubitTemplate(RectangularTemplate):
@@ -62,8 +62,8 @@ class QubitTemplate(RectangularTemplate):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
-        return Scalable2D(LinearFunction(2, 2), LinearFunction(2, 2))
+    def scalable_shape(self) -> PlaquetteScalable2D:
+        return PlaquetteScalable2D(LinearFunction(2, 2), LinearFunction(2, 2))
 
     @property
     @override
@@ -176,8 +176,8 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
-        return Scalable2D(LinearFunction(2, 2), LinearFunction(2, 2))
+    def scalable_shape(self) -> PlaquetteScalable2D:
+        return PlaquetteScalable2D(LinearFunction(2, 2), LinearFunction(2, 2))
 
     @property
     @override
@@ -232,9 +232,9 @@ class QubitVerticalBorders(RectangularTemplate):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PlaquetteScalable2D:
         """Returns a scalable version of the template shape."""
-        return Scalable2D(LinearFunction(0, 2), LinearFunction(2, 2))
+        return PlaquetteScalable2D(LinearFunction(0, 2), LinearFunction(2, 2))
 
     @property
     @override
@@ -286,8 +286,8 @@ class QubitHorizontalBorders(RectangularTemplate):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
-        return Scalable2D(LinearFunction(2, 2), LinearFunction(0, 2))
+    def scalable_shape(self) -> PlaquetteScalable2D:
+        return PlaquetteScalable2D(LinearFunction(2, 2), LinearFunction(0, 2))
 
     @property
     @override

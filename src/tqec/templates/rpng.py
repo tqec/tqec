@@ -7,7 +7,7 @@ from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.base import Template
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import PlaquettePosition2D, Shape2D, Shift2D
-from tqec.utils.scale import Scalable2D
+from tqec.utils.scale import PlaquetteScalable2D
 
 T = TypeVar("T", bound=Template, covariant=True)
 
@@ -26,7 +26,7 @@ class RPNGTemplate(Generic[T]):
         return self.template.shape(k)
 
     @property
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PlaquetteScalable2D:
         """Returns a scalable version of the template shape."""
         return self.template.scalable_shape
 
