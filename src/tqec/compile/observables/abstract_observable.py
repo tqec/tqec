@@ -1,14 +1,20 @@
 """Describe the location of the observable measurements in the block graph."""
 
+from collections import Counter
 from dataclasses import dataclass
+
+from pyzx.graph.graph_s import GraphS
 
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe
+from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, Position3D
+from tqec.utils.exceptions import TQECException
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.zx_graph import ZXEdge, ZXKind
+from tqec.computation.correlation import ZXEdge
+from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase
 
 
 @dataclass(frozen=True)
@@ -103,10 +109,6 @@ def compile_correlation_surface_to_abstract_observable(
     and check if the surface is attached to the top face of the cube. If so, add
     the cube to the ``top_readout_cubes`` set.
 
-    Warning:
-        The corresponding ZX graph of the block graph must support the correlation
-        surface. Otherwise, the behavior is undefined.
-
     Args:
         block_graph: The block graph whose corresponding ZX graph supports the
             correlation surface.
@@ -117,10 +119,11 @@ def compile_correlation_surface_to_abstract_observable(
         The abstract observable corresponding to the correlation surface in the block graph.
 
     Raises:
-        TQECException: If the block graph has open ports.
+        TQECException: If the block graph has open ports or the block graph cannot
+            support the correlation surface.
     """
     # 0. Handle single node edge case
-    if correlation_surface.has_single_node:
+    if correlation_surface.is_single_node:
         # single stability experiment
         if block_graph.nodes[0].is_spatial:
             return AbstractObservable(
@@ -129,9 +132,13 @@ def compile_correlation_surface_to_abstract_observable(
 
         return AbstractObservable(top_readout_cubes=frozenset(block_graph.nodes))
 
+    pg = block_graph.to_zx_graph()
+    _check_correlation_surface_validity(correlation_surface, pg.g)
+
     endpoints_to_edge: dict[frozenset[Position3D], list[ZXEdge]] = {}
     for edge in correlation_surface.span:
-        endpoints = frozenset({edge.u.position, edge.v.position})
+        u, v = edge.u.id, edge.v.id
+        endpoints = frozenset({pg[u], pg[v]})
         endpoints_to_edge.setdefault(endpoints, []).append(edge)
 
     top_readout_cubes: set[Cube] = set()
@@ -141,28 +148,32 @@ def compile_correlation_surface_to_abstract_observable(
     bottom_stabilizer_spatial_cubes: set[Cube] = set()
 
     # 1. Handle all spatial cubes
-    for node in correlation_surface.nodes:
-        cube = block_graph[node.position]
+    for node in correlation_surface.span_vertices():
+        cube = block_graph[pg[node]]
         if not cube.is_spatial:
             continue
-        zx = cube.to_zx_node()
-        zx_flipped = zx.with_zx_flipped()
+        kind = cube.kind
+        assert isinstance(kind, ZXCube)
+        bases = correlation_surface.bases_at(node)
+        normal_basis = kind.normal_basis
         # correlation surface perpendicular to the normal direction of the cube
         # accounts for the bottom stabilizer measurements
-        if zx.kind != node.kind:
+        if {normal_basis} != bases:
             bottom_stabilizer_spatial_cubes.add(cube)
         # correlation surface parallel to the normal direction of the cube
         # accounts for the top readout measurements
         # we need to record the arm flags to specify different shapes of the
         # observable lines, e.g. L-shape, 7-shape, -- shape, etc.
-        if zx_flipped.kind != node.kind:
+        if {normal_basis.flipped()} != bases:
             # check correlation edges in the cube arms
             arms = SpatialArms.NONE
             for arm, shift in SpatialArms.get_map_from_arm_to_shift().items():
                 edges = endpoints_to_edge.get(
                     frozenset({cube.position, cube.position.shift_by(*shift)})
                 )
-                if edges is not None and any(n == zx for edge in edges for n in edge):
+                if edges is not None and any(
+                    n.basis == normal_basis for edge in edges for n in edge
+                ):
                     arms |= arm
             assert len(arms) in {
                 2,
@@ -181,10 +192,9 @@ def compile_correlation_surface_to_abstract_observable(
                 top_readout_spatial_cubes.add((cube, arms))
 
     # 2. Handle all the pipes
-    def has_obs_include(cube: Cube, correlation: ZXKind) -> bool:
+    def has_obs_include(cube: Cube, correlation: Basis) -> bool:
         """Check if the top data qubit readout should be included in the
-        observable.
-        """
+        observable."""
         if cube.is_y_cube:
             return True
         assert isinstance(cube.kind, ZXCube)
@@ -195,23 +205,24 @@ def compile_correlation_surface_to_abstract_observable(
         return cube.kind.z.value == correlation.value
 
     for edge in correlation_surface.span:
-        pipe = block_graph.get_edge(edge.u.position, edge.v.position)
+        up, vp = pg[edge.u.id], pg[edge.v.id]
+        pipe = block_graph.get_edge(up, vp)
         # Vertical pipes
         if pipe.direction == Direction3D.Z:
-            if has_obs_include(pipe.v, edge.v.kind):
+            if has_obs_include(pipe.v, edge.v.basis):
                 top_readout_cubes.add(pipe.v)
             continue
         # Horizontal pipes
         pipe_top_face = pipe.kind.z
         assert pipe_top_face is not None, "The pipe is guaranteed to be spatial."
         # There is correlation surface attached to the top of the pipe
-        if pipe_top_face.value == edge.u.kind.value:
+        if pipe_top_face.value == edge.u.basis.value:
             top_readout_pipes.add(pipe)
-            for cube, node in zip(pipe, edge):
+            for cube, n in zip(pipe, edge):
                 # Spatial cubes have already been handled
                 if cube.is_spatial:
                     continue
-                if has_obs_include(cube, node.kind):
+                if has_obs_include(cube, n.basis):
                     top_readout_cubes.add(cube)
         elif not all(cube.is_spatial for cube in pipe):
             bottom_stabilizer_pipes.add(pipe)
@@ -223,3 +234,50 @@ def compile_correlation_surface_to_abstract_observable(
         frozenset(top_readout_spatial_cubes),
         frozenset(bottom_stabilizer_spatial_cubes),
     )
+
+
+def _check_correlation_surface_validity(
+    correlation_surface: CorrelationSurface, g: GraphS
+) -> None:
+    """Check the ZX graph can support the correlation surface."""
+    # 1. Check the vertices in the correlation surface are in the graph
+    if missing_vertices := (correlation_surface.span_vertices() - g.vertex_set()):
+        raise TQECException(
+            "The following vertices in the correlation surface are not in the "
+            f"graph: {missing_vertices} "
+        )
+    # 2. Check the edges in the correlation surface are in the graph
+    edges = g.edge_set()  # type: ignore
+    for edge in correlation_surface.span:
+        e = (edge.u.id, edge.v.id)
+        if e not in edges and (e[1], e[0]) not in edges:
+            raise TQECException(
+                f"Edge {e} in the correlation surface is not in the graph."
+            )
+    # 3. Check parity around each vertex
+    for v in correlation_surface.span_vertices():
+        if is_boundary(g, v):
+            continue
+        edges = correlation_surface.edges_at(v)
+        paulis: list[Basis] = [
+            edge.u.basis if edge.u.id == v else edge.v.basis for edge in edges
+        ]
+        counts = Counter(paulis)
+        # Y vertex should have Y pauli
+        if is_s(g, v):
+            if counts[Basis.X] != 1 or counts[Basis.Z] != 1:
+                raise TQECException(
+                    f"Y type vertex should have Pauli Y supported on it, {v} violates the rule."
+                )
+            continue
+        v_basis = Basis.Z if is_z_no_phase(g, v) else Basis.X
+        if counts[v_basis.flipped()] not in [0, len(edges)]:
+            raise TQECException(
+                "X (Z) type vertex should have Pauli Z (X) Pauli supported on all"
+                f"or no edges, {v} violates the rule."
+            )
+        if counts[v_basis] % 2 != 0:
+            raise TQECException(
+                f"X (Z) type vertex should have even number of Pauli X (Z) supported"
+                f"on the edges, {v} violates the rule."
+            )

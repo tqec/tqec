@@ -2,21 +2,22 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import pathlib
 from copy import deepcopy
 from io import BytesIO
 from typing import TYPE_CHECKING
 
 from tqec.computation._base_graph import ComputationGraph
-from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, CubeKind
 from tqec.computation.pipe import Pipe, PipeKind
-from tqec.computation.zx_graph import ZXGraph
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, SignedDirection3D
 
 if TYPE_CHECKING:
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
+    from tqec.interop.pyzx.positioned import PositionedZX
+    from tqec.computation.correlation import CorrelationSurface
 
 
 BlockKind = CubeKind | PipeKind
@@ -117,27 +118,15 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         for pipe in pipes:
             pipe.check_compatible_with_cubes()
 
-    def to_zx_graph(self, name: str | None = None) -> ZXGraph:
-        """Convert the block graph to a
-        :py:class:`~tqec.computation.zx_graph.ZXGraph`.
-
-        The conversion process is as follows:
-
-        1. For each cube in the block graph, convert it to a ZX node by calling :py:meth:`~tqec.computation.cube.Cube.to_zx_node`.
-        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.
-
-        Args:
-            block_graph: The block graph to be converted to a ZX graph.
-            name: The name of the new ZX graph. If None, the name of the block graph will be used.
+    def to_zx_graph(self) -> PositionedZX:
+        """Convert the block graph to a positioned PyZX graph.
 
         Returns:
-            The :py:class:`~tqec.computation.zx_graph.ZXGraph` object converted from the block graph.
+            A :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` object converted from the block graph.
         """
-        from tqec.computation.conversion import (
-            convert_block_graph_to_zx_graph,
-        )
+        from tqec.interop.pyzx.positioned import PositionedZX
 
-        return convert_block_graph_to_zx_graph(self, name)
+        return PositionedZX.from_block_graph(self)
 
     def to_dae_file(
         self,
@@ -245,13 +234,47 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         return new_graph
 
     def find_correlation_surfaces(self) -> list[CorrelationSurface]:
-        """Get the `~tqec.computation.correlation.CorrelationSurface` from the corresponding
-        ZXGraph of the block graph.
+        """Find the correlation surfaces in the block graph.
 
         Returns:
             The list of correlation surfaces.
         """
-        return self.to_zx_graph().find_correlation_surfaces()
+        from tqec.interop.pyzx.correlation import find_correlation_surfaces
+
+        zx_graph = self.to_zx_graph()
+
+        return find_correlation_surfaces(zx_graph.g)
+
+    def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
+        """Fill the ports at specified positions with cubes of the given kind.
+
+        Args:
+            fill: A mapping from the label of the ports to the cube kind to fill.
+                If a single kind is given, all the ports will be filled with the
+                same kind.
+
+        Raises:
+            TQECException: if there is no port with the given label.
+        """
+        if isinstance(fill, CubeKind):
+            fill = {label: fill for label in self._ports}
+        for label, kind in fill.items():
+            if label not in self._ports:
+                raise TQECException(f"There is no port with label {label}.")
+            pos = self._ports[label]
+            fill_node = Cube(pos, kind)
+            # Overwrite the node at the port position
+            self._graph.add_node(pos, **{self._NODE_DATA_KEY: fill_node})
+            for edge in self.edges_at(pos):
+                self._graph.remove_edge(edge.u.position, edge.v.position)
+                other = edge.u if edge.v.position == pos else edge.v
+                self._graph.add_edge(
+                    other.position,
+                    pos,
+                    **{self._EDGE_DATA_KEY: Pipe(other, fill_node, edge.kind)},
+                )
+            # Delete the port label
+            self._ports.pop(label)
 
     def rotate(
         self,
@@ -259,8 +282,8 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
         num_90_degree_rotation: int = 1,
         counterclockwise: bool = True,
     ) -> BlockGraph:
-        """Rotate the graph around an axis by ``num_90_degree_rotation * 90`` degrees and
-        return a new rotated graph.
+        """Rotate the graph around an axis by ``num_90_degree_rotation * 90``
+        degrees and return a new rotated graph.
 
         Args:
             rotation_axis: The axis around which to rotate the graph.
@@ -275,8 +298,6 @@ class BlockGraph(ComputationGraph[Cube, Pipe]):
 
         if n == 0:
             return self.copy()
-
-        zx = self.to_zx_graph()
-        rotated_zx = zx.rotate(rotation_axis, n, counterclockwise)
-        name_suffix = f" rotated by {n * 90} degrees {'counter' if counterclockwise else ''}clockwise around the {rotation_axis.name} axis"
-        return rotated_zx.to_block_graph(self.name + name_suffix)
+        g = self.to_zx_graph()
+        rotated_g = g.rotate(rotation_axis, n, counterclockwise)
+        return rotated_g.to_block_graph()

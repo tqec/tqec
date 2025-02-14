@@ -1,5 +1,4 @@
 import itertools
-from typing import Literal
 
 import pytest
 
@@ -13,7 +12,8 @@ from tqec.compile.specs.library.zxxz import (
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.gallery.logical_cnot import logical_cnot_block_graph
+from tqec.gallery.cnot import cnot
+from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
 
@@ -184,18 +184,16 @@ def test_compile_L_shape_in_space_time(
 
 
 @pytest.mark.parametrize(
-    ("spec", "support_observable_basis", "k"),
+    ("spec", "obs_basis", "k"),
     itertools.product(
         SPECS.keys(),
-        ("X", "Z"),
+        (Basis.X, Basis.Z),
         (1,),
     ),
 )
-def test_compile_logical_cnot(
-    spec: str, support_observable_basis: Literal["Z", "X"], k: int
-) -> None:
+def test_compile_logical_cnot(spec: str, obs_basis: Basis, k: int) -> None:
     d = 2 * k + 1
-    g = logical_cnot_block_graph(support_observable_basis)
+    g = cnot(obs_basis)
 
     block_builder, substitution_builder = SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()

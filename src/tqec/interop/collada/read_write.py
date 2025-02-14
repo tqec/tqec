@@ -12,10 +12,9 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind
-from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, CubeKind, Port, YCube, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.computation.zx_graph import ZXKind
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.interop.collada._geometry import (
     BlockGeometries,
@@ -23,6 +22,7 @@ from tqec.interop.collada._geometry import (
     get_correlation_surface_geometry,
 )
 from tqec.interop.color import TQECColor
+from tqec.computation.correlation import CorrelationSurface
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.utils.scale import round_or_fail
 
@@ -238,7 +238,7 @@ class _BaseColladaData:
         self.geometry_nodes: dict[Face, collada.scene.GeometryNode] = {}
         self.root_node = collada.scene.Node("SketchUp", name="SketchUp")
         self.block_library: dict[_BlockLibraryKey, collada.scene.Node] = {}
-        self.surface_library: dict[ZXKind, collada.scene.Node] = {}
+        self.surface_library: dict[Basis, collada.scene.Node] = {}
         self._pop_faces_at_direction: frozenset[SignedDirection3D] = (
             frozenset({pop_faces_at_direction})
             if pop_faces_at_direction
@@ -362,16 +362,16 @@ class _BaseColladaData:
         self.root_node.children.append(child_node)
         self._num_instances += 1
 
-    def _add_surface_library_node(self, kind: ZXKind) -> None:
-        if kind in self.surface_library:
+    def _add_surface_library_node(self, basis: Basis) -> None:
+        if basis in self.surface_library:
             return
-        surface = get_correlation_surface_geometry(kind)
+        surface = get_correlation_surface_geometry(basis)
         geometry_node = self._add_face_geometry_node(surface)
         node = collada.scene.Node(
             surface.color.value, [geometry_node], name=surface.color.value
         )
         self.mesh.nodes.append(node)
-        self.surface_library[kind] = node
+        self.surface_library[basis] = node
 
     def add_correlation_surface(
         self,
@@ -380,16 +380,16 @@ class _BaseColladaData:
         pipe_length: float = 2.0,
     ) -> None:
         from tqec.interop.collada._correlation import (
-            get_transformations_for_correlation_surface,
+            CorrelationSurfaceTransformationHelper,
         )
 
+        helper = CorrelationSurfaceTransformationHelper(block_graph, pipe_length)
+
         for (
-            kind,
+            basis,
             transformation,
-        ) in get_transformations_for_correlation_surface(
-            block_graph, correlation_surface, pipe_length
-        ):
-            self._add_surface_library_node(kind)
+        ) in helper.get_transformations_for_correlation_surface(correlation_surface):
+            self._add_surface_library_node(basis)
             child_node = collada.scene.Node(
                 f"ID{self._num_instances}",
                 name=f"instance_{self._num_instances}_correlation_surface",
@@ -399,7 +399,7 @@ class _BaseColladaData:
                     )
                 ],
             )
-            point_to_node = self.surface_library[kind]
+            point_to_node = self.surface_library[basis]
             instance_node = collada.scene.NodeNode(point_to_node)
             child_node.children.append(instance_node)
             self.root_node.children.append(child_node)
