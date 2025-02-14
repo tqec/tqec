@@ -135,6 +135,11 @@ class BlockGraph:
         if position not in self:
             raise TQECException(f"No cube at position {position}.")
 
+    def _check_pipe_exists(self, pos1: Position3D, pos2: Position3D) -> None:
+        """Check if a pipe exists between the given positions."""
+        if not self.has_pipe_between(pos1, pos2):
+            raise TQECException(f"No pipe between {pos1} and {pos2}.")
+
     def add_cube(
         self, position: Position3D, kind: CubeKind | str, label: str = ""
     ) -> Position3D:
@@ -230,8 +235,7 @@ class BlockGraph:
         Raises:
             TQECException: If there is no pipe between the given positions.
         """
-        if not self.has_pipe_between(pos1, pos2):
-            raise TQECException("No pipe between the given positions is in the graph.")
+        self._check_pipe_exists(pos1, pos2)
         self._graph.remove_edge(pos1, pos2)
 
     def has_pipe_between(self, pos1: Position3D, pos2: Position3D) -> bool:
@@ -260,8 +264,7 @@ class BlockGraph:
         Raises:
             TQECException: If there is no pipe between the given positions.
         """
-        if not self.has_pipe_between(pos1, pos2):
-            raise TQECException("No pipe between the given positions is in the graph.")
+        self._check_pipe_exists(pos1, pos2)
         return cast(Pipe, self._graph.edges[pos1, pos2][self._EDGE_DATA_KEY])
 
     def pipes_at(self, position: Position3D) -> list[Pipe]:
