@@ -82,16 +82,16 @@ class CorrelationSurface:
     outputs associated with the surface.
 
     Note:
-        We use the term "correlation surface", "pauli web" and "observable" 
+        We use the term "correlation surface", "pauli web" and "observable"
         interchangeably in the library.
 
-    Here we represent the correlation surface by the set of edges it spans in 
-    the ZX graph. The insight is that the spiders pose parity constraints on 
-    the operators supported on the incident edges. The flow of the logical 
-    operators through the ZX graph, respecting the parity constraints, forms 
-    the correlation between the inputs and outputs. However, the sign of 
+    Here we represent the correlation surface by the set of edges it spans in
+    the ZX graph. The insight is that the spiders pose parity constraints on
+    the operators supported on the incident edges. The flow of the logical
+    operators through the ZX graph, respecting the parity constraints, forms
+    the correlation between the inputs and outputs. However, the sign of
     measurement outcomes is neglected in this representation. And we need to
-    recover the measurements when instantiating an explicit logical observable 
+    recover the measurements when instantiating an explicit logical observable
     from the correlation surface.
 
     Each edge establishes a correlation between the logical operators at the two ends of

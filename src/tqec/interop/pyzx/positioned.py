@@ -125,14 +125,14 @@ class PositionedZX:
         The conversion process is as follows:
 
         1. For each cube in the block graph, convert it to a ZX vertex.
-        2. For each pipe in the block graph, add an edge to the ZX graph with 
+        2. For each pipe in the block graph, add an edge to the ZX graph with
            the corresponding endpoints and Hadamard flag.
 
         Args:
             block_graph: The block graph to be converted to a ZX graph.
 
         Returns:
-            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object 
+            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object
             converted from the block graph.
         """
         v2p: dict[int, Position3D] = {}
