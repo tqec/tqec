@@ -5,8 +5,11 @@ from matplotlib.axes import Axes
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.zx_plot import draw_correlation_surface_on, draw_zx_graph_on
-from tqec.computation.zx_graph import ZXGraph
+from tqec.interop.pyzx.plot import (
+    draw_correlation_surface_on,
+    draw_positioned_zx_graph_on,
+)
+from tqec.interop.pyzx.positioned import PositionedZX
 
 
 def add_inset_axes3d(
@@ -21,7 +24,7 @@ def add_inset_axes3d(
 
 def plot_observable_as_inset(
     ax_target: Axes,
-    zx_graph: ZXGraph,
+    zx_graph: PositionedZX,
     observable: CorrelationSurface,
     bounds: tuple[float, float, float, float] = (0.5, 0.0, 0.5, 0.5),
 ) -> None:
@@ -38,6 +41,6 @@ def plot_observable_as_inset(
             draw.
     """
     inset_ax = add_inset_axes3d(ax_target, bounds)
-    draw_zx_graph_on(zx_graph, inset_ax, node_size=50)
-    draw_correlation_surface_on(observable, inset_ax)
+    draw_positioned_zx_graph_on(zx_graph, inset_ax, node_size=50)
+    draw_correlation_surface_on(observable, zx_graph, inset_ax)
     inset_ax.set_facecolor((0.0, 0.0, 0.0, 0.0))
