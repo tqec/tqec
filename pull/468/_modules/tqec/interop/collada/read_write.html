@@ -420,7 +420,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span><span class="p">,</span> <span class="n">BlockKind</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">YCube</span><span class="p">,</span> <span class="n">ZXCube</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">YCube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeKind</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
@@ -432,7 +432,12 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECColor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatPosition3D</span><span class="p">,</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.rotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">calc_rotation_angles</span><span class="p">,</span> <span class="n">symbolic_multiplication</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.rotations</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">calc_rotation_angles</span><span class="p">,</span>
+    <span class="n">get_axes_directions</span><span class="p">,</span>
+    <span class="n">rotate_block_kind_by_matrix</span><span class="p">,</span>
+    <span class="n">block_kind_from_str</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_or_fail</span>
 
 <span class="n">_ASSET_AUTHOR</span> <span class="o">=</span> <span class="s2">&quot;TQEC Community&quot;</span>
@@ -442,17 +447,6 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="n">_MATERIAL_SYMBOL</span> <span class="o">=</span> <span class="s2">&quot;MaterialSymbol&quot;</span>
 <span class="n">_CORRELATION_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;_CORRELATION&quot;</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_block_kind_from_str</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockKind</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a block kind from a string.&quot;&quot;&quot;</span>
-    <span class="n">string</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-    <span class="k">if</span> <span class="s2">&quot;O&quot;</span> <span class="ow">in</span> <span class="n">string</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">PipeKind</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">string</span> <span class="o">==</span> <span class="s2">&quot;Y&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">YCube</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="read_block_graph_from_dae_file">
@@ -511,17 +505,12 @@ window.addEventListener("load", () => mermaid.run());
             <span class="c1"># Skip the correlation surface nodes</span>
             <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">_CORRELATION_SUFFIX</span><span class="p">):</span>
                 <span class="k">continue</span>
-            <span class="n">kind</span> <span class="o">=</span> <span class="n">_block_kind_from_str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
             <span class="c1"># Extract transformation and translation matrix</span>
             <span class="n">transformation</span> <span class="o">=</span> <span class="n">_Transformation</span><span class="o">.</span><span class="n">from_4d_affine_matrix</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
             <span class="n">translation</span> <span class="o">=</span> <span class="n">FloatPosition3D</span><span class="p">(</span><span class="o">*</span><span class="n">transformation</span><span class="o">.</span><span class="n">translation</span><span class="p">)</span>
-
-            <span class="c1"># Calculate rotated name and directions for all axes in case it is needed</span>
-            <span class="c1"># (rot_name not used unless structure is rotated, but axes_directions is needed)</span>
-            <span class="n">rot_name</span><span class="p">,</span> <span class="n">axes_directions</span> <span class="o">=</span> <span class="n">symbolic_multiplication</span><span class="p">(</span>
-                <span class="n">transformation</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
-            <span class="p">)</span>
+            <span class="n">axes_directions</span> <span class="o">=</span> <span class="n">get_axes_directions</span><span class="p">(</span><span class="n">transformation</span><span class="o">.</span><span class="n">rotation</span><span class="p">)</span>
+            <span class="n">kind</span> <span class="o">=</span> <span class="n">block_kind_from_str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
             <span class="c1"># Rotation health checks</span>
             <span class="c1"># - If node&#39;s matrix NOT rotated: proceed automatically</span>
@@ -529,19 +518,6 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">transformation</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
                 <span class="c1"># Calculate rotation</span>
                 <span class="n">rotation_angles</span> <span class="o">=</span> <span class="n">calc_rotation_angles</span><span class="p">(</span><span class="n">transformation</span><span class="o">.</span><span class="n">rotation</span><span class="p">)</span>
-
-                <span class="c1"># Reject invalid rotations for cultivation blocks</span>
-                <span class="c1"># - Cultivation blocks w. `rot_name` ending in anything but &quot;!&quot;: invalid rotation</span>
-                <span class="c1"># - Cultivation blocks with negative `axes_directions[&quot;Z&quot;]`: invalid rotation</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span>
-                    <span class="ow">not</span> <span class="n">rot_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">axes_directions</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span>
-                <span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;There is an invalid rotation for </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> block at position </span><span class="si">{</span><span class="n">translation</span><span class="si">}</span><span class="s2">.&quot;</span>
-                    <span class="p">)</span>
-                <span class="c1"># Fix the rotated name if Y cube has a valid rotation</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">rot_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">):</span>
-                    <span class="n">rot_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
 
                 <span class="c1"># Reject invalid rotations for all other cubes/pipes:</span>
                 <span class="k">if</span> <span class="p">(</span>
@@ -556,8 +532,8 @@ window.addEventListener("load", () => mermaid.run());
                     <span class="p">)</span>
 
                 <span class="c1"># Rotate node name</span>
-                <span class="n">rot_name</span> <span class="o">=</span> <span class="n">rot_name</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">rot_name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">kind</span> <span class="o">=</span> <span class="n">_block_kind_from_str</span><span class="p">(</span><span class="n">rot_name</span><span class="p">)</span>
+                <span class="c1"># Calculate rotated kind and directions for all axes in case it is needed</span>
+                <span class="n">kind</span> <span class="o">=</span> <span class="n">rotate_block_kind_by_matrix</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">transformation</span><span class="o">.</span><span class="n">rotation</span><span class="p">)</span>
 
                 <span class="c1"># Shift nodes slightly according to rotation</span>
                 <span class="n">translation</span> <span class="o">=</span> <span class="n">FloatPosition3D</span><span class="p">(</span>
@@ -570,12 +546,12 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="k">if</span> <span class="n">axes_directions</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="o">.</span><span class="n">direction</span><span class="p">)]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="s2">&quot;H&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">):</span>
                     <span class="n">hdm_equivalences</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ZXOH&quot;</span><span class="p">:</span> <span class="s2">&quot;XZOH&quot;</span><span class="p">,</span> <span class="s2">&quot;XOZH&quot;</span><span class="p">:</span> <span class="s2">&quot;ZOXH&quot;</span><span class="p">,</span> <span class="s2">&quot;OXZH&quot;</span><span class="p">:</span> <span class="s2">&quot;OZXH&quot;</span><span class="p">}</span>
                     <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span> <span class="ow">in</span> <span class="n">hdm_equivalences</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                        <span class="n">kind</span> <span class="o">=</span> <span class="n">_block_kind_from_str</span><span class="p">(</span><span class="n">hdm_equivalences</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)])</span>
+                        <span class="n">kind</span> <span class="o">=</span> <span class="n">block_kind_from_str</span><span class="p">(</span><span class="n">hdm_equivalences</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)])</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">inv_equivalences</span> <span class="o">=</span> <span class="p">{</span>
                             <span class="n">value</span><span class="p">:</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">hdm_equivalences</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                         <span class="p">}</span>
-                        <span class="n">kind</span> <span class="o">=</span> <span class="n">_block_kind_from_str</span><span class="p">(</span><span class="n">inv_equivalences</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)])</span>
+                        <span class="n">kind</span> <span class="o">=</span> <span class="n">block_kind_from_str</span><span class="p">(</span><span class="n">inv_equivalences</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)])</span>
 
             <span class="c1"># Direction, scaling and checks for pipes</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">PipeKind</span><span class="p">):</span>
