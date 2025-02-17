@@ -34,16 +34,32 @@ name equivalences can be calculated algebraically using the transformation matri
 
 import numpy as np
 import numpy.typing as npt
+from tqec.computation.block_graph import BlockKind
+from tqec.utils.exceptions import TQECException
+
+from tqec.computation.pipe import PipeKind
+from tqec.computation.cube import YCube, ZXCube
 
 
-def calc_rotation_angles(M: npt.NDArray) -> npt.NDArray:
-    """Calculates the angle between the vectors of a matrix (M) and the vectors of identity matrix (ID).
+def block_kind_from_str(string: str) -> BlockKind:
+    """Parse a block kind from a string."""
+    string = string.upper()
+    if "O" in string:
+        return PipeKind.from_str(string)
+    elif string == "Y":
+        return YCube()
+    else:
+        return ZXCube.from_str(string)
+
+
+def calc_rotation_angles(M: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
+    """Calculates the rotation angles of the three row vectors of matrix (M) from the original X/Y/Z axis (given by an identity matrix)).
 
     Args:
-        M (array): 3x3 matrix.
+        M: rotation matrix for node, extracted from `.dae` file.
 
     Returns:
-        rotations (array): the rotation angle for each of the three vectors in M (see notes: !)
+        rotations: the rotation angle for each of the three vectors in M (see notes: !)
     """
 
     # Placeholder for results
@@ -65,35 +81,78 @@ def calc_rotation_angles(M: npt.NDArray) -> npt.NDArray:
     return rotations
 
 
-def symbolic_multiplication(M: npt.NDArray, name: str) -> tuple[str, dict[str, int]]:
-    """Multiplies a numerical matrix (M) with a symbolic vector (passed as string).
-        - M is NOT rotated: name remains untouched
-        - M is rotated: name rotated accordingly
+def get_axes_directions(rotate_matrix: npt.NDArray[np.float32]) -> dict[str, int]:
+    """Gets up/down multipliers for each row of a rotation matrix.
 
     Args:
-        M (array): rotation matrix for node, extracted from `.dae` file.
-        name (string): original name of the node, extracted from `.dae` file.
+        rotate_matrix: rotation matrix for node.
 
     Returns:
-        rotated_name (str): rotated name for the node.
-        axes_directions (dict): up/down multipliers for each axis
+        axes_directions: up/down multipliers for each axis
+    """
+
+    # Placeholder for results
+    axes_directions = {"X": 1, "Y": 1, "Z": 1}
+
+    # Loop builds dict with plus/minus direction for each axis
+    for i, row in enumerate(rotate_matrix):
+        axes_directions["XYZ"[i]] = -1 if sum(row) < 0 else 1
+
+    return axes_directions
+
+
+def rotate_block_kind_by_matrix(
+    block_kind: BlockKind, rotate_matrix: npt.NDArray[np.float32]
+) -> BlockKind:
+    """Multiplies rotation matrix (rotate_matrix) with a symbolic vector made from the block_kind.
+        - rotate_matrix is NOT rotated: block_kind untouched
+        - rotate_matrix is rotated: block_kind rotated accordingly
+
+    Args:
+        rotate_matrix: rotation matrix for node.
+        block_kind: original kind.
+
+    Returns:
+        rotated_kind: rotated kind for the node.
+        axes_directions: up/down multipliers for each axis
     """
 
     # Placeholder for results
     rotated_name = ""
-    axes_directions = {"X": 1, "Y": 1, "Z": 1}
 
-    # State cultivation blocks need additional characters to clear operation
-    name = name if len(name) == 3 else name + "-!"
+    # State cultivation blocks: special case – added chars needed to clear loop
+    original_name = (
+        str(block_kind)[:3] if len(str(block_kind)) > 1 else str(block_kind) + "-!"
+    )
 
     # Loop:
-    # - applies transformation encoded in M to vectorised name
-    # - builds a dictionary with plus/minus direction for each axis
-    for i, row in enumerate(M):
+    # - applies transformation encoded in rotate_matrix to vectorised kind
+    # - builds dict with plus/minus direction for each axis
+    for i, row in enumerate(rotate_matrix):
         entry = ""
         for j, element in enumerate(row):
-            entry += abs(int(element)) * name[j]
-        axes_directions["XYZ"[i]] = -1 if sum(row) < 0 else 1
+            entry += abs(int(element)) * original_name[j]
         rotated_name += entry
 
-    return rotated_name, axes_directions
+    # Fails & re-writes for special blocks
+    axes_directions = get_axes_directions(rotate_matrix)
+
+    # Reject state cultivation blocks if rotated_name not ends in "!" or axes_directions["Z"] is negative
+    if "!" in rotated_name and (
+        not rotated_name.endswith("!") or axes_directions["Z"] < 0
+    ):
+        raise TQECException(
+            f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} block."
+        )
+    # Clean kind names for special names
+    # State cultivation
+    elif "!" in rotated_name:
+        rotated_name = str(block_kind)
+    # Hadamard
+    elif "H" in str(block_kind):
+        rotated_name += str(block_kind)[-1]
+
+    # Re-write kind
+    rotated_kind = block_kind_from_str(rotated_name)
+
+    return rotated_kind

@@ -12,7 +12,7 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind
-from tqec.computation.cube import CubeKind, Port, YCube, ZXCube
+from tqec.computation.cube import CubeKind, Port, YCube
 from tqec.computation.pipe import PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
@@ -24,7 +24,12 @@ from tqec.interop.collada._geometry import (
 from tqec.interop.color import TQECColor
 from tqec.computation.correlation import CorrelationSurface
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
-from tqec.utils.rotations import calc_rotation_angles, symbolic_multiplication
+from tqec.utils.rotations import (
+    calc_rotation_angles,
+    get_axes_directions,
+    rotate_block_kind_by_matrix,
+    block_kind_from_str,
+)
 from tqec.utils.scale import round_or_fail
 
 _ASSET_AUTHOR = "TQEC Community"
@@ -34,17 +39,6 @@ _ASSET_UNIT_METER = 0.02539999969303608
 
 _MATERIAL_SYMBOL = "MaterialSymbol"
 _CORRELATION_SUFFIX = "_CORRELATION"
-
-
-def _block_kind_from_str(string: str) -> BlockKind:
-    """Parse a block kind from a string."""
-    string = string.upper()
-    if "O" in string:
-        return PipeKind.from_str(string)
-    elif string == "Y":
-        return YCube()
-    else:
-        return ZXCube.from_str(string)
 
 
 def read_block_graph_from_dae_file(
@@ -101,17 +95,12 @@ def read_block_graph_from_dae_file(
             # Skip the correlation surface nodes
             if name.endswith(_CORRELATION_SUFFIX):
                 continue
-            kind = _block_kind_from_str(name)
 
             # Extract transformation and translation matrix
             transformation = _Transformation.from_4d_affine_matrix(node.matrix)
             translation = FloatPosition3D(*transformation.translation)
-
-            # Calculate rotated name and directions for all axes in case it is needed
-            # (rot_name not used unless structure is rotated, but axes_directions is needed)
-            rot_name, axes_directions = symbolic_multiplication(
-                transformation.rotation, str(kind)[:3]
-            )
+            axes_directions = get_axes_directions(transformation.rotation)
+            kind = block_kind_from_str(name)
 
             # Rotation health checks
             # - If node's matrix NOT rotated: proceed automatically
@@ -119,19 +108,6 @@ def read_block_graph_from_dae_file(
             if not np.allclose(transformation.rotation, np.eye(3), atol=1e-9):
                 # Calculate rotation
                 rotation_angles = calc_rotation_angles(transformation.rotation)
-
-                # Reject invalid rotations for cultivation blocks
-                # - Cultivation blocks w. `rot_name` ending in anything but "!": invalid rotation
-                # - Cultivation blocks with negative `axes_directions["Z"]`: invalid rotation
-                if len(str(kind)) == 1 and (
-                    not rot_name.endswith("!") or axes_directions["Z"] < 0
-                ):
-                    raise TQECException(
-                        f"There is an invalid rotation for {kind} block at position {translation}."
-                    )
-                # Fix the rotated name if Y cube has a valid rotation
-                elif len(str(kind)) == 1 and rot_name.endswith("!"):
-                    rot_name = str(kind)
 
                 # Reject invalid rotations for all other cubes/pipes:
                 if (
@@ -146,8 +122,8 @@ def read_block_graph_from_dae_file(
                     )
 
                 # Rotate node name
-                rot_name = rot_name if len(str(kind)) <= 3 else rot_name + str(kind)[-1]
-                kind = _block_kind_from_str(rot_name)
+                # Calculate rotated kind and directions for all axes in case it is needed
+                kind = rotate_block_kind_by_matrix(kind, transformation.rotation)
 
                 # Shift nodes slightly according to rotation
                 translation = FloatPosition3D(
@@ -160,12 +136,12 @@ def read_block_graph_from_dae_file(
                 if axes_directions[str(kind.direction)] == -1 and "H" in str(kind):
                     hdm_equivalences = {"ZXOH": "XZOH", "XOZH": "ZOXH", "OXZH": "OZXH"}
                     if str(kind) in hdm_equivalences.keys():
-                        kind = _block_kind_from_str(hdm_equivalences[str(kind)])
+                        kind = block_kind_from_str(hdm_equivalences[str(kind)])
                     else:
                         inv_equivalences = {
                             value: key for key, value in hdm_equivalences.items()
                         }
-                        kind = _block_kind_from_str(inv_equivalences[str(kind)])
+                        kind = block_kind_from_str(inv_equivalences[str(kind)])
 
             # Direction, scaling and checks for pipes
             if isinstance(kind, PipeKind):
