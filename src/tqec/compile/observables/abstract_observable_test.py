@@ -5,15 +5,17 @@ from tqec.compile.observables.abstract_observable import (
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, ZXCube
-from tqec.computation.pipe import Pipe, PipeKind
-from tqec.gallery.logical_cnot import logical_cnot_block_graph
-from tqec.gallery.three_cnots import three_cnots_block_graph
-from tqec.gallery.solo_node import solo_node_block_graph
+from tqec.computation.pipe import Pipe
+from tqec.gallery.cnot import cnot
+from tqec.gallery.three_cnots import three_cnots
+from tqec.gallery.memory import memory
+from tqec.gallery.stability import stability
+from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
 
 def test_abstract_observable_for_single_memory_cube() -> None:
-    g = solo_node_block_graph("Z")
+    g = memory(Basis.Z)
     correlation_surfaces = g.find_correlation_surfaces()
     abstract_observable = compile_correlation_surface_to_abstract_observable(
         g, correlation_surfaces[0]
@@ -26,7 +28,7 @@ def test_abstract_observable_for_single_memory_cube() -> None:
 
 
 def test_abstract_observable_for_single_stability_cube() -> None:
-    g = solo_node_block_graph("Z", is_stability_experiment=True)
+    g = stability(Basis.Z)
     correlation_surfaces = g.find_correlation_surfaces()
     abstract_observable = compile_correlation_surface_to_abstract_observable(
         g, correlation_surfaces[0]
@@ -40,11 +42,10 @@ def test_abstract_observable_for_single_stability_cube() -> None:
 
 def test_abstract_observable_for_single_vertical_pipe() -> None:
     g = BlockGraph()
-    g.add_edge(
-        Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXZ")),
-        PipeKind.from_str("ZXO"),
-    )
+    p0, p1 = Position3D(0, 0, 0), Position3D(0, 0, 1)
+    g.add_cube(p0, "ZXZ")
+    g.add_cube(p1, "ZXZ")
+    g.add_pipe(p0, p1)
     correlation_surfaces = g.find_correlation_surfaces()
     abstract_observable = compile_correlation_surface_to_abstract_observable(
         g, correlation_surfaces[0]
@@ -58,23 +59,22 @@ def test_abstract_observable_for_single_vertical_pipe() -> None:
 
 def test_abstract_observable_for_single_horizontal_pipe() -> None:
     g = BlockGraph()
-    g.add_edge(
-        Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ")),
-        Cube(Position3D(1, 0, 0), ZXCube.from_str("ZXZ")),
-        PipeKind.from_str("OXZ"),
-    )
+    p0, p1 = Position3D(0, 0, 0), Position3D(1, 0, 0)
+    g.add_cube(p0, "ZXZ")
+    g.add_cube(p1, "ZXZ")
+    g.add_pipe(p0, p1)
     correlation_surfaces = g.find_correlation_surfaces()
     abstract_observable = compile_correlation_surface_to_abstract_observable(
         g, correlation_surfaces[0]
     )
     assert abstract_observable == AbstractObservable(
-        top_readout_cubes=frozenset(g.nodes),
-        top_readout_pipes=frozenset(g.edges),
+        top_readout_cubes=frozenset(g.cubes),
+        top_readout_pipes=frozenset(g.pipes),
     )
 
 
 def test_abstract_observable_for_logical_cnot() -> None:
-    g = logical_cnot_block_graph("Z")
+    g = cnot(Basis.Z)
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 3
     observables = [
@@ -138,7 +138,7 @@ def test_abstract_observable_for_logical_cnot() -> None:
 
 
 def test_abstract_observable_for_three_cnots() -> None:
-    g = three_cnots_block_graph("Z")
+    g = three_cnots(Basis.Z)
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 7
     observables = [

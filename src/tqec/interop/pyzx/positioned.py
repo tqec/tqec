@@ -1,12 +1,17 @@
 """ZX graph with 3D positions."""
 
+from __future__ import annotations
+
 from fractions import Fraction
 from typing import Mapping
 
 import pyzx as zx
+from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d.axes3d import Axes3D
 from pyzx.graph.graph_s import GraphS
 
-from tqec.interop.pyzx.utils import is_boundary
+from tqec.computation.block_graph import BlockGraph
+from tqec.interop.pyzx.utils import cube_kind_to_zx
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
 
@@ -17,7 +22,6 @@ class PositionedZX:
 
         The constraints are:
 
-        0. All the Boundary vertices are labeled as inputs or outputs.
         1. The vertex IDs in the graph match the position keys exactly.
         2. The neighbors are all shifted by 1 in the 3D positions.
         3. All the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders.
@@ -41,15 +45,6 @@ class PositionedZX:
     @staticmethod
     def check_preconditions(g: GraphS, positions: Mapping[int, Position3D]) -> None:
         """Check the preconditions for the ZX graph with 3D positions."""
-        # 0. Check all the Boundary vertices are labeled as inputs or outputs
-        iset, oset = set(g.inputs()), set(g.outputs())
-        boundaries = {v for v in g.vertices() if is_boundary(g, v)}
-        if len(iset) != len(g.inputs()) or len(oset) != len(g.outputs()):
-            raise TQECException("Duplicate vertices are labeled as inputs or outputs.")
-        if boundaries != iset | oset:
-            raise TQECException(
-                "Inputs + Outputs must be equal to all the boundary vertices."
-            )
         # 1. Check the vertex IDs in the graph match the positions
         if g.vertex_set() != set(positions.keys()):
             raise TQECException(
@@ -111,10 +106,89 @@ class PositionedZX:
         """Return the 3D positions of the vertices."""
         return self._positions
 
+    @property
+    def p2v(self) -> dict[Position3D, int]:
+        """Return the mapping from 3D positions to vertices."""
+        return {p: v for v, p in self._positions.items()}
+
     def get_direction(self, v1: int, v2: int) -> Direction3D:
         """Return the direction connecting two vertices."""
         p1, p2 = self[v1], self[v2]
         return _get_direction(p1, p2)
+
+    @staticmethod
+    def from_block_graph(block_graph: BlockGraph) -> PositionedZX:
+        """Convert a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
+        ZX graph with 3D positions.
+
+        The conversion process is as follows:
+
+        1. For each cube in the block graph, convert it to a ZX vertex.
+        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.
+
+        Args:
+            block_graph: The block graph to be converted to a ZX graph.
+
+        Returns:
+            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from the block
+            graph.
+        """
+        v2p: dict[int, Position3D] = {}
+        p2v: dict[Position3D, int] = {}
+        g = GraphS()
+
+        for cube in sorted(block_graph.cubes, key=lambda c: c.position):
+            vt, phase = cube_kind_to_zx(cube.kind)
+            v = g.add_vertex(vt, phase=phase)
+            v2p[v] = cube.position
+            p2v[cube.position] = v
+
+        for edge in block_graph.pipes:
+            et = zx.EdgeType.HADAMARD if edge.kind.has_hadamard else zx.EdgeType.SIMPLE
+            g.add_edge((p2v[edge.u.position], p2v[edge.v.position]), et)
+
+        return PositionedZX(g, v2p)
+
+    def to_block_graph(self) -> BlockGraph:
+        """Convert the positioned ZX graph to a block graph."""
+        from tqec.interop.pyzx.synthesis.positioned import positioned_block_synthesis
+
+        return positioned_block_synthesis(self)
+
+    def draw(
+        self,
+        *,
+        figsize: tuple[float, float] = (5, 6),
+        title: str | None = None,
+        node_size: int = 400,
+        hadamard_size: int = 200,
+        edge_width: int = 1,
+    ) -> tuple[Figure, Axes3D]:
+        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX`
+        using matplotlib.
+
+        Args:
+            graph: The ZX graph to plot.
+            figsize: The figure size. Default is ``(5, 6)``.
+            title: The title of the plot. Default to the name of the graph.
+            node_size: The size of the node in the plot. Default is ``400``.
+            hadamard_size: The size of the Hadamard square in the plot. Default
+                is ``200``.
+            edge_width: The width of the edge in the plot. Default is ``1``.
+
+        Returns:
+            A tuple of the figure and the axes.
+        """
+        from tqec.interop.pyzx.plot import plot_positioned_zx_graph
+
+        return plot_positioned_zx_graph(
+            self,
+            figsize=figsize,
+            title=title,
+            node_size=node_size,
+            hadamard_size=hadamard_size,
+            edge_width=edge_width,
+        )
 
 
 def _get_direction(p1: Position3D, p2: Position3D) -> Direction3D:

@@ -15,10 +15,6 @@ from .computation import PipeKind as PipeKind
 from .computation import Port as Port
 from .computation import YCube as YCube
 from .computation import ZXCube as ZXCube
-from .computation import ZXEdge as ZXEdge
-from .computation import ZXGraph as ZXGraph
-from .computation import ZXKind as ZXKind
-from .computation import ZXNode as ZXNode
 from .interop import RGBA as RGBA
 from .interop import TQECColor as TQECColor
 from .interop import display_collada_model as display_collada_model
@@ -37,6 +33,7 @@ from .utils import Direction3D as Direction3D
 from .utils import LinearFunction as LinearFunction
 from .utils import NoiseModel as NoiseModel
 from .utils import Orientation as Orientation
+from .utils import Basis as Basis
 from .utils import PhysicalQubitPosition2D as PhysicalQubitPosition2D
 from .utils import PlaquettePosition2D as PlaquettePosition2D
 from .utils import Position3D as Position3D

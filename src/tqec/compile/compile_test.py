@@ -1,5 +1,4 @@
 import itertools
-from typing import Literal
 
 import pytest
 
@@ -11,9 +10,10 @@ from tqec.compile.specs.library.zxxz import (
     ZXXZ_SUBSTITUTION_BUILDER,
 )
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, ZXCube
+from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.gallery.logical_cnot import logical_cnot_block_graph
+from tqec.gallery.cnot import cnot
+from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
 
@@ -23,6 +23,19 @@ SPECS: dict[str, tuple[BlockBuilder, SubstitutionBuilder]] = {
 }
 
 
+def test_shift_min_z_to_zero_during_compilation() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 1), "ZXZ")
+
+    correlation_surface_before_shift = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(
+        g, observables=correlation_surface_before_shift
+    )
+    observables = compiled_graph.observables
+    assert len(observables) == 1
+    assert list(observables[0].top_readout_cubes)[0].position == Position3D(0, 0, 0)
+
+
 @pytest.mark.parametrize(
     ("spec", "kind", "k"),
     itertools.product(SPECS.keys(), ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
@@ -30,7 +43,7 @@ SPECS: dict[str, tuple[BlockBuilder, SubstitutionBuilder]] = {
 def test_compile_single_block_memory(spec: str, kind: str, k: int) -> None:
     d = 2 * k + 1
     g = BlockGraph("Single Block Memory Experiment")
-    g.add_node(Cube(Position3D(0, 0, 0), ZXCube.from_str(kind)))
+    g.add_cube(Position3D(0, 0, 0), kind)
     block_builder, substitution_builder = SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
@@ -56,10 +69,9 @@ def test_compile_two_same_blocks_connected_in_time(
     g = BlockGraph("Two Same Blocks in Time Experiment")
     p1 = Position3D(1, 1, 0)
     p2 = Position3D(1, 1, 1)
-    cube1 = Cube(p1, ZXCube.from_str(kind))
-    cube2 = Cube(p2, ZXCube.from_str(kind))
-    pipe_kind = PipeKind.from_str(kind[:2] + "O")
-    g.add_edge(cube1, cube2, pipe_kind)
+    g.add_cube(p1, kind)
+    g.add_cube(p2, kind)
+    g.add_pipe(p1, p2)
 
     block_builder, substitution_builder = SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
@@ -95,14 +107,14 @@ def test_compile_two_same_blocks_connected_in_space(
 ) -> None:
     d = 2 * k + 1
     g = BlockGraph("Two Same Blocks in Space Experiment")
-    cube_kind, pipe_kind = ZXCube.from_str(kinds[0]), PipeKind.from_str(kinds[1])
+    pipe_kind = PipeKind.from_str(kinds[1])
     p1 = Position3D(-1, 0, 0)
     shift = [0, 0, 0]
     shift[pipe_kind.direction.value] = 1
     p2 = p1.shift_by(*shift)
-    cube1 = Cube(p1, cube_kind)
-    cube2 = Cube(p2, cube_kind)
-    g.add_edge(cube1, cube2, pipe_kind)
+    g.add_cube(p1, kinds[0])
+    g.add_cube(p2, kinds[0])
+    g.add_pipe(p1, p2, pipe_kind)
 
     block_builder, substitution_builder = SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
@@ -145,11 +157,11 @@ def test_compile_L_shape_in_space_time(
     space_shift[space_pipe_kind.direction.value] = 1
     p2 = p1.shift_by(*space_shift)
     p3 = p2.shift_by(dz=1)
-    cube1 = Cube(p1, cube_kind)
-    cube2 = Cube(p2, cube_kind)
-    cube3 = Cube(p3, cube_kind)
-    g.add_edge(cube1, cube2, space_pipe_kind)
-    g.add_edge(cube2, cube3, time_pipe_type)
+    g.add_cube(p1, cube_kind)
+    g.add_cube(p2, cube_kind)
+    g.add_cube(p3, cube_kind)
+    g.add_pipe(p1, p2, space_pipe_kind)
+    g.add_pipe(p2, p3, time_pipe_type)
 
     block_builder, substitution_builder = SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
@@ -171,18 +183,16 @@ def test_compile_L_shape_in_space_time(
 
 
 @pytest.mark.parametrize(
-    ("spec", "support_observable_basis", "k"),
+    ("spec", "obs_basis", "k"),
     itertools.product(
         SPECS.keys(),
-        ("X", "Z"),
+        (Basis.X, Basis.Z),
         (1,),
     ),
 )
-def test_compile_logical_cnot(
-    spec: str, support_observable_basis: Literal["Z", "X"], k: int
-) -> None:
+def test_compile_logical_cnot(spec: str, obs_basis: Basis, k: int) -> None:
     d = 2 * k + 1
-    g = logical_cnot_block_graph(support_observable_basis)
+    g = cnot(obs_basis)
 
     block_builder, substitution_builder = SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()

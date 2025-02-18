@@ -12,10 +12,9 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind
-from tqec.computation.correlation import CorrelationSurface
-from tqec.computation.cube import Cube, CubeKind, Port, YCube, ZXCube
+from tqec.computation.cube import CubeKind, Port, YCube, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.computation.zx_graph import ZXKind
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.interop.collada._geometry import (
     BlockGeometries,
@@ -23,6 +22,7 @@ from tqec.interop.collada._geometry import (
     get_correlation_surface_geometry,
 )
 from tqec.interop.color import TQECColor
+from tqec.computation.correlation import CorrelationSurface
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.utils.scale import round_or_fail
 
@@ -137,7 +137,7 @@ def read_block_graph_from_dae_file(
     for pos, cube_kind in parsed_cubes:
         if isinstance(cube_kind, YCube):
             pos = offset_y_cube_position(pos)
-        graph.add_node(Cube(int_position_before_scale(pos), cube_kind))
+        graph.add_cube(int_position_before_scale(pos), cube_kind)
     port_index = 0
     for pos, pipe_kind in parsed_pipes:
         head_pos = int_position_before_scale(
@@ -145,12 +145,12 @@ def read_block_graph_from_dae_file(
         )
         tail_pos = head_pos.shift_in_direction(pipe_kind.direction, 1)
         if head_pos not in graph:
-            graph.add_node(Cube(head_pos, Port(), label=f"Port{port_index}"))
+            graph.add_cube(head_pos, Port(), label=f"Port{port_index}")
             port_index += 1
         if tail_pos not in graph:
-            graph.add_node(Cube(tail_pos, Port(), label=f"Port{port_index}"))
+            graph.add_cube(tail_pos, Port(), label=f"Port{port_index}")
             port_index += 1
-        graph.add_edge(graph[head_pos], graph[tail_pos], pipe_kind)
+        graph.add_pipe(head_pos, tail_pos, pipe_kind)
     return graph
 
 
@@ -158,7 +158,7 @@ def write_block_graph_to_dae_file(
     block_graph: BlockGraph,
     file_like: str | pathlib.Path | BinaryIO,
     pipe_length: float = 2.0,
-    pop_faces_at_direction: SignedDirection3D | None = None,
+    pop_faces_at_direction: SignedDirection3D | str | None = None,
     show_correlation_surface: CorrelationSurface | None = None,
 ) -> None:
     """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
@@ -172,29 +172,30 @@ def write_block_graph_to_dae_file(
             This is useful for visualizing the internal structure of the blocks. Default is None.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.
     """
-
+    if isinstance(pop_faces_at_direction, str):
+        pop_faces_at_direction = SignedDirection3D.from_string(pop_faces_at_direction)
     base = _BaseColladaData(pop_faces_at_direction)
 
     def scale_position(pos: Position3D) -> FloatPosition3D:
         return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
 
-    for cube in block_graph.nodes:
+    for cube in block_graph.cubes:
         if cube.is_port:
             continue
         scaled_position = scale_position(cube.position)
-        if cube.is_y_cube and block_graph.has_edge_between(
+        if cube.is_y_cube and block_graph.has_pipe_between(
             cube.position, cube.position.shift_by(dz=1)
         ):
             scaled_position = scaled_position.shift_by(dz=0.5)
         matrix = np.eye(4, dtype=np.float32)
         matrix[:3, 3] = scaled_position.as_array()
         pop_faces_at_directions = []
-        for pipe in block_graph.edges_at(cube.position):
+        for pipe in block_graph.pipes_at(cube.position):
             pop_faces_at_directions.append(
                 SignedDirection3D(pipe.direction, cube == pipe.u)
             )
         base.add_block_instance(matrix, cube.kind, pop_faces_at_directions)
-    for pipe in block_graph.edges:
+    for pipe in block_graph.pipes:
         head_pos = scale_position(pipe.u.position)
         pipe_pos = head_pos.shift_in_direction(pipe.direction, 1.0)
         matrix = np.eye(4, dtype=np.float32)
@@ -238,7 +239,7 @@ class _BaseColladaData:
         self.geometry_nodes: dict[Face, collada.scene.GeometryNode] = {}
         self.root_node = collada.scene.Node("SketchUp", name="SketchUp")
         self.block_library: dict[_BlockLibraryKey, collada.scene.Node] = {}
-        self.surface_library: dict[ZXKind, collada.scene.Node] = {}
+        self.surface_library: dict[Basis, collada.scene.Node] = {}
         self._pop_faces_at_direction: frozenset[SignedDirection3D] = (
             frozenset({pop_faces_at_direction})
             if pop_faces_at_direction
@@ -362,16 +363,16 @@ class _BaseColladaData:
         self.root_node.children.append(child_node)
         self._num_instances += 1
 
-    def _add_surface_library_node(self, kind: ZXKind) -> None:
-        if kind in self.surface_library:
+    def _add_surface_library_node(self, basis: Basis) -> None:
+        if basis in self.surface_library:
             return
-        surface = get_correlation_surface_geometry(kind)
+        surface = get_correlation_surface_geometry(basis)
         geometry_node = self._add_face_geometry_node(surface)
         node = collada.scene.Node(
             surface.color.value, [geometry_node], name=surface.color.value
         )
         self.mesh.nodes.append(node)
-        self.surface_library[kind] = node
+        self.surface_library[basis] = node
 
     def add_correlation_surface(
         self,
@@ -380,16 +381,16 @@ class _BaseColladaData:
         pipe_length: float = 2.0,
     ) -> None:
         from tqec.interop.collada._correlation import (
-            get_transformations_for_correlation_surface,
+            CorrelationSurfaceTransformationHelper,
         )
 
+        helper = CorrelationSurfaceTransformationHelper(block_graph, pipe_length)
+
         for (
-            kind,
+            basis,
             transformation,
-        ) in get_transformations_for_correlation_surface(
-            block_graph, correlation_surface, pipe_length
-        ):
-            self._add_surface_library_node(kind)
+        ) in helper.get_transformations_for_correlation_surface(correlation_surface):
+            self._add_surface_library_node(basis)
             child_node = collada.scene.Node(
                 f"ID{self._num_instances}",
                 name=f"instance_{self._num_instances}_correlation_surface",
@@ -399,7 +400,7 @@ class _BaseColladaData:
                     )
                 ],
             )
-            point_to_node = self.surface_library[kind]
+            point_to_node = self.surface_library[basis]
             instance_node = collada.scene.NodeNode(point_to_node)
             child_node.children.append(instance_node)
             self.root_node.children.append(child_node)

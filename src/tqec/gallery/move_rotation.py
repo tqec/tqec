@@ -1,68 +1,41 @@
-"""Build computation that rotating boundary types by moving logical qubit in spacetime."""
-
-from typing import Literal, cast
+"""Block graph that rotates boundary types by moving logical qubit in
+spacetime."""
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.zx_graph import ZXKind, ZXGraph, ZXNode
+from tqec.computation.cube import ZXCube
+from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
 
-def move_rotation_zx_graph(port_kind: Literal["Z", "X", "OPEN"]) -> ZXGraph:
-    """Create a ZX graph for moving and rotating the spatial boundaries of a logical qubit.
-
-    Args:
-        port_kind: The node kind to fill the two ports of the graph. It can be
-            either "Z", "X", or "OPEN". If "OPEN", the ports are left open.
-            Otherwise, the ports are filled with the given node kind.
-
-    Returns:
-        A :py:class:`~tqec.computation.zx_graph.ZXGraph` instance representing the
-        move-rotation operation.
-    """
-    g = ZXGraph("Move Rotation")
-    g.add_edge(
-        ZXNode(Position3D(0, 0, 0), ZXKind.P, "In"),
-        ZXNode(Position3D(0, 0, 1), ZXKind.Z),
-    )
-    g.add_edge(
-        ZXNode(Position3D(0, 0, 1), ZXKind.Z),
-        ZXNode(Position3D(0, 1, 1), ZXKind.X),
-    )
-    g.add_edge(
-        ZXNode(Position3D(0, 1, 1), ZXKind.X),
-        ZXNode(Position3D(1, 1, 1), ZXKind.Z),
-    )
-    g.add_edge(
-        ZXNode(Position3D(1, 1, 1), ZXKind.Z),
-        ZXNode(Position3D(1, 1, 2), ZXKind.P, "Out"),
-    )
-    if port_kind != "OPEN":
-        g.fill_ports(ZXKind(port_kind))
-
-    return g
-
-
-def move_rotation_block_graph(
-    support_observable_basis: Literal["Z", "X", "BOTH"],
-) -> BlockGraph:
+def move_rotation(observable_basis: Basis | None = None) -> BlockGraph:
     """Create a block graph for moving and rotating the spatial boundaries of a logical qubit.
 
     Args:
-        support_observable_basis: The observable basis that the block graph can support.
-            It can be either "Z", "X", or "BOTH". Note that a cube at the port can only
-            support the observable basis opposite to the cube. If "Z", the two ports of
-            the block graph are filled with X basis cubes. If "X", the two ports are
-            filled with Z basis cubes. If "BOTH", the two ports are left open.
+        observable_basis: The observable basis that the block graph can support. If None,
+            the ports are left open. Otherwise, the ports are filled with the given basis.
 
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing
         the move-rotation operation.
     """
-    if support_observable_basis == "BOTH":
-        port_kind = "OPEN"
-    elif support_observable_basis == "Z":
-        port_kind = "X"
-    else:
-        port_kind = "Z"
-    zx_graph = move_rotation_zx_graph(cast(Literal["Z", "X", "OPEN"], port_kind))
-    return zx_graph.to_block_graph("Move Rotation")
+    g = BlockGraph("Move Rotation")
+    nodes = [
+        (Position3D(0, 0, 0), "P", "In"),
+        (Position3D(0, 0, 1), "ZXX", ""),
+        (Position3D(0, 1, 1), "ZZX", ""),
+        (Position3D(1, 1, 1), "XZX", ""),
+        (Position3D(1, 1, 2), "P", "Out"),
+    ]
+    for pos, kind, label in nodes:
+        g.add_cube(pos, kind, label)
+
+    pipes = [(0, 1), (1, 2), (2, 3), (3, 4)]
+    for p0, p1 in pipes:
+        g.add_pipe(nodes[p0][0], nodes[p1][0])
+
+    if observable_basis == Basis.Z:
+        g.fill_ports({"In": ZXCube.from_str("ZXZ"), "Out": ZXCube.from_str("XZZ")})
+    elif observable_basis == Basis.X:
+        g.fill_ports({"In": ZXCube.from_str("ZXX"), "Out": ZXCube.from_str("XZX")})
+
+    return g

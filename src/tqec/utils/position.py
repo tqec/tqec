@@ -28,9 +28,12 @@ from __future__ import annotations
 
 from dataclasses import astuple, dataclass
 from enum import Enum
+import re
 
 import numpy as np
 import numpy.typing as npt
+
+from tqec.utils.exceptions import TQECException
 
 
 @dataclass(frozen=True, order=True)
@@ -176,7 +179,30 @@ class SignedDirection3D:
         return SignedDirection3D(self.direction, not self.towards_positive)
 
     def __str__(self) -> str:
-        return f"{self.direction}{'+' if self.towards_positive else '-'}"
+        return f"{'+' if self.towards_positive else '-'}{self.direction}"
+
+    @staticmethod
+    def from_string(s: str) -> SignedDirection3D:
+        """Return the signed direction from a string.
+
+        Args:
+            s: The string representation of the signed direction. The string
+                should have the format "<sign><direction>", where "<direction>"
+                is one of "X", "Y", "Z" and "<sign>" is either "+" or "-".
+
+        Returns:
+            The signed direction.
+
+        Raises:
+            TQECException: If the string does not match the expected format.
+        """
+        match = re.match(r"([+-])([XYZ])", s)
+        if match is None:
+            raise TQECException(
+                f"Invalid signed direction: {s}, expected format: [+/-][XYZ]"
+            )
+        sign, direction = match.groups()
+        return SignedDirection3D(Direction3D("XYZ".index(direction)), sign == "+")
 
 
 @dataclass(frozen=True, order=True)
