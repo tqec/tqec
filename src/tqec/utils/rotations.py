@@ -36,20 +36,7 @@ import numpy as np
 import numpy.typing as npt
 from tqec.computation.block_graph import BlockKind
 from tqec.utils.exceptions import TQECException
-
-from tqec.computation.pipe import PipeKind
-from tqec.computation.cube import YCube, ZXCube
-
-
-def block_kind_from_str(string: str) -> BlockKind:
-    """Parse a block kind from a string."""
-    string = string.upper()
-    if "O" in string:
-        return PipeKind.from_str(string)
-    elif string == "Y":
-        return YCube()
-    else:
-        return ZXCube.from_str(string)
+from tqec.computation.block_graph import block_kind_from_str
 
 
 def calc_rotation_angles(M: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
@@ -114,7 +101,6 @@ def rotate_block_kind_by_matrix(
 
     Returns:
         rotated_kind: rotated kind for the node.
-        axes_directions: up/down multipliers for each axis
     """
 
     # Placeholder for results

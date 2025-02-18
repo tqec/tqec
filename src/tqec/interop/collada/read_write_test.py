@@ -4,7 +4,7 @@ import tempfile
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.gallery.cnot import cnot
+from tqec.gallery.cnot import cnot, rotated_cnot
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
@@ -23,6 +23,27 @@ def test_logical_cnot_collada_write_read(pipe_length: float) -> None:
 
     # Manually delete the temporary file
     os.remove(temp_file.name)
+
+
+@pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
+def test_rotated_cnot_collada_write_read(pipe_length: float) -> None:
+    block_graph = rotated_cnot(Basis.X)
+    cubes_in_blockgraph = [cube for cube in block_graph.cubes]
+    pipes_in_blockgraph = [
+        (pipe.u.position, pipe.v.position, pipe.kind) for pipe in block_graph.pipes
+    ]
+
+    block_graph_from_file = BlockGraph.from_dae_file("./assets/rotations_cnot.dae")
+    cubes_from_dae = [cube for cube in block_graph_from_file.cubes]
+    pipes_from_dae = [
+        (pipe.u.position, pipe.v.position, pipe.kind)
+        for pipe in block_graph_from_file.pipes
+    ]
+
+    match_cubes = [(cube in cubes_in_blockgraph) for cube in cubes_from_dae]
+    match_pipes = [(pipe in pipes_in_blockgraph) for pipe in pipes_from_dae]
+
+    assert all([match_cubes, match_pipes])
 
 
 @pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])

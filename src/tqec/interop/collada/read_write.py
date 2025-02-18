@@ -11,7 +11,7 @@ import collada.source
 import numpy as np
 import numpy.typing as npt
 
-from tqec.computation.block_graph import BlockGraph, BlockKind
+from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_str
 from tqec.computation.cube import CubeKind, Port, YCube
 from tqec.computation.pipe import PipeKind
 from tqec.utils.enums import Basis
@@ -28,7 +28,6 @@ from tqec.utils.rotations import (
     calc_rotation_angles,
     get_axes_directions,
     rotate_block_kind_by_matrix,
-    block_kind_from_str,
 )
 from tqec.utils.scale import round_or_fail
 
@@ -206,6 +205,7 @@ def read_block_graph_from_dae_file(
         tail_pos = head_pos.shift_in_direction(
             pipe_kind.direction, 1 * directional_multiplier
         )
+
         # Add pipe
         if head_pos not in graph:
             graph.add_cube(head_pos, Port(), label=f"Port{port_index}")
