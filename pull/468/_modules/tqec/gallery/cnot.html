@@ -457,50 +457,6 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">(</span><span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">g</span></div>
 
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">rotated_cnot</span><span class="p">(</span><span class="n">observable_basis</span><span class="p">:</span> <span class="n">Basis</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a block graph for the logical CNOT gate.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        observable_basis: The observable basis that the block graph can support.</span>
-<span class="sd">            If None, the four ports of the block graph will be left open.</span>
-<span class="sd">            Otherwise, the ports will be filled with the cubes that have the</span>
-<span class="sd">            initializations and measurements in the given observable basis.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing</span>
-<span class="sd">        the logical CNOT gate.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">g</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="p">()</span>
-
-    <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;ZZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;ZXX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;ZZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;ZZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;ZXX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;ZZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;ZZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;ZZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;ZZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">Position3D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;ZZX&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-    <span class="p">]</span>
-
-    <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
-
-    <span class="n">pipes</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">)]</span>
-
-    <span class="k">for</span> <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span> <span class="ow">in</span> <span class="n">pipes</span><span class="p">:</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">p0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">nodes</span><span class="p">[</span><span class="n">p1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-
-    <span class="k">if</span> <span class="n">observable_basis</span> <span class="o">==</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span><span class="p">:</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">(</span><span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">observable_basis</span> <span class="o">==</span> <span class="n">Basis</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">fill_ports</span><span class="p">(</span><span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">g</span>
 </pre></div>
 
                 </article>
