@@ -105,6 +105,8 @@ def rotate_block_kind_by_matrix(
     Returns:
         rotated_kind: rotated kind for the node.
     """
+    if str(block_kind) == "PORT":
+        return block_kind
 
     # Placeholder for results
     rotated_name = ""
@@ -116,7 +118,6 @@ def rotate_block_kind_by_matrix(
 
     # Loop:
     # - applies transformation encoded in rotate_matrix to vectorised kind
-    # - builds dict with plus/minus direction for each axis
     for _, row in enumerate(rotation_matrix):
         entry = ""
         for j, element in enumerate(row):
@@ -131,7 +132,8 @@ def rotate_block_kind_by_matrix(
         not rotated_name.endswith("!") or axes_directions["Z"] < 0
     ):
         raise TQECException(
-            f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} block."
+            f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} block.",
+            "Cultivation and Y blocks should only allow rotation around Z axis.",
         )
     # Clean kind names for special names
     # State cultivation
