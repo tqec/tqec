@@ -1,5 +1,9 @@
+from typing import TypedDict
+
 import numpy as np
+import numpy.typing as npt
 from pytest import raises
+
 from tqec.utils.exceptions import TQECException
 from tqec.computation.block_graph import block_kind_from_str
 from tqec.utils.rotations import (
@@ -44,7 +48,14 @@ confirm_directions = [
     {"X": 1, "Y": -1, "Z": 1},  # z_270
 ]
 
-valid_rotations = [
+
+class RotDict(TypedDict):
+    rotate_matrix: npt.NDArray[np.float32]
+    kind: str
+    rotated_kind: str
+
+
+valid_rotations: list[RotDict] = [
     {
         "rotate_matrix": np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]]),
         "kind": "ZXO",
@@ -91,7 +102,7 @@ valid_rotations = [
     },
 ]
 
-invalid_y_rotations = [
+invalid_y_rotations: list[RotDict] = [
     {
         "rotate_matrix": np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]]),
         "kind": "Y",
