@@ -516,7 +516,7 @@
 <h1>QubitMap<a class="headerlink" href="#qubitmap" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.circuit.QubitMap">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.circuit.</span></span><span class="sig-name descname"><span class="pre">QubitMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i2q=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/qubit_map.html#QubitMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.QubitMap" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.circuit.</span></span><span class="sig-name descname"><span class="pre">QubitMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i2q=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/qubit_map.html#QubitMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.QubitMap" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represent a bijection between <code class="xref py py-class docutils literal notranslate"><span class="pre">GridQubit</span></code>
 instances and indices.</p>
@@ -532,7 +532,7 @@ instances and indices.</p>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.circuit.QubitMap.__init__" title="tqec.circuit.QubitMap.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([i2q])</p></td>
 <td><p></p></td>
@@ -559,7 +559,7 @@ instances and indices.</p>
 </table>
 </div>
 <p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">indices</span></code></p></td>
 <td><p></p></td>
@@ -611,7 +611,7 @@ instances and indices.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.circuit.QubitMap.from_circuit">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/qubit_map.html#QubitMap.from_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.QubitMap.from_circuit" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/qubit_map.html#QubitMap.from_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.QubitMap.from_circuit" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>circuit</strong> (<em>Circuit</em>)</p>
@@ -624,7 +624,7 @@ instances and indices.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.circuit.QubitMap.from_qubits">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/qubit_map.html#QubitMap.from_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.QubitMap.from_qubits" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/qubit_map.html#QubitMap.from_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.QubitMap.from_qubits" title="Link to this definition">#</a></dt>
 <dd><p>Creates a qubit map from the provided <code class="docutils literal notranslate"><span class="pre">qubits</span></code>, associating
 indices using the order in which qubits are provided.</p>
 <dl class="field-list simple">
@@ -789,7 +789,7 @@ to each of the qubits represented by <code class="docutils literal notranslate">
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
     <br/>
   </p>
 </div>
