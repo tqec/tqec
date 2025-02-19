@@ -10,7 +10,14 @@ from typing import TYPE_CHECKING, cast
 
 import networkx as nx
 
-from tqec.computation.cube import Cube, CubeKind, Port, ZXCube, cube_kind_from_string
+from tqec.computation.cube import (
+    Cube,
+    CubeKind,
+    Port,
+    YCube,
+    ZXCube,
+    cube_kind_from_string,
+)
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
@@ -590,3 +597,14 @@ class BlockGraph:
         """Check if the graph is single connected, i.e. there is only one connected
         component in the graph."""
         return bool(nx.is_connected(self._graph))
+
+
+def block_kind_from_str(string: str) -> BlockKind:
+    """Parse a block kind from a string."""
+    string = string.upper()
+    if "O" in string:
+        return PipeKind.from_str(string)
+    elif string == "Y":
+        return YCube()
+    else:
+        return ZXCube.from_str(string)
