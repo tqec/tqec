@@ -34,9 +34,12 @@ name equivalences can be calculated algebraically using the transformation matri
 
 import numpy as np
 import numpy.typing as npt
-from tqec.computation.block_graph import BlockKind
+from scipy.spatial.transform import Rotation as R
+
+from tqec.computation.block_graph import BlockKind, block_kind_from_str
 from tqec.utils.exceptions import TQECException
-from tqec.computation.block_graph import block_kind_from_str
+from tqec.utils.position import Direction3D, Position3D
+from tqec.utils.scale import round_or_fail
 
 
 def calc_rotation_angles(M: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
@@ -68,7 +71,7 @@ def calc_rotation_angles(M: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
     return rotations
 
 
-def get_axes_directions(rotate_matrix: npt.NDArray[np.float32]) -> dict[str, int]:
+def get_axes_directions(rotation_matrix: npt.NDArray[np.float32]) -> dict[str, int]:
     """Gets up/down multipliers for each row of a rotation matrix.
 
     Args:
@@ -82,14 +85,14 @@ def get_axes_directions(rotate_matrix: npt.NDArray[np.float32]) -> dict[str, int
     axes_directions = {"X": 1, "Y": 1, "Z": 1}
 
     # Loop builds dict with plus/minus direction for each axis
-    for i, row in enumerate(rotate_matrix):
+    for i, row in enumerate(rotation_matrix):
         axes_directions["XYZ"[i]] = -1 if sum(row) < 0 else 1
 
     return axes_directions
 
 
 def rotate_block_kind_by_matrix(
-    block_kind: BlockKind, rotate_matrix: npt.NDArray[np.float32]
+    block_kind: BlockKind, rotation_matrix: npt.NDArray[np.float32]
 ) -> BlockKind:
     """Multiplies rotation matrix (rotate_matrix) with a symbolic vector made from the block_kind.
         - rotate_matrix is NOT rotated: block_kind untouched
@@ -114,14 +117,14 @@ def rotate_block_kind_by_matrix(
     # Loop:
     # - applies transformation encoded in rotate_matrix to vectorised kind
     # - builds dict with plus/minus direction for each axis
-    for i, row in enumerate(rotate_matrix):
+    for _, row in enumerate(rotation_matrix):
         entry = ""
         for j, element in enumerate(row):
             entry += abs(int(element)) * original_name[j]
         rotated_name += entry
 
     # Fails & re-writes for special blocks
-    axes_directions = get_axes_directions(rotate_matrix)
+    axes_directions = get_axes_directions(rotation_matrix)
 
     # Reject state cultivation blocks if rotated_name not ends in "!" or axes_directions["Z"] is negative
     if "!" in rotated_name and (
@@ -142,3 +145,50 @@ def rotate_block_kind_by_matrix(
     rotated_kind = block_kind_from_str(rotated_name)
 
     return rotated_kind
+
+
+def get_rotation_matrix(
+    rotation_axis: Direction3D,
+    counterclockwise: bool = True,
+    angle: float = np.pi / 2,
+) -> npt.NDArray[np.float32]:
+    """Gets the rotation matrix for a given axis and rotation.
+
+    Args:
+        rotation_axis: axis to rotate around.
+        counterclockwise: whether to rotate counterclockwise.
+        angle: rotation angle in radians.
+
+    Returns:
+        The rotation matrix.
+    """
+    rot_vec = np.array([0, 0, 0])
+    rot_vec[rotation_axis.value] = 1 if counterclockwise else -1
+    return np.array(R.from_rotvec(rot_vec * angle).as_matrix(), dtype=np.float32)
+
+
+def rotate_position_by_matrix(
+    position: Position3D,
+    rotation_matrix: npt.NDArray[np.float32],
+) -> Position3D:
+    """Rotates a cube by a given rotation matrix and returns the new position.
+
+    Note that we rotate the position of the cube based on its center, while the
+    position is based on its corner. Therefore, a cube at (0, 0, 0) rotated by
+    90 degrees around the x-axis will be at (0, -1, 0).
+
+    Args:
+        position: cube position to rotate.
+        rotate_matrix: rotation matrix.
+
+    Returns:
+        The rotated position.
+
+    Raises:
+        TQECException: if the rotated position is not integer.
+    """
+    rotation = R.from_matrix(rotation_matrix)
+    center_pos = [i + 0.5 for i in position.as_tuple()]
+    rotated_center = rotation.apply(center_pos)
+    rotated_corner = [round_or_fail(i - 0.5) for i in rotated_center]
+    return Position3D(*rotated_corner)
