@@ -4,7 +4,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import Position3D
+from tqec.utils.position import Direction3D, Position3D
 
 
 def test_block_graph_construction() -> None:
@@ -186,3 +186,15 @@ def test_single_connected() -> None:
 
     g.add_pipe(n1, n2)
     assert g.is_single_connected()
+
+
+def test_graph_rotation() -> None:
+    g = BlockGraph()
+    n1 = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    n2 = g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_pipe(n1, n2)
+    rg = g.rotate(Direction3D.Z)
+    assert str(rg[Position3D(-1, 0, 0)].kind) == "XZZ"
+    assert str(rg[Position3D(-1, 1, 0)].kind) == "XZZ"
+    assert str(rg.pipes[0].kind) == "XOZ"
+    assert rg.rotate(Direction3D.Z, num_90_degree_rotation=3) == g
