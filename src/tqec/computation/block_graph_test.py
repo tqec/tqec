@@ -198,3 +198,11 @@ def test_graph_rotation() -> None:
     assert str(rg[Position3D(-1, 1, 0)].kind) == "XZZ"
     assert str(rg.pipes[0].kind) == "XOZ"
     assert rg.rotate(Direction3D.Z, num_90_degree_rotation=3) == g
+
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "Y")
+    with pytest.raises(TQECException):
+        g.rotate(Direction3D.X)
+    rg = g.rotate(Direction3D.Z)
+    assert Position3D(-1, 0, 0) in rg
+    assert str(rg.cubes[0].kind) == "Y"
