@@ -3,6 +3,7 @@ import pytest
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
+from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
 
@@ -206,3 +207,17 @@ def test_graph_rotation() -> None:
     rg = g.rotate(Direction3D.Z)
     assert Position3D(-1, 0, 0) in rg
     assert str(rg.cubes[0].kind) == "Y"
+
+
+@pytest.mark.parametrize("obs_basis", [Basis.Z, Basis.X, None])
+def test_cnot_graph_rotation(obs_basis: Basis | None) -> None:
+    from tqec.interop.collada.read_write_test import rotated_cnot
+    from tqec.gallery.cnot import cnot
+
+    g = cnot(obs_basis)
+    rg = g.rotate(Direction3D.X, False)
+
+    rg_from_scratch = rotated_cnot(obs_basis)
+
+    # We need to shift the rotated graph in Z direction to match the two
+    assert rg.shift_by(dz=2) == rg_from_scratch
