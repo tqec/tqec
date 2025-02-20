@@ -42,11 +42,13 @@ from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.scale import round_or_fail
 
 
-def calc_rotation_angles(M: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
+def calc_rotation_angles(
+    rotation_matrix: npt.NDArray[np.float32],
+) -> npt.NDArray[np.float32]:
     """Calculates the rotation angles of the three row vectors of matrix (M) from the original X/Y/Z axis (given by an identity matrix)).
 
     Args:
-        M: rotation matrix for node, extracted from `.dae` file.
+        rotation_matrix: rotation matrix for node, extracted from `.dae` file.
 
     Returns:
         rotations: the rotation angle for each of the three vectors in M (see notes: !)
@@ -62,7 +64,7 @@ def calc_rotation_angles(M: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
     # ! I think that, technically, this should be done per column (aka column-major)
     # ! but this function is only to confirm rotation validity rather than to transform objects
     # ! per row (aka. row-major) is fine for this
-    for i, row in enumerate(M):
+    for i, row in enumerate(rotation_matrix):
         cos_theta = np.dot(ID[i], row) / (np.linalg.norm(ID[i]) * np.linalg.norm(row))
         angle_rad = np.arccos(np.clip(cos_theta, -1.0, 1.0))
         angle_deg = np.degrees(angle_rad)
@@ -75,7 +77,7 @@ def get_axes_directions(rotation_matrix: npt.NDArray[np.float32]) -> dict[str, i
     """Gets up/down multipliers for each row of a rotation matrix.
 
     Args:
-        rotate_matrix: rotation matrix for node.
+        rotation_matrix: rotation matrix for node.
 
     Returns:
         axes_directions: up/down multipliers for each axis
@@ -99,7 +101,7 @@ def rotate_block_kind_by_matrix(
         - rotate_matrix is rotated: block_kind rotated accordingly
 
     Args:
-        rotate_matrix: rotation matrix for node.
+        rotation_matrix: rotation matrix for node.
         block_kind: original kind.
 
     Returns:
@@ -181,7 +183,7 @@ def rotate_position_by_matrix(
 
     Args:
         position: cube position to rotate.
-        rotate_matrix: rotation matrix.
+        rotation_matrix: rotation matrix.
 
     Returns:
         The rotated position.
