@@ -28,16 +28,16 @@ def rotated_cnot(observable_basis: Basis | None = None) -> BlockGraph:
     g = BlockGraph()
 
     nodes = [
-        (Position3D(0, 0, 1), "ZZX", ""),
+        (Position3D(0, 0, 1), "P", "In_Control"),
         (Position3D(0, 1, 1), "ZXX", ""),
         (Position3D(0, 2, 1), "ZZX", ""),
-        (Position3D(0, 3, 1), "ZZX", ""),
+        (Position3D(0, 3, 1), "P", "Out_Control"),
         (Position3D(0, 1, 0), "ZXX", ""),
         (Position3D(0, 2, 0), "ZZX", ""),
-        (Position3D(1, 0, 0), "ZZX", ""),
+        (Position3D(1, 0, 0), "P", "In_Target"),
         (Position3D(1, 1, 0), "ZZX", ""),
         (Position3D(1, 2, 0), "ZZX", ""),
-        (Position3D(1, 3, 0), "ZZX", ""),
+        (Position3D(1, 3, 0), "P", "Out_Target"),
     ]
 
     for pos, kind, label in nodes:
@@ -49,7 +49,7 @@ def rotated_cnot(observable_basis: Basis | None = None) -> BlockGraph:
         g.add_pipe(nodes[p0][0], nodes[p1][0])
 
     if observable_basis == Basis.Z:
-        g.fill_ports(ZXCube.from_str("ZXZ"))
+        g.fill_ports(ZXCube.from_str("ZZX"))
     elif observable_basis == Basis.X:
         g.fill_ports(ZXCube.from_str("ZXX"))
     return g
@@ -72,25 +72,12 @@ def test_logical_cnot_collada_write_read(pipe_length: float) -> None:
 
 @pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
 def test_rotated_cnot_collada_write_read(pipe_length: float) -> None:
-    block_graph = rotated_cnot(Basis.X)
-    cubes_in_blockgraph = [cube for cube in block_graph.cubes]
-    pipes_in_blockgraph = [
-        (pipe.u.position, pipe.v.position, pipe.kind) for pipe in block_graph.pipes
-    ]
+    block_graph = rotated_cnot(Basis.Z)
 
     ROTATED_CNOT_DAE = Path(__file__).parent / "test_files/rotated_cnot.dae"
     block_graph_from_file = BlockGraph.from_dae_file(ROTATED_CNOT_DAE)
 
-    cubes_from_dae = [cube for cube in block_graph_from_file.cubes]
-    pipes_from_dae = [
-        (pipe.u.position, pipe.v.position, pipe.kind)
-        for pipe in block_graph_from_file.pipes
-    ]
-
-    match_cubes = [(cube in cubes_in_blockgraph) for cube in cubes_from_dae]
-    match_pipes = [(pipe in pipes_in_blockgraph) for pipe in pipes_from_dae]
-
-    assert all([match_cubes, match_pipes])
+    assert block_graph_from_file == block_graph
 
 
 @pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])

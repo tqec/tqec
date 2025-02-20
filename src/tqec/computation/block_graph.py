@@ -9,6 +9,7 @@ from io import BytesIO
 from typing import TYPE_CHECKING, cast
 
 import networkx as nx
+import numpy as np
 
 from tqec.computation.cube import (
     Cube,
@@ -597,6 +598,50 @@ class BlockGraph:
         """Check if the graph is single connected, i.e. there is only one connected
         component in the graph."""
         return bool(nx.is_connected(self._graph))
+
+    def rotate(
+        self,
+        rotation_axis: Direction3D,
+        counterclockwise: bool = True,
+        num_90_degree_rotation: int = 1,
+    ) -> BlockGraph:
+        """Rotate the graph around an axis by 0, 90, 180, or 270 degrees and
+        create a new graph with the rotated positions.
+
+        Args:
+            rotation_axis: The axis to rotate around.
+            counterclockwise: Whether to rotate counterclockwise. Default is True.
+            num_90_degree_rotation: The number of 90-degree rotations. Default is 1.
+
+        Returns:
+            A new graph with the rotated positions. The new graph will share no data
+            with the original graph.
+        """
+        from tqec.utils.rotations import (
+            rotate_block_kind_by_matrix,
+            get_rotation_matrix,
+            rotate_position_by_matrix,
+        )
+
+        rotated = BlockGraph(self.name + "_rotated")
+        rotation_matrix = get_rotation_matrix(
+            rotation_axis, counterclockwise, num_90_degree_rotation * np.pi / 2
+        )
+        pos_map: dict[Position3D, Position3D] = {}
+        for cube in self.cubes:
+            rotated_kind = rotate_block_kind_by_matrix(cube.kind, rotation_matrix)
+            rotated_pos = rotate_position_by_matrix(cube.position, rotation_matrix)
+            rotated.add_cube(rotated_pos, cast(CubeKind, rotated_kind), cube.label)
+            pos_map[cube.position] = rotated_pos
+
+        for pipe in self.pipes:
+            rotated_kind = rotate_block_kind_by_matrix(pipe.kind, rotation_matrix)
+            rotated.add_pipe(
+                pos_map[pipe.u.position],
+                pos_map[pipe.v.position],
+                cast(PipeKind, rotated_kind),
+            )
+        return rotated
 
 
 def block_kind_from_str(string: str) -> BlockKind:
