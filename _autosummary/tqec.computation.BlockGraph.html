@@ -581,22 +581,25 @@ connects. Pipes are represented as edges in the graph.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.remove_pipe" title="tqec.computation.BlockGraph.remove_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_pipe</span></code></a>(pos1, pos2)</p></td>
 <td><p>Remove a pipe between two positions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.shift_by" title="tqec.computation.BlockGraph.shift_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_by</span></code></a>([dx, dy, dz])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.rotate" title="tqec.computation.BlockGraph.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>(rotation_axis[, counterclockwise, ...])</p></td>
+<td><p>Rotate the graph around an axis by 0, 90, 180, or 270 degrees and create a new graph with the rotated positions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.shift_by" title="tqec.computation.BlockGraph.shift_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_by</span></code></a>([dx, dy, dz])</p></td>
 <td><p>Shift the whole graph by the given offset in the x, y, z directions and creat a new graph with the shifted positions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.spacetime_volume" title="tqec.computation.BlockGraph.spacetime_volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spacetime_volume</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.spacetime_volume" title="tqec.computation.BlockGraph.spacetime_volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spacetime_volume</span></code></a>()</p></td>
 <td><p>Return the spacetime volume of the computation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_dae_file" title="tqec.computation.BlockGraph.to_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dae_file</span></code></a>(file_path[, pipe_length, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_dae_file" title="tqec.computation.BlockGraph.to_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dae_file</span></code></a>(file_path[, pipe_length, ...])</p></td>
 <td><p>Write the block graph to a Collada DAE file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_zx_graph" title="tqec.computation.BlockGraph.to_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_zx_graph</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_zx_graph" title="tqec.computation.BlockGraph.to_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_zx_graph</span></code></a>()</p></td>
 <td><p>Convert the block graph to a positioned PyZX graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.validate" title="tqec.computation.BlockGraph.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.validate" title="tqec.computation.BlockGraph.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>()</p></td>
 <td><p>Check the validity of the block graph to represent a logical computation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.view_as_html" title="tqec.computation.BlockGraph.view_as_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view_as_html</span></code></a>([write_html_filepath, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.view_as_html" title="tqec.computation.BlockGraph.view_as_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view_as_html</span></code></a>([write_html_filepath, ...])</p></td>
 <td><p>View COLLADA model in html with the help of <code class="docutils literal notranslate"><span class="pre">three.js</span></code>.</p></td>
 </tr>
 </tbody>
@@ -928,6 +931,29 @@ component in the graph.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.BlockGraph.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotation_axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterclockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_90_degree_rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.rotate" title="Link to this definition">#</a></dt>
+<dd><p>Rotate the graph around an axis by 0, 90, 180, or 270 degrees and
+create a new graph with the rotated positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rotation_axis</strong> (<a class="reference internal" href="tqec.utils.Direction3D.html#tqec.utils.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a>) – The axis to rotate around.</p></li>
+<li><p><strong>counterclockwise</strong> (<em>bool</em>) – Whether to rotate counterclockwise. Default is True.</p></li>
+<li><p><strong>num_90_degree_rotation</strong> (<em>int</em>) – The number of 90-degree rotations. Default is 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new graph with the rotated positions. The new graph will share no data
+with the original graph.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.shift_by">
 <span class="sig-name descname"><span class="pre">shift_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.shift_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.shift_by" title="Link to this definition">#</a></dt>
 <dd><p>Shift the whole graph by the given offset in the x, y, z directions and
@@ -1118,6 +1144,7 @@ can be directly displayed in IPython compatible environments.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.pipes_at"><code class="docutils literal notranslate"><span class="pre">BlockGraph.pipes_at()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.remove_cube"><code class="docutils literal notranslate"><span class="pre">BlockGraph.remove_cube()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.remove_pipe"><code class="docutils literal notranslate"><span class="pre">BlockGraph.remove_pipe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.rotate"><code class="docutils literal notranslate"><span class="pre">BlockGraph.rotate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.shift_by"><code class="docutils literal notranslate"><span class="pre">BlockGraph.shift_by()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.spacetime_volume"><code class="docutils literal notranslate"><span class="pre">BlockGraph.spacetime_volume()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_dae_file"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_dae_file()</span></code></a></li>
