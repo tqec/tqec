@@ -8,34 +8,25 @@ assignees: ''
 ---
 
 ## Describe the bug
-A clear and concise description of what the bug is.
 
-## Steps to reproduce the behavior:
-1.
-1.
-1.
+*A clear and concise description of what the bug is.*
+
+## Steps to reproduce the behavior
+
+*Steps that need to be performed in order to reproduce the bug.*
 
 ## Expected behavior
-A clear and concise description of what you expected to happen.
 
-## Screenshots and MP4s
-If applicable, add a demonstration of the bug.
+*A clear and concise description of what you expected to happen.*
 
-## Browser info (please complete for frontend bugs):
- - OS: [e.g. Ubuntu]
- - Browser [e.g. Chrome, Safari]
- - Version [e.g. 22]
-
-## Python dependency versions (please complete for backend bugs)
+## Python dependency versions
 
 Run `pip freeze` and put the output in the `<details>` element below.
 
-
 <details>
-
 
 </details>
 
-
 ## Additional context
-Add any other context about the problem here.
+
+*Add any other context about the problem here.*
