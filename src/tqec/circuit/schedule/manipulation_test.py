@@ -9,7 +9,7 @@ from tqec.circuit.schedule.manipulation import (
     relabel_circuits_qubit_indices,
     remove_duplicate_instructions,
 )
-from tqec.exceptions import TQECWarning
+from tqec.utils.exceptions import TQECWarning
 
 
 def test_remove_duplicate_instructions() -> None:

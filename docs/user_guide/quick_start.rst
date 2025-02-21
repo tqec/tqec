@@ -43,9 +43,10 @@ using ``tqec.BlockGraph``:
 
     .. code-block:: python
 
-        from tqec.gallery.logical_cnot import logical_cnot_block_graph
+        from tqec.gallery.cnot import cnot
+        from tqec import Basis
 
-        block_graph = logical_cnot_block_graph(port_type="Z")
+        block_graph = cnot(Basis.Z)
 
 
 3. Choose the observable(s) of interest
@@ -88,7 +89,7 @@ From this compiled computation, the final ``stim.Circuit`` instance can be gener
 
 .. code-block:: python
 
-    from tqec.noise_model import NoiseModel
+    from tqec import NoiseModel
 
     circuit = compiled_computation.generate_stim_circuit(
         k=2,
@@ -124,7 +125,7 @@ The compilation of the block graph is done automatically based on the inputs.
 
     import numpy as np
 
-    from tqec.noise_model import NoiseModel
+    from tqec import NoiseModel
     from tqec.simulation.simulation import start_simulation_using_sinter
 
     # returns a iterator

@@ -4,7 +4,7 @@ import stim
 
 from tqec.plaquette.compilation.css import CSSPlaquetteCompiler
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.plaquette.translators.default import DefaultRPNGTranslator
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 
 
 def test_zzzz() -> None:

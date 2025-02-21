@@ -37,8 +37,7 @@ Here we generate the circuits for a logical CNOT between two logical qubits to d
 Refer to [quick start](https://tqec.github.io/tqec/user_guide/quick_start.html) in the documentation for more detailed explanation.
 
 ```py
-from tqec import BlockGraph, compile_block_graph
-from tqec.noise_model import NoiseModel
+from tqec import BlockGraph, compile_block_graph, NoiseModel
 
 # 1. Construct the logical computation
 block_graph = BlockGraph.from_dae_file("assets/logical_cnot.dae")

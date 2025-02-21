@@ -2,9 +2,9 @@ import pytest
 
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe, PipeKind
-from tqec.enums import Basis
-from tqec.exceptions import TQECException
-from tqec.position import Direction3D, Position3D
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECException
+from tqec.utils.position import Direction3D, Position3D
 
 
 def test_pipe_kind() -> None:

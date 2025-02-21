@@ -8,7 +8,7 @@ from typing import Literal, Sequence, cast
 
 import stim
 
-from tqec.circuit.coordinates import StimCoordinates
+from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
@@ -30,13 +30,13 @@ from tqec.compile.specs.base import (
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.exceptions import TQECException, TQECWarning
-from tqec.noise_model import NoiseModel
+from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
-from tqec.position import Direction3D, Position3D
-from tqec.scale import round_or_fail
-from tqec.templates.indices.base import Template
-from tqec.templates.indices.layout import LayoutTemplate
+from tqec.templates.base import Template
+from tqec.templates.layout import LayoutTemplate
+from tqec.utils.position import Direction3D, Position3D
+from tqec.utils.scale import round_or_fail
 
 
 @dataclass
@@ -46,7 +46,7 @@ class CompiledGraph:
     This class should be easy to scale and generate circuits directly.
 
     Attributes:
-        layout_slices: a list of :class:`~tqec.templates.indices.layout.BlockLayout`
+        layout_slices: a list of :class:`~tqec.templates.layout.BlockLayout`
             instances that represent the compiled blocks at contiguous time
             slices.
         observables: a list of
@@ -333,21 +333,24 @@ def compile_block_graph(
         raise TQECException(
             "Can not compile a block graph with open ports into circuits."
         )
-    cube_specs = {
-        cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.nodes
-    }
 
     # 0. Set the minimum z of block graph to 0.(time starts from zero)
-    block_graph = block_graph.shift_min_z_to_zero()
+    minz = min(cube.position.z for cube in block_graph.cubes)
+    if minz != 0:
+        block_graph = block_graph.shift_by(dz=-minz)
+
+    cube_specs = {
+        cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
+    }
 
     # 1. Get the base compiled blocks before applying the substitution rules.
     blocks: dict[Position3D, CompiledBlock] = {}
-    for cube in block_graph.nodes:
+    for cube in block_graph.cubes:
         spec = cube_specs[cube]
         blocks[cube.position] = block_builder(spec)
 
     # 2. Apply the substitution rules to the compiled blocks inplace.
-    pipes = block_graph.edges
+    pipes = block_graph.pipes
     time_pipes = [pipe for pipe in pipes if pipe.direction == Direction3D.Z]
     space_pipes = [pipe for pipe in pipes if pipe.direction != Direction3D.Z]
     # Note that the order of the pipes to apply the substitution rules is important.

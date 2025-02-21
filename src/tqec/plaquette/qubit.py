@@ -5,7 +5,7 @@ from typing import Iterator
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
-from tqec.enums import Orientation
+from tqec.utils.enums import Orientation
 from tqec.plaquette.enums import PlaquetteSide
 
 

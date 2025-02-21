@@ -1,4 +1,4 @@
-from tqec.enums import Basis
+from tqec.utils.enums import Basis
 from tqec.plaquette.compilation.passes.transformer import (
     InstructionCreator,
     ScheduledCircuitTransformation,

@@ -3,11 +3,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Generic, TypeVar
 
-from tqec.plaquette.frozendefaultdict import FrozenDefaultDict
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.position import PlaquettePosition2D, Shape2D, Shift2D
-from tqec.scale import Scalable2D
-from tqec.templates.indices.base import Template
+from tqec.templates.base import Template
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
+from tqec.utils.position import PlaquettePosition2D, Shape2D, Shift2D
+from tqec.utils.scale import Scalable2D
 
 T = TypeVar("T", bound=Template, covariant=True)
 
@@ -44,7 +44,7 @@ class RPNGTemplate(Generic[T]):
         This property returns the coordinates of the origin of the plaquette
         (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
         to the top-left entry of the array returned by
-        :meth:`~tqec.templates.indices.base.Template.instantiate`.
+        :meth:`~tqec.templates.base.Template.instantiate`.
 
         Note:
             the returned coordinates are in plaquette coordinates. That means
@@ -59,7 +59,7 @@ class RPNGTemplate(Generic[T]):
             the coordinates of the origin of the plaquette
             (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
             to the top-left entry of the array returned by
-            :meth:`~tqec.templates.indices.base.Template.instantiate`.
+            :meth:`~tqec.templates.base.Template.instantiate`.
         """
         return self.template.instantiation_origin(k)
 
@@ -95,7 +95,7 @@ class RPNGTemplate(Generic[T]):
         Returns:
             The SVG string of the visualization.
         """
-        from tqec.templates.viz_rpng import rpng_svg_viewer
+        from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
 
         svg_str = rpng_svg_viewer(
             self.instantiate(k),

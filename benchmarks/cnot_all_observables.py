@@ -6,8 +6,9 @@ from tqecd.construction import annotate_detectors_automatically
 
 from tqec.compile.compile import CompiledGraph, compile_block_graph
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
-from tqec.noise_model import NoiseModel
-from tqec.gallery import logical_cnot_block_graph
+from tqec.utils.enums import Basis
+from tqec.utils.noise_model import NoiseModel
+from tqec.gallery import cnot
 
 BENCHMARK_FOLDER = Path(__file__).resolve().parent
 TQEC_FOLDER = BENCHMARK_FOLDER.parent
@@ -27,7 +28,7 @@ def generate_stim_circuit(
 
 def generate_cnot_circuits(*ks: int) -> None:
     # 1 Create `BlockGraph` representing the computation
-    block_graph = logical_cnot_block_graph("X")
+    block_graph = cnot(Basis.X)
 
     # 2. (Optional) Find and choose the logical observables
     correlation_surfaces = block_graph.find_correlation_surfaces()

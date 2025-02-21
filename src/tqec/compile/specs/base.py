@@ -8,7 +8,7 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, CubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
 from tqec.plaquette.plaquette import Plaquettes
 
 
@@ -49,7 +49,7 @@ class CubeSpec:
         pos = cube.position
         spatial_arms = SpatialArms.NONE
         for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
-            if graph.get_edge(pos, pos.shift_by(*shift)) is not None:
+            if graph.has_pipe_between(pos, pos.shift_by(*shift)):
                 spatial_arms |= flag
         return CubeSpec(cube.kind, spatial_arms)
 

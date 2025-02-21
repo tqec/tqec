@@ -16,13 +16,13 @@ from typing import Any, Callable, Iterable, Iterator, Sequence
 
 import stim
 
-from tqec.circuit.instructions import is_annotation_instruction
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap, get_qubit_map
 from tqec.circuit.schedule.exception import ScheduleException
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.exceptions import TQECException
+from tqec.utils.exceptions import TQECException
+from tqec.utils.instructions import is_annotation_instruction
 
 
 class ScheduledCircuit:

@@ -10,9 +10,8 @@ import numpy.typing as npt
 
 from tqec.computation.cube import YCube, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.computation.zx_graph import ZXKind
-from tqec.exceptions import TQECException
-from tqec.position import Direction3D, FloatPosition3D, SignedDirection3D
+from tqec.utils.enums import Basis
+from tqec.utils.position import Direction3D, FloatPosition3D, SignedDirection3D
 from tqec.interop.color import TQECColor
 
 if TYPE_CHECKING:
@@ -232,9 +231,7 @@ class BlockGeometries:
         self.geometries
 
 
-def get_correlation_surface_geometry(zx_kind: ZXKind) -> Face:
+def get_correlation_surface_geometry(basis: Basis) -> Face:
     """Get the face representing the correlation surface."""
-    if zx_kind not in [ZXKind.X, ZXKind.Z]:
-        raise TQECException("Invalid ZX kind for correlation surface.")
     normal_direction = SignedDirection3D(Direction3D.Z, True)
-    return Face(TQECColor(zx_kind.value + "_CORRELATION"), 1.0, 1.0, normal_direction)
+    return Face(TQECColor(basis.value + "_CORRELATION"), 1.0, 1.0, normal_direction)

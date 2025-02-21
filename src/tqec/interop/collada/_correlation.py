@@ -5,207 +5,236 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube, ZXCube
-from tqec.computation.zx_graph import ZXEdge, ZXKind, ZXNode
-from tqec.enums import Basis
+from tqec.computation.correlation import CorrelationSurface, ZXEdge
+from tqec.utils.enums import Basis
 from tqec.interop.collada.read_write import _Transformation
-from tqec.position import Direction3D, FloatPosition3D, Position3D
+from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
+
+TransformationResult = tuple[Basis, _Transformation]
 
 
-def get_transformations_for_correlation_surface(
-    block_graph: BlockGraph,
-    correlation_surface: CorrelationSurface,
-    pipe_length: float,
-) -> list[tuple[ZXKind, _Transformation]]:
-    """Get the transformations of each piece of a correlation surface for
-    representing it in a COLLADA model."""
-    transformations: list[tuple[ZXKind, _Transformation]] = []
-    # Surfaces in the pipes
-    for edge in correlation_surface.span:
-        transformations.extend(
-            _get_transformations_for_surface_in_pipe(block_graph, edge, pipe_length)
-        )
+class CorrelationSurfaceTransformationHelper:
+    def __init__(self, block_graph: BlockGraph, pipe_length: float):
+        """Helper class to compute transformations of each piece of a correlation
+        surfaces in a COLLADA model.
 
-    # Surfaces in the cubes
-    for node in correlation_surface.nodes:
-        cube = block_graph[node.position]
-        # Do not add surfaces in ports or Y-cubes
-        if cube.is_port or cube.is_y_cube:
-            continue
-        transformations.extend(
-            _get_transformations_for_surface_in_cube(
-                block_graph,
-                cube,
-                correlation_surface,
-                node.kind,
-                pipe_length,
+        The correlation surface is decomposed into small pieces of surfaces
+        that can be transformed from a single 1x1 square surface in the XY-plane.
+        This class computes the transformations for each piece of the correlation
+        surface.
+
+        """
+        self.block_graph = block_graph
+        self.pipe_length = pipe_length
+        self.position_map = block_graph.to_zx_graph().positions
+
+    def get_transformations_for_correlation_surface(
+        self,
+        correlation_surface: CorrelationSurface,
+    ) -> list[TransformationResult]:
+        """Compute the list of transformations (with corresponding bases) that
+        represent each piece of the given correlation surface in the COLLADA
+        model."""
+        transformations: list[TransformationResult] = []
+
+        # Surfaces in the pipes
+        for edge in correlation_surface.span:
+            if edge.is_self_loop():
+                continue
+            transformations.extend(self._compute_pipe_transformations(edge))
+
+        # Surfaces in the cubes
+        for v in correlation_surface.span_vertices():
+            cube = self._get_cube(v)
+            # Do not add surfaces in ports or Y-cubes
+            if cube.is_port or cube.is_y_cube:
+                continue
+            transformations.extend(
+                self._compute_cube_transformations(
+                    v,
+                    correlation_surface.edges_at(v),
+                    correlation_surface.bases_at(v),
+                )
             )
-        )
-    return transformations
+        return transformations
 
+    def _get_position(self, v: int) -> Position3D:
+        return self.position_map[v]
 
-def _get_transformations_for_surface_in_pipe(
-    block_graph: BlockGraph,
-    edge: ZXEdge,
-    pipe_length: float,
-) -> list[tuple[ZXKind, _Transformation]]:
-    transformations: list[tuple[ZXKind, _Transformation]] = []
-    normal_direction = _surface_normal_direction(block_graph, edge)
-    surface_position = (
-        _scale_position(edge.u.position, pipe_length)
-        .shift_in_direction(edge.direction, 1)
-        .shift_in_direction(normal_direction, 0.5)
-    )
-    rotation = _rotation_to_plane(normal_direction)
-    scale = _get_scale(
-        edge.direction if edge.direction != Direction3D.Z else normal_direction,
-        pipe_length / 2 if edge.has_hadamard else pipe_length,
-    )
-    transformations.append(
-        (
-            edge.u.kind,
-            _Transformation(
-                translation=surface_position.as_array(),
-                rotation=rotation,
-                scale=scale,
-            ),
+    def _get_cube(self, v: int) -> Cube:
+        return self.block_graph[self.position_map[v]]
+
+    def _edge_direction(self, edge: ZXEdge) -> Direction3D:
+        """Return the edge direction."""
+        p1, p2 = self._get_position(edge.u.id), self._get_position(edge.v.id)
+        if p1.x != p2.x:
+            return Direction3D.X
+        if p1.y != p2.y:
+            return Direction3D.Y
+        return Direction3D.Z
+
+    def _surface_normal_direction(
+        self,
+        correlation_edge: ZXEdge,
+    ) -> Direction3D:
+        """Get the correlation surface normal direction in the pipe."""
+        u, v = correlation_edge
+        up, vp = self._get_position(u.id), self._get_position(v.id)
+        pipe = self.block_graph.get_pipe(up, vp)
+        correlation_basis = u.basis
+        return next(
+            d
+            for d in Direction3D.all_directions()
+            if pipe.kind.get_basis_along(d) == correlation_basis.flipped()
         )
-    )
-    if edge.has_hadamard:
+
+    def _scale_position(self, pos: Position3D) -> FloatPosition3D:
+        return FloatPosition3D(*(p * (1 + self.pipe_length) for p in pos.as_tuple()))
+
+    def _compute_pipe_transformations(self, edge: ZXEdge) -> list[TransformationResult]:
+        """Compute the surface transformations within a pipe. If the edge is a
+        Hadamard edge, two surfaces with different basis are created."""
+        transformations: list[TransformationResult] = []
+        normal_direction = self._surface_normal_direction(edge)
+        edge_direction = self._edge_direction(edge)
+
+        # Compute the translation for the surface.
+        base_position = self._get_position(edge.u.id)
+        scaled_position = self._scale_position(base_position)
+        surface_position = scaled_position.shift_in_direction(
+            edge_direction, 1
+        ).shift_in_direction(normal_direction, 0.5)
+        rotation = _rotation_to_plane(normal_direction)
+        scale_factor = self.pipe_length / 2 if edge.has_hadamard else self.pipe_length
+        scale_direction = (
+            edge_direction if edge_direction != Direction3D.Z else normal_direction
+        )
+        scale = _get_scale(scale_direction, scale_factor)
+
         transformations.append(
             (
-                edge.v.kind,
+                edge.u.basis,
                 _Transformation(
-                    translation=surface_position.shift_in_direction(
-                        edge.direction, pipe_length / 2
-                    ).as_array(),
+                    translation=surface_position.as_array(),
                     rotation=rotation,
                     scale=scale,
                 ),
-            ),
+            )
         )
-    return transformations
-
-
-def _get_transformations_for_surface_in_cube(
-    block_graph: BlockGraph,
-    cube: Cube,
-    correlation_surface: CorrelationSurface,
-    correlation: ZXKind,
-    pipe_length: float,
-) -> list[tuple[ZXKind, _Transformation]]:
-    pos = cube.position
-    scaled_pos = _scale_position(pos, pipe_length)
-    assert isinstance(cube.kind, ZXCube)
-    cube_kind = cube.kind
-    normal_direction_basis = Basis(cube_kind.to_zx_kind().value)
-    cube_normal_direction = Direction3D(
-        cube_kind.as_tuple().index(normal_direction_basis)
-    )
-    node = cube.to_zx_node()
-    transformations: list[tuple[ZXKind, _Transformation]] = []
-    # Surfaces with even parity constraint
-    if correlation == ZXKind.Y or node.kind == correlation:
-        edges = {
-            edge for edge in correlation_surface.span if any(n == node for n in edge)
-        }
-        assert len(edges) in {2, 4}, "Even parity constraint violated"
-        if len(edges) == 2:
-            e1, e2 = sorted(edges)
-            # passthrough
-            if e1.direction == e2.direction:
-                normal_direction = _surface_normal_direction(block_graph, e1)
-                transformations.append(
-                    (
-                        node.kind,
-                        _Transformation(
-                            translation=scaled_pos.shift_in_direction(
-                                normal_direction, 0.5
-                            ).as_array(),
-                            rotation=_rotation_to_plane(normal_direction),
-                            scale=np.ones(3, dtype=np.float32),
-                        ),
-                    )
-                )
-            # turn at corner
-            else:
-                transformations.append(
-                    _get_transformation_for_surface_at_turn(scaled_pos, node, e1, e2)
-                )
-        else:
-            e1, e2, e3, e4 = sorted(edges)
+        if edge.has_hadamard:
             transformations.append(
-                _get_transformation_for_surface_at_turn(scaled_pos, node, e1, e2)
-            )
-            transformations.append(
-                _get_transformation_for_surface_at_turn(scaled_pos, node, e3, e4)
-            )
-
-    # Surfaces that can broadcast to all the neighbors
-    if node.kind != correlation:
-        transformations.append(
-            (
-                node.kind.with_zx_flipped(),
-                _Transformation(
-                    translation=scaled_pos.shift_in_direction(
-                        cube_normal_direction, 0.5
-                    ).as_array(),
-                    scale=np.ones(3, dtype=np.float32),
-                    rotation=_rotation_to_plane(cube_normal_direction),
+                (
+                    edge.v.basis,
+                    _Transformation(
+                        translation=surface_position.shift_in_direction(
+                            edge_direction, self.pipe_length / 2
+                        ).as_array(),
+                        rotation=rotation,
+                        scale=scale,
+                    ),
                 ),
             )
-        )
-    return transformations
+        return transformations
 
+    def _compute_cube_transformations(
+        self,
+        v: int,
+        correlation_edges: set[ZXEdge],
+        surface_bases: set[Basis],
+    ) -> list[TransformationResult]:
+        """Compute the transformations for the surfaces in the cube."""
+        cube = self._get_cube(v)
+        kind = cube.kind
+        assert isinstance(kind, ZXCube)
+        scaled_pos = self._scale_position(cube.position)
+        transformations: list[TransformationResult] = []
 
-def _get_transformation_for_surface_at_turn(
-    cube_pos: FloatPosition3D,
-    node: ZXNode,
-    e1: ZXEdge,
-    e2: ZXEdge,
-) -> tuple[ZXKind, _Transformation]:
-    assert e1.direction != e2.direction
-    corner_normal_direction = (
-        set(Direction3D.all_directions()) - {e1.direction, e2.direction}
-    ).pop()
-    # whether the surface is "/" or "\" shape in the corner
-    slash_shape = (e1.u == node) ^ (e2.u == node)
-    angle = 45.0 if slash_shape else -45.0
+        # Surfaces with even parity constraint
+        if kind.normal_basis in surface_bases:
+            assert len(correlation_edges) in {2, 4}, "Even parity constraint violated"
+            if len(correlation_edges) == 2:
+                e1, e2 = sorted(correlation_edges)
+                # passthrough
+                if self._edge_direction(e1) == self._edge_direction(e2):
+                    normal_direction = self._surface_normal_direction(e1)
+                    translation = scaled_pos.shift_in_direction(normal_direction, 0.5)
+                    transformations.append(
+                        (
+                            kind.normal_basis,
+                            _Transformation(
+                                translation=translation.as_array(),
+                                rotation=_rotation_to_plane(normal_direction),
+                                scale=np.ones(3, dtype=np.float32),
+                            ),
+                        )
+                    )
+                # turn at corner
+                else:
+                    transformations.extend(
+                        self._compute_turn_transformation(scaled_pos, v, (e1, e2))
+                    )
+            else:
+                e1, e2, e3, e4 = sorted(correlation_edges)
+                transformations.extend(
+                    self._compute_turn_transformation(scaled_pos, v, (e1, e2))
+                )
+                transformations.extend(
+                    self._compute_turn_transformation(scaled_pos, v, (e3, e4))
+                )
 
-    if corner_normal_direction != Direction3D.Z:
-        corner_plane_x = (
-            Direction3D.X if corner_normal_direction == Direction3D.Y else Direction3D.Y
-        )
-        corner_plane_y = Direction3D.Z
-        rotation = _rotation_matrix(corner_normal_direction, angle)
-    else:
-        corner_plane_x, corner_plane_y = Direction3D.X, Direction3D.Y
-        # First rotate to the XZ-plane, then rotate around the Z-axis
-        first_rotation = _rotation_to_plane(Direction3D.Y)
-        second_rotation = _rotation_matrix(Direction3D.Z, angle)
-        rotation = second_rotation @ first_rotation
-    scale = _get_scale(corner_plane_x, np.sqrt(2) / 2)
-    if e1.direction == corner_plane_x:
-        translation = cube_pos.shift_in_direction(corner_plane_y, 0.5)
-    elif slash_shape:
-        translation = cube_pos.shift_in_direction(corner_plane_x, 0.5)
-    else:
-        translation = cube_pos.shift_in_direction(
-            corner_plane_x, 0.5
-        ).shift_in_direction(corner_plane_y, 1.0)
-    return (
-        node.kind,
-        _Transformation(
-            translation=translation.as_array(),
-            rotation=rotation,
-            scale=scale,
-        ),
-    )
+        # Surfaces that can broadcast to all the neighbors
+        if len(surface_bases) == 2 or kind.normal_basis not in surface_bases:
+            translation = scaled_pos.shift_in_direction(kind.normal_direction, 0.5)
+            transformations.append(
+                (
+                    kind.normal_basis.flipped(),
+                    _Transformation(
+                        translation=translation.as_array(),
+                        scale=np.ones(3, dtype=np.float32),
+                        rotation=_rotation_to_plane(kind.normal_direction),
+                    ),
+                )
+            )
+        return transformations
 
+    def _compute_turn_transformation(
+        self,
+        cube_pos: FloatPosition3D,
+        v: int,
+        turn_edges: tuple[ZXEdge, ZXEdge],
+    ) -> list[TransformationResult]:
+        """Compute the transformations for the surfaces in a L-shape turn.
 
-def _scale_position(pos: Position3D, pipe_length: float) -> FloatPosition3D:
-    return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
+        At turn, two surfaces in the same basis are created and form a 90 degree
+        angle.
+        """
+        cube_kind = self._get_cube(v).kind
+        assert isinstance(cube_kind, ZXCube)
+
+        transformations = []
+        turn_dirs = [self._edge_direction(e) for e in turn_edges]
+        for i, e in enumerate(turn_edges):
+            d, other_d = turn_dirs[i], turn_dirs[1 - i]
+            # scale transformation is applied before rotation and the primitive
+            # surface is in the XY-plane, so we also need to scale in the XY-plane.
+            scale_direction = d if d != Direction3D.Z else other_d
+            scale = _get_scale(scale_direction, 0.5)
+            rotation = _rotation_to_plane(other_d)
+            translation = cube_pos.shift_in_direction(other_d, 0.5)
+            if v == e.u.id:
+                translation = translation.shift_in_direction(d, 0.5)
+            transformations.append(
+                (
+                    cube_kind.normal_basis,
+                    _Transformation(
+                        translation=translation.as_array(),
+                        rotation=rotation,
+                        scale=scale,
+                    ),
+                )
+            )
+        return transformations
 
 
 def _rotation_to_plane(
@@ -218,21 +247,6 @@ def _rotation_to_plane(
         return _rotation_matrix(Direction3D.Y, 90.0)
     else:
         return _rotation_matrix(Direction3D.X, 90.0)
-
-
-def _surface_normal_direction(
-    block_graph: BlockGraph,
-    correlation_edge: ZXEdge,
-) -> Direction3D:
-    """Get the correlation surface normal direction in the pipe."""
-    u, v = correlation_edge
-    pipe = block_graph.get_edge(u.position, v.position)
-    correlation_basis = Basis(u.kind.value)
-    return next(
-        d
-        for d in Direction3D.all_directions()
-        if pipe.kind.get_basis_along(d) == correlation_basis.flipped()
-    )
 
 
 def _rotation_matrix(

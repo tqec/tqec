@@ -1,22 +1,23 @@
 """Provides helper functions to add observables to circuits."""
 
 from typing import Iterable
+
 import stim
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule import ScheduledCircuit
+from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
-from tqec.position import (
+from tqec.templates.layout import LayoutTemplate
+from tqec.utils.position import (
     Direction3D,
     Position3D,
     Shape2D,
     SignedDirection3D,
 )
-from tqec.scale import round_or_fail
-from tqec.compile.observables.abstract_observable import AbstractObservable
-from tqec.templates.indices.layout import LayoutTemplate
+from tqec.utils.scale import round_or_fail
 
 
 def inplace_add_observable(
@@ -219,11 +220,11 @@ def _get_bottom_stabilizer_cube_qubits(
 ) -> list[tuple[float, float]]:
     """The stabilizer measurements at the bottom of the cube will be included
     in the logical observable. Note that only half of the stabilizers in the
-    basis of the boundary that the cube connects to will be included. Each
-    cube is only responsible for the stabilizer measurements within its
-    bounding box. Collecting the measurements from the two cubes connected by
-    the pipe will give the full stabilizer measurements, of which the product
-    determines the parity of the logical operators.
+    basis of the boundary that the cube connects to will be included. Each cube
+    is only responsible for the stabilizer measurements within its bounding
+    box. Collecting the measurements from the two cubes connected by the pipe
+    will give the full stabilizer measurements, of which the product determines
+    the parity of the logical operators.
 
     This function calculates the coordinates of the measurement qubits
     in the local coordinate system of the cube.
@@ -265,8 +266,8 @@ def _get_top_readout_spatial_cube_qubits(
     cube_shape: Shape2D,
     arms: SpatialArms,
 ) -> list[tuple[int, int]]:
-    """The data qubits at the spatial cubes will be read out and included
-    in the logical observable.
+    """The data qubits at the spatial cubes will be read out and included in
+    the logical observable.
 
     This function calculates the coordinates of the data qubits in the
     local coordinate system of the cube based on which arms the
@@ -300,8 +301,8 @@ def _get_top_readout_spatial_cube_qubits(
 def _get_bottom_stabilizer_spatial_cube_qubits(
     cube_shape: Shape2D,
 ) -> list[tuple[float, float]]:
-    """The stabilizer measurements at the spatial cubes will be included in
-    the logical observable.
+    """The stabilizer measurements at the spatial cubes will be included in the
+    logical observable.
 
     For simplicity of implementation, this function
     include all the measurement qubits of the spatial basis in the results and

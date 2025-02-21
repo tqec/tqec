@@ -1,10 +1,9 @@
 import pytest
 
 from tqec.computation.cube import Cube, Port, ZXCube
-from tqec.computation.zx_graph import ZXKind, ZXNode
-from tqec.enums import Basis
-from tqec.exceptions import TQECException
-from tqec.position import Direction3D, Position3D
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECException
+from tqec.utils.position import Direction3D, Position3D
 
 
 def test_zx_cube_kind() -> None:
@@ -13,7 +12,6 @@ def test_zx_cube_kind() -> None:
 
     kind = ZXCube.from_str("ZXZ")
     assert str(kind) == "ZXZ"
-    assert kind.to_zx_kind() == ZXKind.X
     assert not kind.is_spatial
     assert kind.get_basis_along(Direction3D.X) == Basis.Z
     assert kind.get_basis_along(Direction3D.Y) == Basis.X
@@ -28,7 +26,6 @@ def test_zx_cube() -> None:
     assert not cube.is_spatial
     assert not cube.is_port
     assert not cube.is_y_cube
-    assert cube.to_zx_node() == ZXNode(Position3D(0, 0, 0), ZXKind.X)
     assert str(cube) == "ZXZ(0,0,0)"
 
 

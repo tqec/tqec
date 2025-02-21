@@ -1,7 +1,7 @@
 import stim
 
 from tqec.circuit.qubit import GridQubit, count_qubit_accesses, get_used_qubit_indices
-from tqec.position import PhysicalQubitPosition2D, Shift2D
+from tqec.utils.position import PhysicalQubitPosition2D, Shift2D
 
 
 def test_grid_qubit_creation() -> None:

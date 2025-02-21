@@ -11,15 +11,15 @@ from tqec.compile.observables.builder import (
 )
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
-from tqec.position import (
+from tqec.utils.position import (
     BlockPosition2D,
     Direction3D,
     Position3D,
     Shape2D,
     SignedDirection3D,
 )
-from tqec.templates.indices.layout import LayoutTemplate
-from tqec.templates.indices.qubit import QubitTemplate
+from tqec.templates.layout import LayoutTemplate
+from tqec.templates.qubit import QubitTemplate
 
 
 @pytest.mark.parametrize(

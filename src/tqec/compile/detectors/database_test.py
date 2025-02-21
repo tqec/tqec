@@ -3,7 +3,7 @@ from typing import Iterable, cast
 import numpy
 import pytest
 
-from tqec.circuit.coordinates import StimCoordinates
+from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.database import (
@@ -14,13 +14,13 @@ from tqec.compile.detectors.detector import Detector
 from tqec.compile.specs.library._utils import (
     _build_plaquettes_for_rotated_surface_code,  # pyright: ignore[reportPrivateUsage]
 )
-from tqec.enums import Basis
-from tqec.exceptions import TQECException
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECException
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.zxxz import make_zxxz_surface_code_plaquette
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.templates.indices.qubit import QubitTemplate
-from tqec.templates.indices.subtemplates import (
+from tqec.templates.qubit import QubitTemplate
+from tqec.templates.subtemplates import (
     SubTemplateType,
     get_spatially_distinct_subtemplates,
 )
