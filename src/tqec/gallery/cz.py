@@ -13,7 +13,7 @@ def cz(support_flows: str | list[str] | None = None) -> BlockGraph:
 
     By default, the Hadamard edge in the CZ gate will be horizontal. If you
     want to use vertical Hadamard edges, you can rotate the graph by 90 degrees
-    by calling `~tqec.computation.block_graph.BlockGraph.rotate`.
+    by calling :py:meth:`~tqec.computation.block_graph.BlockGraph.rotate`.
 
     Args:
         support_flows: The stabilizer flow supported by the logical CZ gate. It
