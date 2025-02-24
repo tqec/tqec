@@ -168,9 +168,6 @@ class TopologicalComputationGraph:
         :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer`
         wrapping :class:`~tqec.compile.blocks.layers.atomic.layout.LayoutLayer`
         instances.
-
-        Returns:
-            a list of lists of layers. There are 
         """
         zs = [pos.z_ordering for pos in self._blocks.keys()]
         min_z, max_z = min(zs), max(zs)
