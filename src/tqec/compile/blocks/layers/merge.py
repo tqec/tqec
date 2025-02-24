@@ -1,5 +1,5 @@
 from itertools import chain, repeat
-from typing import Final, Mapping, Sequence, cast
+from typing import Final, Mapping, cast
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -16,7 +16,7 @@ from tqec.utils.scale import LinearFunction, round_or_fail
 
 def merge_parallel_block_layers(
     blocks_in_parallel: Mapping[LayoutPosition2D, Block],
-) -> Sequence[LayoutLayer | BaseComposedLayer[LayoutLayer]]:
+) -> list[LayoutLayer | BaseComposedLayer[LayoutLayer]]:
     """Merge several stacks of layers executed in parallel into one stack of
     larger layers.
 
