@@ -53,7 +53,7 @@ class LayoutPosition2D(ABC):
         """
         pass
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self._x, self._y))
 
 
@@ -133,7 +133,7 @@ class LayoutPosition3D(ABC):
             2 * u.x + (u.x != v.x), 2 * u.y + (u.y != v.y), 2 * u.z + (u.z != v.z)
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self._x, self._y))
 
     @abstractmethod
