@@ -29,27 +29,33 @@ class ExtendedBasisEnum(Enum):
 
 @dataclass(frozen=True)
 class RPNG:
-    """Organize a single RPNG value
+    """Represents a single ``RPNG`` string.
 
-    -z1-
-    rpng
+    ## Format specification
 
-    (r) data qubit reset basis or h or -
-    (p) data basis for the controlled operation (x means CNOT controlled on the ancilla and targeting the data qubit, y means CY, z means CZ)
-    (n) time step (positive integers, all distinct, typically in 1-5)
-    (g) data qubit measure basis or h or -
+    The ``RPNG`` string is a standard format used in ``tqec`` to unambiguously
+    describe the action(s) being performed on a single data qubit. It is a
+    4-character string. See each attribute docstring for more details on the
+    possible values for each character.
 
-    Assumptions on the circuit:
-    - if not otherwise stated, a basis can be {x,y,z}
-    - the ancilla is always the control qubit for the CNOT, CY, or CZ gates
-    - time step of r same as ancilla reset (always 0)
-    - time step of g same as ancilla measurement (by default 6)
+    ## Example
+
+    The following ::
+
+        -z1-
+        rpng
+
+    represents a data-qubit with a ``CZ`` gate applied at timestep ``1``.
 
     Attributes:
-        r   data qubit reset basis or h or -
-        p   data basis for the controlled operation (assuming a=z, x means CNOT controlled on the ancilla and targeting the data qubit, y means CY, z means CZ)
-        n   time step (positive integers, all distinct, typically in 1-5)
-        g   data qubit measure basis or h or -
+        r: reset basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
+        p: controlled operation target basis (``x`` means ``CNOT`` controlled
+            on the ancilla and targeting the data qubit, ``y`` means ``CY``,
+            ``z`` means ``CZ``).
+        n: time step at which the 2-qubit operation described by ``p`` should
+            be applied. Should be a 1-digit positive integer, typically in
+            ``[1, 5]``.
+        g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
     """
 
     r: ExtendedBasisEnum | None
@@ -61,8 +67,8 @@ class RPNG:
     def from_string(cls, rpng_string: str) -> RPNG:
         """Initialize the RPNG object from a 4-character string
 
-        Note that any character different from a BasisEnum / ExtendedBasisEnum
-        value would result in the corresponding field being None.
+        Raises:
+            ValueError: if an invalid ``rpng_string`` is provided.
         """
         if len(rpng_string) != 4:
             raise ValueError("The rpng string must be exactly 4-character long.")
@@ -122,35 +128,35 @@ class RPNG:
 
 @dataclass(frozen=True)
 class RG:
-    """Organize the prep and meas bases for the ancilla, together with the meas time
+    """Reduced format to represent syndrome qubit operations.
 
-    The initialization time is assumed to be 0.
-    The measurement time is not provided explicitly but determined by the time of circuit creation.
+    The ``RG`` format is simply the ``RPNG`` format where ``P`` is
+    unconditionally ``-`` and ``N`` is unset.
 
     Attributes:
-        r   ancillaqubit reset basis
-        g   ancilla qubit measure basis
+        r: reset basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
+        g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
     """
 
-    r: BasisEnum = BasisEnum.X
-    g: BasisEnum = BasisEnum.X
+    r: BasisEnum | None
+    g: BasisEnum | None
 
     @classmethod
     def from_string(cls, rg_string: str) -> RG:
-        """Initialize the RGN object from a 3-character string"""
+        """Initialize the ``RG`` object from a 2-character string"""
         if len(rg_string) != 2:
-            raise ValueError("The rg string must be exactly 2-character long.")
+            raise ValueError("The RG string must be exactly 2-character long.")
         r_str, g_str = tuple(rg_string)
 
         try:
-            r = BasisEnum(r_str)
-            g = BasisEnum(g_str)
+            r = None if r_str == "-" else BasisEnum(r_str)
+            g = None if g_str == "-" else BasisEnum(g_str)
             return cls(r, g)
         except ValueError as err:
-            raise ValueError("Invalid rg string.") from err
+            raise ValueError(f"Invalid RG string: '{rg_string}'.") from err
 
     def __str__(self) -> str:
-        return f"{self.r.value}{self.g.value}"
+        return f"{'-' if self.r is None else self.r.value}{'-' if self.g is None else self.g.value}"
 
 
 @dataclass
@@ -172,12 +178,13 @@ class RPNGDescription:
     If the ancilla RG description is not specified, it is assumed 'xx'
 
     Attributes:
-        corners RPNG description of the four corners of the plaquette
-        ancilla RG description of the ancilla
+        corners: one ``RPNG`` description for each of the four corners of the
+            plaquette.
+        ancilla: ``RG`` description of the syndrome qubit.
     """
 
     corners: tuple[RPNG, RPNG, RPNG, RPNG]
-    ancilla: RG = RG()
+    ancilla: RG = RG(BasisEnum.X, BasisEnum.X)
 
     def __post_init__(self) -> None:
         """Validation of the initialization arguments
@@ -214,6 +221,10 @@ class RPNGDescription:
         if len(rpng_objs) != 4:
             raise ValueError("There must be 4 corners in the RPNG description.")
         return cls(rpng_objs, ancilla_rg)
+
+    @staticmethod
+    def empty() -> RPNGDescription:
+        return RPNGDescription.from_extended_string("-- ---- ---- ---- ----")
 
     def get_r_op(self, data_idx: int) -> str | None:
         """Get the reset operation or Hadamard for the specific data qubit"""

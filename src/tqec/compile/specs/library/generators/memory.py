@@ -82,7 +82,7 @@ def get_memory_qubit_rpng_descriptions(
             # DOWN
             13: RPNGDescription.from_string(f"{r}{bv}1{m} {r}{bv}2{m} ---- ----"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
 
 
@@ -161,7 +161,7 @@ def get_memory_vertical_boundary_rpng_descriptions(
             7: RPNGDescription.from_string(f"{r}{bh}1{m} -{bh}3- {r}{bh}2{m} -{bh}4-"),
             8: RPNGDescription.from_string(f"{r}{bv}1{m} -{bv}2- {r}{bv}3{m} -{bv}4-"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
 
 
@@ -240,7 +240,7 @@ def get_memory_horizontal_boundary_rpng_descriptions(
             7: RPNGDescription.from_string(f"{r}{bh}1{m} {r}{bh}3{m} -{bh}2- -{bh}4-"),
             8: RPNGDescription.from_string(f"{r}{bv}1{m} {r}{bv}2{m} -{bv}3- -{bv}4-"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
 
 
