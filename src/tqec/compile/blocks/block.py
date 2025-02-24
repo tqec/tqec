@@ -89,15 +89,24 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
         self, borders: Iterable[TemporalBlockBorder]
     ) -> Block:
         layers: list[BaseLayer | BaseComposedLayer[BaseLayer]] = []
+        first_layer = self.layers[0]
         if TemporalBlockBorder.Z_NEGATIVE in borders:
-            self._add_layer_with_temporal_borders_trimmed(
-                layers, 0, TemporalBlockBorder.Z_NEGATIVE
+            first_layer = first_layer.with_temporal_borders_trimmed(
+                [TemporalBlockBorder.Z_NEGATIVE]
             )
+        if first_layer is not None:
+            layers.append(first_layer)
+
         layers.extend(self.layers[1:-1])
+
+        last_layer = self.layers[-1]
         if TemporalBlockBorder.Z_POSITIVE in borders:
-            self._add_layer_with_temporal_borders_trimmed(
-                layers, -1, TemporalBlockBorder.Z_POSITIVE
+            last_layer = last_layer.with_temporal_borders_trimmed(
+                [TemporalBlockBorder.Z_POSITIVE]
             )
+        if last_layer is not None:
+            layers.append(last_layer)
+
         return Block(layers)
 
     def with_borders_trimmed(
