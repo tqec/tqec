@@ -56,6 +56,16 @@ class LayoutPosition2D(ABC):
     def __hash__(self) -> int:
         return hash((self._x, self._y))
 
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, LayoutPosition2D)
+            and self._x == other._x
+            and self._y == other._y
+        )
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(x={self._x},y={self._y})"
+
 
 class LayoutCubePosition2D(LayoutPosition2D):
     """Internal class to represent the position of a cube on the grid.
@@ -136,6 +146,14 @@ class LayoutPosition3D(ABC):
     def __hash__(self) -> int:
         return hash((self._x, self._y))
 
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, LayoutPosition3D)
+            and self._x == other._x
+            and self._y == other._y
+            and self._z == other._z
+        )
+
     @abstractmethod
     def as_2d(self) -> LayoutPosition2D:
         pass
@@ -159,6 +177,9 @@ class LayoutPosition3D(ABC):
     @property
     def z_ordering(self) -> int:
         return self._z
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(x={self._x},y={self._y},z={self._z})"
 
 
 class LayoutCubePosition3D(LayoutPosition3D):
