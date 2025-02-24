@@ -1,6 +1,6 @@
-from typing import Literal
+from typing import Final, Literal
 
-from tqec.utils.enums import Basis
+from tqec.compile.specs.library.generators.utils import default_plaquette_mapper
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.qubit import (
@@ -8,6 +8,7 @@ from tqec.templates.qubit import (
     QubitTemplate,
     QubitVerticalBorders,
 )
+from tqec.utils.enums import Basis
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
@@ -65,7 +66,7 @@ def get_temporal_hadamard_rpng_descriptions(
             # DOWN
             13: RPNGDescription.from_string(f"-{bv}1h -{bv}2h ---- ----"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
 
 
@@ -144,7 +145,7 @@ def get_spatial_horizontal_hadamard_rpng_descriptions(
             7: RPNGDescription.from_string(f"{r}{b1}1{m} {r}{b1}3{m} -{b1}2- -{b1}4-"),
             8: RPNGDescription.from_string(f"{r}{b2}1{m} {r}{b2}2{m} -{b2}3- -{b2}4-"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
 
 
@@ -223,5 +224,16 @@ def get_spatial_vertical_hadamard_rpng_descriptions(
             7: RPNGDescription.from_string(f"{r}{b1}1{m} -{b1}3- {r}{b1}2{m} -{b1}4-"),
             8: RPNGDescription.from_string(f"{r}{b2}1{m} -{b2}2- {r}{b2}3{m} -{b2}4-"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
+
+
+get_temporal_hadamard_plaquettes: Final = default_plaquette_mapper(
+    get_temporal_hadamard_rpng_descriptions
+)
+get_spatial_horizontal_hadamard_plaquettes: Final = default_plaquette_mapper(
+    get_spatial_horizontal_hadamard_rpng_descriptions
+)
+get_spatial_vertical_hadamard_plaquettes: Final = default_plaquette_mapper(
+    get_spatial_vertical_hadamard_rpng_descriptions
+)
