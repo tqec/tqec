@@ -39,8 +39,6 @@ For this reason, this module implements the "removal" technique rather than the
 substitution one.
 """
 
-from typing import Final, Iterator, Sequence
-
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.enums import border_from_signed_direction
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
@@ -52,34 +50,18 @@ from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 
 
 class TopologicalComputationGraph:
-    MAX_VALUE: Final[int] = 2**64
-
     def __init__(self) -> None:
         """Represents a topological computation with
         :class:`~tqec.compile.blocks.block.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
-        self._min_z: int = TopologicalComputationGraph.MAX_VALUE
-        self._max_z: int = -TopologicalComputationGraph.MAX_VALUE
-
-    @staticmethod
-    def is_valid_position(pos: BlockPosition3D) -> bool:
-        return all(
-            -TopologicalComputationGraph.MAX_VALUE
-            < coord
-            < TopologicalComputationGraph.MAX_VALUE
-            for coord in pos.as_tuple()
-        )
-
-    @staticmethod
-    def assert_is_valid_position(pos: BlockPosition3D) -> None:
-        if not TopologicalComputationGraph.is_valid_position(pos):
-            raise TQECException(
-                f"The provided position ({pos}) is invalid. One of its "
-                "coordinates is not in ``(-2**64, 2**64)``."
-            )
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
-        self.assert_is_valid_position(position)
+        if not block.is_cube:
+            raise TQECException(
+                "Cannot add as a cube a block that is not a cube. The provided "
+                f"block ({block}) is not a cube (i.e., has at least one "
+                "non-scalable dimension)."
+            )
         layout_position = LayoutPosition3D.from_block_position(position)
         if layout_position in self._blocks:
             raise TQECException(
@@ -87,12 +69,21 @@ class TopologicalComputationGraph:
                 f"entry at {layout_position}."
             )
         self._blocks[layout_position] = block
-        self._min_z = min(self._min_z, layout_position.z_ordering)
-        self._max_z = max(self._max_z, layout_position.z_ordering)
 
     def _check_junction(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
-        self.assert_is_valid_position(source)
-        self.assert_is_valid_position(sink)
+        """Check the validity of a junction between ``source`` and ``sink``.
+
+        Args:
+            source: source of the junction. Should be the "smallest" position.
+            sink: destination of the junction. Should be the "largest" position.
+
+        Raises:
+            TQECException: if ``source`` and ``sink`` are not neighbouring
+                positions.
+            TQECException: if ``not source < sink``.
+            TQECException: if there is already a junction between ``source`` and
+                ``sink``.
+        """
         if not source.is_neighbour(sink):
             raise TQECException(
                 f"Trying to add a junction between {source} and {sink} that are "
@@ -114,10 +105,28 @@ class TopologicalComputationGraph:
     def _trim_junctioned_cubes(
         self, source: BlockPosition3D, sink: BlockPosition3D
     ) -> None:
+        """Trim the correct border from the cubes in ``source`` and ``sink``.
+
+        This method trims 1 border on each of the cubes at the provided
+        ``source`` and ``sink``.
+
+        Args:
+            source: source of the junction. Should be the "smallest" position.
+            sink: destination of the junction. Should be the "largest" position.
+
+        Raises:
+            TQECException: if ``source`` and ``sink`` are not neighbouring
+                positions.
+            TQECException: if ``not source < sink``.
+            TQECException: if there is already a junction between ``source`` and
+                ``sink``.
+        """
         self._check_junction(source, sink)
         junction_direction = Direction3D.from_neighbouring_positions(source, sink)
         source_pos = LayoutPosition3D.from_block_position(source)
         sink_pos = LayoutPosition3D.from_block_position(sink)
+        # Note that below the value of the ``toward_positive`` attribute of
+        # SignedDirection3D is fixed by the condition that ``source < sink``.
         self._blocks[source_pos] = self._blocks[source_pos].with_borders_trimmed(
             [border_from_signed_direction(SignedDirection3D(junction_direction, True))]
         )
@@ -125,25 +134,49 @@ class TopologicalComputationGraph:
             [border_from_signed_direction(SignedDirection3D(junction_direction, False))]
         )
 
-    def add_junction(
+    def add_pipe(
         self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
     ) -> None:
+        """Add the provided block as a pipe between ``source`` and ``sink``.
+
+        Raises:
+            TQECException: if ``source`` and ``sink`` are not neighbouring
+                positions.
+            TQECException: if ``not source < sink``.
+            TQECException: if there is already a junction between ``source`` and
+                ``sink``.
+            TQECException: if ``block`` is not a valid pipe (i.e., has not
+                exactly 2 scalable dimensions).
+        """
+        if not block.is_pipe:
+            raise TQECException(
+                "Cannot add as a pipe a block that is not a pipe. The provided "
+                f"block ({block}) is not a pipe (i.e., does not have exactly 2 "
+                "scalable dimensions)."
+            )
         self._trim_junctioned_cubes(source, sink)
         self._blocks[LayoutPosition3D.from_junction_position((source, sink))] = block
-        # There is no need to update {min,max}_z because we checked that the
-        # junction is applied between two existing cubes when calling
-        # _trim_junctioned_cubes, and these two cubes have already potentially
-        # updated {min,max}_z
 
-    @property
     def layout_layers(
         self,
-    ) -> Iterator[Sequence[LayoutLayer | BaseComposedLayer[LayoutLayer]]]:
-        blocks_by_z: dict[int, dict[LayoutPosition2D, Block]] = {
-            z: {} for z in range(self._min_z, self._max_z + 1)
-        }
-        for pos, block in self._blocks.items():
-            blocks_by_z[pos.z_ordering][pos.as_2d()] = block
+    ) -> list[list[LayoutLayer | BaseComposedLayer[LayoutLayer]]]:
+        """Merge layers happening in parallel at each time step.
 
-        for blocks in blocks_by_z.values():
-            yield merge_parallel_block_layers(blocks)
+        This method considers all the layers contained in added blocks (cubes and
+        pipes) and merges them into a sequence of
+        :class:`~tqec.compile.blocks.layers.atomic.layout.LayoutLayer` or
+        :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer`
+        wrapping :class:`~tqec.compile.blocks.layers.atomic.layout.LayoutLayer`
+        instances.
+
+        Returns:
+            a list of lists of layers. There are 
+        """
+        zs = [pos.z_ordering for pos in self._blocks.keys()]
+        min_z, max_z = min(zs), max(zs)
+        blocks_by_z: list[dict[LayoutPosition2D, Block]] = [
+            {} for _ in range(min_z, max_z + 1)
+        ]
+        for pos, block in self._blocks.items():
+            blocks_by_z[pos.z_ordering - min_z][pos.as_2d()] = block
+        return [merge_parallel_block_layers(blocks) for blocks in blocks_by_z]

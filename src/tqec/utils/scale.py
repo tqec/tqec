@@ -147,6 +147,9 @@ class LinearFunction:
     def is_constant(self, atol: float = 1e-8) -> bool:
         return abs(self.slope) < atol
 
+    def is_scalable(self, atol: float = 1e-8) -> bool:
+        return not self.is_constant(atol)
+
     def is_close_to(self, other: LinearFunction, atol: float = 1e-8) -> bool:
         return (
             abs(self.slope - other.slope) < atol

@@ -113,3 +113,24 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
         return self.with_temporal_borders_trimmed(
             temporal_borders
         ).with_spatial_borders_trimmed(spatial_borders)
+
+    @property
+    def scalable_dimensions(
+        self,
+    ) -> tuple[LinearFunction, LinearFunction, LinearFunction]:
+        """Returns the dimensions of ``self``.
+
+        Returns:
+            a 3-dimensional tuple containing the scalable width for each of the
+            ``(x, y, z)`` dimensions.
+        """
+        spatial_shape = self.scalable_shape
+        return spatial_shape.x, spatial_shape.y, self.scalable_timesteps
+
+    @property
+    def is_cube(self) -> bool:
+        return all(dim.is_scalable() for dim in self.scalable_dimensions)
+
+    @property
+    def is_pipe(self) -> bool:
+        return sum(dim.is_scalable() for dim in self.scalable_dimensions) == 2
