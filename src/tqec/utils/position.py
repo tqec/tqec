@@ -26,9 +26,9 @@ indexing.
 
 from __future__ import annotations
 
+import re
 from dataclasses import astuple, dataclass
 from enum import Enum
-import re
 
 import numpy as np
 import numpy.typing as npt
@@ -61,6 +61,11 @@ class Position2D(Vec2D):
 
     def with_block_coordinate_system(self) -> BlockPosition2D:
         return BlockPosition2D(self.x, self.y)
+
+    def is_neighbour(self, other: Position2D) -> bool:
+        """Check if the other position is near to this position, i.e. Manhattan
+        distance is 1."""
+        return abs(self.x - other.x) + abs(self.y - other.y) == 1
 
 
 class PhysicalQubitPosition2D(Position2D):
@@ -150,6 +155,13 @@ class Position3D(Vec3D):
     def as_2d(self) -> Position2D:
         """Return the position as a 2D position."""
         return Position2D(self.x, self.y)
+
+
+class BlockPosition3D(Position3D):
+    """Represents the position of a block on a 2-dimensional plane."""
+
+    def as_2d(self) -> BlockPosition2D:
+        return BlockPosition2D(self.x, self.y)
 
 
 class Direction3D(Enum):
