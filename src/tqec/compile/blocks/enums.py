@@ -25,3 +25,13 @@ class SpatialBlockBorder(Enum):
 class TemporalBlockBorder(Enum):
     Z_NEGATIVE = SignedDirection3D(Direction3D.Z, False)
     Z_POSITIVE = SignedDirection3D(Direction3D.Z, True)
+
+
+def border_from_signed_direction(
+    direction: SignedDirection3D,
+) -> SpatialBlockBorder | TemporalBlockBorder:
+    match direction:
+        case SignedDirection3D(Direction3D.Z, _):
+            return TemporalBlockBorder(direction)
+        case _:
+            return SpatialBlockBorder(direction)
