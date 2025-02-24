@@ -1,7 +1,7 @@
 import numpy
 
 from tqec.templates._testing import FixedTemplate
-from tqec.utils.position import Shape2D
+from tqec.utils.position import PlaquetteShape2D
 from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
@@ -30,7 +30,7 @@ def test_shape() -> None:
     assert FixedTemplate([[0]]).scalable_shape == PlaquetteScalable2D(
         LinearFunction(0, 1), LinearFunction(0, 1)
     )
-    assert FixedTemplate([[0]]).shape(1) == Shape2D(1, 1)
+    assert FixedTemplate([[0]]).shape(1) == PlaquetteShape2D(1, 1)
 
 
 def test_number_of_expected_plaquettes() -> None:

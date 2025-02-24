@@ -15,7 +15,12 @@ from tqec.templates.subtemplates import (
     UniqueSubTemplates,
     get_spatially_distinct_subtemplates,
 )
-from tqec.utils.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
+from tqec.utils.position import (
+    BlockPosition2D,
+    PlaquettePosition2D,
+    PlaquetteShape2D,
+    Shift2D,
+)
 from tqec.utils.scale import PlaquetteScalable2D, round_or_fail
 
 
@@ -54,10 +59,10 @@ class Template(ABC):
             the underlying shape of the template.
         """
 
-    def shape(self, k: int) -> Shape2D:
+    def shape(self, k: int) -> PlaquetteShape2D:
         """Returns the current template shape."""
         sshape = self.scalable_shape
-        return Shape2D(round_or_fail(sshape.x(k)), round_or_fail(sshape.y(k)))
+        return PlaquetteShape2D(round_or_fail(sshape.x(k)), round_or_fail(sshape.y(k)))
 
     @property
     @abstractmethod

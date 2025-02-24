@@ -75,7 +75,12 @@ from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.base import RectangularTemplate, Template
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
-from tqec.utils.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
+from tqec.utils.position import (
+    BlockPosition2D,
+    PlaquettePosition2D,
+    PlaquetteShape2D,
+    Shift2D,
+)
 from tqec.utils.scale import PlaquetteScalable2D
 
 
@@ -219,7 +224,7 @@ class LayoutTemplate(Template):
             self._ny * self._element_scalable_shape.y,
         )
 
-    def element_shape(self, k: int) -> Shape2D:
+    def element_shape(self, k: int) -> PlaquetteShape2D:
         """Return the uniform shape of the element templates."""
         return self._element_scalable_shape.to_shape_2d(k)
 

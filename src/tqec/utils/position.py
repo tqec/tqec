@@ -84,7 +84,7 @@ class BlockPosition2D(Position2D):
     """Represents the position of a block on a 2-dimensional plane."""
 
     def get_top_left_plaquette_position(
-        self, block_shape: Shape2D
+        self, block_shape: PlaquetteShape2D
     ) -> PlaquettePosition2D:
         """Returns the position of the top-left plaquette of the block."""
         return PlaquettePosition2D(block_shape.x * self.x, block_shape.y * self.y)

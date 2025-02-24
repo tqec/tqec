@@ -6,7 +6,7 @@ from typing import Generic, TypeVar
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.base import Template
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
-from tqec.utils.position import PlaquettePosition2D, Shape2D, Shift2D
+from tqec.utils.position import PlaquettePosition2D, PlaquetteShape2D, Shift2D
 from tqec.utils.scale import PlaquetteScalable2D
 
 T = TypeVar("T", bound=Template, covariant=True)
@@ -21,7 +21,7 @@ class RPNGTemplate(Generic[T]):
         indices = self.template.instantiate(k)
         return [[self.mapping[i] for i in row] for row in indices]
 
-    def shape(self, k: int) -> Shape2D:
+    def shape(self, k: int) -> PlaquetteShape2D:
         """Returns the current template shape."""
         return self.template.shape(k)
 
