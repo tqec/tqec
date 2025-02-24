@@ -6,7 +6,7 @@ from typing import Iterable
 from typing_extensions import Self
 
 from tqec.compile.blocks.enums import SpatialBlockBorder
-from tqec.utils.position import Shape2D
+from tqec.utils.position import PhysicalQubitShape2D
 from tqec.utils.scale import PhysicalQubitScalable2D
 
 
@@ -26,7 +26,7 @@ class WithSpatialFootprint(ABC):
         """
         pass
 
-    def shape(self, k: int) -> Shape2D:
+    def shape(self, k: int) -> PhysicalQubitShape2D:
         """Returns the 2-dimensional shape of the object for the given ``k``.
 
         Args:

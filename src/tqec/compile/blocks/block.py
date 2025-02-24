@@ -11,7 +11,7 @@ from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.spatial import WithSpatialFootprint
 from tqec.compile.blocks.temporal import WithTemporalFootprint
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import Shape2D
+from tqec.utils.position import PhysicalQubitShape2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
@@ -63,7 +63,7 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
         )
 
     @override
-    def shape(self, k: int) -> Shape2D:
+    def shape(self, k: int) -> PhysicalQubitShape2D:
         return self.scalable_shape.to_shape_2d(k)
 
     @override
