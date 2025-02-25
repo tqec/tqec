@@ -176,6 +176,14 @@ class Direction3D(Enum):
         """Return all the directions."""
         return [Direction3D.X, Direction3D.Y, Direction3D.Z]
 
+    @staticmethod
+    def spatial_directions() -> list[Direction3D]:
+        return [Direction3D.X, Direction3D.Y]
+
+    @staticmethod
+    def temporal_directions() -> list[Direction3D]:
+        return [Direction3D.Z]
+
     def __str__(self) -> str:
         return self.name
 

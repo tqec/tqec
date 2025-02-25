@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import chain
-from typing import Generic, Iterable, Sequence, TypeVar
+from typing import Generic, Iterable, Mapping, Sequence, TypeVar
 
 from typing_extensions import override
 
@@ -61,36 +61,51 @@ class SequencedLayers(BaseComposedLayer[T], Generic[T]):
         # self.layer_sequence and that all the layers have the same scalable shape.
         return self.layer_sequence[0].scalable_shape
 
+    def _layers_with_spatial_borders_trimmed(
+        self, borders: Iterable[SpatialBlockBorder]
+    ) -> list[T | BaseComposedLayer[T]]:
+        return [
+            layer.with_spatial_borders_trimmed(borders) for layer in self.layer_sequence
+        ]
+
     @override
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> SequencedLayers[T]:
-        return SequencedLayers(
-            [
-                layer.with_spatial_borders_trimmed(borders)
-                for layer in self.layer_sequence
-            ]
-        )
+        return SequencedLayers(self._layers_with_spatial_borders_trimmed(borders))
 
-    @override
-    def with_temporal_borders_trimmed(
-        self, borders: Iterable[TemporalBlockBorder]
-    ) -> SequencedLayers[T] | None:
-        layers: list[T | BaseComposedLayer[T]] = []
-        if TemporalBlockBorder.Z_NEGATIVE in borders:
-            first_layer = self.layer_sequence[0].with_temporal_borders_trimmed(
-                [TemporalBlockBorder.Z_NEGATIVE]
+    def _layers_with_temporal_borders_replaced(
+        self, border_replacements: Mapping[TemporalBlockBorder, T | None]
+    ) -> list[T | BaseComposedLayer[T]]:
+        layers = list(self.layer_sequence)
+        if (border := TemporalBlockBorder.Z_NEGATIVE) in border_replacements:
+            first_layer = layers[0].with_temporal_borders_replaced(
+                {border: border_replacements[border]}
             )
             if first_layer is not None:
-                layers.append(first_layer)
-        layers.extend(self.layer_sequence[1:-1])
-        if TemporalBlockBorder.Z_POSITIVE in borders:
-            last_layer = self.layer_sequence[-1].with_temporal_borders_trimmed(
-                [TemporalBlockBorder.Z_POSITIVE]
+                layers[0] = first_layer
+            else:
+                layers.pop(0)
+        if not layers:
+            return []
+        if (border := TemporalBlockBorder.Z_POSITIVE) in border_replacements:
+            last_layer = layers[-1].with_temporal_borders_replaced(
+                {border: border_replacements[border]}
             )
             if last_layer is not None:
-                layers.append(last_layer)
-        return SequencedLayers(layers)
+                layers[-1] = last_layer
+            else:
+                layers.pop(-1)
+        return layers
+
+    @override
+    def with_temporal_borders_replaced(
+        self, border_replacements: Mapping[TemporalBlockBorder, T | None]
+    ) -> BaseComposedLayer[T] | None:
+        if not border_replacements:
+            return self
+        layers = self._layers_with_temporal_borders_replaced(border_replacements)
+        return SequencedLayers(layers) if layers else None
 
     @override
     def all_layers(self, k: int) -> Iterable[BaseLayer]:

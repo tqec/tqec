@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import chain
-from typing import Generic, Iterable, TypeVar
+from typing import Generic, Iterable, Mapping, TypeVar
 
 from typing_extensions import override
 
 from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
+from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -65,13 +66,46 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
             self.internal_layer.with_spatial_borders_trimmed(borders), self.repetitions
         )
 
+    @staticmethod
+    def _get_replaced_layer(
+        initial_layer: T | BaseComposedLayer[T],
+        border: TemporalBlockBorder,
+        border_replacements: Mapping[TemporalBlockBorder, T | None],
+    ) -> T | BaseComposedLayer[T] | None:
+        ret: T | BaseComposedLayer[T] | None = initial_layer
+        if border in border_replacements:
+            ret = initial_layer.with_temporal_borders_replaced(
+                {border: border_replacements[border]}
+            )
+        return ret
+
     @override
-    def with_temporal_borders_trimmed(
-        self, borders: Iterable[TemporalBlockBorder]
-    ) -> RepeatedLayer[T] | None:
-        return RepeatedLayer(
-            self.internal_layer, self.repetitions - len(frozenset(borders))
+    def with_temporal_borders_replaced(
+        self,
+        border_replacements: Mapping[TemporalBlockBorder, T | None],
+    ) -> RepeatedLayer[T] | SequencedLayers[T]:
+        # Does not handle "removing": the bulk_layers is never checked for
+        # emptyness and so might be empty.
+        if not border_replacements:
+            return self
+        initial_layer = self._get_replaced_layer(
+            self.internal_layer, TemporalBlockBorder.Z_NEGATIVE, border_replacements
         )
+        final_layer = self._get_replaced_layer(
+            self.internal_layer, TemporalBlockBorder.Z_POSITIVE, border_replacements
+        )
+
+        num_borders = len(border_replacements)
+        bulk_layers = RepeatedLayer(self.internal_layer, self.repetitions - num_borders)
+        if initial_layer is None and final_layer is None:
+            return bulk_layers
+        layer_sequence = []
+        if initial_layer is not None:
+            layer_sequence.append(initial_layer)
+        layer_sequence.append(bulk_layers)
+        if final_layer is not None:
+            layer_sequence.append(final_layer)
+        return SequencedLayers(layer_sequence)
 
     @override
     def all_layers(self, k: int) -> Iterable[BaseLayer]:

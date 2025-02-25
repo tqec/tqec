@@ -1,22 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Sequence
+from typing import Iterable, Mapping
 
 from typing_extensions import override
 
 from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
-from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
-from tqec.compile.blocks.spatial import WithSpatialFootprint
-from tqec.compile.blocks.temporal import WithTemporalFootprint
+from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import PhysicalQubitShape2D
-from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+from tqec.utils.scale import LinearFunction
 
 
 @dataclass
-class Block(WithSpatialFootprint, WithTemporalFootprint):
+class Block(SequencedLayers[BaseLayer]):
     """Encodes the implementation of a block.
 
     This data structure is voluntarily very generic. It represents blocks as a
@@ -28,100 +25,44 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
     cubes (i.e. scaling in the 2 spatial dimensions with ``k``) as well as
     pipes (i.e. scaling in only 1 spatial dimension with ``k``).
 
-    Attributes:
-        layers: a non-empty, time-ordered sequence of atomic or composed layers
-            that all have the same spatial footprint.
+    Note:
+        pipes are handling differently depending if they are temporal or spatial:
+
+        - temporal pipes replace the first/last layers in the touched blocks,
+          hence they are not stored directly.
+        - spatial pipes are stored as regular blocks.
     """
-
-    layers: Sequence[BaseLayer | BaseComposedLayer[BaseLayer]]
-
-    def __post_init__(self) -> None:
-        shapes = frozenset(layer.scalable_shape for layer in self.layers)
-        if len(shapes) == 0:
-            raise TQECException(f"Cannot build an empty {self.__class__.__name__}")
-        if len(shapes) > 1:
-            raise TQECException(
-                "Found at least two different shapes in the layers of a "
-                f"{self.__class__.__name__}, which is forbidden. All the "
-                f"provided layers should have the same shape. "
-                f"Found shapes: {shapes}."
-            )
-
-    @property
-    @override
-    def scalable_shape(self) -> PhysicalQubitScalable2D:
-        # __post_init__ guarantees that there is at least one item in
-        # self.layer_sequence and that all the layers have the same scalable shape.
-        return self.layers[0].scalable_shape
-
-    @property
-    @override
-    def scalable_timesteps(self) -> LinearFunction:
-        return sum(
-            (layer.scalable_timesteps for layer in self.layers),
-            start=LinearFunction(0, 0),
-        )
-
-    @override
-    def shape(self, k: int) -> PhysicalQubitShape2D:
-        return self.scalable_shape.to_shape_2d(k)
 
     @override
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> Block:
-        return Block(
-            [layer.with_spatial_borders_trimmed(borders) for layer in self.layers]
-        )
-
-    def _add_layer_with_temporal_borders_trimmed(
-        self,
-        layers: list[BaseLayer | BaseComposedLayer[BaseLayer]],
-        layer_index: int,
-        border: TemporalBlockBorder,
-    ) -> None:
-        layer = self.layers[layer_index].with_temporal_borders_trimmed([border])
-        if layer is not None:
-            layers.append(layer)
+        return Block(self._layers_with_spatial_borders_trimmed(borders))
 
     @override
-    def with_temporal_borders_trimmed(
-        self, borders: Iterable[TemporalBlockBorder]
-    ) -> Block:
-        layers: list[BaseLayer | BaseComposedLayer[BaseLayer]] = []
-        first_layer = self.layers[0]
-        if TemporalBlockBorder.Z_NEGATIVE in borders:
-            first_layer = first_layer.with_temporal_borders_trimmed(
-                [TemporalBlockBorder.Z_NEGATIVE]
+    def with_temporal_borders_replaced(
+        self,
+        border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None],
+    ) -> Block | None:
+        if not border_replacements:
+            return self
+        layers = self._layers_with_temporal_borders_replaced(border_replacements)
+        return Block(layers) if layers else None
+
+    def get_temporal_border(self, border: TemporalBlockBorder) -> BaseLayer:
+        layer_index: int
+        match border:
+            case TemporalBlockBorder.Z_NEGATIVE:
+                layer_index = 0
+            case TemporalBlockBorder.Z_POSITIVE:
+                layer_index = -1
+        layer = self.layer_sequence[layer_index]
+        if not isinstance(layer, BaseLayer):
+            raise TQECException(
+                "Expected to recover a temporal **border** (i.e. an atomic "
+                f"layer) but got an instance of {type(layer).__name__} instead."
             )
-        if first_layer is not None:
-            layers.append(first_layer)
-
-        layers.extend(self.layers[1:-1])
-
-        last_layer = self.layers[-1]
-        if TemporalBlockBorder.Z_POSITIVE in borders:
-            last_layer = last_layer.with_temporal_borders_trimmed(
-                [TemporalBlockBorder.Z_POSITIVE]
-            )
-        if last_layer is not None:
-            layers.append(last_layer)
-
-        return Block(layers)
-
-    def with_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder | TemporalBlockBorder]
-    ) -> Block:
-        spatial_borders: list[SpatialBlockBorder] = []
-        temporal_borders: list[TemporalBlockBorder] = []
-        for border in borders:
-            if isinstance(border, SpatialBlockBorder):
-                spatial_borders.append(border)
-            else:
-                temporal_borders.append(border)
-        return self.with_temporal_borders_trimmed(
-            temporal_borders
-        ).with_spatial_borders_trimmed(spatial_borders)
+        return layer
 
     @property
     def scalable_dimensions(
@@ -143,3 +84,7 @@ class Block(WithSpatialFootprint, WithTemporalFootprint):
     @property
     def is_pipe(self) -> bool:
         return sum(dim.is_scalable() for dim in self.scalable_dimensions) == 2
+
+    @property
+    def is_temporal_pipe(self) -> bool:
+        return self.is_pipe and self.scalable_dimensions[2].is_constant()

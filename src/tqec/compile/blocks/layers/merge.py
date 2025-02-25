@@ -1,5 +1,5 @@
 from itertools import chain, repeat
-from typing import Final, Mapping, cast
+from typing import Final, Mapping, TypeGuard
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -10,8 +10,41 @@ from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import LayoutPosition2D
 from tqec.utils.exceptions import TQECException
 from tqec.utils.maths import least_common_multiple
-from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, round_or_fail
+
+
+def _contains_only_base_layers(
+    layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer[BaseLayer]],
+) -> TypeGuard[dict[LayoutPosition2D, BaseLayer]]:
+    return all(isinstance(layer, BaseLayer) for layer in layers.values())
+
+
+def _contains_only_composed_layers(
+    layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer[BaseLayer]],
+) -> TypeGuard[dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]]]:
+    return all(isinstance(layer, BaseComposedLayer) for layer in layers.values())
+
+
+def _contains_only_repeated_layers(
+    layers: dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]],
+) -> TypeGuard[dict[LayoutPosition2D, RepeatedLayer[BaseLayer]]]:
+    return all(isinstance(layer, RepeatedLayer) for layer in layers.values())
+
+
+def _contains_only_sequenced_layers(
+    layers: dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]],
+) -> TypeGuard[dict[LayoutPosition2D, SequencedLayers[BaseLayer]]]:
+    return all(isinstance(layer, SequencedLayers) for layer in layers.values())
+
+
+def _contains_only_repeated_or_sequenced_layers(
+    layers: dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]],
+) -> TypeGuard[
+    dict[LayoutPosition2D, SequencedLayers[BaseLayer] | RepeatedLayer[BaseLayer]]
+]:
+    return all(
+        isinstance(layer, (SequencedLayers, RepeatedLayer)) for layer in layers.values()
+    )
 
 
 def merge_parallel_block_layers(
@@ -39,7 +72,7 @@ def merge_parallel_block_layers(
     if not blocks_in_parallel:
         return []
     internal_layers_schedules = frozenset(
-        tuple(layer.scalable_timesteps for layer in block.layers)
+        tuple(layer.scalable_timesteps for layer in block.layer_sequence)
         for block in blocks_in_parallel.values()
     )
     temporal_footprints = frozenset(
@@ -61,28 +94,30 @@ def merge_parallel_block_layers(
     schedule: Final = next(iter(internal_layers_schedules))
     merged_layers: list[LayoutLayer | BaseComposedLayer[LayoutLayer]] = []
     for i in range(len(schedule)):
-        layers = {pos: block.layers[i] for pos, block in blocks_in_parallel.items()}
-        if all(isinstance(layer, BaseLayer) for layer in layers.values()):
-            merged_layers.append(
-                # Cast needed to make type-checker happy
-                _merge_base_layers(cast(dict[BlockPosition2D, BaseLayer], layers))
-            )
-        else:  # all(isinstance(layer, BaseComposedLayer) for layer in layers.values()):
-            merged_layers.append(
-                _merge_composed_layers(
-                    # Cast needed to make type-checker happy
-                    cast(dict[BlockPosition2D, BaseComposedLayer[BaseLayer]], layers)
-                )
+        layers = {
+            pos: block.layer_sequence[i] for pos, block in blocks_in_parallel.items()
+        }
+        if _contains_only_base_layers(layers):
+            merged_layers.append(_merge_base_layers(layers))
+        elif _contains_only_composed_layers(layers):
+            merged_layers.append(_merge_composed_layers(layers))
+        else:
+            raise RuntimeError(
+                f"Found a mix of {BaseLayer.__name__} instances and "
+                f"{BaseComposedLayer.__name__} instances in a single temporal "
+                f"layer. This should be already checked before. This is a "
+                "logical error in the code, please open an issue. Found layers:"
+                f"\n{list(layers.values())}"
             )
     return merged_layers
 
 
-def _merge_base_layers(layers: dict[BlockPosition2D, BaseLayer]) -> LayoutLayer:
+def _merge_base_layers(layers: dict[LayoutPosition2D, BaseLayer]) -> LayoutLayer:
     return LayoutLayer(layers)
 
 
 def _merge_composed_layers(
-    layers: dict[BlockPosition2D, BaseComposedLayer[BaseLayer]],
+    layers: dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]],
 ) -> BaseComposedLayer[LayoutLayer]:
     # First, check that all the provided layers have the same scalable timesteps.
     different_timesteps = frozenset(
@@ -94,21 +129,13 @@ def _merge_composed_layers(
             f"Found the following different lengths: {different_timesteps}."
         )
     # timesteps = next(iter(different_timesteps))
-    if all(isinstance(layer, RepeatedLayer) for layer in layers.values()):
-        return _merge_repeated_layers(
-            # Cast needed to make type-checker happy.
-            cast(dict[BlockPosition2D, RepeatedLayer[BaseLayer]], layers)
-        )
-    if all(isinstance(layer, SequencedLayers) for layer in layers.values()):
-        return _merge_sequenced_layers(
-            # Cast needed to make type-checker happy.
-            cast(dict[BlockPosition2D, SequencedLayers[BaseLayer]], layers)
-        )
+    if _contains_only_repeated_layers(layers):
+        return _merge_repeated_layers(layers)
+    if _contains_only_sequenced_layers(layers):
+        return _merge_sequenced_layers(layers)
     # We are left here with a mix of RepeatedLayer and SequencedLayers.
     # Check that, in case a new subclass of BaseComposedLayer has been introduced.
-    if not all(
-        isinstance(layer, (RepeatedLayer, SequencedLayers)) for layer in layers.values()
-    ):
+    if not _contains_only_repeated_or_sequenced_layers(layers):
         unknown_types = {type(layer) for layer in layers.values()} - {
             RepeatedLayer,
             SequencedLayers,
@@ -117,18 +144,11 @@ def _merge_composed_layers(
             f"Found instances of {unknown_types} that are not yet implemented "
             "in _merge_composed_layers."
         )
-    return _merge_repeated_and_sequenced_layers(
-        cast(
-            dict[
-                BlockPosition2D, SequencedLayers[BaseLayer] | RepeatedLayer[BaseLayer]
-            ],
-            layers,
-        )
-    )
+    return _merge_repeated_and_sequenced_layers(layers)
 
 
 def _merge_repeated_layers(
-    layers: dict[BlockPosition2D, RepeatedLayer[BaseLayer]],
+    layers: dict[LayoutPosition2D, RepeatedLayer[BaseLayer]],
 ) -> RepeatedLayer[LayoutLayer]:
     """Merge several RepeatedLayer that should be executed in parallel.
 
@@ -156,7 +176,7 @@ def _merge_repeated_layers(
             f"Found the following different lengths: {different_timesteps}."
         )
     scalable_timesteps = next(iter(different_timesteps))
-    timesteps_per_repetition: dict[BlockPosition2D, int] = {}
+    timesteps_per_repetition: dict[LayoutPosition2D, int] = {}
     for pos, layer in layers.items():
         timesteps = layer.internal_layer.scalable_timesteps
         # Implementation note: the fact that the internal layer is of constant
@@ -187,19 +207,15 @@ def _merge_repeated_layers(
         # Sanity check on types: SequencedLayer guarantees that it contains at
         # least 2 base layers, so we cannot have any SequencedLayer instance here,
         # meaning that we only have PlaquetteLayer instances.
+        inner_layers = {pos: layer.internal_layer for pos, layer in layers.items()}
+        assert _contains_only_base_layers(inner_layers)
         return RepeatedLayer(
-            _merge_base_layers(
-                cast(
-                    dict[BlockPosition2D, BaseLayer],
-                    {pos: layer.internal_layer for pos, layer in layers.items()},
-                )
-            ),
-            next(iter(different_repetitions)),
+            _merge_base_layers(inner_layers), next(iter(different_repetitions))
         )
     # Else, we need the least common multiple
     num_internal_layers = least_common_multiple(considered_timesteps)
     # And we create sequences of that size and merge them!
-    base_sequences: dict[BlockPosition2D, list[BaseLayer]] = {}
+    base_sequences: dict[LayoutPosition2D, list[BaseLayer]] = {}
     for pos, layer in layers.items():
         internal_layer = layer.internal_layer
         if isinstance(internal_layer, BaseLayer):
@@ -241,7 +257,7 @@ def _merge_repeated_layers(
 
 
 def _merge_sequenced_layers(
-    layers: dict[BlockPosition2D, SequencedLayers[BaseLayer]],
+    layers: dict[LayoutPosition2D, SequencedLayers[BaseLayer]],
 ) -> SequencedLayers[LayoutLayer]:
     internal_layers_schedules = frozenset(
         tuple(layer.scalable_timesteps for layer in sequenced_layer.layer_sequence)
@@ -261,32 +277,24 @@ def _merge_sequenced_layers(
             pos: sequenced_layers.layer_sequence[i]
             for pos, sequenced_layers in layers.items()
         }
-        if all(isinstance(layer, BaseLayer) for layer in layers_at_timestep.values()):
-            merged_layers.append(
-                _merge_base_layers(
-                    cast(dict[BlockPosition2D, BaseLayer], layers_at_timestep)
-                )
-            )
+        if _contains_only_base_layers(layers_at_timestep):
+            merged_layers.append(_merge_base_layers(layers_at_timestep))
+        elif _contains_only_composed_layers(layers_at_timestep):
+            merged_layers.append(_merge_composed_layers(layers_at_timestep))
         else:
-            # Checking that we only have BaseComposedLayer instances
-            assert all(
-                isinstance(layer, BaseComposedLayer)
-                for layer in layers_at_timestep.values()
-            ), "Expected BaseComposedLayer instances."
-            merged_layers.append(
-                _merge_composed_layers(
-                    cast(
-                        dict[BlockPosition2D, BaseComposedLayer[BaseLayer]],
-                        layers_at_timestep,
-                    )
-                )
+            raise RuntimeError(
+                f"Found a mix of {BaseLayer.__name__} instances and "
+                f"{BaseComposedLayer.__name__} instances in a single temporal "
+                f"layer. This should be already checked before. This is a "
+                "logical error in the code, please open an issue. Found layers:"
+                f"\n{list(layers.values())}"
             )
     return SequencedLayers(merged_layers)
 
 
 def _merge_repeated_and_sequenced_layers(
     layers: dict[
-        BlockPosition2D, SequencedLayers[BaseLayer] | RepeatedLayer[BaseLayer]
+        LayoutPosition2D, SequencedLayers[BaseLayer] | RepeatedLayer[BaseLayer]
     ],
 ) -> SequencedLayers[LayoutLayer]:
     raise NotImplementedError(

@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from math import ceil
+from typing import Generic
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition2D, BlockPosition3D
@@ -63,7 +64,7 @@ class LayoutPosition2D(ABC):
             and self._y == other._y
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(x={self._x},y={self._y})"
 
 
@@ -88,6 +89,9 @@ class LayoutCubePosition2D(LayoutPosition2D):
     ) -> PhysicalQubitScalable2D:
         x, y = self._x // 2, self._y // 2
         return PhysicalQubitScalable2D(x * element_shape.x, y * element_shape.y)
+
+    def to_block_position(self) -> BlockPosition2D:
+        return BlockPosition2D(self._x // 2, self._y // 2)
 
 
 class LayoutPipePosition2D(LayoutPosition2D):
@@ -118,107 +122,61 @@ class LayoutPipePosition2D(LayoutPosition2D):
         )
 
 
-class LayoutPosition3D(ABC):
-    """Internal class to represent the local indexing used to represent both
-    cubes and pipes in 3-dimensions."""
+T = TypeVar("T", bound=LayoutPosition2D, covariant=True, default=LayoutPosition2D)
 
-    def __init__(self, x: int, y: int, z: int) -> None:
+
+class LayoutPosition3D(ABC, Generic[T]):
+    """Internal class to represent the local indexing used to represent both
+    cubes and pipes in 3-dimensions.
+
+    This class simply wraps a :class:`LayoutPosition2D` instance with an
+    integer-valued z coordinate.
+
+    Because temporal pipes are "absorbed" in its neighbouring blocks, we do not
+    have to represent them, hence the z coordinate does not need any kind of
+    special treatment like the x and y coordinates.
+    """
+
+    def __init__(self, spatial_position: T, z: int) -> None:
         super().__init__()
-        self._x = x
-        self._y = y
+        self._spatial_position = spatial_position
         self._z = z
 
     @staticmethod
-    def from_block_position(pos: BlockPosition3D) -> LayoutCubePosition3D:
-        return LayoutCubePosition3D(2 * pos.x, 2 * pos.y, 2 * pos.z)
+    def from_block_position(
+        pos: BlockPosition3D,
+    ) -> LayoutPosition3D[LayoutCubePosition2D]:
+        return LayoutPosition3D(
+            LayoutCubePosition2D.from_block_position(pos.as_2d()), pos.z
+        )
 
     @staticmethod
     def from_junction_position(
         junction_position: tuple[BlockPosition3D, BlockPosition3D],
-    ) -> LayoutPipePosition3D:
+    ) -> LayoutPosition3D[LayoutPipePosition2D]:
         u, v = sorted(junction_position)
         assert u.is_neighbour(v)
         assert u < v
-        return LayoutPipePosition3D(
-            2 * u.x + (u.x != v.x), 2 * u.y + (u.y != v.y), 2 * u.z + (u.z != v.z)
+        return LayoutPosition3D(
+            LayoutPosition2D.from_junction_position((u.as_2d(), v.as_2d())), u.z
         )
 
     def __hash__(self) -> int:
-        return hash((self._x, self._y))
+        return hash((self._spatial_position, self._z))
 
     def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, LayoutPosition3D)
-            and self._x == other._x
-            and self._y == other._y
+            and self._spatial_position == other._spatial_position
             and self._z == other._z
         )
 
-    @abstractmethod
     def as_2d(self) -> LayoutPosition2D:
-        pass
+        return self._spatial_position
 
     @property
-    def is_temporal_pipe(self) -> bool:
-        return self._z % 2 == 1
-
-    @property
-    def is_spatial_pipe(self) -> bool:
-        return self._x % 2 == 1 or self._y % 2 == 1
-
-    @property
-    def is_pipe(self) -> bool:
-        return self.is_spatial_pipe or self.is_temporal_pipe
-
-    @property
-    def is_cube(self) -> bool:
-        return not self.is_pipe
-
-    @property
-    def z_ordering(self) -> int:
+    def z(self) -> int:
         return self._z
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}(x={self._x},y={self._y},z={self._z})"
-
-
-class LayoutCubePosition3D(LayoutPosition3D):
-    """Internal class to represent the position of a cube on the grid.
-
-    For the moment, only 2 entities have to appear on the grid: cubes and pipes.
-    For that reason, we define cube positions (i.e., :class:`LayoutCubePosition3D`
-    instances) to be on even coordinates and pipes positions to have one odd
-    coordinates in the pipe dimension and even coordinates elsewhere.
-    """
-
-    def __init__(self, x: int, y: int, z: int) -> None:
-        if (x % 2 == 1) or (y % 2 == 1) or (z % 2 == 1):
-            clsname = self.__class__.__name__
-            raise TQECException(f"{clsname} cannot contain any odd coordinate.")
-        super().__init__(x, y, z)
-
-    @override
-    def as_2d(self) -> LayoutCubePosition2D:
-        return LayoutCubePosition2D(self._x, self._y)
-
-
-class LayoutPipePosition3D(LayoutPosition3D):
-    """Internal class to represent the position of a cube on the grid.
-
-    For the moment, only 2 entities have to appear on the grid: cubes and pipes.
-    For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
-    instances) to be on even coordinates and pipes positions to have one odd
-    coordinates in the pipe dimension and even coordinates elsewhere.
-    """
-
-    def __init__(self, x: int, y: int, z: int) -> None:
-        if sum(coord % 2 for coord in (x, y, z)) != 1:
-            clsname = self.__class__.__name__
-            raise TQECException(f"{clsname} should contain exactly one odd coordinate.")
-        super().__init__(x, y, z)
-
-    @override
-    def as_2d(self) -> LayoutPipePosition2D | LayoutCubePosition2D:
-        if self.is_temporal_pipe:
-            return LayoutCubePosition2D(self._x, self._y)
-        return LayoutPipePosition2D(self._x, self._y)
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(spatial_position={self._spatial_position},z={self._z})"

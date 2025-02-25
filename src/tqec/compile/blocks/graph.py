@@ -40,7 +40,11 @@ substitution one.
 """
 
 from tqec.compile.blocks.block import Block
-from tqec.compile.blocks.enums import border_from_signed_direction
+from tqec.compile.blocks.enums import (
+    SpatialBlockBorder,
+    TemporalBlockBorder,
+    border_from_signed_direction,
+)
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.merge import merge_parallel_block_layers
@@ -70,7 +74,9 @@ class TopologicalComputationGraph:
             )
         self._blocks[layout_position] = block
 
-    def _check_junction(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
+    def _check_any_junction(
+        self, source: BlockPosition3D, sink: BlockPosition3D
+    ) -> None:
         """Check the validity of a junction between ``source`` and ``sink``.
 
         Args:
@@ -81,8 +87,8 @@ class TopologicalComputationGraph:
             TQECException: if ``source`` and ``sink`` are not neighbouring
                 positions.
             TQECException: if ``not source < sink``.
-            TQECException: if there is already a junction between ``source`` and
-                ``sink``.
+            TQECException: if either ``source`` or ``sink`` has not been added
+                to the graph.
         """
         if not source.is_neighbour(sink):
             raise TQECException(
@@ -95,6 +101,39 @@ class TopologicalComputationGraph:
                 "are not correctly ordered. The following should be verified: "
                 "source < sink."
             )
+        source_layout_position = LayoutPosition3D.from_block_position(source)
+        if source_layout_position not in self._blocks:
+            raise TQECException(
+                f"Cannot add a pipe between {source:=} and {sink:=}: the source "
+                "is not in the graph."
+            )
+        sink_layout_position = LayoutPosition3D.from_block_position(sink)
+        if sink_layout_position not in self._blocks:
+            raise TQECException(
+                f"Cannot add a pipe between {source:=} and {sink:=}: the sink "
+                "is not in the graph."
+            )
+
+    def _check_spatial_junction(
+        self, source: BlockPosition3D, sink: BlockPosition3D
+    ) -> None:
+        """Check the validity of a spatial junction between ``source`` and
+        ``sink``.
+
+        Args:
+            source: source of the junction. Should be the "smallest" position.
+            sink: destination of the junction. Should be the "largest" position.
+
+        Raises:
+            TQECException: if ``source`` and ``sink`` are not neighbouring
+                positions.
+            TQECException: if ``not source < sink``.
+            TQECException: if either ``source`` or ``sink`` has not been added
+                to the graph.
+            TQECException: if there is already a junction between ``source`` and
+                ``sink``.
+        """
+        self._check_any_junction(source, sink)
         layout_position = LayoutPosition3D.from_junction_position((source, sink))
         if layout_position in self._blocks:
             raise TQECException(
@@ -102,7 +141,7 @@ class TopologicalComputationGraph:
                 f"a junction at {layout_position}."
             )
 
-    def _trim_junctioned_cubes(
+    def _trim_spatially_junctioned_cubes(
         self, source: BlockPosition3D, sink: BlockPosition3D
     ) -> None:
         """Trim the correct border from the cubes in ``source`` and ``sink``.
@@ -118,21 +157,67 @@ class TopologicalComputationGraph:
             TQECException: if ``source`` and ``sink`` are not neighbouring
                 positions.
             TQECException: if ``not source < sink``.
+            TQECException: if either ``source`` or ``sink`` has not been added
+                to the graph.
             TQECException: if there is already a junction between ``source`` and
                 ``sink``.
         """
-        self._check_junction(source, sink)
-        junction_direction = Direction3D.from_neighbouring_positions(source, sink)
-        source_pos = LayoutPosition3D.from_block_position(source)
-        sink_pos = LayoutPosition3D.from_block_position(sink)
+        self._check_spatial_junction(source, sink)
+        juncdir = Direction3D.from_neighbouring_positions(source, sink)
+        if juncdir not in Direction3D.spatial_directions():
+            raise TQECException(
+                f"The provided {source:=} and {sink:=} are not describing a "
+                "valid spatial junction. Spatial and temporal junctions should "
+                "be handled separately."
+            )
+        psource = LayoutPosition3D.from_block_position(source)
+        psink = LayoutPosition3D.from_block_position(sink)
         # Note that below the value of the ``toward_positive`` attribute of
         # SignedDirection3D is fixed by the condition that ``source < sink``.
-        self._blocks[source_pos] = self._blocks[source_pos].with_borders_trimmed(
-            [border_from_signed_direction(SignedDirection3D(junction_direction, True))]
+        source_border = border_from_signed_direction(SignedDirection3D(juncdir, True))
+        sink_border = border_from_signed_direction(SignedDirection3D(juncdir, False))
+        assert isinstance(source_border, SpatialBlockBorder)
+        assert isinstance(sink_border, SpatialBlockBorder)
+        self._blocks[psource] = self._blocks[psource].with_spatial_borders_trimmed(
+            [source_border]
         )
-        self._blocks[sink_pos] = self._blocks[sink_pos].with_borders_trimmed(
-            [border_from_signed_direction(SignedDirection3D(junction_direction, False))]
+        self._blocks[psink] = self._blocks[psink].with_spatial_borders_trimmed(
+            [sink_border]
         )
+
+    def _replace_temporal_borders(
+        self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
+    ) -> None:
+        self._check_any_junction(source, sink)
+        juncdir = Direction3D.from_neighbouring_positions(source, sink)
+        if juncdir not in Direction3D.temporal_directions():
+            raise TQECException(
+                f"The provided {source:=} and {sink:=} are not describing a "
+                "valid temporal junction. Spatial and temporal junctions should "
+                "be handled separately."
+            )
+        # Source
+        psource = LayoutPosition3D.from_block_position(source)
+        new_source = self._blocks[psource].with_temporal_borders_replaced(
+            {
+                TemporalBlockBorder.Z_POSITIVE: block.get_temporal_border(
+                    TemporalBlockBorder.Z_POSITIVE
+                )
+            }
+        )
+        assert new_source is not None, "We did not remove any layers."
+        self._blocks[psource] = new_source
+        # Sink
+        psink = LayoutPosition3D.from_block_position(sink)
+        new_sink = self._blocks[psink].with_temporal_borders_replaced(
+            {
+                TemporalBlockBorder.Z_NEGATIVE: block.get_temporal_border(
+                    TemporalBlockBorder.Z_NEGATIVE
+                )
+            }
+        )
+        assert new_sink is not None, "We did not remove any layers."
+        self._blocks[psink] = new_sink
 
     def add_pipe(
         self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
@@ -154,8 +239,12 @@ class TopologicalComputationGraph:
                 f"block ({block}) is not a pipe (i.e., does not have exactly 2 "
                 "scalable dimensions)."
             )
-        self._trim_junctioned_cubes(source, sink)
-        self._blocks[LayoutPosition3D.from_junction_position((source, sink))] = block
+        if block.is_temporal_pipe:
+            self._replace_temporal_borders(source, sink, block)
+        else:  # block is a spatial pipe
+            self._trim_spatially_junctioned_cubes(source, sink)
+            key = LayoutPosition3D.from_junction_position((source, sink))
+            self._blocks[key] = block
 
     def layout_layers(
         self,
@@ -169,11 +258,11 @@ class TopologicalComputationGraph:
         wrapping :class:`~tqec.compile.blocks.layers.atomic.layout.LayoutLayer`
         instances.
         """
-        zs = [pos.z_ordering for pos in self._blocks.keys()]
+        zs = [pos.z for pos in self._blocks.keys()]
         min_z, max_z = min(zs), max(zs)
         blocks_by_z: list[dict[LayoutPosition2D, Block]] = [
             {} for _ in range(min_z, max_z + 1)
         ]
         for pos, block in self._blocks.items():
-            blocks_by_z[pos.z_ordering - min_z][pos.as_2d()] = block
+            blocks_by_z[pos.z - min_z][pos.as_2d()] = block
         return [merge_parallel_block_layers(blocks) for blocks in blocks_by_z]
