@@ -15,15 +15,18 @@ has all the spatial boundaries in the same basis.
 The spatial pipes connected to the spatial cubes are called **arms**.
 """
 
+from typing import Final
+
 from tqec.compile.specs.enums import SpatialArms
-from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.compile.specs.library.generators.utils import default_plaquette_mapper
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.qubit import (
     QubitHorizontalBorders,
     QubitSpatialCubeTemplate,
     QubitVerticalBorders,
 )
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
@@ -243,7 +246,7 @@ def get_spatial_cube_qubit_rpng_descriptions(
 
     return FrozenDefaultDict(
         mapping,
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
 
 
@@ -386,7 +389,7 @@ def _get_left_spatial_cube_arm_rpng_descriptions(
             7: RPNGDescription.from_string(f"{r}{bi}1{m} -{bi}3- {r}{bi}2{m} -{bi}4-"),
             8: RPNGDescription.from_string(f"{r}{be}1{m} -{be}2- {r}{be}3{m} -{be}4-"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
 
 
@@ -415,7 +418,7 @@ def _get_right_spatial_cube_arm_rpng_descriptions(
             7: RPNGDescription.from_string(f"{r}{bi}1{m} -{bi}3- {r}{bi}2{m} -{bi}4-"),
             8: RPNGDescription.from_string(f"{r}{be}1{m} -{be}2- {r}{be}3{m} -{be}4-"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
 
 
@@ -444,7 +447,7 @@ def _get_up_spatial_cube_arm_rpng_descriptions(
             7: RPNGDescription.from_string(f"{r}{bi}1{m} {r}{bi}3{m} -{bi}4- -{bi}5-"),
             8: RPNGDescription.from_string(f"{r}{be}1{m} {r}{be}3{m} -{be}2- -{be}5-"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
 
 
@@ -473,5 +476,13 @@ def _get_down_spatial_cube_arm_rpng_descriptions(
             7: RPNGDescription.from_string(f"{r}{be}1{m} {r}{be}3{m} -{be}2- -{be}5-"),
             8: RPNGDescription.from_string(f"{r}{bi}1{m} {r}{bi}3{m} -{bi}4- -{bi}5-"),
         },
-        default_factory=lambda: RPNGDescription.from_string("---- ---- ---- ----"),
+        default_factory=RPNGDescription.empty,
     )
+
+
+get_spatial_cube_qubit_plaquettes: Final = default_plaquette_mapper(
+    get_spatial_cube_qubit_rpng_descriptions
+)
+get_spatial_cube_arm_plaquettes: Final = default_plaquette_mapper(
+    get_spatial_cube_arm_rpng_descriptions
+)

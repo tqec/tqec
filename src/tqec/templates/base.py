@@ -15,8 +15,13 @@ from tqec.templates.subtemplates import (
     UniqueSubTemplates,
     get_spatially_distinct_subtemplates,
 )
-from tqec.utils.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
-from tqec.utils.scale import Scalable2D, round_or_fail
+from tqec.utils.position import (
+    BlockPosition2D,
+    PlaquettePosition2D,
+    PlaquetteShape2D,
+    Shift2D,
+)
+from tqec.utils.scale import PlaquetteScalable2D, round_or_fail
 
 
 class Template(ABC):
@@ -35,7 +40,7 @@ class Template(ABC):
                 to ``Displacement(2, 2)`` when ``None``
         """
         super().__init__()
-        self._default_increments = default_increments or Shift2D(2, 2)
+        self._default_shift = default_increments or Shift2D(2, 2)
 
     @abstractmethod
     def instantiate(
@@ -54,14 +59,14 @@ class Template(ABC):
             the underlying shape of the template.
         """
 
-    def shape(self, k: int) -> Shape2D:
+    def shape(self, k: int) -> PlaquetteShape2D:
         """Returns the current template shape."""
         sshape = self.scalable_shape
-        return Shape2D(round_or_fail(sshape.x(k)), round_or_fail(sshape.y(k)))
+        return PlaquetteShape2D(round_or_fail(sshape.x(k)), round_or_fail(sshape.y(k)))
 
     @property
     @abstractmethod
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PlaquetteScalable2D:
         """Returns a scalable version of the template shape."""
 
     @property
@@ -80,7 +85,7 @@ class Template(ABC):
         Returns:
             a displacement of the default increments in the x and y directions.
         """
-        return self._default_increments
+        return self._default_shift
 
     def get_spatially_distinct_subtemplates(
         self, k: int, manhattan_radius: int = 1, avoid_zero_plaquettes: bool = True

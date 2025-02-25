@@ -1,7 +1,6 @@
 import numpy
 import pytest
 
-from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.templates.enums import TemplateBorder
 from tqec.templates.qubit import (
     QubitHorizontalBorders,
@@ -9,7 +8,8 @@ from tqec.templates.qubit import (
     QubitTemplate,
     QubitVerticalBorders,
 )
-from tqec.utils.scale import LinearFunction, Scalable2D
+from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
 def test_creation() -> None:
@@ -27,16 +27,16 @@ def test_expected_plaquettes_number() -> None:
 
 
 def test_scalable_shape() -> None:
-    assert QubitTemplate().scalable_shape == Scalable2D(
+    assert QubitTemplate().scalable_shape == PlaquetteScalable2D(
         LinearFunction(2, 2), LinearFunction(2, 2)
     )
-    assert QubitHorizontalBorders().scalable_shape == Scalable2D(
+    assert QubitHorizontalBorders().scalable_shape == PlaquetteScalable2D(
         LinearFunction(2, 2), LinearFunction(0, 2)
     )
-    assert QubitVerticalBorders().scalable_shape == Scalable2D(
+    assert QubitVerticalBorders().scalable_shape == PlaquetteScalable2D(
         LinearFunction(0, 2), LinearFunction(2, 2)
     )
-    assert QubitSpatialCubeTemplate().scalable_shape == Scalable2D(
+    assert QubitSpatialCubeTemplate().scalable_shape == PlaquetteScalable2D(
         LinearFunction(2, 2), LinearFunction(2, 2)
     )
 
