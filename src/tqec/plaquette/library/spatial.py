@@ -11,7 +11,7 @@ from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_mome
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.plaquette.plaquette import Plaquette
-from tqec.plaquette.qubit import DownTrianglePlaquetteQubits, UpTrianglePlaquetteQubits
+from tqec.plaquette.qubit import SquarePlaquetteQubits
 from tqec.utils.enums import Basis
 
 
@@ -50,12 +50,11 @@ class _SpatialCubeArmPlaquetteBuilder:
         self._plaquette_kind = plaquette_kind
         self._is_reverse = is_reverse
 
+        self._qubits = SquarePlaquetteQubits()
         match self._plaquette_kind:
             case "UP":
-                self._qubits = UpTrianglePlaquetteQubits()
                 self._moments = self._build_memory_moments_up()
             case "DOWN":
-                self._qubits = DownTrianglePlaquetteQubits()
                 self._moments = self._build_memory_moments_down()
 
         self._qubit_map = QubitMap(
@@ -105,7 +104,7 @@ class _SpatialCubeArmPlaquetteBuilder:
         circuit.append("TICK")
         circuit.append("CX", [1, 0], [])
         circuit.append("TICK")
-        targ_order = [3, 2] if self._is_reverse else [2, 3]
+        targ_order = [4, 3] if self._is_reverse else [3, 4]
         circuit.append(f"C{self._basis.name}", [0, targ_order[0]], [])
         circuit.append("TICK")
         circuit.append("TICK")
