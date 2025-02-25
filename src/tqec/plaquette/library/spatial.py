@@ -48,14 +48,15 @@ class _SpatialCubeArmPlaquetteBuilder:
     ) -> None:
         self._basis = basis
         self._plaquette_kind = plaquette_kind
+        self._is_reverse = is_reverse
 
         match self._plaquette_kind:
             case "UP":
                 self._qubits = UpTrianglePlaquetteQubits()
-                self._moments = self._build_memory_moments_up(is_reverse=is_reverse)
+                self._moments = self._build_memory_moments_up()
             case "DOWN":
                 self._qubits = DownTrianglePlaquetteQubits()
-                self._moments = self._build_memory_moments_down(is_reverse=is_reverse)
+                self._moments = self._build_memory_moments_down()
 
         self._qubit_map = QubitMap(
             {0: self._qubits.syndrome_qubits[0]}
@@ -68,6 +69,8 @@ class _SpatialCubeArmPlaquetteBuilder:
             self._basis.name,
             self._plaquette_kind,
         ]
+        if self._is_reverse:
+            parts.append("REVERSE")
         return "_".join(parts)
 
     def build(self) -> Plaquette:
@@ -78,21 +81,23 @@ class _SpatialCubeArmPlaquetteBuilder:
             mergeable_instructions=self.MERGEABLE_INSTRUCTIONS,
         )
 
-    def _build_memory_moments_up(self, is_reverse: bool = False) -> list[Moment]:
+    def _build_memory_moments_up(self) -> list[Moment]:
         circuit = stim.Circuit()
         circuit.append("RX", [0], [])
         circuit.append("RZ", [3], [])
         circuit.append("TICK")
         circuit.append("CX", [0, 3], [])
         circuit.append("TICK")
-        targ_order = [2, 1] if is_reverse else [1, 2]
-        for dq in targ_order:
-            circuit.append(f"C{self._basis.name}", [0, dq], [])
-            circuit.append("TICK")
+        targ_order = [2, 1] if self._is_reverse else [1, 2]
+        circuit.append(f"C{self._basis.name}", [0, targ_order[0]], [])
+        circuit.append("TICK")
+        circuit.append("TICK")
+        circuit.append(f"C{self._basis.name}", [0, targ_order[1]], [])
+        circuit.append("TICK")
         circuit.append("CX", [3, 0], [])
         return list(iter_stim_circuit_without_repeat_by_moments(circuit))
 
-    def _build_memory_moments_down(self, is_reverse: bool = False) -> list[Moment]:
+    def _build_memory_moments_down(self) -> list[Moment]:
         circuit = stim.Circuit()
         circuit.append("RZ", [1], [])
         circuit.append("TICK")
@@ -100,10 +105,12 @@ class _SpatialCubeArmPlaquetteBuilder:
         circuit.append("TICK")
         circuit.append("CX", [1, 0], [])
         circuit.append("TICK")
-        targ_order = [3, 2] if is_reverse else [2, 3]
-        for dq in targ_order:
-            circuit.append(f"C{self._basis.name}", [0, dq], [])
-            circuit.append("TICK")
+        targ_order = [3, 2] if self._is_reverse else [2, 3]
+        circuit.append(f"C{self._basis.name}", [0, targ_order[0]], [])
+        circuit.append("TICK")
+        circuit.append("TICK")
+        circuit.append(f"C{self._basis.name}", [0, targ_order[1]], [])
+        circuit.append("TICK")
         circuit.append("CX", [0, 1], [])
         circuit.append("TICK")
         circuit.append("MX", [0], [])
