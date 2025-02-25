@@ -116,3 +116,21 @@ class SquarePlaquetteQubits(PlaquetteQubits):
             [GridQubit(-1, -1), GridQubit(1, -1), GridQubit(-1, 1), GridQubit(1, 1)],
             [GridQubit(0, 0)],
         )
+
+
+class UpTrianglePlaquetteQubits(PlaquetteQubits):
+    def __init__(self) -> None:
+        super().__init__(
+            # Order is important here! Top-left, top-right, bottom-left.
+            [GridQubit(-1, -1), GridQubit(1, -1), GridQubit(-1, 1)],
+            [GridQubit(0, 0)],
+        )
+
+
+class DownTrianglePlaquetteQubits(PlaquetteQubits):
+    def __init__(self) -> None:
+        super().__init__(
+            # Order is important here! Top-left, bottom-left, bottom-right.
+            [GridQubit(-1, -1), GridQubit(-1, 1), GridQubit(1, 1)],
+            [GridQubit(0, 0)],
+        )
