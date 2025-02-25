@@ -499,9 +499,22 @@ def _get_down_spatial_cube_arm_rpng_descriptions(
 get_spatial_cube_qubit_plaquettes: Final = default_plaquette_mapper(
     get_spatial_cube_qubit_rpng_descriptions
 )
-# get_spatial_cube_arm_plaquettes: Final = default_plaquette_mapper(
-#     get_spatial_cube_arm_rpng_descriptions
-# )
+
+
+def _get_up_spatial_cube_arm_plaquettes():
+    pass
+
+
+def _get_down_spatial_cube_arm_plaquettes():
+    pass
+
+
+def _get_left_spatial_cube_arm_plaquettes():
+    pass
+
+
+def _get_right_spatial_cube_arm_plaquettes():
+    pass
 
 
 def get_spatial_cube_arm_plaquettes(

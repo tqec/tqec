@@ -19,6 +19,7 @@ def make_spatial_cube_arm_plaquette(
     basis: Basis,
     plaquette_kind: Literal["UP", "DOWN"],
     is_reverse: bool = False,
+    is_corner_trimmed: bool = False,
 ) -> Plaquette:
     """Make a plaquette for spatial cube arms.
 
@@ -26,12 +27,20 @@ def make_spatial_cube_arm_plaquette(
         basis: the basis of the plaquette.
         plaquette_kind: the kind of the plaquette.
         is_reverse: whether the plaquette has controlled-A reversed.
+        is_corner_trimmed: whether the plaquette has corner trimmed, for "UP" plaquette
+            the left top corner is trimmed, for "DOWN" plaquette the right bottom corner is trimmed.
 
     Returns:
         A plaquette for spatial cube arms.
+
+    References:
+        - Surface code quantum computation by Fowler et al. Fig. 13.
     """
     builder = _SpatialCubeArmPlaquetteBuilder(
-        basis, plaquette_kind, is_reverse=is_reverse
+        basis,
+        plaquette_kind,
+        is_reverse=is_reverse,
+        is_corner_trimmed=is_corner_trimmed,
     )
     return builder.build()
 
@@ -45,10 +54,15 @@ class _SpatialCubeArmPlaquetteBuilder:
         basis: Basis,
         plaquette_kind: Literal["UP", "DOWN"],
         is_reverse: bool = False,
+        is_corner_trimmed: bool = False,
     ) -> None:
         self._basis = basis
         self._plaquette_kind = plaquette_kind
         self._is_reverse = is_reverse
+        self._is_corner_trimmed = is_corner_trimmed
+        self._trimmed_qubit: int | None = None
+        if self._is_corner_trimmed:
+            self._trimmed_qubit = 1 if self._plaquette_kind == "UP" else 4
 
         self._qubits = SquarePlaquetteQubits()
         match self._plaquette_kind:
@@ -70,6 +84,8 @@ class _SpatialCubeArmPlaquetteBuilder:
         ]
         if self._is_reverse:
             parts.append("REVERSE")
+        if self._is_corner_trimmed:
+            parts.append("CORNER_TRIMMED")
         return "_".join(parts)
 
     def build(self) -> Plaquette:
@@ -80,6 +96,12 @@ class _SpatialCubeArmPlaquetteBuilder:
             mergeable_instructions=self.MERGEABLE_INSTRUCTIONS,
         )
 
+    def _append_ctrl_op_to_data_qubit(self, circuit: stim.Circuit, target: int) -> None:
+        if self._trimmed_qubit is not None and target == self._trimmed_qubit:
+            circuit.append("TICK")
+        else:
+            circuit.append(f"C{self._basis.name}", [0, target], [])
+
     def _build_memory_moments_up(self) -> list[Moment]:
         circuit = stim.Circuit()
         circuit.append("RX", [0], [])
@@ -88,10 +110,10 @@ class _SpatialCubeArmPlaquetteBuilder:
         circuit.append("CX", [0, 3], [])
         circuit.append("TICK")
         targ_order = [2, 1] if self._is_reverse else [1, 2]
-        circuit.append(f"C{self._basis.name}", [0, targ_order[0]], [])
+        self._append_ctrl_op_to_data_qubit(circuit, targ_order[0])
         circuit.append("TICK")
         circuit.append("TICK")
-        circuit.append(f"C{self._basis.name}", [0, targ_order[1]], [])
+        self._append_ctrl_op_to_data_qubit(circuit, targ_order[1])
         circuit.append("TICK")
         circuit.append("CX", [3, 0], [])
         return list(iter_stim_circuit_without_repeat_by_moments(circuit))
@@ -105,10 +127,10 @@ class _SpatialCubeArmPlaquetteBuilder:
         circuit.append("CX", [1, 0], [])
         circuit.append("TICK")
         targ_order = [4, 3] if self._is_reverse else [3, 4]
-        circuit.append(f"C{self._basis.name}", [0, targ_order[0]], [])
+        self._append_ctrl_op_to_data_qubit(circuit, targ_order[0])
         circuit.append("TICK")
         circuit.append("TICK")
-        circuit.append(f"C{self._basis.name}", [0, targ_order[1]], [])
+        self._append_ctrl_op_to_data_qubit(circuit, targ_order[1])
         circuit.append("TICK")
         circuit.append("CX", [0, 1], [])
         circuit.append("TICK")

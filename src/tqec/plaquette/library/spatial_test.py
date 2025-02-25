@@ -210,3 +210,29 @@ TICK
 MX 0
 """
     )
+    plaquette = make_spatial_cube_arm_plaquette(
+        Basis.X, "UP", is_reverse=False, is_corner_trimmed=True
+    )
+    assert plaquette.qubits == SquarePlaquetteQubits()
+    assert plaquette.name == "SPATIAL_CUBE_ARM_X_UP_CORNER_TRIMMED"
+    circuit = plaquette.circuit.get_circuit()
+    assert circuit == stim.Circuit(
+        """
+QUBIT_COORDS(0, 0) 0
+QUBIT_COORDS(-1, -1) 1
+QUBIT_COORDS(1, -1) 2
+QUBIT_COORDS(-1, 1) 3
+QUBIT_COORDS(1, 1) 4
+RX 0
+RZ 3
+TICK
+CX 0 3
+TICK
+TICK
+TICK
+TICK
+CX 0 2
+TICK
+CX 3 0
+"""
+    )
