@@ -8,7 +8,7 @@ from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.spatial import WithSpatialFootprint
 from tqec.compile.blocks.temporal import WithTemporalFootprint
 
-T = TypeVar("T", bound=BaseLayer)
+T = TypeVar("T", bound=BaseLayer, covariant=True)
 
 
 class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T]):
