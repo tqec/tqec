@@ -46,7 +46,14 @@ class LayoutLayer(BaseLayer):
     @property
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        return self.element_shape
+        xs = [pos._x for pos in self.layers.keys()]
+        ys = [pos._y for pos in self.layers.keys()]
+        minx, maxx = min(xs), max(xs)
+        miny, maxy = min(ys), max(ys)
+        shapex, shapey = (maxx - minx) // 2, (maxy - miny) // 2
+        return PhysicalQubitScalable2D(
+            shapex * self.element_shape.x, shapey * self.element_shape.y
+        )
 
     @override
     def with_spatial_borders_trimmed(
