@@ -145,13 +145,13 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
                 f"The provided schedule has a duration of {duration} but the "
                 f"instance to transform has a duration of {self.scalable_timesteps}."
             )
-        body_duration = self.internal_layer.scalable_timesteps
-        if not body_duration.is_constant():
+        body_duration_scalable = self.internal_layer.scalable_timesteps
+        if not body_duration_scalable.is_constant():
             raise NotImplementedError(
                 f"Splitting a {RepeatedLayer.__name__} instance with a "
                 "non-constant duration body is not implemented yet."
             )
-        body_duration = round_or_fail(body_duration.offset)
+        body_duration = round_or_fail(body_duration_scalable.offset)
         layers: list[T | BaseComposedLayer[T]] = []
         for s in schedule:
             try:
