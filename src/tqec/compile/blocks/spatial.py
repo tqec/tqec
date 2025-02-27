@@ -15,10 +15,10 @@ EXPECTED_SPATIAL_BORDER_WIDTH: Final[int] = 2
 At the moment, we need to ensure that removing one spatial border from any given
 layer will trim out a band of qubits with a known width. Some computations in
 the code base indirectly depends on the fact that this value is 2 for historical
-reasons. 
+reasons.
 
-Even though we do not need to in the forseeable future, changing that value 
-will likely lead to various errors in the code base. 
+Even though we do not need to in the foreseeable future, changing that value
+will likely lead to various errors in the code base.
 """
 
 
