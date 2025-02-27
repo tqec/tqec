@@ -4,7 +4,8 @@ from typing import Sequence
 
 
 def product(numbers: Sequence[int]) -> int:
-    """Returns the product of the provided numbers."""
+    """Returns the product of the provided ``numbers`` or ``1`` if no numbers
+    are provided."""
     ret = 1
     for n in numbers:
         ret *= n

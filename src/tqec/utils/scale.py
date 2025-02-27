@@ -130,6 +130,8 @@ class LinearFunction:
         return round_or_fail(self.slope * x + self.offset)
 
     def exact_integer_div(self, div: int) -> LinearFunction:
+        if div == 0:
+            raise ZeroDivisionError()
         slope, offset = round_or_fail(self.slope), round_or_fail(self.offset)
         if slope % div != 0:
             raise TQECException(

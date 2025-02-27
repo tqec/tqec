@@ -5,6 +5,18 @@ import pytest
 from tqec.utils.maths import least_common_multiple, prime_factors, product
 
 
+def test_product() -> None:
+    assert product([]) == 1
+    assert product([0]) == 0
+    assert product([-1]) == -1
+    assert product([45]) == 45
+
+
+@pytest.mark.parametrize("base,k", [(-1, 2), (-1, 3), (2, 56), (56, 3)])
+def test_product_powers(base: int, k: int) -> None:
+    assert product([base for _ in range(k)]) == base**k
+
+
 def test_prime_factorisation() -> None:
     assert prime_factors(0) == []
     assert prime_factors(1) == []
