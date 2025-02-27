@@ -69,7 +69,9 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
             # Cast seems to be required. I do not understand the type error
             # returned by both mypy and pyright when removing the cast below.
             return cast(T, self)
-        if len(border_replacements) > 1:
+        if len(border_replacements) > 1 and any(
+            replacement is not None for replacement in border_replacements.values()
+        ):
             raise TQECException(
                 "Unclear semantic: trying to replace the two temporal borders of "
                 "an atomic layer that, by definition, only contain one layer."
