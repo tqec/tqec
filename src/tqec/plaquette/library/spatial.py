@@ -42,9 +42,11 @@ def make_spatial_cube_arm_plaquette(
     Args:
         basis: the basis of the plaquette.
         plaquette_kind: the kind of the plaquette.
-        reset: the logical basis for data initialization.
-        measurement: the logical basis for data measurement.
-        is_reverse: whether the plaquette has controlled-A reversed.
+        reset: the logical basis for data qubit initialization. Defaults to ``None``
+            which means "no initialization of data qubits".
+        measurement: the logical basis for data qubit measurement. Defaults to
+            ``None`` means "no measurement of data qubits".
+        is_reverse: whether the schedules of controlled-A gates are reversed.
         is_corner_trimmed: whether the plaquette has corner trimmed, for "UP" plaquette
             the left top corner is trimmed, for "DOWN" plaquette the right bottom corner is trimmed.
 
@@ -52,7 +54,7 @@ def make_spatial_cube_arm_plaquette(
         A plaquette for spatial cube arms.
 
     Notes:
-        This method could generate 8 different plaquettes.
+        This method can generate 8 different plaquettes.
         UP-plaquettes:
         1. Qubits (a, b, c, d)
         2. Qubits (a, b, c, d) with controlled-A gates reversed
@@ -151,6 +153,15 @@ class _SpatialCubeArmPlaquetteBuilder:
             circuit.append(f"C{self._basis.name}", [0, target], [])
 
     def _build_memory_moments_up(self) -> list[Moment]:
+        """
+        Implement circuit for the following plaquette::
+
+            1 ----- 2
+            |       |
+            |   0   |
+            |       |
+            3 -----
+        """
         circuit = stim.Circuit()
         circuit.append("RX", [0], [])
         circuit.append("RZ", [3], [])
@@ -167,6 +178,15 @@ class _SpatialCubeArmPlaquetteBuilder:
         return list(iter_stim_circuit_without_repeat_by_moments(circuit))
 
     def _build_memory_moments_down(self) -> list[Moment]:
+        """
+        Implement circuit for the following plaquette::
+
+            1 -----
+            |       |
+            |   0   |
+            |       |
+            3 ----- 4
+        """
         circuit = stim.Circuit()
         circuit.append("RZ", [1], [])
         circuit.append("TICK")
