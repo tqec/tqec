@@ -473,16 +473,14 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquette</span><span class="p">,</span> <span class="n">Plaquettes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangularTemplate</span><span class="p">,</span> <span class="n">Template</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.frozendefaultdict</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenDefaultDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BlockPosition2D</span><span class="p">,</span>
     <span class="n">PlaquettePosition2D</span><span class="p">,</span>
@@ -585,53 +583,6 @@ window.addEventListener("load", () => mermaid.run());
             <span class="p">}</span>
             <span class="n">index_count</span> <span class="o">+=</span> <span class="n">template</span><span class="o">.</span><span class="n">expected_plaquettes_number</span>
         <span class="k">return</span> <span class="n">indices_map</span></div>
-
-
-<div class="viewcode-block" id="LayoutTemplate.global_plaquettes_from_local_ones">
-<a class="viewcode-back" href="../../../_autosummary/tqec.templates.LayoutTemplate.html#tqec.templates.LayoutTemplate.global_plaquettes_from_local_ones">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">global_plaquettes_from_local_ones</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">local_plaquettes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">Plaquettes</span><span class="p">],</span>
-        <span class="n">instantiate_indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Plaquettes</span><span class="p">:</span>
-        <span class="n">different_positions</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_layout</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span>
-            <span class="n">local_plaquettes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">different_positions</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;Expected one Plaquettes instance for EACH block in the layout &quot;</span>
-                <span class="s2">&quot;but found the following position(s) that are not in both the &quot;</span>
-                <span class="s2">&quot;provided local_plaquette and in the stored layout: &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">different_positions</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">indices_maps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_indices_map_for_instantiation</span><span class="p">(</span><span class="n">instantiate_indices</span><span class="p">)</span>
-        <span class="n">final_mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Plaquette</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">default_factories</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Plaquette</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">position</span><span class="p">,</span> <span class="n">plaquettes</span> <span class="ow">in</span> <span class="n">local_plaquettes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">index_map</span> <span class="o">=</span> <span class="n">indices_maps</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
-            <span class="n">collection</span> <span class="o">=</span> <span class="n">plaquettes</span><span class="o">.</span><span class="n">collection</span>
-            <span class="n">final_mapping</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">map_keys</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">index_map</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-            <span class="n">default_factories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">default_factory</span><span class="p">)</span>
-        <span class="c1"># If all the factories are None, that is a valid merge and we can</span>
-        <span class="c1"># early-return.</span>
-        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">f</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">default_factories</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">Plaquettes</span><span class="p">(</span><span class="n">FrozenDefaultDict</span><span class="p">(</span><span class="n">final_mapping</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">f</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">default_factories</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;Trying to merge Plaquettes instances with at least one having &quot;</span>
-                <span class="s2">&quot;a default factory and another not having a default factory.&quot;</span>
-            <span class="p">)</span>
-        <span class="c1"># We know for sure that all the factories are not None here.</span>
-        <span class="n">default_values</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">f</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">default_factories</span><span class="p">)</span>  <span class="c1"># type:ignore</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">default_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot merge Plaquettes instances with different default &quot;</span>
-                <span class="s2">&quot;factories. Found factories returning different elements: &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">default_values</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">Plaquettes</span><span class="p">(</span>
-            <span class="n">FrozenDefaultDict</span><span class="p">(</span><span class="n">final_mapping</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="n">default_factories</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
