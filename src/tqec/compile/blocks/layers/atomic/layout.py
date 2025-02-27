@@ -14,7 +14,6 @@ from tqec.compile.blocks.positioning import (
     LayoutPosition2D,
 )
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import PhysicalQubitScalable2D
 
 
@@ -42,12 +41,6 @@ class LayoutLayer(BaseLayer):
         return [
             pos for pos in self.layers.keys() if isinstance(pos, LayoutPipePosition2D)
         ]
-
-    @cached_property
-    def block_origin(self) -> BlockPosition2D:
-        positions = [pos.to_block_position() for pos in self.cube_positions]
-        xs, ys = [p.x for p in positions], [p.y for p in positions]
-        return BlockPosition2D(min(xs), min(ys))
 
     @property
     @override

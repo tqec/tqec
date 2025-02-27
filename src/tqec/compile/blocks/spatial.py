@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import Final, Iterable
 
 from typing_extensions import Self
 
 from tqec.compile.blocks.enums import SpatialBlockBorder
 from tqec.utils.position import PhysicalQubitShape2D
 from tqec.utils.scale import PhysicalQubitScalable2D
+
+EXPECTED_SPATIAL_BORDER_WIDTH: Final[int] = 2
 
 
 class WithSpatialFootprint(ABC):
