@@ -1,8 +1,8 @@
 from typing import Final
 
-from tqec.utils.enums import Basis
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.enums import ZObservableOrientation
+from tqec.utils.enums import Basis
 
 from ._testing import (
     get_spatial_horizontal_hadamard_rpng_template,
@@ -10,7 +10,7 @@ from ._testing import (
     get_temporal_hadamard_rpng_template,
 )
 
-_EMPT: Final[RPNGDescription] = RPNGDescription.from_string("---- ---- ---- ----")
+_EMPT: Final[RPNGDescription] = RPNGDescription.empty()
 
 
 def test_hadamard_horizontal_z_observable() -> None:
