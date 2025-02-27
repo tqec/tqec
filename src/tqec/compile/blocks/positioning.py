@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from math import ceil
+from abc import ABC
 from typing import Generic
 
-from typing_extensions import Self, TypeVar, override
+from typing_extensions import Self, TypeVar
 
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition2D, BlockPosition3D
-from tqec.utils.scale import PhysicalQubitScalable2D
 
 
 class LayoutPosition2D(ABC):
@@ -32,27 +30,6 @@ class LayoutPosition2D(ABC):
         assert u.is_neighbour(v)
         assert u < v
         return LayoutPipePosition2D(2 * u.x + (u.x != v.x), 2 * u.y + (u.y != v.y))
-
-    @abstractmethod
-    def origin_qubit(
-        self, element_shape: PhysicalQubitScalable2D, border_size: int
-    ) -> PhysicalQubitScalable2D:
-        """Returns the origin qubit of the position.
-
-        By convention:
-
-        - the origin of a cube is its top-left qubit, **borders included**,
-        - the origin of a pipe is its top-left qubit.
-
-        Args:
-            element_shape: scalable qubit shape of the cubes composing the grid.
-                In other words, scalable shape of a logical qubit.
-            border_size: size of what should be considered to be the "border"
-                around grid elements. For regular surface code, this should be 2
-                as "removing" the plaquettes on the borders "trims" all the
-                operations on 2 qubits.
-        """
-        pass
 
     def __hash__(self) -> int:
         return hash((self._x, self._y))
@@ -89,13 +66,6 @@ class LayoutCubePosition2D(LayoutPosition2D):
             raise TQECException(f"{clsname} cannot contain any odd coordinate.")
         super().__init__(x, y)
 
-    @override
-    def origin_qubit(
-        self, element_shape: PhysicalQubitScalable2D, border_size: int
-    ) -> PhysicalQubitScalable2D:
-        x, y = self._x // 2, self._y // 2
-        return PhysicalQubitScalable2D(x * element_shape.x, y * element_shape.y)
-
     def to_block_position(self) -> BlockPosition2D:
         return BlockPosition2D(self._x // 2, self._y // 2)
 
@@ -116,16 +86,6 @@ class LayoutPipePosition2D(LayoutPosition2D):
                 f"{clsname} should contain one odd and one even coordinate."
             )
         super().__init__(x, y)
-
-    @override
-    def origin_qubit(
-        self, element_shape: PhysicalQubitScalable2D, border_size: int
-    ) -> PhysicalQubitScalable2D:
-        x, y = int(ceil(self._x / 2)), int(ceil(self._y / 2))
-        return PhysicalQubitScalable2D(
-            x * element_shape.x - border_size * (self._x % 2),
-            y * element_shape.y - border_size * (self._y % 2),
-        )
 
 
 T = TypeVar("T", bound=LayoutPosition2D, covariant=True, default=LayoutPosition2D)
