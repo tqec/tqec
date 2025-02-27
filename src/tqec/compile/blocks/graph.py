@@ -72,8 +72,7 @@ class TopologicalComputationGraph:
                 f"block ({block}) is not a cube (i.e., has at least one "
                 "non-scalable dimension)."
             )
-        if block.scalable_shape != self._scalable_qubit_shape:
-            raise TQECException("")
+        self._check_block_spatial_shape(block)
         layout_position = LayoutPosition3D.from_block_position(position)
         if layout_position in self._blocks:
             raise TQECException(
@@ -147,6 +146,13 @@ class TopologicalComputationGraph:
             raise TQECException(
                 "Cannot override a junction with add_junction. There is already "
                 f"a junction at {layout_position}."
+            )
+
+    def _check_block_spatial_shape(self, block: Block) -> None:
+        if block.scalable_shape != self._scalable_qubit_shape:
+            raise TQECException(
+                f"Expected a block shaped like a logical qubit "
+                f"({self._scalable_qubit_shape}) but got {block.scalable_shape}."
             )
 
     def _trim_spatially_junctioned_cubes(
@@ -248,6 +254,7 @@ class TopologicalComputationGraph:
                 "scalable dimensions)."
             )
         if block.is_temporal_pipe:
+            self._check_block_spatial_shape(block)
             self._replace_temporal_borders(source, sink, block)
         else:  # block is a spatial pipe
             self._trim_spatially_junctioned_cubes(source, sink)
