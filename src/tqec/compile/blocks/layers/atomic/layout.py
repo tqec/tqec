@@ -22,6 +22,7 @@ class LayoutLayer(BaseLayer):
     """A layer gluing several other layers together on a 2-dimensional grid."""
 
     layers: dict[LayoutPosition2D, BaseLayer]
+    element_shape: PhysicalQubitScalable2D
 
     def __post_init__(self) -> None:
         if not self.layers:
@@ -45,7 +46,7 @@ class LayoutLayer(BaseLayer):
     @property
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        raise NotImplementedError()
+        return self.element_shape
 
     @override
     def with_spatial_borders_trimmed(

@@ -10,7 +10,7 @@ from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import LayoutPosition2D
 from tqec.utils.exceptions import TQECException
 from tqec.utils.maths import least_common_multiple
-from tqec.utils.scale import LinearFunction, round_or_fail
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D, round_or_fail
 
 
 def _contains_only_base_layers(
@@ -49,6 +49,7 @@ def _contains_only_repeated_or_sequenced_layers(
 
 def merge_parallel_block_layers(
     blocks_in_parallel: Mapping[LayoutPosition2D, Block],
+    scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> list[LayoutLayer | BaseComposedLayer[LayoutLayer]]:
     """Merge several stacks of layers executed in parallel into one stack of
     larger layers.
@@ -58,6 +59,8 @@ def merge_parallel_block_layers(
             provided block MUST have the exact same duration (also called
             "temporal footprint", number of base layers, or height in the Z
             dimension).
+        scalable_qubit_shape: scalable shape of a scalable qubit. Considered
+            valid across the whole domain.
 
     Returns:
         a stack of layers representing the same slice of computation as the
@@ -98,9 +101,9 @@ def merge_parallel_block_layers(
             pos: block.layer_sequence[i] for pos, block in blocks_in_parallel.items()
         }
         if _contains_only_base_layers(layers):
-            merged_layers.append(_merge_base_layers(layers))
+            merged_layers.append(_merge_base_layers(layers, scalable_qubit_shape))
         elif _contains_only_composed_layers(layers):
-            merged_layers.append(_merge_composed_layers(layers))
+            merged_layers.append(_merge_composed_layers(layers, scalable_qubit_shape))
         else:
             raise RuntimeError(
                 f"Found a mix of {BaseLayer.__name__} instances and "
@@ -112,12 +115,16 @@ def merge_parallel_block_layers(
     return merged_layers
 
 
-def _merge_base_layers(layers: dict[LayoutPosition2D, BaseLayer]) -> LayoutLayer:
-    return LayoutLayer(layers)
+def _merge_base_layers(
+    layers: dict[LayoutPosition2D, BaseLayer],
+    scalable_qubit_shape: PhysicalQubitScalable2D,
+) -> LayoutLayer:
+    return LayoutLayer(layers, scalable_qubit_shape)
 
 
 def _merge_composed_layers(
     layers: dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]],
+    scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> BaseComposedLayer[LayoutLayer]:
     # First, check that all the provided layers have the same scalable timesteps.
     different_timesteps = frozenset(
@@ -130,9 +137,9 @@ def _merge_composed_layers(
         )
     # timesteps = next(iter(different_timesteps))
     if _contains_only_repeated_layers(layers):
-        return _merge_repeated_layers(layers)
+        return _merge_repeated_layers(layers, scalable_qubit_shape)
     if _contains_only_sequenced_layers(layers):
-        return _merge_sequenced_layers(layers)
+        return _merge_sequenced_layers(layers, scalable_qubit_shape)
     # We are left here with a mix of RepeatedLayer and SequencedLayers.
     # Check that, in case a new subclass of BaseComposedLayer has been introduced.
     if not _contains_only_repeated_or_sequenced_layers(layers):
@@ -144,11 +151,12 @@ def _merge_composed_layers(
             f"Found instances of {unknown_types} that are not yet implemented "
             "in _merge_composed_layers."
         )
-    return _merge_repeated_and_sequenced_layers(layers)
+    return _merge_repeated_and_sequenced_layers(layers, scalable_qubit_shape)
 
 
 def _merge_repeated_layers(
     layers: dict[LayoutPosition2D, RepeatedLayer[BaseLayer]],
+    scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> RepeatedLayer[LayoutLayer]:
     """Merge several RepeatedLayer that should be executed in parallel.
 
@@ -210,7 +218,8 @@ def _merge_repeated_layers(
         inner_layers = {pos: layer.internal_layer for pos, layer in layers.items()}
         assert _contains_only_base_layers(inner_layers)
         return RepeatedLayer(
-            _merge_base_layers(inner_layers), next(iter(different_repetitions))
+            _merge_base_layers(inner_layers, scalable_qubit_shape),
+            next(iter(different_repetitions)),
         )
     # Else, we need the least common multiple
     num_internal_layers = least_common_multiple(considered_timesteps)
@@ -247,7 +256,8 @@ def _merge_repeated_layers(
                     {
                         pos: layer_sequence[i]
                         for pos, layer_sequence in base_sequences.items()
-                    }
+                    },
+                    scalable_qubit_shape,
                 )
                 for i in range(num_internal_layers)
             ]
@@ -258,6 +268,7 @@ def _merge_repeated_layers(
 
 def _merge_sequenced_layers(
     layers: dict[LayoutPosition2D, SequencedLayers[BaseLayer]],
+    scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> SequencedLayers[LayoutLayer]:
     internal_layers_schedules = frozenset(
         tuple(layer.scalable_timesteps for layer in sequenced_layer.layer_sequence)
@@ -278,9 +289,13 @@ def _merge_sequenced_layers(
             for pos, sequenced_layers in layers.items()
         }
         if _contains_only_base_layers(layers_at_timestep):
-            merged_layers.append(_merge_base_layers(layers_at_timestep))
+            merged_layers.append(
+                _merge_base_layers(layers_at_timestep, scalable_qubit_shape)
+            )
         elif _contains_only_composed_layers(layers_at_timestep):
-            merged_layers.append(_merge_composed_layers(layers_at_timestep))
+            merged_layers.append(
+                _merge_composed_layers(layers_at_timestep, scalable_qubit_shape)
+            )
         else:
             raise RuntimeError(
                 f"Found a mix of {BaseLayer.__name__} instances and "
@@ -296,6 +311,7 @@ def _merge_repeated_and_sequenced_layers(
     layers: dict[
         LayoutPosition2D, SequencedLayers[BaseLayer] | RepeatedLayer[BaseLayer]
     ],
+    scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> SequencedLayers[LayoutLayer]:
     raise NotImplementedError(
         "Merging RepeatedLayer and SequencedLayers is not currently supported."

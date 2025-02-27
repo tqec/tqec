@@ -39,6 +39,8 @@ For this reason, this module implements the "removal" technique rather than the
 substitution one.
 """
 
+from typing import Final
+
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.enums import (
     SpatialBlockBorder,
@@ -51,13 +53,17 @@ from tqec.compile.blocks.layers.merge import merge_parallel_block_layers
 from tqec.compile.blocks.positioning import LayoutPosition2D, LayoutPosition3D
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
+from tqec.utils.scale import PhysicalQubitScalable2D
 
 
 class TopologicalComputationGraph:
-    def __init__(self) -> None:
+    def __init__(self, scalable_qubit_shape: PhysicalQubitScalable2D) -> None:
         """Represents a topological computation with
         :class:`~tqec.compile.blocks.block.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
+        self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = (
+            scalable_qubit_shape
+        )
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         if not block.is_cube:
@@ -66,6 +72,8 @@ class TopologicalComputationGraph:
                 f"block ({block}) is not a cube (i.e., has at least one "
                 "non-scalable dimension)."
             )
+        if block.scalable_shape != self._scalable_qubit_shape:
+            raise TQECException("")
         layout_position = LayoutPosition3D.from_block_position(position)
         if layout_position in self._blocks:
             raise TQECException(
@@ -265,4 +273,7 @@ class TopologicalComputationGraph:
         ]
         for pos, block in self._blocks.items():
             blocks_by_z[pos.z - min_z][pos.as_2d()] = block
-        return [merge_parallel_block_layers(blocks) for blocks in blocks_by_z]
+        return [
+            merge_parallel_block_layers(blocks, self._scalable_qubit_shape)
+            for blocks in blocks_by_z
+        ]
