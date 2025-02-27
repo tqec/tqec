@@ -11,7 +11,7 @@ from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.utils.exceptions import TQECException
-from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D, round_or_fail
 
 T = TypeVar("T", bound=BaseLayer)
 
@@ -117,3 +117,55 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
             )
             for _ in range(self.repetitions.integer_eval(k))
         )
+
+    def to_sequenced_layer_with_schedule(
+        self, schedule: tuple[LinearFunction, ...]
+    ) -> SequencedLayers[T]:
+        """Splits ``self`` into a :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
+        instance with the provided schedule.
+
+        Raises:
+            TQECException: if the provided ``schedule`` is incompatible with
+                ``self`` (not the same overall duration).
+            NotImplementedError: if ``self.internal_layer`` has a non-constant
+                (i.e., scalable) duration.
+            NotImplementedError: if the provided ``schedule`` requires to split
+                ``self.internal_layer`` at one point.
+
+        Returns:
+            an instance of :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
+            that is equivalent to ``self`` (same duration, same layers applied,
+            ...) and that has the provided ``schedule``.
+        """
+        duration = sum(schedule, start=LinearFunction(0, 0))
+        if self.scalable_timesteps != duration:
+            raise TQECException(
+                f"Cannot transform the {RepeatedLayer.__name__} instance to a "
+                f"{SequencedLayers.__name__} instance with the provided schedule. "
+                f"The provided schedule has a duration of {duration} but the "
+                f"instance to transform has a duration of {self.scalable_timesteps}."
+            )
+        body_duration = self.internal_layer.scalable_timesteps
+        if not body_duration.is_constant():
+            raise NotImplementedError(
+                f"Splitting a {RepeatedLayer.__name__} instance with a "
+                "non-constant duration body is not implemented yet."
+            )
+        body_duration = round_or_fail(body_duration.offset)
+        layers: list[T | BaseComposedLayer[T]] = []
+        for s in schedule:
+            try:
+                repetitions = s.exact_integer_div(body_duration)
+            except TQECException as e:
+                raise NotImplementedError(
+                    f"The ability to split the body of a {RepeatedLayer.__name__} "
+                    "instance has not been implemented yet. Trying to fit an "
+                    f"integer repetition of a body with a duration of {body_duration} "
+                    f"within a total duration of {s}."
+                ) from e
+            layers.append(
+                RepeatedLayer(self.internal_layer, repetitions)
+                if repetitions != LinearFunction(0, 1)
+                else self.internal_layer
+            )
+        return SequencedLayers(layers)
