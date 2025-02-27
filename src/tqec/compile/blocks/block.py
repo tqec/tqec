@@ -22,15 +22,8 @@ class Block(SequencedLayers[BaseLayer]):
     :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer`.
 
     Depending on the stored layers, this class can be used to represent regular
-    cubes (i.e. scaling in the 2 spatial dimensions with ``k``) as well as
-    pipes (i.e. scaling in only 1 spatial dimension with ``k``).
-
-    Note:
-        pipes are handling differently depending if they are temporal or spatial:
-
-        - temporal pipes replace the first/last layers in the touched blocks,
-          hence they are not stored directly.
-        - spatial pipes are stored as regular blocks.
+    cubes (i.e. scaling in the 3 dimensions with ``k``) as well as pipes (i.e.
+    scaling in only 2 dimension with ``k``).
     """
 
     @override

@@ -9,34 +9,38 @@ and why they have been made.
 
 ### Substitution VS removal
 
-Before the introduction of :mod:`tqec.compile.blocks`, junctions (or pipes) were
+Before the introduction of :mod:`tqec.compile.blocks`, pipes (or junctions) were
 never strictly instantiated in any public-facing data-structure. Internally, the
-junction implementation was instantiated but was directly used to **replace**
-plaquettes from the 2 blocks that were touched by the junction. This replacement
+pipe implementation was instantiated but was directly used to **replace**
+plaquettes from the 2 blocks that were touched by the pipe. This replacement
 was encoded as a "substitution" that was a mapping from (potentially negative)
 layer indices to a mapping of plaquettes (i.e., a mapping from indices found in
 template instantiation to :class:`~tqec.plaquette.plaquette.Plaquette` instances).
 
-This implementation is correct and worked for a moment, but is strictly less
-capable than the chosen implementation in this module.
+With the introduction of layers as the base data-structure to represent QEC
+rounds, the substitution approach started to show weaknesses. For example when
+the layer schedules of a cube and one of its spatial pipe do not match.
 
-In this module, junctions are instantiated as
-:class:`~tqec.compile.blocks.block.Block` instances, just like cubes, and the
-neighbouring cubes have their corresponding boundary being stripped off.
-That is exactly equivalent to performing a substitution in the case where each
-of the 2 cubes and the junction are represented by templates and plaquettes. But
-this method also allows to arbitrary mix cube and junction implementations
-without requiring all of them to use templates and plaquettes.
+This situation arise with spatial junctions: the central cube implements a
+schedule that is
 
-Basically, the junction could potentially be implemented using a scalable raw
-quantum circuit, and it would work just fine* with any implementation of the
-neighbouring cubes.
+1. initialisation layer,
+2. repeat [memory layer],
+3. measurement layer,
 
-*: some care should be used for the qubits on the corner between a junction in
-the time dimension and one in the space dimension.
+whereas some of the pipes need to implement
 
-For this reason, this module implements the "removal" technique rather than the
-substitution one.
+1. initialisation layer,
+2. repeat [memory layer 1 alternated with memory layer 2],
+3. measurement layer.
+
+The fact that the repeated layer have a different body rules out any possibility
+to substitute plaquettes.
+
+To solve that issue, spatial pipes do not substitute plaquettes in cubes but
+rather remove the cube boundary and implement its own layers.
+
+For temporal pipes, the layers are replaced in-place within block instances.
 """
 
 from typing import Final
@@ -81,14 +85,12 @@ class TopologicalComputationGraph:
             )
         self._blocks[layout_position] = block
 
-    def _check_any_junction(
-        self, source: BlockPosition3D, sink: BlockPosition3D
-    ) -> None:
-        """Check the validity of a junction between ``source`` and ``sink``.
+    def _check_any_pipe(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
+        """Check the validity of a pipe between ``source`` and ``sink``.
 
         Args:
-            source: source of the junction. Should be the "smallest" position.
-            sink: destination of the junction. Should be the "largest" position.
+            source: source of the pipe. Should be the "smallest" position.
+            sink: destination of the pipe. Should be the "largest" position.
 
         Raises:
             TQECException: if ``source`` and ``sink`` are not neighbouring
@@ -99,12 +101,12 @@ class TopologicalComputationGraph:
         """
         if not source.is_neighbour(sink):
             raise TQECException(
-                f"Trying to add a junction between {source} and {sink} that are "
+                f"Trying to add a pipe between {source} and {sink} that are "
                 "not neighbouring positions."
             )
         if not source < sink:
             raise TQECException(
-                f"Trying to add a junction between {source:=} and {sink:=} that "
+                f"Trying to add a pipe between {source:=} and {sink:=} that "
                 "are not correctly ordered. The following should be verified: "
                 "source < sink."
             )
@@ -121,15 +123,15 @@ class TopologicalComputationGraph:
                 "is not in the graph."
             )
 
-    def _check_spatial_junction(
+    def _check_spatial_pipe(
         self, source: BlockPosition3D, sink: BlockPosition3D
     ) -> None:
-        """Check the validity of a spatial junction between ``source`` and
+        """Check the validity of a spatial pipe between ``source`` and
         ``sink``.
 
         Args:
-            source: source of the junction. Should be the "smallest" position.
-            sink: destination of the junction. Should be the "largest" position.
+            source: source of the pipe. Should be the "smallest" position.
+            sink: destination of the pipe. Should be the "largest" position.
 
         Raises:
             TQECException: if ``source`` and ``sink`` are not neighbouring
@@ -137,15 +139,15 @@ class TopologicalComputationGraph:
             TQECException: if ``not source < sink``.
             TQECException: if either ``source`` or ``sink`` has not been added
                 to the graph.
-            TQECException: if there is already a junction between ``source`` and
+            TQECException: if there is already a pipe between ``source`` and
                 ``sink``.
         """
-        self._check_any_junction(source, sink)
-        layout_position = LayoutPosition3D.from_junction_position((source, sink))
+        self._check_any_pipe(source, sink)
+        layout_position = LayoutPosition3D.from_pipe_position((source, sink))
         if layout_position in self._blocks:
             raise TQECException(
-                "Cannot override a junction with add_junction. There is already "
-                f"a junction at {layout_position}."
+                "Cannot override a pipe with add_pipe. There is already "
+                f"a pipe at {layout_position}."
             )
 
     def _check_block_spatial_shape(self, block: Block) -> None:
@@ -164,8 +166,8 @@ class TopologicalComputationGraph:
         ``source`` and ``sink``.
 
         Args:
-            source: source of the junction. Should be the "smallest" position.
-            sink: destination of the junction. Should be the "largest" position.
+            source: source of the pipe. Should be the "smallest" position.
+            sink: destination of the pipe. Should be the "largest" position.
 
         Raises:
             TQECException: if ``source`` and ``sink`` are not neighbouring
@@ -173,15 +175,15 @@ class TopologicalComputationGraph:
             TQECException: if ``not source < sink``.
             TQECException: if either ``source`` or ``sink`` has not been added
                 to the graph.
-            TQECException: if there is already a junction between ``source`` and
+            TQECException: if there is already a pipe between ``source`` and
                 ``sink``.
         """
-        self._check_spatial_junction(source, sink)
+        self._check_spatial_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
         if juncdir not in Direction3D.spatial_directions():
             raise TQECException(
                 f"The provided {source:=} and {sink:=} are not describing a "
-                "valid spatial junction. Spatial and temporal junctions should "
+                "valid spatial pipe. Spatial and temporal pipes should "
                 "be handled separately."
             )
         psource = LayoutPosition3D.from_block_position(source)
@@ -202,12 +204,12 @@ class TopologicalComputationGraph:
     def _replace_temporal_borders(
         self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
     ) -> None:
-        self._check_any_junction(source, sink)
+        self._check_any_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
         if juncdir not in Direction3D.temporal_directions():
             raise TQECException(
                 f"The provided {source:=} and {sink:=} are not describing a "
-                "valid temporal junction. Spatial and temporal junctions should "
+                "valid temporal pipe. Spatial and temporal pipes should "
                 "be handled separately."
             )
         # Source
@@ -242,7 +244,7 @@ class TopologicalComputationGraph:
             TQECException: if ``source`` and ``sink`` are not neighbouring
                 positions.
             TQECException: if ``not source < sink``.
-            TQECException: if there is already a junction between ``source`` and
+            TQECException: if there is already a pipe between ``source`` and
                 ``sink``.
             TQECException: if ``block`` is not a valid pipe (i.e., has not
                 exactly 2 scalable dimensions).
@@ -258,7 +260,7 @@ class TopologicalComputationGraph:
             self._replace_temporal_borders(source, sink, block)
         else:  # block is a spatial pipe
             self._trim_spatially_junctioned_cubes(source, sink)
-            key = LayoutPosition3D.from_junction_position((source, sink))
+            key = LayoutPosition3D.from_pipe_position((source, sink))
             self._blocks[key] = block
 
     def layout_layers(

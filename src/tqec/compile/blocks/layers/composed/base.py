@@ -22,6 +22,12 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T])
 
     @abstractmethod
     def all_layers(self, k: int) -> Iterable[BaseLayer]:
+        """Returns all the base layers represented by the instance.
+
+        Returns:
+            All the base layers represented by the instance. The returned
+            iterable should have as many entries as ``self.timesteps(k)``.
+        """
         pass
 
     def with_temporal_borders_trimmed(

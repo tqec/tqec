@@ -5,9 +5,9 @@ from typing import Callable, Iterable
 
 from typing_extensions import override
 
+from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.blocks.enums import SpatialBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
-from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.utils.scale import PhysicalQubitScalable2D
 
 
@@ -28,7 +28,6 @@ class RawCircuitLayer(BaseLayer):
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> RawCircuitLayer:
-        clsname = self.__class__.__name__
         raise NotImplementedError(
-            f"Cannot trim spatial borders of a {clsname} instance."
+            f"Cannot trim spatial borders of a {RawCircuitLayer.__name__} instance."
         )

@@ -48,6 +48,7 @@ class SequencedLayers(BaseComposedLayer[T], Generic[T]):
 
     @property
     def schedule(self) -> tuple[LinearFunction, ...]:
+        """Returns the duration of each of the sequenced layers."""
         return tuple(layer.scalable_timesteps for layer in self.layer_sequence)
 
     @property

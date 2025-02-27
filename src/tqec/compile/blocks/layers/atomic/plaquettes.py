@@ -77,6 +77,17 @@ class PlaquetteLayer(BaseLayer):
         template: RectangularTemplate,
         spatial_borders_removed: frozenset[SpatialBlockBorder],
     ) -> PlaquetteScalable2D:
+        """Get the shape of the provided ``template``, taking into account the
+        removed spatial borders.
+
+        Args:
+            template: template to get the shape from.
+            spatial_borders_removed: a collection of all the spatial borders
+                that have been removed.
+
+        Returns:
+            the shape of the provided template with the provided borders removed.
+        """
         base_shape = template.scalable_shape
         return PlaquetteScalable2D(
             base_shape.x

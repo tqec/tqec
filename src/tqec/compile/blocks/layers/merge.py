@@ -12,6 +12,19 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.maths import least_common_multiple
 from tqec.utils.scale import PhysicalQubitScalable2D, round_or_fail
 
+# Note on the few functions below:
+# These functions are needed mostly for typing purposes. The main issue is that
+# all the type-checkers I tested are not able to infer the correct type in the
+# situation below:
+#
+# obj: dict[int, int | float] = {}
+# if all(isinstance(value, float) for value in obj.values()):
+#     # We expect obj to be "dict[int, float]", but type checkers are not able
+#     # to infer that.
+#
+# To circumvent that, the functions below use typing.TypeGuard (see
+# https://docs.python.org/3/library/typing.html#typing.TypeGuard).
+
 
 def _contains_only_base_layers(
     layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer[BaseLayer]],
@@ -69,8 +82,9 @@ def merge_parallel_block_layers(
     Raises:
         TQECException: if two items from the provided ``blocks_in_parallel`` do
             not have the same temporal footprint.
-        NotImplementedError: if two of the provided blocks have layers that do
-            not overlap perfectly in time.
+        NotImplementedError: if the provided blocks cannot be merged due to a
+            code branch not being implemented yet (and not due to a logical
+            error making the blocks unmergeable).
     """
     if not blocks_in_parallel:
         return []
@@ -153,6 +167,8 @@ def _merge_repeated_layers(
 
     Args:
         layers: the different repeated layers that should be merged.
+        scalable_qubit_shape: scalable shape of a scalable qubit. Considered
+            valid across the whole domain.
 
     Raises:
         TQECException: if the provided repeated layers do not all have the same
@@ -214,7 +230,7 @@ def _merge_repeated_layers(
         )
     # Else, we need the least common multiple
     num_internal_layers = least_common_multiple(considered_timesteps)
-    # And we create sequences of that size and merge them!
+    # And we create sequences of that size to merge them!
     base_sequences: dict[LayoutPosition2D, list[BaseLayer]] = {}
     for pos, layer in layers.items():
         internal_layer = layer.internal_layer

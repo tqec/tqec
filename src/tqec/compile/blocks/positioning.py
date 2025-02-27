@@ -117,7 +117,7 @@ class LayoutPosition3D(ABC, Generic[T]):
         )
 
     @staticmethod
-    def from_junction_position(
+    def from_pipe_position(
         junction_position: tuple[BlockPosition3D, BlockPosition3D],
     ) -> LayoutPosition3D[LayoutPipePosition2D]:
         u, v = sorted(junction_position)
