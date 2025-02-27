@@ -10,7 +10,7 @@ from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import LayoutPosition2D
 from tqec.utils.exceptions import TQECException
 from tqec.utils.maths import least_common_multiple
-from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D, round_or_fail
+from tqec.utils.scale import PhysicalQubitScalable2D, round_or_fail
 
 
 def _contains_only_base_layers(
@@ -78,15 +78,6 @@ def merge_parallel_block_layers(
         tuple(layer.scalable_timesteps for layer in block.layer_sequence)
         for block in blocks_in_parallel.values()
     )
-    temporal_footprints = frozenset(
-        sum(sched, start=LinearFunction(0, 0)) for sched in internal_layers_schedules
-    )
-    if len(temporal_footprints) != 1:
-        raise TQECException(
-            "The blocks provided to merge_parallel_block_layers should ALL have "
-            "the same temporal footprint. Found the following different "
-            f"footprints in the temporal dimension: {temporal_footprints}."
-        )
     if len(internal_layers_schedules) != 1:
         raise NotImplementedError(
             "merge_parallel_block_layers only supports merging blocks that have "
@@ -180,7 +171,7 @@ def _merge_repeated_layers(
     )
     if len(different_timesteps) > 1:
         raise TQECException(
-            "Cannot merged RepeatedLayer instances that have different lengths. "
+            "Cannot merge RepeatedLayer instances that have different lengths. "
             f"Found the following different lengths: {different_timesteps}."
         )
     scalable_timesteps = next(iter(different_timesteps))
@@ -302,7 +293,8 @@ def _merge_sequenced_layers(
                 f"{BaseComposedLayer.__name__} instances in a single temporal "
                 f"layer. This should be already checked before. This is a "
                 "logical error in the code, please open an issue. Found layers:"
-                f"\n{list(layers.values())}"
+                "\n - "
+                + "\n - ".join(repr(layer) for layer in layers_at_timestep.values())
             )
     return SequencedLayers(merged_layers)
 
