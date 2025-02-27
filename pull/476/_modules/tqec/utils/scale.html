@@ -548,6 +548,8 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="LinearFunction.exact_integer_div">
 <a class="viewcode-back" href="../../../_autosummary/tqec.utils.LinearFunction.html#tqec.utils.LinearFunction.exact_integer_div">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">exact_integer_div</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">div</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LinearFunction</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">div</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ZeroDivisionError</span><span class="p">()</span>
         <span class="n">slope</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="p">),</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">slope</span> <span class="o">%</span> <span class="n">div</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
