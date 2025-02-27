@@ -305,6 +305,47 @@ def _merge_repeated_and_sequenced_layers(
     ],
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> SequencedLayers[LayoutLayer]:
-    raise NotImplementedError(
-        "Merging RepeatedLayer and SequencedLayers is not currently supported."
+    """Merge composed layers with both RepeatedLayer and SequencedLayers instances.
+
+    Raises:
+        TQECException: if there is no layer of type SequencedLayers.
+        TQECException: if there is no layer of type RepeatedLayer.
+        TQECException: if the provided layers have different durations.
+        NotImplementedError: if the ScheduledLayers instances in ``layers`` have
+            different schedules.
+    """
+    layer_types = frozenset(type(layer) for layer in layers.values())
+    if layer_types != frozenset((RepeatedLayer, SequencedLayers)):
+        raise TQECException(
+            "Wrong layer types: expecting at least one layer for each of the "
+            f"expected types ({RepeatedLayer.__name__} and {SequencedLayers.__name__}) "
+            "but got the following types: " + ",".join(t.__name__ for t in layer_types)
+        )
+    different_timesteps = frozenset(
+        layer.scalable_timesteps for layer in layers.values()
+    )
+    if len(different_timesteps) > 1:
+        raise TQECException(
+            f"Cannot merge {RepeatedLayer.__name__} and {SequencedLayers.__name__} "
+            "instances that have different durations. Found the following "
+            f"different durations: {different_timesteps}."
+        )
+    sequenced_schedules = frozenset(
+        layer.schedule
+        for layer in layers.values()
+        if isinstance(layer, SequencedLayers)
+    )
+    if len(sequenced_schedules) != 1:
+        raise NotImplementedError(
+            f"Merging different {SequencedLayers.__name__} instances with different "
+            "schedules is not implemented yet. Found the following schedules: "
+            f"{sequenced_schedules}."
+        )
+    schedule = next(iter(sequenced_schedules))
+    return _merge_sequenced_layers(
+        {
+            pos: layer.to_sequenced_layer_with_schedule(schedule)
+            for pos, layer in layers.items()
+        },
+        scalable_qubit_shape,
     )
