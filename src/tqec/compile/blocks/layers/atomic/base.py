@@ -5,8 +5,8 @@ from typing import Iterable, Mapping, TypeVar, cast
 from typing_extensions import Self, override
 
 from tqec.compile.blocks.enums import TemporalBlockBorder
-from tqec.compile.blocks.spatial import WithSpatialFootprint
-from tqec.compile.blocks.temporal import WithTemporalFootprint
+from tqec.compile.blocks.layers.spatial import WithSpatialFootprint
+from tqec.compile.blocks.layers.temporal import WithTemporalFootprint
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction
 

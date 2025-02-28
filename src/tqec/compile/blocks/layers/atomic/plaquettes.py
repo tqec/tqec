@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from tqec.compile.blocks.enums import SpatialBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
-from tqec.compile.blocks.spatial import EXPECTED_SPATIAL_BORDER_WIDTH
+from tqec.compile.blocks.layers.spatial import EXPECTED_SPATIAL_BORDER_WIDTH
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.exceptions import TQECException

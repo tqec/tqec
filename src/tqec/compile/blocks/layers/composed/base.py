@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Generic, Iterable, Mapping, TypeVar
 
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
-from tqec.compile.blocks.spatial import WithSpatialFootprint
-from tqec.compile.blocks.temporal import WithTemporalFootprint
+from tqec.compile.blocks.layers.spatial import WithSpatialFootprint
+from tqec.compile.blocks.layers.temporal import WithTemporalFootprint
 from tqec.utils.scale import LinearFunction
 
 if TYPE_CHECKING:
