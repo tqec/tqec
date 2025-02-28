@@ -19,6 +19,38 @@ This is the essence of fault-tolerant quantum computation.
 
 In ``tqec``, a block is either a :ref:`Cube <cube>` or a :ref:`Pipe <pipe>`.
 
+The naming convention for a cube or a pipe is as follows:
+
+- The axes used for labeling are as shown in the figure below. ``RGB`` axes are synonymous to ``XYZ`` axes.
+- We begin by labeling the boundary that's facing the X-axis first, then the one that's facing the Y-axis followed by the one facing the Z-axis.
+
+
+.. figure:: ../media/user_guide/terminology/axes_convention.png
+   :width: 200px
+   :align: center
+
+   X, Y, Z axes
+
+The labels based on color of the boundaries are provided in the table below.
+
+.. list-table::
+   :header-rows: 1
+   :align: center
+
+   * - Color
+     - Boundary
+   * - Red Wall
+     - x
+   * - Green Wall
+     - y
+   * - Blue Wall
+     - z
+   * - Yellow band
+     - h
+   * - Open/Hole (no color)
+     - o
+
+
 .. _cube:
 
 Cube
@@ -34,6 +66,7 @@ quantum operations that are applied within the cube. Currently we have the follo
    Different kinds of cubes
 
 .. _zxcube:
+
 
 :py:class:`~tqec.computation.ZXCube`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
