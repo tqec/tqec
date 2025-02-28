@@ -41,7 +41,7 @@ The labels based on color of the boundaries are provided in the table below.
      - Boundary
    * - Red Wall
      - x
-   * - Green Wall
+   * - Green Cube
      - y
    * - Blue Wall
      - z
