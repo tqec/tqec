@@ -108,7 +108,7 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
         return SequencedLayers(layer_sequence)
 
     @override
-    def all_layers(self, k: int) -> Iterable[BaseLayer]:
+    def all_layers(self, k: int) -> Iterable[T]:
         yield from chain.from_iterable(
             (
                 (self.internal_layer,)

@@ -113,7 +113,7 @@ class SequencedLayers(BaseComposedLayer[T], Generic[T]):
         return SequencedLayers(layers) if layers else None
 
     @override
-    def all_layers(self, k: int) -> Iterable[BaseLayer]:
+    def all_layers(self, k: int) -> Iterable[T]:
         yield from chain.from_iterable(
             ((layer,) if isinstance(layer, BaseLayer) else layer.all_layers(k))
             for layer in self.layer_sequence

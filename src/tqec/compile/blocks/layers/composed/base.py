@@ -25,7 +25,7 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T])
     """
 
     @abstractmethod
-    def all_layers(self, k: int) -> Iterable[BaseLayer]:
+    def all_layers(self, k: int) -> Iterable[T]:
         """Returns all the base layers represented by the instance.
 
         Returns:
