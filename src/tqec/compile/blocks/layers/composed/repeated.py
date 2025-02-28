@@ -118,25 +118,10 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
             for _ in range(self.repetitions.integer_eval(k))
         )
 
+    @override
     def to_sequenced_layer_with_schedule(
         self, schedule: tuple[LinearFunction, ...]
     ) -> SequencedLayers[T]:
-        """Splits ``self`` into a :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
-        instance with the provided schedule.
-
-        Raises:
-            TQECException: if the provided ``schedule`` is incompatible with
-                ``self`` (not the same overall duration).
-            NotImplementedError: if ``self.internal_layer`` has a non-constant
-                (i.e., scalable) duration.
-            NotImplementedError: if the provided ``schedule`` requires to split
-                ``self.internal_layer`` at one point.
-
-        Returns:
-            an instance of :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
-            that is equivalent to ``self`` (same duration, same layers applied,
-            ...) and that has the provided ``schedule``.
-        """
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
             raise TQECException(

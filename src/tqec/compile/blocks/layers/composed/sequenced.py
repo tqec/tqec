@@ -119,24 +119,10 @@ class SequencedLayers(BaseComposedLayer[T], Generic[T]):
             for layer in self.layer_sequence
         )
 
+    @override
     def to_sequenced_layer_with_schedule(
         self, schedule: tuple[LinearFunction, ...]
     ) -> SequencedLayers[T]:
-        """Splits ``self`` into a :class:`SequencedLayers` instance with the
-        provided schedule.
-
-        Raises:
-            TQECException: if the provided ``schedule`` is incompatible with
-                ``self`` (not the same overall duration).
-            NotImplementedError: if ``schedule != self.schedule`` because that
-                case requires a complex implementation and we do not need it
-                for the moment.
-
-        Returns:
-            an instance of :class:`SequencedLayers` that is equivalent to ``self``
-            (same duration, same layers applied, ...) and that has the provided
-            ``schedule``.
-        """
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
             raise TQECException(

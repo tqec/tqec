@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Generic, Iterable, Mapping, TypeVar
+from typing import TYPE_CHECKING, Generic, Iterable, Mapping, TypeVar
 
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.spatial import WithSpatialFootprint
 from tqec.compile.blocks.temporal import WithTemporalFootprint
+from tqec.utils.scale import LinearFunction
+
+if TYPE_CHECKING:
+    from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 
 T = TypeVar("T", bound=BaseLayer, covariant=True)
 
@@ -61,5 +65,24 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T])
             a copy of ``self`` with the provided ``borders`` replaced, or ``None``
             if replacing the provided ``borders`` from ``self`` result in an
             empty temporal footprint.
+        """
+        pass
+
+    @abstractmethod
+    def to_sequenced_layer_with_schedule(
+        self, schedule: tuple[LinearFunction, ...]
+    ) -> SequencedLayers[T]:
+        """Splits ``self`` into a :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
+        instance with the provided schedule.
+
+        Args:
+            schedule: duration of each of the layers in the returned
+                :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
+                instance.
+
+        Returns:
+            an instance of :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
+            that is equivalent to ``self`` (same duration, same layers applied,
+            ...) and that has the provided ``schedule``.
         """
         pass
