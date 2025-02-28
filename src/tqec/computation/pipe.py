@@ -138,7 +138,7 @@ class PipeKind:
             bases = [basis.flipped() for basis in cube_kind.as_tuple()]
         else:
             bases = list(cube_kind.as_tuple())
-        bases_str = [basis.value for basis in bases]
+        bases_str = [str(basis) for basis in bases]
         bases_str[direction.value] = "O"
         if has_hadamard:
             bases_str.append("H")
