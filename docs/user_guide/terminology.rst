@@ -22,7 +22,7 @@ In ``tqec``, a block is either a :ref:`Cube <cube>` or a :ref:`Pipe <pipe>`.
 The naming convention for a cube or a pipe is as follows:
 
 - The axes used for labeling are as shown in the figure below. ``RGB`` axes are synonymous to ``XYZ`` axes.
-- We begin by labeling the boundary that's facing the X-axis first, then the one that's facing the Y-axis followed by the one facing the Z-axis.
+- We begin by labeling the boundary that is facing the X-axis first, then the one that is facing the Y-axis followed by the one facing the Z-axis.
 
 
 .. figure:: ../media/user_guide/terminology/axes_convention.png
@@ -41,7 +41,7 @@ The labels based on color of the boundaries are provided in the table below.
      - Boundary
    * - Red Wall
      - x
-   * - Green Cube
+   * - Green Half-Cube
      - y
    * - Blue Wall
      - z
