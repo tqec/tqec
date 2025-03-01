@@ -15,7 +15,7 @@ from tqec.computation.cube import (
     Cube,
     CubeKind,
     Port,
-    YCube,
+    YHalfCube,
     ZXCube,
     cube_kind_from_string,
 )
@@ -650,6 +650,6 @@ def block_kind_from_str(string: str) -> BlockKind:
     if "O" in string:
         return PipeKind.from_str(string)
     elif string == "Y":
-        return YCube()
+        return YHalfCube()
     else:
         return ZXCube.from_str(string)
