@@ -157,7 +157,7 @@ class TopologicalComputationGraph:
                 f"({self._scalable_qubit_shape}) but got {block.scalable_shape}."
             )
 
-    def _trim_spatially_junctioned_cubes(
+    def _trim_cube_spatial_borders(
         self, source: BlockPosition3D, sink: BlockPosition3D
     ) -> None:
         """Trim the correct border from the cubes in ``source`` and ``sink``.
@@ -259,7 +259,7 @@ class TopologicalComputationGraph:
             self._check_block_spatial_shape(block)
             self._replace_temporal_borders(source, sink, block)
         else:  # block is a spatial pipe
-            self._trim_spatially_junctioned_cubes(source, sink)
+            self._trim_cube_spatial_borders(source, sink)
             key = LayoutPosition3D.from_pipe_position((source, sink))
             self._blocks[key] = block
 
