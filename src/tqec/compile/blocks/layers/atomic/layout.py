@@ -38,8 +38,10 @@ class LayoutLayer(BaseLayer):
         miny, maxy = min(ys), max(ys)
         shapex, shapey = (maxx - minx) // 2, (maxy - miny) // 2
         return PhysicalQubitScalable2D(
-            shapex * (self.element_shape.x - DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER) + 1,
-            shapey * (self.element_shape.y - DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER) + 1,
+            shapex * (self.element_shape.x - DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER)
+            + DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER,
+            shapey * (self.element_shape.y - DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER)
+            + DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER,
         )
 
     @override
