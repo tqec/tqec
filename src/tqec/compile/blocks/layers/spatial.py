@@ -32,9 +32,17 @@ class WithSpatialFootprint(ABC):
         """Returns the 2-dimensional shape of the object as an exact expression
         that can then be used to compute the shape for any value of ``k``.
 
+        Note:
+            This method should return the shape in qubit-coordinates. That means
+            that usual plaquette for the rotated surface code measuring 4-body
+            stabilizers (i.e., the square ones with a data-qubit on each corner
+            and a syndrome qubit in the middle of the square) has a shape of
+            ``(3, 3)``.
+
         Returns:
-            the 2-dimensional shape of the object as an exact expression
-            that can then be used to compute the shape for any value of ``k``.
+            the 2-dimensional shape **in qubit-coordinates** of the object as an
+            exact expression that can then be used to compute the shape for any
+            value of ``k``.
         """
         pass
 
