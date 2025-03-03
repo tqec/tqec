@@ -12,10 +12,12 @@ from tqec.utils.scale import LinearFunction
 if TYPE_CHECKING:
     from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 
-T = TypeVar("T", bound=BaseLayer, covariant=True)
+BaseLayerTV = TypeVar("BaseLayerTV", bound=BaseLayer, covariant=True)
 
 
-class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T]):
+class BaseComposedLayer(
+    WithSpatialFootprint, WithTemporalFootprint, Generic[BaseLayerTV]
+):
     """Base class representing a composed "layer".
 
     A composed layer is defined as a sequence (in time) of atomic layers. As
@@ -25,7 +27,7 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T])
     """
 
     @abstractmethod
-    def all_layers(self, k: int) -> Iterable[T]:
+    def all_layers(self, k: int) -> Iterable[BaseLayerTV]:
         """Returns all the base layers represented by the instance.
 
         Returns:
@@ -36,7 +38,7 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T])
 
     def with_temporal_borders_trimmed(
         self, borders: Iterable[TemporalBlockBorder]
-    ) -> BaseComposedLayer[T] | None:
+    ) -> BaseComposedLayer[BaseLayerTV] | None:
         """Returns ``self`` with the provided temporal borders removed.
 
         Args:
@@ -52,8 +54,8 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T])
     @abstractmethod
     def with_temporal_borders_replaced(
         self,
-        border_replacements: Mapping[TemporalBlockBorder, T | None],
-    ) -> BaseComposedLayer[T] | None:
+        border_replacements: Mapping[TemporalBlockBorder, BaseLayerTV | None],
+    ) -> BaseComposedLayer[BaseLayerTV] | None:
         """Returns ``self`` with the provided temporal borders replaced.
 
         Args:
@@ -71,7 +73,7 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint, Generic[T])
     @abstractmethod
     def to_sequenced_layer_with_schedule(
         self, schedule: tuple[LinearFunction, ...]
-    ) -> SequencedLayers[T]:
+    ) -> SequencedLayers[BaseLayerTV]:
         """Splits ``self`` into a :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
         instance with the provided schedule.
 

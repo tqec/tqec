@@ -2,22 +2,20 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import chain
-from typing import Generic, Iterable, Mapping, TypeVar
+from typing import Iterable, Mapping
 
 from typing_extensions import override
 
 from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
-from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
+from tqec.compile.blocks.layers.composed.base import BaseComposedLayer, BaseLayerTV
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D, round_or_fail
 
-T = TypeVar("T", bound=BaseLayer)
-
 
 @dataclass
-class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
+class RepeatedLayer(BaseComposedLayer[BaseLayerTV]):
     """Composed layer implementing repetition.
 
     This composed layer repeats another layer (that can be atomic or composed)
@@ -28,7 +26,7 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
         repetitions: number of repetitions to perform. Can scale with ``k``.
     """
 
-    internal_layer: T | BaseComposedLayer[T]
+    internal_layer: BaseLayerTV | BaseComposedLayer[BaseLayerTV]
     repetitions: LinearFunction
 
     def __post_init__(self) -> None:
@@ -61,18 +59,18 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
     @override
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
-    ) -> RepeatedLayer[T]:
+    ) -> RepeatedLayer[BaseLayerTV]:
         return RepeatedLayer(
             self.internal_layer.with_spatial_borders_trimmed(borders), self.repetitions
         )
 
     @staticmethod
     def _get_replaced_layer(
-        initial_layer: T | BaseComposedLayer[T],
+        initial_layer: BaseLayerTV | BaseComposedLayer[BaseLayerTV],
         border: TemporalBlockBorder,
-        border_replacements: Mapping[TemporalBlockBorder, T | None],
-    ) -> T | BaseComposedLayer[T] | None:
-        ret: T | BaseComposedLayer[T] | None = initial_layer
+        border_replacements: Mapping[TemporalBlockBorder, BaseLayerTV | None],
+    ) -> BaseLayerTV | BaseComposedLayer[BaseLayerTV] | None:
+        ret: BaseLayerTV | BaseComposedLayer[BaseLayerTV] | None = initial_layer
         if border in border_replacements:
             ret = initial_layer.with_temporal_borders_replaced(
                 {border: border_replacements[border]}
@@ -82,8 +80,8 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
     @override
     def with_temporal_borders_replaced(
         self,
-        border_replacements: Mapping[TemporalBlockBorder, T | None],
-    ) -> RepeatedLayer[T] | SequencedLayers[T]:
+        border_replacements: Mapping[TemporalBlockBorder, BaseLayerTV | None],
+    ) -> RepeatedLayer[BaseLayerTV] | SequencedLayers[BaseLayerTV]:
         # Does not handle "removing": the bulk_layers is never checked for
         # emptyness and so might be empty.
         if not border_replacements:
@@ -108,7 +106,7 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
         return SequencedLayers(layer_sequence)
 
     @override
-    def all_layers(self, k: int) -> Iterable[T]:
+    def all_layers(self, k: int) -> Iterable[BaseLayerTV]:
         yield from chain.from_iterable(
             (
                 (self.internal_layer,)
@@ -121,7 +119,7 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
     @override
     def to_sequenced_layer_with_schedule(
         self, schedule: tuple[LinearFunction, ...]
-    ) -> SequencedLayers[T]:
+    ) -> SequencedLayers[BaseLayerTV]:
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
             raise TQECException(
@@ -137,7 +135,7 @@ class RepeatedLayer(BaseComposedLayer[T], Generic[T]):
                 "non-constant duration body is not implemented yet."
             )
         body_duration = round_or_fail(body_duration_scalable.offset)
-        layers: list[T | BaseComposedLayer[T]] = []
+        layers: list[BaseLayerTV | BaseComposedLayer[BaseLayerTV]] = []
         for s in schedule:
             try:
                 repetitions = s.exact_integer_div(body_duration)
