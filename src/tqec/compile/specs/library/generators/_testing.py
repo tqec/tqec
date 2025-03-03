@@ -39,8 +39,8 @@ from tqec.templates.qubit import (
 )
 from tqec.utils.enums import Basis
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
-from tqec.utils.position import PlaquettePosition2D, Shape2D, Shift2D
-from tqec.utils.scale import Scalable2D
+from tqec.utils.position import PlaquettePosition2D, PlaquetteShape2D, Shift2D
+from tqec.utils.scale import PlaquetteScalable2D
 
 T = TypeVar("T", bound=Template, covariant=True)
 
@@ -54,12 +54,12 @@ class RPNGTemplate(Generic[T]):
         indices = self.template.instantiate(k)
         return [[self.mapping[i] for i in row] for row in indices]
 
-    def shape(self, k: int) -> Shape2D:
+    def shape(self, k: int) -> PlaquetteShape2D:
         """Returns the current template shape."""
         return self.template.shape(k)
 
     @property
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PlaquetteScalable2D:
         """Returns a scalable version of the template shape."""
         return self.template.scalable_shape
 
