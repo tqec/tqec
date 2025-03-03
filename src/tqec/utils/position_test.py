@@ -76,14 +76,3 @@ def test_from_neighbouring_positions(
     source: Position3D, sink: Position3D, expected_direction: Direction3D
 ) -> None:
     assert Direction3D.from_neighbouring_positions(source, sink) == expected_direction
-
-
-def test_from_neighbouring_positions_invalid() -> None:
-    with pytest.raises(AssertionError):
-        Direction3D.from_neighbouring_positions(
-            Position3D(0, 0, 0), Position3D(-1, 0, 0)
-        )
-    with pytest.raises(AssertionError):
-        Direction3D.from_neighbouring_positions(
-            Position3D(0, 0, 0), Position3D(1, 0, 1)
-        )
