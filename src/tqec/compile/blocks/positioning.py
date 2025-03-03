@@ -23,10 +23,10 @@ class LayoutPosition2D(ABC):
         return LayoutCubePosition2D(2 * pos.x, 2 * pos.y)
 
     @staticmethod
-    def from_junction_position(
-        junction_position: tuple[BlockPosition2D, BlockPosition2D],
+    def from_pipe_position(
+        pipe_position: tuple[BlockPosition2D, BlockPosition2D],
     ) -> LayoutPipePosition2D:
-        u, v = sorted(junction_position)
+        u, v = sorted(pipe_position)
         assert u.is_neighbour(v)
         assert u < v
         return LayoutPipePosition2D(2 * u.x + (u.x != v.x), 2 * u.y + (u.y != v.y))
@@ -118,13 +118,13 @@ class LayoutPosition3D(ABC, Generic[T]):
 
     @staticmethod
     def from_pipe_position(
-        junction_position: tuple[BlockPosition3D, BlockPosition3D],
+        pipe_position: tuple[BlockPosition3D, BlockPosition3D],
     ) -> LayoutPosition3D[LayoutPipePosition2D]:
-        u, v = sorted(junction_position)
+        u, v = sorted(pipe_position)
         assert u.is_neighbour(v)
         assert u < v
         return LayoutPosition3D(
-            LayoutPosition2D.from_junction_position((u.as_2d(), v.as_2d())), u.z
+            LayoutPosition2D.from_pipe_position((u.as_2d(), v.as_2d())), u.z
         )
 
     def __hash__(self) -> int:

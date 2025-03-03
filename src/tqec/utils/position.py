@@ -191,7 +191,7 @@ class Direction3D(Enum):
     def from_neighbouring_positions(
         source: Position3D, sink: Position3D
     ) -> Direction3D:
-        assert source.is_neighbour(sink) and source < sink
+        assert source.is_neighbour(sink)
         for direction, (source_coord, sink_coord) in zip(
             Direction3D.all_directions(), zip(source.as_tuple(), sink.as_tuple())
         ):

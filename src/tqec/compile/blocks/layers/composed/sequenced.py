@@ -29,14 +29,11 @@ class SequencedLayers(BaseComposedLayer[BaseLayerTV]):
 
     def __post_init__(self) -> None:
         if len(self.layer_sequence) <= 1:
-            clsname = SequencedLayers.__name__
             raise TQECException(
-                f"An instance of {clsname} is expected to have multiple "
-                f"layers in sequence. Found {len(self.layer_sequence)}."
+                f"An instance of {SequencedLayers.__name__} is expected to have "
+                f"multiple layers in sequence. Found {len(self.layer_sequence)}."
             )
         shapes = frozenset(layer.scalable_shape for layer in self.layer_sequence)
-        if len(shapes) == 0:
-            raise TQECException(f"Cannot build an empty {self.__class__.__name__}")
         if len(shapes) > 1:
             raise TQECException(
                 f"Found at least two different shapes in a {self.__class__.__name__}, "
@@ -89,8 +86,6 @@ class SequencedLayers(BaseComposedLayer[BaseLayerTV]):
                 layers[0] = first_layer
             else:
                 layers.pop(0)
-        if not layers:
-            return []
         if (border := TemporalBlockBorder.Z_POSITIVE) in border_replacements:
             last_layer = layers[-1].with_temporal_borders_replaced(
                 {border: border_replacements[border]}

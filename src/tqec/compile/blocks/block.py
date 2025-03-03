@@ -58,13 +58,11 @@ class Block(SequencedLayers[BaseLayer]):
         return layer
 
     @property
-    def scalable_dimensions(
-        self,
-    ) -> tuple[LinearFunction, LinearFunction, LinearFunction]:
+    def dimensions(self) -> tuple[LinearFunction, LinearFunction, LinearFunction]:
         """Returns the dimensions of ``self``.
 
         Returns:
-            a 3-dimensional tuple containing the scalable width for each of the
+            a 3-dimensional tuple containing the width for each of the
             ``(x, y, z)`` dimensions.
         """
         spatial_shape = self.scalable_shape
@@ -72,12 +70,12 @@ class Block(SequencedLayers[BaseLayer]):
 
     @property
     def is_cube(self) -> bool:
-        return all(dim.is_scalable() for dim in self.scalable_dimensions)
+        return all(dim.is_scalable() for dim in self.dimensions)
 
     @property
     def is_pipe(self) -> bool:
-        return sum(dim.is_scalable() for dim in self.scalable_dimensions) == 2
+        return sum(dim.is_scalable() for dim in self.dimensions) == 2
 
     @property
     def is_temporal_pipe(self) -> bool:
-        return self.is_pipe and self.scalable_dimensions[2].is_constant()
+        return self.is_pipe and self.dimensions[2].is_constant()
