@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Generic, Iterable, Mapping, TypeVar
+from typing import TYPE_CHECKING, Iterable, Mapping
 
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -12,12 +12,8 @@ from tqec.utils.scale import LinearFunction
 if TYPE_CHECKING:
     from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 
-BaseLayerTV = TypeVar("BaseLayerTV", bound=BaseLayer, covariant=True)
 
-
-class BaseComposedLayer(
-    WithSpatialFootprint, WithTemporalFootprint, Generic[BaseLayerTV]
-):
+class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
     """Base class representing a composed "layer".
 
     A composed layer is defined as a sequence (in time) of atomic layers. As
@@ -27,7 +23,7 @@ class BaseComposedLayer(
     """
 
     @abstractmethod
-    def all_layers(self, k: int) -> Iterable[BaseLayerTV]:
+    def all_layers(self, k: int) -> Iterable[BaseLayer]:
         """Returns all the base layers represented by the instance.
 
         Returns:
@@ -38,9 +34,8 @@ class BaseComposedLayer(
 
     @abstractmethod
     def with_temporal_borders_replaced(
-        self,
-        border_replacements: Mapping[TemporalBlockBorder, BaseLayerTV | None],
-    ) -> BaseComposedLayer[BaseLayerTV] | None:
+        self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
+    ) -> BaseComposedLayer | None:
         """Returns ``self`` with the provided temporal borders replaced.
 
         Args:
@@ -58,7 +53,7 @@ class BaseComposedLayer(
     @abstractmethod
     def to_sequenced_layer_with_schedule(
         self, schedule: tuple[LinearFunction, ...]
-    ) -> SequencedLayers[BaseLayerTV]:
+    ) -> SequencedLayers:
         """Splits ``self`` into a :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
         instance with the provided schedule.
 

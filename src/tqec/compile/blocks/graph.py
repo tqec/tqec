@@ -263,9 +263,7 @@ class TopologicalComputationGraph:
             key = LayoutPosition3D.from_pipe_position((source, sink))
             self._blocks[key] = block
 
-    def layout_layers(
-        self,
-    ) -> list[list[LayoutLayer | BaseComposedLayer[LayoutLayer]]]:
+    def layout_layers(self) -> list[list[LayoutLayer | BaseComposedLayer]]:
         """Merge layers happening in parallel at each time step.
 
         This method considers all the layers contained in added blocks (cubes and

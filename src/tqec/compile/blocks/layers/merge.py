@@ -27,34 +27,32 @@ from tqec.utils.scale import PhysicalQubitScalable2D, round_or_fail
 
 
 def _contains_only_base_layers(
-    layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer[BaseLayer]],
+    layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, BaseLayer]]:
     return all(isinstance(layer, BaseLayer) for layer in layers.values())
 
 
 def _contains_only_composed_layers(
-    layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer[BaseLayer]],
-) -> TypeGuard[dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]]]:
+    layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer],
+) -> TypeGuard[dict[LayoutPosition2D, BaseComposedLayer]]:
     return all(isinstance(layer, BaseComposedLayer) for layer in layers.values())
 
 
 def _contains_only_repeated_layers(
-    layers: dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]],
-) -> TypeGuard[dict[LayoutPosition2D, RepeatedLayer[BaseLayer]]]:
+    layers: dict[LayoutPosition2D, BaseComposedLayer],
+) -> TypeGuard[dict[LayoutPosition2D, RepeatedLayer]]:
     return all(isinstance(layer, RepeatedLayer) for layer in layers.values())
 
 
 def _contains_only_sequenced_layers(
-    layers: dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]],
-) -> TypeGuard[dict[LayoutPosition2D, SequencedLayers[BaseLayer]]]:
+    layers: dict[LayoutPosition2D, BaseComposedLayer],
+) -> TypeGuard[dict[LayoutPosition2D, SequencedLayers]]:
     return all(isinstance(layer, SequencedLayers) for layer in layers.values())
 
 
 def _contains_only_repeated_or_sequenced_layers(
-    layers: dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]],
-) -> TypeGuard[
-    dict[LayoutPosition2D, SequencedLayers[BaseLayer] | RepeatedLayer[BaseLayer]]
-]:
+    layers: dict[LayoutPosition2D, BaseComposedLayer],
+) -> TypeGuard[dict[LayoutPosition2D, SequencedLayers | RepeatedLayer]]:
     return all(
         isinstance(layer, (SequencedLayers, RepeatedLayer)) for layer in layers.values()
     )
@@ -63,7 +61,7 @@ def _contains_only_repeated_or_sequenced_layers(
 def merge_parallel_block_layers(
     blocks_in_parallel: Mapping[LayoutPosition2D, Block],
     scalable_qubit_shape: PhysicalQubitScalable2D,
-) -> list[LayoutLayer | BaseComposedLayer[LayoutLayer]]:
+) -> list[LayoutLayer | BaseComposedLayer]:
     """Merge several stacks of layers executed in parallel into one stack of
     larger layers.
 
@@ -100,7 +98,7 @@ def merge_parallel_block_layers(
             f"{internal_layers_schedules}."
         )
     schedule: Final = next(iter(internal_layers_schedules))
-    merged_layers: list[LayoutLayer | BaseComposedLayer[LayoutLayer]] = []
+    merged_layers: list[LayoutLayer | BaseComposedLayer] = []
     for i in range(len(schedule)):
         layers = {
             pos: block.layer_sequence[i] for pos, block in blocks_in_parallel.items()
@@ -128,9 +126,9 @@ def _merge_base_layers(
 
 
 def _merge_composed_layers(
-    layers: dict[LayoutPosition2D, BaseComposedLayer[BaseLayer]],
+    layers: dict[LayoutPosition2D, BaseComposedLayer],
     scalable_qubit_shape: PhysicalQubitScalable2D,
-) -> BaseComposedLayer[LayoutLayer]:
+) -> BaseComposedLayer:
     # First, check that all the provided layers have the same scalable timesteps.
     different_timesteps = frozenset(
         layer.scalable_timesteps for layer in layers.values()
@@ -160,9 +158,9 @@ def _merge_composed_layers(
 
 
 def _merge_repeated_layers(
-    layers: dict[LayoutPosition2D, RepeatedLayer[BaseLayer]],
+    layers: dict[LayoutPosition2D, RepeatedLayer],
     scalable_qubit_shape: PhysicalQubitScalable2D,
-) -> RepeatedLayer[LayoutLayer]:
+) -> RepeatedLayer:
     """Merge several RepeatedLayer that should be executed in parallel.
 
     Args:
@@ -274,9 +272,9 @@ def _merge_repeated_layers(
 
 
 def _merge_sequenced_layers(
-    layers: dict[LayoutPosition2D, SequencedLayers[BaseLayer]],
+    layers: dict[LayoutPosition2D, SequencedLayers],
     scalable_qubit_shape: PhysicalQubitScalable2D,
-) -> SequencedLayers[LayoutLayer]:
+) -> SequencedLayers:
     internal_layers_schedules = frozenset(
         tuple(layer.scalable_timesteps for layer in sequenced_layer.layer_sequence)
         for sequenced_layer in layers.values()
@@ -289,7 +287,7 @@ def _merge_sequenced_layers(
             f"{internal_layers_schedules}."
         )
     internal_layers_schedule = next(iter(internal_layers_schedules))
-    merged_layers: list[LayoutLayer | BaseComposedLayer[LayoutLayer]] = []
+    merged_layers: list[LayoutLayer | BaseComposedLayer] = []
     for i in range(len(internal_layers_schedule)):
         layers_at_timestep = {
             pos: sequenced_layers.layer_sequence[i]
@@ -316,11 +314,9 @@ def _merge_sequenced_layers(
 
 
 def _merge_repeated_and_sequenced_layers(
-    layers: dict[
-        LayoutPosition2D, SequencedLayers[BaseLayer] | RepeatedLayer[BaseLayer]
-    ],
+    layers: dict[LayoutPosition2D, SequencedLayers | RepeatedLayer],
     scalable_qubit_shape: PhysicalQubitScalable2D,
-) -> SequencedLayers[LayoutLayer]:
+) -> SequencedLayers:
     """Merge composed layers with both RepeatedLayer and SequencedLayers instances.
 
     Raises:

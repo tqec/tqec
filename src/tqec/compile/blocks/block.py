@@ -13,7 +13,7 @@ from tqec.utils.scale import LinearFunction
 
 
 @dataclass
-class Block(SequencedLayers[BaseLayer]):
+class Block(SequencedLayers):
     """Encodes the implementation of a block.
 
     This data structure is voluntarily very generic. It represents blocks as a

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Mapping, TypeVar, cast
+from typing import Mapping
 
 from typing_extensions import override
 
@@ -9,8 +9,6 @@ from tqec.compile.blocks.layers.spatial import WithSpatialFootprint
 from tqec.compile.blocks.layers.temporal import WithTemporalFootprint
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction
-
-T = TypeVar("T", bound="BaseLayer")
 
 
 class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
@@ -29,9 +27,8 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
         return LinearFunction(0, 1)
 
     def with_temporal_borders_replaced(
-        self: BaseLayer,
-        border_replacements: Mapping[TemporalBlockBorder, T | None],
-    ) -> T | None:
+        self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
+    ) -> BaseLayer | None:
         """Returns ``self`` with the provided temporal borders replaced.
 
         Args:
@@ -45,9 +42,7 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
             empty temporal footprint.
         """
         if not border_replacements:
-            # Cast seems to be required. I do not understand the type error
-            # returned by both mypy and pyright when removing the cast below.
-            return cast(T, self)
+            return self
         if len(border_replacements) > 1 and any(
             replacement is not None for replacement in border_replacements.values()
         ):

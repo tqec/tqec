@@ -8,13 +8,13 @@ from typing_extensions import override
 
 from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
-from tqec.compile.blocks.layers.composed.base import BaseComposedLayer, BaseLayerTV
+from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
 @dataclass
-class SequencedLayers(BaseComposedLayer[BaseLayerTV]):
+class SequencedLayers(BaseComposedLayer):
     """Composed layer implementing a fixed sequence of layers.
 
     This composed layer sequentially applies layers from a fixed sequence.
@@ -25,7 +25,7 @@ class SequencedLayers(BaseComposedLayer[BaseLayerTV]):
             spatial footprint.
     """
 
-    layer_sequence: Sequence[BaseLayerTV | BaseComposedLayer[BaseLayerTV]]
+    layer_sequence: Sequence[BaseLayer | BaseComposedLayer]
 
     def __post_init__(self) -> None:
         if len(self.layer_sequence) <= 1:
@@ -63,7 +63,7 @@ class SequencedLayers(BaseComposedLayer[BaseLayerTV]):
 
     def _layers_with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
-    ) -> list[BaseLayerTV | BaseComposedLayer[BaseLayerTV]]:
+    ) -> list[BaseLayer | BaseComposedLayer]:
         return [
             layer.with_spatial_borders_trimmed(borders) for layer in self.layer_sequence
         ]
@@ -71,12 +71,12 @@ class SequencedLayers(BaseComposedLayer[BaseLayerTV]):
     @override
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
-    ) -> SequencedLayers[BaseLayerTV]:
+    ) -> SequencedLayers:
         return SequencedLayers(self._layers_with_spatial_borders_trimmed(borders))
 
     def _layers_with_temporal_borders_replaced(
-        self, border_replacements: Mapping[TemporalBlockBorder, BaseLayerTV | None]
-    ) -> list[BaseLayerTV | BaseComposedLayer[BaseLayerTV]]:
+        self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
+    ) -> list[BaseLayer | BaseComposedLayer]:
         layers = list(self.layer_sequence)
         if (border := TemporalBlockBorder.Z_NEGATIVE) in border_replacements:
             first_layer = layers[0].with_temporal_borders_replaced(
@@ -98,15 +98,15 @@ class SequencedLayers(BaseComposedLayer[BaseLayerTV]):
 
     @override
     def with_temporal_borders_replaced(
-        self, border_replacements: Mapping[TemporalBlockBorder, BaseLayerTV | None]
-    ) -> BaseComposedLayer[BaseLayerTV] | None:
+        self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
+    ) -> BaseComposedLayer | None:
         if not border_replacements:
             return self
         layers = self._layers_with_temporal_borders_replaced(border_replacements)
         return SequencedLayers(layers) if layers else None
 
     @override
-    def all_layers(self, k: int) -> Iterable[BaseLayerTV]:
+    def all_layers(self, k: int) -> Iterable[BaseLayer]:
         yield from chain.from_iterable(
             ((layer,) if isinstance(layer, BaseLayer) else layer.all_layers(k))
             for layer in self.layer_sequence
@@ -115,7 +115,7 @@ class SequencedLayers(BaseComposedLayer[BaseLayerTV]):
     @override
     def to_sequenced_layer_with_schedule(
         self, schedule: tuple[LinearFunction, ...]
-    ) -> SequencedLayers[BaseLayerTV]:
+    ) -> SequencedLayers:
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
             raise TQECException(
