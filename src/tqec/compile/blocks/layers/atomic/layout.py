@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Final, Iterable
 
 from typing_extensions import override
 
@@ -10,6 +10,9 @@ from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.positioning import LayoutPosition2D
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import PhysicalQubitScalable2D
+
+DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER: Final[int] = 1
+"""Default number of qubits that are shared between two neighbouring layers."""
 
 
 @dataclass(frozen=True)
@@ -35,7 +38,8 @@ class LayoutLayer(BaseLayer):
         miny, maxy = min(ys), max(ys)
         shapex, shapey = (maxx - minx) // 2, (maxy - miny) // 2
         return PhysicalQubitScalable2D(
-            shapex * self.element_shape.x, shapey * self.element_shape.y
+            shapex * (self.element_shape.x - DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER) + 1,
+            shapey * (self.element_shape.y - DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER) + 1,
         )
 
     @override
