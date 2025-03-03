@@ -36,21 +36,6 @@ class BaseComposedLayer(
         """
         pass
 
-    def with_temporal_borders_trimmed(
-        self, borders: Iterable[TemporalBlockBorder]
-    ) -> BaseComposedLayer[BaseLayerTV] | None:
-        """Returns ``self`` with the provided temporal borders removed.
-
-        Args:
-            borders: temporal borders to remove.
-
-        Returns:
-            a copy of ``self`` with the provided ``borders`` removed, or ``None``
-            if removing the provided ``borders`` from ``self`` result in an
-            empty temporal footprint.
-        """
-        return self.with_temporal_borders_replaced({border: None for border in borders})
-
     @abstractmethod
     def with_temporal_borders_replaced(
         self,

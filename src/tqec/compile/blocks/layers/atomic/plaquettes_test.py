@@ -93,18 +93,24 @@ def test_with_spatial_borders_trimmed(borders: tuple[SpatialBlockBorder, ...]) -
     )
 
 
-def test_with_temporal_borders_trimmed() -> None:
+def test_with_temporal_borders_replaced_none() -> None:
     template = FixedTemplate([[1]])
     plaquettes = Plaquettes(
         FrozenDefaultDict({}, default_factory=empty_square_plaquette)
     )
     layer = PlaquetteLayer(template, plaquettes)
-    assert layer.with_temporal_borders_trimmed([]) == layer
-    assert layer.with_temporal_borders_trimmed([TemporalBlockBorder.Z_NEGATIVE]) is None
-    assert layer.with_temporal_borders_trimmed([TemporalBlockBorder.Z_POSITIVE]) is None
+    assert layer.with_temporal_borders_replaced({}) == layer
     assert (
-        layer.with_temporal_borders_trimmed(
-            [TemporalBlockBorder.Z_NEGATIVE, TemporalBlockBorder.Z_POSITIVE]
+        layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: None})
+        is None
+    )
+    assert (
+        layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: None})
+        is None
+    )
+    assert (
+        layer.with_temporal_borders_replaced(
+            {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
         )
         is None
     )

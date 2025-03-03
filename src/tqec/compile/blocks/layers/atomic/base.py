@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Iterable, Mapping, TypeVar, cast
+from typing import Mapping, TypeVar, cast
 
-from typing_extensions import Self, override
+from typing_extensions import override
 
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.spatial import WithSpatialFootprint
@@ -27,27 +27,6 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
     def scalable_timesteps(self) -> LinearFunction:
         # By definition of a "layer":
         return LinearFunction(0, 1)
-
-    def with_temporal_borders_trimmed(
-        self, borders: Iterable[TemporalBlockBorder]
-    ) -> Self | None:
-        """Returns ``self`` with the provided temporal borders removed.
-
-        Args:
-            borders: temporal borders to remove.
-
-        Returns:
-            a copy of ``self`` with the provided ``borders`` removed, or ``None``
-            if removing the provided ``borders`` from ``self`` result in an
-            empty temporal footprint.
-        """
-        return cast(
-            # The below type is known for sure because the replacement mapping
-            # values are exclusively of type "None" (no need to consider
-            # "BaseLayer").
-            Self | None,
-            self.with_temporal_borders_replaced({border: None for border in borders}),
-        )
 
     def with_temporal_borders_replaced(
         self: BaseLayer,
