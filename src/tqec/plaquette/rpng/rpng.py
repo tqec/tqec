@@ -165,7 +165,7 @@ class RPNGDescription:
 
     The corners of the square plaquette are listed following the order:
     top-left, top-right, bottom-left, bottom-right.
-    This forms a Z-shaped path on the plaquette corners:
+    This forms a Z-shaped path on the plaquette corners: ::
 
         +------------+
         | 1 -----> 2 |

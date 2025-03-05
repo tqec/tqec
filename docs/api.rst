@@ -22,6 +22,7 @@ into the :mod:`tqec` namespace and can be accessed at the top level.
    circuit
    computation
    compile
+   compile.blocks
    gallery
    interop
    simulation

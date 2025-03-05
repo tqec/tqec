@@ -13,8 +13,8 @@ from tqec.computation.cube import ZXCube
 from tqec.templates.layout import LayoutTemplate
 from tqec.utils.position import (
     Direction3D,
+    PlaquetteShape2D,
     Position3D,
-    Shape2D,
     SignedDirection3D,
 )
 from tqec.utils.scale import round_or_fail
@@ -47,7 +47,7 @@ def inplace_add_observable(
     top_data_qubits: dict[int, set[GridQubit]] = {}
     bottom_stabilizer_qubits: dict[int, set[GridQubit]] = {}
 
-    def _block_shape(z: int, k: int) -> Shape2D:
+    def _block_shape(z: int, k: int) -> PlaquetteShape2D:
         return template_slices[z].element_shape(k)
 
     def _collect_into(
@@ -175,8 +175,7 @@ def _transform_coords_into_grid(
 
 
 def _get_top_readout_cube_qubits(
-    shape: Shape2D,
-    cube_kind: ZXCube,
+    shape: PlaquetteShape2D, cube_kind: ZXCube
 ) -> list[tuple[int, int]]:
     """The data qubits on the middle line of the cube will be read out and
     included in the logical observable.
@@ -196,8 +195,7 @@ def _get_top_readout_cube_qubits(
 
 
 def _get_top_readout_pipe_qubits(
-    u_shape: Shape2D,
-    connect_to: Direction3D,
+    u_shape: PlaquetteShape2D, connect_to: Direction3D
 ) -> list[tuple[int, int]]:
     """The top line at a pipe is actually a single data qubits at the interface
     of the two connected cubes.
@@ -215,8 +213,7 @@ def _get_top_readout_pipe_qubits(
 
 
 def _get_bottom_stabilizer_cube_qubits(
-    cube_shape: Shape2D,
-    connect_to: SignedDirection3D,
+    cube_shape: PlaquetteShape2D, connect_to: SignedDirection3D
 ) -> list[tuple[float, float]]:
     """The stabilizer measurements at the bottom of the cube will be included
     in the logical observable. Note that only half of the stabilizers in the
@@ -263,8 +260,7 @@ def _get_bottom_stabilizer_cube_qubits(
 
 
 def _get_top_readout_spatial_cube_qubits(
-    cube_shape: Shape2D,
-    arms: SpatialArms,
+    cube_shape: PlaquetteShape2D, arms: SpatialArms
 ) -> list[tuple[int, int]]:
     """The data qubits at the spatial cubes will be read out and included in
     the logical observable.
@@ -299,7 +295,7 @@ def _get_top_readout_spatial_cube_qubits(
 
 
 def _get_bottom_stabilizer_spatial_cube_qubits(
-    cube_shape: Shape2D,
+    cube_shape: PlaquetteShape2D,
 ) -> list[tuple[float, float]]:
     """The stabilizer measurements at the spatial cubes will be included in the
     logical observable.
