@@ -32,3 +32,16 @@ All these restrictions are handled by representing
 :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer` instances.
 See :mod:`tqec.compile.blocks.layers` for more details.
 """
+
+from .block import Block as Block
+from .enums import SpatialBlockBorder as SpatialBlockBorder
+from .enums import TemporalBlockBorder as TemporalBlockBorder
+from .layers import BaseComposedLayer as BaseComposedLayer
+from .layers import BaseLayer as BaseLayer
+from .layers import LayoutLayer as LayoutLayer
+from .layers import PlaquetteLayer as PlaquetteLayer
+from .layers import RawCircuitLayer as RawCircuitLayer
+from .layers import RepeatedLayer as RepeatedLayer
+from .layers import SequencedLayers as SequencedLayers
+from .layers import merge_parallel_block_layers as merge_parallel_block_layers
+from .positioning import LayoutPosition2D as LayoutPosition2D
