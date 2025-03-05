@@ -4,14 +4,14 @@ import pytest
 import stim
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.compile.blocks.enums import SpatialBlockBorder
+from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
-from tqec.templates.qubit import QubitTemplate
+from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -21,6 +21,14 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 def plaquette_layer_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitTemplate(),
+        Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+    )
+
+
+@pytest.fixture(name="plaquette_layer2")
+def plaquette_layer2_fixture() -> PlaquetteLayer:
+    return PlaquetteLayer(
+        QubitSpatialCubeTemplate(),
         Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
     )
 
@@ -63,6 +71,7 @@ def test_scalable_timesteps(plaquette_layer: PlaquetteLayer) -> None:
 def test_with_spatial_borders_trimmed(
     borders: tuple[SpatialBlockBorder, ...], plaquette_layer: PlaquetteLayer
 ) -> None:
+    layer = RepeatedLayer(plaquette_layer, LinearFunction(4, 5))
     all_indices = frozenset(plaquette_layer.plaquettes.collection.keys())
     expected_plaquette_indices = all_indices - frozenset(
         itertools.chain.from_iterable(
@@ -72,12 +81,10 @@ def test_with_spatial_borders_trimmed(
             for border in borders
         )
     )
+    trimmed_layer = layer.with_spatial_borders_trimmed(borders)
+    assert isinstance(trimmed_layer.internal_layer, PlaquetteLayer)
     assert (
-        frozenset(
-            plaquette_layer.with_spatial_borders_trimmed(
-                borders
-            ).plaquettes.collection.keys()
-        )
+        frozenset(trimmed_layer.internal_layer.plaquettes.collection.keys())
         == expected_plaquette_indices
     )
 
@@ -145,3 +152,99 @@ def test_to_sequenced_layer_with_schedule_raising(
         RepeatedLayer(
             repeated_layer, LinearFunction(0, 2)
         ).to_sequenced_layer_with_schedule((LinearFunction(2, 2), LinearFunction(2, 2)))
+
+
+def test_with_temporal_borders_replaced_none(plaquette_layer: PlaquetteLayer) -> None:
+    layer = RepeatedLayer(plaquette_layer, LinearFunction(2, 2))
+    assert layer.with_temporal_borders_replaced({}) == layer
+    assert layer.with_temporal_borders_replaced(
+        {TemporalBlockBorder.Z_NEGATIVE: None}
+    ) == RepeatedLayer(plaquette_layer, LinearFunction(2, 1))
+    assert layer.with_temporal_borders_replaced(
+        {TemporalBlockBorder.Z_POSITIVE: None}
+    ) == RepeatedLayer(plaquette_layer, LinearFunction(2, 1))
+    assert layer.with_temporal_borders_replaced(
+        {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
+    ) == RepeatedLayer(plaquette_layer, LinearFunction(2, 0))
+    # Now with only a few repetitions, leading to edge-cases
+    layer = RepeatedLayer(plaquette_layer, LinearFunction(0, 2))
+    assert layer.with_temporal_borders_replaced({}) == layer
+    assert (
+        layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: None})
+        == plaquette_layer
+    )
+    assert (
+        layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: None})
+        == plaquette_layer
+    )
+    assert (
+        layer.with_temporal_borders_replaced(
+            {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
+        )
+        is None
+    )
+
+
+def test_with_temporal_borders_replaced(
+    plaquette_layer: PlaquetteLayer,
+    plaquette_layer2: PlaquetteLayer,
+    raw_circuit_layer: RawCircuitLayer,
+) -> None:
+    layer = RepeatedLayer(plaquette_layer, LinearFunction(2, 2))
+
+    assert layer.with_temporal_borders_replaced({}) == layer
+    for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:
+        assert layer.with_temporal_borders_replaced(
+            {TemporalBlockBorder.Z_NEGATIVE: replacement}
+        ) == SequencedLayers(
+            [replacement, RepeatedLayer(plaquette_layer, LinearFunction(2, 1))]
+        )
+        assert layer.with_temporal_borders_replaced(
+            {TemporalBlockBorder.Z_POSITIVE: replacement}
+        ) == SequencedLayers(
+            [RepeatedLayer(plaquette_layer, LinearFunction(2, 1)), replacement]
+        )
+        assert layer.with_temporal_borders_replaced(
+            {
+                TemporalBlockBorder.Z_NEGATIVE: replacement,
+                TemporalBlockBorder.Z_POSITIVE: replacement,
+            }
+        ) == SequencedLayers(
+            [
+                replacement,
+                RepeatedLayer(plaquette_layer, LinearFunction(2, 0)),
+                replacement,
+            ]
+        )
+    assert layer.with_temporal_borders_replaced(
+        {
+            TemporalBlockBorder.Z_NEGATIVE: None,
+            TemporalBlockBorder.Z_POSITIVE: plaquette_layer2,
+        }
+    ) == SequencedLayers(
+        [RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer2]
+    )
+    # Now with only a few repetitions, leading to edge-cases
+    layer = RepeatedLayer(plaquette_layer, LinearFunction(0, 2))
+    for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:
+        assert layer.with_temporal_borders_replaced(
+            {TemporalBlockBorder.Z_NEGATIVE: replacement}
+        ) == SequencedLayers([replacement, plaquette_layer])
+        assert layer.with_temporal_borders_replaced(
+            {TemporalBlockBorder.Z_POSITIVE: replacement}
+        ) == SequencedLayers([plaquette_layer, replacement])
+        assert layer.with_temporal_borders_replaced(
+            {
+                TemporalBlockBorder.Z_NEGATIVE: replacement,
+                TemporalBlockBorder.Z_POSITIVE: replacement,
+            }
+        ) == SequencedLayers([replacement, replacement])
+    assert (
+        layer.with_temporal_borders_replaced(
+            {
+                TemporalBlockBorder.Z_NEGATIVE: None,
+                TemporalBlockBorder.Z_POSITIVE: plaquette_layer2,
+            }
+        )
+        == plaquette_layer2
+    )

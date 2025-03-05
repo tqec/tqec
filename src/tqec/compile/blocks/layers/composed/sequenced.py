@@ -99,11 +99,17 @@ class SequencedLayers(BaseComposedLayer):
     @override
     def with_temporal_borders_replaced(
         self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
-    ) -> BaseComposedLayer | None:
+    ) -> BaseLayer | BaseComposedLayer | None:
         if not border_replacements:
             return self
         layers = self._layers_with_temporal_borders_replaced(border_replacements)
-        return SequencedLayers(layers) if layers else None
+        match len(layers):
+            case 0:
+                return None
+            case 1:
+                return layers[0]
+            case _:
+                return SequencedLayers(layers)
 
     @override
     def all_layers(self, k: int) -> Iterable[BaseLayer]:

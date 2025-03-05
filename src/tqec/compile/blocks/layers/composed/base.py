@@ -35,7 +35,7 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
     @abstractmethod
     def with_temporal_borders_replaced(
         self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
-    ) -> BaseComposedLayer | None:
+    ) -> BaseLayer | BaseComposedLayer | None:
         """Returns ``self`` with the provided temporal borders replaced.
 
         Args:

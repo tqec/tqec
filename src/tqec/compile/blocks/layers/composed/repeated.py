@@ -80,41 +80,52 @@ class RepeatedLayer(BaseComposedLayer):
     @override
     def with_temporal_borders_replaced(
         self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
-    ) -> RepeatedLayer | SequencedLayers:
-        # Does not handle "removing": the bulk_layers is never checked for
-        # emptyness and so might be empty.
+    ) -> BaseLayer | BaseComposedLayer | None:
         if not border_replacements:
             return self
-
+        # Compute the bulk layer
         num_borders = len(border_replacements)
-        bulk_layers = RepeatedLayer(self.internal_layer, self.repetitions - num_borders)
-        if all(replacement is None for replacement in border_replacements.values()):
-            # We only remove, so there is no need of a SequencedLayers
-            return bulk_layers
+        bulk_repetitions = self.repetitions - num_borders
+        bulk_layer: BaseLayer | BaseComposedLayer | None
+        if bulk_repetitions == LinearFunction(0, 0):
+            bulk_layer = None
+        elif bulk_repetitions == LinearFunction(0, 1):
+            bulk_layer = self.internal_layer
+        else:
+            bulk_layer = RepeatedLayer(self.internal_layer, bulk_repetitions)
 
-        # Else, we replace at least one layer. Because checking for equality between
-        # the replaced layer and its replacement is tedious, we return a SequencedLayers
-        # instance without trying to optimise when the return type could be a
-        # RepeatedLayer instead.
+        # Compute the layers at each temporal sides
         initial_layer = self._get_replaced_layer(
             self.internal_layer, TemporalBlockBorder.Z_NEGATIVE, border_replacements
         )
         final_layer = self._get_replaced_layer(
             self.internal_layer, TemporalBlockBorder.Z_POSITIVE, border_replacements
         )
+        # Build the resulting layer sequence
         layer_sequence = []
         if (
+            # the initial layer has not been removed by the replacement
             initial_layer is not None
+            # and it was replaced (i.e., not already accounted for in bulk_layer)
             and TemporalBlockBorder.Z_NEGATIVE in border_replacements
         ):
             layer_sequence.append(initial_layer)
-        layer_sequence.append(bulk_layers)
+        if bulk_layer is not None:
+            layer_sequence.append(bulk_layer)
         if (
+            # the final layer has not been removed by the replacement
             final_layer is not None
+            # and it was replaced (i.e., not already accounted for in bulk_layer)
             and TemporalBlockBorder.Z_POSITIVE in border_replacements
         ):
             layer_sequence.append(final_layer)
-        return SequencedLayers(layer_sequence)
+        match len(layer_sequence):
+            case 0:
+                return None
+            case 1:
+                return layer_sequence[0]
+            case _:
+                return SequencedLayers(layer_sequence)
 
     @override
     def all_layers(self, k: int) -> Iterable[BaseLayer]:
