@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Final, Iterable
+from typing import Final, Iterable, Literal
 
 from typing_extensions import override
 
@@ -73,6 +73,19 @@ class PlaquetteLayer(BaseLayer):
         self._spatial_borders_removed = spatial_borders_removed
 
     @staticmethod
+    def _get_number_of_plaquettes(axis: Literal["X", "Y"], increments: int) -> int:
+        # Shortening variable name for convenience
+        EW: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
+        if EW % increments != 0:
+            raise TQECException(
+                f"Trying to remove {EW} qubits from the {axis} border of a template "
+                f"with increments {increments} in that axis. {EW} % {increments} "
+                "!= 0, which means that we would remove a non-integer number of "
+                "plaquettes, which is not supported."
+            )
+        return EW // increments
+
+    @staticmethod
     def _get_template_shape(
         template: RectangularTemplate,
         spatial_borders_removed: frozenset[SpatialBlockBorder],
@@ -89,13 +102,19 @@ class PlaquetteLayer(BaseLayer):
             the shape of the provided template with the provided borders removed.
         """
         base_shape = template.scalable_shape
+        # We return a shape in plaquette-coordinates. In order to know exactly the
+        # number of plaquettes that will be trimmed, we need to divide
+        # EXPECTED_SPATIAL_BORDER_WIDTH by the increments of the template.
+        incr = template.get_increments()
+        xborderp = PlaquetteLayer._get_number_of_plaquettes("X", incr.x)
+        yborderp = PlaquetteLayer._get_number_of_plaquettes("X", incr.x)
         return PlaquetteScalable2D(
             base_shape.x
-            - (SpatialBlockBorder.X_NEGATIVE in spatial_borders_removed)
-            - (SpatialBlockBorder.X_POSITIVE in spatial_borders_removed),
+            - (SpatialBlockBorder.X_NEGATIVE in spatial_borders_removed) * xborderp
+            - (SpatialBlockBorder.X_POSITIVE in spatial_borders_removed) * xborderp,
             base_shape.y
-            - (SpatialBlockBorder.Y_NEGATIVE in spatial_borders_removed)
-            - (SpatialBlockBorder.Y_POSITIVE in spatial_borders_removed),
+            - (SpatialBlockBorder.Y_NEGATIVE in spatial_borders_removed) * yborderp
+            - (SpatialBlockBorder.Y_POSITIVE in spatial_borders_removed) * yborderp,
         )
 
     @property
