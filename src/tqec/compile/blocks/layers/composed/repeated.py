@@ -85,22 +85,34 @@ class RepeatedLayer(BaseComposedLayer):
         # emptyness and so might be empty.
         if not border_replacements:
             return self
+
+        num_borders = len(border_replacements)
+        bulk_layers = RepeatedLayer(self.internal_layer, self.repetitions - num_borders)
+        if all(replacement is None for replacement in border_replacements.values()):
+            # We only remove, so there is no need of a SequencedLayers
+            return bulk_layers
+
+        # Else, we replace at least one layer. Because checking for equality between
+        # the replaced layer and its replacement is tedious, we return a SequencedLayers
+        # instance without trying to optimise when the return type could be a
+        # RepeatedLayer instead.
         initial_layer = self._get_replaced_layer(
             self.internal_layer, TemporalBlockBorder.Z_NEGATIVE, border_replacements
         )
         final_layer = self._get_replaced_layer(
             self.internal_layer, TemporalBlockBorder.Z_POSITIVE, border_replacements
         )
-
-        num_borders = len(border_replacements)
-        bulk_layers = RepeatedLayer(self.internal_layer, self.repetitions - num_borders)
-        if initial_layer is None and final_layer is None:
-            return bulk_layers
         layer_sequence = []
-        if initial_layer is not None:
+        if (
+            initial_layer is not None
+            and TemporalBlockBorder.Z_NEGATIVE in border_replacements
+        ):
             layer_sequence.append(initial_layer)
         layer_sequence.append(bulk_layers)
-        if final_layer is not None:
+        if (
+            final_layer is not None
+            and TemporalBlockBorder.Z_POSITIVE in border_replacements
+        ):
             layer_sequence.append(final_layer)
         return SequencedLayers(layer_sequence)
 
