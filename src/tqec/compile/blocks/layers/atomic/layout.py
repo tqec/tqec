@@ -36,7 +36,7 @@ class LayoutLayer(BaseLayer):
         ys = [pos._y for pos in self.layers.keys()]
         minx, maxx = min(xs), max(xs)
         miny, maxy = min(ys), max(ys)
-        shapex, shapey = (maxx - minx) // 2, (maxy - miny) // 2
+        shapex, shapey = (maxx - minx) // 2 + 1, (maxy - miny) // 2 + 1
         return PhysicalQubitScalable2D(
             shapex * (self.element_shape.x - DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER)
             + DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER,
