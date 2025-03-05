@@ -31,3 +31,7 @@ class RawCircuitLayer(BaseLayer):
         raise NotImplementedError(
             f"Cannot trim spatial borders of a {RawCircuitLayer.__name__} instance."
         )
+
+    @override
+    def __eq__(self, value: object) -> bool:
+        raise NotImplementedError()

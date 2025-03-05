@@ -153,3 +153,11 @@ class PlaquetteLayer(BaseLayer):
             self.plaquettes.without_plaquettes(border_indices),
             spatial_borders_removed=borders,
         )
+
+    def __eq__(self, value: object) -> bool:
+        return (
+            isinstance(value, PlaquetteLayer)
+            and self._template == value._template
+            and self._plaquettes == value._plaquettes
+            and self._spatial_borders_removed == value._spatial_borders_removed
+        )

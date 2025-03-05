@@ -130,3 +130,9 @@ class SequencedLayers(BaseComposedLayer):
             f"Adapting a {SequencedLayers.__name__} instance to another schedule "
             "is not yet implemented."
         )
+
+    def __eq__(self, value: object) -> bool:
+        return (
+            isinstance(value, SequencedLayers)
+            and self.layer_sequence == value.layer_sequence
+        )

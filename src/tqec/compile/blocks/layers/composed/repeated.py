@@ -151,3 +151,10 @@ class RepeatedLayer(BaseComposedLayer):
                 else self.internal_layer
             )
         return SequencedLayers(layers)
+
+    def __eq__(self, value: object) -> bool:
+        return (
+            isinstance(value, RepeatedLayer)
+            and self.repetitions == value.repetitions
+            and self.internal_layer == value.internal_layer
+        )

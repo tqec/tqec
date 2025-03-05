@@ -50,3 +50,10 @@ class LayoutLayer(BaseLayer):
     ) -> LayoutLayer:
         clsname = self.__class__.__name__
         raise TQECException(f"Cannot trim spatial borders of a {clsname} instance.")
+
+    def __eq__(self, value: object) -> bool:
+        return (
+            isinstance(value, LayoutLayer)
+            and self.element_shape == value.element_shape
+            and self.layers == value.layers
+        )
