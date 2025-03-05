@@ -405,6 +405,22 @@
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.CubeSpec.html">CubeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.PipeSpec.html">PipeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.SubstitutionBuilder.html">SubstitutionBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.TopologicalComputationGraph.html">TopologicalComputationGraph</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="_autosummary/tqec.compile.blocks.html">tqec.compile.blocks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.merge_parallel_block_layers.html">merge_parallel_block_layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.BaseComposedLayer.html">BaseComposedLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.BaseLayer.html">BaseLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.Block.html">Block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.LayoutLayer.html">LayoutLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.LayoutPosition2D.html">LayoutPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.PlaquetteLayer.html">PlaquetteLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.RawCircuitLayer.html">RawCircuitLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.RepeatedLayer.html">RepeatedLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.SequencedLayers.html">SequencedLayers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.SpatialBlockBorder.html">SpatialBlockBorder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/tqec.compile.blocks.TemporalBlockBorder.html">TemporalBlockBorder</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="_autosummary/tqec.gallery.html">tqec.gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -530,16 +546,19 @@ into the <code class="xref py py-mod docutils literal notranslate"><span class="
 <tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tqec.compile.html#module-tqec.compile" title="tqec.compile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile</span></code></a></p></td>
 <td><p>Provides classes and functions to compile a <a class="reference internal" href="_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a> instance into a <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tqec.gallery.html#module-tqec.gallery" title="tqec.gallery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gallery</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tqec.compile.blocks.html#module-tqec.compile.blocks" title="tqec.compile.blocks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compile.blocks</span></code></a></p></td>
+<td><p>Provide a flexible representation to define blocks, the basic unit of computation in topological error corrected codes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tqec.gallery.html#module-tqec.gallery" title="tqec.gallery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gallery</span></code></a></p></td>
 <td><p>Collection of pre-built logical computations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tqec.interop.html#module-tqec.interop" title="tqec.interop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interop</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tqec.interop.html#module-tqec.interop" title="tqec.interop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interop</span></code></a></p></td>
 <td><p>Provides interoperability between <code class="docutils literal notranslate"><span class="pre">tqec</span></code> and external frameworks / formats.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tqec.simulation.html#module-tqec.simulation" title="tqec.simulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulation</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tqec.simulation.html#module-tqec.simulation" title="tqec.simulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulation</span></code></a></p></td>
 <td><p>Defines several helper methods to facilitate QEC circuit simulation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_autosummary/tqec.utils.html#module-tqec.utils" title="tqec.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_autosummary/tqec.utils.html#module-tqec.utils" title="tqec.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils</span></code></a></p></td>
 <td><p>Defines a few core data-structures that are independent of other <code class="docutils literal notranslate"><span class="pre">tqec</span></code> modules.</p></td>
 </tr>
 </tbody>
