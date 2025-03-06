@@ -1,9 +1,8 @@
 from itertools import chain, repeat
-from typing import Final, Mapping, TypeGuard
+from typing import TypeGuard
 
 import numpy
 
-from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
@@ -57,66 +56,6 @@ def contains_only_repeated_or_sequenced_layers(
     return all(
         isinstance(layer, (SequencedLayers, RepeatedLayer)) for layer in layers.values()
     )
-
-
-def merge_parallel_block_layers(
-    blocks_in_parallel: Mapping[LayoutPosition2D, Block],
-    scalable_qubit_shape: PhysicalQubitScalable2D,
-) -> list[LayoutLayer | BaseComposedLayer]:
-    """Merge several stacks of layers executed in parallel into one stack of
-    larger layers.
-
-    Args:
-        blocks_in_parallel: a 2-dimensional arrangement of blocks. Each of the
-            provided block MUST have the exact same duration (also called
-            "temporal footprint", number of base layers, or height in the Z
-            dimension).
-        scalable_qubit_shape: scalable shape of a scalable qubit. Considered
-            valid across the whole domain.
-
-    Returns:
-        a stack of layers representing the same slice of computation as the
-        provided ``blocks_in_parallel``.
-
-    Raises:
-        TQECException: if two items from the provided ``blocks_in_parallel`` do
-            not have the same temporal footprint.
-        NotImplementedError: if the provided blocks cannot be merged due to a
-            code branch not being implemented yet (and not due to a logical
-            error making the blocks unmergeable).
-    """
-    if not blocks_in_parallel:
-        return []
-    internal_layers_schedules = frozenset(
-        tuple(layer.scalable_timesteps for layer in block.layer_sequence)
-        for block in blocks_in_parallel.values()
-    )
-    if len(internal_layers_schedules) != 1:
-        raise NotImplementedError(
-            "merge_parallel_block_layers only supports merging blocks that have "
-            "layers with a matching temporal schedule. Found the following "
-            "different temporal schedules in the provided blocks: "
-            f"{internal_layers_schedules}."
-        )
-    schedule: Final = next(iter(internal_layers_schedules))
-    merged_layers: list[LayoutLayer | BaseComposedLayer] = []
-    for i in range(len(schedule)):
-        layers = {
-            pos: block.layer_sequence[i] for pos, block in blocks_in_parallel.items()
-        }
-        if contains_only_base_layers(layers):
-            merged_layers.append(merge_base_layers(layers, scalable_qubit_shape))
-        elif contains_only_composed_layers(layers):
-            merged_layers.append(merge_composed_layers(layers, scalable_qubit_shape))
-        else:
-            raise RuntimeError(
-                f"Found a mix of {BaseLayer.__name__} instances and "
-                f"{BaseComposedLayer.__name__} instances in a single temporal "
-                f"layer. This should be already checked before. This is a "
-                "logical error in the code, please open an issue. Found layers:"
-                f"\n{list(layers.values())}"
-            )
-    return merged_layers
 
 
 def merge_base_layers(

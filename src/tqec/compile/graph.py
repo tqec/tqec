@@ -45,7 +45,7 @@ For temporal pipes, the layers are replaced in-place within block instances.
 
 from typing import Final
 
-from tqec.compile.blocks.block import Block
+from tqec.compile.blocks.block import Block, merge_parallel_block_layers
 from tqec.compile.blocks.enums import (
     SpatialBlockBorder,
     TemporalBlockBorder,
@@ -53,7 +53,6 @@ from tqec.compile.blocks.enums import (
 )
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
-from tqec.compile.blocks.layers.merge import merge_parallel_block_layers
 from tqec.compile.blocks.positioning import LayoutPosition2D, LayoutPosition3D
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
