@@ -434,9 +434,8 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
-            <span class="n">clsname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;An instance of </span><span class="si">{</span><span class="n">clsname</span><span class="si">}</span><span class="s2"> should have at least one layer.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;An instance of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> should have at least one layer.&quot;</span>
             <span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -460,8 +459,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">with_spatial_borders_trimmed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">borders</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LayoutLayer</span><span class="p">:</span>
-        <span class="n">clsname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot trim spatial borders of a </span><span class="si">{</span><span class="n">clsname</span><span class="si">}</span><span class="s2"> instance.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot trim spatial borders of a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instance.&quot;</span>
+        <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
