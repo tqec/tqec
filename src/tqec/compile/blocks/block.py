@@ -89,6 +89,9 @@ class Block(SequencedLayers):
     def is_temporal_pipe(self) -> bool:
         return self.is_pipe and self.dimensions[2].is_constant()
 
+    def __eq__(self, value: object) -> bool:
+        return isinstance(value, Block) and super().__eq__(value)
+
 
 def merge_parallel_block_layers(
     blocks_in_parallel: Mapping[LayoutPosition2D, Block],
