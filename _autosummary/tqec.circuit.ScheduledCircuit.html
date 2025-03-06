@@ -390,7 +390,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.PipeKind.html">PipeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.YCube.html">YCube</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.YHalfCube.html">YHalfCube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXCube.html">ZXCube</a></li>
 </ul>
 </details></li>
@@ -516,7 +516,7 @@
 <h1>ScheduledCircuit<a class="headerlink" href="#scheduledcircuit" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.circuit.ScheduledCircuit">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.circuit.</span></span><span class="sig-name descname"><span class="pre">ScheduledCircuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_avoid_checks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/schedule/circuit.html#ScheduledCircuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.ScheduledCircuit" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.circuit.</span></span><span class="sig-name descname"><span class="pre">ScheduledCircuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_avoid_checks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/schedule/circuit.html#ScheduledCircuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.ScheduledCircuit" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represent a quantum circuit with scheduled moments.</p>
 <p>This class aims at representing a <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> instance that has all
@@ -553,7 +553,7 @@ provided input.</p></li>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.circuit.ScheduledCircuit.__init__" title="tqec.circuit.ScheduledCircuit.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(moments, schedule, qubit_map[, ...])</p></td>
 <td><p>Represent a quantum circuit with scheduled moments.</p></td>
@@ -601,7 +601,7 @@ provided input.</p></li>
 </table>
 </div>
 <p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">moments</span></code></p></td>
 <td><p>Iterator over the internal moments representing the computation.</p></td>
@@ -742,7 +742,7 @@ plus one.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.circuit.ScheduledCircuit.empty">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/schedule/circuit.html#ScheduledCircuit.empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.ScheduledCircuit.empty" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/schedule/circuit.html#ScheduledCircuit.empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.ScheduledCircuit.empty" title="Link to this definition">#</a></dt>
 <dd><p>Returns an empty <a class="reference internal" href="#tqec.circuit.ScheduledCircuit" title="tqec.circuit.ScheduledCircuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code></a> instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -775,7 +775,7 @@ circuit and schedules.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.circuit.ScheduledCircuit.from_circuit">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/schedule/circuit.html#ScheduledCircuit.from_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.ScheduledCircuit.from_circuit" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/schedule/circuit.html#ScheduledCircuit.from_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.ScheduledCircuit.from_circuit" title="Link to this definition">#</a></dt>
 <dd><p>Build a <a class="reference internal" href="#tqec.circuit.ScheduledCircuit" title="tqec.circuit.ScheduledCircuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code></a> instance from a circuit and a
 schedule.</p>
 <dl class="field-list simple">
@@ -1091,7 +1091,7 @@ might not be the second to last schedule).</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

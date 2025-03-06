@@ -390,7 +390,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.PipeKind.html">PipeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.YCube.html">YCube</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.YHalfCube.html">YHalfCube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXCube.html">ZXCube</a></li>
 </ul>
 </details></li>
@@ -516,7 +516,7 @@
 <h1>RPNG<a class="headerlink" href="#rpng" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNG">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RPNG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNG" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RPNG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNG" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents a single <code class="docutils literal notranslate"><span class="pre">RPNG</span></code> string.</p>
 <p>## Format specification</p>
@@ -590,7 +590,7 @@ be applied. Should be a 1-digit positive integer, typically in
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNG.__init__" title="tqec.plaquette.RPNG.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(r, p, n, g)</p></td>
 <td><p></p></td>
@@ -608,7 +608,7 @@ be applied. Should be a 1-digit positive integer, typically in
 </table>
 </div>
 <p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_null</span></code></p></td>
 <td><p>Check if the RPNG object is null, i.e. all fields are None.</p></td>
@@ -649,7 +649,7 @@ be applied. Should be a 1-digit positive integer, typically in
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNG.from_string">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpng_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNG.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNG.from_string" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpng_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNG.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNG.from_string" title="Link to this definition">#</a></dt>
 <dd><p>Initialize the RPNG object from a 4-character string</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
@@ -794,7 +794,7 @@ be applied. Should be a 1-digit positive integer, typically in
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

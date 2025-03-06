@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>SquarePlaquetteQubits &#8212; TQEC  documentation</title>
+    <title>YHalfCube &#8212; TQEC  documentation</title>
   
   
   
@@ -45,11 +45,11 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.plaquette.SquarePlaquetteQubits';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.computation.YHalfCube';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="tqec.circuit" href="tqec.circuit.html" />
-    <link rel="prev" title="RepeatedPlaquettes" href="tqec.plaquette.RepeatedPlaquettes.html" />
+    <link rel="next" title="ZXCube" href="tqec.computation.ZXCube.html" />
+    <link rel="prev" title="Port" href="tqec.computation.Port.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -362,7 +362,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.templates.Template.html">Template</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.FrozenDefaultDict.html">FrozenDefaultDict</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquette.html">Plaquette</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteOrientation.html">PlaquetteOrientation</a></li>
@@ -373,7 +373,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RepeatedPlaquettes.html">RepeatedPlaquettes</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">SquarePlaquetteQubits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.SquarePlaquetteQubits.html">SquarePlaquetteQubits</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.circuit.html">tqec.circuit</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -383,14 +383,14 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.circuit.ScheduleException.html">tqec.circuit.ScheduleException</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.computation.html">tqec.computation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.computation.html">tqec.computation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.BlockGraph.html">BlockGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.CorrelationSurface.html">CorrelationSurface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Cube.html">Cube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.PipeKind.html">PipeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.YHalfCube.html">YHalfCube</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">YHalfCube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXCube.html">ZXCube</a></li>
 </ul>
 </details></li>
@@ -493,9 +493,9 @@
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="tqec.plaquette.html" class="nav-link">tqec.plaquette</a></li>
+    <li class="breadcrumb-item"><a href="tqec.computation.html" class="nav-link">tqec.computation</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">SquarePlaquetteQubits</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">YHalfCube</span></li>
   </ul>
 </nav>
 </div>
@@ -512,109 +512,27 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="squareplaquettequbits">
-<h1>SquarePlaquetteQubits<a class="headerlink" href="#squareplaquettequbits" title="Link to this heading">#</a></h1>
+  <section id="yhalfcube">
+<h1>YHalfCube<a class="headerlink" href="#yhalfcube" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="tqec.plaquette.SquarePlaquetteQubits">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">SquarePlaquetteQubits</span></span><a class="reference internal" href="../_modules/tqec/plaquette/qubit.html#SquarePlaquetteQubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.SquarePlaquetteQubits" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits" title="tqec.plaquette.qubit.PlaquetteQubits"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlaquetteQubits</span></code></a></p>
+<dt class="sig sig-object py" id="tqec.computation.YHalfCube">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.computation.</span></span><span class="sig-name descname"><span class="pre">YHalfCube</span></span><a class="reference internal" href="../_modules/tqec/computation/cube.html#YHalfCube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.YHalfCube" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Cube kind representing the Y-basis initialization/measurements.</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.__init__" title="tqec.plaquette.SquarePlaquetteQubits.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits" title="tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_edge_qubits</span></code></a>([orientation])</p></td>
-<td><p>Return the data qubits on the edge of the plaquette.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side" title="tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_qubits_on_side</span></code></a>(side)</p></td>
-<td><p>Return the qubits one the provided side of the instance.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">all_qubits</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_qubits_indices</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_qubits_with_indices</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">qubit_map</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">syndrome_qubits_indices</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">syndrome_qubits_with_indices</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_qubits</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">syndrome_qubits</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.YHalfCube.__init__" title="tqec.computation.YHalfCube.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p class="rubric">Detailed methods</p>
-<dl class="field-list simple">
-</dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.plaquette.SquarePlaquetteQubits.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/qubit.html#SquarePlaquetteQubits.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.SquarePlaquetteQubits.__init__" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits">
-<span class="sig-name descname"><span class="pre">get_edge_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Orientation.HORIZONTAL</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits" title="Link to this definition">#</a></dt>
-<dd><p>Return the data qubits on the edge of the plaquette. By convention,
-the edge is the one with the highest index in the relevant axis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>orientation</strong> (<em>TemplateOrientation</em><em>, </em><em>optional</em>) – Whether to use horizontal or
-vertical orientation as the axis. Defaults to horizontal.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The qubits on the edge of the plaquette.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[<em>GridQubit</em>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side">
-<span class="sig-name descname"><span class="pre">get_qubits_on_side</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">side</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side" title="Link to this definition">#</a></dt>
-<dd><p>Return the qubits one the provided side of the instance.</p>
-<p>A qubit is on the left-side if there is no other qubit in the instance
-with a strictly lower x-coordinate value. Similarly, a qubit is on the
-right-side if there is no other qubit in the instance with a strictly
-greater x-coordinate value. Up and down are about the y-coordinate.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>side</strong> (<a class="reference internal" href="tqec.plaquette.PlaquetteSide.html#tqec.plaquette.PlaquetteSide" title="tqec.plaquette.enums.PlaquetteSide"><em>PlaquetteSide</em></a>) – the side to find qubits on.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The qubits on the edge of the plaquette.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[<em>GridQubit</em>]</p>
-</dd>
-</dl>
-</dd></dl>
+<dt class="sig sig-object py" id="tqec.computation.YHalfCube.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tqec.computation.YHalfCube.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -631,20 +549,20 @@ greater x-coordinate value. Up and down are about the y-coordinate.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tqec.plaquette.RepeatedPlaquettes.html"
+       href="tqec.computation.Port.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">RepeatedPlaquettes</p>
+        <p class="prev-next-title">Port</p>
       </div>
     </a>
     <a class="right-next"
-       href="tqec.circuit.html"
+       href="tqec.computation.ZXCube.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">tqec.circuit</p>
+        <p class="prev-next-title">ZXCube</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -667,10 +585,8 @@ greater x-coordinate value. Up and down are about the y-coordinate.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits.__init__"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits.get_edge_qubits()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits.get_qubits_on_side()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.YHalfCube"><code class="docutils literal notranslate"><span class="pre">YHalfCube</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.YHalfCube.__init__"><code class="docutils literal notranslate"><span class="pre">YHalfCube.__init__()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -680,7 +596,7 @@ greater x-coordinate value. Up and down are about the y-coordinate.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_autosummary/tqec.plaquette.SquarePlaquetteQubits.rst.txt"
+      <li><a href="../_sources/_autosummary/tqec.computation.YHalfCube.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

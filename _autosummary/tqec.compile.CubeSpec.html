@@ -390,7 +390,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.PipeKind.html">PipeKind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.computation.YCube.html">YCube</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.YHalfCube.html">YHalfCube</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXCube.html">ZXCube</a></li>
 </ul>
 </details></li>
@@ -516,7 +516,7 @@
 <h1>CubeSpec<a class="headerlink" href="#cubespec" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.CubeSpec">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">CubeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">JunctionArms.NONE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">CubeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">JunctionArms.NONE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Specification of a cube in a block graph.</p>
 <p>The template of the <cite>CompiledBlock</cite> will be determined based on the specification.
@@ -525,7 +525,7 @@ applying the substitution rules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kind</strong> (<a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.cube.ZXCube"><em>ZXCube</em></a><em> | </em><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.cube.Port"><em>Port</em></a><em> | </em><a class="reference internal" href="tqec.computation.YCube.html#tqec.computation.YCube" title="tqec.computation.cube.YCube"><em>YCube</em></a>)</p></li>
+<li><p><strong>kind</strong> (<a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.cube.ZXCube"><em>ZXCube</em></a><em> | </em><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.cube.Port"><em>Port</em></a><em> | </em><a class="reference internal" href="tqec.computation.YHalfCube.html#tqec.computation.YHalfCube" title="tqec.computation.cube.YHalfCube"><em>YHalfCube</em></a>)</p></li>
 <li><p><strong>spatial_arms</strong> (<em>SpatialArms</em>)</p></li>
 </ul>
 </dd>
@@ -550,7 +550,7 @@ the arms can determine the template used to implement the cube.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.__init__" title="tqec.compile.CubeSpec.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(kind[, spatial_arms])</p></td>
 <td><p></p></td>
@@ -562,7 +562,7 @@ the arms can determine the template used to implement the cube.</p>
 </table>
 </div>
 <p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_spatial</span></code></p></td>
 <td><p></p></td>
@@ -583,7 +583,7 @@ the arms can determine the template used to implement the cube.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kind</strong> (<a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.cube.ZXCube"><em>ZXCube</em></a><em> | </em><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.cube.Port"><em>Port</em></a><em> | </em><a class="reference internal" href="tqec.computation.YCube.html#tqec.computation.YCube" title="tqec.computation.cube.YCube"><em>YCube</em></a>)</p></li>
+<li><p><strong>kind</strong> (<a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.cube.ZXCube"><em>ZXCube</em></a><em> | </em><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.cube.Port"><em>Port</em></a><em> | </em><a class="reference internal" href="tqec.computation.YHalfCube.html#tqec.computation.YHalfCube" title="tqec.computation.cube.YHalfCube"><em>YHalfCube</em></a>)</p></li>
 <li><p><strong>spatial_arms</strong> (<em>SpatialArms</em>)</p></li>
 </ul>
 </dd>
@@ -595,7 +595,7 @@ the arms can determine the template used to implement the cube.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.CubeSpec.from_cube">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec.from_cube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec.from_cube" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec.from_cube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec.from_cube" title="Link to this definition">#</a></dt>
 <dd><p>Returns the cube spec from a cube in a block graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -714,7 +714,7 @@ the arms can determine the template used to implement the cube.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>
