@@ -12,7 +12,7 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_str
-from tqec.computation.cube import CubeKind, Port, YCube
+from tqec.computation.cube import CubeKind, Port, YHalfCube
 from tqec.computation.pipe import PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
@@ -190,7 +190,7 @@ def read_block_graph_from_dae_file(
 
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YCube):
+        if isinstance(cube_kind, YHalfCube):
             pos = offset_y_cube_position(pos)
         graph.add_cube(int_position_before_scale(pos), cube_kind)
     port_index = 0

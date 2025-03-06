@@ -47,7 +47,7 @@ class CorrelationSurfaceTransformationHelper:
         # Surfaces in the cubes
         for v in correlation_surface.span_vertices():
             cube = self._get_cube(v)
-            # Do not add surfaces in ports or Y-cubes
+            # Do not add surfaces in ports or Y Half Cubes
             if cube.is_port or cube.is_y_cube:
                 continue
             transformations.extend(
