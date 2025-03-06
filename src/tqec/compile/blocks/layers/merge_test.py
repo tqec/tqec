@@ -1,7 +1,11 @@
+from typing import Iterable, Mapping
+
 import pytest
 import stim
+from typing_extensions import Self
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
@@ -306,16 +310,22 @@ def test_merge_composed_layers_unknown_layer_type(
         def scalable_shape(self) -> PhysicalQubitScalable2D:
             return self._spatial
 
-        def all_layers(self, k):
+        def all_layers(self, k: int) -> Iterable[BaseLayer]:
             raise NotImplementedError()
 
-        def with_spatial_borders_trimmed(self, borders):
+        def with_spatial_borders_trimmed(
+            self, borders: Iterable[SpatialBlockBorder]
+        ) -> Self:
             raise NotImplementedError()
 
-        def with_temporal_borders_replaced(self, border_replacements):
+        def with_temporal_borders_replaced(
+            self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
+        ) -> BaseLayer | BaseComposedLayer | None:
             raise NotImplementedError()
 
-        def to_sequenced_layer_with_schedule(self, schedule):
+        def to_sequenced_layer_with_schedule(
+            self, schedule: tuple[LinearFunction, ...]
+        ) -> SequencedLayers:
             raise NotImplementedError()
 
     plaquette_layer, plaquette_layer2, raw_layer = base_layers
