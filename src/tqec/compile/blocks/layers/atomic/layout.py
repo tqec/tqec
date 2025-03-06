@@ -24,9 +24,8 @@ class LayoutLayer(BaseLayer):
 
     def __post_init__(self) -> None:
         if not self.layers:
-            clsname = self.__class__.__name__
             raise TQECException(
-                f"An instance of {clsname} should have at least one layer."
+                f"An instance of {type(self).__name__} should have at least one layer."
             )
 
     @property
@@ -48,8 +47,9 @@ class LayoutLayer(BaseLayer):
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> LayoutLayer:
-        clsname = self.__class__.__name__
-        raise TQECException(f"Cannot trim spatial borders of a {clsname} instance.")
+        raise TQECException(
+            f"Cannot trim spatial borders of a {type(self).__name__} instance."
+        )
 
     def __eq__(self, value: object) -> bool:
         return (
