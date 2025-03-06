@@ -40,15 +40,15 @@ The labels based on color of the boundaries are provided in the table below.
    * - Color
      - Boundary
    * - Red Wall
-     - x
+     - X
    * - Green Half-Cube
-     - y
+     - Y
    * - Blue Wall
-     - z
+     - Z
    * - Yellow band
-     - h
+     - H
    * - Open/Hole (no color)
-     - o
+     - O
 
 
 .. _cube:
@@ -96,13 +96,13 @@ When connected with two or more spatial pipes, they form **spatial junctions**:
 The circuits that implement these spatial cubes are more complex than the circuits for the other cubes, and special care needs to be taken to avoid
 the hook errors from decreasing the circuit-level code distance.
 
-:py:class:`~tqec.computation.YCube`
+:py:class:`~tqec.computation.YHalfCube`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A green cube representing inplace Y-basis logical initialization or measurement as proposed in `this paper <https://quantum-journal.org/papers/q-2024-04-08-1310/>`_.
 The cube's function, whether for initialization or measurement, is determined by its connection to other cubes, either upwards or downwards.
 
-A ``YCube`` occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` is the code distance.
+A ``YHalfCube`` occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` is the code distance.
 
 :py:class:`~tqec.computation.Port`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
