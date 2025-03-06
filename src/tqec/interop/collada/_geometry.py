@@ -89,7 +89,7 @@ class BlockGeometries:
         self.geometries: dict[BlockKind, list[Face]] = {}
         # 6 x/z cube blocks
         self._load_zx_cube_geometries()
-        # 1 y cube block
+        # 1 y half cube block
         self._load_y_cube_geometry()
         # 6 pipe blocks without H
         self._load_pipe_without_hadamard_geometries()
@@ -132,7 +132,7 @@ class BlockGeometries:
             self.geometries[kind] = faces
 
     def _load_y_cube_geometry(self) -> None:
-        """Geometry for the y cube."""
+        """Geometry for the Y Half Cube."""
         faces: list[Face] = []
         for direction in Direction3D.all_directions():
             if direction == Direction3D.X:
