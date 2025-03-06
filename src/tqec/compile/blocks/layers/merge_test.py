@@ -6,10 +6,13 @@ from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
+from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.layers.merge import (
     merge_base_layers,
+    merge_composed_layers,
+    merge_repeated_and_sequenced_layers,
     merge_repeated_layers,
     merge_sequenced_layers,
 )
@@ -232,6 +235,103 @@ def test_merge_sequenced_layers_composed_different_schedules(
                 ),
                 b01: SequencedLayers(
                     [SequencedLayers([plaquette_layer2, plaquette_layer]), raw_layer]
+                ),
+            },
+            logical_qubit_shape,
+        )
+
+
+def test_merge_repeated_and_sequenced_layers(
+    base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D
+) -> None:
+    plaquette_layer, plaquette_layer2, raw_layer = base_layers
+    b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
+    b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
+    merged_layer = merge_repeated_and_sequenced_layers(
+        {
+            b00: RepeatedLayer(plaquette_layer, LinearFunction(2, 2)),
+            b01: SequencedLayers(
+                [
+                    plaquette_layer,
+                    RepeatedLayer(
+                        SequencedLayers([plaquette_layer2, raw_layer]),
+                        LinearFunction(1, 0),
+                    ),
+                    plaquette_layer,
+                ]
+            ),
+        },
+        logical_qubit_shape,
+    )
+    assert isinstance(merged_layer, SequencedLayers)
+    assert merged_layer.scalable_timesteps == LinearFunction(2, 2)
+    assert merged_layer.scalable_shape == PhysicalQubitScalable2D(
+        logical_qubit_shape.x, 2 * logical_qubit_shape.y - 1
+    )
+    assert merged_layer.layer_sequence == [
+        LayoutLayer({b00: plaquette_layer, b01: plaquette_layer}, logical_qubit_shape),
+        RepeatedLayer(
+            SequencedLayers(
+                [
+                    LayoutLayer(
+                        {b00: plaquette_layer, b01: plaquette_layer2},
+                        logical_qubit_shape,
+                    ),
+                    LayoutLayer(
+                        {b00: plaquette_layer, b01: raw_layer},
+                        logical_qubit_shape,
+                    ),
+                ]
+            ),
+            LinearFunction(1, 0),
+        ),
+        LayoutLayer({b00: plaquette_layer, b01: plaquette_layer}, logical_qubit_shape),
+    ]
+
+
+def test_merge_composed_layers_unknown_layer_type(
+    base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D
+) -> None:
+    class UnknownComposedLayerType(BaseComposedLayer):
+        def __init__(self, spatial: PhysicalQubitScalable2D, temporal: LinearFunction):
+            super().__init__()
+            self._spatial = spatial
+            self._temporal = temporal
+
+        @property
+        def scalable_timesteps(self) -> LinearFunction:
+            return self._temporal
+
+        @property
+        def scalable_shape(self) -> PhysicalQubitScalable2D:
+            return self._spatial
+
+        def all_layers(self, k):
+            raise NotImplementedError()
+
+        def with_spatial_borders_trimmed(self, borders):
+            raise NotImplementedError()
+
+        def with_temporal_borders_replaced(self, border_replacements):
+            raise NotImplementedError()
+
+        def to_sequenced_layer_with_schedule(self, schedule):
+            raise NotImplementedError()
+
+    plaquette_layer, plaquette_layer2, raw_layer = base_layers
+    b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
+    b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
+
+    with pytest.raises(
+        NotImplementedError,
+        match="^Found instances of {'UnknownComposedLayerType'} that are not yet "
+        "implemented in _merge_composed_layers.$",
+    ):
+        merge_composed_layers(
+            {
+                b00: RepeatedLayer(plaquette_layer, LinearFunction(2, 2)),
+                b01: UnknownComposedLayerType(
+                    logical_qubit_shape, LinearFunction(2, 2)
                 ),
             },
             logical_qubit_shape,

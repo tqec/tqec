@@ -90,8 +90,9 @@ def merge_composed_layers(
             RepeatedLayer,
             SequencedLayers,
         }
+        unknown_types_names = {t.__name__ for t in unknown_types}
         raise NotImplementedError(
-            f"Found instances of {unknown_types} that are not yet implemented "
+            f"Found instances of {unknown_types_names} that are not yet implemented "
             "in _merge_composed_layers."
         )
     return merge_repeated_and_sequenced_layers(layers, scalable_qubit_shape)
