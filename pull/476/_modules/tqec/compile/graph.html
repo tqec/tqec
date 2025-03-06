@@ -453,7 +453,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.block</span><span class="w"> </span><span class="kn">import</span> <span class="n">Block</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.block</span><span class="w"> </span><span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">merge_parallel_block_layers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.enums</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">SpatialBlockBorder</span><span class="p">,</span>
     <span class="n">TemporalBlockBorder</span><span class="p">,</span>
@@ -461,7 +461,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutLayer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.composed.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseComposedLayer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.merge</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_parallel_block_layers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.positioning</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">LayoutPosition3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>

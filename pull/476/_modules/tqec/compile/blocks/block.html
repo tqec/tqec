@@ -409,15 +409,24 @@ window.addEventListener("load", () => mermaid.run());
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpatialBlockBorder</span><span class="p">,</span> <span class="n">TemporalBlockBorder</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseLayer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutLayer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.composed.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseComposedLayer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.composed.sequenced</span><span class="w"> </span><span class="kn">import</span> <span class="n">SequencedLayers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.merge</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">contains_only_base_layers</span><span class="p">,</span>
+    <span class="n">contains_only_composed_layers</span><span class="p">,</span>
+    <span class="n">merge_base_layers</span><span class="p">,</span>
+    <span class="n">merge_composed_layers</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.positioning</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutPosition2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">PhysicalQubitScalable2D</span>
 
 
 <div class="viewcode-block" id="Block">
@@ -498,6 +507,69 @@ window.addEventListener("load", () => mermaid.run());
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_temporal_pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pipe</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">is_constant</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="merge_parallel_block_layers">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.compile.blocks.merge_parallel_block_layers.html#tqec.compile.blocks.merge_parallel_block_layers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_parallel_block_layers</span><span class="p">(</span>
+    <span class="n">blocks_in_parallel</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">Block</span><span class="p">],</span>
+    <span class="n">scalable_qubit_shape</span><span class="p">:</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">LayoutLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge several stacks of layers executed in parallel into one stack of</span>
+<span class="sd">    larger layers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        blocks_in_parallel: a 2-dimensional arrangement of blocks. Each of the</span>
+<span class="sd">            provided block MUST have the exact same duration (also called</span>
+<span class="sd">            &quot;temporal footprint&quot;, number of base layers, or height in the Z</span>
+<span class="sd">            dimension).</span>
+<span class="sd">        scalable_qubit_shape: scalable shape of a scalable qubit. Considered</span>
+<span class="sd">            valid across the whole domain.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        a stack of layers representing the same slice of computation as the</span>
+<span class="sd">        provided ``blocks_in_parallel``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TQECException: if two items from the provided ``blocks_in_parallel`` do</span>
+<span class="sd">            not have the same temporal footprint.</span>
+<span class="sd">        NotImplementedError: if the provided blocks cannot be merged due to a</span>
+<span class="sd">            code branch not being implemented yet (and not due to a logical</span>
+<span class="sd">            error making the blocks unmergeable).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">blocks_in_parallel</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">internal_layers_schedules</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">scalable_timesteps</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">layer_sequence</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks_in_parallel</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">internal_layers_schedules</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;merge_parallel_block_layers only supports merging blocks that have &quot;</span>
+            <span class="s2">&quot;layers with a matching temporal schedule. Found the following &quot;</span>
+            <span class="s2">&quot;different temporal schedules in the provided blocks: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">internal_layers_schedules</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">schedule</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">internal_layers_schedules</span><span class="p">))</span>
+    <span class="n">merged_layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LayoutLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">schedule</span><span class="p">)):</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">pos</span><span class="p">:</span> <span class="n">block</span><span class="o">.</span><span class="n">layer_sequence</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks_in_parallel</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">contains_only_base_layers</span><span class="p">(</span><span class="n">layers</span><span class="p">):</span>
+            <span class="n">merged_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merge_base_layers</span><span class="p">(</span><span class="n">layers</span><span class="p">,</span> <span class="n">scalable_qubit_shape</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">contains_only_composed_layers</span><span class="p">(</span><span class="n">layers</span><span class="p">):</span>
+            <span class="n">merged_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merge_composed_layers</span><span class="p">(</span><span class="n">layers</span><span class="p">,</span> <span class="n">scalable_qubit_shape</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found a mix of </span><span class="si">{</span><span class="n">BaseLayer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instances and &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">BaseComposedLayer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instances in a single temporal &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;layer. This should be already checked before. This is a &quot;</span>
+                <span class="s2">&quot;logical error in the code, please open an issue. Found layers:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">merged_layers</span></div>
 
 </pre></div>
 
