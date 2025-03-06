@@ -9,9 +9,9 @@ from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.layers.merge import (
-    _merge_base_layers,
-    _merge_repeated_layers,
-    _merge_sequenced_layers,
+    merge_base_layers,
+    merge_repeated_layers,
+    merge_sequenced_layers,
 )
 from tqec.compile.blocks.positioning import LayoutPosition2D
 from tqec.plaquette.library.empty import empty_square_plaquette
@@ -53,7 +53,7 @@ def test_merge_base_layers(
         LayoutPosition2D.from_block_position(BlockPosition2D(i, i)): layer
         for i, layer in enumerate(base_layers)
     }
-    merged_layer = _merge_base_layers(layout, logical_qubit_shape)
+    merged_layer = merge_base_layers(layout, logical_qubit_shape)
     assert isinstance(merged_layer, LayoutLayer)
     assert merged_layer.layers == layout
     assert merged_layer.element_shape == logical_qubit_shape
@@ -66,7 +66,7 @@ def test_merge_repeated_layers(
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     b11 = LayoutPosition2D.from_block_position(BlockPosition2D(1, 1))
-    merged_layer = _merge_repeated_layers(
+    merged_layer = merge_repeated_layers(
         {
             b00: RepeatedLayer(plaquette_layer, LinearFunction(2, 2)),
             b01: RepeatedLayer(plaquette_layer2, LinearFunction(2, 2)),
@@ -95,7 +95,7 @@ def test_merge_repeated_layers_different_inner_durations(
     plaquette_layer, plaquette_layer2, raw_layer = base_layers
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
-    merged_layer = _merge_repeated_layers(
+    merged_layer = merge_repeated_layers(
         {
             b00: RepeatedLayer(plaquette_layer, LinearFunction(2, 2)),
             b01: RepeatedLayer(
@@ -128,7 +128,7 @@ def test_merge_repeated_layers_wrong_duration(
         TQECException,
         match=".*Cannot merge RepeatedLayer instances that have different lengths..*",
     ):
-        _merge_repeated_layers(
+        merge_repeated_layers(
             {
                 b00: RepeatedLayer(plaquette_layer, LinearFunction(2, 2)),
                 b01: RepeatedLayer(plaquette_layer2, LinearFunction(2, 0)),
@@ -144,7 +144,7 @@ def test_merge_sequenced_layers(
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     b11 = LayoutPosition2D.from_block_position(BlockPosition2D(1, 1))
-    merged_layer = _merge_sequenced_layers(
+    merged_layer = merge_sequenced_layers(
         {
             b00: SequencedLayers([plaquette_layer, plaquette_layer2]),
             b01: SequencedLayers([plaquette_layer2, raw_layer]),
@@ -176,7 +176,7 @@ def test_merge_sequenced_layers_composed(
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     b11 = LayoutPosition2D.from_block_position(BlockPosition2D(1, 1))
-    merged_layer = _merge_sequenced_layers(
+    merged_layer = merge_sequenced_layers(
         {
             b00: SequencedLayers(
                 [SequencedLayers([plaquette_layer, raw_layer]), plaquette_layer2]
@@ -225,7 +225,7 @@ def test_merge_sequenced_layers_composed_different_schedules(
         NotImplementedError,
         match=".*_merge_sequenced_layers only supports merging sequences that have layers with a matching temporal schedule..*",
     ):
-        _merge_sequenced_layers(
+        merge_sequenced_layers(
             {
                 b00: SequencedLayers(
                     [plaquette_layer2, SequencedLayers([plaquette_layer, raw_layer])]
