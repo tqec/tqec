@@ -167,6 +167,8 @@ class RPNGDescription:
     top-left, top-right, bottom-left, bottom-right.
     This forms a Z-shaped path on the plaquette corners: ::
 
+    .. code-block:: text
+
         +------------+
         | 1 -----> 2 |
         |        /   |

@@ -15,7 +15,7 @@ from tqec.computation.cube import (
     Cube,
     CubeKind,
     Port,
-    YCube,
+    YHalfCube,
     ZXCube,
     cube_kind_from_string,
 )
@@ -314,7 +314,7 @@ class BlockGraph:
         only check the following conditions:
 
         - **No fanout:** ports can only have one pipe connected to them.
-        - **Time-like Y:** Y cubes can only have time-like pipes connected to them.
+        - **Time-like Y:** Y Half Cubes can only have time-like pipes connected to them.
         - **No 3D corner:** a cube cannot have pipes in all three directions.
         - **Match color at passthrough:** two pipes in a "pass-through" should have the same
           color orientation.
@@ -341,11 +341,11 @@ class BlockGraph:
         if cube.is_y_cube:
             if len(pipes) != 1:
                 raise TQECException(
-                    f"Y cube at {cube.position} does not have exactly one pipe connected."
+                    f"Y Half Cube at {cube.position} does not have exactly one pipe connected."
                 )
             if not pipes[0].direction == Direction3D.Z:
                 raise TQECException(
-                    f"Y cube at {cube.position} has non-timelike pipes connected."
+                    f"Y Half Cube at {cube.position} has non-timelike pipes connected."
                 )
             return
 
@@ -650,6 +650,6 @@ def block_kind_from_str(string: str) -> BlockKind:
     if "O" in string:
         return PipeKind.from_str(string)
     elif string == "Y":
-        return YCube()
+        return YHalfCube()
     else:
         return ZXCube.from_str(string)

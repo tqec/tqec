@@ -3,7 +3,7 @@ from fractions import Fraction
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import VertexType
 
-from tqec.computation.cube import Port, YCube, ZXCube
+from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.interop.pyzx.utils import cube_kind_to_zx, is_boundary, is_zx_no_phase
 
 
@@ -33,4 +33,4 @@ def test_cube_kind_to_zx() -> None:
     assert cube_kind_to_zx(ZXCube.from_str("XXZ")) == (VertexType.Z, 0)
     assert cube_kind_to_zx(ZXCube.from_str("XZX")) == (VertexType.Z, 0)
     assert cube_kind_to_zx(Port()) == (VertexType.BOUNDARY, 0)
-    assert cube_kind_to_zx(YCube()) == (VertexType.Z, Fraction(1, 2))
+    assert cube_kind_to_zx(YHalfCube()) == (VertexType.Z, Fraction(1, 2))

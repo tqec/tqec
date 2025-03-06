@@ -130,20 +130,20 @@ class Port:
         return isinstance(other, Port)
 
 
-class YCube:
+class YHalfCube:
     """Cube kind representing the Y-basis initialization/measurements."""
 
     def __str__(self) -> str:
         return "Y"
 
     def __hash__(self) -> int:
-        return hash(YCube)
+        return hash(YHalfCube)
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, YCube)
+        return isinstance(other, YHalfCube)
 
 
-CubeKind = ZXCube | Port | YCube
+CubeKind = ZXCube | Port | YHalfCube
 """All the possible kinds of cubes."""
 
 
@@ -153,7 +153,7 @@ def cube_kind_from_string(s: str) -> CubeKind:
         case "PORT" | "P":
             return Port()
         case "Y":
-            return YCube()
+            return YHalfCube()
         case _:
             return ZXCube.from_str(s)
 
@@ -210,8 +210,8 @@ class Cube:
     @property
     def is_y_cube(self) -> bool:
         """Return whether the cube is of kind
-        :py:class:`~tqec.computation.cube.YCube`."""
-        return isinstance(self.kind, YCube)
+        :py:class:`~tqec.computation.cube.YHalfCube`."""
+        return isinstance(self.kind, YHalfCube)
 
     @property
     def is_spatial(self) -> bool:

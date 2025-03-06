@@ -19,6 +19,38 @@ This is the essence of fault-tolerant quantum computation.
 
 In ``tqec``, a block is either a :ref:`Cube <cube>` or a :ref:`Pipe <pipe>`.
 
+The naming convention for a cube or a pipe is as follows:
+
+- The axes used for labeling are as shown in the figure below. ``RGB`` axes are synonymous to ``XYZ`` axes.
+- We begin by labeling the boundary that is facing the X-axis first, then the one that is facing the Y-axis followed by the one facing the Z-axis.
+
+
+.. figure:: ../media/user_guide/terminology/axes_convention.png
+   :width: 200px
+   :align: center
+
+   X, Y, Z axes
+
+The labels based on color of the boundaries are provided in the table below.
+
+.. list-table::
+   :header-rows: 1
+   :align: center
+
+   * - Color
+     - Boundary
+   * - Red Wall
+     - X
+   * - Green Half-Cube
+     - Y
+   * - Blue Wall
+     - Z
+   * - Yellow band
+     - H
+   * - Open/Hole (no color)
+     - O
+
+
 .. _cube:
 
 Cube
@@ -34,6 +66,7 @@ quantum operations that are applied within the cube. Currently we have the follo
    Different kinds of cubes
 
 .. _zxcube:
+
 
 :py:class:`~tqec.computation.ZXCube`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,13 +96,13 @@ When connected with two or more spatial pipes, they form **spatial junctions**:
 The circuits that implement these spatial cubes are more complex than the circuits for the other cubes, and special care needs to be taken to avoid
 the hook errors from decreasing the circuit-level code distance.
 
-:py:class:`~tqec.computation.YCube`
+:py:class:`~tqec.computation.YHalfCube`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A green cube representing inplace Y-basis logical initialization or measurement as proposed in `this paper <https://quantum-journal.org/papers/q-2024-04-08-1310/>`_.
 The cube's function, whether for initialization or measurement, is determined by its connection to other cubes, either upwards or downwards.
 
-A ``YCube`` occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` is the code distance.
+A ``YHalfCube`` occupies :math:`\approx d^3 /2` spacetime volume, where :math:`d` is the code distance.
 
 :py:class:`~tqec.computation.Port`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
