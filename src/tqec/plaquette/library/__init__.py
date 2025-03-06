@@ -10,3 +10,4 @@ from .css import make_css_surface_code_plaquette as make_css_surface_code_plaque
 from .empty import empty_plaquette as empty_plaquette
 from .empty import empty_square_plaquette as empty_square_plaquette
 from .zxxz import make_zxxz_surface_code_plaquette as make_zxxz_surface_code_plaquette
+from .spatial import make_spatial_cube_arm_plaquette as make_spatial_cube_arm_plaquette
