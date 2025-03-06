@@ -8,7 +8,7 @@ from dataclasses import astuple, dataclass
 import numpy as np
 import numpy.typing as npt
 
-from tqec.computation.cube import YCube, ZXCube
+from tqec.computation.cube import YHalfCube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, FloatPosition3D, SignedDirection3D
@@ -89,7 +89,7 @@ class BlockGeometries:
         self.geometries: dict[BlockKind, list[Face]] = {}
         # 6 x/z cube blocks
         self._load_zx_cube_geometries()
-        # 1 y cube block
+        # 1 y half cube block
         self._load_y_cube_geometry()
         # 6 pipe blocks without H
         self._load_pipe_without_hadamard_geometries()
@@ -132,7 +132,7 @@ class BlockGeometries:
             self.geometries[kind] = faces
 
     def _load_y_cube_geometry(self) -> None:
-        """Geometry for the y cube."""
+        """Geometry for the Y Half Cube."""
         faces: list[Face] = []
         for direction in Direction3D.all_directions():
             if direction == Direction3D.X:
@@ -146,7 +146,7 @@ class BlockGeometries:
             translation = [0.0, 0.0, 0.0]
             translation[direction.value] = 1.0 if direction != Direction3D.Z else 0.5
             faces.append(face.shift_by(*translation).with_negated_normal_direction())
-        self.geometries[YCube()] = faces
+        self.geometries[YHalfCube()] = faces
 
     def _load_pipe_without_hadamard_geometries(self) -> None:
         """Geometries for ozx, oxz, xoz, zox, xzo, zxo pipes."""

@@ -6,7 +6,7 @@ import pyzx as zx
 from pyzx.utils import vertex_is_zx
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, Port, YCube, ZXCube
+from tqec.computation.cube import Cube, Port, YHalfCube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.interop.pyzx.utils import is_boundary, is_zx_no_phase
@@ -241,4 +241,4 @@ def _port_or_y_cube(pg: PositionedZX, v: int) -> Cube:
         else:
             label = f"P_{v}"
         return Cube(pg[v], Port(), label)
-    return Cube(pg[v], YCube())
+    return Cube(pg[v], YHalfCube())

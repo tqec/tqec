@@ -9,7 +9,7 @@ from tqec.computation.block_graph import BlockKind as BlockKind
 from tqec.computation.cube import Cube as Cube
 from tqec.computation.cube import CubeKind as CubeKind
 from tqec.computation.cube import Port as Port
-from tqec.computation.cube import YCube as YCube
+from tqec.computation.cube import YHalfCube as YHalfCube
 from tqec.computation.cube import ZXCube as ZXCube
 from tqec.computation.pipe import Pipe as Pipe
 from tqec.computation.pipe import PipeKind as PipeKind
