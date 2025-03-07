@@ -15,6 +15,7 @@ defines a few core data-structures that are used in ``tqec.plaquette``, but this
 the order in which the sub-modules will be covered here.
 
 .. mermaid::
+    :zoom:
 
     graph
         A[tqec.interop] --> B[tqec.computation]
@@ -23,7 +24,7 @@ the order in which the sub-modules will be covered here.
         D[tqec.plaquette] --> E
         E --> F[tqec.circuit]
         F --> G[tqec.noise_models]
-        G --> H[tqec.simulation]
+        G ==> H[tqec.simulation]
 
 ``tqec.interop``
 ----------------
