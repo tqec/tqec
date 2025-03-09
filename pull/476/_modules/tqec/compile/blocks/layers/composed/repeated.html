@@ -452,6 +452,18 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="sa">f</span><span class="s2">&quot;Got a layer with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">internal_layer</span><span class="o">.</span><span class="n">scalable_timesteps</span><span class="si">}</span><span class="s2"> timesteps &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;and tried to repeat it </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repetitions</span><span class="si">}</span><span class="s2"> times.&quot;</span>
             <span class="p">)</span>
+        <span class="c1"># Check that the number of timesteps of ``self`` is not strictly decreasing.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repetitions</span><span class="o">.</span><span class="n">slope</span> <span class="o">&lt;</span> <span class="mi">0</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">internal_layer</span><span class="o">.</span><span class="n">scalable_timesteps</span><span class="o">.</span><span class="n">slope</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot create a </span><span class="si">{</span><span class="n">RepeatedLayer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instance with a decreasing &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;number of timesteps. Got repeated layer with &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">internal_layer</span><span class="o">.</span><span class="n">scalable_timesteps</span><span class="si">}</span><span class="s2"> timesteps that is repeated &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repetitions</span><span class="si">}</span><span class="s2"> times, that would lead to a total duration of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scalable_timesteps</span><span class="si">}</span><span class="s2">, which is strictly decreasing.&quot;</span>
+            <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="nd">@override</span>
