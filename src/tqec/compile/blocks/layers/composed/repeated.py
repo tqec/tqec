@@ -42,6 +42,18 @@ class RepeatedLayer(BaseComposedLayer):
                 f"Got a layer with {self.internal_layer.scalable_timesteps} timesteps "
                 f"and tried to repeat it {self.repetitions} times."
             )
+        # Check that the number of timesteps of ``self`` is not strictly decreasing.
+        if (
+            self.repetitions.slope < 0
+            or self.internal_layer.scalable_timesteps.slope < 0
+        ):
+            raise TQECException(
+                f"Cannot create a {RepeatedLayer.__name__} instance with a decreasing "
+                f"number of timesteps. Got repeated layer with "
+                f"{self.internal_layer.scalable_timesteps} timesteps that is repeated "
+                f"{self.repetitions} times, that would lead to a total duration of "
+                f"{self.scalable_timesteps}, which is strictly decreasing."
+            )
 
     @property
     @override
