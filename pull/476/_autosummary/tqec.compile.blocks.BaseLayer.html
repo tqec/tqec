@@ -533,10 +533,13 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.blocks.</span></span><span class="sig-name descname"><span class="pre">BaseLayer</span></span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/base.html#BaseLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.BaseLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">WithSpatialFootprint</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">WithTemporalFootprint</span></code></p>
 <p>Base class representing a “layer”.</p>
-<p>A “layer” is defined as a quantum circuit implementing a single round of
-quantum error correction. It can span an arbitrarily large spatial area and
-implement a (time)slice of an arbitrarily complex quantum error corrected
-computation.</p>
+<p>A “layer” is a scalable and repeatable unit of a quantum error correction
+circuit. In most cases, it corresponds to a single round of the syndrome
+extraction circuit. A base layer occupies a specific spacetime footprint,
+where the spatial footprint scales with the layer circuit, while the temporal
+footprint remains fixed at <code class="docutils literal notranslate"><span class="pre">1</span></code>, representing a single layer. To stack layers
+over time or repeat them in a scalable manner, use
+<a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html#tqec.compile.blocks.BaseComposedLayer" title="tqec.compile.blocks.layers.composed.base.BaseComposedLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComposedLayer</span></code></a> instead.</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>

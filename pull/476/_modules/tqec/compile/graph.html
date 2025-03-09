@@ -486,15 +486,14 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">add_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">Block</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">is_cube</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot add as a cube a block that is not a cube. The provided &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;block (</span><span class="si">{</span><span class="n">block</span><span class="si">}</span><span class="s2">) is not a cube (i.e., has at least one &quot;</span>
-                <span class="s2">&quot;non-scalable dimension).&quot;</span>
+                <span class="s2">&quot;Cannot add the block as a cube. The provided block&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">block</span><span class="si">}</span><span class="s2">) has at least one non-scalable dimension.&quot;</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_block_spatial_shape</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
         <span class="n">layout_position</span> <span class="o">=</span> <span class="n">LayoutPosition3D</span><span class="o">.</span><span class="n">from_block_position</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">layout_position</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot override a block with add_block. There is already an &quot;</span>
+                <span class="s2">&quot;Cannot override a block with ``add_cube``. There is already an &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;entry at </span><span class="si">{</span><span class="n">layout_position</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span><span class="p">[</span><span class="n">layout_position</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span></div>
@@ -561,7 +560,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">layout_position</span> <span class="o">=</span> <span class="n">LayoutPosition3D</span><span class="o">.</span><span class="n">from_pipe_position</span><span class="p">((</span><span class="n">source</span><span class="p">,</span> <span class="n">sink</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">layout_position</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot override a pipe with add_pipe. There is already &quot;</span>
+                <span class="s2">&quot;Cannot override a pipe with ``add_pipe``. There is already &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;a pipe at </span><span class="si">{</span><span class="n">layout_position</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
 

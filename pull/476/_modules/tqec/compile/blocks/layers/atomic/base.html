@@ -424,10 +424,13 @@ window.addEventListener("load", () => mermaid.run());
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseLayer</span><span class="p">(</span><span class="n">WithSpatialFootprint</span><span class="p">,</span> <span class="n">WithTemporalFootprint</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class representing a &quot;layer&quot;.</span>
 
-<span class="sd">    A &quot;layer&quot; is defined as a quantum circuit implementing a single round of</span>
-<span class="sd">    quantum error correction. It can span an arbitrarily large spatial area and</span>
-<span class="sd">    implement a (time)slice of an arbitrarily complex quantum error corrected</span>
-<span class="sd">    computation.</span>
+<span class="sd">    A &quot;layer&quot; is a scalable and repeatable unit of a quantum error correction</span>
+<span class="sd">    circuit. In most cases, it corresponds to a single round of the syndrome</span>
+<span class="sd">    extraction circuit. A base layer occupies a specific spacetime footprint,</span>
+<span class="sd">    where the spatial footprint scales with the layer circuit, while the temporal</span>
+<span class="sd">    footprint remains fixed at ``1``, representing a single layer. To stack layers</span>
+<span class="sd">    over time or repeat them in a scalable manner, use</span>
+<span class="sd">    :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer` instead.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
