@@ -7,7 +7,7 @@ from typing_extensions import override
 from tqec.templates.base import BorderIndices, RectangularTemplate
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.position import Shift2D
-from tqec.utils.scale import LinearFunction, Scalable2D
+from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
 class FixedTemplate(RectangularTemplate):
@@ -34,9 +34,9 @@ class FixedTemplate(RectangularTemplate):
 
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PlaquetteScalable2D:
         y, x = self._indices.shape
-        return Scalable2D(LinearFunction(0, x), LinearFunction(0, y))
+        return PlaquetteScalable2D(LinearFunction(0, x), LinearFunction(0, y))
 
     @property
     @override
