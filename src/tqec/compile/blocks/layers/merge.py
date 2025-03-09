@@ -216,8 +216,7 @@ def merge_sequenced_layers(
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> SequencedLayers:
     internal_layers_schedules = frozenset(
-        sequenced_layer.schedule
-        for sequenced_layer in layers.values()
+        sequenced_layer.schedule for sequenced_layer in layers.values()
     )
     if len(internal_layers_schedules) != 1:
         raise NotImplementedError(
