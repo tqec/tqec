@@ -78,7 +78,6 @@ def merge_composed_layers(
             "Cannot merged BaseComposedLayer instances that have different lengths. "
             f"Found the following different lengths: {different_timesteps}."
         )
-    # timesteps = next(iter(different_timesteps))
     if contains_only_repeated_layers(layers):
         return merge_repeated_layers(layers, scalable_qubit_shape)
     if contains_only_sequenced_layers(layers):

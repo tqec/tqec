@@ -103,8 +103,7 @@ def merge_parallel_block_layers(
     Args:
         blocks_in_parallel: a 2-dimensional arrangement of blocks. Each of the
             provided block MUST have the exact same duration (also called
-            "temporal footprint", number of base layers, or height in the Z
-            dimension).
+            "temporal footprint", or number of atomic layers).
         scalable_qubit_shape: scalable shape of a scalable qubit. Considered
             valid across the whole domain.
 

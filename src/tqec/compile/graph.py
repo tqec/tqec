@@ -71,15 +71,14 @@ class TopologicalComputationGraph:
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         if not block.is_cube:
             raise TQECException(
-                "Cannot add as a cube a block that is not a cube. The provided "
-                f"block ({block}) is not a cube (i.e., has at least one "
-                "non-scalable dimension)."
+                "Cannot add the block as a cube. The provided block"
+                f"({block}) has at least one non-scalable dimension."
             )
         self._check_block_spatial_shape(block)
         layout_position = LayoutPosition3D.from_block_position(position)
         if layout_position in self._blocks:
             raise TQECException(
-                "Cannot override a block with add_block. There is already an "
+                "Cannot override a block with ``add_cube``. There is already an "
                 f"entry at {layout_position}."
             )
         self._blocks[layout_position] = block
@@ -145,7 +144,7 @@ class TopologicalComputationGraph:
         layout_position = LayoutPosition3D.from_pipe_position((source, sink))
         if layout_position in self._blocks:
             raise TQECException(
-                "Cannot override a pipe with add_pipe. There is already "
+                "Cannot override a pipe with ``add_pipe``. There is already "
                 f"a pipe at {layout_position}."
             )
 

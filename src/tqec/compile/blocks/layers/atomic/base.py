@@ -14,10 +14,13 @@ from tqec.utils.scale import LinearFunction
 class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
     """Base class representing a "layer".
 
-    A "layer" is defined as a quantum circuit implementing a single round of
-    quantum error correction. It can span an arbitrarily large spatial area and
-    implement a (time)slice of an arbitrarily complex quantum error corrected
-    computation.
+    A "layer" is a scalable and repeatable unit of a quantum error correction
+    circuit. In most cases, it corresponds to a single round of the syndrome
+    extraction circuit. A base layer occupies a specific spacetime footprint,
+    where the spatial footprint scales with the layer circuit, while the temporal
+    footprint remains fixed at ``1``, representing a single layer. To stack layers
+    over time or repeat them in a scalable manner, use
+    :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer` instead.
     """
 
     @property
