@@ -51,8 +51,8 @@ from tqec.compile.blocks.enums import (
     TemporalBlockBorder,
     border_from_signed_direction,
 )
-from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
-from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
+from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
+from tqec.compile.blocks.layers.tree import LayerTree
 from tqec.compile.blocks.positioning import LayoutPosition2D, LayoutPosition3D
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
@@ -261,7 +261,7 @@ class TopologicalComputationGraph:
             key = LayoutPosition3D.from_pipe_position((source, sink))
             self._blocks[key] = block
 
-    def layout_layers(self) -> list[list[LayoutLayer | BaseComposedLayer]]:
+    def to_layout_tree(self) -> LayerTree:
         """Merge layers happening in parallel at each time step.
 
         This method considers all the layers contained in added blocks (cubes and
@@ -270,7 +270,19 @@ class TopologicalComputationGraph:
         :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer`
         wrapping :class:`~tqec.compile.blocks.layers.atomic.layout.LayoutLayer`
         instances.
+
+        Returns:
+            A tree representing the topological computation.
+
+            The root node of the returned tree is an instance of
+            :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
+            Each child of the root node represents the computation happening during
+            one block of time.
+
+            Each child of the root node is also an instance of
+            :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
         """
+
         zs = [pos.z for pos in self._blocks.keys()]
         min_z, max_z = min(zs), max(zs)
         blocks_by_z: list[dict[LayoutPosition2D, Block]] = [
@@ -278,7 +290,13 @@ class TopologicalComputationGraph:
         ]
         for pos, block in self._blocks.items():
             blocks_by_z[pos.z - min_z][pos.as_2d()] = block
-        return [
-            merge_parallel_block_layers(blocks, self._scalable_qubit_shape)
-            for blocks in blocks_by_z
-        ]
+        return LayerTree(
+            SequencedLayers(
+                [
+                    SequencedLayers(
+                        merge_parallel_block_layers(blocks, self._scalable_qubit_shape)
+                    )
+                    for blocks in blocks_by_z
+                ]
+            )
+        )
