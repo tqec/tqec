@@ -52,8 +52,8 @@ from tqec.compile.blocks.enums import (
     border_from_signed_direction,
 )
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.blocks.layers.tree import LayerTree
 from tqec.compile.blocks.positioning import LayoutPosition2D, LayoutPosition3D
+from tqec.compile.tree import LayerTree
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 from tqec.utils.scale import PhysicalQubitScalable2D
