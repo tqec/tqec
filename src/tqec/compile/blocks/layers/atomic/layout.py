@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Final, Iterable
 
+import stim
 from typing_extensions import override
 
 from tqec.compile.blocks.enums import SpatialBlockBorder
@@ -57,3 +58,6 @@ class LayoutLayer(BaseLayer):
             and self.element_shape == value.element_shape
             and self.layers == value.layers
         )
+
+    def to_circuit(self) -> stim.Circuit:
+        raise NotImplementedError("")

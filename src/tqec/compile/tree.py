@@ -126,6 +126,19 @@ class LayerNode:
         """Append the provided annotation to the list of annotations."""
         self._annotations.append(annotation)
 
+    def to_circuit(self) -> stim.Circuit:
+        circuit = stim.Circuit()
+        # Get the raw circuit
+        if isinstance(self._layer, LayoutLayer):
+            circuit = self._layer.to_circuit()
+        else:
+            assert not self.is_leaf
+            for child in self._children:
+                circuit += child.to_circuit()
+        # Append the annotations
+        for annotation in self._annotations:
+            circuit.append(annotation.to_instruction())
+        return circuit
 
 
 class LayerTree:
