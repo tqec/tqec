@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass, field
-from typing import Callable, Collection, Literal, Mapping
+from typing import Callable, Collection, Iterable, Literal, Mapping
 
 from typing_extensions import override
 
@@ -188,6 +188,9 @@ class Plaquettes:
                 default_factory=self.collection.default_factory,
             )
         )
+
+    def items(self) -> Iterable[tuple[int, Plaquette]]:
+        return self.collection.items()
 
 
 @dataclass(frozen=True)
