@@ -52,11 +52,10 @@ def test_creation(
     raw_circuit_layer: RawCircuitLayer,
     raw_circuit_fixed_size_layer: RawCircuitLayer,
 ) -> None:
-    # Invalid sequences due to duration <= 1
-    err_regex = ".*expected to have multiple layers in sequence.*"
-    for seq in ([], [plaquette_layer], [raw_circuit_layer]):
-        with pytest.raises(TQECException, match=err_regex):
-            SequencedLayers(seq)
+    # Invalid sequences due to duration < 1
+    err_regex = ".*expected to have at least one layer.*"
+    with pytest.raises(TQECException, match=err_regex):
+        SequencedLayers([])
     # Invalid sequence due to different shapes
     with pytest.raises(TQECException, match="Found at least two different shapes.*"):
         SequencedLayers(
