@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Callable, Collection, Literal, Mapping
 
@@ -144,10 +143,6 @@ class Plaquettes:
 
     def __getitem__(self, index: int) -> Plaquette:
         return self.collection[index]
-
-    @property
-    def has_default(self) -> bool:
-        return isinstance(self.collection, defaultdict)
 
     def repeat(self, repetitions: LinearFunction) -> RepeatedPlaquettes:
         return RepeatedPlaquettes(self.collection, repetitions)
