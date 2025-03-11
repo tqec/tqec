@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+from dataclasses import dataclass
 from typing import Any, Sequence, TypeGuard
 
 import stim
@@ -11,8 +11,8 @@ from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import DetectorDatabase
-from tqec.compile.detectors.detector import Detector
 from tqec.compile.observables.abstract_observable import AbstractObservable
+from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 
 
@@ -22,21 +22,75 @@ def contains_only_layout_or_composed_layers(
     return all(isinstance(layer, (LayoutLayer, BaseComposedLayer)) for layer in layers)
 
 
-class LayerNode(ABC):
+@dataclass(frozen=True)
+class DetectorAnnotation:
+    """An annotation that should include all the necessary information to build a
+    DETECTOR instruction.
+
+    Todo:
+        Will change according to the needs.
+    """
+
+    coordinates: StimCoordinates
+    measurement_offsets: list[int]
+
+    def __post_init__(self) -> None:
+        if any(m >= 0 for m in self.measurement_offsets):
+            raise TQECException("Expected strictly negative measurement offsets.")
+
+    def to_instruction(self) -> stim.CircuitInstruction:
+        return stim.CircuitInstruction(
+            "DETECTOR",
+            [stim.target_rec(offset) for offset in self.measurement_offsets],
+            self.coordinates.to_stim_coordinates(),
+        )
+
+
+@dataclass(frozen=True)
+class ObservableAnnotation:
+    """An annotation that should include all the necessary information to build a
+    OBSERVABLE_INCLUDE instruction.
+
+    Todo:
+        Will change according to the needs.
+    """
+
+    observable_index: int
+    measurement_offsets: list[int]
+
+    def __post_init__(self) -> None:
+        if any(m >= 0 for m in self.measurement_offsets):
+            raise TQECException("Expected strictly negative measurement offsets.")
+
+    def to_instruction(self) -> stim.CircuitInstruction:
+        return stim.CircuitInstruction(
+            "OBSERVABLE_INCLUDE",
+            [stim.target_rec(offset) for offset in self.measurement_offsets],
+            [self.observable_index],
+        )
+
+
+class LayerNode:
     def __init__(
         self,
         layer: LayoutLayer | BaseComposedLayer,
-        detector_annotations: list[Detector] | None = None,
-        observable_include_annotation: list[stim.CircuitInstruction] | None = None,
+        annotations: list[DetectorAnnotation | ObservableAnnotation] | None = None,
     ):
-        super().__init__()
+        """Represents a node in a :class:`LayerTree`.
+
+        Args:
+            layer: layer being represented by the node.
+            annotations: already computed annotations if available. Annotations
+                can be added a posteriori with :meth:`LayerNode.append_annotation`.
+        """
         self._layer = layer
         self._children = LayerNode._get_children(layer)
-        self._detector_annotations = detector_annotations or []
-        self._observable_include_annotation = observable_include_annotation or []
+        self._annotations = annotations or []
 
     @property
     def is_leaf(self) -> bool:
+        """Returns ``True`` if ``self`` does not have any children and so is a
+        leaf node."""
         return isinstance(self._layer, LayoutLayer)
 
     @staticmethod
@@ -63,9 +117,15 @@ class LayerNode(ABC):
         return {
             "layer": type(self._layer).__name__,
             "children": [child.to_dict() for child in self._children],
-            "detectors": self._detector_annotations,
-            "observables": self._observable_include_annotation,
+            "annotations": self._annotations,
         }
+
+    def append_annotation(
+        self, annotation: DetectorAnnotation | ObservableAnnotation
+    ) -> None:
+        """Append the provided annotation to the list of annotations."""
+        self._annotations.append(annotation)
+
 
 
 class LayerTree:
