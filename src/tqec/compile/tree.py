@@ -45,11 +45,17 @@ class LayerNode(ABC):
             return []
         if isinstance(layer, SequencedLayers):
             if not contains_only_layout_or_composed_layers(layer.layer_sequence):
-                raise TQECException()
+                raise TQECException(
+                    "Found a leaf node that is not an instance of "
+                    f"{LayoutLayer.__name__}. This should not happen and is a "
+                    "logical error."
+                )
             return [LayerNode(lay) for lay in layer.layer_sequence]
         if isinstance(layer, RepeatedLayer):
             if not isinstance(layer.internal_layer, LayoutLayer | BaseComposedLayer):
-                raise TQECException()
+                raise TQECException(
+                    f"Repeated layer is not an instance of {LayoutLayer.__name__}."
+                )
             return [LayerNode(layer.internal_layer)]
         raise TQECException(f"Unknown layer type found: {type(layer).__name__}.")
 
