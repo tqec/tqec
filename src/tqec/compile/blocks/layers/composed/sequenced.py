@@ -28,10 +28,10 @@ class SequencedLayers(BaseComposedLayer):
     layer_sequence: Sequence[BaseLayer | BaseComposedLayer]
 
     def __post_init__(self) -> None:
-        if len(self.layer_sequence) <= 1:
+        if len(self.layer_sequence) < 1:
             raise TQECException(
                 f"An instance of {type(self).__name__} is expected to have "
-                f"multiple layers in sequence. Found {len(self.layer_sequence)}."
+                f"at least one layer. Found {len(self.layer_sequence)}."
             )
         shapes = frozenset(layer.scalable_shape for layer in self.layer_sequence)
         if len(shapes) > 1:

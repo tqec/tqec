@@ -113,6 +113,9 @@ class QubitMap:
             ret.append("QUBIT_COORDS", qi, (float(qubit.x), float(qubit.y)))
         return ret
 
+    def __getitem__(self, index: GridQubit) -> int:
+        return self.q2i[index]
+
 
 def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
     """Returns the existing qubits and their coordinates at the end of the
