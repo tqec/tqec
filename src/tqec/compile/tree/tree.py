@@ -10,6 +10,7 @@ from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.annotations import LayerTreeAnnotations
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayoutNode
+from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayoutNode
 from tqec.compile.tree.node import LayerNode, NodeExploratorInterface
 from tqec.utils.exceptions import TQECException
 
@@ -67,10 +68,16 @@ class LayerTree:
 
     def annotate_detectors(
         self,
+        k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        lookback: int = 2,
     ) -> None:
-        pass
+        self._root.walk(
+            AnnotateDetectorsOnLayoutNode(
+                k, manhattan_radius, detector_database, lookback
+            )
+        )
 
     def generate_circuit(
         self, k: int, include_qubit_coords: bool = True
