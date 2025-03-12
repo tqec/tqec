@@ -7,7 +7,7 @@ from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.detectors.compute import compute_detectors_for_fixed_radius
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.tree.annotations import DetectorAnnotation
-from tqec.compile.tree.node import LayerNode, NodeExploratorInterface
+from tqec.compile.tree.node import LayerNode, NodeWalkerInterface
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
 from tqec.utils.exceptions import TQECException
@@ -21,7 +21,7 @@ def _append_with_capped_size(seq: MutableSequence[T], obj: T, lookback: int) -> 
         seq.pop(0)
 
 
-class AnnotateDetectorsOnLayoutNode(NodeExploratorInterface):
+class AnnotateDetectorsOnLayoutNode(NodeWalkerInterface):
     def __init__(
         self,
         k: int,
@@ -57,7 +57,7 @@ class AnnotateDetectorsOnLayoutNode(NodeExploratorInterface):
         return ret
 
     @override
-    def in_node(self, node: LayerNode) -> None:
+    def visit_node(self, node: LayerNode) -> None:
         if not isinstance(node._layer, LayoutLayer):
             return
         annotations = node.get_annotations(self._k)
