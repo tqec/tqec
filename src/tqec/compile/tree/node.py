@@ -59,7 +59,8 @@ class LayerNode:
         if isinstance(layer, RepeatedLayer):
             if not isinstance(layer.internal_layer, LayoutLayer | BaseComposedLayer):
                 raise TQECException(
-                    f"Repeated layer is not an instance of {LayoutLayer.__name__}."
+                    f"Repeated layer is not an instance of {LayoutLayer.__name__} "
+                    f"or {BaseComposedLayer.__name__}."
                 )
             return [LayerNode(layer.internal_layer)]
         raise TQECException(f"Unknown layer type found: {type(layer).__name__}.")
