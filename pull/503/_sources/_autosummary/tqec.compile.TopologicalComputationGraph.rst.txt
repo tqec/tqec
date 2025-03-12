@@ -14,7 +14,7 @@ TopologicalComputationGraph
       ~TopologicalComputationGraph.__init__
       ~TopologicalComputationGraph.add_cube
       ~TopologicalComputationGraph.add_pipe
-      ~TopologicalComputationGraph.to_layout_tree
+      ~TopologicalComputationGraph.to_layer_tree
    
    
 
@@ -30,6 +30,6 @@ TopologicalComputationGraph
    .. automethod:: __init__
    .. automethod:: add_cube
    .. automethod:: add_pipe
-   .. automethod:: to_layout_tree
+   .. automethod:: to_layer_tree
    
    
