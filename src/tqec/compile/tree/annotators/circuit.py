@@ -14,4 +14,3 @@ class AnnotateCircuitOnLayoutNode(NodeExploratorInterface):
             return
         assert isinstance(node._layer, LayoutLayer)
         node.set_circuit_annotation(self._k, node._layer.to_circuit(self._k))
-
