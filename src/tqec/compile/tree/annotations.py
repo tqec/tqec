@@ -79,7 +79,7 @@ class LayerTreeAnnotations:
 
     @property
     def has_qubit_map(self) -> bool:
-        return self.qubit_map is None
+        return self.qubit_map is not None
 
     def to_dict(self) -> dict[str, Any]:
         ret: dict[str, Any] = {"qubit_map": None}
