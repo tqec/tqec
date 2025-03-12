@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Sequence, TypeGuard
+from typing import Any, Mapping, Sequence, TypeGuard
 
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
@@ -21,7 +21,7 @@ class LayerNode:
     def __init__(
         self,
         layer: LayoutLayer | BaseComposedLayer,
-        annotations: LayerNodeAnnotations | None = None,
+        annotations: Mapping[int, LayerNodeAnnotations] | None = None,
     ):
         """Represents a node in a :class:`LayerTree`.
 
@@ -32,7 +32,7 @@ class LayerNode:
         """
         self._layer = layer
         self._children = LayerNode._get_children(layer)
-        self._annotations = annotations or LayerNodeAnnotations()
+        self._annotations = dict(annotations) if annotations is not None else {}
 
     @staticmethod
     def _get_children(layer: LayoutLayer | BaseComposedLayer) -> list[LayerNode]:
@@ -64,5 +64,13 @@ class LayerNode:
         return {
             "layer": type(self._layer).__name__,
             "children": [child.to_dict() for child in self._children],
-            "annotations": self._annotations,
+            "annotations": {
+                k: annotation.to_dict() for k, annotation in self._annotations.items()
+            },
         }
+
+    def get_annotations(self, k: int) -> LayerNodeAnnotations:
+        return self._annotations.setdefault(k, LayerNodeAnnotations())
+
+    def set_circuit_annotation(self, k: int, circuit: ScheduledCircuit) -> None:
+        self.get_annotations(k).circuit = circuit
