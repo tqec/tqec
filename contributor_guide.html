@@ -426,6 +426,8 @@
 <p>If you want to help maintaining and improving the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package, you will need
 to install a few more packages than the regular installation. It is also
 recommended to use an editable installation.</p>
+<p>Currently, <code class="docutils literal notranslate"><span class="pre">tqec</span></code> is compatible with Python 3.10, 3.11 and 3.12. Some dependencies limit the project’s
+compatibility with Python 3.13.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the repository to have local files to work on</span>
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/tqec.git
 <span class="c1"># Install the library with developer dependencies</span>
@@ -434,6 +436,11 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 <span class="nb">cd</span><span class="w"> </span>tqec
 pre-commit<span class="w"> </span>install
 </pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You will have to install <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> separately as the instructions above only install a <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> wrapper.
+See <a class="reference external" href="https://stackoverflow.com/a/71585691">https://stackoverflow.com/a/71585691</a> for more info.</p>
 </div>
 <p>If you encounter any issue during the installation, please refer to <a class="reference internal" href="user_guide/installation.html#installation"><span class="std std-ref">How to install tqec</span></a> for more information.</p>
 <p>You can now start contributing, following the rules explained in the next sections.</p>
