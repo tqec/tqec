@@ -148,6 +148,9 @@ class LayoutLayer(BaseLayer):
                     {
                         plaquette_indices_mapping[pipe_plaquette_index]: plaquette
                         for pipe_plaquette_index, plaquette in pipe_layer.plaquettes.collection.items()
+                        # Filtering only plaquette indices that are on the side we are
+                        # interested in.
+                        if pipe_plaquette_index in plaquette_indices_mapping
                     }
                 )
 
