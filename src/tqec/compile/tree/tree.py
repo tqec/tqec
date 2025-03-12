@@ -51,21 +51,21 @@ class LayerTree:
             },
         }
 
-    def annotate_circuits(self, k: int) -> None:
+    def _annotate_circuits(self, k: int) -> None:
         self._root.walk(AnnotateCircuitOnLayoutNode(k))
 
-    def annotate_qubit_map(self, k: int) -> None:
-        self.get_annotation(k).qubit_map = self._get_global_qubit_map(k)
+    def _annotate_qubit_map(self, k: int) -> None:
+        self._get_annotation(k).qubit_map = self._get_global_qubit_map(k)
 
     def _get_global_qubit_map(self, k: int) -> QubitMap:
         qubit_lister = _QubitListerExplorator(k)
         self._root.walk(qubit_lister)
         return QubitMap.from_qubits(sorted(qubit_lister.seen_qubits))
 
-    def annotate_observable(self, observable: AbstractObservable) -> None:
+    def _annotate_observable(self, observable: AbstractObservable) -> None:
         pass
 
-    def annotate_detectors(
+    def _annotate_detectors(
         self,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
@@ -75,7 +75,10 @@ class LayerTree:
     def generate_circuit(
         self, k: int, include_qubit_coords: bool = True
     ) -> stim.Circuit:
-        annotations = self.get_annotation(k)
+        self._annotate_circuits(k)
+        self._annotate_qubit_map(k)
+        self._annotate_detectors(k)
+        annotations = self._get_annotation(k)
         if not annotations.has_qubit_map:
             raise TQECException(
                 "Cannot generate the final quantum circuit before calling "
@@ -88,8 +91,5 @@ class LayerTree:
         circuit += self._root.generate_circuit(k, annotations.qubit_map)
         return circuit
 
-    def get_annotation(self, k: int) -> LayerTreeAnnotations:
+    def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
-
-    def set_qubit_map_annotation(self, k: int, qubit_map: QubitMap) -> None:
-        self.get_annotation(k).qubit_map = qubit_map
