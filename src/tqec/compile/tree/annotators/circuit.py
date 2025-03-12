@@ -1,15 +1,15 @@
 from typing_extensions import override
 
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
-from tqec.compile.tree.node import LayerNode, NodeExploratorInterface
+from tqec.compile.tree.node import LayerNode, NodeWalkerInterface
 
 
-class AnnotateCircuitOnLayoutNode(NodeExploratorInterface):
+class AnnotateCircuitOnLayoutNode(NodeWalkerInterface):
     def __init__(self, k: int):
         self._k = k
 
     @override
-    def in_node(self, node: LayerNode) -> None:
+    def visit_node(self, node: LayerNode) -> None:
         if not node.is_leaf:
             return
         assert isinstance(node._layer, LayoutLayer)

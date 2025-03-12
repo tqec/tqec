@@ -22,11 +22,8 @@ def contains_only_layout_or_composed_layers(
     return all(isinstance(layer, (LayoutLayer, BaseComposedLayer)) for layer in layers)
 
 
-class NodeExploratorInterface:
-    def in_node(self, node: LayerNode) -> None:
-        pass
-
-    def out_node(self, node: LayerNode) -> None:
+class NodeWalkerInterface:
+    def visit_node(self, node: LayerNode) -> None:
         pass
 
 
@@ -62,7 +59,8 @@ class LayerNode:
         if isinstance(layer, RepeatedLayer):
             if not isinstance(layer.internal_layer, LayoutLayer | BaseComposedLayer):
                 raise TQECException(
-                    f"Repeated layer is not an instance of {LayoutLayer.__name__}."
+                    f"Repeated layer is not an instance of {LayoutLayer.__name__} "
+                    f"or {BaseComposedLayer.__name__}."
                 )
             return [LayerNode(layer.internal_layer)]
         raise TQECException(f"Unknown layer type found: {type(layer).__name__}.")
@@ -87,11 +85,10 @@ class LayerNode:
             },
         }
 
-    def walk(self, explorator: NodeExploratorInterface) -> None:
-        explorator.in_node(self)
+    def walk(self, walker: NodeWalkerInterface) -> None:
+        walker.visit_node(self)
         for child in self._children:
-            child.walk(explorator)
-        explorator.out_node(self)
+            child.walk(walker)
 
     def get_annotations(self, k: int) -> LayerNodeAnnotations:
         return self._annotations.setdefault(k, LayerNodeAnnotations())

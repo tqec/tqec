@@ -261,7 +261,7 @@ class TopologicalComputationGraph:
             key = LayoutPosition3D.from_pipe_position((source, sink))
             self._blocks[key] = block
 
-    def to_layout_tree(self) -> LayerTree:
+    def to_layer_tree(self) -> LayerTree:
         """Merge layers happening in parallel at each time step.
 
         This method considers all the layers contained in added blocks (cubes and

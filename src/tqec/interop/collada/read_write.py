@@ -283,8 +283,8 @@ class _BlockLibraryKey:
     def __str__(self) -> str:
         string = f"{self.kind}"
         if self.pop_faces_at_directions:
-            string += " without "
-            string += " ".join(str(d) for d in self.pop_faces_at_directions)
+            string += "-without-"
+            string += "-".join(str(d) for d in self.pop_faces_at_directions)
         return string
 
 
