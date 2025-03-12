@@ -17,6 +17,7 @@ RepeatedPlaquettes
       ~RepeatedPlaquettes.repeat
       ~RepeatedPlaquettes.to_name_dict
       ~RepeatedPlaquettes.with_updated_plaquettes
+      ~RepeatedPlaquettes.without_plaquettes
    
    
 
@@ -43,5 +44,6 @@ RepeatedPlaquettes
    .. automethod:: repeat
    .. automethod:: to_name_dict
    .. automethod:: with_updated_plaquettes
+   .. automethod:: without_plaquettes
    
    

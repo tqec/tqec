@@ -403,6 +403,22 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CubeSpec.html">CubeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.PipeSpec.html">PipeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.SubstitutionBuilder.html">SubstitutionBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.TopologicalComputationGraph.html">TopologicalComputationGraph</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.blocks.html">tqec.compile.blocks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.merge_parallel_block_layers.html">merge_parallel_block_layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html">BaseComposedLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.BaseLayer.html">BaseLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.Block.html">Block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.LayoutLayer.html">LayoutLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.LayoutPosition2D.html">LayoutPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.PlaquetteLayer.html">PlaquetteLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.RawCircuitLayer.html">RawCircuitLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.RepeatedLayer.html">RepeatedLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.SequencedLayers.html">SequencedLayers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html">SpatialBlockBorder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.TemporalBlockBorder.html">TemporalBlockBorder</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.gallery.html">tqec.gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -442,8 +458,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.utils.PhysicalQubitPosition2D.html">PhysicalQubitPosition2D</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">PlaquettePosition2D</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.utils.Position3D.html">Position3D</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Scalable2D.html">Scalable2D</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shape2D.html">Shape2D</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shift2D.html">Shift2D</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.utils.SignedDirection3D.html">SignedDirection3D</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.utils.TQECException.html">tqec.utils.TQECException</a></li>
@@ -525,10 +539,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.utils.PlaquettePosition2D.__init__" title="tqec.utils.PlaquettePosition2D.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(x, y)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.utils.PlaquettePosition2D.get_origin_position" title="tqec.utils.PlaquettePosition2D.get_origin_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_origin_position</span></code></a>(displacement)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.utils.PlaquettePosition2D.get_origin_position" title="tqec.utils.PlaquettePosition2D.get_origin_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_origin_position</span></code></a>(shift)</p></td>
 <td><p>Returns the position of the plaquette origin.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.utils.PlaquettePosition2D.with_block_coordinate_system" title="tqec.utils.PlaquettePosition2D.with_block_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_block_coordinate_system</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.utils.PlaquettePosition2D.is_neighbour" title="tqec.utils.PlaquettePosition2D.is_neighbour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_neighbour</span></code></a>(other)</p></td>
+<td><p>Check if the other position is near to this position, i.e. Manhattan distance is 1.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.utils.PlaquettePosition2D.with_block_coordinate_system" title="tqec.utils.PlaquettePosition2D.with_block_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_block_coordinate_system</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -573,14 +590,29 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.utils.PlaquettePosition2D.get_origin_position">
-<span class="sig-name descname"><span class="pre">get_origin_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">displacement</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/position.html#PlaquettePosition2D.get_origin_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.utils.PlaquettePosition2D.get_origin_position" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_origin_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shift</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/position.html#PlaquettePosition2D.get_origin_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.utils.PlaquettePosition2D.get_origin_position" title="Link to this definition">#</a></dt>
 <dd><p>Returns the position of the plaquette origin.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>displacement</strong> (<a class="reference internal" href="tqec.utils.Shift2D.html#tqec.utils.Shift2D" title="tqec.utils.position.Shift2D"><em>Shift2D</em></a>)</p>
+<dd class="field-odd"><p><strong>shift</strong> (<a class="reference internal" href="tqec.utils.Shift2D.html#tqec.utils.Shift2D" title="tqec.utils.position.Shift2D"><em>Shift2D</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="tqec.utils.PhysicalQubitPosition2D.html#tqec.utils.PhysicalQubitPosition2D" title="tqec.utils.position.PhysicalQubitPosition2D"><em>PhysicalQubitPosition2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.utils.PlaquettePosition2D.is_neighbour">
+<span class="sig-name descname"><span class="pre">is_neighbour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.utils.PlaquettePosition2D.is_neighbour" title="Link to this definition">#</a></dt>
+<dd><p>Check if the other position is near to this position, i.e. Manhattan
+distance is 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>Position2D</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -649,6 +681,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PlaquettePosition2D"><code class="docutils literal notranslate"><span class="pre">PlaquettePosition2D</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PlaquettePosition2D.__init__"><code class="docutils literal notranslate"><span class="pre">PlaquettePosition2D.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PlaquettePosition2D.get_origin_position"><code class="docutils literal notranslate"><span class="pre">PlaquettePosition2D.get_origin_position()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PlaquettePosition2D.is_neighbour"><code class="docutils literal notranslate"><span class="pre">PlaquettePosition2D.is_neighbour()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PlaquettePosition2D.with_block_coordinate_system"><code class="docutils literal notranslate"><span class="pre">PlaquettePosition2D.with_block_coordinate_system()</span></code></a></li>
 </ul>
 </li>

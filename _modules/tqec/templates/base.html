@@ -423,8 +423,13 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">UniqueSubTemplates</span><span class="p">,</span>
     <span class="n">get_spatially_distinct_subtemplates</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">PlaquettePosition2D</span><span class="p">,</span> <span class="n">Shape2D</span><span class="p">,</span> <span class="n">Shift2D</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scalable2D</span><span class="p">,</span> <span class="n">round_or_fail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BlockPosition2D</span><span class="p">,</span>
+    <span class="n">PlaquettePosition2D</span><span class="p">,</span>
+    <span class="n">PlaquetteShape2D</span><span class="p">,</span>
+    <span class="n">Shift2D</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteScalable2D</span><span class="p">,</span> <span class="n">round_or_fail</span>
 
 
 <div class="viewcode-block" id="Template">
@@ -447,7 +452,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">                to ``Displacement(2, 2)`` when ``None``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_default_increments</span> <span class="o">=</span> <span class="n">default_increments</span> <span class="ow">or</span> <span class="n">Shift2D</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_shift</span> <span class="o">=</span> <span class="n">default_increments</span> <span class="ow">or</span> <span class="n">Shift2D</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Template.instantiate">
@@ -472,15 +477,15 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="Template.shape">
 <a class="viewcode-back" href="../../../_autosummary/tqec.templates.Template.html#tqec.templates.Template.shape">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shape2D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlaquetteShape2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the current template shape.&quot;&quot;&quot;</span>
         <span class="n">sshape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scalable_shape</span>
-        <span class="k">return</span> <span class="n">Shape2D</span><span class="p">(</span><span class="n">round_or_fail</span><span class="p">(</span><span class="n">sshape</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="n">sshape</span><span class="o">.</span><span class="n">y</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span></div>
+        <span class="k">return</span> <span class="n">PlaquetteShape2D</span><span class="p">(</span><span class="n">round_or_fail</span><span class="p">(</span><span class="n">sshape</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="n">sshape</span><span class="o">.</span><span class="n">y</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span></div>
 
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">scalable_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scalable2D</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scalable_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlaquetteScalable2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a scalable version of the template shape.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -501,7 +506,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returns:</span>
 <span class="sd">            a displacement of the default increments in the x and y directions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_increments</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_shift</span></div>
 
 
 <div class="viewcode-block" id="Template.get_spatially_distinct_subtemplates">

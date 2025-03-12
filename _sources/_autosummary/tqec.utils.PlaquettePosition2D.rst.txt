@@ -13,6 +13,7 @@ PlaquettePosition2D
    
       ~PlaquettePosition2D.__init__
       ~PlaquettePosition2D.get_origin_position
+      ~PlaquettePosition2D.is_neighbour
       ~PlaquettePosition2D.with_block_coordinate_system
    
    
@@ -35,6 +36,7 @@ PlaquettePosition2D
    
    .. automethod:: __init__
    .. automethod:: get_origin_position
+   .. automethod:: is_neighbour
    .. automethod:: with_block_coordinate_system
    
    

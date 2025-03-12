@@ -426,8 +426,10 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shape2D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalQubitShape2D</span><span class="p">,</span> <span class="n">PlaquetteShape2D</span><span class="p">,</span> <span class="n">Shape2D</span><span class="p">,</span> <span class="n">Shift2D</span>
 
 
 <div class="viewcode-block" id="LinearFunction">
@@ -535,7 +537,54 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="si">}</span><span class="s2">*x&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="si">}</span><span class="s2">*x + </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="si">}</span><span class="s2">&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="si">}</span><span class="s2">*x + </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="LinearFunction.integer_eval">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.LinearFunction.html#tqec.utils.LinearFunction.integer_eval">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">integer_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slope</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinearFunction.exact_integer_div">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.LinearFunction.html#tqec.utils.LinearFunction.exact_integer_div">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exact_integer_div</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">div</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LinearFunction</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">div</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ZeroDivisionError</span><span class="p">()</span>
+        <span class="n">slope</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="p">),</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">slope</span> <span class="o">%</span> <span class="n">div</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="s2">&quot;Trying to divide exactly a LinearFunction by an integer that &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;is not a multiple of the slope. Divisor: </span><span class="si">{</span><span class="n">div</span><span class="si">}</span><span class="s2">. Slope: </span><span class="si">{</span><span class="n">slope</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">offset</span> <span class="o">%</span> <span class="n">div</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="s2">&quot;Trying to divide exactly a LinearFunction by an integer that &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;is not a multiple of the offset. Divisor: </span><span class="si">{</span><span class="n">div</span><span class="si">}</span><span class="s2">. Offset: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">offset</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">LinearFunction</span><span class="p">(</span><span class="n">slope</span> <span class="o">//</span> <span class="n">div</span><span class="p">,</span> <span class="n">offset</span> <span class="o">//</span> <span class="n">div</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinearFunction.is_constant">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.LinearFunction.html#tqec.utils.LinearFunction.is_constant">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">atol</span></div>
+
+
+<div class="viewcode-block" id="LinearFunction.is_scalable">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.LinearFunction.html#tqec.utils.LinearFunction.is_scalable">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_scalable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_constant</span><span class="p">(</span><span class="n">atol</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinearFunction.is_close_to">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.LinearFunction.html#tqec.utils.LinearFunction.is_close_to">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_close_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slope</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">slope</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">atol</span>
+            <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">atol</span>
+        <span class="p">)</span></div>
+</div>
 
 
 
@@ -564,8 +613,6 @@ window.addEventListener("load", () => mermaid.run());
 
 
 
-<div class="viewcode-block" id="Scalable2D">
-<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Scalable2D.html#tqec.utils.Scalable2D">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Scalable2D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A pair of scalable quantities.</span>
@@ -578,8 +625,6 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">x</span><span class="p">:</span> <span class="n">LinearFunction</span>
     <span class="n">y</span><span class="p">:</span> <span class="n">LinearFunction</span>
 
-<div class="viewcode-block" id="Scalable2D.to_shape_2d">
-<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Scalable2D.html#tqec.utils.Scalable2D.to_shape_2d">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_shape_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shape2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the represented value for a given scaling parameter ``k``.</span>
 
@@ -594,11 +639,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returns:</span>
 <span class="sd">            ``Shape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Shape2D</span><span class="p">(</span><span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span></div>
+        <span class="k">return</span> <span class="n">Shape2D</span><span class="p">(</span><span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span>
 
-
-<div class="viewcode-block" id="Scalable2D.to_numpy_shape">
-<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Scalable2D.html#tqec.utils.Scalable2D.to_numpy_shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_numpy_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a tuple of coordinates in ``numpy``-coordinates.</span>
 
@@ -609,12 +651,30 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returns:</span>
 <span class="sd">            a tuple of coordinates in ``numpy``-coordinates.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_shape_2d</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy_shape</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_shape_2d</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy_shape</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Scalable2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scalable2D</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Scalable2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">)</span></div>
+<span class="k">class</span><span class="w"> </span><span class="nc">PlaquetteScalable2D</span><span class="p">(</span><span class="n">Scalable2D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A pair of scalable quantities in plaquette coordinates.&quot;&quot;&quot;</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_shape_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlaquetteShape2D</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PlaquetteShape2D</span><span class="p">(</span><span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Shift2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PhysicalQubitScalable2D</span><span class="p">(</span><span class="n">Scalable2D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A pair of scalable quantities in physical qubit coordinates.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_shape_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitShape2D</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PhysicalQubitShape2D</span><span class="p">(</span><span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">(</span><span class="n">k</span><span class="p">)),</span> <span class="n">round_or_fail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span>
 </pre></div>
 
                 </article>

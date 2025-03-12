@@ -12,6 +12,9 @@ Direction3D
    .. autosummary::
    
       ~Direction3D.all_directions
+      ~Direction3D.spatial_directions
+      ~Direction3D.temporal_directions
+      ~Direction3D.from_neighbouring_positions
    
    
 
@@ -33,5 +36,8 @@ Direction3D
 
    
    .. automethod:: all_directions
+   .. automethod:: spatial_directions
+   .. automethod:: temporal_directions
+   .. automethod:: from_neighbouring_positions
    
    
