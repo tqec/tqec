@@ -6,7 +6,6 @@ from typing import Final, Iterable, TypeGuard
 
 from typing_extensions import override
 
-from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.blocks.enums import SpatialBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -91,6 +90,18 @@ class LayoutLayer(BaseLayer):
         )
 
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
+        """Return an equivalent representation of ``self`` with a template and some
+        plaquettes.
+
+        Raises:
+            NotImplementedError: if not all layers composing ``self`` are instances
+                of :class:`~tqec.compile.blocks.layers.atomic.plaquette.PlaquetteLayer`.
+
+        Returns:
+            a tuple ``(template, plaquettes)`` that is ready to be used with
+            :meth:`~tqec.compile.generation.generate_circuit` to obtain the quantum
+            circuit representing ``self``.
+        """
         if not contains_only_plaquette_layers(self.layers):
             raise NotImplementedError(
                 f"Found a layer that is not an instance of {PlaquetteLayer.__name__}. "
@@ -143,7 +154,15 @@ class LayoutLayer(BaseLayer):
         template = LayoutTemplate(template_dict)
         return template, template.get_global_plaquettes(plaquettes_dict)
 
-    def to_circuit(self, k: int, global_qubit_map: QubitMap) -> ScheduledCircuit:
+    def to_circuit(self, k: int) -> ScheduledCircuit:
+        """Return the quantum circuit representing the layer.
+
+        Args:
+            k: scaling factor.
+
+        Returns:
+            quantum circuit representing the layer.
+        """
         template, plaquettes = self.to_template_and_plaquettes()
         scheduled_circuit = generate_circuit(template, k, plaquettes)
         # Shift the qubits of the returned scheduled circuit
@@ -151,10 +170,4 @@ class LayoutLayer(BaseLayer):
         eshape = self.element_shape.to_shape_2d(k)
         shift = Shift2D(mincube.x * eshape.x, mincube.y * eshape.y)
         shifted_circuit = scheduled_circuit.map_to_qubits(lambda q: q + shift)
-        # Relabel the qubit indices
-        local_qubit_map = shifted_circuit.qubit_map
-        qubit_indices_map = {
-            local_qubit_map[q]: global_qubit_map[q] for q in local_qubit_map.qubits
-        }
-        final_circuit = shifted_circuit.map_qubit_indices(qubit_indices_map)
-        return final_circuit
+        return shifted_circuit
