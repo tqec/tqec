@@ -17,7 +17,7 @@ to install a few more packages than the regular installation. It is also
 recommended to use an editable installation.
 
 Currently, ``tqec`` is compatible with Python 3.10, 3.11 and 3.12. Some dependencies limit the project's
-compatibility with Python 3.12.
+compatibility with Python 3.13.
 
 .. code-block:: bash
 
