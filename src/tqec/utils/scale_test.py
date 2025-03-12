@@ -61,3 +61,51 @@ def test_round_or_fail() -> None:
     round_or_fail(-13.0)
     with pytest.raises(TQECException, match=r"^Rounding from 3.1 to integer failed.$"):
         round_or_fail(3.1)
+
+
+def test_integer_eval() -> None:
+    a, b = LinearFunction(2, 5), LinearFunction(-3, 1)
+    assert a.integer_eval(5) == 2 * 5 + 5
+    assert b.integer_eval(3) == -3 * 3 + 1
+
+
+def test_exact_integer_div() -> None:
+    a, b, c = LinearFunction(2, 4), LinearFunction(0, 6), LinearFunction(1, 3)
+    assert a.exact_integer_div(1) == a
+    assert a.exact_integer_div(-1) == LinearFunction(-a.slope, -a.offset)
+    assert b.exact_integer_div(1) == b
+    assert c.exact_integer_div(1) == c
+    assert a.exact_integer_div(2) == LinearFunction(1, 2)
+    assert b.exact_integer_div(2) == LinearFunction(0, 3)
+    assert b.exact_integer_div(3) == LinearFunction(0, 2)
+    assert b.exact_integer_div(-3) == LinearFunction(0, -2)
+    assert b.exact_integer_div(6) == LinearFunction(0, 1)
+    with pytest.raises(TQECException):
+        b.exact_integer_div(5)
+    with pytest.raises(TQECException):
+        a.exact_integer_div(3)
+    with pytest.raises(ZeroDivisionError):
+        a.exact_integer_div(0)
+
+
+def test_is_constant() -> None:
+    assert LinearFunction(0, 0).is_constant()
+    assert LinearFunction(0, 3).is_constant()
+    assert LinearFunction(0, -5).is_constant()
+    assert not LinearFunction(1, 0).is_constant()
+    assert not LinearFunction(-6, 6).is_constant()
+
+
+def test_is_scalable() -> None:
+    assert not LinearFunction(0, 0).is_scalable()
+    assert not LinearFunction(0, 3).is_scalable()
+    assert not LinearFunction(0, -5).is_scalable()
+    assert LinearFunction(1, 0).is_scalable()
+    assert LinearFunction(-6, 6).is_scalable()
+
+
+def test_is_close_to() -> None:
+    assert not LinearFunction(0, 0).is_close_to(LinearFunction(0, 1))
+    assert not LinearFunction(0, 0).is_close_to(LinearFunction(1, 0))
+    assert LinearFunction(0, 0).is_close_to(LinearFunction(0, 0))
+    assert LinearFunction(0, 0).is_close_to(LinearFunction(0, -0))
