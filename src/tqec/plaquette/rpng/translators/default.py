@@ -130,4 +130,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
             name=str(rpng_description),
             qubits=new_plaquette_qubits,
             circuit=filtered_circuit,
+            mergeable_instructions=frozenset(
+                ["R", "RX", "RY", "RZ", "M", "MX", "MY", "MZ"]
+            ),
         )
