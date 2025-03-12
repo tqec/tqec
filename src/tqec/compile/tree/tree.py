@@ -10,18 +10,18 @@ from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.annotations import LayerTreeAnnotations
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayoutNode
-from tqec.compile.tree.node import LayerNode, NodeExploratorInterface
+from tqec.compile.tree.node import LayerNode, NodeWalkerInterface
 from tqec.utils.exceptions import TQECException
 
 
-class _QubitListerExplorator(NodeExploratorInterface):
+class _QubitListerExplorator(NodeWalkerInterface):
     def __init__(self, k: int):
         super().__init__()
         self._k = k
         self._seen_qubits: set[GridQubit] = set()
 
     @override
-    def in_node(self, node: LayerNode) -> None:
+    def visit_node(self, node: LayerNode) -> None:
         if not node.is_leaf:
             return
         annotations = node.get_annotations(self._k)

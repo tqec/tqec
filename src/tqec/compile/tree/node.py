@@ -22,11 +22,8 @@ def contains_only_layout_or_composed_layers(
     return all(isinstance(layer, (LayoutLayer, BaseComposedLayer)) for layer in layers)
 
 
-class NodeExploratorInterface:
-    def in_node(self, node: LayerNode) -> None:
-        pass
-
-    def out_node(self, node: LayerNode) -> None:
+class NodeWalkerInterface:
+    def visit_node(self, node: LayerNode) -> None:
         pass
 
 
@@ -87,11 +84,10 @@ class LayerNode:
             },
         }
 
-    def walk(self, explorator: NodeExploratorInterface) -> None:
-        explorator.in_node(self)
+    def walk(self, walker: NodeWalkerInterface) -> None:
+        walker.visit_node(self)
         for child in self._children:
-            child.walk(explorator)
-        explorator.out_node(self)
+            child.walk(walker)
 
     def get_annotations(self, k: int) -> LayerNodeAnnotations:
         return self._annotations.setdefault(k, LayerNodeAnnotations())
