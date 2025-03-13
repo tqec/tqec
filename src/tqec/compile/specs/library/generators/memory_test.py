@@ -13,14 +13,14 @@ from ._testing import (
 _EMPT: Final[RPNGDescription] = RPNGDescription.empty()
 _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x4-")
 _ZZZZ = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
-_X_X_ = RPNGDescription.from_string("-x1- ---- -x2- ----")
-__X_X = RPNGDescription.from_string("---- -x3- ---- -x4-")
-_XX__ = RPNGDescription.from_string("-x1- -x2- ---- ----")
-___XX = RPNGDescription.from_string("---- ---- -x3- -x4-")
-_Z_Z_ = RPNGDescription.from_string("-z1- ---- -z2- ----")
-__Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
-_ZZ__ = RPNGDescription.from_string("-z1- -z2- ---- ----")
-___ZZ = RPNGDescription.from_string("---- ---- -z3- -z4-")
+_X_X_ = RPNGDescription.from_string("-x1- ---- -x3- ----")
+__X_X = RPNGDescription.from_string("---- -x2- ---- -x4-")
+_XX__ = RPNGDescription.from_string("-x1- -x3- ---- ----")
+___XX = RPNGDescription.from_string("---- ---- -x2- -x4-")
+_Z_Z_ = RPNGDescription.from_string("-z1- ---- -z3- ----")
+__Z_Z = RPNGDescription.from_string("---- -z2- ---- -z4-")
+_ZZ__ = RPNGDescription.from_string("-z1- -z3- ---- ----")
+___ZZ = RPNGDescription.from_string("---- ---- -z2- -z4-")
 
 
 def test_memory_horizontal_z_observable() -> None:
@@ -62,10 +62,10 @@ def test_memory_vertical_z_observable_reset_z() -> None:
 
     _XXXX = RPNGDescription.from_string("zx1- zx3- zx2- zx4-")
     _ZZZZ = RPNGDescription.from_string("zz1- zz2- zz3- zz4-")
-    _ZZ__ = RPNGDescription.from_string("zz1- zz2- ---- ----")
-    ___ZZ = RPNGDescription.from_string("---- ---- zz3- zz4-")
-    _X_X_ = RPNGDescription.from_string("zx1- ---- zx2- ----")
-    __X_X = RPNGDescription.from_string("---- zx3- ---- zx4-")
+    _ZZ__ = RPNGDescription.from_string("zz1- zz3- ---- ----")
+    ___ZZ = RPNGDescription.from_string("---- ---- zz2- zz4-")
+    _X_X_ = RPNGDescription.from_string("zx1- ---- zx3- ----")
+    __X_X = RPNGDescription.from_string("---- zx2- ---- zx4-")
 
     assert instantiation == [
         [_EMPT, _EMPT, ___ZZ, _EMPT, ___ZZ, _EMPT],
@@ -85,10 +85,10 @@ def test_memory_vertical_z_observable_measure_x() -> None:
 
     _XXXX = RPNGDescription.from_string("-x1x -x3x -x2x -x4x")
     _ZZZZ = RPNGDescription.from_string("-z1x -z2x -z3x -z4x")
-    _ZZ__ = RPNGDescription.from_string("-z1x -z2x ---- ----")
-    ___ZZ = RPNGDescription.from_string("---- ---- -z3x -z4x")
-    _X_X_ = RPNGDescription.from_string("-x1x ---- -x2x ----")
-    __X_X = RPNGDescription.from_string("---- -x3x ---- -x4x")
+    _ZZ__ = RPNGDescription.from_string("-z1x -z3x ---- ----")
+    ___ZZ = RPNGDescription.from_string("---- ---- -z2x -z4x")
+    _X_X_ = RPNGDescription.from_string("-x1x ---- -x3x ----")
+    __X_X = RPNGDescription.from_string("---- -x2x ---- -x4x")
 
     assert instantiation == [
         [_EMPT, _EMPT, ___ZZ, _EMPT, ___ZZ, _EMPT],
@@ -142,8 +142,8 @@ def test_memory_vertical_boundary_vertical_z_observable_reset_z() -> None:
     _ZZZZr = RPNGDescription.from_string("zz1- -z2- zz3- -z4-")
     _XXXXl = RPNGDescription.from_string("-x1- zx3- -x2- zx4-")
     _XXXXr = RPNGDescription.from_string("zx1- -x3- zx2- -x4-")
-    _ZZ__l = RPNGDescription.from_string("-z1- zz2- ---- ----")
-    ___ZZr = RPNGDescription.from_string("---- ---- zz3- -z4-")
+    _ZZ__l = RPNGDescription.from_string("-z1- zz3- ---- ----")
+    ___ZZr = RPNGDescription.from_string("---- ---- zz2- -z4-")
 
     assert instantiation == [
         [_EMPT, ___ZZr],
@@ -165,8 +165,8 @@ def test_memory_vertical_boundary_vertical_z_observable_measure_x() -> None:
     _ZZZZr = RPNGDescription.from_string("-z1x -z2- -z3x -z4-")
     _XXXXl = RPNGDescription.from_string("-x1- -x3x -x2- -x4x")
     _XXXXr = RPNGDescription.from_string("-x1x -x3- -x2x -x4-")
-    _ZZ__l = RPNGDescription.from_string("-z1- -z2x ---- ----")
-    ___ZZr = RPNGDescription.from_string("---- ---- -z3x -z4-")
+    _ZZ__l = RPNGDescription.from_string("-z1- -z3x ---- ----")
+    ___ZZr = RPNGDescription.from_string("---- ---- -z2x -z4-")
 
     assert instantiation == [
         [_EMPT, ___ZZr],
@@ -212,8 +212,8 @@ def test_memory_horizontal_boundary_vertical_z_observable_reset_z() -> None:
     _XXXXb = RPNGDescription.from_string("zx1- zx3- -x2- -x4-")
     _ZZZZt = RPNGDescription.from_string("-z1- -z2- zz3- zz4-")
     _ZZZZb = RPNGDescription.from_string("zz1- zz2- -z3- -z4-")
-    __X_Xt = RPNGDescription.from_string("---- -x3- ---- zx4-")
-    _X_X_b = RPNGDescription.from_string("zx1- ---- -x2- ----")
+    __X_Xt = RPNGDescription.from_string("---- -x2- ---- zx4-")
+    _X_X_b = RPNGDescription.from_string("zx1- ---- -x3- ----")
 
     assert instantiation == [
         [__X_Xt, _ZZZZt, _XXXXt, _ZZZZt, _XXXXt, _EMPT],
@@ -231,8 +231,8 @@ def test_memory_horizontal_boundary_vertical_z_observable_measure_x() -> None:
     _XXXXb = RPNGDescription.from_string("-x1x -x3x -x2- -x4-")
     _ZZZZt = RPNGDescription.from_string("-z1- -z2- -z3x -z4x")
     _ZZZZb = RPNGDescription.from_string("-z1x -z2x -z3- -z4-")
-    __X_Xt = RPNGDescription.from_string("---- -x3- ---- -x4x")
-    _X_X_b = RPNGDescription.from_string("-x1x ---- -x2- ----")
+    __X_Xt = RPNGDescription.from_string("---- -x2- ---- -x4x")
+    _X_X_b = RPNGDescription.from_string("-x1x ---- -x3- ----")
 
     assert instantiation == [
         [__X_Xt, _ZZZZt, _XXXXt, _ZZZZt, _XXXXt, _EMPT],
