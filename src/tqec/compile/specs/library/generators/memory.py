@@ -71,13 +71,13 @@ def get_memory_qubit_rpng_descriptions(
     )
     return FrozenDefaultDict(
         {
-            UP: RPNGDescription.from_string(f"---- ---- {r}{bv}3{m} {r}{bv}4{m}"),
-            LEFT: RPNGDescription.from_string(f"---- {r}{bh}3{m} ---- {r}{bh}4{m}"),
+            UP: RPNGDescription.from_string(f"---- ---- {r}{bv}2{m} {r}{bv}4{m}"),
+            LEFT: RPNGDescription.from_string(f"---- {r}{bh}2{m} ---- {r}{bh}4{m}"),
             # Bulk
             9: RPNGDescription.from_string(f"{r}z1{m} {r}z2{m} {r}z3{m} {r}z4{m}"),
             10: RPNGDescription.from_string(f"{r}x1{m} {r}x3{m} {r}x2{m} {r}x4{m}"),
-            RIGHT: RPNGDescription.from_string(f"{r}{bh}1{m} ---- {r}{bh}2{m} ----"),
-            DOWN: RPNGDescription.from_string(f"{r}{bv}1{m} {r}{bv}2{m} ---- ----"),
+            RIGHT: RPNGDescription.from_string(f"{r}{bh}1{m} ---- {r}{bh}3{m} ----"),
+            DOWN: RPNGDescription.from_string(f"{r}{bv}1{m} {r}{bv}3{m} ---- ----"),
         },
         default_factory=RPNGDescription.empty,
     )
@@ -148,8 +148,8 @@ def get_memory_vertical_boundary_rpng_descriptions(
 
     return FrozenDefaultDict(
         {
-            UP: RPNGDescription.from_string(f"---- ---- {r}{bv}3{m} -{bv}4-"),
-            DOWN: RPNGDescription.from_string(f"-{bv}1- {r}{bv}2{m} ---- ----"),
+            UP: RPNGDescription.from_string(f"---- ---- {r}{bv}2{m} -{bv}4-"),
+            DOWN: RPNGDescription.from_string(f"-{bv}1- {r}{bv}3{m} ---- ----"),
             # LEFT bulk
             5: RPNGDescription.from_string(f"-z1- {r}z2{m} -z3- {r}z4{m}"),
             6: RPNGDescription.from_string(f"-x1- {r}x3{m} -x2- {r}x4{m}"),
@@ -226,8 +226,8 @@ def get_memory_horizontal_boundary_rpng_descriptions(
 
     return FrozenDefaultDict(
         {
-            LEFT: RPNGDescription.from_string(f"---- -{bh}3- ---- {r}{bh}4{m}"),
-            RIGHT: RPNGDescription.from_string(f"{r}{bh}1{m} ---- -{bh}2- ----"),
+            LEFT: RPNGDescription.from_string(f"---- -{bh}2- ---- {r}{bh}4{m}"),
+            RIGHT: RPNGDescription.from_string(f"{r}{bh}1{m} ---- -{bh}3- ----"),
             # TOP bulk
             5: RPNGDescription.from_string(f"-z1- -z2- {r}z3{m} {r}z4{m}"),
             6: RPNGDescription.from_string(f"-x1- -x3- {r}x2{m} {r}x4{m}"),
