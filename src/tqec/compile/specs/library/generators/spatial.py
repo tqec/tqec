@@ -15,6 +15,9 @@ has all the spatial boundaries in the same basis.
 The spatial pipes connected to the spatial cubes are called **arms**.
 """
 
+from __future__ import annotations
+
+from enum import Enum, auto
 from typing import Final
 
 from tqec.compile.specs.enums import SpatialArms
@@ -28,6 +31,65 @@ from tqec.templates.qubit import (
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+
+
+class _Orientation(Enum):
+    HORIZONTAL = auto()
+    VERTICAL = auto()
+
+    def flip(self) -> _Orientation:
+        match self:
+            case _Orientation.VERTICAL:
+                return _Orientation.HORIZONTAL
+            case _Orientation.HORIZONTAL:
+                return _Orientation.VERTICAL
+
+
+def _get_bulk_plaquettes(
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
+) -> dict[Basis, dict[_Orientation, RPNGDescription]]:
+    # r/m: reset/measurement basis applied to each data-qubit
+    r = reset.value.lower() if reset is not None else "-"
+    m = measurement.value.lower() if measurement is not None else "-"
+    return {
+        Basis.X: {
+            _Orientation.VERTICAL: RPNGDescription.from_string(
+                f"{r}x1{m} {r}x4{m} {r}x3{m} {r}x5{m}"
+            ),
+            _Orientation.HORIZONTAL: RPNGDescription.from_string(
+                f"{r}x1{m} {r}x2{m} {r}x3{m} {r}x5{m}"
+            ),
+        },
+        Basis.Z: {
+            _Orientation.VERTICAL: RPNGDescription.from_string(
+                f"{r}z1{m} {r}z4{m} {r}z3{m} {r}z5{m}"
+            ),
+            _Orientation.HORIZONTAL: RPNGDescription.from_string(
+                f"{r}z1{m} {r}z2{m} {r}z3{m} {r}z5{m}"
+            ),
+        },
+    }
+
+
+def _get_3_body_stabilizers(
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
+) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
+    # r/m: reset/measurement basis applied to each data-qubit
+    r = reset.value.lower() if reset is not None else "-"
+    m = measurement.value.lower() if measurement is not None else "-"
+    # Note: the schedule of CNOT gates in corner plaquettes is less important
+    # because hook errors do not exist on 3-body stabilizers. We arbitrarily
+    # chose the schedule of the plaquette group the corner belongs to.
+    # TODO: we include reset/measurement on every data-qubit at the moment. That
+    # was not what was done before. This might have to change.
+    return (
+        RPNGDescription.from_string(f"---- {r}z4{m} {r}z3{m} {r}z5{m}"),
+        RPNGDescription.from_string(f"{r}x1{m} ---- {r}x3{m} {r}x5{m}"),
+        RPNGDescription.from_string(f"{r}x1{m} {r}x2{r} ---- {r}x5{r}"),
+        RPNGDescription.from_string(f"{r}z1{m} {r}z4{m} {r}z3{m} ----"),
+    )
 
 
 def get_spatial_cube_qubit_raw_template() -> QubitSpatialCubeTemplate:
@@ -122,15 +184,15 @@ def get_spatial_cube_qubit_rpng_descriptions(
     # copied below for convenience, but the only source of truth is in the
     # QubitSpatialCubeTemplate docstring!
     #      1   9  10   9  10   9  10   9  10   2
-    #     11   5  17  13  17  13  17  13   6  18
-    #     12  17  13  17  13  17  13  17  14  19
-    #     11  16  17  13  17  13  17  14  17  18
-    #     12  17  16  17  13  17  14  17  14  19
-    #     11  16  17  16  17  15  17  14  17  18
-    #     12  17  16  17  15  17  15  17  14  19
-    #     11  16  17  15  17  15  17  15  17  18
-    #     12   7  15  17  15  17  15  17   8  19
-    #      3  20  21  20  21  20  21  20  21   4
+    #     11   5  17  13  17  13  17  13   6  21
+    #     12  20  13  17  13  17  13  17  14  22
+    #     11  16  20  13  17  13  17  14  18  21
+    #     12  20  16  20  13  17  14  18  14  22
+    #     11  16  20  16  19  15  18  14  18  21
+    #     12  20  16  19  15  19  15  18  14  22
+    #     11  16  19  15  19  15  19  15  18  21
+    #     12   7  15  19  15  19  15  19   8  22
+    #      3  23  24  23  24  23  24  23  24   4
 
     if arms in SpatialArms.I_shaped_arms():
         raise TQECException(
@@ -143,58 +205,99 @@ def get_spatial_cube_qubit_rpng_descriptions(
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
-    # be/bi = basis external/basis internal
+    # be = basis external
     be = spatial_boundary_basis.value.lower()
-    bi = spatial_boundary_basis.flipped().value.lower()
+    # Get parity information in a more convenient format. Note that if the boundary
+    # is composed of Z stabilizers then the horizontal arms are supposed to be
+    # in odd-parity. Using two variables for the same quantity to help reading
+    # the code.
+    horizontal_is_odd = boundary_is_z = spatial_boundary_basis == Basis.Z
+    # Pre-define some collection of plaquettes
+    # CSs: Corner Stabilizers (3-body stabilizers).
+    CSs = _get_3_body_stabilizers(reset, measurement)
+    # BPs: Bulk Plaquettes.
+    BPs = _get_bulk_plaquettes(reset, measurement)
 
     mapping: dict[int, RPNGDescription] = {}
+
     ####################
     #     Corners      #
     ####################
-    # Corners 2 and 3 are always empty, but corners 1 and 4 might contain a 3-body
-    # stabilizer measurement if both arms around are set. The case in which only
-    # one of the arm is present (e.g., UP without LEFT) and where a 2-body
-    # stabilizer should be inserted instead of a 3-body stabilizer is handled
-    # in the next ifs, in the "Boundaries" section.
-    if SpatialArms.UP in arms and SpatialArms.LEFT in arms:
-        mapping[1] = RPNGDescription.from_string(f"---- {r}{be}3{m} -{be}4- -{be}5-")
-    if SpatialArms.DOWN in arms and SpatialArms.RIGHT in arms:
-        mapping[4] = RPNGDescription.from_string(
-            f"{r}{be}1{m} {r}{be}2{m} -{be}4- ----"
-        )
+    # Corners might contain a 3-body stabilizer measurement if both arms around
+    # are set. The case in which only one of the arm is present (e.g., UP
+    # without LEFT for the corner 1) and where a 2-body stabilizer should be
+    # inserted instead of a 3-body stabilizer is handled in the next ifs, in the
+    # "Boundaries" section.
+    # Any given corner (indexed 1, 2, 3 or 4) contains a 3-body stabilizer if
+    # and only if all the following points are verified:
+    # - the two neighbouring arms are present (i.e., no 3-body stabiliser on the
+    #   plaquette indexed 1 if either UP or LEFT is not present in the arms),
+    # - and the parity of both arms makes it possible to insert a 3-body
+    #   stabilizer without overlapping any 2-body stabilizer on the arm. Note
+    #   that the parities of both arms around a corner are necessary different
+    #   (if UP is odd, LEFT and RIGHT should be even and DOWN should also be
+    #   odd) and so we can summarise that condition as "the horizontal line is
+    #   odd (or even) parity".
+    # Alias to reduce clutter in the implementation for corners
+    SA = SpatialArms
+    if SA.UP in arms and SA.LEFT in arms and horizontal_is_odd:
+        mapping[1] = CSs[0]
+    if SA.UP in arms and SA.RIGHT in arms and not horizontal_is_odd:
+        mapping[2] = CSs[1]
+    if SA.LEFT in arms and SA.DOWN in arms and not horizontal_is_odd:
+        mapping[3] = CSs[2]
+    if SA.DOWN in arms and SA.RIGHT in arms and horizontal_is_odd:
+        mapping[4] = CSs[3]
 
     ####################
     #    Boundaries    #
     ####################
     # Fill the boundaries that should be filled in the returned template because
     # they have no arms, and so will not be filled later.
-    # Note that indices 1 and 4 **might** be set twice in the 4 ifs below. These
-    # cases are handled later in the function and will overwrite the description
-    # on 1 and 4 if needed, so we do not have to account for those cases here.
+    # Note that indices 1, 2, 3 and 4 **might** be set twice in the 4 ifs below.
+    # These cases are handled later in the function and will overwrite the
+    # description on 1, 2, 3 or 4 if needed, so we do not have to account for
+    # those cases here.
     if SpatialArms.UP not in arms:
-        mapping[1] = mapping[10] = RPNGDescription.from_string(
-            f"---- ---- {r}{be}3{m} {r}{be}4{m}"
+        CORNER, BULK = (1, 10) if boundary_is_z else (2, 9)
+        mapping[CORNER] = mapping[BULK] = RPNGDescription.from_string(
+            f"---- ---- {r}{be}3{m} {r}{be}5{m}"
         )
     if SpatialArms.RIGHT not in arms:
-        mapping[4] = mapping[18] = RPNGDescription.from_string(
+        CORNER, BULK = (4, 21) if boundary_is_z else (2, 22)
+        mapping[CORNER] = mapping[BULK] = RPNGDescription.from_string(
             f"{r}{be}1{m} ---- {r}{be}2{m} ----"
         )
     if SpatialArms.DOWN not in arms:
-        mapping[4] = mapping[20] = RPNGDescription.from_string(
+        CORNER, BULK = (4, 23) if boundary_is_z else (3, 24)
+        mapping[CORNER] = mapping[BULK] = RPNGDescription.from_string(
             f"{r}{be}1{m} {r}{be}2{m} ---- ----"
         )
     if SpatialArms.LEFT not in arms:
-        mapping[1] = mapping[12] = RPNGDescription.from_string(
+        CORNER, BULK = (1, 12) if boundary_is_z else (3, 11)
+        mapping[CORNER] = mapping[BULK] = RPNGDescription.from_string(
             f"---- {r}{be}3{m} ---- {r}{be}4{m}"
         )
 
-    # If we have a down-right or top-left L-shaped junction, the opposite corner
-    # plaquette should be removed from the mapping (this is the case where it
-    # has been set twice in the ifs above).
-    if arms == SpatialArms.UP | SpatialArms.LEFT:
-        del mapping[4]
-    elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
+    # If we have an L-shaped junction, the opposite corner plaquette should be
+    # removed from the mapping (this is the case where it has been set twice in
+    # the ifs above).
+    if SpatialArms.LEFT not in arms and SpatialArms.UP not in arms and boundary_is_z:
         del mapping[1]
+    if (
+        SpatialArms.UP not in arms
+        and SpatialArms.RIGHT not in arms
+        and not boundary_is_z
+    ):
+        del mapping[2]
+    if (
+        SpatialArms.DOWN not in arms
+        and SpatialArms.LEFT not in arms
+        and not boundary_is_z
+    ):
+        del mapping[3]
+    if SpatialArms.RIGHT not in arms and SpatialArms.DOWN not in arms and boundary_is_z:
+        del mapping[4]
 
     ####################
     #       Bulk       #
@@ -204,40 +307,46 @@ def get_spatial_cube_qubit_rpng_descriptions(
     # (i.e. 6 and 7 have the same plaquette as 17, 5 has the same plaquette as
     # 13 and 8 has the same plaquette as 15). If these need to be changed, it
     # will be done afterwards.
-    internal_basis_plaquette = RPNGDescription.from_string(
-        f"{r}{bi}1{m} {r}{bi}3{m} {r}{bi}2{m} {r}{bi}5{m}"
-    )
-    mapping[6] = mapping[7] = mapping[17] = internal_basis_plaquette
+    # Setting the orientations for Z plaquettes for each of the four portions of
+    # the template bulk.
+    ZUP = ZDOWN = _Orientation.VERTICAL if boundary_is_z else _Orientation.HORIZONTAL
+    ZRIGHT = ZLEFT = ZUP.flip()
+    # If the corresponding arm is missing, the Z plaquette hook error orientation
+    # should flip to avoid shortcuts due to hook errors.
+    ZUP = ZUP if SpatialArms.UP in arms else ZUP.flip()
+    ZDOWN = ZDOWN if SpatialArms.DOWN in arms else ZDOWN.flip()
+    ZRIGHT = ZRIGHT if SpatialArms.RIGHT in arms else ZRIGHT.flip()
+    ZLEFT = ZLEFT if SpatialArms.LEFT in arms else ZLEFT.flip()
+    # The X orientations are the opposite of the Z orientation
+    XUP, XDOWN, XRIGHT, XLEFT = ZUP.flip(), ZDOWN.flip(), ZRIGHT.flip(), ZLEFT.flip()
 
-    # be{h,v}hp: basis external {horizontal,vertical} hook plaquette
-    behhp = RPNGDescription.from_string(
-        f"{r}{be}1{m} {r}{be}2{m} {r}{be}3{m} {r}{be}4{m}"
-    )
-    bevhp = RPNGDescription.from_string(
-        f"{r}{be}1{m} {r}{be}4{m} {r}{be}3{m} {r}{be}5{m}"
-    )
-    mapping[5] = mapping[13] = bevhp if SpatialArms.UP in arms else behhp
-    mapping[14] = behhp if SpatialArms.RIGHT in arms else bevhp
-    mapping[8] = mapping[15] = bevhp if SpatialArms.DOWN in arms else behhp
-    mapping[16] = behhp if SpatialArms.LEFT in arms else bevhp
+    # Setting the Z plaquettes
+    mapping[5] = mapping[13] = BPs[Basis.Z][ZUP]
+    mapping[8] = mapping[15] = BPs[Basis.Z][ZDOWN]
+    mapping[14] = BPs[Basis.Z][ZRIGHT]
+    mapping[16] = BPs[Basis.Z][ZLEFT]
+    # Setting the X plaquettes
+    mapping[20] = BPs[Basis.X][XLEFT]
+    mapping[18] = BPs[Basis.X][XRIGHT]
+    mapping[6] = mapping[17] = BPs[Basis.X][XUP]
+    mapping[7] = mapping[19] = BPs[Basis.X][XDOWN]
 
-    # In the special cases of an L-shaped junction TOP/LEFT or DOWN/RIGHT, the
-    # opposite corner **within the bulk** should be overwritten to become a
-    # 3-body stabilizer measurement.
-    if arms == SpatialArms.UP | SpatialArms.LEFT:
-        mapping[8] = RPNGDescription.from_string(
-            f"{r}{be}1{m} {r}{be}2{m} {r}{be}4{m} ----"
-        )
-    elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
-        mapping[5] = RPNGDescription.from_string(
-            f"---- {r}{be}2{m} {r}{be}4{m} {r}{be}5{m}"
-        )
+    # In the special cases of an L-shaped junction, the opposite corner **within
+    # the bulk** should be overwritten to become a 3-body stabilizer measurement.
+    if arms == SpatialArms.DOWN | SpatialArms.RIGHT:
+        mapping[5] = CSs[0]
+    elif arms == SpatialArms.DOWN | SpatialArms.LEFT:
+        mapping[6] = CSs[1]
+    elif arms == SpatialArms.UP | SpatialArms.RIGHT:
+        mapping[7] = CSs[2]
+    elif arms == SpatialArms.UP | SpatialArms.LEFT:
+        mapping[8] = CSs[3]
 
     ####################
     #  Sanity checks   #
     ####################
     # All the plaquettes in the bulk should be set.
-    bulk_plaquette_indices = {5, 6, 7, 8, 13, 14, 15, 16, 17}
+    bulk_plaquette_indices = set(range(5, 9)) | set(range(13, 21))
     missing_bulk_plaquette_indices = bulk_plaquette_indices - mapping.keys()
     assert not missing_bulk_plaquette_indices, (
         "Some plaquette(s) in the bulk were not correctly assigned to a "
