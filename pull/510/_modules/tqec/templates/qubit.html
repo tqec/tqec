@@ -506,15 +506,15 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    The below text represents this template for an input ``k == 4`` ::</span>
 
 <span class="sd">         1   9  10   9  10   9  10   9  10   2</span>
-<span class="sd">        11   5  17  13  17  13  17  13   6  18</span>
-<span class="sd">        12  17  13  17  13  17  13  17  14  19</span>
-<span class="sd">        11  16  17  13  17  13  17  14  17  18</span>
-<span class="sd">        12  17  16  17  13  17  14  17  14  19</span>
-<span class="sd">        11  16  17  16  17  15  17  14  17  18</span>
-<span class="sd">        12  17  16  17  15  17  15  17  14  19</span>
-<span class="sd">        11  16  17  15  17  15  17  15  17  18</span>
-<span class="sd">        12   7  15  17  15  17  15  17   8  19</span>
-<span class="sd">         3  20  21  20  21  20  21  20  21   4</span>
+<span class="sd">        11   5  17  13  17  13  17  13   6  21</span>
+<span class="sd">        12  20  13  17  13  17  13  17  14  22</span>
+<span class="sd">        11  16  20  13  17  13  17  14  18  21</span>
+<span class="sd">        12  20  16  20  13  17  14  18  14  22</span>
+<span class="sd">        11  16  20  16  19  15  18  14  18  21</span>
+<span class="sd">        12  20  16  19  15  19  15  18  14  22</span>
+<span class="sd">        11  16  19  15  19  15  19  15  18  21</span>
+<span class="sd">        12   7  15  19  15  19  15  19   8  22</span>
+<span class="sd">         3  23  24  23  24  23  24  23  24   4</span>
 
 <span class="sd">    Warning:</span>
 <span class="sd">        For ``k == 1``, this template does not include any of the plaquette</span>
@@ -554,40 +554,37 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
         <span class="n">ret</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span>
         <span class="c1"># The center, which is the complex part.</span>
-        <span class="c1"># Start by plaquette_indices[16] which is the plaquette that is</span>
-        <span class="c1"># uniformly spread on the template</span>
-        <span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span>
-        <span class="n">ret</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span>
-        <span class="c1"># Now initialize the other plaquettes</span>
+        <span class="c1"># Plaquette indices between 12 and 15 (both inclusive) are for plaquettes</span>
+        <span class="c1"># on positions where (i + j) is even. Plaquettes indices between 16 and</span>
+        <span class="c1"># 19 (both inclusive) are for plaquettes on positions where (i + j) is</span>
+        <span class="c1"># odd. This is represented by an offset when (i + j) is odd.</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="c1"># We want (i + j) to be even, because that are the only places where</span>
-            <span class="c1"># we should set plaquettes. We do that directly in the range expression.</span>
-            <span class="c1"># We need to avoid 0 here because it is the border of the template.</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="mi">4</span> <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
                 <span class="c1"># If the cell represented by (i, j) is:</span>
                 <span class="c1"># - on the top (above the main diagonal and above the anti-diagonal)</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">j</span><span class="p">):</span>
-                    <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">j</span><span class="p">):</span>
+                    <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">12</span> <span class="o">+</span> <span class="n">offset</span><span class="p">]</span>
                 <span class="c1"># - on the right (above the main diagonal and below the anti-diagonal)</span>
                 <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">j</span><span class="p">):</span>
-                    <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span>
+                    <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">13</span> <span class="o">+</span> <span class="n">offset</span><span class="p">]</span>
                 <span class="c1"># - on the bottom (below the main diagonal and below the anti-diagonal)</span>
-                <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">j</span><span class="p">):</span>
-                    <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">j</span><span class="p">):</span>
+                    <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">14</span> <span class="o">+</span> <span class="n">offset</span><span class="p">]</span>
                 <span class="c1"># - on the left (below the main diagonal and above the anti-diagonal)</span>
                 <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">j</span><span class="p">):</span>
-                    <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span>
+                    <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">15</span> <span class="o">+</span> <span class="n">offset</span><span class="p">]</span>
 
         <span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
         <span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
         <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
         <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
         <span class="c1"># The right side</span>
-        <span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span>
-        <span class="n">ret</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span>
+        <span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span>
+        <span class="n">ret</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span>
         <span class="c1"># The bottom side</span>
-        <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span>
-        <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span>
+        <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span>
+        <span class="n">ret</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquette_indices</span><span class="p">[</span><span class="mi">23</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">ret</span>
 
@@ -599,7 +596,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="nd">@property</span>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">expected_plaquettes_number</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">21</span>
+        <span class="k">return</span> <span class="mi">24</span>
 
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_border_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">border</span><span class="p">:</span> <span class="n">TemplateBorder</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BorderIndices</span><span class="p">:</span>
@@ -607,11 +604,11 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">case</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">TOP</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">BorderIndices</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
             <span class="k">case</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">BOTTOM</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">BorderIndices</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">BorderIndices</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
             <span class="k">case</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">LEFT</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">BorderIndices</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
             <span class="k">case</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">BorderIndices</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">BorderIndices</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">QubitVerticalBorders</span><span class="p">(</span><span class="n">RectangularTemplate</span><span class="p">):</span>
