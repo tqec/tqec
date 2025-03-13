@@ -21,8 +21,8 @@ PipeSpec
 
    .. autosummary::
    
-      ~PipeSpec.spec1
-      ~PipeSpec.spec2
+      ~PipeSpec.cube_specs
+      ~PipeSpec.cube_templates
       ~PipeSpec.pipe_kind
    
    

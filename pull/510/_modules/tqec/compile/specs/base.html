@@ -416,8 +416,9 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">ZXCube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeKind</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquettes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangularTemplate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 
 
 <div class="viewcode-block" id="CubeSpec">
@@ -498,15 +499,16 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    `Substitution`.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        spec1: the cube specification of the first cube. By convention, the cube</span>
-<span class="sd">            corresponding to `spec1` should have a smaller position than the cube</span>
-<span class="sd">            corresponding to `spec2`.</span>
-<span class="sd">        spec2: the cube specification of the second cube.</span>
+<span class="sd">        cube_specs: the ordered cube specifications. By convention, the cube</span>
+<span class="sd">            corresponding to ``cube_specs[0]`` should have a smaller position</span>
+<span class="sd">            than the cube corresponding to ``cube_specs[1]``.</span>
+<span class="sd">        cube_templates: templates used to implement the respective entry in</span>
+<span class="sd">            ``cube_specs``.</span>
 <span class="sd">        pipe_type: the type of the pipe connecting the two cubes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">spec1</span><span class="p">:</span> <span class="n">CubeSpec</span>
-    <span class="n">spec2</span><span class="p">:</span> <span class="n">CubeSpec</span>
+    <span class="n">cube_specs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">CubeSpec</span><span class="p">,</span> <span class="n">CubeSpec</span><span class="p">]</span>
+    <span class="n">cube_templates</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RectangularTemplate</span><span class="p">,</span> <span class="n">RectangularTemplate</span><span class="p">]</span>
     <span class="n">pipe_kind</span><span class="p">:</span> <span class="n">PipeKind</span></div>
 
 

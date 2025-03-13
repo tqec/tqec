@@ -530,7 +530,7 @@
 <h1>PipeSpec<a class="headerlink" href="#pipespec" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.PipeSpec">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">PipeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_kind</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#PipeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.PipeSpec" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">PipeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_templates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_kind</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#PipeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.PipeSpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Specification of a pipe in a block graph.</p>
 <p>The <cite>PipeSpec</cite> is used to determine the substitution rules between the two
@@ -540,32 +540,33 @@ update the layers of the `CompiledBlock`s based on the plaquettes in the
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>spec1</strong> (<a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a>)</p></li>
-<li><p><strong>spec2</strong> (<a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a>)</p></li>
+<li><p><strong>cube_specs</strong> (<em>tuple</em><em>[</em><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a><em>, </em><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a><em>]</em>)</p></li>
+<li><p><strong>cube_templates</strong> (<em>tuple</em><em>[</em><em>RectangularTemplate</em><em>, </em><em>RectangularTemplate</em><em>]</em>)</p></li>
 <li><p><strong>pipe_kind</strong> (<a class="reference internal" href="tqec.computation.PipeKind.html#tqec.computation.PipeKind" title="tqec.computation.pipe.PipeKind"><em>PipeKind</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tqec.compile.PipeSpec.spec1">
-<span class="sig-name descname"><span class="pre">spec1</span></span><a class="headerlink" href="#tqec.compile.PipeSpec.spec1" title="Link to this definition">#</a></dt>
-<dd><p>the cube specification of the first cube. By convention, the cube
-corresponding to <cite>spec1</cite> should have a smaller position than the cube
-corresponding to <cite>spec2</cite>.</p>
+<dt class="sig sig-object py" id="tqec.compile.PipeSpec.cube_specs">
+<span class="sig-name descname"><span class="pre">cube_specs</span></span><a class="headerlink" href="#tqec.compile.PipeSpec.cube_specs" title="Link to this definition">#</a></dt>
+<dd><p>the ordered cube specifications. By convention, the cube
+corresponding to <code class="docutils literal notranslate"><span class="pre">cube_specs[0]</span></code> should have a smaller position
+than the cube corresponding to <code class="docutils literal notranslate"><span class="pre">cube_specs[1]</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec">tqec.compile.specs.base.CubeSpec</a></p>
+<dd class="field-odd"><p>tuple[<a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec">tqec.compile.specs.base.CubeSpec</a>, <a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec">tqec.compile.specs.base.CubeSpec</a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tqec.compile.PipeSpec.spec2">
-<span class="sig-name descname"><span class="pre">spec2</span></span><a class="headerlink" href="#tqec.compile.PipeSpec.spec2" title="Link to this definition">#</a></dt>
-<dd><p>the cube specification of the second cube.</p>
+<dt class="sig sig-object py" id="tqec.compile.PipeSpec.cube_templates">
+<span class="sig-name descname"><span class="pre">cube_templates</span></span><a class="headerlink" href="#tqec.compile.PipeSpec.cube_templates" title="Link to this definition">#</a></dt>
+<dd><p>templates used to implement the respective entry in
+<code class="docutils literal notranslate"><span class="pre">cube_specs</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec">tqec.compile.specs.base.CubeSpec</a></p>
+<dd class="field-odd"><p>tuple[tqec.templates.base.RectangularTemplate, tqec.templates.base.RectangularTemplate]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -579,7 +580,7 @@ corresponding to <cite>spec2</cite>.</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.PipeSpec.__init__" title="tqec.compile.PipeSpec.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(spec1, spec2, pipe_kind)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.PipeSpec.__init__" title="tqec.compile.PipeSpec.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(cube_specs, cube_templates, pipe_kind)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -588,10 +589,10 @@ corresponding to <cite>spec2</cite>.</p>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.PipeSpec.spec1" title="tqec.compile.PipeSpec.spec1"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec1</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.PipeSpec.cube_specs" title="tqec.compile.PipeSpec.cube_specs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cube_specs</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.PipeSpec.spec2" title="tqec.compile.PipeSpec.spec2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec2</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.PipeSpec.cube_templates" title="tqec.compile.PipeSpec.cube_templates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cube_templates</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe_kind</span></code></p></td>
@@ -603,12 +604,12 @@ corresponding to <cite>spec2</cite>.</p>
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.PipeSpec.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_kind</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.PipeSpec.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_templates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_kind</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.PipeSpec.__init__" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>spec1</strong> (<a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a>)</p></li>
-<li><p><strong>spec2</strong> (<a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a>)</p></li>
+<li><p><strong>cube_specs</strong> (<em>tuple</em><em>[</em><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a><em>, </em><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a><em>]</em>)</p></li>
+<li><p><strong>cube_templates</strong> (<em>tuple</em><em>[</em><em>RectangularTemplate</em><em>, </em><em>RectangularTemplate</em><em>]</em>)</p></li>
 <li><p><strong>pipe_kind</strong> (<a class="reference internal" href="tqec.computation.PipeKind.html#tqec.computation.PipeKind" title="tqec.computation.pipe.PipeKind"><em>PipeKind</em></a>)</p></li>
 </ul>
 </dd>
@@ -670,8 +671,8 @@ corresponding to <cite>spec2</cite>.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec"><code class="docutils literal notranslate"><span class="pre">PipeSpec</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.spec1"><code class="docutils literal notranslate"><span class="pre">PipeSpec.spec1</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.spec2"><code class="docutils literal notranslate"><span class="pre">PipeSpec.spec2</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.cube_specs"><code class="docutils literal notranslate"><span class="pre">PipeSpec.cube_specs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.cube_templates"><code class="docutils literal notranslate"><span class="pre">PipeSpec.cube_templates</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.pipe_type"><code class="docutils literal notranslate"><span class="pre">PipeSpec.pipe_type</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.__init__"><code class="docutils literal notranslate"><span class="pre">PipeSpec.__init__()</span></code></a></li>
 </ul>
