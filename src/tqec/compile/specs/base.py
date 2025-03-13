@@ -13,7 +13,6 @@ from tqec.templates.base import RectangularTemplate
 from tqec.utils.exceptions import TQECException
 
 
-
 @dataclass(frozen=True)
 class CubeSpec:
     """Specification of a cube in a block graph.
