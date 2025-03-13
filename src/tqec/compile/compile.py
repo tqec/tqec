@@ -8,7 +8,6 @@ from typing import Literal, Sequence, cast
 
 import stim
 
-from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
@@ -30,11 +29,12 @@ from tqec.compile.specs.base import (
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.utils.exceptions import TQECException, TQECWarning
-from tqec.utils.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
 from tqec.templates.base import Template
 from tqec.templates.layout import LayoutTemplate
+from tqec.utils.coordinates import StimCoordinates
+from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.scale import round_or_fail
 
@@ -358,11 +358,16 @@ def compile_block_graph(
     # added by the space-direction substitution rules, we first apply the time-direction
     # substitution rules.
     for pipe in time_pipes + space_pipes:
-        pos1, pos2 = pipe.u.position, pipe.v.position
-        key = PipeSpec(cube_specs[pipe.u], cube_specs[pipe.v], pipe.kind)
+        u, v = pipe.u, pipe.v
+        upos, vpos = u.position, v.position
+        key = PipeSpec(
+            (cube_specs[u], cube_specs[v]),
+            (blocks[upos].template, blocks[vpos].template),
+            pipe.kind,
+        )
         substitution = substitution_builder(key)
-        blocks[pos1].update_layers(substitution.src)
-        blocks[pos2].update_layers(substitution.dst)
+        blocks[upos].update_layers(substitution.src)
+        blocks[vpos].update_layers(substitution.dst)
 
     # 3. Collect by time and create the blocks layout.
     min_z = min(pos.z for pos in blocks.keys())
