@@ -26,7 +26,6 @@ def get_memory_qubit_rpng_descriptions(
     orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-    odd_parity: bool = True,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
     """Returns a description of the plaquettes needed to implement a standard
     memory operation on a logical qubit.
@@ -52,8 +51,6 @@ def get_memory_qubit_rpng_descriptions(
         measurement: basis of the measurement operation performed on data-qubits.
             Defaults to ``None`` that translates to no measurement being applied
             on data-qubits.
-        odd_parity: if ``True``, boundary plaquettes are placed on odd parity
-            positions. Else, they are placed on even parity positions.
 
     Returns:
         a description of the plaquettes needed to implement a standard
@@ -67,20 +64,18 @@ def get_memory_qubit_rpng_descriptions(
     bh = orientation.horizontal_basis()
     bv = orientation.vertical_basis()
     # Border plaquette indices
-    UP, DOWN, LEFT, RIGHT = (6, 13, 7, 12) if odd_parity else (5, 14, 8, 11)
-    # basis top left, basis other
-    btl, bot = (bv, bh) if odd_parity else (bh, bv)
+    UP, DOWN, LEFT, RIGHT = (
+        (6, 13, 7, 12)
+        if orientation == ZObservableOrientation.VERTICAL
+        else (5, 14, 8, 11)
+    )
     return FrozenDefaultDict(
         {
             UP: RPNGDescription.from_string(f"---- ---- {r}{bv}3{m} {r}{bv}4{m}"),
             LEFT: RPNGDescription.from_string(f"---- {r}{bh}3{m} ---- {r}{bh}4{m}"),
             # Bulk
-            9: RPNGDescription.from_string(
-                f"{r}{btl}1{m} {r}{btl}2{m} {r}{btl}3{m} {r}{btl}4{m}"
-            ),
-            10: RPNGDescription.from_string(
-                f"{r}{bot}1{m} {r}{bot}3{m} {r}{bot}2{m} {r}{bot}4{m}"
-            ),
+            9: RPNGDescription.from_string(f"{r}z1{m} {r}z2{m} {r}z3{m} {r}z4{m}"),
+            10: RPNGDescription.from_string(f"{r}x1{m} {r}x3{m} {r}x2{m} {r}x4{m}"),
             RIGHT: RPNGDescription.from_string(f"{r}{bh}1{m} ---- {r}{bh}2{m} ----"),
             DOWN: RPNGDescription.from_string(f"{r}{bv}1{m} {r}{bv}2{m} ---- ----"),
         },
@@ -103,7 +98,6 @@ def get_memory_vertical_boundary_rpng_descriptions(
     orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-    odd_parity: bool = True,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
     """Returns a description of the plaquettes needed to implement a standard
     memory operation on a pipe between two neighbouring logical qubits aligned
@@ -137,8 +131,6 @@ def get_memory_vertical_boundary_rpng_descriptions(
         measurement: basis of the measurement operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no measurement
             being applied on data-qubits.
-        odd_parity: if ``True``, boundary plaquettes are placed on odd parity
-            positions. Else, they are placed on even parity positions.
 
     Returns:
         a description of the plaquettes needed to implement a standard memory
@@ -149,32 +141,21 @@ def get_memory_vertical_boundary_rpng_descriptions(
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
-    # bh: basis horizontal, bv: basis vertical
-    bh = orientation.horizontal_basis()
+    # bv: basis vertical
     bv = orientation.vertical_basis()
     # Border plaquette indices
-    UP, DOWN = (2, 3) if odd_parity else (1, 4)
-    # basis top left, basis other
-    btl, bot = (bv, bh) if odd_parity else (bh, bv)
+    UP, DOWN = (2, 3) if orientation == ZObservableOrientation.VERTICAL else (1, 4)
 
     return FrozenDefaultDict(
         {
             UP: RPNGDescription.from_string(f"---- ---- {r}{bv}3{m} -{bv}4-"),
             DOWN: RPNGDescription.from_string(f"-{bv}1- {r}{bv}2{m} ---- ----"),
             # LEFT bulk
-            5: RPNGDescription.from_string(
-                f"-{btl}1- {r}{btl}2{m} -{btl}3- {r}{btl}4{m}"
-            ),
-            6: RPNGDescription.from_string(
-                f"-{bot}1- {r}{bot}3{m} -{bot}2- {r}{bot}4{m}"
-            ),
+            5: RPNGDescription.from_string(f"-z1- {r}z2{m} -z3- {r}z4{m}"),
+            6: RPNGDescription.from_string(f"-x1- {r}x3{m} -x2- {r}x4{m}"),
             # RIGHT bulk
-            7: RPNGDescription.from_string(
-                f"{r}{bot}1{m} -{bot}3- {r}{bot}2{m} -{bot}4-"
-            ),
-            8: RPNGDescription.from_string(
-                f"{r}{btl}1{m} -{btl}2- {r}{btl}3{m} -{btl}4-"
-            ),
+            7: RPNGDescription.from_string(f"{r}x1{m} -x3- {r}x2{m} -x4-"),
+            8: RPNGDescription.from_string(f"{r}z1{m} -z2- {r}z3{m} -z4-"),
         },
         default_factory=RPNGDescription.empty,
     )
@@ -195,7 +176,6 @@ def get_memory_horizontal_boundary_rpng_descriptions(
     orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-    odd_parity: bool = True,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
     """Returns a description of the plaquettes needed to implement a standard
     memory operation on a pipe between two neighbouring logical qubits aligned
@@ -229,8 +209,6 @@ def get_memory_horizontal_boundary_rpng_descriptions(
         measurement: basis of the measurement operation performed on **internal**
             data-qubits. Defaults to ``None`` that translates to no measurement
             being applied on data-qubits.
-        odd_parity: if ``True``, boundary plaquettes are placed on odd parity
-            positions. Else, they are placed on even parity positions.
 
     Returns:
         a description of the plaquettes needed to implement a standard memory
@@ -241,32 +219,21 @@ def get_memory_horizontal_boundary_rpng_descriptions(
     # r/m: reset/measurement basis applied to each data-qubit
     r = reset.value.lower() if reset is not None else "-"
     m = measurement.value.lower() if measurement is not None else "-"
-    # bh: basis horizontal, bv: basis vertical
+    # bh: basis horizontal
     bh = orientation.horizontal_basis()
-    bv = orientation.vertical_basis()
     # Border plaquette indices
-    LEFT, RIGHT = (1, 4) if odd_parity else (3, 2)
-    # basis top left, basis other
-    btl, bot = (bv, bh) if odd_parity else (bh, bv)
+    LEFT, RIGHT = (1, 4) if orientation == ZObservableOrientation.VERTICAL else (3, 2)
 
     return FrozenDefaultDict(
         {
             LEFT: RPNGDescription.from_string(f"---- -{bh}3- ---- {r}{bh}4{m}"),
             RIGHT: RPNGDescription.from_string(f"{r}{bh}1{m} ---- -{bh}2- ----"),
             # TOP bulk
-            5: RPNGDescription.from_string(
-                f"-{btl}1- -{btl}2- {r}{btl}3{m} {r}{btl}4{m}"
-            ),
-            6: RPNGDescription.from_string(
-                f"-{bot}1- -{bot}3- {r}{bot}2{m} {r}{bot}4{m}"
-            ),
+            5: RPNGDescription.from_string(f"-z1- -z2- {r}z3{m} {r}z4{m}"),
+            6: RPNGDescription.from_string(f"-x1- -x3- {r}x2{m} {r}x4{m}"),
             # BOTTOM bulk
-            7: RPNGDescription.from_string(
-                f"{r}{bot}1{m} {r}{bot}3{m} -{bot}2- -{bot}4-"
-            ),
-            8: RPNGDescription.from_string(
-                f"{r}{btl}1{m} {r}{btl}2{m} -{btl}3- -{btl}4-"
-            ),
+            7: RPNGDescription.from_string(f"{r}x1{m} {r}x3{m} -x2- -x4-"),
+            8: RPNGDescription.from_string(f"{r}z1{m} {r}z2{m} -z3- -z4-"),
         },
         default_factory=RPNGDescription.empty,
     )

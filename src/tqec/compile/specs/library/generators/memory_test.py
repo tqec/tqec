@@ -11,26 +11,29 @@ from ._testing import (
 )
 
 _EMPT: Final[RPNGDescription] = RPNGDescription.empty()
+_XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x4-")
+_ZZZZ = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
+_X_X_ = RPNGDescription.from_string("-x1- ---- -x2- ----")
+__X_X = RPNGDescription.from_string("---- -x3- ---- -x4-")
+_XX__ = RPNGDescription.from_string("-x1- -x2- ---- ----")
+___XX = RPNGDescription.from_string("---- ---- -x3- -x4-")
+_Z_Z_ = RPNGDescription.from_string("-z1- ---- -z2- ----")
+__Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
+_ZZ__ = RPNGDescription.from_string("-z1- -z2- ---- ----")
+___ZZ = RPNGDescription.from_string("---- ---- -z3- -z4-")
 
 
 def test_memory_horizontal_z_observable() -> None:
     memory_template = get_memory_qubit_rpng_template(ZObservableOrientation.HORIZONTAL)
     instantiation = memory_template.instantiate(k=2)
 
-    _XXXX = RPNGDescription.from_string("-x1- -x2- -x3- -x4-")
-    _ZZZZ = RPNGDescription.from_string("-z1- -z3- -z2- -z4-")
-    _XX__ = RPNGDescription.from_string("-x1- -x2- ---- ----")
-    ___XX = RPNGDescription.from_string("---- ---- -x3- -x4-")
-    _Z_Z_ = RPNGDescription.from_string("-z1- ---- -z2- ----")
-    __Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
-
     assert instantiation == [
-        [_EMPT, _EMPT, ___XX, _EMPT, ___XX, _EMPT],
-        [__Z_Z, _XXXX, _ZZZZ, _XXXX, _ZZZZ, _EMPT],
+        [_EMPT, ___XX, _EMPT, ___XX, _EMPT, _EMPT],
         [_EMPT, _ZZZZ, _XXXX, _ZZZZ, _XXXX, _Z_Z_],
         [__Z_Z, _XXXX, _ZZZZ, _XXXX, _ZZZZ, _EMPT],
         [_EMPT, _ZZZZ, _XXXX, _ZZZZ, _XXXX, _Z_Z_],
-        [_EMPT, _XX__, _EMPT, _XX__, _EMPT, _EMPT],
+        [__Z_Z, _XXXX, _ZZZZ, _XXXX, _ZZZZ, _EMPT],
+        [_EMPT, _EMPT, _XX__, _EMPT, _XX__, _EMPT],
     ]
 
 
@@ -40,10 +43,6 @@ def test_memory_vertical_z_observable() -> None:
 
     _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x4-")
     _ZZZZ = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
-    _ZZ__ = RPNGDescription.from_string("-z1- -z2- ---- ----")
-    ___ZZ = RPNGDescription.from_string("---- ---- -z3- -z4-")
-    _X_X_ = RPNGDescription.from_string("-x1- ---- -x2- ----")
-    __X_X = RPNGDescription.from_string("---- -x3- ---- -x4-")
 
     assert instantiation == [
         [_EMPT, _EMPT, ___ZZ, _EMPT, ___ZZ, _EMPT],
@@ -107,18 +106,13 @@ def test_memory_vertical_boundary_horizontal_z_observable() -> None:
     )
     instantiation = memory_template.instantiate(k=2)
 
-    _XXXX = RPNGDescription.from_string("-x1- -x2- -x3- -x4-")
-    _ZZZZ = RPNGDescription.from_string("-z1- -z3- -z2- -z4-")
-    _XX__ = RPNGDescription.from_string("-x1- -x2- ---- ----")
-    ___XX = RPNGDescription.from_string("---- ---- -x3- -x4-")
-
     assert instantiation == [
-        [_EMPT, ___XX],
-        [_XXXX, _ZZZZ],
+        [___XX, _EMPT],
         [_ZZZZ, _XXXX],
         [_XXXX, _ZZZZ],
         [_ZZZZ, _XXXX],
-        [_XX__, _EMPT],
+        [_XXXX, _ZZZZ],
+        [_EMPT, _XX__],
     ]
 
 
@@ -127,11 +121,6 @@ def test_memory_vertical_boundary_vertical_z_observable() -> None:
         ZObservableOrientation.VERTICAL
     )
     instantiation = memory_template.instantiate(k=2)
-
-    _ZZZZ = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
-    _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x4-")
-    _ZZ__ = RPNGDescription.from_string("-z1- -z2- ---- ----")
-    ___ZZ = RPNGDescription.from_string("---- ---- -z3- -z4-")
 
     assert instantiation == [
         [_EMPT, ___ZZ],
@@ -195,14 +184,9 @@ def test_memory_horizontal_boundary_horizontal_z_observable() -> None:
     )
     instantiation = memory_template.instantiate(k=2)
 
-    _XXXX = RPNGDescription.from_string("-x1- -x2- -x3- -x4-")
-    _ZZZZ = RPNGDescription.from_string("-z1- -z3- -z2- -z4-")
-    __Z_Z = RPNGDescription.from_string("---- -z3- ---- -z4-")
-    _Z_Z_ = RPNGDescription.from_string("-z1- ---- -z2- ----")
-
     assert instantiation == [
-        [__Z_Z, _XXXX, _ZZZZ, _XXXX, _ZZZZ, _EMPT],
         [_EMPT, _ZZZZ, _XXXX, _ZZZZ, _XXXX, _Z_Z_],
+        [__Z_Z, _XXXX, _ZZZZ, _XXXX, _ZZZZ, _EMPT],
     ]
 
 
@@ -211,11 +195,6 @@ def test_memory_horizontal_boundary_vertical_z_observable() -> None:
         ZObservableOrientation.VERTICAL
     )
     instantiation = memory_template.instantiate(k=2)
-
-    _XXXX = RPNGDescription.from_string("-x1- -x3- -x2- -x4-")
-    _ZZZZ = RPNGDescription.from_string("-z1- -z2- -z3- -z4-")
-    __X_X = RPNGDescription.from_string("---- -x3- ---- -x4-")
-    _X_X_ = RPNGDescription.from_string("-x1- ---- -x2- ----")
 
     assert instantiation == [
         [__X_X, _ZZZZ, _XXXX, _ZZZZ, _XXXX, _EMPT],
