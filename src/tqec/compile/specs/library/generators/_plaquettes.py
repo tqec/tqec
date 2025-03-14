@@ -73,7 +73,7 @@ def get_3_body_plaquettes(
     # Note that we include resets and measurements on all the used data-qubits.
     # That should be fine because this plaquette only touches cubes and pipes
     # that are related to the spatial junction being implemented, and it is not
-    # valid to have a temporal pipe comming from below a spatial junction, hence
+    # valid to have a temporal pipe coming from below a spatial junction, hence
     # the data-qubits cannot be already initialised to a value we would like to
     # keep and that would be destroyed by reset/measurement.
     return (
