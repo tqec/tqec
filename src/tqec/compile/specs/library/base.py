@@ -225,9 +225,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         x_axis_basis_at_head = spec.pipe_kind.get_basis_along(
             Direction3D.X, at_head=True
         )
-        assert (
-            x_axis_basis_at_head is not None
-        ), "A temporal pipe should have a non-None basis on the X-axis."
+        assert x_axis_basis_at_head is not None, (
+            "A temporal pipe should have a non-None basis on the X-axis."
+        )
 
         first_layer_orientation: ZObservableOrientation
         second_layer_orientation: ZObservableOrientation
@@ -305,52 +305,40 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
 
     @staticmethod
     def _get_spatial_cube_arm(spec: PipeSpec) -> SpatialArms:
-        """Returns the arm corresponding to the provided ``spec``.
+        """Returns the arm(s) corresponding to the provided ``spec``.
 
         Args:
-            spec: pipe specification to get the arm from.
+            spec: pipe specification to get the arm(s) from.
 
         Raises:
             TQECException: if the provided ``spec`` is not a spatial pipe.
-            TQECException: if the two blocks connected to the pipe are both
-                spatial junctions, which is currently an unsupported case.
 
         Returns:
             the :class:`~tqec.compile.specs.enums.SpatialArms` instance
-            corresponding to the provided ``spec``. The returned flag only
-            contains one flag (i.e., it cannot be
-            ``SpatialArms.RIGHT | SpatialArms.UP``).
+            corresponding to the provided ``spec``. The returned flag contains
+            either one or two flags. If two flags are returned, they should be
+            on the same line (e.g., it cannot be ``SpatialArms.RIGHT | SpatialArms.UP``
+            but can be ``SpatialArms.RIGHT | SpatialArms.LEFT``).
         """
         assert spec.pipe_kind.is_spatial
         # Check that we do have a spatial junction.
         assert any(spec.is_spatial for spec in spec.cube_specs)
-        # For the moment, two spatial junctions side by side are not supported.
-        if all(spec.is_spatial for spec in spec.cube_specs):
-            raise TQECException(
-                "Found 2 spatial junctions connected. This is not supported yet."
-            )
-        spatial_cube_is_first: bool = spec.cube_specs[0].is_spatial
-        match spatial_cube_is_first, spec.pipe_kind.direction:
-            case (True, Direction3D.X):
-                return SpatialArms.RIGHT
-            case (False, Direction3D.X):
-                return SpatialArms.LEFT
-            case (True, Direction3D.Y):
-                return SpatialArms.DOWN
-            case (False, Direction3D.Y):
-                return SpatialArms.UP
-            case _:
-                raise TQECException(
-                    "Should never happen as we are in a spatial (i.e., X/Y plane) junction."
-                )
+        u, v = spec.cube_specs
+        pipedir = spec.pipe_kind.direction
+        arms = SpatialArms.NONE
+        if u.is_spatial:
+            arms |= SpatialArms.RIGHT if pipedir == Direction3D.X else SpatialArms.UP
+        if v.is_spatial:
+            arms |= SpatialArms.LEFT if pipedir == Direction3D.X else SpatialArms.DOWN
+        return arms
 
     def _get_spatial_cube_pipe_substitution(self, spec: PipeSpec) -> Substitution:
         xbasis, ybasis = spec.pipe_kind.x, spec.pipe_kind.y
         assert xbasis is not None or ybasis is not None
         spatial_boundary_basis: Basis = xbasis if xbasis is not None else ybasis  # type: ignore
         # Get the plaquette indices mappings
-        arm = BaseSubstitutionBuilder._get_spatial_cube_arm(spec)
-        pipe_template = get_spatial_cube_arm_raw_template(arm)
+        arms = BaseSubstitutionBuilder._get_spatial_cube_arm(spec)
+        pipe_template = get_spatial_cube_arm_raw_template(arms)
         mappings = BaseSubstitutionBuilder._get_plaquette_indices_mapping(
             spec.cube_templates, pipe_template, spec.pipe_kind.direction
         )
@@ -362,7 +350,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
             [(spec.pipe_kind.z, None), (None, None), (None, spec.pipe_kind.z)]
         ):
             plaquettes = get_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis, arm, reset, measurement
+                spatial_boundary_basis, arms, reset, measurement
             )
             src_substitution[layer_index] = Plaquettes(
                 plaquettes.collection.map_keys_if_present(mappings[0])
