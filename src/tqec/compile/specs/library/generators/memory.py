@@ -74,7 +74,7 @@ def get_memory_qubit_rpng_descriptions(
     # BPs: Bulk Plaquettes.
     BPs = get_bulk_plaquettes(reset, measurement)
     # TBPs: Two Body Plaquettes.
-    TBPs = get_2_body_plaquettes(reset, measurement)
+    TBPs = get_2_body_plaquettes()
 
     return FrozenDefaultDict(
         {
@@ -156,7 +156,7 @@ def get_memory_vertical_boundary_rpng_descriptions(
     BPs_LEFT = get_bulk_plaquettes(reset, measurement, (1, 3))
     BPs_RIGHT = get_bulk_plaquettes(reset, measurement, (0, 2))
     # TBPs: Two Body Plaquettes.
-    TBPs = get_2_body_plaquettes(reset, measurement)
+    TBPs = get_2_body_plaquettes()
 
     return FrozenDefaultDict(
         {
@@ -239,7 +239,7 @@ def get_memory_horizontal_boundary_rpng_descriptions(
     BPs_UP = get_bulk_plaquettes(reset, measurement, (2, 3))
     BPs_DOWN = get_bulk_plaquettes(reset, measurement, (0, 1))
     # TBPs: Two Body Plaquettes.
-    TBPs = get_2_body_plaquettes(reset, measurement)
+    TBPs = get_2_body_plaquettes()
 
     return FrozenDefaultDict(
         {

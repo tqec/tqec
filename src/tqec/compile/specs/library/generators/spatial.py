@@ -139,7 +139,6 @@ def get_spatial_cube_qubit_rpng_descriptions(
     #     11  16  19  15  19  15  19  15  18  21
     #     12   7  15  19  15  19  15  19   8  22
     #      3  23  24  23  24  23  24  23  24   4
-
     if arms in SpatialArms.I_shaped_arms():
         raise TQECException(
             "I-shaped spatial junctions (i.e., spatial junctions with only two "
@@ -200,7 +199,7 @@ def get_spatial_cube_qubit_rpng_descriptions(
     # those cases here.
     # Note that resets and measurements are included on all data-qubits here.
     # TBPs: Two Body Plaquettes.
-    TBPs = get_2_body_plaquettes(reset, measurement)
+    TBPs = get_2_body_plaquettes()
     # SBS: Spatial Boundary Basis.
     SBS = spatial_boundary_basis
     if SpatialArms.UP not in arms:
@@ -426,7 +425,7 @@ def _get_left_right_spatial_cube_arm_rpng_descriptions(
     BPs_LEFT = get_bulk_plaquettes(reset, measurement, (1, 3))
     BPs_RIGHT = get_bulk_plaquettes(reset, measurement, (0, 2))
     # TBPs: Two Body Plaquettes.
-    TBPs = get_2_body_plaquettes(reset, measurement)
+    TBPs = get_2_body_plaquettes()
     # The hook errors also need to be adapted to the boundary basis.
     ZHOOK = (
         Orientation.HORIZONTAL
@@ -479,7 +478,7 @@ def _get_up_down_spatial_cube_arm_rpng_descriptions(
     BPs_UP = get_bulk_plaquettes(reset, measurement, (2, 3))
     BPs_DOWN = get_bulk_plaquettes(reset, measurement, (0, 1))
     # TBPs: Two Body Plaquettes.
-    TBPs = get_2_body_plaquettes(reset, measurement)
+    TBPs = get_2_body_plaquettes()
     # The hook errors also need to be adapted to the boundary basis.
     ZHOOK = (
         Orientation.VERTICAL

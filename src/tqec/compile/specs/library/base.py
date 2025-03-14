@@ -298,9 +298,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         pipedir = spec.pipe_kind.direction
         arms = SpatialArms.NONE
         if u.is_spatial:
-            arms |= SpatialArms.RIGHT if pipedir == Direction3D.X else SpatialArms.UP
+            arms |= SpatialArms.RIGHT if pipedir == Direction3D.X else SpatialArms.DOWN
         if v.is_spatial:
-            arms |= SpatialArms.LEFT if pipedir == Direction3D.X else SpatialArms.DOWN
+            arms |= SpatialArms.LEFT if pipedir == Direction3D.X else SpatialArms.UP
         return arms
 
     def _get_spatial_cube_pipe_substitution(self, spec: PipeSpec) -> Substitution:

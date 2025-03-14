@@ -79,15 +79,12 @@ def get_3_body_plaquettes(
     return (
         RPNGDescription.from_string(f"---- {r}z4{m} {r}z3{m} {r}z5{m}"),
         RPNGDescription.from_string(f"{r}x1{m} ---- {r}x3{m} {r}x5{m}"),
-        RPNGDescription.from_string(f"{r}x1{m} {r}x2{r} ---- {r}x5{r}"),
+        RPNGDescription.from_string(f"{r}x1{m} {r}x2{m} ---- {r}x5{m}"),
         RPNGDescription.from_string(f"{r}z1{m} {r}z4{m} {r}z3{m} ----"),
     )
 
 
-def get_2_body_plaquettes(
-    reset: Basis | None = None,
-    measurement: Basis | None = None,
-) -> dict[Basis, dict[PlaquetteOrientation, RPNGDescription]]:
+def get_2_body_plaquettes() -> dict[Basis, dict[PlaquetteOrientation, RPNGDescription]]:
     """Get plaquettes that are supposed to be used on the boundaries.
 
     This function returns the eight 2-body stabilizer measurement plaquettes
@@ -97,6 +94,12 @@ def get_2_body_plaquettes(
     Note:
         The 2-body stabilizer measurement plaquettes returned by this function
         all follow the same schedule: ``1-2-3-5``.
+
+    Warning:
+        By convention, the 2-body stabilizers never reset/measure any
+        data-qubit. This is done because it is way simpler to reset the correct
+        data-qubits in 4-body stabilizers, and the resets/measurements in 2-body
+        stabilizers would be redundant.
 
     Warning:
         This function uses the :class:`~tqec.plaquette.enums.PlaquetteOrientation`
@@ -110,33 +113,23 @@ def get_2_body_plaquettes(
         - it can be used for a bottom boundary,
         - its rounded side points downwards.
 
-    Args:
-        reset: basis of the reset operation performed on data-qubits. Defaults
-            to ``None`` that translates to no reset being applied on data-qubits.
-        measurement: basis of the measurement operation performed on data-qubits.
-            Defaults to ``None`` that translates to no measurement being applied
-            on data-qubits.
-
     Returns:
         a mapping with 8 plaquettes: one for each basis (either ``X`` or ``Z``)
         and for each plaquette orientation (``UP``, ``DOWN``, ``LEFT`` or
         ``RIGHT``).
     """
-    # r/m: reset/measurement basis applied to each data-qubit
-    r = reset.value.lower() if reset is not None else "-"
-    m = measurement.value.lower() if measurement is not None else "-"
     PO = PlaquetteOrientation
     return {
         Basis.X: {
-            PO.DOWN: RPNGDescription.from_string(f"{r}x1{m} {r}x2{m} ---- ----"),
-            PO.LEFT: RPNGDescription.from_string(f"---- {r}x2{m} ---- {r}x5{m}"),
-            PO.UP: RPNGDescription.from_string(f"---- ---- {r}x3{m} {r}x5{m}"),
-            PO.RIGHT: RPNGDescription.from_string(f"{r}x1{m} ---- {r}x3{m} ----"),
+            PO.DOWN: RPNGDescription.from_string("-x1- -x2- ---- ----"),
+            PO.LEFT: RPNGDescription.from_string("---- -x2- ---- -x5-"),
+            PO.UP: RPNGDescription.from_string("---- ---- -x3- -x5-"),
+            PO.RIGHT: RPNGDescription.from_string("-x1- ---- -x3- ----"),
         },
         Basis.Z: {
-            PO.DOWN: RPNGDescription.from_string(f"{r}z1{m} {r}z2{m} ---- ----"),
-            PO.LEFT: RPNGDescription.from_string(f"---- {r}x2{m} ---- {r}x5{m}"),
-            PO.UP: RPNGDescription.from_string(f"---- ---- {r}x3{m} {r}x5{m}"),
-            PO.RIGHT: RPNGDescription.from_string(f"{r}x1{m} ---- {r}x3{m} ----"),
+            PO.DOWN: RPNGDescription.from_string("-z1- -z2- ---- ----"),
+            PO.LEFT: RPNGDescription.from_string("---- -z2- ---- -z5-"),
+            PO.UP: RPNGDescription.from_string("---- ---- -z3- -z5-"),
+            PO.RIGHT: RPNGDescription.from_string("-z1- ---- -z3- ----"),
         },
     }
