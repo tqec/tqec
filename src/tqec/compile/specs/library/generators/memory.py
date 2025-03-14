@@ -1,14 +1,18 @@
 from typing import Final
 
+from tqec.compile.specs.library.generators._plaquettes import (
+    get_2_body_plaquettes,
+    get_bulk_plaquettes,
+)
 from tqec.compile.specs.library.generators.utils import default_plaquette_mapper
+from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng import RPNGDescription
-from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.qubit import (
     QubitHorizontalBorders,
     QubitTemplate,
     QubitVerticalBorders,
 )
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
@@ -23,7 +27,7 @@ def get_memory_qubit_raw_template() -> QubitTemplate:
 
 
 def get_memory_qubit_rpng_descriptions(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
+    z_orientation: Orientation = Orientation.HORIZONTAL,
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -43,7 +47,7 @@ def get_memory_qubit_rpng_descriptions(
         instance returned by this function.
 
     Arguments:
-        orientation: orientation of the ``Z`` observable. Used to compute the
+        z_orientation: orientation of the ``Z`` observable. Used to compute the
             stabilizers that should be measured on the boundaries and in the
             bulk of the returned logical qubit description.
         reset: basis of the reset operation performed on data-qubits. Defaults
@@ -57,27 +61,30 @@ def get_memory_qubit_rpng_descriptions(
         memory operation on a logical qubit, optionally with resets or
         measurements on the data-qubits too.
     """
-    # r/m: reset/measurement basis applied to each data-qubit
-    r = reset.value.lower() if reset is not None else "-"
-    m = measurement.value.lower() if measurement is not None else "-"
-    # bh: basis horizontal, bv: basis vertical
-    bh = orientation.horizontal_basis()
-    bv = orientation.vertical_basis()
     # Border plaquette indices
     UP, DOWN, LEFT, RIGHT = (
-        (6, 13, 7, 12)
-        if orientation == ZObservableOrientation.VERTICAL
-        else (5, 14, 8, 11)
+        (6, 13, 7, 12) if z_orientation == Orientation.VERTICAL else (5, 14, 8, 11)
     )
+    # Basis for top/bottom and left/right boundary plaquettes
+    HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+    VBASIS = HBASIS.flipped()
+    # Hook errors orientations
+    ZHOOK = z_orientation.flip()
+    XHOOK = ZHOOK.flip()
+    # BPs: Bulk Plaquettes.
+    BPs = get_bulk_plaquettes(reset, measurement)
+    # TBPs: Two Body Plaquettes.
+    TBPs = get_2_body_plaquettes(reset, measurement)
+
     return FrozenDefaultDict(
         {
-            UP: RPNGDescription.from_string(f"---- ---- {r}{bv}2{m} {r}{bv}4{m}"),
-            LEFT: RPNGDescription.from_string(f"---- {r}{bh}2{m} ---- {r}{bh}4{m}"),
+            UP: TBPs[VBASIS][PlaquetteOrientation.UP],
+            LEFT: TBPs[HBASIS][PlaquetteOrientation.LEFT],
             # Bulk
-            9: RPNGDescription.from_string(f"{r}z1{m} {r}z2{m} {r}z3{m} {r}z4{m}"),
-            10: RPNGDescription.from_string(f"{r}x1{m} {r}x3{m} {r}x2{m} {r}x4{m}"),
-            RIGHT: RPNGDescription.from_string(f"{r}{bh}1{m} ---- {r}{bh}3{m} ----"),
-            DOWN: RPNGDescription.from_string(f"{r}{bv}1{m} {r}{bv}3{m} ---- ----"),
+            9: BPs[Basis.Z][ZHOOK],
+            10: BPs[Basis.X][XHOOK],
+            RIGHT: TBPs[HBASIS][PlaquetteOrientation.RIGHT],
+            DOWN: TBPs[VBASIS][PlaquetteOrientation.DOWN],
         },
         default_factory=RPNGDescription.empty,
     )
@@ -95,7 +102,7 @@ def get_memory_vertical_boundary_raw_template() -> QubitVerticalBorders:
 
 
 def get_memory_vertical_boundary_rpng_descriptions(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
+    z_orientation: Orientation = Orientation.HORIZONTAL,
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -122,7 +129,7 @@ def get_memory_vertical_boundary_rpng_descriptions(
         instance returned by this function.
 
     Arguments:
-        orientation: orientation of the ``Z`` observable. Used to compute the
+        z_orientation: orientation of the ``Z`` observable. Used to compute the
             stabilizers that should be measured on the boundaries and in the
             bulk of the returned memory description.
         reset: basis of the reset operation performed on **internal**
@@ -138,24 +145,29 @@ def get_memory_vertical_boundary_rpng_descriptions(
         the ``X``-axis, optionally with resets or measurements on the
         data-qubits too.
     """
-    # r/m: reset/measurement basis applied to each data-qubit
-    r = reset.value.lower() if reset is not None else "-"
-    m = measurement.value.lower() if measurement is not None else "-"
-    # bv: basis vertical
-    bv = orientation.vertical_basis()
     # Border plaquette indices
-    UP, DOWN = (2, 3) if orientation == ZObservableOrientation.VERTICAL else (1, 4)
+    UP, DOWN = (2, 3) if z_orientation == Orientation.VERTICAL else (1, 4)
+    # Basis for top/bottom boundary plaquettes
+    VBASIS = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
+    # Hook errors orientations
+    ZHOOK = z_orientation.flip()
+    XHOOK = ZHOOK.flip()
+    # BPs: Bulk Plaquettes.
+    BPs_LEFT = get_bulk_plaquettes(reset, measurement, (1, 3))
+    BPs_RIGHT = get_bulk_plaquettes(reset, measurement, (0, 2))
+    # TBPs: Two Body Plaquettes.
+    TBPs = get_2_body_plaquettes(reset, measurement)
 
     return FrozenDefaultDict(
         {
-            UP: RPNGDescription.from_string(f"---- ---- {r}{bv}2{m} -{bv}4-"),
-            DOWN: RPNGDescription.from_string(f"-{bv}1- {r}{bv}3{m} ---- ----"),
+            UP: TBPs[VBASIS][PlaquetteOrientation.UP],
+            DOWN: TBPs[VBASIS][PlaquetteOrientation.DOWN],
             # LEFT bulk
-            5: RPNGDescription.from_string(f"-z1- {r}z2{m} -z3- {r}z4{m}"),
-            6: RPNGDescription.from_string(f"-x1- {r}x3{m} -x2- {r}x4{m}"),
+            5: BPs_LEFT[Basis.Z][ZHOOK],
+            6: BPs_LEFT[Basis.X][XHOOK],
             # RIGHT bulk
-            7: RPNGDescription.from_string(f"{r}x1{m} -x3- {r}x2{m} -x4-"),
-            8: RPNGDescription.from_string(f"{r}z1{m} -z2- {r}z3{m} -z4-"),
+            7: BPs_RIGHT[Basis.X][XHOOK],
+            8: BPs_RIGHT[Basis.Z][ZHOOK],
         },
         default_factory=RPNGDescription.empty,
     )
@@ -173,7 +185,7 @@ def get_memory_horizontal_boundary_raw_template() -> QubitHorizontalBorders:
 
 
 def get_memory_horizontal_boundary_rpng_descriptions(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
+    z_orientation: Orientation = Orientation.HORIZONTAL,
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -200,7 +212,7 @@ def get_memory_horizontal_boundary_rpng_descriptions(
         instance returned by this function.
 
     Arguments:
-        orientation: orientation of the ``Z`` observable. Used to compute the
+        z_orientation: orientation of the ``Z`` observable. Used to compute the
             stabilizers that should be measured on the boundaries and in the
             bulk of the returned memory description.
         reset: basis of the reset operation performed on **internal**
@@ -216,24 +228,29 @@ def get_memory_horizontal_boundary_rpng_descriptions(
         the ``Y``-axis, optionally with resets or measurements on the
         data-qubits too.
     """
-    # r/m: reset/measurement basis applied to each data-qubit
-    r = reset.value.lower() if reset is not None else "-"
-    m = measurement.value.lower() if measurement is not None else "-"
-    # bh: basis horizontal
-    bh = orientation.horizontal_basis()
     # Border plaquette indices
-    LEFT, RIGHT = (1, 4) if orientation == ZObservableOrientation.VERTICAL else (3, 2)
+    LEFT, RIGHT = (1, 4) if z_orientation == Orientation.VERTICAL else (3, 2)
+    # Basis for left/right boundary plaquettes
+    HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+    # Hook errors orientations
+    ZHOOK = z_orientation.flip()
+    XHOOK = ZHOOK.flip()
+    # BPs: Bulk Plaquettes.
+    BPs_UP = get_bulk_plaquettes(reset, measurement, (2, 3))
+    BPs_DOWN = get_bulk_plaquettes(reset, measurement, (0, 1))
+    # TBPs: Two Body Plaquettes.
+    TBPs = get_2_body_plaquettes(reset, measurement)
 
     return FrozenDefaultDict(
         {
-            LEFT: RPNGDescription.from_string(f"---- -{bh}2- ---- {r}{bh}4{m}"),
-            RIGHT: RPNGDescription.from_string(f"{r}{bh}1{m} ---- -{bh}3- ----"),
+            LEFT: TBPs[HBASIS][PlaquetteOrientation.LEFT],
+            RIGHT: TBPs[HBASIS][PlaquetteOrientation.RIGHT],
             # TOP bulk
-            5: RPNGDescription.from_string(f"-z1- -z2- {r}z3{m} {r}z4{m}"),
-            6: RPNGDescription.from_string(f"-x1- -x3- {r}x2{m} {r}x4{m}"),
+            5: BPs_UP[Basis.Z][ZHOOK],
+            6: BPs_UP[Basis.X][XHOOK],
             # BOTTOM bulk
-            7: RPNGDescription.from_string(f"{r}x1{m} {r}x3{m} -x2- -x4-"),
-            8: RPNGDescription.from_string(f"{r}z1{m} {r}z2{m} -z3- -z4-"),
+            7: BPs_DOWN[Basis.X][XHOOK],
+            8: BPs_DOWN[Basis.Z][ZHOOK],
         },
         default_factory=RPNGDescription.empty,
     )

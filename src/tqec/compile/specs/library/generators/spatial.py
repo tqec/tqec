@@ -17,90 +17,25 @@ The spatial pipes connected to the spatial cubes are called **arms**.
 
 from __future__ import annotations
 
-from enum import Enum, auto
-from typing import Final, Literal
+from typing import Final
 
 from tqec.compile.specs.enums import SpatialArms
+from tqec.compile.specs.library.generators._plaquettes import (
+    get_2_body_plaquettes,
+    get_3_body_plaquettes,
+    get_bulk_plaquettes,
+)
 from tqec.compile.specs.library.generators.utils import default_plaquette_mapper
+from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.qubit import (
     QubitHorizontalBorders,
     QubitSpatialCubeTemplate,
     QubitVerticalBorders,
 )
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
-
-
-class _Orientation(Enum):
-    HORIZONTAL = auto()
-    VERTICAL = auto()
-
-    def flip(self) -> _Orientation:
-        match self:
-            case _Orientation.VERTICAL:
-                return _Orientation.HORIZONTAL
-            case _Orientation.HORIZONTAL:
-                return _Orientation.VERTICAL
-
-
-def _get_bulk_plaquettes(
-    reset: Basis | None = None,
-    measurement: Basis | None = None,
-    reset_and_measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
-) -> dict[Basis, dict[_Orientation, RPNGDescription]]:
-    # _r/_m: reset/measurement basis applied to each data-qubit in
-    # reset_and_measured_indices
-    _r = reset.value.lower() if reset is not None else "-"
-    _m = measurement.value.lower() if measurement is not None else "-"
-    # rs/ms: resets/measurements basis applied for each data-qubit
-    rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
-    ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
-    # 2-qubit gate schedules
-    vsched, hsched = (1, 4, 3, 5), (1, 2, 3, 5)
-    return {
-        Basis.X: {
-            _Orientation.VERTICAL: RPNGDescription.from_string(
-                " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, vsched, ms))
-            ),
-            _Orientation.HORIZONTAL: RPNGDescription.from_string(
-                " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, hsched, ms))
-            ),
-        },
-        Basis.Z: {
-            _Orientation.VERTICAL: RPNGDescription.from_string(
-                " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, vsched, ms))
-            ),
-            _Orientation.HORIZONTAL: RPNGDescription.from_string(
-                " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, hsched, ms))
-            ),
-        },
-    }
-
-
-def _get_3_body_stabilizers(
-    reset: Basis | None = None,
-    measurement: Basis | None = None,
-) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
-    # r/m: reset/measurement basis applied to each data-qubit
-    r = reset.value.lower() if reset is not None else "-"
-    m = measurement.value.lower() if measurement is not None else "-"
-    # Note: the schedule of CNOT gates in corner plaquettes is less important
-    # because hook errors do not exist on 3-body stabilizers. We arbitrarily
-    # chose the schedule of the plaquette group the corner belongs to.
-    # Note that we include resets and measurements on all the used data-qubits.
-    # That should be fine because this plaquette only touches cubes and pipes
-    # that are related to the spatial junction being implemented, and it is not
-    # valid to have a temporal pipe comming from below a spatial junction, hence
-    # the data-qubits cannot be already initialised to a value we would like to
-    # keep and that would be destroyed by reset/measurement.
-    return (
-        RPNGDescription.from_string(f"---- {r}z4{m} {r}z3{m} {r}z5{m}"),
-        RPNGDescription.from_string(f"{r}x1{m} ---- {r}x3{m} {r}x5{m}"),
-        RPNGDescription.from_string(f"{r}x1{m} {r}x2{r} ---- {r}x5{r}"),
-        RPNGDescription.from_string(f"{r}z1{m} {r}z4{m} {r}z3{m} ----"),
-    )
 
 
 def get_spatial_cube_qubit_raw_template() -> QubitSpatialCubeTemplate:
@@ -212,12 +147,6 @@ def get_spatial_cube_qubit_rpng_descriptions(
             "should not use get_spatial_cube_qubit_template but rather use "
             "a conventional memory logical qubit with get_memory_qubit_template."
         )
-
-    # r/m: reset/measurement basis applied to each data-qubit
-    r = reset.value.lower() if reset is not None else "-"
-    m = measurement.value.lower() if measurement is not None else "-"
-    # be = basis external
-    be = spatial_boundary_basis.value.lower()
     # Get parity information in a more convenient format. Note that if the boundary
     # is composed of Z stabilizers then the horizontal arms are supposed to be
     # in even-parity. Using two variables for the same quantity to help reading
@@ -225,9 +154,9 @@ def get_spatial_cube_qubit_rpng_descriptions(
     horizontal_is_even = boundary_is_z = spatial_boundary_basis == Basis.Z
     # Pre-define some collection of plaquettes
     # CSs: Corner Stabilizers (3-body stabilizers).
-    CSs = _get_3_body_stabilizers(reset, measurement)
+    CSs = get_3_body_plaquettes(reset, measurement)
     # BPs: Bulk Plaquettes.
-    BPs = _get_bulk_plaquettes(reset, measurement)
+    BPs = get_bulk_plaquettes(reset, measurement)
 
     mapping: dict[int, RPNGDescription] = {}
 
@@ -270,26 +199,22 @@ def get_spatial_cube_qubit_rpng_descriptions(
     # description on 1, 2, 3 or 4 if needed, so we do not have to account for
     # those cases here.
     # Note that resets and measurements are included on all data-qubits here.
+    # TBPs: Two Body Plaquettes.
+    TBPs = get_2_body_plaquettes(reset, measurement)
+    # SBS: Spatial Boundary Basis.
+    SBS = spatial_boundary_basis
     if SpatialArms.UP not in arms:
         CORNER, BULK = (1, 10) if boundary_is_z else (2, 9)
-        mapping[CORNER] = mapping[BULK] = RPNGDescription.from_string(
-            f"---- ---- {r}{be}3{m} {r}{be}5{m}"
-        )
+        mapping[CORNER] = mapping[BULK] = TBPs[SBS][PlaquetteOrientation.UP]
     if SpatialArms.RIGHT not in arms:
         CORNER, BULK = (4, 21) if boundary_is_z else (2, 22)
-        mapping[CORNER] = mapping[BULK] = RPNGDescription.from_string(
-            f"{r}{be}1{m} ---- {r}{be}3{m} ----"
-        )
+        mapping[CORNER] = mapping[BULK] = TBPs[SBS][PlaquetteOrientation.RIGHT]
     if SpatialArms.DOWN not in arms:
         CORNER, BULK = (4, 23) if boundary_is_z else (3, 24)
-        mapping[CORNER] = mapping[BULK] = RPNGDescription.from_string(
-            f"{r}{be}1{m} {r}{be}2{m} ---- ----"
-        )
+        mapping[CORNER] = mapping[BULK] = TBPs[SBS][PlaquetteOrientation.DOWN]
     if SpatialArms.LEFT not in arms:
         CORNER, BULK = (1, 12) if boundary_is_z else (3, 11)
-        mapping[CORNER] = mapping[BULK] = RPNGDescription.from_string(
-            f"---- {r}{be}2{m} ---- {r}{be}4{m}"
-        )
+        mapping[CORNER] = mapping[BULK] = TBPs[SBS][PlaquetteOrientation.LEFT]
 
     # If we have an L-shaped junction, the opposite corner plaquette should be
     # removed from the mapping (this is the case where it has been set twice in
@@ -320,7 +245,7 @@ def get_spatial_cube_qubit_rpng_descriptions(
     # If these need to be changed, it will be done afterwards.
     # Setting the orientations for Z plaquettes for each of the four portions of
     # the template bulk.
-    ZUP = ZDOWN = _Orientation.VERTICAL if boundary_is_z else _Orientation.HORIZONTAL
+    ZUP = ZDOWN = Orientation.VERTICAL if boundary_is_z else Orientation.HORIZONTAL
     ZRIGHT = ZLEFT = ZUP.flip()
     # If the corresponding arm is missing, the Z plaquette hook error orientation
     # should flip to avoid shortcuts due to hook errors.
@@ -492,20 +417,21 @@ def _get_left_right_spatial_cube_arm_rpng_descriptions(
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
-    # be/bi = basis external/basis internal
-    be = spatial_boundary_basis.value.lower()
     # We need the bulk plaquettes to only reset the central qubits of the pipe.
     # To do so, we have two sets of bulk plaquettes with different reset/measured
     # qubits. Plaquettes that should go on the LEFT part of the pipe should
     # measure right qubits (i.e., indices 1 and 3) and conversely for the RIGHT
     # part.
-    BPs_LEFT = _get_bulk_plaquettes(reset, measurement, (1, 3))
-    BPs_RIGHT = _get_bulk_plaquettes(reset, measurement, (0, 2))
+    # BPs: Bulk Plaquettes
+    BPs_LEFT = get_bulk_plaquettes(reset, measurement, (1, 3))
+    BPs_RIGHT = get_bulk_plaquettes(reset, measurement, (0, 2))
+    # TBPs: Two Body Plaquettes.
+    TBPs = get_2_body_plaquettes(reset, measurement)
     # The hook errors also need to be adapted to the boundary basis.
     ZHOOK = (
-        _Orientation.HORIZONTAL
+        Orientation.HORIZONTAL
         if spatial_boundary_basis == Basis.Z
-        else _Orientation.VERTICAL
+        else Orientation.VERTICAL
     )
     XHOOK = ZHOOK.flip()
     # List the plaquettes used. This mapping might be corrected afterwards to
@@ -518,8 +444,8 @@ def _get_left_right_spatial_cube_arm_rpng_descriptions(
         # For convenience of definition here, the 2-body stabilizers never reset
         # or measure their data-qubits. If a reset/measurement is needed, it is
         # already included in the plaquettes in the bulk.
-        UP: RPNGDescription.from_string(f"---- ---- -{be}3- -{be}5-"),
-        DOWN: RPNGDescription.from_string(f"-{be}1- -{be}2- ---- ----"),
+        UP: TBPs[spatial_boundary_basis][PlaquetteOrientation.UP],
+        DOWN: TBPs[spatial_boundary_basis][PlaquetteOrientation.DOWN],
         # LEFT bulk
         5: BPs_LEFT[Basis.Z][ZHOOK],
         6: BPs_LEFT[Basis.X][XHOOK],
@@ -546,19 +472,19 @@ def _get_up_down_spatial_cube_arm_rpng_descriptions(
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> FrozenDefaultDict[int, RPNGDescription]:
-    # be/bi = basis external/basis internal
-    be = spatial_boundary_basis.value.lower()
     # We need the bulk plaquettes to only reset the central qubits of the pipe.
     # To do so, we have two sets of bulk plaquettes with different reset/measured
     # qubits. Plaquettes that should go on the UP part of the pipe should measure
     # bottom qubits (i.e., indices 2 and 3) and conversely for the DOWN part.
-    BPs_UP = _get_bulk_plaquettes(reset, measurement, (2, 3))
-    BPs_DOWN = _get_bulk_plaquettes(reset, measurement, (0, 1))
+    BPs_UP = get_bulk_plaquettes(reset, measurement, (2, 3))
+    BPs_DOWN = get_bulk_plaquettes(reset, measurement, (0, 1))
+    # TBPs: Two Body Plaquettes.
+    TBPs = get_2_body_plaquettes(reset, measurement)
     # The hook errors also need to be adapted to the boundary basis.
     ZHOOK = (
-        _Orientation.VERTICAL
+        Orientation.VERTICAL
         if spatial_boundary_basis == Basis.Z
-        else _Orientation.HORIZONTAL
+        else Orientation.HORIZONTAL
     )
     XHOOK = ZHOOK.flip()
     # List the plaquettes used. This mapping might be corrected afterwards to
@@ -571,8 +497,8 @@ def _get_up_down_spatial_cube_arm_rpng_descriptions(
         # For convenience of definition here, the 2-body stabilizers never reset
         # or measure their data-qubits. If a reset/measurement is needed, it is
         # already included in the plaquettes in the bulk.
-        LEFT: RPNGDescription.from_string(f"---- -{be}4- ---- -{be}5-"),
-        RIGHT: RPNGDescription.from_string(f"-{be}1- ---- -{be}3- ----"),
+        LEFT: TBPs[spatial_boundary_basis][PlaquetteOrientation.LEFT],
+        RIGHT: TBPs[spatial_boundary_basis][PlaquetteOrientation.RIGHT],
         # TOP bulk
         5: BPs_UP[Basis.Z][ZHOOK],
         6: BPs_UP[Basis.X][XHOOK],

@@ -20,11 +20,6 @@ from tqec.compile.specs.library.generators import (
     get_spatial_cube_arm_raw_template,
     get_spatial_cube_qubit_plaquettes,
     get_spatial_cube_qubit_raw_template,
-    get_spatial_horizontal_hadamard_plaquettes,
-    get_spatial_horizontal_hadamard_raw_template,
-    get_spatial_vertical_hadamard_plaquettes,
-    get_spatial_vertical_hadamard_raw_template,
-    get_temporal_hadamard_plaquettes,
 )
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import PlaquetteCompiler
@@ -32,8 +27,8 @@ from tqec.plaquette.plaquette import Plaquette, Plaquettes, RepeatedPlaquettes
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.base import RectangularTemplate
-from tqec.templates.enums import TemplateBorder, ZObservableOrientation
-from tqec.utils.enums import Basis
+from tqec.templates.enums import TemplateBorder
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
@@ -80,9 +75,7 @@ class BaseBlockBuilder(BlockBuilder):
         x, _, z = spec.kind.as_tuple()
         if not spec.is_spatial:
             orientation = (
-                ZObservableOrientation.HORIZONTAL
-                if x == Basis.Z
-                else ZObservableOrientation.VERTICAL
+                Orientation.HORIZONTAL if x == Basis.Z else Orientation.VERTICAL
             )
             return get_memory_qubit_raw_template(), (
                 get_memory_qubit_plaquettes(orientation, z, None),
@@ -190,9 +183,9 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         assert not spec.pipe_kind.has_hadamard
 
         z_observable_orientation = (
-            ZObservableOrientation.HORIZONTAL
+            Orientation.HORIZONTAL
             if spec.pipe_kind.x == Basis.Z
-            else ZObservableOrientation.VERTICAL
+            else Orientation.VERTICAL
         )
         memory_plaquettes = get_memory_qubit_plaquettes(z_observable_orientation)
         return Substitution({-1: memory_plaquettes}, {0: memory_plaquettes})
@@ -218,29 +211,7 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
             the substitution that should be performed to implement the provided
             ``spec``.
         """
-        assert spec.pipe_kind.is_temporal
-        assert spec.pipe_kind.has_hadamard
-
-        #
-        x_axis_basis_at_head = spec.pipe_kind.get_basis_along(
-            Direction3D.X, at_head=True
-        )
-        assert x_axis_basis_at_head is not None, (
-            "A temporal pipe should have a non-None basis on the X-axis."
-        )
-
-        first_layer_orientation: ZObservableOrientation
-        second_layer_orientation: ZObservableOrientation
-        if x_axis_basis_at_head == Basis.Z:
-            first_layer_orientation = ZObservableOrientation.HORIZONTAL
-            second_layer_orientation = ZObservableOrientation.VERTICAL
-        else:
-            first_layer_orientation = ZObservableOrientation.VERTICAL
-            second_layer_orientation = ZObservableOrientation.HORIZONTAL
-        hadamard_plaquettes = get_temporal_hadamard_plaquettes(first_layer_orientation)
-        memory_plaquettes = get_memory_qubit_plaquettes(second_layer_orientation)
-
-        return Substitution({-1: hadamard_plaquettes}, {0: memory_plaquettes})
+        raise NotImplementedError("Hamadard pipes are not implemented.")
 
     ##############################
     #    SPATIAL SUBSTITUTION    #
@@ -365,15 +336,13 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         """Returns the ``Template`` instance needed to implement the pipe
         representing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
-        match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
-            case Direction3D.X, False:
+        if spec.pipe_kind.has_hadamard:
+            raise NotImplementedError("Hadamard pipes are not implemented.")
+        match spec.pipe_kind.direction:
+            case Direction3D.X:
                 return get_memory_vertical_boundary_raw_template()
-            case Direction3D.X, True:
-                return get_spatial_vertical_hadamard_raw_template()
-            case Direction3D.Y, False:
+            case Direction3D.Y:
                 return get_memory_horizontal_boundary_raw_template()
-            case Direction3D.Y, True:
-                return get_spatial_horizontal_hadamard_raw_template()
             case _:
                 raise TQECException(
                     "Spatial pipes cannot have a direction equal to Direction3D.Z."
@@ -384,43 +353,28 @@ class BaseSubstitutionBuilder(SubstitutionBuilder):
         spec: PipeSpec,
     ) -> Callable[[Basis | None, Basis | None], Plaquettes]:
         assert spec.pipe_kind.is_spatial
-        match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
-            case Direction3D.X, False:
+        if spec.pipe_kind.has_hadamard:
+            raise NotImplementedError("Hadamard pipes are not implemented.")
+        match spec.pipe_kind.direction:
+            case Direction3D.X:
                 # Non-Hadamard pipe in the X direction.
                 z_observable_orientation = (
-                    ZObservableOrientation.HORIZONTAL
+                    Orientation.HORIZONTAL
                     if spec.pipe_kind.y == Basis.X
-                    else ZObservableOrientation.VERTICAL
+                    else Orientation.VERTICAL
                 )
                 return lambda r, m: get_memory_vertical_boundary_plaquettes(
                     z_observable_orientation, r, m
                 )
-            case Direction3D.X, True:
-                # Hadamard pipe in the X direction.
-                top_left_basis = spec.pipe_kind.get_basis_along(
-                    Direction3D.Y, at_head=True
-                )
-                return lambda r, m: get_spatial_vertical_hadamard_plaquettes(
-                    top_left_basis == Basis.Z, r, m
-                )
-            case Direction3D.Y, False:
+            case Direction3D.Y:
                 # Non-Hadamard pipe in the Y direction.
                 z_observable_orientation = (
-                    ZObservableOrientation.HORIZONTAL
+                    Orientation.HORIZONTAL
                     if spec.pipe_kind.x == Basis.Z
-                    else ZObservableOrientation.VERTICAL
+                    else Orientation.VERTICAL
                 )
                 return lambda r, m: get_memory_horizontal_boundary_plaquettes(
                     z_observable_orientation, r, m
-                )
-
-            case Direction3D.Y, True:
-                # Hadamard pipe in the Y direction.
-                top_left_basis = spec.pipe_kind.get_basis_along(
-                    Direction3D.X, at_head=True
-                )
-                return lambda r, m: get_spatial_horizontal_hadamard_plaquettes(
-                    top_left_basis == Basis.Z, r, m
                 )
             case _:
                 raise TQECException(
