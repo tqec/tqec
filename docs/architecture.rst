@@ -5,6 +5,12 @@ This document is mainly targeted at a developer wanting to contribute to the
 ``tqec`` library. It gives a high-level overview of the different pieces that compose
 the ``tqec`` library and how they interact with each other.
 
+.. warning::
+
+    This is a rapidly evolving project - codebase might change. If you encounter any
+    inconsistencies, please open `an issue <https://github.com/tqec/tqec/issues/new/choose>`_.
+
+
 This is done by presenting each of the sub-modules and their main classes / methods
 in the order in which they are used internally to go from a topological computation to
 an instance of ``stim.Circuit`` that can be executed on compatible hardware.
@@ -39,7 +45,7 @@ the order in which the sub-modules will be covered here.
 ``tqec.interop``
 ----------------
 
-TODO
+This module allows a user to provide a ``.dae`` file or a ``pyzx`` graph as an input to ``tqec``.
 
 ``tqec.computation``
 --------------------
