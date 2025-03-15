@@ -593,6 +593,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.ZXCube.get_basis_along" title="tqec.computation.ZXCube.get_basis_along"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_basis_along</span></code></a>(direction)</p></td>
 <td><p>Get the basis of the walls along the given direction axis.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.ZXCube.with_basis_along" title="tqec.computation.ZXCube.with_basis_along"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_basis_along</span></code></a>(direction, basis)</p></td>
+<td><p>Set the basis of the walls along the given direction axis and return a new instance.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -706,6 +709,28 @@ the string representation.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.ZXCube.with_basis_along">
+<span class="sig-name descname"><span class="pre">with_basis_along</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/cube.html#ZXCube.with_basis_along"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.ZXCube.with_basis_along" title="Link to this definition">#</a></dt>
+<dd><p>Set the basis of the walls along the given direction axis and return
+a new instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>direction</strong> (<a class="reference internal" href="tqec.utils.Direction3D.html#tqec.utils.Direction3D" title="tqec.utils.position.Direction3D"><em>Direction3D</em></a>) – The direction of the axis along which the basis is set.</p></li>
+<li><p><strong>basis</strong> (<a class="reference internal" href="tqec.utils.Basis.html#tqec.utils.Basis" title="tqec.utils.enums.Basis"><em>Basis</em></a>) – The basis to set along the given direction axis.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The new <a class="reference internal" href="#tqec.computation.ZXCube" title="tqec.computation.cube.ZXCube"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXCube</span></code></a> instance with the basis
+set along the given direction axis.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.computation.ZXCube" title="tqec.computation.cube.ZXCube"><em>ZXCube</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -766,6 +791,7 @@ the string representation.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXCube.as_tuple"><code class="docutils literal notranslate"><span class="pre">ZXCube.as_tuple()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXCube.from_str"><code class="docutils literal notranslate"><span class="pre">ZXCube.from_str()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXCube.get_basis_along"><code class="docutils literal notranslate"><span class="pre">ZXCube.get_basis_along()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.ZXCube.with_basis_along"><code class="docutils literal notranslate"><span class="pre">ZXCube.with_basis_along()</span></code></a></li>
 </ul>
 </li>
 </ul>

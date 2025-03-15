@@ -413,6 +413,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">collada</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">collada.source</span>
@@ -423,7 +424,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">YHalfCube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeKind</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada._geometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BlockGeometries</span><span class="p">,</span>
     <span class="n">Face</span><span class="p">,</span>
@@ -460,6 +461,9 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    Args:</span>
 <span class="sd">        filepath: The input dae file path.</span>
 <span class="sd">        graph_name: The name of the block graph. Default is an empty string.</span>
+<span class="sd">        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph.</span>
+<span class="sd">            See :py:meth:`~tqec.computation.block_graph.BlockGraph.fix_shadowed_faces`</span>
+<span class="sd">            for more details. Default is True.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.</span>
@@ -624,7 +628,15 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">tail_pos</span><span class="p">,</span> <span class="n">Port</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Port</span><span class="si">{</span><span class="n">port_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">port_index</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">head_pos</span><span class="p">,</span> <span class="n">tail_pos</span><span class="p">,</span> <span class="n">pipe_kind</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">graph</span></div>
+
+    <span class="n">graph_fixed</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">fix_shadowed_faces</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">graph_fixed</span> <span class="o">!=</span> <span class="n">graph</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Some shadowed faces have been fixed. &quot;</span>
+            <span class="s2">&quot;Check `BlockGraph.fix_shadowed_faces` for more details.&quot;</span><span class="p">,</span>
+            <span class="n">TQECWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">graph_fixed</span></div>
 
 
 
