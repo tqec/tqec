@@ -11,6 +11,7 @@ from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
 from tqec.templates.layout import LayoutTemplate
+from tqec.utils.enums import Basis
 from tqec.utils.position import (
     Direction3D,
     PlaquetteShape2D,
@@ -66,20 +67,28 @@ def inplace_add_observable(
             # handled later
             if cube.is_spatial:
                 continue
+            assert isinstance(cube.kind, ZXCube)
+            stabilizer_basis = cube.kind.get_basis_along(
+                Direction3D(1 - pipe.direction.value)
+            )
             _collect_into(
                 bottom_stabilizer_qubits,
                 cube.position,
                 _get_bottom_stabilizer_cube_qubits(
                     _block_shape(cube.position.z, k),
                     SignedDirection3D(pipe.direction, cube == pipe.u),
+                    stabilizer_basis,
+                    pipe.kind.has_hadamard,
                 ),
             )
     for cube in abstract_observable.bottom_stabilizer_spatial_cubes:
+        assert isinstance(cube.kind, ZXCube)
+        stabilizer_basis = cube.kind.x
         _collect_into(
             bottom_stabilizer_qubits,
             cube.position,
             _get_bottom_stabilizer_spatial_cube_qubits(
-                _block_shape(cube.position.z, k)
+                _block_shape(cube.position.z, k), stabilizer_basis
             ),
         )
 
@@ -89,7 +98,9 @@ def inplace_add_observable(
             top_data_qubits,
             pipe.u.position,
             _get_top_readout_pipe_qubits(
-                _block_shape(pipe.u.position.z, k), pipe.direction
+                _block_shape(pipe.u.position.z, k),
+                pipe.direction,
+                pipe.kind.has_hadamard,
             ),
         )
     for cube in abstract_observable.top_readout_cubes:
@@ -100,11 +111,13 @@ def inplace_add_observable(
             _get_top_readout_cube_qubits(_block_shape(cube.position.z, k), cube.kind),
         )
     for cube, arms in abstract_observable.top_readout_spatial_cubes:
+        assert isinstance(cube.kind, ZXCube)
+        observable_basis = cube.kind.z
         _collect_into(
             top_data_qubits,
             cube.position,
             _get_top_readout_spatial_cube_qubits(
-                _block_shape(cube.position.z, k), arms
+                _block_shape(cube.position.z, k), arms, observable_basis
             ),
         )
 
@@ -195,7 +208,7 @@ def _get_top_readout_cube_qubits(
 
 
 def _get_top_readout_pipe_qubits(
-    u_shape: PlaquetteShape2D, connect_to: Direction3D
+    u_shape: PlaquetteShape2D, connect_to: Direction3D, spatial_hadamard: bool
 ) -> list[tuple[int, int]]:
     """The top line at a pipe is actually a single data qubits at the interface
     of the two connected cubes.
@@ -206,6 +219,10 @@ def _get_top_readout_pipe_qubits(
     pipe.
     """
     assert connect_to != Direction3D.Z
+    # There will be no data qubit at the center of the spatial Hadamard pipe
+    # due to the measurement of the stretched stabilizer.
+    if spatial_hadamard:
+        return []
     if connect_to == Direction3D.X:
         return [(u_shape.x, u_shape.y // 2)]
     else:
@@ -213,7 +230,10 @@ def _get_top_readout_pipe_qubits(
 
 
 def _get_bottom_stabilizer_cube_qubits(
-    cube_shape: PlaquetteShape2D, connect_to: SignedDirection3D
+    cube_shape: PlaquetteShape2D,
+    connect_to: SignedDirection3D,
+    stabilizer_basis: Basis,
+    spatial_hadamard: bool = False,
 ) -> list[tuple[float, float]]:
     """The stabilizer measurements at the bottom of the cube will be included
     in the logical observable. Note that only half of the stabilizers in the
@@ -227,13 +247,28 @@ def _get_bottom_stabilizer_cube_qubits(
     in the local coordinate system of the cube.
     """
     stabilizers: list[tuple[float, float]] = []
+    xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
     # We calculate the qubits for the connect_to=SignedDirection3D(Direction3D.X, True) case
     # and rotate to get the correct orientation.
-    for i in range(cube_shape.x // 2):
-        x = cube_shape.x - i - 0.5
-        for j in range(cube_shape.y // 2):
-            y = (1 - i % 2) + 2 * j + 0.5
+    num_cols = cube_shape.x // 2
+    # NOTE: Here we assume that measurement of stretched stabilizer happens at the
+    # boundary plaquette that belongs to the cube with larger 3D position.
+    # This assumption is not guaranteed and should be checked when implementing
+    # the plaquettes for spatial Hadamard.
+    if spatial_hadamard and connect_to.towards_positive:
+        num_cols -= 1
+    for i in range(cube_shape.x // 2, cube_shape.x // 2 + num_cols):
+        for j in range(cube_shape.y):
+            if (i + j) % 2 != xy_sum_parity:
+                continue
+            x = i + 0.5
+            y = j + 0.5
+            # reflect the coordinates along the middle line of the cube
+            # if the direction is along Y to preserve the checkerboard parity
+            if connect_to.direction == Direction3D.Y:
+                y = cube_shape.y - y
             stabilizers.append((x, y))
+
     # rotate all coordinates around the block center:
     # rx = cx + a * (x - cx) - b * (y - cy)
     # ry = cy + b * (x - cx) + a * (y - cy)
@@ -260,7 +295,7 @@ def _get_bottom_stabilizer_cube_qubits(
 
 
 def _get_top_readout_spatial_cube_qubits(
-    cube_shape: PlaquetteShape2D, arms: SpatialArms
+    cube_shape: PlaquetteShape2D, arms: SpatialArms, observable_basis: Basis
 ) -> list[tuple[int, int]]:
     """The data qubits at the spatial cubes will be read out and included in
     the logical observable.
@@ -277,25 +312,38 @@ def _get_top_readout_spatial_cube_qubits(
     elif arms == SpatialArms.UP | SpatialArms.DOWN:
         return [(half_x, y) for y in range(cube_shape.y + 1)]
     elif arms == SpatialArms.LEFT | SpatialArms.UP:
-        return [(x, half_y) for x in range(half_x)] + [
+        qubits = [(x, half_y) for x in range(half_x)] + [
             (half_x, y) for y in range(half_y)
         ]
+        if observable_basis == Basis.Z:
+            qubits.append((half_x, half_y))
+        return qubits
     elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
-        return [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
+        qubits = [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
             (half_x, y) for y in range(cube_shape.y, half_y, -1)
         ]
+        if observable_basis == Basis.Z:
+            qubits.append((half_x, half_y))
+        return qubits
     elif arms == SpatialArms.UP | SpatialArms.RIGHT:
-        return [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
+        qubits = [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
             (half_x, y) for y in range(half_y + 1)
         ]
+        if observable_basis == Basis.X:
+            qubits.append((half_x, half_y))
+        return qubits
     else:  # arms == SpatialArms.LEFT | SpatialArms.DOWN:
-        return [(x, half_y) for x in range(half_x + 1)] + [
+        qubits = [(x, half_y) for x in range(half_x + 1)] + [
             (half_x, y) for y in range(cube_shape.y, half_y, -1)
         ]
+        if observable_basis == Basis.X:
+            qubits.append((half_x, half_y))
+        return qubits
 
 
 def _get_bottom_stabilizer_spatial_cube_qubits(
     cube_shape: PlaquetteShape2D,
+    stabilizer_basis: Basis,
 ) -> list[tuple[float, float]]:
     """The stabilizer measurements at the spatial cubes will be included in the
     logical observable.
@@ -305,9 +353,10 @@ def _get_bottom_stabilizer_spatial_cube_qubits(
     will filter out the qubits not used in the measurement records in
     ``inplace_add_observable``.
     """
+    xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
     return [
         (i + 0.5, j + 0.5)
         for i in range(cube_shape.x)
         for j in range(cube_shape.y)
-        if (i + j) % 2 == 0
+        if (i + j) % 2 == xy_sum_parity
     ]

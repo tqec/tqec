@@ -13,6 +13,7 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
 from tqec.templates.layout import LayoutTemplate
 from tqec.templates.qubit import QubitTemplate
+from tqec.utils.enums import Basis
 from tqec.utils.position import (
     BlockPosition2D,
     Direction3D,
@@ -38,27 +39,31 @@ def test_get_top_readout_cube_qubits(
 
 
 @pytest.mark.parametrize(
-    "direction, expected",
+    "direction, spatial_hadamard, expected",
     [
-        (Direction3D.X, [(6, 3)]),
-        (Direction3D.Y, [(3, 6)]),
+        (Direction3D.X, False, [(6, 3)]),
+        (Direction3D.Y, False, [(3, 6)]),
+        (Direction3D.X, True, []),
     ],
 )
 def test_get_top_readout_pipe_qubits(
     direction: Direction3D,
+    spatial_hadamard: bool,
     expected: list[tuple[int, int]],
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
-    coords = _get_top_readout_pipe_qubits(shape, direction)
+    coords = _get_top_readout_pipe_qubits(shape, direction, spatial_hadamard)
     assert coords == expected
 
 
 @pytest.mark.parametrize(
-    "connect_to, expected",
+    "connect_to, stabilizer_basis, spatial_hadamard, expected",
     [
         (
             SignedDirection3D(Direction3D.X, True),
-            {
+            Basis.Z,
+            False,
+            [
                 (3.5, 1.5),
                 (3.5, 3.5),
                 (3.5, 5.5),
@@ -68,11 +73,26 @@ def test_get_top_readout_pipe_qubits(
                 (5.5, 1.5),
                 (5.5, 3.5),
                 (5.5, 5.5),
-            },
+            ],
+        ),
+        (
+            SignedDirection3D(Direction3D.X, True),
+            Basis.Z,
+            True,
+            [
+                (3.5, 1.5),
+                (3.5, 3.5),
+                (3.5, 5.5),
+                (4.5, 0.5),
+                (4.5, 2.5),
+                (4.5, 4.5),
+            ],
         ),
         (
             SignedDirection3D(Direction3D.X, False),
-            {
+            Basis.Z,
+            False,
+            [
                 (0.5, 0.5),
                 (0.5, 2.5),
                 (0.5, 4.5),
@@ -82,85 +102,171 @@ def test_get_top_readout_pipe_qubits(
                 (2.5, 0.5),
                 (2.5, 2.5),
                 (2.5, 4.5),
-            },
+            ],
+        ),
+        (
+            SignedDirection3D(Direction3D.X, False),
+            Basis.Z,
+            True,
+            [
+                (0.5, 0.5),
+                (0.5, 2.5),
+                (0.5, 4.5),
+                (1.5, 1.5),
+                (1.5, 3.5),
+                (1.5, 5.5),
+                (2.5, 0.5),
+                (2.5, 2.5),
+                (2.5, 4.5),
+            ],
         ),
         (
             SignedDirection3D(Direction3D.Y, True),
-            {
-                (0.5, 3.5),
-                (2.5, 3.5),
-                (4.5, 3.5),
-                (1.5, 4.5),
-                (3.5, 4.5),
-                (5.5, 4.5),
-                (0.5, 5.5),
-                (2.5, 5.5),
-                (4.5, 5.5),
-            },
+            Basis.Z,
+            False,
+            [
+                (0.5, 4.5),
+                (1.5, 3.5),
+                (1.5, 5.5),
+                (2.5, 4.5),
+                (3.5, 3.5),
+                (3.5, 5.5),
+                (4.5, 4.5),
+                (5.5, 3.5),
+                (5.5, 5.5),
+            ],
+        ),
+        (
+            SignedDirection3D(Direction3D.Y, True),
+            Basis.Z,
+            True,
+            [
+                (0.5, 4.5),
+                (1.5, 3.5),
+                (2.5, 4.5),
+                (3.5, 3.5),
+                (4.5, 4.5),
+                (5.5, 3.5),
+            ],
         ),
         (
             SignedDirection3D(Direction3D.Y, False),
-            {
-                (3.5, 0.5),
-                (5.5, 0.5),
-                (1.5, 0.5),
+            Basis.Z,
+            False,
+            [
+                (0.5, 0.5),
+                (0.5, 2.5),
+                (1.5, 1.5),
+                (2.5, 0.5),
+                (2.5, 2.5),
+                (3.5, 1.5),
+                (4.5, 0.5),
+                (4.5, 2.5),
+                (5.5, 1.5),
+            ],
+        ),
+        (
+            SignedDirection3D(Direction3D.Y, False),
+            Basis.X,
+            False,
+            [
                 (0.5, 1.5),
-                (2.5, 1.5),
-                (4.5, 1.5),
+                (1.5, 0.5),
                 (1.5, 2.5),
+                (2.5, 1.5),
+                (3.5, 0.5),
                 (3.5, 2.5),
+                (4.5, 1.5),
+                (5.5, 0.5),
                 (5.5, 2.5),
-            },
+            ],
+        ),
+        (
+            SignedDirection3D(Direction3D.Y, False),
+            Basis.X,
+            True,
+            [
+                (0.5, 1.5),
+                (1.5, 0.5),
+                (1.5, 2.5),
+                (2.5, 1.5),
+                (3.5, 0.5),
+                (3.5, 2.5),
+                (4.5, 1.5),
+                (5.5, 0.5),
+                (5.5, 2.5),
+            ],
         ),
     ],
 )
 def test_get_bottom_stabilizer_cube_qubits(
     connect_to: SignedDirection3D,
-    expected: set[tuple[float, float]],
+    stabilizer_basis: Basis,
+    spatial_hadamard: bool,
+    expected: list[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
-    coords = set(_get_bottom_stabilizer_cube_qubits(shape, connect_to))
+    coords = sorted(
+        _get_bottom_stabilizer_cube_qubits(
+            shape, connect_to, stabilizer_basis, spatial_hadamard
+        )
+    )
     assert coords == expected
 
 
 @pytest.mark.parametrize("k", (1, 2, 10))
-def test_get_bottom_stabilizer_spatial_cube_qubits(k: int) -> None:
+@pytest.mark.parametrize("basis", (Basis.X, Basis.Z))
+def test_get_bottom_stabilizer_spatial_cube_qubits(k: int, basis: Basis) -> None:
     w = 2 * k + 2
     shape = PlaquetteShape2D(w, w)
-    coords = set(_get_bottom_stabilizer_spatial_cube_qubits(shape))
+    coords = set(_get_bottom_stabilizer_spatial_cube_qubits(shape, basis))
     assert len(coords) == w**2 // 2
-    assert all(c % 0.5 == 0 for cs in coords for c in cs)
+    assert all((cs[0] + cs[1]) % 2 == (basis == Basis.Z) for cs in coords)
 
 
 @pytest.mark.parametrize(
-    "arms, expected",
+    "arms, observabel_basis, expected",
     [
-        (SpatialArms.LEFT | SpatialArms.UP, {(0, 2), (1, 2), (2, 0), (2, 1)}),
+        (SpatialArms.LEFT | SpatialArms.UP, Basis.X, {(0, 2), (1, 2), (2, 0), (2, 1)}),
+        (
+            SpatialArms.LEFT | SpatialArms.UP,
+            Basis.Z,
+            {(0, 2), (1, 2), (2, 0), (2, 1), (2, 2)},
+        ),
         (
             SpatialArms.LEFT | SpatialArms.DOWN,
+            Basis.Z,
             {(0, 2), (1, 2), (2, 2), (2, 3), (2, 4)},
         ),
         (
             SpatialArms.UP | SpatialArms.RIGHT,
+            Basis.X,
             {(2, 1), (2, 0), (4, 2), (2, 2), (3, 2)},
         ),
-        (SpatialArms.DOWN | SpatialArms.RIGHT, {(2, 3), (2, 4), (4, 2), (3, 2)}),
+        (
+            SpatialArms.DOWN | SpatialArms.RIGHT,
+            Basis.X,
+            {(2, 3), (2, 4), (4, 2), (3, 2)},
+        ),
         (
             SpatialArms.LEFT | SpatialArms.RIGHT,
+            Basis.Z,
             {(0, 2), (1, 2), (2, 2), (3, 2), (4, 2)},
         ),
         (
             SpatialArms.UP | SpatialArms.DOWN,
+            Basis.Z,
             {(2, 0), (2, 1), (2, 2), (2, 3), (2, 4)},
         ),
     ],
 )
 def test_get_top_readout_spatial_cube_qubits(
     arms: SpatialArms,
+    observabel_basis: Basis,
     expected: set[tuple[int, int]],
 ) -> None:
     shape = PlaquetteShape2D(4, 4)
-    coords = set(_get_top_readout_spatial_cube_qubits(shape, arms))
+    coords = set(_get_top_readout_spatial_cube_qubits(shape, arms, observabel_basis))
     assert coords == expected
 
 
