@@ -57,7 +57,7 @@ def rotated_cnot(observable_basis: Basis | None = None) -> BlockGraph:
 
 @pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
 def test_logical_cnot_collada_write_read(pipe_length: float) -> None:
-    block_graph = cnot(Basis.Z)
+    block_graph = cnot(Basis.X)
 
     # Set `delete=False` to be compatible with Windows
     # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
