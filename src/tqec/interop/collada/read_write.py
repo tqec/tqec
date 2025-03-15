@@ -5,6 +5,7 @@ from __future__ import annotations
 import pathlib
 from dataclasses import dataclass
 from typing import BinaryIO, Iterable, cast
+import warnings
 
 import collada
 import collada.source
@@ -15,7 +16,7 @@ from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_
 from tqec.computation.cube import CubeKind, Port, YHalfCube
 from tqec.computation.pipe import PipeKind
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.interop.collada._geometry import (
     BlockGeometries,
     Face,
@@ -50,6 +51,9 @@ def read_block_graph_from_dae_file(
     Args:
         filepath: The input dae file path.
         graph_name: The name of the block graph. Default is an empty string.
+        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph.
+            See :py:meth:`~tqec.computation.block_graph.BlockGraph.fix_shadowed_faces`
+            for more details. Default is True.
 
     Returns:
         The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
@@ -214,7 +218,15 @@ def read_block_graph_from_dae_file(
             graph.add_cube(tail_pos, Port(), label=f"Port{port_index}")
             port_index += 1
         graph.add_pipe(head_pos, tail_pos, pipe_kind)
-    return graph
+
+    graph_fixed = graph.fix_shadowed_faces()
+    if graph_fixed != graph:
+        warnings.warn(
+            "There are some shadowed faces have been fixed. "
+            "Check `BlockGraph.fix_shadowed_faces` for more details.",
+            TQECWarning,
+        )
+    return graph_fixed
 
 
 def write_block_graph_to_dae_file(

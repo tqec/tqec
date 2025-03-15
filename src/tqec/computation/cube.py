@@ -110,6 +110,25 @@ class ZXCube:
         """
         return self.as_tuple()[direction.value]
 
+    def with_basis_along(self, direction: Direction3D, basis: Basis) -> ZXCube:
+        """Set the basis of the walls along the given direction axis and return
+        a new instance.
+
+        Args:
+            direction: The direction of the axis along which the basis is set.
+            basis: The basis to set along the given direction axis.
+
+        Returns:
+            The new :py:class:`~tqec.computation.cube.ZXCube` instance with the basis
+            set along the given direction axis.
+        """
+        return ZXCube(
+            *[
+                basis if i == direction.value else b
+                for i, b in enumerate(self.as_tuple())
+            ]
+        )
+
 
 class Port:
     """Cube kind representing the open ports in the block graph.

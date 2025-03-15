@@ -643,6 +643,76 @@ class BlockGraph:
             )
         return rotated
 
+    def fix_shadowed_faces(self) -> BlockGraph:
+        """Fix the basis of those shadowed faces of the cubes in the graph.
+
+        A pair of face can be shadowed if the cube is connected to two pipes
+        in the same direction. Though these faces are not visible in the 3D
+        visualization, they are still identified by the cube kind and can
+        affect the circuit compilation.
+
+        The basis of the cube is enforced to match the pipes connected to it.
+        If there is unmatched shadowed faces, we try to fix their basis. This
+        will leave some freedom in constructing the model in SketchUp and make
+        everyones' life easier.
+
+        Additionally, for a spatial pass-through, i.e. a cube only connected to
+        two pipes in the same direction, we will fix the cube kind to not be a
+        spatial cube.
+
+        Note that the fixed graph is still not guaranteed to be valid as some
+        other conditions may be violated. You still need to call
+        :py:meth:`~tqec.computation.block_graph.BlockGraph.validate` to check
+        the validity of the graph.
+
+        Returns:
+            A new graph with the shadowed faces fixed.
+        """
+        fixed_cubes: dict[Cube, Cube] = {}
+        for cube in self.cubes:
+            pipes_by_direction: dict[Direction3D, list[Pipe]] = {}
+            for pipe in self.pipes_at(cube.position):
+                pipes_by_direction.setdefault(pipe.direction, []).append(pipe)
+            # Regularize the cube in a spatial pass-through
+            if len(pipes_by_direction) == 1:
+                direction = next(iter(pipes_by_direction))
+                if direction == Direction3D.Z or not cube.is_spatial:
+                    continue
+                kind = cube.kind
+                assert isinstance(kind, ZXCube)
+                basis = kind.get_basis_along(direction)
+                new_kind = kind.with_basis_along(direction, basis.flipped())
+                new_cube = Cube(cube.position, new_kind, cube.label)
+                fixed_cubes[cube] = new_cube
+            # Fix the shadowed faces
+            if len(pipes_by_direction) != 2:
+                continue
+            d1, d2 = pipes_by_direction.keys()
+            assert isinstance(cube.kind, ZXCube)
+            new_kind = cube.kind
+            for d_this, d_other in zip([d1, d2], [d2, d1]):
+                if not len(pipes_by_direction[d_this]) == 2:
+                    continue
+                basis_this = new_kind.get_basis_along(d_this)
+                need_match_pipe = next(iter(pipes_by_direction[d_other]))
+                pipe_basis = need_match_pipe.kind.get_basis_along(
+                    d_this, need_match_pipe.at_head(cube.position)
+                )
+                assert pipe_basis is not None
+                if pipe_basis == basis_this:
+                    continue
+                new_kind = new_kind.with_basis_along(d_this, pipe_basis)
+            if new_kind != cube.kind:
+                new_cube = Cube(cube.position, new_kind, cube.label)
+                fixed_cubes[cube] = new_cube
+        new_graph = BlockGraph(self.name)
+        for cube in self.cubes:
+            new_cube = fixed_cubes.get(cube, cube)
+            new_graph.add_cube(cube.position, new_cube.kind, new_cube.label)
+        for pipe in self.pipes:
+            new_graph.add_pipe(pipe.u.position, pipe.v.position, pipe.kind)
+        return new_graph
+
 
 def block_kind_from_str(string: str) -> BlockKind:
     """Parse a block kind from a string."""
