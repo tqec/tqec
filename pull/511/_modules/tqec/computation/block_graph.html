@@ -1154,6 +1154,8 @@ window.addEventListener("load", () => mermaid.run());
             <span class="c1"># Regularize the cube in a spatial pass-through</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes_by_direction</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">direction</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">pipes_by_direction</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes_by_direction</span><span class="p">[</span><span class="n">direction</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">continue</span>
                 <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_spatial</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="n">kind</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">kind</span>
