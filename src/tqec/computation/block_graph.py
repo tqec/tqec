@@ -670,40 +670,53 @@ class BlockGraph:
         """
         fixed_cubes: dict[Cube, Cube] = {}
         for cube in self.cubes:
+            if not isinstance(cube.kind, ZXCube):
+                continue
+            # Group connected pipes by direction
             pipes_by_direction: dict[Direction3D, list[Pipe]] = {}
             for pipe in self.pipes_at(cube.position):
                 pipes_by_direction.setdefault(pipe.direction, []).append(pipe)
-            # Regularize the cube in a spatial pass-through
-            if len(pipes_by_direction) == 1:
-                direction = next(iter(pipes_by_direction))
-                if len(pipes_by_direction[direction]) != 2:
-                    continue
-                if direction == Direction3D.Z or not cube.is_spatial:
-                    continue
-                kind = cube.kind
-                assert isinstance(kind, ZXCube)
-                basis = kind.get_basis_along(direction)
-                new_kind = kind.with_basis_along(direction, basis.flipped())
-                new_cube = Cube(cube.position, new_kind, cube.label)
-                fixed_cubes[cube] = new_cube
-            # Fix the shadowed faces
-            if len(pipes_by_direction) != 2:
+            shadowed_directions = {
+                d for d, ps in pipes_by_direction.items() if len(ps) == 2
+            }
+            if not shadowed_directions:
                 continue
-            d1, d2 = pipes_by_direction.keys()
-            assert isinstance(cube.kind, ZXCube)
+            # No need to handle the case `len(pipes_by_direction) == 0` as there
+            # is no pipes connected to the cube.
+            # No need to handle the case `len(pipes_by_direction) == 3` as it's
+            # a 3D corner that cannot be a valid structure.
+            # Spatial pass-through, ensure that the cube is not a spatial cube
+            if len(pipes_by_direction) in [0, 3]:
+                continue
             new_kind = cube.kind
-            for d_this, d_other in zip([d1, d2], [d2, d1]):
-                if not len(pipes_by_direction[d_this]) == 2:
-                    continue
-                basis_this = new_kind.get_basis_along(d_this)
-                need_match_pipe = next(iter(pipes_by_direction[d_other]))
-                pipe_basis = need_match_pipe.kind.get_basis_along(
-                    d_this, need_match_pipe.at_head(cube.position)
-                )
-                assert pipe_basis is not None
-                if pipe_basis == basis_this:
-                    continue
-                new_kind = new_kind.with_basis_along(d_this, pipe_basis)
+            for shadowed_direction in shadowed_directions:
+                if (
+                    len(pipes_by_direction) == 1
+                    and shadowed_direction != Direction3D.Z
+                    and cube.is_spatial
+                ):
+                    kind = cube.kind
+                    assert isinstance(kind, ZXCube)
+                    basis = kind.get_basis_along(shadowed_direction)
+                    new_kind = kind.with_basis_along(
+                        shadowed_direction, basis.flipped()
+                    )
+                    new_cube = Cube(cube.position, new_kind, cube.label)
+                    fixed_cubes[cube] = new_cube
+                # T-shape or X-shape connections, can be either in space or time
+                # Ensure the shadowed faces match the pipe faces that are in the
+                # same plane.
+                elif len(pipes_by_direction) == 2:
+                    other_direction = next(
+                        d for d in pipes_by_direction if d != shadowed_direction
+                    )
+                    need_match_pipe = next(iter(pipes_by_direction[other_direction]))
+                    pipe_basis = need_match_pipe.kind.get_basis_along(
+                        shadowed_direction, need_match_pipe.at_head(cube.position)
+                    )
+                    assert pipe_basis is not None
+                    new_kind = new_kind.with_basis_along(shadowed_direction, pipe_basis)
+
             if new_kind != cube.kind:
                 new_cube = Cube(cube.position, new_kind, cube.label)
                 fixed_cubes[cube] = new_cube
