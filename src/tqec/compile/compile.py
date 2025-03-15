@@ -347,7 +347,10 @@ def compile_block_graph(
     blocks: dict[Position3D, CompiledBlock] = {}
     for cube in block_graph.cubes:
         spec = cube_specs[cube]
-        blocks[cube.position] = block_builder(spec)
+        try:
+            blocks[cube.position] = block_builder(spec)
+        except Exception as e:
+            raise TQECException(f"Failed to instanciate {cube}.") from e
 
     # 2. Apply the substitution rules to the compiled blocks inplace.
     pipes = block_graph.pipes
