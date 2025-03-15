@@ -222,7 +222,7 @@ def read_block_graph_from_dae_file(
     graph_fixed = graph.fix_shadowed_faces()
     if graph_fixed != graph:
         warnings.warn(
-            "There are some shadowed faces have been fixed. "
+            "Some shadowed faces have been fixed. "
             "Check `BlockGraph.fix_shadowed_faces` for more details.",
             TQECWarning,
         )
