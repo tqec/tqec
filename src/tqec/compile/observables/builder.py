@@ -56,7 +56,10 @@ def inplace_add_observable(
         pos: Position3D,
         qubits: Iterable[tuple[float, float] | tuple[int, int]],
     ) -> None:
-        out_dict.setdefault(pos.z, set()).update(
+        # Use XOR here because adding the same measurement twice will cancel out
+        # each other, which can be thought of as multiplying two Pauli operators
+        # that will cancel the same terms.
+        out_dict.setdefault(pos.z, set()).symmetric_difference_update(
             _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
         )
 
@@ -308,33 +311,33 @@ def _get_top_readout_spatial_cube_qubits(
     half_x, half_y = cube_shape.x // 2, cube_shape.y // 2
 
     if arms == SpatialArms.LEFT | SpatialArms.RIGHT:
-        return [(x, half_y) for x in range(cube_shape.x + 1)]
+        return [(x, half_y) for x in range(1, cube_shape.x)]
     elif arms == SpatialArms.UP | SpatialArms.DOWN:
-        return [(half_x, y) for y in range(cube_shape.y + 1)]
+        return [(half_x, y) for y in range(1, cube_shape.y)]
     elif arms == SpatialArms.LEFT | SpatialArms.UP:
-        qubits = [(x, half_y) for x in range(half_x)] + [
-            (half_x, y) for y in range(half_y)
+        qubits = [(x, half_y) for x in range(1, half_x)] + [
+            (half_x, y) for y in range(1, half_y)
         ]
         if observable_basis == Basis.Z:
             qubits.append((half_x, half_y))
         return qubits
     elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
-        qubits = [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
-            (half_x, y) for y in range(cube_shape.y, half_y, -1)
+        qubits = [(x, half_y) for x in range(cube_shape.x - 1, half_x, -1)] + [
+            (half_x, y) for y in range(cube_shape.y - 1, half_y, -1)
         ]
         if observable_basis == Basis.Z:
             qubits.append((half_x, half_y))
         return qubits
     elif arms == SpatialArms.UP | SpatialArms.RIGHT:
-        qubits = [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
-            (half_x, y) for y in range(half_y + 1)
+        qubits = [(x, half_y) for x in range(cube_shape.x - 1, half_x, -1)] + [
+            (half_x, y) for y in range(1, half_y)
         ]
         if observable_basis == Basis.X:
             qubits.append((half_x, half_y))
         return qubits
     else:  # arms == SpatialArms.LEFT | SpatialArms.DOWN:
-        qubits = [(x, half_y) for x in range(half_x + 1)] + [
-            (half_x, y) for y in range(cube_shape.y, half_y, -1)
+        qubits = [(x, half_y) for x in range(1, half_x)] + [
+            (half_x, y) for y in range(cube_shape.y - 1, half_y, -1)
         ]
         if observable_basis == Basis.X:
             qubits.append((half_x, half_y))

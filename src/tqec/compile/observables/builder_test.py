@@ -227,36 +227,36 @@ def test_get_bottom_stabilizer_spatial_cube_qubits(k: int, basis: Basis) -> None
 @pytest.mark.parametrize(
     "arms, observabel_basis, expected",
     [
-        (SpatialArms.LEFT | SpatialArms.UP, Basis.X, {(0, 2), (1, 2), (2, 0), (2, 1)}),
+        (SpatialArms.LEFT | SpatialArms.UP, Basis.X, {(1, 2), (2, 1)}),
         (
             SpatialArms.LEFT | SpatialArms.UP,
             Basis.Z,
-            {(0, 2), (1, 2), (2, 0), (2, 1), (2, 2)},
+            {(1, 2), (2, 1), (2, 2)},
         ),
         (
             SpatialArms.LEFT | SpatialArms.DOWN,
             Basis.Z,
-            {(0, 2), (1, 2), (2, 2), (2, 3), (2, 4)},
+            {(1, 2), (2, 3)},
         ),
         (
             SpatialArms.UP | SpatialArms.RIGHT,
             Basis.X,
-            {(2, 1), (2, 0), (4, 2), (2, 2), (3, 2)},
+            {(2, 1), (2, 2), (3, 2)},
         ),
         (
             SpatialArms.DOWN | SpatialArms.RIGHT,
             Basis.X,
-            {(2, 3), (2, 4), (4, 2), (3, 2)},
+            {(2, 3), (3, 2)},
         ),
         (
             SpatialArms.LEFT | SpatialArms.RIGHT,
             Basis.Z,
-            {(0, 2), (1, 2), (2, 2), (3, 2), (4, 2)},
+            {(1, 2), (2, 2), (3, 2)},
         ),
         (
             SpatialArms.UP | SpatialArms.DOWN,
             Basis.Z,
-            {(2, 0), (2, 1), (2, 2), (2, 3), (2, 4)},
+            {(2, 1), (2, 2), (2, 3)},
         ),
     ],
 )
