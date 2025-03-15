@@ -676,11 +676,6 @@ class BlockGraph:
             pipes_by_direction: dict[Direction3D, list[Pipe]] = {}
             for pipe in self.pipes_at(cube.position):
                 pipes_by_direction.setdefault(pipe.direction, []).append(pipe)
-            shadowed_directions = {
-                d for d, ps in pipes_by_direction.items() if len(ps) == 2
-            }
-            if not shadowed_directions:
-                continue
             # No need to handle the case `len(pipes_by_direction) == 0` as there
             # is no pipes connected to the cube.
             # No need to handle the case `len(pipes_by_direction) == 3` as it's
@@ -688,8 +683,14 @@ class BlockGraph:
             # Spatial pass-through, ensure that the cube is not a spatial cube
             if len(pipes_by_direction) in [0, 3]:
                 continue
+            shadowed_directions = {
+                d for d, ps in pipes_by_direction.items() if len(ps) == 2
+            }
+            if not shadowed_directions:
+                continue
             new_kind = cube.kind
             for shadowed_direction in shadowed_directions:
+                # Spatial pass-through, ensure that the cube is not a spatial cube
                 if (
                     len(pipes_by_direction) == 1
                     and shadowed_direction != Direction3D.Z
