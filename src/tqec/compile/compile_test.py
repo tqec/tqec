@@ -3,12 +3,7 @@ import itertools
 import pytest
 
 from tqec.compile.compile import compile_block_graph
-from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
-from tqec.compile.specs.library.zxxz import (
-    ZXXZ_BLOCK_BUILDER,
-    ZXXZ_SUBSTITUTION_BUILDER,
-)
+from tqec.compile.specs.library import ALL_SPECS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
@@ -16,11 +11,6 @@ from tqec.gallery.cnot import cnot
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
-
-SPECS: dict[str, tuple[BlockBuilder, SubstitutionBuilder]] = {
-    "CSS": (CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER),
-    "ZXXZ": (ZXXZ_BLOCK_BUILDER, ZXXZ_SUBSTITUTION_BUILDER),
-}
 
 
 def test_shift_min_z_to_zero_during_compilation() -> None:
@@ -38,13 +28,13 @@ def test_shift_min_z_to_zero_during_compilation() -> None:
 
 @pytest.mark.parametrize(
     ("spec", "kind", "k"),
-    itertools.product(SPECS.keys(), ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
+    itertools.product(ALL_SPECS.keys(), ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
 )
 def test_compile_single_block_memory(spec: str, kind: str, k: int) -> None:
     d = 2 * k + 1
     g = BlockGraph("Single Block Memory Experiment")
     g.add_cube(Position3D(0, 0, 0), kind)
-    block_builder, substitution_builder = SPECS[spec]
+    block_builder, substitution_builder = ALL_SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
@@ -60,7 +50,7 @@ def test_compile_single_block_memory(spec: str, kind: str, k: int) -> None:
 
 @pytest.mark.parametrize(
     ("spec", "kind", "k"),
-    itertools.product(SPECS.keys(), ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
+    itertools.product(ALL_SPECS.keys(), ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
 )
 def test_compile_two_same_blocks_connected_in_time(
     spec: str, kind: str, k: int
@@ -73,7 +63,7 @@ def test_compile_two_same_blocks_connected_in_time(
     g.add_cube(p2, kind)
     g.add_pipe(p1, p2)
 
-    block_builder, substitution_builder = SPECS[spec]
+    block_builder, substitution_builder = ALL_SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
@@ -92,7 +82,7 @@ def test_compile_two_same_blocks_connected_in_time(
 @pytest.mark.parametrize(
     ("spec", "kinds", "k"),
     itertools.product(
-        SPECS.keys(),
+        ALL_SPECS.keys(),
         (
             ("ZXZ", "OXZ"),
             ("ZXX", "ZOX"),
@@ -116,7 +106,7 @@ def test_compile_two_same_blocks_connected_in_space(
     g.add_cube(p2, kinds[0])
     g.add_pipe(p1, p2, pipe_kind)
 
-    block_builder, substitution_builder = SPECS[spec]
+    block_builder, substitution_builder = ALL_SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
@@ -135,7 +125,7 @@ def test_compile_two_same_blocks_connected_in_space(
 @pytest.mark.parametrize(
     ("spec", "kinds", "k"),
     itertools.product(
-        SPECS.keys(),
+        ALL_SPECS.keys(),
         (
             ("ZXZ", "OXZ"),
             ("ZXX", "ZOX"),
@@ -163,7 +153,7 @@ def test_compile_L_shape_in_space_time(
     g.add_pipe(p1, p2, space_pipe_kind)
     g.add_pipe(p2, p3, time_pipe_type)
 
-    block_builder, substitution_builder = SPECS[spec]
+    block_builder, substitution_builder = ALL_SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
     compiled_graph = compile_block_graph(
@@ -185,7 +175,7 @@ def test_compile_L_shape_in_space_time(
 @pytest.mark.parametrize(
     ("spec", "obs_basis", "k"),
     itertools.product(
-        SPECS.keys(),
+        ALL_SPECS.keys(),
         (Basis.X, Basis.Z),
         (1,),
     ),
@@ -194,7 +184,7 @@ def test_compile_logical_cnot(spec: str, obs_basis: Basis, k: int) -> None:
     d = 2 * k + 1
     g = cnot(obs_basis)
 
-    block_builder, substitution_builder = SPECS[spec]
+    block_builder, substitution_builder = ALL_SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 3
     compiled_graph = compile_block_graph(
