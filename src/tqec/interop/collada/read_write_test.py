@@ -30,12 +30,12 @@ def rotated_cnot(observable_basis: Basis | None = None) -> BlockGraph:
     nodes = [
         (Position3D(0, 0, 1), "P", "In_Control"),
         (Position3D(0, 1, 1), "ZXX", ""),
-        (Position3D(0, 2, 1), "ZZX", ""),
+        (Position3D(0, 2, 1), "ZXX", ""),
         (Position3D(0, 3, 1), "P", "Out_Control"),
         (Position3D(0, 1, 0), "ZXX", ""),
         (Position3D(0, 2, 0), "ZZX", ""),
         (Position3D(1, 0, 0), "P", "In_Target"),
-        (Position3D(1, 1, 0), "ZZX", ""),
+        (Position3D(1, 1, 0), "ZXX", ""),
         (Position3D(1, 2, 0), "ZZX", ""),
         (Position3D(1, 3, 0), "P", "Out_Target"),
     ]
@@ -57,7 +57,7 @@ def rotated_cnot(observable_basis: Basis | None = None) -> BlockGraph:
 
 @pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
 def test_logical_cnot_collada_write_read(pipe_length: float) -> None:
-    block_graph = cnot(Basis.X)
+    block_graph = cnot(Basis.Z)
 
     # Set `delete=False` to be compatible with Windows
     # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
@@ -70,8 +70,7 @@ def test_logical_cnot_collada_write_read(pipe_length: float) -> None:
     os.remove(temp_file.name)
 
 
-@pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
-def test_rotated_cnot_collada_write_read(pipe_length: float) -> None:
+def test_rotated_cnot_collada_write_read() -> None:
     block_graph = rotated_cnot(Basis.Z)
 
     ROTATED_CNOT_DAE = Path(__file__).parent / "test_files/rotated_cnot.dae"

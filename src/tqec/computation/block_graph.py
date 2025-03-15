@@ -676,6 +676,8 @@ class BlockGraph:
             # Regularize the cube in a spatial pass-through
             if len(pipes_by_direction) == 1:
                 direction = next(iter(pipes_by_direction))
+                if len(pipes_by_direction[direction]) != 2:
+                    continue
                 if direction == Direction3D.Z or not cube.is_spatial:
                     continue
                 kind = cube.kind
