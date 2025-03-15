@@ -215,24 +215,16 @@ def get_spatial_cube_qubit_rpng_descriptions(
         CORNER, BULK = (1, 12) if boundary_is_z else (3, 11)
         mapping[CORNER] = mapping[BULK] = TBPs[SBS][PlaquetteOrientation.LEFT]
 
-    # If we have an L-shaped junction, the opposite corner plaquette should be
-    # removed from the mapping (this is the case where it has been set twice in
-    # the ifs above).
-    if SpatialArms.LEFT not in arms and SpatialArms.UP not in arms and boundary_is_z:
+    # For each corner, if the two arms around the corner are not present, the
+    # corner plaquette should be removed from the mapping (this is the case
+    # where it has been set twice in the ifs above).
+    if SA.LEFT not in arms and SA.UP not in arms and boundary_is_z:
         del mapping[1]
-    if (
-        SpatialArms.UP not in arms
-        and SpatialArms.RIGHT not in arms
-        and not boundary_is_z
-    ):
+    if SA.UP not in arms and SA.RIGHT not in arms and not boundary_is_z:
         del mapping[2]
-    if (
-        SpatialArms.DOWN not in arms
-        and SpatialArms.LEFT not in arms
-        and not boundary_is_z
-    ):
+    if SA.DOWN not in arms and SA.LEFT not in arms and not boundary_is_z:
         del mapping[3]
-    if SpatialArms.RIGHT not in arms and SpatialArms.DOWN not in arms and boundary_is_z:
+    if SA.RIGHT not in arms and SA.DOWN not in arms and boundary_is_z:
         del mapping[4]
 
     ####################
@@ -266,15 +258,19 @@ def get_spatial_cube_qubit_rpng_descriptions(
     mapping[18] = BPs[Basis.X][XRIGHT]
     mapping[20] = BPs[Basis.X][XLEFT]
 
-    # In the special cases of an L-shaped junction, the opposite corner **within
+    # For each corner, if the two arms around the corner are not present, the
+    # corner plaquette has been removed from the mapping. The corner **within
     # the bulk** should be overwritten to become a 3-body stabilizer measurement.
-    if arms == SpatialArms.DOWN | SpatialArms.RIGHT:
+    # Note that this is not done when deleting the external corners before because
+    # the bulk plaquettes are set just above, and so we should override the
+    # plaquettes after.
+    if SA.LEFT not in arms and SA.UP not in arms and boundary_is_z:
         mapping[5] = CSs[0]
-    elif arms == SpatialArms.DOWN | SpatialArms.LEFT:
+    if SA.UP not in arms and SA.RIGHT not in arms and not boundary_is_z:
         mapping[6] = CSs[1]
-    elif arms == SpatialArms.UP | SpatialArms.RIGHT:
+    if SA.DOWN not in arms and SA.LEFT not in arms and not boundary_is_z:
         mapping[7] = CSs[2]
-    elif arms == SpatialArms.UP | SpatialArms.LEFT:
+    if SA.RIGHT not in arms and SA.DOWN not in arms and boundary_is_z:
         mapping[8] = CSs[3]
 
     ####################
