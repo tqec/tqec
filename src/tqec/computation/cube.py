@@ -110,6 +110,25 @@ class ZXCube:
         """
         return self.as_tuple()[direction.value]
 
+    def with_basis_along(self, direction: Direction3D, basis: Basis) -> ZXCube:
+        """Set the basis of the walls along the given direction axis and return
+        a new instance.
+
+        Args:
+            direction: The direction of the axis along which the basis is set.
+            basis: The basis to set along the given direction axis.
+
+        Returns:
+            The new :py:class:`~tqec.computation.cube.ZXCube` instance with the basis
+            set along the given direction axis.
+        """
+        return ZXCube(
+            *[
+                basis if i == direction.value else b
+                for i, b in enumerate(self.as_tuple())
+            ]
+        )
+
 
 class Port:
     """Cube kind representing the open ports in the block graph.
@@ -180,8 +199,9 @@ class Cube:
         kind: The kind of the cube. It determines the basic logical operations represented
             by the cube.
         label: The label of the cube. It's mainly used for annotating the input/output
-            ports of the block graph. If the cube is a port, the label must be non-empty.
-            Default is an empty string.
+            ports of the block graph. If the cube is a port, the label must be non-empty
+            and unique within the block graph. The label can be any string, but duplicate
+            labels are not allowed. Default is an empty string.
     """
 
     position: Position3D
