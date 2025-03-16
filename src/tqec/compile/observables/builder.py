@@ -1,5 +1,6 @@
 """Provides helper functions to add observables to circuits."""
 
+from dataclasses import dataclass
 from typing import Iterable
 
 import stim
@@ -11,6 +12,7 @@ from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
 from tqec.templates.layout import LayoutTemplate
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import (
     Direction3D,
     PlaquetteShape2D,
@@ -18,6 +20,25 @@ from tqec.utils.position import (
     SignedDirection3D,
 )
 from tqec.utils.scale import round_or_fail
+
+
+@dataclass(frozen=True)
+class Observable:
+    """Logical observable consisting of a list of measurements."""
+
+    observable_index: int
+    measurement_offsets: list[int]
+
+    def __post_init__(self) -> None:
+        if any(m >= 0 for m in self.measurement_offsets):
+            raise TQECException("Expected strictly negative measurement offsets.")
+
+    def to_instruction(self) -> stim.CircuitInstruction:
+        return stim.CircuitInstruction(
+            "OBSERVABLE_INCLUDE",
+            [stim.target_rec(offset) for offset in self.measurement_offsets],
+            [self.observable_index],
+        )
 
 
 def inplace_add_observable(
@@ -44,105 +65,106 @@ def inplace_add_observable(
         abstract_observable: The abstract observable to add to the circuits.
         observable_index: The index of the observable.
     """
-    top_data_qubits: dict[int, set[GridQubit]] = {}
-    bottom_stabilizer_qubits: dict[int, set[GridQubit]] = {}
+    for z in range(len(circuits)):
+        for at_bottom in [True, False]:
+            obs_qubits = compute_observable_qubits(
+                k, abstract_observable, template_slices[z], z, at_bottom
+            )
+            if not obs_qubits:
+                continue
+            circuit = circuits[z][0] if at_bottom else circuits[z][-1]
+            obs = get_observable_with_circuit(circuit, observable_index, obs_qubits)
+            obs_instruction = obs.to_instruction()
+            circuit.append_annotation(obs_instruction)
 
-    def _block_shape(z: int, k: int) -> PlaquetteShape2D:
-        return template_slices[z].element_shape(k)
 
-    def _collect_into(
-        out_dict: dict[int, set[GridQubit]],
+def compute_observable_qubits(
+    k: int,
+    observable: AbstractObservable,
+    template: LayoutTemplate,
+    z: int,
+    at_bottom: bool,
+) -> set[GridQubit]:
+    obs_slice = observable.slice_at_z(z)
+    obs_qubits: set[GridQubit] = set()
+
+    def _block_shape(k: int) -> PlaquetteShape2D:
+        return template.element_shape(k)
+
+    def _transform_and_collect(
         pos: Position3D,
         qubits: Iterable[tuple[float, float] | tuple[int, int]],
     ) -> None:
-        out_dict.setdefault(pos.z, set()).update(
-            _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
+        obs_qubits.update(
+            _transform_coords_into_grid(template, q, pos, k) for q in qubits
         )
 
-    # 1. The stabilizer measurements that will be added to the end of the first layer of circuits at z.
-    for pipe in abstract_observable.bottom_stabilizer_pipes:
-        for cube in pipe:
-            # the stabilizer measurements included in spatial cubes will be
-            # handled later
-            if cube.is_spatial:
-                continue
-            _collect_into(
-                bottom_stabilizer_qubits,
+    # The stabilizer measurements that will be added to the end of the first layer of circuits at z.
+    if at_bottom:
+        for pipe in obs_slice.bottom_stabilizer_pipes:
+            for cube in pipe:
+                # the stabilizer measurements included in spatial cubes will be
+                # handled later
+                if cube.is_spatial:
+                    continue
+                _transform_and_collect(
+                    cube.position,
+                    _get_bottom_stabilizer_cube_qubits(
+                        _block_shape(k),
+                        SignedDirection3D(pipe.direction, cube == pipe.u),
+                    ),
+                )
+        for cube in obs_slice.bottom_stabilizer_spatial_cubes:
+            _transform_and_collect(
                 cube.position,
-                _get_bottom_stabilizer_cube_qubits(
-                    _block_shape(cube.position.z, k),
-                    SignedDirection3D(pipe.direction, cube == pipe.u),
-                ),
+                _get_bottom_stabilizer_spatial_cube_qubits(_block_shape(k)),
             )
-    for cube in abstract_observable.bottom_stabilizer_spatial_cubes:
-        _collect_into(
-            bottom_stabilizer_qubits,
-            cube.position,
-            _get_bottom_stabilizer_spatial_cube_qubits(
-                _block_shape(cube.position.z, k)
-            ),
-        )
+        return obs_qubits
 
-    # 2. The data qubit readouts that will be added to the end of the last layer of circuits at z.
-    for pipe in abstract_observable.top_readout_pipes:
-        _collect_into(
-            top_data_qubits,
+    # The data qubit readouts that will be added to the end of the last layer of circuits at z.
+    for pipe in obs_slice.top_readout_pipes:
+        _transform_and_collect(
             pipe.u.position,
-            _get_top_readout_pipe_qubits(
-                _block_shape(pipe.u.position.z, k), pipe.direction
-            ),
+            _get_top_readout_pipe_qubits(_block_shape(k), pipe.direction),
         )
-    for cube in abstract_observable.top_readout_cubes:
+    for cube in obs_slice.top_readout_cubes:
         assert isinstance(cube.kind, ZXCube)
-        _collect_into(
-            top_data_qubits,
+        _transform_and_collect(
             cube.position,
-            _get_top_readout_cube_qubits(_block_shape(cube.position.z, k), cube.kind),
+            _get_top_readout_cube_qubits(_block_shape(k), cube.kind),
         )
-    for cube, arms in abstract_observable.top_readout_spatial_cubes:
-        _collect_into(
-            top_data_qubits,
+    for cube, arms in obs_slice.top_readout_spatial_cubes:
+        _transform_and_collect(
             cube.position,
-            _get_top_readout_spatial_cube_qubits(
-                _block_shape(cube.position.z, k), arms
-            ),
+            _get_top_readout_spatial_cube_qubits(_block_shape(k), arms),
         )
+    return obs_qubits
 
-    # Finally, convert the qubit sets to the measurement records at the specific circuit location
-    # and add the observables to the circuits.
-    for z, qubits in bottom_stabilizer_qubits.items():
-        measurement_records = MeasurementRecordsMap.from_scheduled_circuit(
-            circuits[z][0]
-        )
-        circuits[z][0].append_observable(
-            observable_index,
-            [
-                stim.target_rec(measurement_records[q][-1])
-                for q in qubits
-                # Filter out those qubits that are not in the circuit.
-                # This is required because the current implementation of
-                # bottom stabilizer calculation for spatial cubes
-                # may include qubits that are not in the circuit, as
-                # intended for simplifying the calculation.
-                # This has the risk of not catching the coordinate
-                # calculation errors but the tests for determinism
-                # and code distance should catch them.
-                if q in measurement_records
-            ],
-        )
 
-    for z, qubits in top_data_qubits.items():
-        measurement_records = MeasurementRecordsMap.from_scheduled_circuit(
-            circuits[z][-1]
-        )
-        circuits[z][-1].append_observable(
-            observable_index,
-            [stim.target_rec(measurement_records[q][-1]) for q in qubits],
-        )
+def get_observable_with_circuit(
+    circuit: ScheduledCircuit,
+    observable_index: int,
+    observable_qubits: set[GridQubit],
+) -> Observable:
+    measurement_records = MeasurementRecordsMap.from_scheduled_circuit(circuit)
+    measurement_offsets = [
+        measurement_records[q][-1]
+        for q in observable_qubits
+        # Filter out those qubits that are not in the circuit.
+        # This is required because the current implementation of
+        # bottom stabilizer calculation for spatial cubes
+        # may include qubits that are not in the circuit, as
+        # intended for simplifying the calculation.
+        # This has the risk of not catching the coordinate
+        # calculation errors but the tests for determinism
+        # and code distance should catch them.
+        if q in measurement_records
+    ]
+    return Observable(observable_index, measurement_offsets)
 
 
 def _transform_coords_into_grid(
-    template_slices: list[LayoutTemplate],
+    template: LayoutTemplate,
     local_coords: tuple[float, float] | tuple[int, int],
     block_position: Position3D,
     k: int,
@@ -160,7 +182,6 @@ def _transform_coords_into_grid(
     the local coordinates by the global position of the block and accounting for the
     ``Template.default_increments``.
     """
-    template = template_slices[block_position.z]
     block_shape = template.element_shape(k)
     template_increments = template.get_increments()
     width = block_shape.x * template_increments.x
