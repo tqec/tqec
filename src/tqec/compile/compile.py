@@ -4,10 +4,11 @@
 import itertools
 import warnings
 from dataclasses import dataclass
-from typing import Literal, Sequence, cast
+from typing import Final, Literal, Sequence, cast
 
 import stim
 
+from tqec.compile.graph import TopologicalComputationGraph
 from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit_map import QubitMap
@@ -23,7 +24,9 @@ from tqec.compile.observables.abstract_observable import (
 from tqec.compile.observables.builder import inplace_add_observable
 from tqec.compile.specs.base import (
     BlockBuilder,
+    CubeBuilder,
     CubeSpec,
+    PipeBuilder,
     PipeSpec,
     SubstitutionBuilder,
 )
@@ -35,8 +38,12 @@ from tqec.utils.noise_model import NoiseModel
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
 from tqec.templates.base import Template
 from tqec.templates.layout import LayoutTemplate
-from tqec.utils.position import Direction3D, Position3D
-from tqec.utils.scale import round_or_fail
+from tqec.utils.position import BlockPosition3D, Direction3D, Position3D
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D, round_or_fail
+
+_DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
+    LinearFunction(2, 2), LinearFunction(2, 2)
+)
 
 
 @dataclass
@@ -297,6 +304,73 @@ class CompiledGraph:
             )
         for d in sorted(detectors, key=lambda d: d.coordinates):
             circuit.append_annotation(d.to_instruction(mrecords_map))
+
+
+def compile_block_graph_v2(
+    block_graph: BlockGraph,
+    cube_builder: CubeBuilder,
+    pipe_builder: PipeBuilder,
+    observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
+) -> TopologicalComputationGraph:
+    """Compile a block graph.
+
+    Args:
+        block_graph: The block graph to compile.
+        block_builder: A callable that specifies how to build the
+            :class:`~.blocks.block.Block` from the specified
+            :class:`~.specs.base.CubeSpecs`. Defaults to the block builder for
+            the CSS type surface code.
+        substitution_builder: A callable that specifies how to build the
+            substitution plaquettes from the specified
+            :class:`~.specs.base.PipeSpec`. Defaults to the substitution builder
+            for the CSS type surface code.
+        observables: correlation surfaces that should be compiled into
+            observables and included in the compiled circuit.
+            If set to ``"auto"``, the correlation surfaces will be automatically
+            determined from the block graph. If a list of correlation surfaces
+            is provided, only those surfaces will be compiled into observables
+            and included in the compiled circuit. If set to ``None``, no
+            observables will be included in the compiled circuit.
+
+    Returns:
+        A :class:`TopologicalComputationGraph` object that can be used to generate a
+        ``stim.Circuit`` and scale easily.
+    """
+    if block_graph.num_ports != 0:
+        raise TQECException(
+            "Can not compile a block graph with open ports into circuits."
+        )
+
+    # 0. Set the minimum z of block graph to 0.(time starts from zero)
+    minz = min(cube.position.z for cube in block_graph.cubes)
+    if minz != 0:
+        block_graph = block_graph.shift_by(dz=-minz)
+
+    cube_specs = {
+        cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
+    }
+
+    # 1. Create TopologicalComputationGraph
+    graph = TopologicalComputationGraph(_DEFAULT_SCALABLE_QUBIT_SHAPE)
+
+    # 2. Add cubes to the graph
+    for cube in block_graph.cubes:
+        spec = cube_specs[cube]
+        position = BlockPosition3D(cube.position.x, cube.position.y, cube.position.z)
+        graph.add_cube(position, cube_builder(spec))
+
+    # 3. Add pipes to the graph
+    pipes = block_graph.pipes
+    time_pipes = [pipe for pipe in pipes if pipe.direction == Direction3D.Z]
+    space_pipes = [pipe for pipe in pipes if pipe.direction != Direction3D.Z]
+    for pipe in time_pipes + space_pipes:
+        pos1, pos2 = pipe.u.position, pipe.v.position
+        pos1 = BlockPosition3D(pos1.x, pos1.y, pos1.z)
+        pos2 = BlockPosition3D(pos2.x, pos2.y, pos2.z)
+        key = PipeSpec(cube_specs[pipe.u], cube_specs[pipe.v], pipe.kind)
+        graph.add_pipe(pos1, pos2, pipe_builder(key))
+
+    return graph
 
 
 def compile_block_graph(
