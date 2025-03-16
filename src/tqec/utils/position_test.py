@@ -1,3 +1,5 @@
+import pytest
+
 from tqec.utils.position import (
     Direction3D,
     Position2D,
@@ -39,3 +41,38 @@ def test_signed_direction() -> None:
     sd = SignedDirection3D.from_string("-Z")
     assert sd.direction == Direction3D.Z
     assert not sd.towards_positive
+
+
+@pytest.mark.parametrize(
+    "source,sink,is_neighbour",
+    [
+        ((0, 0), (0, 0), False),
+        ((0, 0), (0, 1), True),
+        ((0, 0), (0, -1), True),
+        ((0, 0), (1, 0), True),
+        ((0, 0), (-1, 0), True),
+        ((0, 0), (1, 1), False),
+        ((1, 0), (0, 1), False),
+    ],
+)
+def test_is_neighbour(
+    source: tuple[int, int], sink: tuple[int, int], is_neighbour: bool
+) -> None:
+    assert Position2D(*source).is_neighbour(Position2D(*sink)) == is_neighbour
+
+
+@pytest.mark.parametrize(
+    "source,sink,expected_direction",
+    [
+        (Position3D(0, 0, 0), Position3D(1, 0, 0), Direction3D.X),
+        (Position3D(-1, 0, 0), Position3D(0, 0, 0), Direction3D.X),
+        (Position3D(0, 0, 0), Position3D(0, 1, 0), Direction3D.Y),
+        (Position3D(0, -1, 0), Position3D(0, 0, 0), Direction3D.Y),
+        (Position3D(0, 0, 0), Position3D(0, 0, 1), Direction3D.Z),
+        (Position3D(0, 0, -1), Position3D(0, 0, 0), Direction3D.Z),
+    ],
+)
+def test_from_neighbouring_positions(
+    source: Position3D, sink: Position3D, expected_direction: Direction3D
+) -> None:
+    assert Direction3D.from_neighbouring_positions(source, sink) == expected_direction

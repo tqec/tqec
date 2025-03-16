@@ -18,8 +18,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from typing_extensions import Self
+
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import Shape2D
+from tqec.utils.position import PhysicalQubitShape2D, PlaquetteShape2D, Shape2D, Shift2D
 
 
 @dataclass(frozen=True)
@@ -124,6 +126,38 @@ class LinearFunction:
             return f"{self.slope}*x"
         return f"{self.slope}*x + {self.offset}"
 
+    def integer_eval(self, x: int) -> int:
+        return round_or_fail(self.slope * x + self.offset)
+
+    def exact_integer_div(self, div: int) -> LinearFunction:
+        if div == 0:
+            raise ZeroDivisionError()
+        slope, offset = round_or_fail(self.slope), round_or_fail(self.offset)
+        if slope % div != 0:
+            raise TQECException(
+                "Trying to divide exactly a LinearFunction by an integer that "
+                f"is not a multiple of the slope. Divisor: {div}. Slope: {slope}."
+            )
+        if offset % div != 0:
+            raise TQECException(
+                "Trying to divide exactly a LinearFunction by an integer that "
+                f"is not a multiple of the offset. Divisor: {div}. Offset: "
+                f"{offset}."
+            )
+        return LinearFunction(slope // div, offset // div)
+
+    def is_constant(self, atol: float = 1e-8) -> bool:
+        return abs(self.slope) < atol
+
+    def is_scalable(self, atol: float = 1e-8) -> bool:
+        return not self.is_constant(atol)
+
+    def is_close_to(self, other: LinearFunction, atol: float = 1e-8) -> bool:
+        return (
+            abs(self.slope - other.slope) < atol
+            and abs(self.offset - other.offset) < atol
+        )
+
 
 def round_or_fail(f: float, atol: float = 1e-8) -> int:
     """Try to round the provided ``f`` to the nearest integer and raise if
@@ -187,5 +221,25 @@ class Scalable2D:
         """
         return self.to_shape_2d(k).to_numpy_shape()
 
-    def __add__(self, other: Scalable2D) -> Scalable2D:
-        return Scalable2D(self.x + other.x, self.y + other.y)
+    def __add__(self: Self, other: Self) -> Self:
+        return self.__class__(self.x + other.x, self.y + other.y)
+
+    def __sub__(self: Self, other: Self) -> Self:
+        return self.__class__(self.x - other.x, self.y - other.y)
+
+
+class PlaquetteScalable2D(Scalable2D):
+    """A pair of scalable quantities in plaquette coordinates."""
+
+    def to_shape_2d(self, k: int) -> PlaquetteShape2D:
+        return PlaquetteShape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
+
+    def __mul__(self, other: Shift2D) -> PhysicalQubitScalable2D:
+        return PhysicalQubitScalable2D(self.x * other.x, self.y * other.y)
+
+
+class PhysicalQubitScalable2D(Scalable2D):
+    """A pair of scalable quantities in physical qubit coordinates."""
+
+    def to_shape_2d(self, k: int) -> PhysicalQubitShape2D:
+        return PhysicalQubitShape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
