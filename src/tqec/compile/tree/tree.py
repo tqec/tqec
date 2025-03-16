@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Any, Mapping
 
 import stim
@@ -11,6 +12,7 @@ from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.annotations import LayerTreeAnnotations
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayoutNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayoutNode
+from tqec.compile.tree.annotators.observables import AnnotateObsOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalkerInterface
 from tqec.utils.exceptions import TQECException
 
@@ -39,18 +41,30 @@ class LayerTree:
     def __init__(
         self,
         root: SequencedLayers,
+        abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
     ):
         self._root = LayerNode(root)
+        self._assign_leaf_order()
+        self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "root": self._root.to_dict(),
+            "abstract_observables": self._abstract_observables,
             "annotations": {
                 k: annotation.to_dict() for k, annotation in self._annotations.items()
             },
         }
+
+    def _assign_leaf_order(self) -> None:
+        """Assigns a time order to each leaf node in the tree."""
+        order = 0
+        for child in self._root.get_children(recursive=True):
+            if child.is_leaf:
+                child.order = order
+                order += 1
 
     def _annotate_circuits(self, k: int) -> None:
         self._root.walk(AnnotateCircuitOnLayoutNode(k))
@@ -63,8 +77,32 @@ class LayerTree:
         self._root.walk(qubit_lister)
         return QubitMap.from_qubits(sorted(qubit_lister.seen_qubits))
 
-    def _annotate_observable(self, observable: AbstractObservable) -> None:
-        pass
+    def _annotate_observables(self, k: int) -> None:
+        observables = self._abstract_observables
+        children = self._root.get_children(recursive=False)
+        # Get the mapping from leaf node order to layer Z position in the block graph
+        # Here we assume Z coordinate starts from 0 and increase continuously
+        # This is guaranteed by that: 1. we always shift the minimum Z coordinate
+        # to 0 when compiling the block graph; 2. the block graph is single connected.
+        order_to_z: dict[int, int] = dict()
+        for z, child in enumerate(children):
+            for node in [child] + child.get_children(recursive=True):
+                if node.is_leaf:
+                    assert node.order is not None
+                    order_to_z[node.order] = z
+        orders_at_z: defaultdict[int, list[int]] = defaultdict(list)
+        for leaf, z in order_to_z.items():
+            orders_at_z[z].append(leaf)
+        # For each Z, get the leaf nodes happens first and last
+        bottom_orders: set[int] = {min(orders) for orders in orders_at_z.values()}
+        top_orders: set[int] = {max(orders) for orders in orders_at_z.values()}
+
+        for idx, obs in enumerate(observables):
+            self._root.walk(
+                AnnotateObsOnLayerNode(
+                    k, obs, idx, order_to_z, bottom_orders, top_orders
+                )
+            )
 
     def _annotate_detectors(
         self,
@@ -85,6 +123,7 @@ class LayerTree:
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
         self._annotate_detectors(k)
+        self._annotate_observables(k)
         annotations = self._get_annotation(k)
         if not annotations.has_qubit_map:
             raise TQECException(

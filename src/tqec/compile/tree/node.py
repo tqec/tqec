@@ -32,7 +32,7 @@ class LayerNode:
         self,
         layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
-    ):
+    ) -> None:
         """Represents a node in a :class:`LayerTree`.
 
         Args:
@@ -41,11 +41,23 @@ class LayerNode:
                 no annotations are provided.
         """
         self._layer = layer
-        self._children = LayerNode._get_children(layer)
+        # If the node is a leaf node, a time order can be assigned to it.
+        # The order is used to determine the order in which the layer happens
+        # in the final circuit.
+        self._time_order: int | None = None
+        self._children: list[LayerNode] = self._create_children(layer)
         self._annotations = dict(annotations) if annotations is not None else {}
 
+    @property
+    def order(self) -> int | None:
+        return self._time_order
+
+    @order.setter
+    def order(self, value: int | None) -> None:
+        self._time_order = value
+
     @staticmethod
-    def _get_children(layer: LayoutLayer | BaseComposedLayer) -> list[LayerNode]:
+    def _create_children(layer: BaseLayer | BaseComposedLayer) -> list[LayerNode]:
         if isinstance(layer, LayoutLayer):
             return []
         if isinstance(layer, SequencedLayers):
@@ -64,6 +76,21 @@ class LayerNode:
                 )
             return [LayerNode(layer.internal_layer)]
         raise TQECException(f"Unknown layer type found: {type(layer).__name__}.")
+
+    def get_children(self, recursive: bool = False) -> list[LayerNode]:
+        """Get the children of the node. If ``recursive`` is set to ``True``, then
+        a depth-first search is performed to get all the children of the node.
+
+        DFS traversal guarantees that the leaf nodes are returned in the correct
+        time order.
+        """
+        if not recursive:
+            return [child for child in self._children]
+        ret: list[LayerNode] = []
+        for child in self._children:
+            ret.append(child)
+            ret.extend(child.get_children(recursive=True))
+        return ret
 
     @property
     def is_leaf(self) -> bool:
