@@ -633,8 +633,9 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        kind: The kind of the cube. It determines the basic logical operations represented</span>
 <span class="sd">            by the cube.</span>
 <span class="sd">        label: The label of the cube. It&#39;s mainly used for annotating the input/output</span>
-<span class="sd">            ports of the block graph. If the cube is a port, the label must be non-empty.</span>
-<span class="sd">            Default is an empty string.</span>
+<span class="sd">            ports of the block graph. If the cube is a port, the label must be non-empty</span>
+<span class="sd">            and unique within the block graph. The label can be any string, but duplicate</span>
+<span class="sd">            labels are not allowed. Default is an empty string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">position</span><span class="p">:</span> <span class="n">Position3D</span>

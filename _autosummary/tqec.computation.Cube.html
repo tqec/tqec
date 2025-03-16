@@ -580,8 +580,9 @@ by the cube.</p>
 <dt class="sig sig-object py" id="tqec.computation.Cube.label">
 <span class="sig-name descname"><span class="pre">label</span></span><a class="headerlink" href="#tqec.computation.Cube.label" title="Link to this definition">#</a></dt>
 <dd><p>The label of the cube. It’s mainly used for annotating the input/output
-ports of the block graph. If the cube is a port, the label must be non-empty.
-Default is an empty string.</p>
+ports of the block graph. If the cube is a port, the label must be non-empty
+and unique within the block graph. The label can be any string, but duplicate
+labels are not allowed. Default is an empty string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
