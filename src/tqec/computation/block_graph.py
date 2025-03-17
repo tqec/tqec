@@ -88,6 +88,11 @@ class BlockGraph:
         return len([node for node in self.cubes if node.is_port])
 
     @property
+    def ordered_ports(self) -> list[str]:
+        """Get the labels of the ports in the alphabetical order."""
+        return sorted(self._ports.keys())
+
+    @property
     def cubes(self) -> list[Cube]:
         """The list of cubes (nodes) in the graph."""
         return [data[self._NODE_DATA_KEY] for _, data in self._graph.nodes(data=True)]
