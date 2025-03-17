@@ -1,10 +1,10 @@
 from typing_extensions import override
 
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
-from tqec.compile.tree.node import LayerNode, NodeWalkerInterface
+from tqec.compile.tree.node import LayerNode, NodeWalker
 
 
-class AnnotateCircuitOnLayoutNode(NodeWalkerInterface):
+class AnnotateCircuitOnLayerNode(NodeWalker):
     def __init__(self, k: int):
         self._k = k
 

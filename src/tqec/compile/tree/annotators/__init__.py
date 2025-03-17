@@ -1,1 +1,1 @@
-from .circuit import AnnotateCircuitOnLayoutNode as AnnotateCircuitOnLayoutNode
+from .circuit import AnnotateCircuitOnLayerNode as AnnotateCircuitOnLayerNode
