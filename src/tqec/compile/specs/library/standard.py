@@ -1,8 +1,6 @@
-from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
-from tqec.compile.specs.library.base import BaseBlockBuilder, BaseSubstitutionBuilder
+from tqec.compile.specs.base import CubeBuilder, PipeBuilder
+from tqec.compile.specs.library.base import BaseCubeBuilder, BasePipeBuilder
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 
-STANDARD_BLOCK_BUILDER: BlockBuilder = BaseBlockBuilder(IdentityPlaquetteCompiler)
-STANDARD_SUBSTITUTION_BUILDER: SubstitutionBuilder = BaseSubstitutionBuilder(
-    IdentityPlaquetteCompiler
-)
+STANDARD_CUBE_BUILDER: CubeBuilder = BaseCubeBuilder(IdentityPlaquetteCompiler)
+STANDARD_PIPE_BUILDER: PipeBuilder = BasePipeBuilder(IdentityPlaquetteCompiler)

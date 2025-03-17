@@ -42,7 +42,7 @@ from tqec.utils.position import BlockPosition3D, Direction3D, Position3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D, round_or_fail
 
 _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
-    LinearFunction(2, 2), LinearFunction(2, 2)
+    LinearFunction(4, 5), LinearFunction(4, 5)
 )
 
 

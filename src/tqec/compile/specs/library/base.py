@@ -105,6 +105,7 @@ class BaseCubeBuilder(CubeBuilder):
         return Block(layers)
 
 
+# TODO: finish the implementation of the BasePipeBuilder
 class BasePipeBuilder(PipeBuilder):
     """Base implementation of the
     :class:`~tqec.compile.specs.base.SubstitutionBuilder` interface.
@@ -127,67 +128,69 @@ class BasePipeBuilder(PipeBuilder):
         return self._compiler.compile(self._translator.translate(description))
 
     def __call__(self, spec: PipeSpec) -> Block:
-        # if spec.pipe_kind.is_temporal:
-        #     return self.get_temporal_pipe_substitution(spec)
-        # return self.get_spatial_pipe_substitution(spec)
-        return Block([])
+        if spec.pipe_kind.is_temporal:
+            return self.get_temporal_pipe_block(spec)
+        # return self.get_spatial_pipe_block(spec)
+        raise NotImplementedError("Spatial pipes are not implemented yet.")
 
-    ##############################
-    #    TEMPORAL SUBSTITUTION   #
-    ##############################
+    #######################
+    #    TEMPORAL PIPE    #
+    #######################
 
-    # def get_temporal_pipe_substitution(self, spec: PipeSpec) -> Substitution:
-    #     """Returns the substitution that should be performed to implement the
-    #     provided ``spec``.
+    def get_temporal_pipe_block(self, spec: PipeSpec) -> Block:
+        """Returns the block to implement a temporal pipe based on the
+        provided ``spec``.
 
-    #     Args:
-    #         spec: description of the pipe that should be implemented by this
-    #             method. Should be a temporal pipe.
+        Args:
+            spec: description of the pipe that should be implemented by this
+                method. Should be a temporal pipe.
 
-    #     Raises:
-    #         AssertionError: if ``spec`` does not represent a temporal junction.
+        Raises:
+            AssertionError: if ``spec`` does not represent a temporal junction.
 
-    #     Returns:
-    #         the substitution that should be performed to implement the provided
-    #         ``spec``.
-    #     """
-    #     assert spec.pipe_kind.is_temporal
-    #     if spec.pipe_kind.has_hadamard:
-    #         return self._get_temporal_hadamard_pipe_substitution(spec)
-    #     # Else, it is a regular temporal junction
-    #     return self._get_temporal_non_hadamard_pipe_substitution(spec)
+        Returns:
+            the block to implement a temporal pipe based on the
+        provided ``spec``..
+        """
+        assert spec.pipe_kind.is_temporal
+        if spec.pipe_kind.has_hadamard:
+            # return self._get_temporal_hadamard_pipe_block(spec)
+            raise NotImplementedError(
+                "Hadamard temporal pipes are not implemented yet."
+            )
+        # Else, it is a regular temporal junction
+        return self._get_temporal_non_hadamard_pipe_block(spec)
 
-    # def _get_temporal_non_hadamard_pipe_substitution(
-    #     self, spec: PipeSpec
-    # ) -> Substitution:
-    #     """Returns the substitution that should be performed to implement a
-    #     regular temporal junction without Hadamard transition.
+    def _get_temporal_non_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
+        """Returns the block to implement a regular temporal junction
+        without Hadamard transition.
 
-    #     Args:
-    #         spec: description of the pipe that should be implemented by this
-    #             method. Should be a regular (i.e., non-Hadamard) temporal pipe.
+        Args:
+            spec: description of the pipe that should be implemented by this
+                method. Should be a regular (i.e., non-Hadamard) temporal pipe.
 
-    #     Raises:
-    #         AssertionError: if the provided ``pipe`` is not a temporal pipe, or
-    #             if it contains a Hadamard transition.
+        Raises:
+            AssertionError: if the provided ``pipe`` is not a temporal pipe, or
+                if it contains a Hadamard transition.
 
-    #     Returns:
-    #         the substitution that should be performed to implement the provided
-    #         ``spec``.
-    #     """
-    #     assert spec.pipe_kind.is_temporal
-    #     assert not spec.pipe_kind.has_hadamard
+        Returns:
+            the block to implement the provided
+            ``spec``.
+        """
+        assert spec.pipe_kind.is_temporal
+        assert not spec.pipe_kind.has_hadamard
 
-    #     z_observable_orientation = (
-    #         ZObservableOrientation.HORIZONTAL
-    #         if spec.pipe_kind.x == Basis.Z
-    #         else ZObservableOrientation.VERTICAL
-    #     )
-    #     memory_plaquettes = get_memory_qubit_plaquettes(z_observable_orientation)
-    #     return Substitution({-1: memory_plaquettes}, {0: memory_plaquettes})
+        z_observable_orientation = (
+            ZObservableOrientation.HORIZONTAL
+            if spec.pipe_kind.x == Basis.Z
+            else ZObservableOrientation.VERTICAL
+        )
+        memory_plaquettes = get_memory_qubit_plaquettes(z_observable_orientation)
+        template = get_memory_qubit_raw_template()
+        return Block([PlaquetteLayer(template, memory_plaquettes) for _ in range(2)])
 
-    # def _get_temporal_hadamard_pipe_substitution(self, spec: PipeSpec) -> Substitution:
-    #     """Returns the substitution that should be performed to implement a
+    # def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Substitution:
+    #     """Returns the block to implement a
     #     Hadamard temporal junction.
 
     #     Note:
@@ -204,7 +207,7 @@ class BasePipeBuilder(PipeBuilder):
     #             if it is not a Hadamard transition.
 
     #     Returns:
-    #         the substitution that should be performed to implement the provided
+    #         the block to implement the provided
     #         ``spec``.
     #     """
     #     assert spec.pipe_kind.is_temporal
@@ -333,7 +336,7 @@ class BasePipeBuilder(PipeBuilder):
     #                 "Should never happen as we are in a spatial (i.e., X/Y plane) junction."
     #             )
 
-    # def _get_spatial_cube_pipe_substitution(self, spec: PipeSpec) -> Substitution:
+    # def _get_spatial_cube_pipe_block(self, spec: PipeSpec) -> Substitution:
     #     xbasis, ybasis = spec.pipe_kind.x, spec.pipe_kind.y
     #     assert xbasis is not None or ybasis is not None
     #     spatial_boundary_basis: Basis = xbasis if xbasis is not None else ybasis  # type: ignore
@@ -345,21 +348,21 @@ class BasePipeBuilder(PipeBuilder):
     #     )
     #     # The end goal of this function is to fill in the following 2 variables
     #     # and use them to make a Substitution instance.
-    #     src_substitution: dict[int, Plaquettes] = {}
-    #     dst_substitution: dict[int, Plaquettes] = {}
+    #     src_block: dict[int, Plaquettes] = {}
+    #     dst_block: dict[int, Plaquettes] = {}
     #     for layer_index, (reset, measurement) in enumerate(
     #         [(spec.pipe_kind.z, None), (None, None), (None, spec.pipe_kind.z)]
     #     ):
     #         plaquettes = get_spatial_cube_arm_plaquettes(
     #             spatial_boundary_basis, arm, reset, measurement
     #         )
-    #         src_substitution[layer_index] = Plaquettes(
+    #         src_block[layer_index] = Plaquettes(
     #             plaquettes.collection.map_keys_if_present(mappings[0])
     #         )
-    #         dst_substitution[layer_index] = Plaquettes(
+    #         dst_block[layer_index] = Plaquettes(
     #             plaquettes.collection.map_keys_if_present(mappings[1])
     #         )
-    #     return Substitution(src_substitution, dst_substitution)
+    #     return Substitution(src_block, dst_block)
 
     # @staticmethod
     # def _get_spatial_regular_pipe_template(spec: PipeSpec) -> RectangularTemplate:
@@ -428,7 +431,7 @@ class BasePipeBuilder(PipeBuilder):
     #                 "Spatial pipes cannot have a direction equal to Direction3D.Z."
     #             )
 
-    # def _get_spatial_regular_pipe_substitution(self, spec: PipeSpec) -> Substitution:
+    # def _get_spatial_regular_pipe_block(self, spec: PipeSpec) -> Substitution:
     #     assert all(not spec.is_spatial for spec in spec.cube_specs)
     #     plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
     #     template = self._get_spatial_regular_pipe_template(spec)
@@ -438,25 +441,25 @@ class BasePipeBuilder(PipeBuilder):
 
     #     # The end goal of this function is to fill in the following 2 variables
     #     # and use them to make a Substitution instance.
-    #     src_substitution: dict[int, Plaquettes] = {}
-    #     dst_substitution: dict[int, Plaquettes] = {}
+    #     src_block: dict[int, Plaquettes] = {}
+    #     dst_block: dict[int, Plaquettes] = {}
     #     for layer_index, (reset, measurement) in enumerate(
     #         [(spec.pipe_kind.z, None), (None, None), (None, spec.pipe_kind.z)]
     #     ):
     #         plaquettes = plaquettes_factory(reset, measurement)
-    #         src_substitution[layer_index] = Plaquettes(
+    #         src_block[layer_index] = Plaquettes(
     #             plaquettes.collection.map_keys_if_present(mappings[0])
     #         )
-    #         dst_substitution[layer_index] = Plaquettes(
+    #         dst_block[layer_index] = Plaquettes(
     #             plaquettes.collection.map_keys_if_present(mappings[1])
     #         )
-    #     return Substitution(src_substitution, dst_substitution)
+    #     return Substitution(src_block, dst_block)
 
-    # def get_spatial_pipe_substitution(self, spec: PipeSpec) -> Substitution:
+    # def get_spatial_pipe_block(self, spec: PipeSpec) -> Substitution:
     #     assert spec.pipe_kind.is_spatial
     #     cube_specs = spec.cube_specs
     #     return (
-    #         self._get_spatial_cube_pipe_substitution(spec)
+    #         self._get_spatial_cube_pipe_block(spec)
     #         if cube_specs[0].is_spatial or cube_specs[1].is_spatial
-    #         else self._get_spatial_regular_pipe_substitution(spec)
+    #         else self._get_spatial_regular_pipe_block(spec)
     #     )
