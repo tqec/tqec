@@ -22,7 +22,7 @@ def contains_only_layout_or_composed_layers(
     return all(isinstance(layer, (LayoutLayer, BaseComposedLayer)) for layer in layers)
 
 
-class NodeWalkerInterface:
+class NodeWalker:
     def visit_node(self, node: LayerNode) -> None:
         pass
 
@@ -85,7 +85,7 @@ class LayerNode:
             },
         }
 
-    def walk(self, walker: NodeWalkerInterface) -> None:
+    def walk(self, walker: NodeWalker) -> None:
         walker.visit_node(self)
         for child in self._children:
             child.walk(walker)
