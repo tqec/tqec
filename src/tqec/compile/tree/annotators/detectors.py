@@ -29,6 +29,34 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         detector_database: DetectorDatabase | None = None,
         lookback: int = 2,
     ):
+        """Walker computing and annotating detectors on leaf nodes.
+
+        This class keeps track of the ``lookback`` previous leaf nodes seen and
+        uses them to automatically compute the detectors at all the leaf nodes
+        it encounters.
+
+        Args:
+            k: scaling factor.
+            manhattan_radius: Parameter for the automatic computation of detectors.
+                Should be large enough so that flows cancelling each other to
+                form a detector are strictly contained in plaquettes that are at
+                most at a distance of ``manhattan_radius`` from the central
+                plaquette. Detector computation runtime grows with this parameter,
+                so you should try to keep it to its minimum. A value too low might
+                produce invalid detectors.
+            detector_database: existing database of detectors that is used to
+                avoid computing detectors if the database already contains them.
+                Default to `None` which result in not using any kind of database
+                and unconditionally performing the detector computation.
+            lookback: number of QEC rounds to consider to try to find detectors.
+                Including more rounds increases computation time. Cannot be over
+                ``2`` for the moment.
+        """
+        if lookback > 2:
+            raise TQECException(
+                "Cannot annotate detectors by considering more than 2 QEC rounds "
+                "at the moment."
+            )
         self._k = k
         self._manhattan_radius = manhattan_radius
         self._database = detector_database or DetectorDatabase()
@@ -43,6 +71,8 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         plaquettes: Plaquettes,
         measurement_records: MeasurementRecordsMap,
     ) -> None:
+        """Add the provided parameters to the lookback window, potentially removing
+        older items that should not be considered anymore."""
         _append_with_capped_size(self._previous_templates, template, self._lookback)
         _append_with_capped_size(self._previous_plaquettes, plaquettes, self._lookback)
         _append_with_capped_size(
@@ -51,6 +81,8 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
 
     @property
     def full_lookback_measurement_record(self) -> MeasurementRecordsMap:
+        """Returns the measurement records of all the measurements in the stored
+        lookback window."""
         ret = MeasurementRecordsMap()
         for mrecords in self._measurement_records:
             ret = ret.with_added_measurements(mrecords)
