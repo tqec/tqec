@@ -52,6 +52,11 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 Including more rounds increases computation time. Cannot be over
                 ``2`` for the moment.
         """
+        if lookback < 1:
+            raise TQECException(
+                "Cannot compute detectors without any layer. The `lookback` "
+                f"parameter should be >= 1 but got {lookback}."
+            )
         if lookback > 2:
             raise TQECException(
                 "Cannot annotate detectors by considering more than 2 QEC rounds "
