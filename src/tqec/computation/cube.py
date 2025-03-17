@@ -199,8 +199,9 @@ class Cube:
         kind: The kind of the cube. It determines the basic logical operations represented
             by the cube.
         label: The label of the cube. It's mainly used for annotating the input/output
-            ports of the block graph. If the cube is a port, the label must be non-empty.
-            Default is an empty string.
+            ports of the block graph. If the cube is a port, the label must be non-empty
+            and unique within the block graph. The label can be any string, but duplicate
+            labels are not allowed. Default is an empty string.
     """
 
     position: Position3D
