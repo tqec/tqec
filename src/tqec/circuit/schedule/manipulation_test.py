@@ -121,8 +121,6 @@ def test_merge_instructions() -> None:
     assert {instr.name for instr in merged_instructions} == {"H", "CX"}
     for instr in merged_instructions:
         if instr.name == "H":
-            assert set(instr.targets_copy()) == set(
-                stim.GateTarget(i) for i in [0, 1, 2, 5, 7]
-            )
+            assert sorted(t.value for t in instr.targets_copy()) == [0, 1, 2, 5, 7]
         if instr.name == "CX":
             assert instr.target_groups() == [[stim.GateTarget(3), stim.GateTarget(4)]]
