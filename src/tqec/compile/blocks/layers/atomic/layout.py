@@ -125,21 +125,22 @@ class LayoutLayer(BaseLayer):
             pipe_direction = Direction3D.from_neighbouring_positions(
                 u.to_3d(), v.to_3d()
             )
+            # {u,v}_border: border of the respective node that is touched by the
+            # the pipe.
             u_border: TemplateBorder
             v_border: TemplateBorder
             match pipe_direction:
                 case Direction3D.X:
-                    u_border, v_border = TemplateBorder.LEFT, TemplateBorder.RIGHT
+                    u_border, v_border = TemplateBorder.RIGHT, TemplateBorder.LEFT
                 case Direction3D.Y:
-                    # TODO: check that this is the correct order.
                     u_border, v_border = TemplateBorder.BOTTOM, TemplateBorder.TOP
                 case Direction3D.Z:
                     raise TQECException("Should not happen. This is a logical error.")
 
             # Updating plaquettes in plaquettes_dict
             for pos, (cube_border, pipe_border) in [
-                (u, (v_border, u_border)),
-                (v, (u_border, v_border)),
+                (u, (u_border, v_border)),
+                (v, (v_border, u_border)),
             ]:
                 plaquette_indices_mapping = pipe_layer.template.get_border_indices(
                     pipe_border
