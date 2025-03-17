@@ -10,7 +10,7 @@ from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.annotations import LayerTreeAnnotations
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
-from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayoutNode
+from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.utils.exceptions import TQECException
 
@@ -94,13 +94,18 @@ class LayerTree:
         lookback: int = 2,
     ) -> None:
         self._root.walk(
-            AnnotateDetectorsOnLayoutNode(
+            AnnotateDetectorsOnLayerNode(
                 k, manhattan_radius, detector_database, lookback
             )
         )
 
     def generate_circuit(
-        self, k: int, include_qubit_coords: bool = True
+        self,
+        k: int,
+        include_qubit_coords: bool = True,
+        manhattan_radius: int = 2,
+        detector_database: DetectorDatabase | None = None,
+        lookback: int = 2,
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -111,6 +116,19 @@ class LayerTree:
             k: scaling factor.
             include_qubit_coords: whether to include ``QUBIT_COORDS`` annotations
                 in the returned quantum circuit or not. Default to ``True``.
+            manhattan_radius: Parameter for the automatic computation of detectors.
+                Should be large enough so that flows cancelling each other to
+                form a detector are strictly contained in plaquettes that are at
+                most at a distance of ``manhattan_radius`` from the central
+                plaquette. Detector computation runtime grows with this parameter,
+                so you should try to keep it to its minimum. A value too low might
+                produce invalid detectors.
+            detector_database: existing database of detectors that is used to
+                avoid computing detectors if the database already contains them.
+                Default to `None` which result in not using any kind of database
+                and unconditionally performing the detector computation.
+            lookback: number of QEC rounds to consider to try to find detectors.
+                Including more rounds increases computation time.
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
@@ -118,7 +136,7 @@ class LayerTree:
         """
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
-        self._annotate_detectors(k)
+        self._annotate_detectors(k, manhattan_radius, detector_database, lookback)
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
 
