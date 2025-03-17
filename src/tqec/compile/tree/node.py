@@ -8,6 +8,8 @@ from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
+from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
+from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
@@ -60,11 +62,16 @@ class LayerNode:
         if isinstance(layer, RepeatedLayer):
             if not isinstance(layer.internal_layer, LayoutLayer | BaseComposedLayer):
                 raise TQECException(
-                    f"Repeated layer is not an instance of {LayoutLayer.__name__} "
-                    f"or {BaseComposedLayer.__name__}."
+                    "The layer that is being repeated is not an instance of "
+                    f"{LayoutLayer.__name__} or {BaseComposedLayer.__name__}."
                 )
             return [LayerNode(layer.internal_layer)]
-        raise TQECException(f"Unknown layer type found: {type(layer).__name__}.")
+        if isinstance(layer, (PlaquetteLayer, RawCircuitLayer)):
+            raise TQECException(
+                f"Unsupported layer type found: {type(layer).__name__}. Expected "
+                f"ALL leaf nodes to be of type {LayoutLayer.__name__}."
+            )
+        raise NotImplementedError(f"Unknown layer type found: {type(layer).__name__}.")
 
     @property
     def is_leaf(self) -> bool:
