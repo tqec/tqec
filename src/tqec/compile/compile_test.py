@@ -110,10 +110,13 @@ def test_compile_two_same_blocks_connected_in_time(
 def test_compile_two_same_blocks_connected_in_time_layers_approach(
     spec: str, kind: str, k: int
 ) -> None:
-    # d = 2 * k + 1
+    d = 2 * k + 1
     g = BlockGraph("Two Same Blocks in Time Experiment")
-    p1 = Position3D(1, 1, 0)
-    p2 = Position3D(1, 1, 1)
+    # FIXME: 1,1 not working
+    # p1 = Position3D(1, 1, 0)
+    p1 = Position3D(0, 0, 0)
+    # p2 = Position3D(1, 1, 1)
+    p2 = Position3D(0, 0, 1)
     g.add_cube(p1, kind)
     g.add_cube(p2, kind)
     g.add_pipe(p1, p2)
@@ -124,13 +127,14 @@ def test_compile_two_same_blocks_connected_in_time_layers_approach(
     compiled_graph = compile_block_graph_v2(
         g, cube_builder, pipe_builder, correlation_surfaces
     )
-    print(compiled_graph.layout_layers())
-    # circuit = compiled_graph.generate_stim_circuit(
-    #    k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
-    # )
 
-    # dem = circuit.detector_error_model()
-    # assert dem.num_detectors == (d**2 - 1) * 2 * d
+    # circuit = compiled_graph.to_layer_tree().generate_circuit(k)
+    circuit = compiled_graph.to_layer_tree().generate_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+
+    dem = circuit.detector_error_model()
+    assert dem.num_detectors == (d**2 - 1) * 2 * d
     # assert dem.num_observables == 1
     # assert len(dem.shortest_graphlike_error()) == d
 

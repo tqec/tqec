@@ -13,6 +13,7 @@ from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.utils.exceptions import TQECException
+from tqec.utils.noise_model import NoiseModel
 
 
 class QubitLister(NodeWalker):
@@ -102,6 +103,7 @@ class LayerTree:
     def generate_circuit(
         self,
         k: int,
+        noise_model: NoiseModel | None = None,
         include_qubit_coords: bool = True,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
@@ -144,6 +146,8 @@ class LayerTree:
         if include_qubit_coords:
             circuit += annotations.qubit_map.to_circuit()
         circuit += self._root.generate_circuit(k, annotations.qubit_map)
+        if noise_model is not None:
+            circuit = noise_model.noisy_circuit(circuit)
         return circuit
 
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
