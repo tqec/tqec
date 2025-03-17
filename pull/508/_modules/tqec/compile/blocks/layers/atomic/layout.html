@@ -458,6 +458,14 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">BlockPosition2D</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the top-left and bottom-right corners of the bounding box of ``self``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a tuple containing the corners of ``self``&#39;s bounding box as positions</span>
+<span class="sd">            containing the two minimum (top-left corner) or maximum (bottom-right</span>
+<span class="sd">            corner) coordinates found in ``self``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">_x</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
         <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">_y</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
         <span class="n">minx</span><span class="p">,</span> <span class="n">maxx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">xs</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
@@ -472,11 +480,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="nd">@property</span>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">scalable_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">:</span>
-        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">_x</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
-        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">_y</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
-        <span class="n">minx</span><span class="p">,</span> <span class="n">maxx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">xs</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
-        <span class="n">miny</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
-        <span class="n">shapex</span><span class="p">,</span> <span class="n">shapey</span> <span class="o">=</span> <span class="p">(</span><span class="n">maxx</span> <span class="o">-</span> <span class="n">minx</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">maxy</span> <span class="o">-</span> <span class="n">miny</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">minp</span><span class="p">,</span> <span class="n">maxp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span>
+        <span class="n">shapex</span><span class="p">,</span> <span class="n">shapey</span> <span class="o">=</span> <span class="p">(</span><span class="n">maxp</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">minp</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">maxp</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">minp</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">(</span>
             <span class="n">shapex</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element_shape</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">)</span>
             <span class="o">+</span> <span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">,</span>
@@ -540,21 +545,22 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">pipe_direction</span> <span class="o">=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">from_neighbouring_positions</span><span class="p">(</span>
                 <span class="n">u</span><span class="o">.</span><span class="n">to_3d</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">to_3d</span><span class="p">()</span>
             <span class="p">)</span>
+            <span class="c1"># {u,v}_border: border of the respective node that is touched by the</span>
+            <span class="c1"># the pipe.</span>
             <span class="n">u_border</span><span class="p">:</span> <span class="n">TemplateBorder</span>
             <span class="n">v_border</span><span class="p">:</span> <span class="n">TemplateBorder</span>
             <span class="k">match</span> <span class="n">pipe_direction</span><span class="p">:</span>
                 <span class="k">case</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
-                    <span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span> <span class="o">=</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">LEFT</span><span class="p">,</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">RIGHT</span>
+                    <span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span> <span class="o">=</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">LEFT</span>
                 <span class="k">case</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">:</span>
-                    <span class="c1"># TODO: check that this is the correct order.</span>
                     <span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span> <span class="o">=</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">BOTTOM</span><span class="p">,</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">TOP</span>
                 <span class="k">case</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;Should not happen. This is a logical error.&quot;</span><span class="p">)</span>
 
             <span class="c1"># Updating plaquettes in plaquettes_dict</span>
             <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="n">cube_border</span><span class="p">,</span> <span class="n">pipe_border</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span>
-                <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="n">v_border</span><span class="p">,</span> <span class="n">u_border</span><span class="p">)),</span>
-                <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span><span class="p">)),</span>
+                <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span><span class="p">)),</span>
+                <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="n">v_border</span><span class="p">,</span> <span class="n">u_border</span><span class="p">)),</span>
             <span class="p">]:</span>
                 <span class="n">plaquette_indices_mapping</span> <span class="o">=</span> <span class="n">pipe_layer</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">get_border_indices</span><span class="p">(</span>
                     <span class="n">pipe_border</span>
