@@ -57,14 +57,14 @@ class LayerTree:
         }
 
     def _annotate_circuits(self, k: int) -> None:
-        self._root.walk(AnnotateCircuitOnLayoutNode(k))
+        self._root.dfs_walk(AnnotateCircuitOnLayoutNode(k))
 
     def _annotate_qubit_map(self, k: int) -> None:
         self._get_annotation(k).qubit_map = self._get_global_qubit_map(k)
 
     def _get_global_qubit_map(self, k: int) -> QubitMap:
         qubit_lister = _QubitListerExplorator(k)
-        self._root.walk(qubit_lister)
+        self._root.dfs_walk(qubit_lister)
         return QubitMap.from_qubits(sorted(qubit_lister.seen_qubits))
 
     def _annotate_observables(self, k: int) -> None:
@@ -73,7 +73,7 @@ class LayerTree:
         max_z = len(direct_children_of_root) - 1
 
         for idx, obs in enumerate(observables):
-            self._root.walk(AnnotateObsOnLayerNode(k, obs, idx, max_z))
+            self._root.bfs_walk(AnnotateObsOnLayerNode(k, obs, idx, max_z))
 
     def _annotate_detectors(
         self,
@@ -82,7 +82,7 @@ class LayerTree:
         detector_database: DetectorDatabase | None = None,
         lookback: int = 2,
     ) -> None:
-        self._root.walk(
+        self._root.dfs_walk(
             AnnotateDetectorsOnLayoutNode(
                 k, manhattan_radius, detector_database, lookback
             )

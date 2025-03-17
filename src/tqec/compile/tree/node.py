@@ -85,7 +85,13 @@ class LayerNode:
             },
         }
 
-    def walk(self, walker: NodeWalkerInterface) -> None:
+    def dfs_walk(self, walker: NodeWalkerInterface) -> None:
+        """Walk the tree rooted at ``self`` in a depth-first manner."""
+        walker.visit_node(self)
+        for child in self._children:
+            child.dfs_walk(walker)
+
+    def bfs_walk(self, walker: NodeWalkerInterface) -> None:
         """Walk the tree rooted at ``self`` in a breadth-first manner."""
         queue: list[LayerNode] = [self]
         while queue:
