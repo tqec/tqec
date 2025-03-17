@@ -18,6 +18,7 @@ BlockGraph
       ~BlockGraph.compose
       ~BlockGraph.fill_ports
       ~BlockGraph.find_correlation_surfaces
+      ~BlockGraph.fix_shadowed_faces
       ~BlockGraph.from_dae_file
       ~BlockGraph.get_degree
       ~BlockGraph.get_pipe
@@ -66,6 +67,7 @@ BlockGraph
    .. automethod:: compose
    .. automethod:: fill_ports
    .. automethod:: find_correlation_surfaces
+   .. automethod:: fix_shadowed_faces
    .. automethod:: from_dae_file
    .. automethod:: get_degree
    .. automethod:: get_pipe

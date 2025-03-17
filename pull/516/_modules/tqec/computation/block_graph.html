@@ -1116,7 +1116,96 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="n">pos_map</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">],</span>
                 <span class="n">cast</span><span class="p">(</span><span class="n">PipeKind</span><span class="p">,</span> <span class="n">rotated_kind</span><span class="p">),</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">rotated</span></div>
+        <span class="k">return</span> <span class="n">rotated</span><span class="o">.</span><span class="n">fix_shadowed_faces</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.fix_shadowed_faces">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.fix_shadowed_faces">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fix_shadowed_faces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fix the basis of those shadowed faces of the cubes in the graph.</span>
+
+<span class="sd">        A pair of face can be shadowed if the cube is connected to two pipes</span>
+<span class="sd">        in the same direction. Though these faces are not visible in the 3D</span>
+<span class="sd">        visualization, they are still identified by the cube kind and can</span>
+<span class="sd">        affect the circuit compilation.</span>
+
+<span class="sd">        The basis of the cube is enforced to match the pipes connected to it.</span>
+<span class="sd">        If there is unmatched shadowed faces, we try to fix their basis. This</span>
+<span class="sd">        will leave some freedom in constructing the model in SketchUp and make</span>
+<span class="sd">        everyones&#39; life easier.</span>
+
+<span class="sd">        Additionally, for a spatial pass-through, i.e. a cube only connected to</span>
+<span class="sd">        two pipes in the same direction, we will fix the cube kind to not be a</span>
+<span class="sd">        spatial cube.</span>
+
+<span class="sd">        Note that the fixed graph is still not guaranteed to be valid as some</span>
+<span class="sd">        other conditions may be violated. You still need to call</span>
+<span class="sd">        :py:meth:`~tqec.computation.block_graph.BlockGraph.validate` to check</span>
+<span class="sd">        the validity of the graph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new graph with the shadowed faces fixed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fixed_cubes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Cube</span><span class="p">,</span> <span class="n">Cube</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="c1"># Group connected pipes by direction</span>
+            <span class="n">pipes_by_direction</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Direction3D</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Pipe</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipes_at</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">):</span>
+                <span class="n">pipes_by_direction</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pipe</span><span class="p">)</span>
+            <span class="c1"># No need to handle the case `len(pipes_by_direction) == 0` as there</span>
+            <span class="c1"># is no pipes connected to the cube.</span>
+            <span class="c1"># No need to handle the case `len(pipes_by_direction) == 3` as it&#39;s</span>
+            <span class="c1"># a 3D corner that cannot be a valid structure.</span>
+            <span class="c1"># Spatial pass-through, ensure that the cube is not a spatial cube</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes_by_direction</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">shadowed_directions</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">d</span> <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">ps</span> <span class="ow">in</span> <span class="n">pipes_by_direction</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">shadowed_directions</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">new_kind</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">kind</span>
+            <span class="k">for</span> <span class="n">shadowed_direction</span> <span class="ow">in</span> <span class="n">shadowed_directions</span><span class="p">:</span>
+                <span class="c1"># Spatial pass-through, ensure that the cube is not a spatial cube</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">pipes_by_direction</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="ow">and</span> <span class="n">shadowed_direction</span> <span class="o">!=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span>
+                    <span class="ow">and</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_spatial</span>
+                <span class="p">):</span>
+                    <span class="n">kind</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">kind</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span>
+                    <span class="n">basis</span> <span class="o">=</span> <span class="n">kind</span><span class="o">.</span><span class="n">get_basis_along</span><span class="p">(</span><span class="n">shadowed_direction</span><span class="p">)</span>
+                    <span class="n">new_kind</span> <span class="o">=</span> <span class="n">kind</span><span class="o">.</span><span class="n">with_basis_along</span><span class="p">(</span>
+                        <span class="n">shadowed_direction</span><span class="p">,</span> <span class="n">basis</span><span class="o">.</span><span class="n">flipped</span><span class="p">()</span>
+                    <span class="p">)</span>
+                    <span class="n">new_cube</span> <span class="o">=</span> <span class="n">Cube</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">new_kind</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+                    <span class="n">fixed_cubes</span><span class="p">[</span><span class="n">cube</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_cube</span>
+                <span class="c1"># T-shape or X-shape connections, can be either in space or time</span>
+                <span class="c1"># Ensure the shadowed faces match the pipe faces that are in the</span>
+                <span class="c1"># same plane.</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes_by_direction</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">other_direction</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                        <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">pipes_by_direction</span> <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="n">shadowed_direction</span>
+                    <span class="p">)</span>
+                    <span class="n">need_match_pipe</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">pipes_by_direction</span><span class="p">[</span><span class="n">other_direction</span><span class="p">]))</span>
+                    <span class="n">pipe_basis</span> <span class="o">=</span> <span class="n">need_match_pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">get_basis_along</span><span class="p">(</span>
+                        <span class="n">shadowed_direction</span><span class="p">,</span> <span class="n">need_match_pipe</span><span class="o">.</span><span class="n">at_head</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">assert</span> <span class="n">pipe_basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="n">new_kind</span> <span class="o">=</span> <span class="n">new_kind</span><span class="o">.</span><span class="n">with_basis_along</span><span class="p">(</span><span class="n">shadowed_direction</span><span class="p">,</span> <span class="n">pipe_basis</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">new_kind</span> <span class="o">!=</span> <span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">:</span>
+                <span class="n">new_cube</span> <span class="o">=</span> <span class="n">Cube</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">new_kind</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+                <span class="n">fixed_cubes</span><span class="p">[</span><span class="n">cube</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_cube</span>
+        <span class="n">new_graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span><span class="p">:</span>
+            <span class="n">new_cube</span> <span class="o">=</span> <span class="n">fixed_cubes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">cube</span><span class="p">)</span>
+            <span class="n">new_graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">new_cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">new_cube</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipes</span><span class="p">:</span>
+            <span class="n">new_graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_graph</span></div>
 </div>
 
 
