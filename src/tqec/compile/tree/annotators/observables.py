@@ -15,45 +15,38 @@ class AnnotateObsOnLayerNode(NodeWalkerInterface):
         k: int,
         observable: AbstractObservable,
         observable_index: int,
-        order_to_z: dict[int, int],
-        bottom_orders: set[int],
-        top_orders: set[int],
+        max_z: int,
     ) -> None:
         self._k = k
         self._observable = observable
         self._observable_index = observable_index
-        self._o2z = order_to_z
-        assert bottom_orders.isdisjoint(
-            top_orders
-        ), "Bottom and top layers should not overlap."
-        self._bottom_orders = bottom_orders
-        self._top_orders = top_orders
+        self._max_z = max_z
+        # start from -1 because we need to walk the root node first
+        self._current_z = -1
 
     @override
     def visit_node(self, node: LayerNode) -> None:
-        # Only annotate leaf nodes
-        if not isinstance(node._layer, LayoutLayer):
+        if self._current_z < 0 or self._current_z > self._max_z:
+            self._current_z += 1
             return
-        annotations = node.get_annotations(self._k)
-        if annotations.circuit is None:
-            raise TQECException(
-                "Cannot annotate observables without the circuit annotation."
+
+        first_leaf = node.get_first_leaf()
+        last_leaf = node.get_last_leaf()
+
+        for at_bottom, node in zip([True, False], [first_leaf, last_leaf]):
+            assert isinstance(node._layer, LayoutLayer)
+            annotations = node.get_annotations(self._k)
+            if annotations.circuit is None:
+                raise TQECException(
+                    "Cannot annotate observables without the circuit annotation."
+                )
+            template, _ = node._layer.to_template_and_plaquettes()
+            obs_qubits = compute_observable_qubits(
+                self._k, self._observable, template, self._current_z, at_bottom
             )
-        order = node.order
-        assert order is not None, "Leaf nodes should have an order assigned."
-        z = self._o2z[order]
-        # Only annotate the first or last leaf node
-        at_bottom = order in self._bottom_orders
-        at_top = order in self._top_orders
-        if not at_bottom and not at_top:
-            return
-        template, _ = node._layer.to_template_and_plaquettes()
-        obs_qubits = compute_observable_qubits(
-            self._k, self._observable, template, z, at_bottom
-        )
-        if not obs_qubits:
-            return
-        obs_annotation = get_observable_with_circuit(
-            annotations.circuit, self._observable_index, obs_qubits
-        )
-        annotations.observables.append(obs_annotation)
+            if obs_qubits:
+                obs_annotation = get_observable_with_circuit(
+                    annotations.circuit, self._observable_index, obs_qubits
+                )
+                annotations.observables.append(obs_annotation)
+        self._current_z += 1

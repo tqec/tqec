@@ -41,23 +41,11 @@ class LayerNode:
                 no annotations are provided.
         """
         self._layer = layer
-        # If the node is a leaf node, a time order can be assigned to it.
-        # The order is used to determine the order in which the layer happens
-        # in the final circuit.
-        self._time_order: int | None = None
-        self._children: list[LayerNode] = self._create_children(layer)
+        self._children = LayerNode._get_children(layer)
         self._annotations = dict(annotations) if annotations is not None else {}
 
-    @property
-    def order(self) -> int | None:
-        return self._time_order
-
-    @order.setter
-    def order(self, value: int | None) -> None:
-        self._time_order = value
-
     @staticmethod
-    def _create_children(layer: BaseLayer | BaseComposedLayer) -> list[LayerNode]:
+    def _get_children(layer: LayoutLayer | BaseComposedLayer) -> list[LayerNode]:
         if isinstance(layer, LayoutLayer):
             return []
         if isinstance(layer, SequencedLayers):
@@ -76,21 +64,6 @@ class LayerNode:
                 )
             return [LayerNode(layer.internal_layer)]
         raise TQECException(f"Unknown layer type found: {type(layer).__name__}.")
-
-    def get_children(self, recursive: bool = False) -> list[LayerNode]:
-        """Get the children of the node. If ``recursive`` is set to ``True``, then
-        a depth-first search is performed to get all the children of the node.
-
-        DFS traversal guarantees that the leaf nodes are returned in the correct
-        time order.
-        """
-        if not recursive:
-            return [child for child in self._children]
-        ret: list[LayerNode] = []
-        for child in self._children:
-            ret.append(child)
-            ret.extend(child.get_children(recursive=True))
-        return ret
 
     @property
     def is_leaf(self) -> bool:
@@ -113,9 +86,28 @@ class LayerNode:
         }
 
     def walk(self, walker: NodeWalkerInterface) -> None:
-        walker.visit_node(self)
-        for child in self._children:
-            child.walk(walker)
+        """Walk the tree rooted at ``self`` in a breadth-first manner."""
+        queue: list[LayerNode] = [self]
+        while queue:
+            node = queue.pop(0)
+            walker.visit_node(node)
+            queue.extend(node.children)
+
+    @property
+    def children(self) -> list[LayerNode]:
+        return self._children
+
+    def get_first_leaf(self) -> LayerNode:
+        """Returns the first leaf node in the subtree rooted at ``self``."""
+        if self.is_leaf:
+            return self
+        return self._children[0].get_first_leaf()
+
+    def get_last_leaf(self) -> LayerNode:
+        """Returns the last leaf node in the subtree rooted at ``self``."""
+        if self.is_leaf:
+            return self
+        return self._children[-1].get_last_leaf()
 
     def get_annotations(self, k: int) -> LayerNodeAnnotations:
         return self._annotations.setdefault(k, LayerNodeAnnotations())
