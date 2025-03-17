@@ -33,12 +33,13 @@ class LayerNode:
         layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
     ):
-        """Represents a node in a :class:`LayerTree`.
+        """Represents a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
 
         Args:
             layer: layer being represented by the node.
             annotations: already computed annotations. Default to ``None`` meaning
-                no annotations are provided.
+                no annotations are provided. Should be a mapping from values of
+                ``k`` to the annotations already computed for that value of ``k``.
         """
         self._layer = layer
         self._children = LayerNode._get_children(layer)
@@ -86,6 +87,11 @@ class LayerNode:
         }
 
     def walk(self, walker: NodeWalker) -> None:
+        """Walk the tree using DFS, calling ``walker.visit_node`` on each node.
+
+        Args:
+            walker: structure that will be called on each explored node.
+        """
         walker.visit_node(self)
         for child in self._children:
             child.walk(walker)
@@ -102,6 +108,21 @@ class LayerNode:
         global_qubit_map: QubitMap,
         shift_coords: StimCoordinates | None = None,
     ) -> stim.Circuit:
+        """Generate the quantum circuit representing the node.
+
+        Args:
+            k: scaling parameter.
+            global_qubit_map: qubit map that should be used to generate the
+                quantum circuit. Qubits from the returned quantum circuit will
+                adhere to the provided qubit map.
+            shift_coords: if provided, a ``SHIFT_COORDS`` instruction with the
+                provided shift will be appended before each block of ``DETECTOR``
+                annotations. Defaults to ``None`` which means "no shift".
+
+        Returns:
+            a ``stim.Circuit`` instance representing ``self`` with the provided
+            ``global_qubit_map``.
+        """
         if isinstance(self._layer, LayoutLayer):
             annotations = self.get_annotations(k)
             base_circuit = annotations.circuit
