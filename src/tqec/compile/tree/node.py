@@ -125,14 +125,18 @@ class LayerNode:
             for annotation in annotations.detectors + annotations.observables:
                 mapped_circuit.append_annotation(annotation.to_instruction())
             return mapped_circuit.get_circuit(include_qubit_coords=False)
+
         if isinstance(self._layer, SequencedLayers):
             ret = stim.Circuit()
             for child, next in zip(self._children[:-1], self._children[1:]):
-                ret += child.generate_circuit(k, global_qubit_map)
+                ret += child.generate_circuit(k, global_qubit_map, shift_coords)
                 if not next.is_repeated:
                     ret.append("TICK")
-            ret += self._children[-1].generate_circuit(k, global_qubit_map)
+            ret += self._children[-1].generate_circuit(
+                k, global_qubit_map, shift_coords
+            )
             return ret
+
         if isinstance(self._layer, RepeatedLayer):
             body = self._children[0].generate_circuit(
                 k,
