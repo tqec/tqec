@@ -1,52 +1,57 @@
-from typing_extensions import override
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import (
     compute_observable_qubits,
     get_observable_with_circuit,
 )
-from tqec.compile.tree.node import LayerNode, NodeWalkerInterface
+from tqec.compile.tree.node import LayerNode
 from tqec.utils.exceptions import TQECException
 
 
-class AnnotateObsOnLayerNode(NodeWalkerInterface):
-    def __init__(
-        self,
-        k: int,
-        observable: AbstractObservable,
-        observable_index: int,
-        max_z: int,
-    ) -> None:
-        self._k = k
-        self._observable = observable
-        self._observable_index = observable_index
-        self._max_z = max_z
-        # start from -1 because we need to walk the root node first
-        self._current_z = -1
+def _get_first_leaf(root: LayerNode) -> LayerNode:
+    """Returns the first leaf node in the tree."""
+    if root.is_leaf:
+        return root
+    return _get_first_leaf(root._children[0])
 
-    @override
-    def visit_node(self, node: LayerNode) -> None:
-        if self._current_z < 0 or self._current_z > self._max_z:
-            self._current_z += 1
-            return
 
-        first_leaf = node.get_first_leaf()
-        last_leaf = node.get_last_leaf()
+def _get_last_leaf(root: LayerNode) -> LayerNode:
+    """Returns the last leaf node in the tree."""
+    if root.is_leaf:
+        return root
+    return _get_last_leaf(root._children[-1])
 
+
+def annotate_observable(
+    root: LayerNode,
+    k: int,
+    observable: AbstractObservable,
+    observable_index: int,
+) -> None:
+    """Annotates the observables on the tree.
+
+    Args:
+        root: root node of the tree.
+        k: distance parameter.
+        observable: observable to annotate.
+        observable_index: index of the observable in the circuit.
+    """
+    for z, subtree_root in enumerate(root.children):
+        first_leaf = _get_first_leaf(subtree_root)
+        last_leaf = _get_last_leaf(subtree_root)
         for at_bottom, node in zip([True, False], [first_leaf, last_leaf]):
             assert isinstance(node._layer, LayoutLayer)
-            annotations = node.get_annotations(self._k)
+            annotations = node.get_annotations(k)
             if annotations.circuit is None:
                 raise TQECException(
                     "Cannot annotate observables without the circuit annotation."
                 )
             template, _ = node._layer.to_template_and_plaquettes()
             obs_qubits = compute_observable_qubits(
-                self._k, self._observable, template, self._current_z, at_bottom
+                k, observable, template, z, at_bottom
             )
             if obs_qubits:
                 obs_annotation = get_observable_with_circuit(
-                    annotations.circuit, self._observable_index, obs_qubits
+                    annotations.circuit, observable_index, obs_qubits
                 )
                 annotations.observables.append(obs_annotation)
-        self._current_z += 1

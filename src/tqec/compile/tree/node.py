@@ -85,35 +85,15 @@ class LayerNode:
             },
         }
 
-    def dfs_walk(self, walker: NodeWalkerInterface) -> None:
+    def walk(self, walker: NodeWalkerInterface) -> None:
         """Walk the tree rooted at ``self`` in a depth-first manner."""
         walker.visit_node(self)
         for child in self._children:
-            child.dfs_walk(walker)
-
-    def bfs_walk(self, walker: NodeWalkerInterface) -> None:
-        """Walk the tree rooted at ``self`` in a breadth-first manner."""
-        queue: list[LayerNode] = [self]
-        while queue:
-            node = queue.pop(0)
-            walker.visit_node(node)
-            queue.extend(node.children)
+            child.walk(walker)
 
     @property
     def children(self) -> list[LayerNode]:
         return self._children
-
-    def get_first_leaf(self) -> LayerNode:
-        """Returns the first leaf node in the subtree rooted at ``self``."""
-        if self.is_leaf:
-            return self
-        return self._children[0].get_first_leaf()
-
-    def get_last_leaf(self) -> LayerNode:
-        """Returns the last leaf node in the subtree rooted at ``self``."""
-        if self.is_leaf:
-            return self
-        return self._children[-1].get_last_leaf()
 
     def get_annotations(self, k: int) -> LayerNodeAnnotations:
         return self._annotations.setdefault(k, LayerNodeAnnotations())

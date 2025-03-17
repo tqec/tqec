@@ -11,7 +11,7 @@ from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.annotations import LayerTreeAnnotations
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayoutNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayoutNode
-from tqec.compile.tree.annotators.observables import AnnotateObsOnLayerNode
+from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.node import LayerNode, NodeWalkerInterface
 from tqec.utils.exceptions import TQECException
 
@@ -57,23 +57,19 @@ class LayerTree:
         }
 
     def _annotate_circuits(self, k: int) -> None:
-        self._root.dfs_walk(AnnotateCircuitOnLayoutNode(k))
+        self._root.walk(AnnotateCircuitOnLayoutNode(k))
 
     def _annotate_qubit_map(self, k: int) -> None:
         self._get_annotation(k).qubit_map = self._get_global_qubit_map(k)
 
     def _get_global_qubit_map(self, k: int) -> QubitMap:
         qubit_lister = _QubitListerExplorator(k)
-        self._root.dfs_walk(qubit_lister)
+        self._root.walk(qubit_lister)
         return QubitMap.from_qubits(sorted(qubit_lister.seen_qubits))
 
     def _annotate_observables(self, k: int) -> None:
-        observables = self._abstract_observables
-        direct_children_of_root = self._root.children
-        max_z = len(direct_children_of_root) - 1
-
-        for idx, obs in enumerate(observables):
-            self._root.bfs_walk(AnnotateObsOnLayerNode(k, obs, idx, max_z))
+        for obs_idx, observable in enumerate(self._abstract_observables):
+            annotate_observable(self._root, k, observable, obs_idx)
 
     def _annotate_detectors(
         self,
@@ -82,7 +78,7 @@ class LayerTree:
         detector_database: DetectorDatabase | None = None,
         lookback: int = 2,
     ) -> None:
-        self._root.dfs_walk(
+        self._root.walk(
             AnnotateDetectorsOnLayoutNode(
                 k, manhattan_radius, detector_database, lookback
             )
