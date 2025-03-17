@@ -48,6 +48,14 @@ class LayoutLayer(BaseLayer):
 
     @cached_property
     def bounds(self) -> tuple[BlockPosition2D, BlockPosition2D]:
+        """Get the top-left and bottom-right corners of the bounding box of ``self``.
+
+        Returns:
+            a tuple containing the corners of ``self``'s bounding box as positions
+            containing the two minimum (top-left corner) or maximum (bottom-right
+            corner) coordinates found in ``self``.
+
+        """
         xs = [pos._x for pos in self.layers.keys()]
         ys = [pos._y for pos in self.layers.keys()]
         minx, maxx = min(xs), max(xs)
@@ -62,11 +70,8 @@ class LayoutLayer(BaseLayer):
     @property
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        xs = [pos._x for pos in self.layers.keys()]
-        ys = [pos._y for pos in self.layers.keys()]
-        minx, maxx = min(xs), max(xs)
-        miny, maxy = min(ys), max(ys)
-        shapex, shapey = (maxx - minx) // 2 + 1, (maxy - miny) // 2 + 1
+        minp, maxp = self.bounds
+        shapex, shapey = (maxp.x - minp.x) + 1, (maxp.y - minp.y) + 1
         return PhysicalQubitScalable2D(
             shapex * (self.element_shape.x - DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER)
             + DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER,
