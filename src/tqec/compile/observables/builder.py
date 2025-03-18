@@ -85,6 +85,22 @@ def compute_observable_qubits(
     z: int,
     at_bottom: bool,
 ) -> set[GridQubit]:
+    """Compute the qubits whose measurements will be included in the observable.
+
+    This function targets at a single time slice (circuit layer) and calculates
+    the qubits that will be included in the logical observable at that time.
+
+    Args:
+        k: The scaling parameter.
+        observable: The abstract observable.
+        template: The layout template of the block at the time step.
+        z: The z coordinate of the 3D block the circuit layer is in.
+        at_bottom: Whether the observable is at the bottom of the block.
+
+    Returns:
+        The set of qubits whose measurements will be included in the logical
+        observable.
+    """
     obs_slice = observable.slice_at_z(z)
     obs_qubits: set[GridQubit] = set()
 
@@ -146,6 +162,20 @@ def get_observable_with_circuit(
     observable_index: int,
     observable_qubits: set[GridQubit],
 ) -> Observable:
+    """Calculate the measurement offsets of the observable qubits measured at
+    the end of the circuit and construct the observable.
+
+    Args:
+        circuit: The circuit at the end of which the observable qubits are
+            measured.
+        observable_index: The index of the observable.
+        observable_qubits: The qubits whose measurements will be included in the
+            observable. If there are no measurements for some qubits, they will
+            be ignored.
+
+    Returns:
+        The logical observable.
+    """
     measurement_records = MeasurementRecordsMap.from_scheduled_circuit(circuit)
     measurement_offsets = [
         measurement_records[q][-1]
