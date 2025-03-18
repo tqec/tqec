@@ -44,7 +44,7 @@ class LookbackInformation:
 
 
 @dataclass
-class LookbackInformations:
+class LookbackInformationList:
     """A sequence of :class:`LookbackInformation` instances."""
 
     infos: list[LookbackInformation] = field(default_factory=list)
@@ -61,7 +61,7 @@ class LookbackInformations:
             LookbackInformation(template, plaquettes, measurement_records)
         )
 
-    def extend(self, other: LookbackInformations, repetitions: int = 1) -> None:
+    def extend(self, other: LookbackInformationList, repetitions: int = 1) -> None:
         self.infos.extend(other.infos * repetitions)
 
     def __len__(self) -> int:
@@ -90,10 +90,10 @@ class LookbackStack:
                 detectors.
         """
         self._lookback = lookback
-        self._stack: list[LookbackInformations] = [LookbackInformations()]
+        self._stack: list[LookbackInformationList] = [LookbackInformationList()]
 
     def enter_repeat_block(self) -> None:
-        self._stack.append(LookbackInformations())
+        self._stack.append(LookbackInformationList())
 
     def close_repeat_block(self, repetitions: int) -> None:
         if len(self._stack) < 2:
