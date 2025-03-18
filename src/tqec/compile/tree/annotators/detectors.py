@@ -71,7 +71,7 @@ class LookbackInformationList:
 
 
 class LookbackStack:
-    def __init__(self, lookback: int) -> None:
+    def __init__(self) -> None:
         """Initialise the lookback stack that can be used to query the current
         state for detector computation.
 
@@ -81,12 +81,7 @@ class LookbackStack:
 
         In particular, this data-structure is useful to keep track of previous
         rounds in the presence of ``REPEAT`` blocks.
-
-        Args:
-            lookback: the number of QEC rounds that should be used to compute
-                detectors.
         """
-        self._lookback = lookback
         self._stack: list[LookbackInformationList] = [LookbackInformationList()]
 
     def enter_repeat_block(self) -> None:
@@ -98,6 +93,11 @@ class LookbackStack:
                 f"Only got {len(self._stack)} < 2 entries in the stack. That "
                 "means that we are not in a REPEAT block. Cannot call "
                 "close_repeat_block()."
+            )
+        if repetitions < 1:
+            raise TQECException(
+                "Cannot have a REPEAT block with less than 1 repetitions. Got "
+                f"{repetitions} repetitions."
             )
         self._stack[-2].extend(self._stack[-1], repetitions)
         self._stack.pop(-1)
@@ -114,6 +114,13 @@ class LookbackStack:
     def _get_last_n(
         self, n: int
     ) -> tuple[list[Template], list[Plaquettes], list[MeasurementRecordsMap]]:
+        if n < 0:
+            raise TQECException(
+                "Cannot look back a negative number of rounds. Got a lookback "
+                f"value of {n}."
+            )
+        if n == 0:
+            return [], [], []
         templates: list[Template] = []
         plaquettes: list[Plaquettes] = []
         measurement_records: list[MeasurementRecordsMap] = []
@@ -129,15 +136,24 @@ class LookbackStack:
 
         return templates[::-1], plaquettes[::-1], measurement_records[::-1]
 
-    def get_current_lookback(
+    def lookback(
         self,
+        n: int,
     ) -> tuple[list[Template], list[Plaquettes], MeasurementRecordsMap]:
         """Get the last ``self._lookback`` QEC rounds."""
-        templates, plaquettes, measurement_records = self._get_last_n(self._lookback)
-        measurement_record = measurement_records[0]
-        for mrec in measurement_records[1:]:
+        templates, plaquettes, measurement_records = self._get_last_n(n)
+        measurement_record = MeasurementRecordsMap()
+        for mrec in measurement_records:
             measurement_record = measurement_record.with_added_measurements(mrec)
         return templates, plaquettes, measurement_record
+
+    def __len__(self) -> int:
+        if len(self._stack) > 1:
+            raise TQECException(
+                "Cannot get a meaningful stack length when a REPEAT block is "
+                "in construction."
+            )
+        return len(self._stack[0])
 
 
 class AnnotateDetectorsOnLayerNode(NodeWalker):
@@ -167,24 +183,19 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 avoid computing detectors if the database already contains them.
                 Default to `None` which result in not using any kind of database
                 and unconditionally performing the detector computation.
-            lookback: number of QEC rounds to consider to try to find detectors.
-                Including more rounds increases computation time. Cannot be over
-                ``2`` for the moment.
+            lookback_size: number of QEC rounds to consider to try to find
+                detectors. Including more rounds increases computation time.
         """
         if lookback < 1:
             raise TQECException(
                 "Cannot compute detectors without any layer. The `lookback` "
                 f"parameter should be >= 1 but got {lookback}."
             )
-        if lookback > 2:
-            raise TQECException(
-                "Cannot annotate detectors by considering more than 2 QEC rounds "
-                "at the moment."
-            )
         self._k = k
         self._manhattan_radius = manhattan_radius
         self._database = detector_database or DetectorDatabase()
-        self._lookback_stack = LookbackStack(lookback)
+        self._lookback_size = lookback
+        self._lookback_stack = LookbackStack()
 
     @override
     def visit_node(self, node: LayerNode) -> None:
@@ -199,8 +210,8 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             *node._layer.to_template_and_plaquettes(),
             MeasurementRecordsMap.from_scheduled_circuit(annotations.circuit),
         )
-        templates, plaquettes, measurement_records = (
-            self._lookback_stack.get_current_lookback()
+        templates, plaquettes, measurement_records = self._lookback_stack.lookback(
+            self._lookback_size
         )
 
         detectors = compute_detectors_for_fixed_radius(
