@@ -1,0 +1,47 @@
+Plaquettes
+==========
+
+.. currentmodule:: tqec.plaquette
+
+.. autoclass:: Plaquettes
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Plaquettes.__init__
+      ~Plaquettes.items
+      ~Plaquettes.map_indices
+      ~Plaquettes.repeat
+      ~Plaquettes.to_name_dict
+      ~Plaquettes.with_updated_plaquettes
+      ~Plaquettes.without_plaquettes
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Plaquettes.collection
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: items
+   .. automethod:: map_indices
+   .. automethod:: repeat
+   .. automethod:: to_name_dict
+   .. automethod:: with_updated_plaquettes
+   .. automethod:: without_plaquettes
+   
+   
