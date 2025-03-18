@@ -1,0 +1,52 @@
+RPNGDescription
+===============
+
+.. currentmodule:: tqec.plaquette
+
+.. autoclass:: RPNGDescription
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RPNGDescription.__init__
+      ~RPNGDescription.empty
+      ~RPNGDescription.from_extended_string
+      ~RPNGDescription.from_string
+      ~RPNGDescription.get_g_op
+      ~RPNGDescription.get_n
+      ~RPNGDescription.get_r_op
+      ~RPNGDescription.view_as_svg
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RPNGDescription.ancilla
+      ~RPNGDescription.has_measurement
+      ~RPNGDescription.has_reset
+      ~RPNGDescription.corners
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: empty
+   .. automethod:: from_extended_string
+   .. automethod:: from_string
+   .. automethod:: get_g_op
+   .. automethod:: get_n
+   .. automethod:: get_r_op
+   .. automethod:: view_as_svg
+   
+   

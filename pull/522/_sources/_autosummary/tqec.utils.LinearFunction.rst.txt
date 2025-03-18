@@ -1,0 +1,48 @@
+LinearFunction
+==============
+
+.. currentmodule:: tqec.utils
+
+.. autoclass:: LinearFunction
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LinearFunction.__init__
+      ~LinearFunction.exact_integer_div
+      ~LinearFunction.integer_eval
+      ~LinearFunction.intersection
+      ~LinearFunction.is_close_to
+      ~LinearFunction.is_constant
+      ~LinearFunction.is_scalable
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LinearFunction.offset
+      ~LinearFunction.slope
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: exact_integer_div
+   .. automethod:: integer_eval
+   .. automethod:: intersection
+   .. automethod:: is_close_to
+   .. automethod:: is_constant
+   .. automethod:: is_scalable
+   
+   
