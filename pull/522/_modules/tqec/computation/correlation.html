@@ -624,13 +624,13 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the area of the correlation surface.</span>
 
 <span class="sd">        The area of the correlation surface is the number of nodes it spans.</span>
-<span class="sd">        An X node and a Z node with the same id are counted as two nodes.</span>
+<span class="sd">        A X node and a Z node with the same id are counted as two nodes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">span_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">span</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">edge</span><span class="p">}</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">span_nodes</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CorrelationSurface</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CorrelationSurface</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CorrelationSurface</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CorrelationSurface</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">CorrelationSurface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">span</span><span class="p">))</span></div>
 
 </pre></div>
