@@ -80,11 +80,10 @@ def test_creation(
     raw_circuit_layer: RawCircuitLayer,
     raw_circuit_fixed_size_layer: RawCircuitLayer,
 ) -> None:
-    # Invalid sequences due to duration <= 1
-    err_regex = ".*expected to have multiple layers in sequence.*"
-    for seq in ([], [plaquette_layer], [raw_circuit_layer]):
-        with pytest.raises(TQECException, match=err_regex):
-            Block(seq)
+    # Invalid sequences due to duration < 1
+    err_regex = ".*expected to have at least one layer.*"
+    with pytest.raises(TQECException, match=err_regex):
+        Block([])
     # Invalid sequence due to different shapes
     with pytest.raises(TQECException, match="Found at least two different shapes.*"):
         Block([plaquette_layer, raw_circuit_layer, raw_circuit_fixed_size_layer])
@@ -131,13 +130,9 @@ def test_with_temporal_borders_replaced_none(
     assert block.with_temporal_borders_replaced(
         {TemporalBlockBorder.Z_POSITIVE: None}
     ) == Block([plaquette_layer, plaquette_layer2])
-    with pytest.raises(
-        TQECException,
-        match="An instance of Block is expected to have multiple layers in sequence.",
-    ):
-        block.with_temporal_borders_replaced(
-            {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
-        )
+    assert block.with_temporal_borders_replaced(
+        {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
+    ) == Block([plaquette_layer2])
     # Shorter to cover one edge-case:
     assert (
         Block([plaquette_layer, raw_circuit_layer]).with_temporal_borders_replaced(
