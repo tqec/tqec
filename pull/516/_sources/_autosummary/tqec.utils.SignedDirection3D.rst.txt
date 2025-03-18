@@ -1,0 +1,38 @@
+SignedDirection3D
+=================
+
+.. currentmodule:: tqec.utils
+
+.. autoclass:: SignedDirection3D
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SignedDirection3D.__init__
+      ~SignedDirection3D.from_string
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SignedDirection3D.direction
+      ~SignedDirection3D.towards_positive
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: from_string
+   
+   
