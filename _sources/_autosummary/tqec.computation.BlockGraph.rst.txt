@@ -20,6 +20,7 @@ BlockGraph
       ~BlockGraph.find_correlation_surfaces
       ~BlockGraph.fix_shadowed_faces
       ~BlockGraph.from_dae_file
+      ~BlockGraph.get_cubes_by_label
       ~BlockGraph.get_degree
       ~BlockGraph.get_pipe
       ~BlockGraph.has_pipe_between
@@ -69,6 +70,7 @@ BlockGraph
    .. automethod:: find_correlation_surfaces
    .. automethod:: fix_shadowed_faces
    .. automethod:: from_dae_file
+   .. automethod:: get_cubes_by_label
    .. automethod:: get_degree
    .. automethod:: get_pipe
    .. automethod:: has_pipe_between

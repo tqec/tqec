@@ -1206,6 +1206,21 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipes</span><span class="p">:</span>
             <span class="n">new_graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_graph</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.get_cubes_by_label">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.get_cubes_by_label">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cubes_by_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cube</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find cubes with the specified label in the BlockGraph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label: The label of the cubes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The cube instances that have the specified label.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">cube</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span></div>
 </div>
 
 
