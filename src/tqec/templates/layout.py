@@ -180,8 +180,8 @@ class LayoutTemplate(Template):
 
         Raises:
             TQECException: if the provided ``individual_plaquettes`` does not
-                cover all the :class:`~tqec.utils.position.Position2D` where there
-                is a template in ``self``.
+                cover all the :class:`~tqec.utils.position.BlockPosition2D` where
+                there is a template in ``self``.
             TQECException: if the provided ``individual_plaquettes`` have
                 different values for their ``default_factory``.
 

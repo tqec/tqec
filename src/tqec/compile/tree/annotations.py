@@ -17,11 +17,7 @@ from tqec.utils.exceptions import TQECException
 @dataclass(frozen=True)
 class DetectorAnnotation:
     """An annotation that should include all the necessary information to build a
-    DETECTOR instruction.
-
-    Todo:
-        Will change according to the needs.
-    """
+    ``DETECTOR`` instruction."""
 
     coordinates: StimCoordinates
     measurement_offsets: list[int]
@@ -41,6 +37,8 @@ class DetectorAnnotation:
     def from_detector(
         detector: Detector, measurement_records: MeasurementRecordsMap
     ) -> DetectorAnnotation:
+        """Create a :class:`DetectorAnnotation` from a detector and a list of
+        measurement records."""
         return DetectorAnnotation(
             detector.coordinates,
             [measurement_records[m.qubit][m.offset] for m in detector.measurements],

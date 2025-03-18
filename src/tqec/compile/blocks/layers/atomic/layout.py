@@ -48,6 +48,14 @@ class LayoutLayer(BaseLayer):
 
     @cached_property
     def bounds(self) -> tuple[BlockPosition2D, BlockPosition2D]:
+        """Get the top-left and bottom-right corners of the bounding box of ``self``.
+
+        Returns:
+            a tuple containing the corners of ``self``'s bounding box as positions
+            containing the two minimum (top-left corner) or maximum (bottom-right
+            corner) coordinates found in ``self``.
+
+        """
         xs = [pos._x for pos in self.layers.keys()]
         ys = [pos._y for pos in self.layers.keys()]
         minx, maxx = min(xs), max(xs)
@@ -62,11 +70,8 @@ class LayoutLayer(BaseLayer):
     @property
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        xs = [pos._x for pos in self.layers.keys()]
-        ys = [pos._y for pos in self.layers.keys()]
-        minx, maxx = min(xs), max(xs)
-        miny, maxy = min(ys), max(ys)
-        shapex, shapey = (maxx - minx) // 2 + 1, (maxy - miny) // 2 + 1
+        minp, maxp = self.bounds
+        shapex, shapey = (maxp.x - minp.x) + 1, (maxp.y - minp.y) + 1
         return PhysicalQubitScalable2D(
             shapex * (self.element_shape.x - DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER)
             + DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER,
@@ -125,21 +130,22 @@ class LayoutLayer(BaseLayer):
             pipe_direction = Direction3D.from_neighbouring_positions(
                 u.to_3d(), v.to_3d()
             )
+            # {u,v}_border: border of the respective node that is touched by the
+            # the pipe.
             u_border: TemplateBorder
             v_border: TemplateBorder
             match pipe_direction:
                 case Direction3D.X:
-                    u_border, v_border = TemplateBorder.LEFT, TemplateBorder.RIGHT
+                    u_border, v_border = TemplateBorder.RIGHT, TemplateBorder.LEFT
                 case Direction3D.Y:
-                    # TODO: check that this is the correct order.
                     u_border, v_border = TemplateBorder.BOTTOM, TemplateBorder.TOP
                 case Direction3D.Z:
                     raise TQECException("Should not happen. This is a logical error.")
 
             # Updating plaquettes in plaquettes_dict
             for pos, (cube_border, pipe_border) in [
-                (u, (v_border, u_border)),
-                (v, (u_border, v_border)),
+                (u, (u_border, v_border)),
+                (v, (v_border, u_border)),
             ]:
                 plaquette_indices_mapping = pipe_layer.template.get_border_indices(
                     pipe_border

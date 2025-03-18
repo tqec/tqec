@@ -8,12 +8,15 @@ from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
+from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
+from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.tree.annotations import LayerNodeAnnotations
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
+from tqec.utils.scale import LinearFunction
 
 
 def contains_only_layout_or_composed_layers(
@@ -22,8 +25,14 @@ def contains_only_layout_or_composed_layers(
     return all(isinstance(layer, (LayoutLayer, BaseComposedLayer)) for layer in layers)
 
 
-class NodeWalkerInterface:
+class NodeWalker:
     def visit_node(self, node: LayerNode) -> None:
+        pass
+
+    def enter_node(self, node: LayerNode) -> None:
+        pass
+
+    def exit_node(self, node: LayerNode) -> None:
         pass
 
 
@@ -33,12 +42,13 @@ class LayerNode:
         layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
     ) -> None:
-        """Represents a node in a :class:`LayerTree`.
+        """Represents a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
 
         Args:
             layer: layer being represented by the node.
             annotations: already computed annotations. Default to ``None`` meaning
-                no annotations are provided.
+                no annotations are provided. Should be a mapping from values of
+                ``k`` to the annotations already computed for that value of ``k``.
         """
         self._layer = layer
         self._children = LayerNode._get_children(layer)
@@ -59,11 +69,16 @@ class LayerNode:
         if isinstance(layer, RepeatedLayer):
             if not isinstance(layer.internal_layer, LayoutLayer | BaseComposedLayer):
                 raise TQECException(
-                    f"Repeated layer is not an instance of {LayoutLayer.__name__} "
-                    f"or {BaseComposedLayer.__name__}."
+                    "The layer that is being repeated is not an instance of "
+                    f"{LayoutLayer.__name__} or {BaseComposedLayer.__name__}."
                 )
             return [LayerNode(layer.internal_layer)]
-        raise TQECException(f"Unknown layer type found: {type(layer).__name__}.")
+        if isinstance(layer, (PlaquetteLayer, RawCircuitLayer)):
+            raise TQECException(
+                f"Unsupported layer type found: {type(layer).__name__}. Expected "
+                f"ALL leaf nodes to be of type {LayoutLayer.__name__}."
+            )
+        raise NotImplementedError(f"Unknown layer type found: {type(layer).__name__}.")
 
     @property
     def is_leaf(self) -> bool:
@@ -76,6 +91,14 @@ class LayerNode:
         """Returns ``True`` if ``self`` stores a RepeatedLayer."""
         return isinstance(self._layer, RepeatedLayer)
 
+    @property
+    def repetitions(self) -> LinearFunction | None:
+        """Returns the number of repetitions of the repeated block if
+        ``self.is_repeated`` else ``None``."""
+        return (
+            self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
+        )
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "layer": type(self._layer).__name__,
@@ -85,11 +108,18 @@ class LayerNode:
             },
         }
 
-    def walk(self, walker: NodeWalkerInterface) -> None:
-        """Walk the tree rooted at ``self`` in a depth-first manner."""
+    def walk(self, walker: NodeWalker) -> None:
+        """Walk the tree using DFS, calling the different walker methods on each
+        node.
+
+        Args:
+            walker: structure that will be called on each explored node.
+        """
+        walker.enter_node(self)
         walker.visit_node(self)
         for child in self._children:
             child.walk(walker)
+        walker.exit_node(self)
 
     @property
     def children(self) -> list[LayerNode]:
@@ -107,6 +137,21 @@ class LayerNode:
         global_qubit_map: QubitMap,
         shift_coords: StimCoordinates | None = None,
     ) -> stim.Circuit:
+        """Generate the quantum circuit representing the node.
+
+        Args:
+            k: scaling parameter.
+            global_qubit_map: qubit map that should be used to generate the
+                quantum circuit. Qubits from the returned quantum circuit will
+                adhere to the provided qubit map.
+            shift_coords: if provided, a ``SHIFT_COORDS`` instruction with the
+                provided shift will be appended before each block of ``DETECTOR``
+                annotations. Defaults to ``None`` which means "no shift".
+
+        Returns:
+            a ``stim.Circuit`` instance representing ``self`` with the provided
+            ``global_qubit_map``.
+        """
         if isinstance(self._layer, LayoutLayer):
             annotations = self.get_annotations(k)
             base_circuit = annotations.circuit
@@ -130,14 +175,18 @@ class LayerNode:
             for annotation in annotations.detectors + annotations.observables:
                 mapped_circuit.append_annotation(annotation.to_instruction())
             return mapped_circuit.get_circuit(include_qubit_coords=False)
+
         if isinstance(self._layer, SequencedLayers):
             ret = stim.Circuit()
             for child, next in zip(self._children[:-1], self._children[1:]):
-                ret += child.generate_circuit(k, global_qubit_map)
+                ret += child.generate_circuit(k, global_qubit_map, shift_coords)
                 if not next.is_repeated:
                     ret.append("TICK")
-            ret += self._children[-1].generate_circuit(k, global_qubit_map)
+            ret += self._children[-1].generate_circuit(
+                k, global_qubit_map, shift_coords
+            )
             return ret
+
         if isinstance(self._layer, RepeatedLayer):
             body = self._children[0].generate_circuit(
                 k,
