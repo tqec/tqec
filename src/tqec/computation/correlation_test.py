@@ -71,7 +71,7 @@ def test_y_edge_correlation_surface() -> None:
     assert surface.area() == 4
 
 
-def test_correlation_surface_add() -> None:
+def test_correlation_surface_xor() -> None:
     s1 = CorrelationSurface(
         span=frozenset(
             [
@@ -96,7 +96,7 @@ def test_correlation_surface_add() -> None:
             ]
         )
     )
-    s12 = s1 + s2
+    s12 = s1 ^ s2
     assert s12.span == frozenset(
         [
             ZXEdge(

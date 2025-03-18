@@ -65,7 +65,7 @@ def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
     for stabilizer, comb in _iter_stabilizer_group(ext_stabs):
         if stabilizer != identity and stabilizer not in stab_to_surface:
             correlation_surface = reduce(
-                lambda a, b: a + b,
+                lambda a, b: a ^ b,
                 [stab_to_surface[s] for s in comb],
             )
             stab_to_surface[stabilizer] = correlation_surface
