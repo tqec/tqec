@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Any
 
 import stim
 
+from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.compile.detectors.detector import Detector
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 
@@ -12,11 +16,7 @@ from tqec.utils.exceptions import TQECException
 @dataclass(frozen=True)
 class DetectorAnnotation:
     """An annotation that should include all the necessary information to build a
-    DETECTOR instruction.
-
-    Todo:
-        Will change according to the needs.
-    """
+    ``DETECTOR`` instruction."""
 
     coordinates: StimCoordinates
     measurement_offsets: list[int]
@@ -30,6 +30,17 @@ class DetectorAnnotation:
             "DETECTOR",
             [stim.target_rec(offset) for offset in self.measurement_offsets],
             self.coordinates.to_stim_coordinates(),
+        )
+
+    @staticmethod
+    def from_detector(
+        detector: Detector, measurement_records: MeasurementRecordsMap
+    ) -> DetectorAnnotation:
+        """Create a :class:`DetectorAnnotation` from a detector and a list of
+        measurement records."""
+        return DetectorAnnotation(
+            detector.coordinates,
+            [measurement_records[m.qubit][m.offset] for m in detector.measurements],
         )
 
 
