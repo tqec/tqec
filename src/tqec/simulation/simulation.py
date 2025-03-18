@@ -4,12 +4,13 @@ from typing import Callable, Iterable, Iterator, Sequence
 import sinter
 
 from tqec.compile.compile import compile_block_graph
+from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.utils.noise_model import NoiseModel
 from tqec.simulation.generation import generate_sinter_tasks
+from tqec.utils.noise_model import NoiseModel
 
 
 def start_simulation_using_sinter(
@@ -21,6 +22,7 @@ def start_simulation_using_sinter(
     block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
     substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
     observables: list[CorrelationSurface] | None = None,
+    detector_database: DetectorDatabase | None = None,
     num_workers: int = multiprocessing.cpu_count(),
     progress_callback: Callable[[sinter.Progress], None] | None = None,
     max_shots: int | None = None,
@@ -67,6 +69,8 @@ def start_simulation_using_sinter(
         observables: a list of correlation surfaces to compile to logical
              observables and generate statistics for. If `None`, all the correlation
              surfaces of the provided computation are used.
+        detector_database: an instance to retrieve from / store in detectors
+            that are computed as part of the circuit generation.
         num_workers: The number of worker processes to use.
         progress_callback: Defaults to None (unused). If specified, then each
             time new sample statistics are acquired from a worker this method
@@ -115,7 +119,7 @@ def start_simulation_using_sinter(
                 ps,
                 noise_model_factory,
                 manhattan_radius,
-                max_workers=num_workers,
+                detector_database,
             ),
             progress_callback=progress_callback,
             max_shots=max_shots,

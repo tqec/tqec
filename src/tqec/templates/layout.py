@@ -65,14 +65,16 @@ which outputs
 """
 
 from copy import deepcopy
-from typing import Sequence
+from typing import Callable, Mapping, Sequence
 
 import numpy
 import numpy.typing as npt
 from typing_extensions import override
 
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.base import RectangularTemplate, Template
 from tqec.utils.exceptions import TQECException
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import (
     BlockPosition2D,
     PlaquettePosition2D,
@@ -168,6 +170,64 @@ class LayoutTemplate(Template):
             }
             index_count += template.expected_plaquettes_number
         return indices_map
+
+    def get_global_plaquettes(
+        self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]
+    ) -> Plaquettes:
+        """Merge the provided ``individual_plaquettes`` into a single
+        :class:`~tqec.plaquette.plaquette.Plaquettes` instance that can be used
+        to instantiate ``self``.
+
+        Raises:
+            TQECException: if the provided ``individual_plaquettes`` does not
+                cover all the :class:`~tqec.utils.position.BlockPosition2D` where
+                there is a template in ``self``.
+            TQECException: if the provided ``individual_plaquettes`` have
+                different values for their ``default_factory``.
+
+        Args:
+            individual_plaquettes: a mapping from positions to plaquette
+                collections. The keys should cover all the positions where a
+                template is present in ``self``.
+
+        Returns:
+            a unique :class:`~tqec.plaquette.plaquette.Plaquettes` instance that
+            can be used with ``self`` to generate a quantum circuit with
+            :meth:`~tqec.compile.generation.generate_circuit`.
+        """
+        missing_positions = frozenset(self._layout.keys()) - frozenset(
+            individual_plaquettes.keys()
+        )
+        if missing_positions:
+            raise TQECException(
+                "The following expected positions were not found in the "
+                f"provided individual_plaquettes: {missing_positions}."
+            )
+        default_factories: list[Callable[[], Plaquette] | None] = []
+        index_maps = self.get_indices_map_for_instantiation()
+        global_plaquettes: dict[int, Plaquette] = {}
+        for position, index_map in index_maps.items():
+            global_plaquettes |= {
+                index_map[local_index]: plaquette
+                for local_index, plaquette in individual_plaquettes[
+                    position
+                ].collection.items()
+            }
+            default_factories.append(
+                individual_plaquettes[position].collection.default_factory
+            )
+        unique_default_factories = frozenset(default_factories)
+        if len(unique_default_factories) != 1:
+            raise TQECException(
+                "Found several different default factories: "
+                f"{unique_default_factories}. Cannot pick one for the merged "
+                f"{Plaquettes.__name__} instance."
+            )
+        return Plaquettes(
+            FrozenDefaultDict(
+                global_plaquettes, default_factory=next(iter(unique_default_factories))
+            )
+        )
 
     @property
     @override

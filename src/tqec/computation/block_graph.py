@@ -750,6 +750,18 @@ class BlockGraph:
             new_graph.add_pipe(pipe.u.position, pipe.v.position, pipe.kind)
         return new_graph
 
+    def get_cubes_by_label(self, label: str) -> list[Cube]:
+        """
+        Find cubes with the specified label in the BlockGraph.
+
+        Args:
+            label: The label of the cubes.
+
+        Returns:
+            The cube instances that have the specified label.
+        """
+        return [cube for cube in self.cubes if cube.label == label]
+
 
 def block_kind_from_str(string: str) -> BlockKind:
     """Parse a block kind from a string."""
