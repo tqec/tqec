@@ -32,6 +32,14 @@ class FilledGraph:
     stabilizers: list[str]
     observables: list[CorrelationSurface]
 
+    def __post_init__(self) -> None:
+        if self.graph.num_ports != 0:
+            raise TQECException("The filled graph should not have open ports.")
+        if len(self.stabilizers) != len(self.observables):
+            raise TQECException(
+                "The number of stabilizers and observables should match."
+            )
+
     def get_external_stabilizers(self) -> list[str]:
         """Return the external stabilizers of the correlation surfaces."""
         return [s.external_stabilizer_on_graph(self.graph) for s in self.observables]
