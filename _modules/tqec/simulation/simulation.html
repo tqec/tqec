@@ -412,12 +412,13 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.compile</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.detectors.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DetectorDatabase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockBuilder</span><span class="p">,</span> <span class="n">SubstitutionBuilder</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.library.css</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.generation</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_sinter_tasks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 
 
 <div class="viewcode-block" id="start_simulation_using_sinter">
@@ -431,6 +432,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span>
     <span class="n">substitution_builder</span><span class="p">:</span> <span class="n">SubstitutionBuilder</span> <span class="o">=</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span><span class="p">,</span>
     <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">detector_database</span><span class="p">:</span> <span class="n">DetectorDatabase</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
     <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">sinter</span><span class="o">.</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -477,6 +479,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        observables: a list of correlation surfaces to compile to logical</span>
 <span class="sd">             observables and generate statistics for. If `None`, all the correlation</span>
 <span class="sd">             surfaces of the provided computation are used.</span>
+<span class="sd">        detector_database: an instance to retrieve from / store in detectors</span>
+<span class="sd">            that are computed as part of the circuit generation.</span>
 <span class="sd">        num_workers: The number of worker processes to use.</span>
 <span class="sd">        progress_callback: Defaults to None (unused). If specified, then each</span>
 <span class="sd">            time new sample statistics are acquired from a worker this method</span>
@@ -525,7 +529,7 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="n">ps</span><span class="p">,</span>
                 <span class="n">noise_model_factory</span><span class="p">,</span>
                 <span class="n">manhattan_radius</span><span class="p">,</span>
-                <span class="n">max_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+                <span class="n">detector_database</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span><span class="p">,</span>
             <span class="n">max_shots</span><span class="o">=</span><span class="n">max_shots</span><span class="p">,</span>
