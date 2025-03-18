@@ -9,6 +9,13 @@ class Orientation(Enum):
     HORIZONTAL = auto()
     VERTICAL = auto()
 
+    def flip(self) -> Orientation:
+        match self:
+            case Orientation.VERTICAL:
+                return Orientation.HORIZONTAL
+            case Orientation.HORIZONTAL:
+                return Orientation.VERTICAL
+
 
 class Basis(Enum):
     X = "X"

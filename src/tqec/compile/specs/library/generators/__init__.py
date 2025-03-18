@@ -1,24 +1,6 @@
 """Provides an implementation of various standard templates found when using
 topological quantum error correction."""
 
-from .hadamard import (
-    get_spatial_horizontal_hadamard_plaquettes as get_spatial_horizontal_hadamard_plaquettes,
-)
-from .hadamard import (
-    get_spatial_horizontal_hadamard_raw_template as get_spatial_horizontal_hadamard_raw_template,
-)
-from .hadamard import (
-    get_spatial_vertical_hadamard_plaquettes as get_spatial_vertical_hadamard_plaquettes,
-)
-from .hadamard import (
-    get_spatial_vertical_hadamard_raw_template as get_spatial_vertical_hadamard_raw_template,
-)
-from .hadamard import (
-    get_temporal_hadamard_plaquettes as get_temporal_hadamard_plaquettes,
-)
-from .hadamard import (
-    get_temporal_hadamard_raw_template as get_temporal_hadamard_raw_template,
-)
 from .memory import (
     get_memory_horizontal_boundary_plaquettes as get_memory_horizontal_boundary_plaquettes,
 )

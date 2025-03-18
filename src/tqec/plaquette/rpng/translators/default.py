@@ -10,6 +10,10 @@ from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
 from tqec.plaquette.rpng import BasisEnum, ExtendedBasisEnum, RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.utils.exceptions import TQECException
+from tqec.utils.instructions import (
+    MEASUREMENT_INSTRUCTION_NAMES,
+    RESET_INSTRUCTION_NAMES,
+)
 
 
 class DefaultRPNGTranslator(RPNGTranslator):
@@ -124,10 +128,11 @@ class DefaultRPNGTranslator(RPNGTranslator):
         filtered_circuit = unfiltered_circuit.filter_by_qubits(
             new_plaquette_qubits.all_qubits
         )
-
+        mergeable_instructions = MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES
         # Return the plaquette
         return Plaquette(
             name=str(rpng_description),
             qubits=new_plaquette_qubits,
             circuit=filtered_circuit,
+            mergeable_instructions=mergeable_instructions,
         )

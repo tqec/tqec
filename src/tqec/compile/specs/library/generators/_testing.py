@@ -6,14 +6,6 @@ from pathlib import Path
 from typing import Generic, TypeVar
 
 from tqec.compile.specs.enums import SpatialArms
-from tqec.compile.specs.library.generators.hadamard import (
-    get_spatial_horizontal_hadamard_raw_template,
-    get_spatial_horizontal_hadamard_rpng_descriptions,
-    get_spatial_vertical_hadamard_raw_template,
-    get_spatial_vertical_hadamard_rpng_descriptions,
-    get_temporal_hadamard_raw_template,
-    get_temporal_hadamard_rpng_descriptions,
-)
 from tqec.compile.specs.library.generators.memory import (
     get_memory_horizontal_boundary_raw_template,
     get_memory_horizontal_boundary_rpng_descriptions,
@@ -30,14 +22,13 @@ from tqec.compile.specs.library.generators.spatial import (
 )
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.templates.base import Template
-from tqec.templates.enums import ZObservableOrientation
 from tqec.templates.qubit import (
     QubitHorizontalBorders,
     QubitSpatialCubeTemplate,
     QubitTemplate,
     QubitVerticalBorders,
 )
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import PlaquettePosition2D, PlaquetteShape2D, Shift2D
 from tqec.utils.scale import PlaquetteScalable2D
@@ -146,43 +137,16 @@ class RPNGTemplate(Generic[T]):
         return svg_str
 
 
-def get_temporal_hadamard_rpng_template(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
-) -> RPNGTemplate[QubitTemplate]:
-    return RPNGTemplate(
-        template=get_temporal_hadamard_raw_template(),
-        mapping=get_temporal_hadamard_rpng_descriptions(orientation),
-    )
-
-
-def get_spatial_horizontal_hadamard_rpng_template(
-    top_left_is_z_stabilizer: bool,
-    reset: Basis | None = None,
-    measurement: Basis | None = None,
-) -> RPNGTemplate[QubitHorizontalBorders]:
-    return RPNGTemplate(
-        template=get_spatial_horizontal_hadamard_raw_template(),
-        mapping=get_spatial_horizontal_hadamard_rpng_descriptions(
-            top_left_is_z_stabilizer, reset, measurement
-        ),
-    )
-
-
-def get_spatial_vertical_hadamard_rpng_template(
-    top_left_is_z_stabilizer: bool,
-    reset: Basis | None = None,
-    measurement: Basis | None = None,
-) -> RPNGTemplate[QubitVerticalBorders]:
-    return RPNGTemplate(
-        template=get_spatial_vertical_hadamard_raw_template(),
-        mapping=get_spatial_vertical_hadamard_rpng_descriptions(
-            top_left_is_z_stabilizer, reset, measurement
-        ),
+def display_rpng_instantiation(instantiation: list[list[RPNGDescription]]) -> None:
+    print(
+        "\n".join(
+            "  ".join(str(rpng) for rpng in rpng_list) for rpng_list in instantiation
+        )
     )
 
 
 def get_memory_qubit_rpng_template(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
+    orientation: Orientation = Orientation.HORIZONTAL,
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> RPNGTemplate[QubitTemplate]:
@@ -193,7 +157,7 @@ def get_memory_qubit_rpng_template(
 
 
 def get_memory_vertical_boundary_rpng_template(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
+    orientation: Orientation = Orientation.HORIZONTAL,
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> RPNGTemplate[QubitVerticalBorders]:
@@ -206,7 +170,7 @@ def get_memory_vertical_boundary_rpng_template(
 
 
 def get_memory_horizontal_boundary_rpng_template(
-    orientation: ZObservableOrientation = ZObservableOrientation.HORIZONTAL,
+    orientation: Orientation = Orientation.HORIZONTAL,
     reset: Basis | None = None,
     measurement: Basis | None = None,
 ) -> RPNGTemplate[QubitHorizontalBorders]:

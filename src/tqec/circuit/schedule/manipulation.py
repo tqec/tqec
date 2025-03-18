@@ -217,6 +217,28 @@ def remove_duplicate_instructions(
     return final_operations
 
 
+def merge_instructions(
+    instructions: list[stim.CircuitInstruction],
+) -> list[stim.CircuitInstruction]:
+    """Merge instructions with the same name and arguments.
+    Returns:
+        a list containing a copy of the ``stim.CircuitInstruction`` instances
+        from the given instructions but merged.
+    """
+    instructions_merger: dict[
+        tuple[str, tuple[float, ...]], list[list[stim.GateTarget]]
+    ] = {}
+    for instruction in instructions:
+        args = tuple(instruction.gate_args_copy())
+        instructions_merger.setdefault((instruction.name, args), []).extend(
+            instruction.target_groups()
+        )
+    return [
+        stim.CircuitInstruction(name, sum(targets, start=[]), args)
+        for (name, args), targets in instructions_merger.items()
+    ]
+
+
 def merge_scheduled_circuits(
     circuits: list[ScheduledCircuit],
     global_qubit_map: QubitMap,
@@ -266,8 +288,9 @@ def merge_scheduled_circuits(
             instructions,
             mergeable_instruction_names=frozenset(mergeable_instructions),
         )
+        merged_instructions = merge_instructions(deduplicated_instructions)
         circuit = stim.Circuit()
-        for inst in deduplicated_instructions:
+        for inst in merged_instructions:
             circuit.append(
                 inst.name,
                 sum(_sort_target_groups(inst.target_groups()), start=[]),
