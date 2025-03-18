@@ -542,7 +542,10 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.utils.PhysicalQubitPosition2D.is_neighbour" title="tqec.utils.PhysicalQubitPosition2D.is_neighbour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_neighbour</span></code></a>(other)</p></td>
 <td><p>Check if the other position is near to this position, i.e. Manhattan distance is 1.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.utils.PhysicalQubitPosition2D.with_block_coordinate_system" title="tqec.utils.PhysicalQubitPosition2D.with_block_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_block_coordinate_system</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.utils.PhysicalQubitPosition2D.to_3d" title="tqec.utils.PhysicalQubitPosition2D.to_3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_3d</span></code></a>([z])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.utils.PhysicalQubitPosition2D.with_block_coordinate_system" title="tqec.utils.PhysicalQubitPosition2D.with_block_coordinate_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_block_coordinate_system</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -596,6 +599,19 @@ distance is 1.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.utils.PhysicalQubitPosition2D.to_3d">
+<span class="sig-name descname"><span class="pre">to_3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.utils.PhysicalQubitPosition2D.to_3d" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>z</strong> (<em>int</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.Position3D.html#tqec.utils.Position3D" title="tqec.utils.position.Position3D"><em>Position3D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -664,6 +680,7 @@ distance is 1.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PhysicalQubitPosition2D"><code class="docutils literal notranslate"><span class="pre">PhysicalQubitPosition2D</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PhysicalQubitPosition2D.__init__"><code class="docutils literal notranslate"><span class="pre">PhysicalQubitPosition2D.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PhysicalQubitPosition2D.is_neighbour"><code class="docutils literal notranslate"><span class="pre">PhysicalQubitPosition2D.is_neighbour()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PhysicalQubitPosition2D.to_3d"><code class="docutils literal notranslate"><span class="pre">PhysicalQubitPosition2D.to_3d()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.PhysicalQubitPosition2D.with_block_coordinate_system"><code class="docutils literal notranslate"><span class="pre">PhysicalQubitPosition2D.with_block_coordinate_system()</span></code></a></li>
 </ul>
 </li>

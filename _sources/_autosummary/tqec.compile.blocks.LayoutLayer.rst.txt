@@ -14,6 +14,8 @@ LayoutLayer
       ~LayoutLayer.__init__
       ~LayoutLayer.shape
       ~LayoutLayer.timesteps
+      ~LayoutLayer.to_circuit
+      ~LayoutLayer.to_template_and_plaquettes
       ~LayoutLayer.with_spatial_borders_trimmed
       ~LayoutLayer.with_temporal_borders_replaced
    
@@ -25,6 +27,7 @@ LayoutLayer
 
    .. autosummary::
    
+      ~LayoutLayer.bounds
       ~LayoutLayer.scalable_shape
       ~LayoutLayer.scalable_timesteps
       ~LayoutLayer.layers
@@ -40,6 +43,8 @@ LayoutLayer
    .. automethod:: __init__
    .. automethod:: shape
    .. automethod:: timesteps
+   .. automethod:: to_circuit
+   .. automethod:: to_template_and_plaquettes
    .. automethod:: with_spatial_borders_trimmed
    .. automethod:: with_temporal_borders_replaced
    

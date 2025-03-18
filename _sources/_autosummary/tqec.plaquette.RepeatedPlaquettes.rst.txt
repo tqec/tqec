@@ -12,6 +12,7 @@ RepeatedPlaquettes
    .. autosummary::
    
       ~RepeatedPlaquettes.__init__
+      ~RepeatedPlaquettes.items
       ~RepeatedPlaquettes.map_indices
       ~RepeatedPlaquettes.num_rounds
       ~RepeatedPlaquettes.repeat
@@ -27,7 +28,6 @@ RepeatedPlaquettes
 
    .. autosummary::
    
-      ~RepeatedPlaquettes.has_default
       ~RepeatedPlaquettes.repetitions
       ~RepeatedPlaquettes.collection
    
@@ -39,6 +39,7 @@ RepeatedPlaquettes
 
    
    .. automethod:: __init__
+   .. automethod:: items
    .. automethod:: map_indices
    .. automethod:: num_rounds
    .. automethod:: repeat

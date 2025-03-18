@@ -625,6 +625,29 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">return</span> <span class="n">final_operations</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_instructions</span><span class="p">(</span>
+    <span class="n">instructions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge instructions with the same name and arguments.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        a list containing a copy of the ``stim.CircuitInstruction`` instances</span>
+<span class="sd">        from the given instructions but merged.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">instructions_merger</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span>
+        <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">GateTarget</span><span class="p">]]</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">instructions</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">instruction</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">())</span>
+        <span class="n">instructions_merger</span><span class="o">.</span><span class="n">setdefault</span><span class="p">((</span><span class="n">instruction</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">),</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">instruction</span><span class="o">.</span><span class="n">target_groups</span><span class="p">()</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="p">[]),</span> <span class="n">args</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">),</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">instructions_merger</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span>
+
+
 <div class="viewcode-block" id="merge_scheduled_circuits">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.circuit.merge_scheduled_circuits.html#tqec.circuit.merge_scheduled_circuits">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_scheduled_circuits</span><span class="p">(</span>
@@ -676,8 +699,9 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">instructions</span><span class="p">,</span>
             <span class="n">mergeable_instruction_names</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">mergeable_instructions</span><span class="p">),</span>
         <span class="p">)</span>
+        <span class="n">merged_instructions</span> <span class="o">=</span> <span class="n">merge_instructions</span><span class="p">(</span><span class="n">deduplicated_instructions</span><span class="p">)</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">deduplicated_instructions</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">merged_instructions</span><span class="p">:</span>
             <span class="n">circuit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">inst</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="nb">sum</span><span class="p">(</span><span class="n">_sort_target_groups</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">target_groups</span><span class="p">()),</span> <span class="n">start</span><span class="o">=</span><span class="p">[]),</span>

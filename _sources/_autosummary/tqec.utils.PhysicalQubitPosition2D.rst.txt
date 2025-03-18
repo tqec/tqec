@@ -13,6 +13,7 @@ PhysicalQubitPosition2D
    
       ~PhysicalQubitPosition2D.__init__
       ~PhysicalQubitPosition2D.is_neighbour
+      ~PhysicalQubitPosition2D.to_3d
       ~PhysicalQubitPosition2D.with_block_coordinate_system
    
    
@@ -35,6 +36,7 @@ PhysicalQubitPosition2D
    
    .. automethod:: __init__
    .. automethod:: is_neighbour
+   .. automethod:: to_3d
    .. automethod:: with_block_coordinate_system
    
    

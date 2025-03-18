@@ -546,7 +546,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.add_pipe" title="tqec.compile.TopologicalComputationGraph.add_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_pipe</span></code></a>(source, sink, block)</p></td>
 <td><p>Add the provided block as a pipe between <code class="docutils literal notranslate"><span class="pre">source</span></code> and <code class="docutils literal notranslate"><span class="pre">sink</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.layout_layers" title="tqec.compile.TopologicalComputationGraph.layout_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layout_layers</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.to_layer_tree" title="tqec.compile.TopologicalComputationGraph.to_layer_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_layer_tree</span></code></a>()</p></td>
 <td><p>Merge layers happening in parallel at each time step.</p></td>
 </tr>
 </tbody>
@@ -619,8 +619,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.compile.TopologicalComputationGraph.layout_layers">
-<span class="sig-name descname"><span class="pre">layout_layers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.layout_layers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.layout_layers" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.compile.TopologicalComputationGraph.to_layer_tree">
+<span class="sig-name descname"><span class="pre">to_layer_tree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.to_layer_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.to_layer_tree" title="Link to this definition">#</a></dt>
 <dd><p>Merge layers happening in parallel at each time step.</p>
 <p>This method considers all the layers contained in added blocks (cubes and
 pipes) and merges them into a sequence of
@@ -629,8 +629,18 @@ pipes) and merges them into a sequence of
 wrapping <a class="reference internal" href="tqec.compile.blocks.LayoutLayer.html#tqec.compile.blocks.LayoutLayer" title="tqec.compile.blocks.layers.atomic.layout.LayoutLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayoutLayer</span></code></a>
 instances.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[list[<a class="reference internal" href="tqec.compile.blocks.LayoutLayer.html#tqec.compile.blocks.LayoutLayer" title="tqec.compile.blocks.layers.atomic.layout.LayoutLayer"><em>LayoutLayer</em></a> | <a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html#tqec.compile.blocks.BaseComposedLayer" title="tqec.compile.blocks.layers.composed.base.BaseComposedLayer"><em>BaseComposedLayer</em></a>]]</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>A tree representing the topological computation.</p>
+<p>The root node of the returned tree is an instance of
+<a class="reference internal" href="tqec.compile.blocks.SequencedLayers.html#tqec.compile.blocks.SequencedLayers" title="tqec.compile.blocks.layers.composed.sequenced.SequencedLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequencedLayers</span></code></a>.
+Each child of the root node represents the computation happening during
+one block of time.</p>
+<p>Each child of the root node is also an instance of
+<a class="reference internal" href="tqec.compile.blocks.SequencedLayers.html#tqec.compile.blocks.SequencedLayers" title="tqec.compile.blocks.layers.composed.sequenced.SequencedLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequencedLayers</span></code></a>.</p>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>LayerTree</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -690,7 +700,7 @@ instances.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.__init__"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.add_cube"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.add_cube()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.add_pipe"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.add_pipe()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.layout_layers"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.layout_layers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.to_layer_tree"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.to_layer_tree()</span></code></a></li>
 </ul>
 </li>
 </ul>

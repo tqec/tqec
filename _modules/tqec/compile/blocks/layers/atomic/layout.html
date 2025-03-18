@@ -409,18 +409,36 @@ window.addEventListener("load", () => mermaid.run());
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">TypeGuard</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.schedule.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduledCircuit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpatialBlockBorder</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseLayer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.positioning</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutPosition2D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.plaquettes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteLayer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.positioning</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LayoutCubePosition2D</span><span class="p">,</span>
+    <span class="n">LayoutPipePosition2D</span><span class="p">,</span>
+    <span class="n">LayoutPosition2D</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.generation</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_circuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquettes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemplateBorder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutTemplate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Shift2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalQubitScalable2D</span>
 
 <span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="sd">&quot;&quot;&quot;Default number of qubits that are shared between two neighbouring layers.&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">contains_only_plaquette_layers</span><span class="p">(</span>
+    <span class="n">layers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">BaseLayer</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TypeGuard</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">]]:</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
 
 <div class="viewcode-block" id="LayoutLayer">
@@ -438,14 +456,32 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="sa">f</span><span class="s2">&quot;An instance of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> should have at least one layer.&quot;</span>
             <span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">scalable_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">:</span>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">BlockPosition2D</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the top-left and bottom-right corners of the bounding box of ``self``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a tuple containing the corners of ``self``&#39;s bounding box as positions</span>
+<span class="sd">            containing the two minimum (top-left corner) or maximum (bottom-right</span>
+<span class="sd">            corner) coordinates found in ``self``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">_x</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
         <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">_y</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
         <span class="n">minx</span><span class="p">,</span> <span class="n">maxx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">xs</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
         <span class="n">miny</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
-        <span class="n">shapex</span><span class="p">,</span> <span class="n">shapey</span> <span class="o">=</span> <span class="p">(</span><span class="n">maxx</span> <span class="o">-</span> <span class="n">minx</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">maxy</span> <span class="o">-</span> <span class="n">miny</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="c1"># We know for sure that the minima and maxima above are located on cube</span>
+        <span class="c1"># positions and so are multiples of 2.</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">BlockPosition2D</span><span class="p">(</span><span class="n">minx</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">miny</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">BlockPosition2D</span><span class="p">(</span><span class="n">maxx</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scalable_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">:</span>
+        <span class="n">minp</span><span class="p">,</span> <span class="n">maxp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span>
+        <span class="n">shapex</span><span class="p">,</span> <span class="n">shapey</span> <span class="o">=</span> <span class="p">(</span><span class="n">maxp</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">minp</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">maxp</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">minp</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">(</span>
             <span class="n">shapex</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element_shape</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">)</span>
             <span class="o">+</span> <span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">,</span>
@@ -469,7 +505,100 @@ window.addEventListener("load", () => mermaid.run());
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">LayoutLayer</span><span class="p">)</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_shape</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">element_shape</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">layers</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="LayoutLayer.to_template_and_plaquettes">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.LayoutLayer.html#tqec.compile.blocks.LayoutLayer.to_template_and_plaquettes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_template_and_plaquettes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">LayoutTemplate</span><span class="p">,</span> <span class="n">Plaquettes</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an equivalent representation of ``self`` with a template and some</span>
+<span class="sd">        plaquettes.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: if not all layers composing ``self`` are instances</span>
+<span class="sd">                of :class:`~tqec.compile.blocks.layers.atomic.plaquette.PlaquetteLayer`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a tuple ``(template, plaquettes)`` that is ready to be used with</span>
+<span class="sd">            :meth:`~tqec.compile.generation.generate_circuit` to obtain the quantum</span>
+<span class="sd">            circuit representing ``self``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">contains_only_plaquette_layers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found a layer that is not an instance of </span><span class="si">{</span><span class="n">PlaquetteLayer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Detector computation is not implemented (yet) for this case.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">cubes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">pos</span><span class="o">.</span><span class="n">to_block_position</span><span class="p">():</span> <span class="n">layer</span>
+            <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">LayoutCubePosition2D</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">template_dict</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="p">{</span><span class="n">pos</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">template</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">cubes</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">plaquettes_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">pos</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">plaquettes</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">cubes</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="c1"># Add plaquettes from each pipe to the plaquette_dict.</span>
+        <span class="n">pipes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">BlockPosition2D</span><span class="p">],</span> <span class="n">PlaquetteLayer</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">pos</span><span class="o">.</span><span class="n">to_pipe</span><span class="p">():</span> <span class="n">layer</span>
+            <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">LayoutPipePosition2D</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">pipe_layer</span> <span class="ow">in</span> <span class="n">pipes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">pipe_direction</span> <span class="o">=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">from_neighbouring_positions</span><span class="p">(</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">to_3d</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">to_3d</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="c1"># {u,v}_border: border of the respective node that is touched by the</span>
+            <span class="c1"># the pipe.</span>
+            <span class="n">u_border</span><span class="p">:</span> <span class="n">TemplateBorder</span>
+            <span class="n">v_border</span><span class="p">:</span> <span class="n">TemplateBorder</span>
+            <span class="k">match</span> <span class="n">pipe_direction</span><span class="p">:</span>
+                <span class="k">case</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
+                    <span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span> <span class="o">=</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">LEFT</span>
+                <span class="k">case</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">:</span>
+                    <span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span> <span class="o">=</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">BOTTOM</span><span class="p">,</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">TOP</span>
+                <span class="k">case</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;Should not happen. This is a logical error.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Updating plaquettes in plaquettes_dict</span>
+            <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="n">cube_border</span><span class="p">,</span> <span class="n">pipe_border</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span><span class="p">)),</span>
+                <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="n">v_border</span><span class="p">,</span> <span class="n">u_border</span><span class="p">)),</span>
+            <span class="p">]:</span>
+                <span class="n">plaquette_indices_mapping</span> <span class="o">=</span> <span class="n">pipe_layer</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">get_border_indices</span><span class="p">(</span>
+                    <span class="n">pipe_border</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">template_dict</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">get_border_indices</span><span class="p">(</span><span class="n">cube_border</span><span class="p">))</span>
+                <span class="n">plaquettes_dict</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquettes_dict</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">with_updated_plaquettes</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="n">plaquette_indices_mapping</span><span class="p">[</span><span class="n">pipe_plaquette_index</span><span class="p">]:</span> <span class="n">plaquette</span>
+                        <span class="k">for</span> <span class="n">pipe_plaquette_index</span><span class="p">,</span> <span class="n">plaquette</span> <span class="ow">in</span> <span class="n">pipe_layer</span><span class="o">.</span><span class="n">plaquettes</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="c1"># Filtering only plaquette indices that are on the side we are</span>
+                        <span class="c1"># interested in.</span>
+                        <span class="k">if</span> <span class="n">pipe_plaquette_index</span> <span class="ow">in</span> <span class="n">plaquette_indices_mapping</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+        <span class="n">template</span> <span class="o">=</span> <span class="n">LayoutTemplate</span><span class="p">(</span><span class="n">template_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">template</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">get_global_plaquettes</span><span class="p">(</span><span class="n">plaquettes_dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LayoutLayer.to_circuit">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.LayoutLayer.html#tqec.compile.blocks.LayoutLayer.to_circuit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the quantum circuit representing the layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            k: scaling factor.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            quantum circuit representing the layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">template</span><span class="p">,</span> <span class="n">plaquettes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_template_and_plaquettes</span><span class="p">()</span>
+        <span class="n">scheduled_circuit</span> <span class="o">=</span> <span class="n">generate_circuit</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">plaquettes</span><span class="p">)</span>
+        <span class="c1"># Shift the qubits of the returned scheduled circuit</span>
+        <span class="n">mincube</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span>
+        <span class="n">eshape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_shape</span><span class="o">.</span><span class="n">to_shape_2d</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">Shift2D</span><span class="p">(</span><span class="n">mincube</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">eshape</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">mincube</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">eshape</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">shifted_circuit</span> <span class="o">=</span> <span class="n">scheduled_circuit</span><span class="o">.</span><span class="n">map_to_qubits</span><span class="p">(</span><span class="k">lambda</span> <span class="n">q</span><span class="p">:</span> <span class="n">q</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">shifted_circuit</span></div>
+</div>
 
 </pre></div>
 

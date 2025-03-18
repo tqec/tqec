@@ -13,6 +13,7 @@ LayoutTemplate
    
       ~LayoutTemplate.__init__
       ~LayoutTemplate.element_shape
+      ~LayoutTemplate.get_global_plaquettes
       ~LayoutTemplate.get_increments
       ~LayoutTemplate.get_indices_map_for_instantiation
       ~LayoutTemplate.get_spatially_distinct_subtemplates
@@ -40,6 +41,7 @@ LayoutTemplate
    
    .. automethod:: __init__
    .. automethod:: element_shape
+   .. automethod:: get_global_plaquettes
    .. automethod:: get_increments
    .. automethod:: get_indices_map_for_instantiation
    .. automethod:: get_spatially_distinct_subtemplates

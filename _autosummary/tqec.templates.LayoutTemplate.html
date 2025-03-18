@@ -562,22 +562,25 @@ to <code class="docutils literal notranslate"><span class="pre">Displacement(2,<
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.element_shape" title="tqec.templates.LayoutTemplate.element_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">element_shape</span></code></a>(k)</p></td>
 <td><p>Return the uniform shape of the element templates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.get_increments" title="tqec.templates.LayoutTemplate.get_increments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_increments</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.get_global_plaquettes" title="tqec.templates.LayoutTemplate.get_global_plaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_plaquettes</span></code></a>(individual_plaquettes)</p></td>
+<td><p>Merge the provided <code class="docutils literal notranslate"><span class="pre">individual_plaquettes</span></code> into a single <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> instance that can be used to instantiate <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.get_increments" title="tqec.templates.LayoutTemplate.get_increments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_increments</span></code></a>()</p></td>
 <td><p>Get the default increments of the template.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.get_indices_map_for_instantiation" title="tqec.templates.LayoutTemplate.get_indices_map_for_instantiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_indices_map_for_instantiation</span></code></a>([...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.get_indices_map_for_instantiation" title="tqec.templates.LayoutTemplate.get_indices_map_for_instantiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_indices_map_for_instantiation</span></code></a>([...])</p></td>
 <td><p>Get one index map for each of the templates in the layout.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.get_spatially_distinct_subtemplates" title="tqec.templates.LayoutTemplate.get_spatially_distinct_subtemplates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_spatially_distinct_subtemplates</span></code></a>(k[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.get_spatially_distinct_subtemplates" title="tqec.templates.LayoutTemplate.get_spatially_distinct_subtemplates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_spatially_distinct_subtemplates</span></code></a>(k[, ...])</p></td>
 <td><p>Returns a representation of all the distinct sub-templates of the provided manhattan radius.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.instantiate" title="tqec.templates.LayoutTemplate.instantiate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiate</span></code></a>(k[, plaquette_indices])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.instantiate" title="tqec.templates.LayoutTemplate.instantiate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiate</span></code></a>(k[, plaquette_indices])</p></td>
 <td><p>Generate the numpy array representing the template.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.instantiation_origin" title="tqec.templates.LayoutTemplate.instantiation_origin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiation_origin</span></code></a>(k)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.instantiation_origin" title="tqec.templates.LayoutTemplate.instantiation_origin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">instantiation_origin</span></code></a>(k)</p></td>
 <td><p>Coordinates of the top-left entry origin.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.shape" title="tqec.templates.LayoutTemplate.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.templates.LayoutTemplate.shape" title="tqec.templates.LayoutTemplate.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
 <td><p>Returns the current template shape.</p></td>
 </tr>
 </tbody>
@@ -635,6 +638,38 @@ to <code class="docutils literal notranslate"><span class="pre">Displacement(2,<
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>PlaquetteShape2D</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.templates.LayoutTemplate.get_global_plaquettes">
+<span class="sig-name descname"><span class="pre">get_global_plaquettes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual_plaquettes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/templates/layout.html#LayoutTemplate.get_global_plaquettes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.templates.LayoutTemplate.get_global_plaquettes" title="Link to this definition">#</a></dt>
+<dd><p>Merge the provided <code class="docutils literal notranslate"><span class="pre">individual_plaquettes</span></code> into a single
+<a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> instance that can be used
+to instantiate <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">individual_plaquettes</span></code> does not
+    cover all the <a class="reference internal" href="tqec.utils.BlockPosition2D.html#tqec.utils.BlockPosition2D" title="tqec.utils.position.BlockPosition2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockPosition2D</span></code></a> where
+    there is a template in <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></li>
+<li><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">individual_plaquettes</span></code> have
+    different values for their <code class="docutils literal notranslate"><span class="pre">default_factory</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>individual_plaquettes</strong> (<em>Mapping</em><em>[</em><a class="reference internal" href="tqec.utils.BlockPosition2D.html#tqec.utils.BlockPosition2D" title="tqec.utils.position.BlockPosition2D"><em>BlockPosition2D</em></a><em>, </em><a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><em>Plaquettes</em></a><em>]</em>) – a mapping from positions to plaquette
+collections. The keys should cover all the positions where a
+template is present in <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a unique <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> instance that
+can be used with <code class="docutils literal notranslate"><span class="pre">self</span></code> to generate a quantum circuit with
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_circuit()</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><em>Plaquettes</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -840,6 +875,7 @@ to the top-left entry of the array returned by
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.LayoutTemplate"><code class="docutils literal notranslate"><span class="pre">LayoutTemplate</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.LayoutTemplate.__init__"><code class="docutils literal notranslate"><span class="pre">LayoutTemplate.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.LayoutTemplate.element_shape"><code class="docutils literal notranslate"><span class="pre">LayoutTemplate.element_shape()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.LayoutTemplate.get_global_plaquettes"><code class="docutils literal notranslate"><span class="pre">LayoutTemplate.get_global_plaquettes()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.LayoutTemplate.get_increments"><code class="docutils literal notranslate"><span class="pre">LayoutTemplate.get_increments()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.LayoutTemplate.get_indices_map_for_instantiation"><code class="docutils literal notranslate"><span class="pre">LayoutTemplate.get_indices_map_for_instantiation()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.templates.LayoutTemplate.get_spatially_distinct_subtemplates"><code class="docutils literal notranslate"><span class="pre">LayoutTemplate.get_spatially_distinct_subtemplates()</span></code></a></li>
