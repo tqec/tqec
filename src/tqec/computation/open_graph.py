@@ -188,7 +188,8 @@ def _can_be_generated_by(
     )
     inv = tableau.inverse(unsigned=True)
     out_paulis = inv(pauli_string)
-    return out_paulis[len(basis) :].weight == 0
+    # use `bool()` to avoid type error
+    return bool(out_paulis[len(basis) :].weight == 0)
 
 
 def _iter_stabilizer_group(
