@@ -42,7 +42,9 @@ class FilledGraph:
 
     def get_external_stabilizers(self) -> list[str]:
         """Return the external stabilizers of the correlation surfaces."""
-        return [obs.external_stabilizer_on_graph(self.graph) for obs in self.observables]
+        return [
+            obs.external_stabilizer_on_graph(self.graph) for obs in self.observables
+        ]
 
 
 def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
