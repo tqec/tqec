@@ -1,0 +1,44 @@
+PlaquettePosition2D
+===================
+
+.. currentmodule:: tqec.utils
+
+.. autoclass:: PlaquettePosition2D
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PlaquettePosition2D.__init__
+      ~PlaquettePosition2D.get_origin_position
+      ~PlaquettePosition2D.is_neighbour
+      ~PlaquettePosition2D.to_3d
+      ~PlaquettePosition2D.with_block_coordinate_system
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PlaquettePosition2D.x
+      ~PlaquettePosition2D.y
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: get_origin_position
+   .. automethod:: is_neighbour
+   .. automethod:: to_3d
+   .. automethod:: with_block_coordinate_system
+   
+   
