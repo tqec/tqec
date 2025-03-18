@@ -41,7 +41,7 @@ class LayerNode:
         self,
         layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
-    ):
+    ) -> None:
         """Represents a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
 
         Args:
@@ -120,6 +120,10 @@ class LayerNode:
         for child in self._children:
             child.walk(walker)
         walker.exit_node(self)
+
+    @property
+    def children(self) -> list[LayerNode]:
+        return self._children
 
     def get_annotations(self, k: int) -> LayerNodeAnnotations:
         return self._annotations.setdefault(k, LayerNodeAnnotations())

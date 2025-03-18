@@ -11,6 +11,7 @@ from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.annotations import LayerTreeAnnotations
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
+from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.utils.exceptions import TQECException
 
@@ -45,6 +46,7 @@ class LayerTree:
     def __init__(
         self,
         root: SequencedLayers,
+        abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
     ):
         """Represents a computation as a tree.
@@ -62,11 +64,13 @@ class LayerTree:
                 value of ``k``.
         """
         self._root = LayerNode(root)
+        self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "root": self._root.to_dict(),
+            "abstract_observables": self._abstract_observables,
             "annotations": {
                 k: annotation.to_dict() for k, annotation in self._annotations.items()
             },
@@ -83,8 +87,9 @@ class LayerTree:
         self._root.walk(qubit_lister)
         return QubitMap.from_qubits(sorted(qubit_lister.seen_qubits))
 
-    def _annotate_observable(self, observable: AbstractObservable) -> None:
-        pass
+    def _annotate_observables(self, k: int) -> None:
+        for obs_idx, observable in enumerate(self._abstract_observables):
+            annotate_observable(self._root, k, observable, obs_idx)
 
     def _annotate_detectors(
         self,
@@ -137,6 +142,7 @@ class LayerTree:
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
         self._annotate_detectors(k, manhattan_radius, detector_database, lookback)
+        self._annotate_observables(k)
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
 
