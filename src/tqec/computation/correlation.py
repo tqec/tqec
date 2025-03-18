@@ -191,10 +191,10 @@ class CorrelationSurface:
         """Return the area of the correlation surface.
 
         The area of the correlation surface is the number of nodes it spans.
-        An X node and a Z node with the same id are counted as two nodes.
+        A X node and a Z node with the same id are counted as two nodes.
         """
         span_nodes = {node for edge in self.span for node in edge}
         return len(span_nodes)
 
-    def __add__(self, other: CorrelationSurface) -> CorrelationSurface:
+    def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
         return CorrelationSurface(self.span.symmetric_difference(other.span))

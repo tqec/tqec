@@ -22,7 +22,7 @@ class FilledGraph:
 
     Attributes:
         graph: The block graph with all ports filled.
-        stabilizers: The external stabilizers simulatable on the filled graph.
+        stabilizers: The external stabilizers simulable on the filled graph.
         observables: The correlation surfaces that can be used as logical observables
             for the simulation. A list of independent correlation surfaces with the
             area as small as possible is chosen.
@@ -70,7 +70,7 @@ def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
             )
             stab_to_surface[stabilizer] = correlation_surface
 
-    # Sort the stabilizers by its corresponidng correlation surface's area to
+    # Sort the stabilizers by its corresponding correlation surface's area to
     # find the generators with the smallest area
     stabs_ordered_by_area = sorted(
         stab_to_surface.keys(),
