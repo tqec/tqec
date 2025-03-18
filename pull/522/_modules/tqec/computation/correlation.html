@@ -614,7 +614,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">port_labels</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ordered_ports</span>
         <span class="n">port_positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">graph</span><span class="o">.</span><span class="n">ports</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">port_labels</span><span class="p">]</span>
         <span class="n">zx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
-        <span class="n">zx_ports</span> <span class="o">=</span> <span class="p">[</span><span class="n">zx</span><span class="o">.</span><span class="n">p2v</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">port_positions</span><span class="p">]</span>
+        <span class="n">p2v</span> <span class="o">=</span> <span class="n">zx</span><span class="o">.</span><span class="n">p2v</span>
+        <span class="n">zx_ports</span> <span class="o">=</span> <span class="p">[</span><span class="n">p2v</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">port_positions</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_stabilizer</span><span class="p">(</span><span class="n">zx_ports</span><span class="p">)</span></div>
 
 
