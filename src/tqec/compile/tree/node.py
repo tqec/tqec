@@ -16,6 +16,7 @@ from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.tree.annotations import LayerNodeAnnotations
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
+from tqec.utils.scale import LinearFunction
 
 
 def contains_only_layout_or_composed_layers(
@@ -28,13 +29,19 @@ class NodeWalker:
     def visit_node(self, node: LayerNode) -> None:
         pass
 
+    def enter_node(self, node: LayerNode) -> None:
+        pass
+
+    def exit_node(self, node: LayerNode) -> None:
+        pass
+
 
 class LayerNode:
     def __init__(
         self,
         layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
-    ):
+    ) -> None:
         """Represents a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
 
         Args:
@@ -84,6 +91,14 @@ class LayerNode:
         """Returns ``True`` if ``self`` stores a RepeatedLayer."""
         return isinstance(self._layer, RepeatedLayer)
 
+    @property
+    def repetitions(self) -> LinearFunction | None:
+        """Returns the number of repetitions of the repeated block if
+        ``self.is_repeated`` else ``None``."""
+        return (
+            self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
+        )
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "layer": type(self._layer).__name__,
@@ -94,14 +109,21 @@ class LayerNode:
         }
 
     def walk(self, walker: NodeWalker) -> None:
-        """Walk the tree using DFS, calling ``walker.visit_node`` on each node.
+        """Walk the tree using DFS, calling the different walker methods on each
+        node.
 
         Args:
             walker: structure that will be called on each explored node.
         """
+        walker.enter_node(self)
         walker.visit_node(self)
         for child in self._children:
             child.walk(walker)
+        walker.exit_node(self)
+
+    @property
+    def children(self) -> list[LayerNode]:
+        return self._children
 
     def get_annotations(self, k: int) -> LayerNodeAnnotations:
         return self._annotations.setdefault(k, LayerNodeAnnotations())
