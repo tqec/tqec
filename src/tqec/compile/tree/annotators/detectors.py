@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TypeVar
 
 from typing_extensions import override
 
@@ -14,8 +13,6 @@ from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
 from tqec.utils.exceptions import TQECException
-
-T = TypeVar("T")
 
 
 @dataclass(frozen=True)
