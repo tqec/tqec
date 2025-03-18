@@ -1,0 +1,38 @@
+PlaquetteSide
+=============
+
+.. currentmodule:: tqec.plaquette
+
+.. autoclass:: PlaquetteSide
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PlaquetteSide.opposite
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PlaquetteSide.RIGHT
+      ~PlaquetteSide.LEFT
+      ~PlaquetteSide.DOWN
+      ~PlaquetteSide.UP
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: opposite
+   
+   

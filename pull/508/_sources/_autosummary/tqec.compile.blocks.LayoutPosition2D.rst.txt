@@ -1,0 +1,33 @@
+LayoutPosition2D
+================
+
+.. currentmodule:: tqec.compile.blocks
+
+.. autoclass:: LayoutPosition2D
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LayoutPosition2D.__init__
+      ~LayoutPosition2D.from_block_position
+      ~LayoutPosition2D.from_pipe_position
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: from_block_position
+   .. automethod:: from_pipe_position
+   
+   
