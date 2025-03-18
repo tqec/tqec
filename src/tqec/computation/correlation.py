@@ -184,7 +184,8 @@ class CorrelationSurface:
         port_labels = graph.ordered_ports
         port_positions = [graph.ports[p] for p in port_labels]
         zx = graph.to_zx_graph()
-        zx_ports = [zx.p2v[p] for p in port_positions]
+        p2v = zx.p2v
+        zx_ports = [p2v[p] for p in port_positions]
         return self.external_stabilizer(zx_ports)
 
     def area(self) -> int:
