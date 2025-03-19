@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from functools import reduce
 from itertools import combinations
 from typing import Iterator
+import warnings
 
 import stim
 import networkx as nx
@@ -12,7 +13,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import YHalfCube, ZXCube
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.position import Direction3D
 
 
@@ -47,7 +48,10 @@ class FilledGraph:
         ]
 
 
-def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
+def fill_ports_for_minimal_simulation(
+    graph: BlockGraph,
+    search_small_area_observables: bool = False,
+) -> list[FilledGraph]:
     """Given a block graph with open ports, fill in the ports with the appropriate
     cubes that will minimize the number of simulation runs needed for the complete
     logical observable set.
@@ -62,6 +66,11 @@ def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
 
     Args:
         graph: The block graph with open ports.
+        search_small_area_observables: If True, the algorithm will try to construct
+            all the possible correlation surfaces that can be used as logical
+            observables and select the generators with the smallest area. This will
+            result in constructing exponentially many correlation surfaces, which
+            can be slow for graphs with large number of ports.
 
     Returns:
         A list of :class:`~tqec.computation.open_graph.FilledGraph` instances, each
@@ -72,23 +81,36 @@ def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
     num_ports = graph.num_ports
     if num_ports == 0:
         raise TQECException("The provided graph has no open ports.")
+    # heuristic threshold for large number of ports
+    HEURISTIC_THRESHOLD = 16
+    if search_small_area_observables and num_ports > HEURISTIC_THRESHOLD:
+        warnings.warn(
+            "The algorithm will construct all exponentially many correlation "
+            "surfaces, which can be slow for graphs with large number of ports. "
+            "Consider setting `search_small_area_observables=False` for better "
+            "performance.",
+            TQECWarning,
+        )
+
     correlation_surfaces = graph.find_correlation_surfaces()
     stab_to_surface: dict[str, CorrelationSurface] = _reduce_to_minimal_generators(
         {s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces}
     )
-    identity = "I" * num_ports
-    # Need to collect all the possible correlation surfaces because we want
-    # to find the generators with the smallest correlation surface area
-    init_generators = list(stab_to_surface.keys())
-    for stabilizer, comb in _iter_stabilizer_group(init_generators):
-        if stabilizer != identity and stabilizer not in stab_to_surface:
-            correlation_surface = reduce(
-                lambda a, b: a ^ b,
-                [stab_to_surface[s] for s in comb],
-            )
-            stab_to_surface[stabilizer] = correlation_surface
+    generators = list(stab_to_surface.keys())
 
-    generators = list(_reduce_to_minimal_generators(stab_to_surface).keys())
+    if search_small_area_observables:
+        identity = "I" * num_ports
+        # Need to collect all the possible correlation surfaces because we want
+        # to find the generators with the smallest correlation surface area
+        init_generators = list(stab_to_surface.keys())
+        for stabilizer, comb in _iter_stabilizer_group(init_generators):
+            if stabilizer != identity and stabilizer not in stab_to_surface:
+                correlation_surface = reduce(
+                    lambda a, b: a ^ b,
+                    [stab_to_surface[s] for s in comb],
+                )
+                stab_to_surface[stabilizer] = correlation_surface
+        generators = list(_reduce_to_minimal_generators(stab_to_surface).keys())
 
     # Two stabilizers are compatible if they can agree on the supported observable
     # basis on the common ports. We can construct a graph that assigns a node to
