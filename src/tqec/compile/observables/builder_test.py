@@ -173,7 +173,7 @@ def test_transform_coords_into_grid() -> None:
         }
     )
     qubit = _transform_coords_into_grid(
-        template_slices=[template],
+        template,
         local_coords=(2, 2),
         block_position=Position3D(1, 1, 0),
         k=5,
@@ -181,7 +181,7 @@ def test_transform_coords_into_grid() -> None:
     assert qubit == GridQubit(27, 27)
 
     qubit = _transform_coords_into_grid(
-        template_slices=[template],
+        template,
         local_coords=(3, 1),
         block_position=Position3D(0, 1, 0),
         k=12,

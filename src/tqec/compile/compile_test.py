@@ -128,8 +128,7 @@ def test_compile_two_same_blocks_connected_in_time_layers_approach(
         g, cube_builder, pipe_builder, correlation_surfaces
     )
 
-    # circuit = compiled_graph.to_layer_tree().generate_circuit(k)
-    circuit = compiled_graph.to_layer_tree().generate_circuit(
+    circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
 
