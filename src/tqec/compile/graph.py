@@ -56,6 +56,7 @@ from tqec.compile.blocks.enums import (
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import LayoutPosition2D, LayoutPosition3D
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.tree import LayerTree
 from tqec.utils.exceptions import TQECException
 from tqec.utils.noise_model import NoiseModel
@@ -64,13 +65,18 @@ from tqec.utils.scale import PhysicalQubitScalable2D
 
 
 class TopologicalComputationGraph:
-    def __init__(self, scalable_qubit_shape: PhysicalQubitScalable2D) -> None:
+    def __init__(
+        self,
+        scalable_qubit_shape: PhysicalQubitScalable2D,
+        observables: list[AbstractObservable],
+    ) -> None:
         """Represents a topological computation with
         :class:`~tqec.compile.blocks.block.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = (
             scalable_qubit_shape
         )
+        self._observables: list[AbstractObservable] = observables
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         if not block.is_cube:
@@ -302,7 +308,8 @@ class TopologicalComputationGraph:
                     )
                     for blocks in blocks_by_z
                 ]
-            )
+            ),
+            abstract_observables=self._observables,
         )
 
     def generate_stim_circuit(

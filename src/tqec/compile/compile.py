@@ -350,8 +350,20 @@ def compile_block_graph_v2(
         cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
     }
 
+    # 0. Get the abstract observables to be included in the compiled circuit.
+    obs_included: list[AbstractObservable] = []
+    if observables is not None:
+        if observables == "auto":
+            observables = block_graph.find_correlation_surfaces()
+        obs_included = [
+            compile_correlation_surface_to_abstract_observable(block_graph, surface)
+            for surface in observables
+        ]
+
     # 1. Create TopologicalComputationGraph
-    graph = TopologicalComputationGraph(_DEFAULT_SCALABLE_QUBIT_SHAPE)
+    graph = TopologicalComputationGraph(
+        _DEFAULT_SCALABLE_QUBIT_SHAPE, observables=obs_included
+    )
 
     # 2. Add cubes to the graph
     for cube in block_graph.cubes:

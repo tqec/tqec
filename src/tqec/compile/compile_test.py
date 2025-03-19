@@ -134,8 +134,8 @@ def test_compile_two_same_blocks_connected_in_time_layers_approach(
 
     dem = circuit.detector_error_model()
     assert dem.num_detectors == (d**2 - 1) * 2 * d
-    # assert dem.num_observables == 1
-    # assert len(dem.shortest_graphlike_error()) == d
+    assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error()) == d
 
 
 @pytest.mark.parametrize(

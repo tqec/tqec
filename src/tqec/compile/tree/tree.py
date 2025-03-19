@@ -122,7 +122,7 @@ class LayerTree:
             include_qubit_coords: whether to include ``QUBIT_COORDS`` annotations
                 in the returned quantum circuit or not. Default to ``True``.
             manhattan_radius: Parameter for the automatic computation of detectors.
-                Should be large enough so that flows cancelling each other to
+                Should be large enough so that flows canceling each other to
                 form a detector are strictly contained in plaquettes that are at
                 most at a distance of ``manhattan_radius`` from the central
                 plaquette. Detector computation runtime grows with this parameter,
