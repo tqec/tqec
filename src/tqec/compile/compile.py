@@ -28,7 +28,7 @@ _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 )
 
 
-def compile_block_graph_v2(
+def compile_block_graph(
     block_graph: BlockGraph,
     cube_builder: CubeBuilder = STANDARD_CUBE_BUILDER,
     pipe_builder: PipeBuilder = STANDARD_PIPE_BUILDER,

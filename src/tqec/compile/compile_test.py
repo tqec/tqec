@@ -2,7 +2,7 @@ import itertools
 
 import pytest
 
-from tqec.compile.compile import compile_block_graph_v2
+from tqec.compile.compile import compile_block_graph
 from tqec.compile.specs.base import (
     BlockBuilder,
     CubeBuilder,
@@ -34,19 +34,26 @@ STANDARD_SPECS: dict[str, tuple[CubeBuilder, PipeBuilder]] = {
 
 
 @pytest.mark.parametrize(
-    ("spec", "kind", "k"),
-    itertools.product(STANDARD_SPECS.keys(), ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
+    ("spec", "kind", "k", "xy"),
+    itertools.product(
+        STANDARD_SPECS.keys(),
+        ("ZXZ", "ZXX", "XZX", "XZZ"),
+        (1,),
+        # ((0, 0), (1, 1), (2, 2)),
+        # ((1, 1), (2, 2)),
+        ((0, 0),),
+    ),
 )
 def test_compile_two_same_blocks_connected_in_time(
-    spec: str, kind: str, k: int
+    spec: str, kind: str, k: int, xy: tuple[int, int]
 ) -> None:
     d = 2 * k + 1
     g = BlockGraph("Two Same Blocks in Time Experiment")
     # FIXME: position (1,1,0) and (1,1,1) not working
     # p1 = Position3D(1, 1, 0)
     # p2 = Position3D(1, 1, 1)
-    p1 = Position3D(0, 0, 0)
-    p2 = Position3D(0, 0, 1)
+    p1 = Position3D(*xy, 0)
+    p2 = Position3D(*xy, 1)
     g.add_cube(p1, kind)
     g.add_cube(p2, kind)
     g.add_pipe(p1, p2)
@@ -54,13 +61,18 @@ def test_compile_two_same_blocks_connected_in_time(
     cube_builder, pipe_builder = STANDARD_SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
-    compiled_graph = compile_block_graph_v2(
+    compiled_graph = compile_block_graph(
         g, cube_builder, pipe_builder, correlation_surfaces
     )
 
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
+
+    # FIXME: delete this line
+    print("\n")
+    print(circuit)
+    print("\n")
 
     dem = circuit.detector_error_model()
     assert dem.num_detectors == (d**2 - 1) * 2 * d

@@ -68,7 +68,7 @@ class TopologicalComputationGraph:
     def __init__(
         self,
         scalable_qubit_shape: PhysicalQubitScalable2D,
-        observables: list[AbstractObservable],
+        observables: list[AbstractObservable] | None = None,
     ) -> None:
         """Represents a topological computation with
         :class:`~tqec.compile.blocks.block.Block` instances."""
@@ -76,7 +76,7 @@ class TopologicalComputationGraph:
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = (
             scalable_qubit_shape
         )
-        self._observables: list[AbstractObservable] = observables
+        self._observables: list[AbstractObservable] | None = observables
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         if not block.is_cube:
