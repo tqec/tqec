@@ -52,6 +52,14 @@ def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
     cubes that will minimize the number of simulation runs needed for the complete
     logical observable set.
 
+    The key idea is that stabilizers within the same clique should have compatible
+    Paulis at their ports. This allows a single simulation run to simultaneously
+    simulate for all stabilizers in a clique. Minimizing the number of simulations,
+    therefore, translates to minimizing the number of cliques while ensuring full
+    coverage of all stabilizers. This leads to solving the minimum clique cover
+    problem on a graph, which in turn reduces to a graph coloring problem on its
+    complement.
+
     Args:
         graph: The block graph with open ports.
 
