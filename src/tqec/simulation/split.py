@@ -47,7 +47,7 @@ def split_stats_for_observables(
     Returns:
         A list of statistics for each individual observable.
     """
-    from sinter._data import ExistingData
+    from sinter._data import ExistingData  # type: ignore
 
     # Combine the stats for each task
     data = ExistingData()
