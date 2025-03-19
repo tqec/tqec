@@ -62,3 +62,11 @@ def test_three_cnots_correlation_surface(
     assert external_stabilizers.issubset(
         {s.external_stabilizer(io_ports) for s in correlation_surfaces}
     )
+
+
+def test_three_cnots_ports_filling() -> None:
+    g = three_cnots()
+    filled_graphs = g.fill_ports_for_minimal_simulation()
+    assert len(filled_graphs) == 2
+    assert set(filled_graphs[0].stabilizers) == {"IIXIIX", "IXIIXX", "XXIXIX"}
+    assert set(filled_graphs[1].stabilizers) == {"IIZZZZ", "IZIZZI", "ZIIZII"}
