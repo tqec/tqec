@@ -65,14 +65,14 @@ def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
     if num_ports == 0:
         raise TQECException("The provided graph has no open ports.")
     correlation_surfaces = graph.find_correlation_surfaces()
-    ext_stabs = [s.external_stabilizer_on_graph(graph) for s in correlation_surfaces]
-    stab_to_surface: dict[str, CorrelationSurface] = {
-        stab: surface for stab, surface in zip(ext_stabs, correlation_surfaces)
-    }
+    stab_to_surface: dict[str, CorrelationSurface] = _reduce_to_minimal_generators(
+        {s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces}
+    )
     identity = "I" * num_ports
     # Need to collect all the possible correlation surfaces because we want
     # to find the generators with the smallest correlation surface area
-    for stabilizer, comb in _iter_stabilizer_group(ext_stabs):
+    init_generators = list(stab_to_surface.keys())
+    for stabilizer, comb in _iter_stabilizer_group(init_generators):
         if stabilizer != identity and stabilizer not in stab_to_surface:
             correlation_surface = reduce(
                 lambda a, b: a ^ b,
@@ -80,22 +80,7 @@ def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
             )
             stab_to_surface[stabilizer] = correlation_surface
 
-    # Sort the stabilizers by its corresponding correlation surface's area to
-    # find the generators with the smallest area
-    stabs_ordered_by_area = sorted(
-        stab_to_surface.keys(),
-        key=lambda s: (stab_to_surface[s].area(), s),
-    )
-    # find a complete set of generators, starting from the smallest area
-    generators: list[str] = stabs_ordered_by_area[:1]
-    generators_stim: list[stim.PauliString] = [stim.PauliString(generators[0])]
-    for stabilizer in stabs_ordered_by_area[1:]:
-        pauli_string = stim.PauliString(stabilizer)
-        if not _can_be_generated_by(pauli_string, generators_stim):
-            generators.append(stabilizer)
-            generators_stim.append(pauli_string)
-        if len(generators) == num_ports:
-            break
+    generators = list(_reduce_to_minimal_generators(stab_to_surface).keys())
 
     # Two stabilizers are compatible if they can agree on the supported observable
     # basis on the common ports. We can construct a graph that assigns a node to
@@ -162,6 +147,33 @@ def fill_ports_for_minimal_simulation(graph: BlockGraph) -> list[FilledGraph]:
             )
         )
     return filled_graphs
+
+
+def _reduce_to_minimal_generators(
+    stabilizers_to_surfaces: dict[str, CorrelationSurface],
+) -> dict[str, CorrelationSurface]:
+    """Reduce a complete or overcomplete set of stabilizers to a set of genetrators
+    with the smallest correlation surface area."""
+    n = len(next(iter(stabilizers_to_surfaces)))
+    # Sort the stabilizers by its corresponding correlation surface's area to
+    # find the generators with the smallest area
+    stabs_ordered_by_area = sorted(
+        stabilizers_to_surfaces.keys(),
+        key=lambda s: (stabilizers_to_surfaces[s].area(), s),
+    )
+    # find a complete set of generators, starting from the smallest area
+    generators: list[str] = stabs_ordered_by_area[:1]
+    generators_stim: list[stim.PauliString] = [stim.PauliString(generators[0])]
+    for stabilizer in stabs_ordered_by_area[1:]:
+        pauli_string = stim.PauliString(stabilizer)
+        if not _can_be_generated_by(pauli_string, generators_stim):
+            generators.append(stabilizer)
+            generators_stim.append(pauli_string)
+        if len(generators) == n:
+            break
+    if len(generators) != n:
+        raise TQECException("Cannot find a complete set of generators.")
+    return {g: stabilizers_to_surfaces[g] for g in generators}
 
 
 def _multiply_unsigned_paulis(p1: str, p2: str) -> str:
