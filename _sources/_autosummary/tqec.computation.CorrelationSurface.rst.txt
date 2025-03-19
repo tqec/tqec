@@ -12,9 +12,11 @@ CorrelationSurface
    .. autosummary::
    
       ~CorrelationSurface.__init__
+      ~CorrelationSurface.area
       ~CorrelationSurface.bases_at
       ~CorrelationSurface.edges_at
       ~CorrelationSurface.external_stabilizer
+      ~CorrelationSurface.external_stabilizer_on_graph
       ~CorrelationSurface.from_pauli_web
       ~CorrelationSurface.span_vertices
       ~CorrelationSurface.to_pauli_web
@@ -38,9 +40,11 @@ CorrelationSurface
 
    
    .. automethod:: __init__
+   .. automethod:: area
    .. automethod:: bases_at
    .. automethod:: edges_at
    .. automethod:: external_stabilizer
+   .. automethod:: external_stabilizer_on_graph
    .. automethod:: from_pauli_web
    .. automethod:: span_vertices
    .. automethod:: to_pauli_web

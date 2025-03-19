@@ -17,6 +17,7 @@ BlockGraph
       ~BlockGraph.clone
       ~BlockGraph.compose
       ~BlockGraph.fill_ports
+      ~BlockGraph.fill_ports_for_minimal_simulation
       ~BlockGraph.find_correlation_surfaces
       ~BlockGraph.fix_shadowed_faces
       ~BlockGraph.from_dae_file
@@ -51,6 +52,7 @@ BlockGraph
       ~BlockGraph.num_pipes
       ~BlockGraph.num_ports
       ~BlockGraph.occupied_positions
+      ~BlockGraph.ordered_ports
       ~BlockGraph.pipes
       ~BlockGraph.ports
    
@@ -67,6 +69,7 @@ BlockGraph
    .. automethod:: clone
    .. automethod:: compose
    .. automethod:: fill_ports
+   .. automethod:: fill_ports_for_minimal_simulation
    .. automethod:: find_correlation_surfaces
    .. automethod:: fix_shadowed_faces
    .. automethod:: from_dae_file

@@ -433,6 +433,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.open_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilledGraph</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada.html_viewer</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ColladaHTMLViewer</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositionedZX</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
@@ -499,6 +500,11 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">num_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of ports in the graph.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_port</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ordered_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the labels of the ports in the alphabetical order.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cubes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cube</span><span class="p">]:</span>
@@ -982,6 +988,24 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="p">)</span>
             <span class="c1"># Delete the port label</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">label</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.fill_ports_for_minimal_simulation">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.fill_ports_for_minimal_simulation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fill_ports_for_minimal_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FilledGraph</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given a block graph with open ports, fill in the ports with the appropriate</span>
+<span class="sd">        cubes that will minimize the number of simulation runs needed for the complete</span>
+<span class="sd">        logical observable set.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of :class:`~tqec.computation.open_graph.FilledGraph` instances, each</span>
+<span class="sd">            containing a block graph with all ports filled and a set of correlation</span>
+<span class="sd">            surfaces that can be used as logical observables for the simulation on that</span>
+<span class="sd">            block graph.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.open_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">fill_ports_for_minimal_simulation</span>
+
+        <span class="k">return</span> <span class="n">fill_ports_for_minimal_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BlockGraph.compose">
