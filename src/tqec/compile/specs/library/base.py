@@ -28,17 +28,17 @@ from tqec.utils.scale import LinearFunction
 
 
 class BaseCubeBuilder(CubeBuilder):
-    """Base implementation of the :class:`~tqec.compile.specs.base.BlockBuilder`
+    """Base implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
     interface.
 
     This class provides a good enough default implementation that should be
-    enough for most of the block builders.
+    enough for most of the cube builders.
     """
 
     DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
 
     def __init__(self, compiler: PlaquetteCompiler) -> None:
-        """Initialise the :class:`BaseBlockBuilder` with a compiler.
+        """Initialise the :class:`BaseCubeBuilder` with a compiler.
 
         Args:
             compiler: compiler to transform the plaquettes in the standard
@@ -108,7 +108,7 @@ class BaseCubeBuilder(CubeBuilder):
 # TODO: finish the implementation of the BasePipeBuilder
 class BasePipeBuilder(PipeBuilder):
     """Base implementation of the
-    :class:`~tqec.compile.specs.base.SubstitutionBuilder` interface.
+    :class:`~tqec.compile.specs.base.PipeBuilder` interface.
 
     This class provides a good enough default implementation that should be
     enough for most of the block builders.
@@ -155,6 +155,7 @@ class BasePipeBuilder(PipeBuilder):
         assert spec.pipe_kind.is_temporal
         if spec.pipe_kind.has_hadamard:
             # return self._get_temporal_hadamard_pipe_block(spec)
+            # TODO: implement the Hadamard temporal pipe
             raise NotImplementedError(
                 "Hadamard temporal pipes are not implemented yet."
             )
