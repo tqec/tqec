@@ -48,7 +48,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.simulation';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="plot_observable_as_inset" href="tqec.simulation.plot_observable_as_inset.html" />
+    <link rel="next" title="heuristic_custom_error_key" href="tqec.simulation.heuristic_custom_error_key.html" />
     <link rel="prev" title="TQECColor" href="tqec.interop.TQECColor.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -443,7 +443,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">tqec.simulation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.simulation.heuristic_custom_error_key.html">heuristic_custom_error_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html">plot_observable_as_inset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.simulation.split_stats_for_observables.html">split_stats_for_observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
 </ul>
 </details></li>
@@ -529,8 +531,14 @@
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html#tqec.simulation.plot_observable_as_inset" title="tqec.simulation.plot_observable_as_inset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_observable_as_inset</span></code></a>(ax_target, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.simulation.heuristic_custom_error_key.html#tqec.simulation.heuristic_custom_error_key" title="tqec.simulation.heuristic_custom_error_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">heuristic_custom_error_key</span></code></a>(observables)</p></td>
+<td><p>Get a heuristic custom error key using for the <code class="docutils literal notranslate"><span class="pre">error</span></code> metric in <code class="docutils literal notranslate"><span class="pre">sinter</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html#tqec.simulation.plot_observable_as_inset" title="tqec.simulation.plot_observable_as_inset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_observable_as_inset</span></code></a>(ax_target, ...[, ...])</p></td>
 <td><p>Plot the provided observable as an inset in the provided ax.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.simulation.split_stats_for_observables.html#tqec.simulation.split_stats_for_observables" title="tqec.simulation.split_stats_for_observables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_stats_for_observables</span></code></a>(stats, ...)</p></td>
+<td><p>Split the statistics for each individual observable when specifying <code class="docutils literal notranslate"><span class="pre">count_observable_error_combos=True</span></code> for <code class="docutils literal notranslate"><span class="pre">sinter</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html#tqec.simulation.start_simulation_using_sinter" title="tqec.simulation.start_simulation_using_sinter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_simulation_using_sinter</span></code></a>(block_graph, ...)</p></td>
 <td><p>Helper to run <cite>stim</cite> simulations using <cite>sinter</cite>.</p></td>
@@ -560,11 +568,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="tqec.simulation.plot_observable_as_inset.html"
+       href="tqec.simulation.heuristic_custom_error_key.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">plot_observable_as_inset</p>
+        <p class="prev-next-title">heuristic_custom_error_key</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

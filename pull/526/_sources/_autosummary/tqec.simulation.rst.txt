@@ -16,7 +16,9 @@
    .. autosummary::
       :toctree:
    
+      heuristic_custom_error_key
       plot_observable_as_inset
+      split_stats_for_observables
       start_simulation_using_sinter
    
    

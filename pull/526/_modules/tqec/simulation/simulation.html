@@ -407,6 +407,7 @@ window.addEventListener("load", () => mermaid.run());
                   
   <h1>Source code for tqec.simulation.simulation</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
@@ -444,6 +445,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">decoders</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;pymatching&quot;</span><span class="p">,),</span>
     <span class="n">print_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">custom_decoders</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">sinter</span><span class="o">.</span><span class="n">Decoder</span> <span class="o">|</span> <span class="n">sinter</span><span class="o">.</span><span class="n">Sampler</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_resume_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">existing_data_filepaths</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">split_observable_stats</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">sinter</span><span class="o">.</span><span class="n">TaskStats</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper to run `stim` simulations using `sinter`.</span>
 
@@ -505,13 +509,33 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            used if requested by name by a task or by the decoders list.</span>
 <span class="sd">            If not specified, only decoders with support built into sinter, such</span>
 <span class="sd">            as &#39;pymatching&#39; and &#39;fusion_blossom&#39;, can be used.</span>
-
+<span class="sd">        save_resume_filepath: Defaults to None (unused). If set to a filepath,</span>
+<span class="sd">            results will be saved to that file while they are collected. If the</span>
+<span class="sd">            python interpreter is stopped or killed, calling this method again</span>
+<span class="sd">            with the same save_resume_filepath will load the previous results</span>
+<span class="sd">            from the file so it can resume where it left off. The stats in this</span>
+<span class="sd">            file will be counted in addition to each task&#39;s previous_stats field</span>
+<span class="sd">            (as opposed to overriding the field). Notes that the stats for each</span>
+<span class="sd">            individual observable are not split but saved in the `custom_counts`</span>
+<span class="sd">            field of the stats.</span>
+<span class="sd">        existing_data_filepaths: CSV data saved to these files will be loaded,</span>
+<span class="sd">            included in the returned results, and count towards things like</span>
+<span class="sd">            max_shots and max_errors.</span>
+<span class="sd">        split_observable_stats: Defaults to True. If True, the results are</span>
+<span class="sd">            post-processed to get individual statistics for each observable in</span>
+<span class="sd">            `observables`. If False, the results are returned as they are</span>
+<span class="sd">            collected.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        one simulation result (of type `list[sinter.TaskStats]`) per provided</span>
 <span class="sd">        observable in `observables`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">observables</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
+    <span class="n">custom_error_count_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">split_observable_stats</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">observables</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">custom_error_count_key</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">custom_error_count_key</span> <span class="o">=</span> <span class="n">heuristic_custom_error_key</span><span class="p">(</span><span class="n">observables</span><span class="p">)</span>
 
     <span class="n">compiled_graph</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span>
         <span class="n">block_graph</span><span class="p">,</span>
@@ -529,6 +553,8 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">manhattan_radius</span><span class="p">,</span>
             <span class="n">detector_database</span><span class="p">,</span>
         <span class="p">),</span>
+        <span class="n">existing_data_filepaths</span><span class="o">=</span><span class="n">existing_data_filepaths</span><span class="p">,</span>
+        <span class="n">save_resume_filepath</span><span class="o">=</span><span class="n">save_resume_filepath</span><span class="p">,</span>
         <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span><span class="p">,</span>
         <span class="n">max_shots</span><span class="o">=</span><span class="n">max_shots</span><span class="p">,</span>
         <span class="n">max_errors</span><span class="o">=</span><span class="n">max_errors</span><span class="p">,</span>
@@ -537,9 +563,11 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">custom_decoders</span><span class="o">=</span><span class="n">custom_decoders</span><span class="p">,</span>
         <span class="n">hint_num_tasks</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">ps</span><span class="p">),</span>
         <span class="n">count_observable_error_combos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">custom_error_count_key</span><span class="o">=</span><span class="n">heuristic_custom_error_key</span><span class="p">(</span><span class="n">observables</span><span class="p">),</span>
+        <span class="n">custom_error_count_key</span><span class="o">=</span><span class="n">custom_error_count_key</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">split_stats_for_observables</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">observables</span><span class="p">))</span></div>
+    <span class="k">if</span> <span class="n">split_observable_stats</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">split_stats_for_observables</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">observables</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">stats</span><span class="p">]</span></div>
 
 </pre></div>
 
