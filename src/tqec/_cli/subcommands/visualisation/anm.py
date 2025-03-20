@@ -3,42 +3,49 @@ from __future__ import annotations
 import argparse
 import tempfile
 from pathlib import Path
+from typing import Final
 
 import stim
 from typing_extensions import override
 
 from tqec._cli.subcommands.base import TQECSubCommand
-from tqec._cli.subcommands.visualisation.anm._utils import (
+from tqec._cli.subcommands.visualisation._utils import (
     generate_animation,
     has_program,
 )
 from tqec.utils.exceptions import TQECException
 
 
-class VisualisationAnmCircuitTQECSubCommand(TQECSubCommand):
+class VisualisationAnmTQECSubCommand(TQECSubCommand):
+    _STYLE_TO_STIM_DIAGRAM: Final[dict[str, str]] = {
+        "circ": "timeslice-svg",
+        "det": "detslice-svg",
+        "circdet": "detslice-with-ops-svg",
+    }
+
     @staticmethod
     @override
     def add_subcommand(
         main_parser: argparse._SubParsersAction[argparse.ArgumentParser],
     ) -> None:
-        circuit_parser: argparse.ArgumentParser = main_parser.add_parser(
-            "circ", description="Generating animations of quantum circuits."
+        parser: argparse.ArgumentParser = main_parser.add_parser(
+            "anm", description="Generating animations."
         )
-        circuit_parser.add_argument(
+        parser.add_argument(
             "-i",
             "--in_file",
             type=Path,
             required=True,
             help="Quantum circuit in Stim format that should be animated.",
         )
-        circuit_parser.add_argument(
+        parser.add_argument(
             "-o",
             "--out_file",
             type=Path,
             required=True,
             help="Output filename that will be used to write the animation.",
         )
-        circuit_parser.add_argument(
+        parser.add_argument(
             "-t",
             "--ticks",
             default="ALL",
@@ -47,26 +54,32 @@ class VisualisationAnmCircuitTQECSubCommand(TQECSubCommand):
                 "to include in the animation. Defaults to ALL, meaning all TICKS."
             ),
         )
-        circuit_parser.add_argument(
+        parser.add_argument(
             "-f",
             "--framerate",
             type=int,
             default=5,
             help="Number of TICKS per seconds in the returned animation.",
         )
-        circuit_parser.add_argument(
+        parser.add_argument(
             "--with_noise",
             action="store_true",
             help="If provided, noise instructions are included in the visualisation.",
         )
-        circuit_parser.set_defaults(func=VisualisationAnmCircuitTQECSubCommand.execute)
+        parser.add_argument(
+            "--style",
+            choices=VisualisationAnmTQECSubCommand._STYLE_TO_STIM_DIAGRAM.keys(),
+            default="circ",
+            help="Type of diagram to generate for the animation.",
+        )
+        parser.set_defaults(func=VisualisationAnmTQECSubCommand.execute)
 
     @staticmethod
     @override
     def execute(args: argparse.Namespace) -> None:
         if not has_program("ffmpeg"):
             raise TQECException(
-                "Generating animations with 'tqec viz anm circ' requires a "
+                "Generating animations with 'tqec viz anm' requires a "
                 "working installation of ffmpeg. Could not find the ffmpeg "
                 "executable on your path."
             )
@@ -79,9 +92,10 @@ class VisualisationAnmCircuitTQECSubCommand(TQECSubCommand):
         with tempfile.TemporaryDirectory() as tmpdirname:
             # Step one, generate the individual TICKs
             print("Generating individual images...")
+            style = VisualisationAnmTQECSubCommand._STYLE_TO_STIM_DIAGRAM[args.style]
             for t in range(start_tick, end_tick):
                 with open(f"{tmpdirname}/{t}.svg", "w") as f:
-                    f.write(str(circuit.diagram("timeslice-svg", tick=t)))
+                    f.write(str(circuit.diagram(style, tick=t)))
             # Step two, generate a video with ffmpeg
             print("Generating animation (this may take some time)...")
             generate_animation(args.out_file, args.framerate, Path(tmpdirname))

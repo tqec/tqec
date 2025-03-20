@@ -5,7 +5,7 @@ import argparse
 from typing_extensions import override
 
 from tqec._cli.subcommands.base import TQECSubCommand
-from tqec._cli.subcommands.visualisation.anm.root import VisualisationAnmTQECSubCommand
+from tqec._cli.subcommands.visualisation.anm import VisualisationAnmTQECSubCommand
 
 
 class VisualisationTQECSubCommand(TQECSubCommand):
