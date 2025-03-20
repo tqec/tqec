@@ -155,6 +155,6 @@ def start_simulation_using_sinter(
         count_observable_error_combos=True,
         custom_error_count_key=custom_error_count_key,
     )
-    if split_stats_for_observables:
+    if split_observable_stats:
         return split_stats_for_observables(stats, len(observables))
     return [stats]
