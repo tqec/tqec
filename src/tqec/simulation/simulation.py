@@ -115,9 +115,12 @@ def start_simulation_using_sinter(
             post-processed to get individual statistics for each observable in
             `observables`. If False, the results are returned as they are
             collected.
+
     Returns:
-        one simulation result (of type `list[sinter.TaskStats]`) per provided
-        observable in `observables`.
+        A list of lists of `sinter.TaskStats`. If `split_observable_stats` is
+        True, the outer list has one element per provided observable in `observables`.
+        If `split_observable_stats` is False, the outer list has only one element,
+        containing the raw statistics collected.
     """
     if observables is None:
         observables = block_graph.find_correlation_surfaces()
