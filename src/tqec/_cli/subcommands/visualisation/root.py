@@ -6,6 +6,7 @@ from typing_extensions import override
 
 from tqec._cli.subcommands.base import TQECSubCommand
 from tqec._cli.subcommands.visualisation.anm import VisualisationAnmTQECSubCommand
+from tqec._cli.subcommands.visualisation.img import VisualisationImgTQECSubCommand
 
 
 class VisualisationTQECSubCommand(TQECSubCommand):
@@ -19,9 +20,10 @@ class VisualisationTQECSubCommand(TQECSubCommand):
         )
         subparser = parser.add_subparsers()
         VisualisationAnmTQECSubCommand.add_subcommand(subparser)
+        VisualisationImgTQECSubCommand.add_subcommand(subparser)
         parser.set_defaults(func=VisualisationTQECSubCommand.execute)
 
     @staticmethod
     @override
     def execute(args: argparse.Namespace) -> None:
-        print(args)
+        print("Please use one of the subcommands.")
