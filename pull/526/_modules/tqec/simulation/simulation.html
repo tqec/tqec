@@ -525,9 +525,12 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            post-processed to get individual statistics for each observable in</span>
 <span class="sd">            `observables`. If False, the results are returned as they are</span>
 <span class="sd">            collected.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        one simulation result (of type `list[sinter.TaskStats]`) per provided</span>
-<span class="sd">        observable in `observables`.</span>
+<span class="sd">        A list of lists of `sinter.TaskStats`. If `split_observable_stats` is</span>
+<span class="sd">        True, the outer list has one element per provided observable in `observables`.</span>
+<span class="sd">        If `split_observable_stats` is False, the outer list has only one element,</span>
+<span class="sd">        containing the raw statistics collected.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">observables</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>

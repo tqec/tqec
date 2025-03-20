@@ -611,8 +611,10 @@ collected.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>one simulation result (of type <cite>list[sinter.TaskStats]</cite>) per provided
-observable in <cite>observables</cite>.</p>
+<dd class="field-even"><p>A list of lists of <cite>sinter.TaskStats</cite>. If <cite>split_observable_stats</cite> is
+True, the outer list has one element per provided observable in <cite>observables</cite>.
+If <cite>split_observable_stats</cite> is False, the outer list has only one element,
+containing the raw statistics collected.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list[list[<em>TaskStats</em>]]</p>
