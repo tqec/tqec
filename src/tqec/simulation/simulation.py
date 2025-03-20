@@ -125,9 +125,7 @@ def start_simulation_using_sinter(
     if observables is None:
         observables = block_graph.find_correlation_surfaces()
     custom_error_count_key: str | None = None
-    if not split_observable_stats or len(observables) <= 1:
-        custom_error_count_key = None
-    else:
+    if split_observable_stats and len(observables) > 1:
         custom_error_count_key = heuristic_custom_error_key(observables)
 
     compiled_graph = compile_block_graph(
