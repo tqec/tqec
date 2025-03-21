@@ -1,12 +1,11 @@
 """Split the statistics for multiple observables."""
 
 import collections
-from functools import reduce
 from typing import Mapping
 
 import sinter
 
-from tqec.computation.correlation import CorrelationSurface, ZXEdge
+from tqec.computation.correlation import CorrelationSurface
 
 
 def split_counts_for_observables(
@@ -80,18 +79,41 @@ def split_stats_for_observables(
 
 
 def heuristic_custom_error_key(observables: list[CorrelationSurface]) -> str:
-    """Get a heuristic custom error key using for the ``error`` metric in
-    ``sinter``.
+    """Get a heuristic custom error key using for the ``error`` metric in ``sinter``.
 
-    Currently, we determine the most likely observable error combinations by
-    analyzing their correlation surfaces. For each combination, we perform an
-    AND on the corresponding correlation surfaces and calculate the area of the
-    resulting span. We then rank these combinations according to the computed
-    AND-area metric. To derive a reasonable error metric, we select
-    ``ordered_combs[-len(observables)]`` for two reasons: first, errors should
-    be easy to sample so as not to require excessive shots; and second, once an
-    error reaches a preset MAX value, there should be enough statistical data for
-    all individual observables.
+    To get the statistics for each individual observable, we set
+    ``count_observable_error_combos=True`` in ``sinter.collect``. It will include
+    error counts for each observable error combination in the stats. For example,
+    ``{'obs_mistake_mask=EE_': 10, 'obs_mistake_mask=E_E': 20}`` means that 10
+    errors flipped both the first and second observables, and 20 errors flipped
+    both the first and third observables, are sampled. We then split the counts
+    to get the error counts for each individual observable.
+
+    By default, ``sinter`` will count an error that flips any number of observables
+    as a single error in the stats. As we want to sample enough statistics for
+    each individual observable, which might have large variance in the logical
+    error rate, we need to select a good ``custom_error_count_key``.
+
+    Firstly we find the observable with the minimum error rate, which is expected
+    to be the observable with the minimal correlation surface area. If we ensure
+    this observable has enough statistical data, we can ensure all the observables
+    have enough data. Therefore, we need to find all the observable combinations
+    that contains this observable. Then we order the combinations by their
+    probabilities, and return the most frequent one as the heuristic custom error
+    key, which needs the least shots to achieve a set ``max_errors``. The final
+    key will be in the form like ``obs_mistake_mask=EE_``, where `EE_` will be
+    substituted by the actual observable combination.
+
+    We estimate the probabilities of each possible observable combination by
+    studying their correlation surfaces. Consider the correlation surfaces of
+    some observables, an error chain crossing some fragment of correlation surface
+    can flip all the observables iff. the fragment belongs to all the correlation
+    surfaces, i.e. the intersection (AND) of the correlation surfaces. For each
+    fragment, we find all the observables that contain it and generate the
+    combination key. We then increase the frequency of the key, which means a
+    single error chain at the fragment can flip all the observables. We use the
+    number of fragments that can flip a observable comb as the proxy of the
+    probability of the observable comb.
 
     Args:
         observables: The list of observables.
@@ -99,17 +121,18 @@ def heuristic_custom_error_key(observables: list[CorrelationSurface]) -> str:
     Returns:
         The heuristic custom error key.
     """
-    key_area: dict[str, int] = {}
-    span_union: set[ZXEdge] = reduce(
-        lambda a, b: a | b,
-        (obs.span for obs in observables),
-        set(),
-    )
-    for edge in span_union:
-        key_list: list[str] = []
+    # observable with minimal correlation surface area
+    minimal_area_obs = min(observables, key=lambda x: x.area())
+
+    # Estimate the probabilities of each observable combination that contains
+    # the least frequent observable
+    obs_comb_to_prob: dict[str, int] = {}
+    for fragment in minimal_area_obs.span:
+        obs_comb: list[str] = []
         for obs in observables:
-            key_list.append("E" if edge in obs.span else "_")
-        key = "obs_mistake_mask=" + "".join(key_list)
-        key_area[key] = key_area.get(key, 0) + 1
-    most_frequent_keys = sorted(key_area.items(), key=lambda x: x[1])
-    return most_frequent_keys[-len(observables)][0]
+            obs_comb.append("E" if fragment in obs.span else "_")
+        key = "obs_mistake_mask=" + "".join(obs_comb)
+        obs_comb_to_prob[key] = obs_comb_to_prob.get(key, 0) + 1
+    # order the observable combinations by probability
+    ordered_combs = sorted(obs_comb_to_prob.keys(), key=lambda x: obs_comb_to_prob[x])
+    return ordered_combs[-1]
