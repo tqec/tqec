@@ -303,7 +303,8 @@ Temporal locality means that the quantum circuit depth should be constant and sh
 Explicit gate scheduling requires each and every gate in the circuit to be explicitly
 scheduled at a precise time (or moment) in the quantum circuit.
 
-These condition make plaquettes easily representable as visual $2$-dimensional pictures.
+These condition make plaquettes easily representable as visual $2$-dimensional pictures. It is worth noting that the clockwise
+numbering of a plaquette represents the order in which the data qubits interact with the measure qubit.
 
 .. admonition:: Examples
 
