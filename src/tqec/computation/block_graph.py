@@ -414,6 +414,57 @@ class BlockGraph:
 
         return read_block_graph_from_dae_file(filename, graph_name)
 
+    def relabel_cubes(
+        block_graph: BlockGraph, identifier: Position3D | str, new_label: str
+    ) -> BlockGraph:
+        """Change the label of one cube (by position) or multiple cubes (by label) in a given block graph.
+
+        Args:
+            block_graph (BlockGraph): The block graph in which to search for cubes.
+            identifier (Position3D | str): A position (to rename one cube) or a label (to rename all cubes
+            found with that label).
+            new_label (str): The new label to assign.
+
+        Raises:
+            TQECException: If the new label is already used by a port.
+
+        Returns:
+            BlockGraph: The updated block graph with the relabeled cubes.
+        """
+        cubes = block_graph.cubes
+
+        if isinstance(identifier, Position3D):
+            cubes_to_update = [cube for cube in cubes if cube.position == identifier]
+
+        elif isinstance(identifier, str):
+            cubes_to_update = [cube for cube in cubes if cube.label == identifier]
+
+        else:
+            raise TQECException(
+                "Error: Identifier must be a Position3D or a string (label)."
+            )
+
+        if not cubes_to_update:
+            raise TQECException(
+                f"Error: No cubes found for identifier '{identifier}' in the given block graph."
+            )
+
+        if any(cube.is_port for cube in cubes_to_update) and any(
+            c.label == new_label for c in cubes if c.is_port
+        ):
+            raise TQECException(
+                f"Error: The label '{new_label}' is already assigned to a port."
+            )
+
+        updated_graph = block_graph
+        for cube in cubes_to_update:
+            new_cube = Cube(position=cube.position, kind=cube.kind, label=new_label)
+            updated_graph._graph.add_node(
+                cube.position, **{updated_graph._NODE_DATA_KEY: new_cube}
+            )
+
+        return updated_graph
+
     def view_as_html(
         self,
         write_html_filepath: str | pathlib.Path | None = None,
