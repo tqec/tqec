@@ -139,5 +139,5 @@ def _merge_repeat_block_boundaries_inline(
         modification_performed = True
         # We can update i to the index of the REPEAT block, just in case more
         # merging can be done.
-        i += 2
+        i += len(bulk) + 1
     return modification_performed
