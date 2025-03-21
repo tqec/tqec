@@ -133,6 +133,5 @@ def heuristic_custom_error_key(observables: list[CorrelationSurface]) -> str:
             obs_comb.append("E" if fragment in obs.span else "_")
         key = "obs_mistake_mask=" + "".join(obs_comb)
         obs_comb_to_prob[key] = obs_comb_to_prob.get(key, 0) + 1
-    # order the observable combinations by probability
-    ordered_combs = sorted(obs_comb_to_prob.keys(), key=lambda x: obs_comb_to_prob[x])
-    return ordered_combs[-1]
+    # return the most frequent observable combination
+    return max(obs_comb_to_prob.keys(), key=lambda x: obs_comb_to_prob[x])
