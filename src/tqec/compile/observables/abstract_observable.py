@@ -1,5 +1,7 @@
 """Describe the location of the observable measurements in the block graph."""
 
+from __future__ import annotations
+
 from collections import Counter
 from dataclasses import dataclass
 
@@ -52,6 +54,20 @@ class AbstractObservable:
     bottom_stabilizer_pipes: frozenset[Pipe] = frozenset()
     top_readout_spatial_cubes: frozenset[tuple[Cube, SpatialArms]] = frozenset()
     bottom_stabilizer_spatial_cubes: frozenset[Cube] = frozenset()
+
+    def slice_at_z(self, z: int) -> AbstractObservable:
+        """Get the observable slice at the given z position."""
+        return AbstractObservable(
+            frozenset(c for c in self.top_readout_cubes if c.position.z == z),
+            frozenset(p for p in self.top_readout_pipes if p.u.position.z == z),
+            frozenset(p for p in self.bottom_stabilizer_pipes if p.u.position.z == z),
+            frozenset(
+                c for c in self.top_readout_spatial_cubes if c[0].position.z == z
+            ),
+            frozenset(
+                c for c in self.bottom_stabilizer_spatial_cubes if c.position.z == z
+            ),
+        )
 
 
 def compile_correlation_surface_to_abstract_observable(

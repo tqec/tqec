@@ -5,6 +5,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.circuit.schedule.manipulation import (
+    merge_instructions,
     merge_scheduled_circuits,
     relabel_circuits_qubit_indices,
     remove_duplicate_instructions,
@@ -107,3 +108,19 @@ def test_merge_scheduled_circuits() -> None:
     assert circuit.get_circuit() == stim.Circuit(
         "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 1) 1\nH 0\nTICK\nX 1\nTICK\nM 0"
     )
+
+
+def test_merge_instructions() -> None:
+    circuit = stim.Circuit("H 0 1 2\nCX 3 4\nH 5 7")
+    instructions: list[stim.CircuitInstruction] = []
+    for instr in circuit:
+        assert not isinstance(instr, stim.CircuitRepeatBlock)
+        instructions.append(instr)
+    merged_instructions = merge_instructions(instructions)
+    assert len(merged_instructions) == 2
+    assert {instr.name for instr in merged_instructions} == {"H", "CX"}
+    for instr in merged_instructions:
+        if instr.name == "H":
+            assert sorted(t.value for t in instr.targets_copy()) == [0, 1, 2, 5, 7]
+        if instr.name == "CX":
+            assert instr.target_groups() == [[stim.GateTarget(3), stim.GateTarget(4)]]

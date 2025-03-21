@@ -108,3 +108,11 @@ def test_qubit_map_to_circuit() -> None:
     assert QubitMap.from_circuit(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")
     ).to_circuit() == stim.Circuit("QUBIT_COORDS(0, 0) 0")
+
+
+def test_qubit_map_getitem() -> None:
+    qmap = QubitMap({i: GridQubit(i, -i) for i in range(10)})
+    for i in range(10):
+        assert qmap[GridQubit(i, -i)] == i
+    with pytest.raises(KeyError):
+        qmap[GridQubit(1, 1)]

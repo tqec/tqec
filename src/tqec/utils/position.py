@@ -67,6 +67,9 @@ class Position2D(Vec2D):
         distance is 1."""
         return abs(self.x - other.x) + abs(self.y - other.y) == 1
 
+    def to_3d(self, z: int = 0) -> Position3D:
+        return Position3D(self.x, self.y, z)
+
 
 class PhysicalQubitPosition2D(Position2D):
     """Represents the position of a physical qubit on a 2-dimensional plane."""

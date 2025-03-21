@@ -25,6 +25,7 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D, SignedDirection3D
 
 if TYPE_CHECKING:
+    from tqec.computation.open_graph import FilledGraph
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
     from tqec.interop.pyzx.positioned import PositionedZX
     from tqec.computation.correlation import CorrelationSurface
@@ -86,6 +87,11 @@ class BlockGraph:
     def num_ports(self) -> int:
         """Number of ports in the graph."""
         return len([node for node in self.cubes if node.is_port])
+
+    @property
+    def ordered_ports(self) -> list[str]:
+        """Get the labels of the ports in the alphabetical order."""
+        return sorted(self._ports.keys())
 
     @property
     def cubes(self) -> list[Cube]:
@@ -517,6 +523,21 @@ class BlockGraph:
             # Delete the port label
             self._ports.pop(label)
 
+    def fill_ports_for_minimal_simulation(self) -> list[FilledGraph]:
+        """Given a block graph with open ports, fill in the ports with the appropriate
+        cubes that will minimize the number of simulation runs needed for the complete
+        logical observable set.
+
+        Returns:
+            A list of :class:`~tqec.computation.open_graph.FilledGraph` instances, each
+            containing a block graph with all ports filled and a set of correlation
+            surfaces that can be used as logical observables for the simulation on that
+            block graph.
+        """
+        from tqec.computation.open_graph import fill_ports_for_minimal_simulation
+
+        return fill_ports_for_minimal_simulation(self)
+
     def compose(self, other: BlockGraph, self_port: str, other_port: str) -> BlockGraph:
         """Compose the current graph with another graph.
 
@@ -641,7 +662,105 @@ class BlockGraph:
                 pos_map[pipe.v.position],
                 cast(PipeKind, rotated_kind),
             )
-        return rotated
+        return rotated.fix_shadowed_faces()
+
+    def fix_shadowed_faces(self) -> BlockGraph:
+        """Fix the basis of those shadowed faces of the cubes in the graph.
+
+        A pair of face can be shadowed if the cube is connected to two pipes
+        in the same direction. Though these faces are not visible in the 3D
+        visualization, they are still identified by the cube kind and can
+        affect the circuit compilation.
+
+        The basis of the cube is enforced to match the pipes connected to it.
+        If there is unmatched shadowed faces, we try to fix their basis. This
+        will leave some freedom in constructing the model in SketchUp and make
+        everyones' life easier.
+
+        Additionally, for a spatial pass-through, i.e. a cube only connected to
+        two pipes in the same direction, we will fix the cube kind to not be a
+        spatial cube.
+
+        Note that the fixed graph is still not guaranteed to be valid as some
+        other conditions may be violated. You still need to call
+        :py:meth:`~tqec.computation.block_graph.BlockGraph.validate` to check
+        the validity of the graph.
+
+        Returns:
+            A new graph with the shadowed faces fixed.
+        """
+        fixed_cubes: dict[Cube, Cube] = {}
+        for cube in self.cubes:
+            if not isinstance(cube.kind, ZXCube):
+                continue
+            # Group connected pipes by direction
+            pipes_by_direction: dict[Direction3D, list[Pipe]] = {}
+            for pipe in self.pipes_at(cube.position):
+                pipes_by_direction.setdefault(pipe.direction, []).append(pipe)
+            # No need to handle the case `len(pipes_by_direction) == 0` as there
+            # is no pipes connected to the cube.
+            # No need to handle the case `len(pipes_by_direction) == 3` as it's
+            # a 3D corner that cannot be a valid structure.
+            # Spatial pass-through, ensure that the cube is not a spatial cube
+            if len(pipes_by_direction) in [0, 3]:
+                continue
+            shadowed_directions = {
+                d for d, ps in pipes_by_direction.items() if len(ps) == 2
+            }
+            if not shadowed_directions:
+                continue
+            new_kind = cube.kind
+            for shadowed_direction in shadowed_directions:
+                # Spatial pass-through, ensure that the cube is not a spatial cube
+                if (
+                    len(pipes_by_direction) == 1
+                    and shadowed_direction != Direction3D.Z
+                    and cube.is_spatial
+                ):
+                    kind = cube.kind
+                    assert isinstance(kind, ZXCube)
+                    basis = kind.get_basis_along(shadowed_direction)
+                    new_kind = kind.with_basis_along(
+                        shadowed_direction, basis.flipped()
+                    )
+                    new_cube = Cube(cube.position, new_kind, cube.label)
+                    fixed_cubes[cube] = new_cube
+                # T-shape or X-shape connections, can be either in space or time
+                # Ensure the shadowed faces match the pipe faces that are in the
+                # same plane.
+                elif len(pipes_by_direction) == 2:
+                    other_direction = next(
+                        d for d in pipes_by_direction if d != shadowed_direction
+                    )
+                    need_match_pipe = next(iter(pipes_by_direction[other_direction]))
+                    pipe_basis = need_match_pipe.kind.get_basis_along(
+                        shadowed_direction, need_match_pipe.at_head(cube.position)
+                    )
+                    assert pipe_basis is not None
+                    new_kind = new_kind.with_basis_along(shadowed_direction, pipe_basis)
+
+            if new_kind != cube.kind:
+                new_cube = Cube(cube.position, new_kind, cube.label)
+                fixed_cubes[cube] = new_cube
+        new_graph = BlockGraph(self.name)
+        for cube in self.cubes:
+            new_cube = fixed_cubes.get(cube, cube)
+            new_graph.add_cube(cube.position, new_cube.kind, new_cube.label)
+        for pipe in self.pipes:
+            new_graph.add_pipe(pipe.u.position, pipe.v.position, pipe.kind)
+        return new_graph
+
+    def get_cubes_by_label(self, label: str) -> list[Cube]:
+        """
+        Find cubes with the specified label in the BlockGraph.
+
+        Args:
+            label: The label of the cubes.
+
+        Returns:
+            The cube instances that have the specified label.
+        """
+        return [cube for cube in self.cubes if cube.label == label]
 
 
 def block_kind_from_str(string: str) -> BlockKind:
