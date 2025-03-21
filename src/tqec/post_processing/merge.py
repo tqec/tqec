@@ -138,6 +138,8 @@ def _merge_repeat_block_boundaries_inline(
             moments.insert(i + m, inserted_moments[m])
         modification_performed = True
         # We can update i to the index of the REPEAT block, just in case more
-        # merging can be done.
+        # merging can be done. Note that even if BULK contains REPEAT blocks,
+        # they have been addressed in the beginning of this loop iteration, hence
+        # we do not need to iterate again on BULK.
         i += len(bulk) + 1
     return modification_performed
