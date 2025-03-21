@@ -1,5 +1,8 @@
 import stim
 
+from tqec.circuit.moment import Moment
+from tqec.post_processing.utils.moment import RepeatedMoments
+
 
 def remove_empty_moments(
     circuit: stim.Circuit,
@@ -75,3 +78,20 @@ def remove_empty_moments(
     if previous_instruction.name == "TICK" and remove_trailing_tick:
         return ret[:-1]
     return ret
+
+
+def _remove_empty_moments_inline(moments: list[Moment | RepeatedMoments]) -> None:
+    i = 0
+    while i < len(moments):
+        moment = moments[i]
+        if isinstance(moment, Moment):
+            if moment.is_empty:
+                moments.pop(i)
+            else:
+                i += 1
+        else:
+            _remove_empty_moments_inline(moment.moments)
+            if len(moment.moments) == 0:
+                moments.pop(i)
+            else:
+                i += 1
