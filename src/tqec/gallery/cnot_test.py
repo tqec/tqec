@@ -68,3 +68,11 @@ def test_compose_two_cnots() -> None:
     g_composed = g1.compose(g2, "Out_Control", "In_Control")
     assert g_composed.num_cubes == 18
     assert g_composed.num_ports == 4
+
+
+def test_cnot_ports_filling() -> None:
+    g = cnot()
+    filled_graphs = g.fill_ports_for_minimal_simulation()
+    assert len(filled_graphs) == 2
+    assert set(filled_graphs[0].stabilizers) == {"XIXX", "IXIX"}
+    assert set(filled_graphs[1].stabilizers) == {"ZIZI", "ZZIZ"}
