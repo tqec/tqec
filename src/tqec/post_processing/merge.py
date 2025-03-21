@@ -130,16 +130,12 @@ def _merge_repeat_block_boundaries_inline(
         # END
         # Note: modifying moments in-place.
         moments.pop(i)
-        moments.insert(i, start)
-        for b in range(len(bulk)):
-            moments.insert(i + 1 + b, bulk[i])
-        moments.insert(
-            i + 1 + len(bulk),
-            RepeatedMoments(
-                current_moment.repetitions - 1, [merge_moments(end, start), *bulk]
-            ),
+        new_repeat_block = RepeatedMoments(
+            current_moment.repetitions - 1, [merge_moments(end, start), *bulk]
         )
-        moments.insert(i + 2 + len(bulk), end)
+        inserted_moments = [start, *bulk, new_repeat_block, end]
+        for m in range(len(inserted_moments)):
+            moments.insert(i + m, inserted_moments[m])
         modification_performed = True
         # We can update i to the index of the REPEAT block, just in case more
         # merging can be done.
