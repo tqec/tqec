@@ -5,7 +5,7 @@ from tqec._cli.subcommands.check_dae import CheckDaeTQECSubCommand
 from tqec._cli.subcommands.dae2circuits import Dae2CircuitsTQECSubCommand
 from tqec._cli.subcommands.dae2observables import Dae2ObservablesTQECSubCommand
 from tqec._cli.subcommands.run_example import RunExampleTQECSubCommand
-from tqec._cli.subcommands.visualisation import VisualisationTQECSubCommand
+from tqec._cli.subcommands.viz import VisualisationTQECSubCommand
 
 
 def main() -> None:
