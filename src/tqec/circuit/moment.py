@@ -10,6 +10,7 @@ instead of using ``cirq`` data-structures.
 
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Any, Callable, Iterable, Iterator, cast
 
 import stim
@@ -173,6 +174,17 @@ class Moment:
             )
         self._circuit += other._circuit
         return self
+
+    def __add__(self, other: Moment) -> Moment:
+        """Add instructions of ``self`` and ``other`` in a new instance."""
+        both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
+        if both_sides_used_qubits:
+            raise TQECException(
+                "Trying to add an overlapping quantum circuit to a Moment instance."
+            )
+        cpy = deepcopy(self)
+        cpy += other
+        return cpy
 
     @staticmethod
     def _get_used_qubit_indices(
