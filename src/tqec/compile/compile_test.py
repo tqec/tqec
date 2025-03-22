@@ -39,9 +39,7 @@ STANDARD_SPECS: dict[str, tuple[CubeBuilder, PipeBuilder]] = {
         STANDARD_SPECS.keys(),
         ("ZXZ", "ZXX", "XZX", "XZZ"),
         (1,),
-        # ((0, 0), (1, 1), (2, 2)),
-        # ((1, 1), (2, 2)),
-        ((0, 0),),
+        ((0, 0), (1, 1), (2, 2)),
     ),
 )
 def test_compile_two_same_blocks_connected_in_time(
@@ -49,9 +47,6 @@ def test_compile_two_same_blocks_connected_in_time(
 ) -> None:
     d = 2 * k + 1
     g = BlockGraph("Two Same Blocks in Time Experiment")
-    # FIXME: position (1,1,0) and (1,1,1) not working
-    # p1 = Position3D(1, 1, 0)
-    # p2 = Position3D(1, 1, 1)
     p1 = Position3D(*xy, 0)
     p2 = Position3D(*xy, 1)
     g.add_cube(p1, kind)
@@ -68,11 +63,6 @@ def test_compile_two_same_blocks_connected_in_time(
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
-
-    # FIXME: delete this line
-    print("\n")
-    print(circuit)
-    print("\n")
 
     dem = circuit.detector_error_model()
     assert dem.num_detectors == (d**2 - 1) * 2 * d

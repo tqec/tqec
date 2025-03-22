@@ -94,6 +94,9 @@ def compile_block_graph(
         graph.add_cube(position, cube_builder(spec))
 
     # 3. Add pipes to the graph
+    # Note that the order of the pipes to add is important.
+    # To keep the time-direction pipes from removing the extra resets
+    # added by the space-direction pipes, we first add the time-direction pipes
     pipes = block_graph.pipes
     time_pipes = [pipe for pipe in pipes if pipe.direction == Direction3D.Z]
     space_pipes = [pipe for pipe in pipes if pipe.direction != Direction3D.Z]
