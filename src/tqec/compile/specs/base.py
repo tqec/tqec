@@ -74,13 +74,13 @@ class CubeBuilder(Protocol):
     """Protocol for building a `Block` based on a `CubeSpec`."""
 
     def __call__(self, spec: CubeSpec) -> Block:
-        """Build a `CompiledBlock` instance from a `CubeSpec`.
+        """Build a ``Block`` instance from a ``CubeSpec``.
 
         Args:
             spec: Specification of the cube in the block graph.
 
         Returns:
-            a `CompiledBlock` based on the provided `CubeSpec`.
+            a ``Block`` based on the provided ``CubeSpec``.
         """
         ...
 
