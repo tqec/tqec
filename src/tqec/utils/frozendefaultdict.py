@@ -80,7 +80,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
             self._default_value == other._default_value
         ) and self._dict == other._dict
 
-    def has_default_factory(self) -> bool:
+    def has_default_value(self) -> bool:
         return self._default_value is not None
 
     @property
