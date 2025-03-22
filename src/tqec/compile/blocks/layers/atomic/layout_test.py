@@ -23,7 +23,9 @@ LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 @pytest.fixture(name="plaquette_layer")
 def plaquette_layer_fixture() -> PlaquetteLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette))
+    plaquettes = Plaquettes(
+        FrozenDefaultDict({}, default_value=empty_square_plaquette())
+    )
     return PlaquetteLayer(template, plaquettes)
 
 
