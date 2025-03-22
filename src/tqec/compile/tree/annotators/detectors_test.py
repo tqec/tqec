@@ -17,7 +17,7 @@ def template_fixture() -> Template:
 
 @pytest.fixture(name="plaquettes")
 def plaquettes_fixture() -> Plaquettes:
-    return Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette))
+    return Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
 
 
 @pytest.fixture(name="measurement_records")

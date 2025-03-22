@@ -142,7 +142,7 @@ def test_center_plaquette_syndrome_qubits_empty(
             empty_center_plaquette_subtemplate,
             Plaquettes(
                 FrozenDefaultDict(
-                    {}, default_factory=lambda: make_css_surface_code_plaquette("X")
+                    {}, default_value=make_css_surface_code_plaquette("X")
                 )
             ),
             Shift2D(2, 2),
@@ -154,7 +154,7 @@ def test_center_plaquette_syndrome_qubits_empty(
             empty_center_plaquette_subtemplate,
             Plaquettes(
                 FrozenDefaultDict(
-                    {}, default_factory=lambda: make_css_surface_code_plaquette("X")
+                    {}, default_value=make_css_surface_code_plaquette("X")
                 )
             ),
             Shift2D(4, 2),
@@ -176,7 +176,7 @@ def test_center_plaquette_syndrome_qubits(
         Plaquettes(
             FrozenDefaultDict(
                 {1: make_css_surface_code_plaquette("X")},
-                default_factory=lambda: empty_square_plaquette(),
+                default_value=empty_square_plaquette(),
             )
         ),
         Shift2D(2, 2),
@@ -186,7 +186,7 @@ def test_center_plaquette_syndrome_qubits(
         Plaquettes(
             FrozenDefaultDict(
                 {1: make_css_surface_code_plaquette("X")},
-                default_factory=lambda: empty_square_plaquette(),
+                default_value=empty_square_plaquette(),
             )
         ),
         Shift2D(4, 2),
