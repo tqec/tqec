@@ -216,7 +216,18 @@ class LayoutTemplate(Template):
             default_factories.append(
                 individual_plaquettes[position].collection.default_factory
             )
-        unique_default_factories = frozenset(default_factories)
+
+        def _canonical_factory(factory):
+            if factory is None:
+                return None
+            try:
+                return factory.__code__
+            except AttributeError:
+                return factory
+
+        unique_default_factories = frozenset(
+            _canonical_factory(factory) for factory in default_factories
+        )
         if len(unique_default_factories) != 1:
             raise TQECException(
                 "Found several different default factories: "
@@ -224,9 +235,7 @@ class LayoutTemplate(Template):
                 f"{Plaquettes.__name__} instance."
             )
         return Plaquettes(
-            FrozenDefaultDict(
-                global_plaquettes, default_factory=next(iter(unique_default_factories))
-            )
+            FrozenDefaultDict(global_plaquettes, default_factory=default_factories[0])
         )
 
     @property
