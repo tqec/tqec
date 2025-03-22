@@ -9,7 +9,10 @@ from typing_extensions import override
 from tqec._cli.subcommands.base import TQECSubCommand
 from tqec._cli.subcommands.dae2observables import save_correlation_surfaces_to
 from tqec.compile.compile import compile_block_graph
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
+from tqec.compile.specs.library.standard import (
+    STANDARD_BLOCK_BUILDER,
+    STANDARD_SUBSTITUTION_BUILDER,
+)
 from tqec.computation.block_graph import BlockGraph
 
 
@@ -99,8 +102,8 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
         circuits_out_dir.mkdir(exist_ok=True)
         compiled_graph = compile_block_graph(
             block_graph,
-            CSS_BLOCK_BUILDER,
-            CSS_SUBSTITUTION_BUILDER,
+            STANDARD_BLOCK_BUILDER,
+            STANDARD_SUBSTITUTION_BUILDER,
             observables=[correlation_surfaces[i] for i in obs_indices],
         )
         ks: list[int] = args.k

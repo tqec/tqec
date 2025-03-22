@@ -11,16 +11,12 @@ import sinter
 from typing_extensions import override
 
 from tqec._cli.subcommands.base import TQECSubCommand
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
-from tqec.compile.specs.library.zxxz import (
-    ZXXZ_BLOCK_BUILDER,
-    ZXXZ_SUBSTITUTION_BUILDER,
-)
+from tqec.compile.specs.library import ALL_SPECS
 from tqec.gallery.cnot import cnot
-from tqec.utils.enums import Basis
-from tqec.utils.noise_model import NoiseModel
 from tqec.simulation.plotting.inset import plot_observable_as_inset
 from tqec.simulation.simulation import start_simulation_using_sinter
+from tqec.utils.enums import Basis
+from tqec.utils.noise_model import NoiseModel
 
 
 class RunExampleTQECSubCommand(TQECSubCommand):
@@ -69,9 +65,9 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         )
         parser.add_argument(
             "--code-style",
-            help="Use the CSS or ZXXZ code style.",
-            choices=["CSS", "ZXXZ"],
-            default="CSS",
+            help="Plaquettes to use to implement the computation.",
+            choices=ALL_SPECS.keys(),
+            default="STANDARD",
         )
         parser.add_argument(
             "--basis",
@@ -118,10 +114,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
                 + f"but requested indices up to {max(obs_indices)}."
             )
 
-        block_builder = CSS_BLOCK_BUILDER if style == "CSS" else ZXXZ_BLOCK_BUILDER
-        substitution_builder = (
-            CSS_SUBSTITUTION_BUILDER if style == "CSS" else ZXXZ_SUBSTITUTION_BUILDER
-        )
+        block_builder, substitution_builder = ALL_SPECS[style]
 
         logging.info("Start the simulation, this might take some time.")
         stats = start_simulation_using_sinter(

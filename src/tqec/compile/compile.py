@@ -26,7 +26,10 @@ from tqec.compile.specs.base import (
     PipeSpec,
     SubstitutionBuilder,
 )
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
+from tqec.compile.specs.library.standard import (
+    STANDARD_BLOCK_BUILDER,
+    STANDARD_SUBSTITUTION_BUILDER,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.plaquette.plaquette import Plaquettes, RepeatedPlaquettes
@@ -301,8 +304,8 @@ class CompiledGraph:
 
 def compile_block_graph(
     block_graph: BlockGraph,
-    block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
-    substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
+    block_builder: BlockBuilder = STANDARD_BLOCK_BUILDER,
+    substitution_builder: SubstitutionBuilder = STANDARD_SUBSTITUTION_BUILDER,
     observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
 ) -> CompiledGraph:
     """Compile a block graph.
@@ -350,7 +353,7 @@ def compile_block_graph(
         try:
             blocks[cube.position] = block_builder(spec)
         except Exception as e:
-            raise TQECException(f"Failed to instanciate {cube}.") from e
+            raise TQECException(f"Failed to instantiate {cube}.") from e
 
     # 2. Apply the substitution rules to the compiled blocks inplace.
     pipes = block_graph.pipes
