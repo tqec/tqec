@@ -4,28 +4,16 @@ import pytest
 
 from tqec.compile.compile import compile_block_graph
 from tqec.compile.specs.base import (
-    BlockBuilder,
     CubeBuilder,
     PipeBuilder,
-    SubstitutionBuilder,
 )
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.compile.specs.library.standard import (
     STANDARD_CUBE_BUILDER,
     STANDARD_PIPE_BUILDER,
 )
-from tqec.compile.specs.library.zxxz import (
-    ZXXZ_BLOCK_BUILDER,
-    ZXXZ_SUBSTITUTION_BUILDER,
-)
 from tqec.computation.block_graph import BlockGraph
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
-
-SPECS: dict[str, tuple[BlockBuilder, SubstitutionBuilder]] = {
-    "CSS": (CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER),
-    "ZXXZ": (ZXXZ_BLOCK_BUILDER, ZXXZ_SUBSTITUTION_BUILDER),
-}
 
 
 STANDARD_SPECS: dict[str, tuple[CubeBuilder, PipeBuilder]] = {

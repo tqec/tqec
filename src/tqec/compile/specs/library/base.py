@@ -14,6 +14,10 @@ from tqec.compile.specs.library.generators import (
     get_memory_qubit_raw_template,
     get_spatial_cube_qubit_plaquettes,
     get_spatial_cube_qubit_raw_template,
+    get_temporal_hadamard_plaquettes,
+)
+from tqec.compile.specs.library.generators.hadamard import (
+    get_temporal_hadamard_raw_template,
 )
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import PlaquetteCompiler
@@ -24,6 +28,7 @@ from tqec.templates.base import RectangularTemplate
 from tqec.templates.enums import ZObservableOrientation
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
+from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
 
 
@@ -154,11 +159,7 @@ class BasePipeBuilder(PipeBuilder):
         """
         assert spec.pipe_kind.is_temporal
         if spec.pipe_kind.has_hadamard:
-            # return self._get_temporal_hadamard_pipe_block(spec)
-            # TODO: implement the Hadamard temporal pipe
-            raise NotImplementedError(
-                "Hadamard temporal pipes are not implemented yet."
-            )
+            return self._get_temporal_hadamard_pipe_block(spec)
         # Else, it is a regular temporal junction
         return self._get_temporal_non_hadamard_pipe_block(spec)
 
@@ -190,50 +191,53 @@ class BasePipeBuilder(PipeBuilder):
         template = get_memory_qubit_raw_template()
         return Block([PlaquetteLayer(template, memory_plaquettes) for _ in range(2)])
 
-    # def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Substitution:
-    #     """Returns the block to implement a
-    #     Hadamard temporal junction.
+    def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
+        """Returns the block to implement a
+        Hadamard temporal junction.
 
-    #     Note:
-    #         This method performs the Hadamard transition at the end of the
-    #         layer that appear first (i.e., temporally before the other, or in
-    #         other words the one with a lower Z index).
+        Note:
+            This method performs the Hadamard transition at the end of the
+            layer that appear first (i.e., temporally before the other, or in
+            other words the one with a lower Z index).
 
-    #     Args:
-    #         spec: description of the pipe that should be implemented by this
-    #             method. Should be a Hadamard temporal pipe.
+        Args:
+            spec: description of the pipe that should be implemented by this
+                method. Should be a Hadamard temporal pipe.
 
-    #     Raises:
-    #         AssertionError: if the provided ``pipe`` is not a temporal pipe, or
-    #             if it is not a Hadamard transition.
+        Raises:
+            AssertionError: if the provided ``pipe`` is not a temporal pipe, or
+                if it is not a Hadamard transition.
 
-    #     Returns:
-    #         the block to implement the provided
-    #         ``spec``.
-    #     """
-    #     assert spec.pipe_kind.is_temporal
-    #     assert spec.pipe_kind.has_hadamard
+        Returns:
+            the block to implement the provided
+            ``spec``.
+        """
+        assert spec.pipe_kind.is_temporal
+        assert spec.pipe_kind.has_hadamard
 
-    #     #
-    #     x_axis_basis_at_head = spec.pipe_kind.get_basis_along(
-    #         Direction3D.X, at_head=True
-    #     )
-    #     assert x_axis_basis_at_head is not None, (
-    #         "A temporal pipe should have a non-None basis on the X-axis."
-    #     )
+        #
+        x_axis_basis_at_head = spec.pipe_kind.get_basis_along(
+            Direction3D.X, at_head=True
+        )
+        assert (
+            x_axis_basis_at_head is not None
+        ), "A temporal pipe should have a non-None basis on the X-axis."
 
-    #     first_layer_orientation: ZObservableOrientation
-    #     second_layer_orientation: ZObservableOrientation
-    #     if x_axis_basis_at_head == Basis.Z:
-    #         first_layer_orientation = ZObservableOrientation.HORIZONTAL
-    #         second_layer_orientation = ZObservableOrientation.VERTICAL
-    #     else:
-    #         first_layer_orientation = ZObservableOrientation.VERTICAL
-    #         second_layer_orientation = ZObservableOrientation.HORIZONTAL
-    #     hadamard_plaquettes = get_temporal_hadamard_plaquettes(first_layer_orientation)
-    #     memory_plaquettes = get_memory_qubit_plaquettes(second_layer_orientation)
-
-    #     return Substitution({-1: hadamard_plaquettes}, {0: memory_plaquettes})
+        orientations = (
+            (ZObservableOrientation.HORIZONTAL, ZObservableOrientation.VERTICAL)
+            if x_axis_basis_at_head == Basis.Z
+            else (ZObservableOrientation.VERTICAL, ZObservableOrientation.HORIZONTAL)
+        )
+        first_layer_orientation, second_layer_orientation = orientations
+        hadamard_plaquettes = get_temporal_hadamard_plaquettes(first_layer_orientation)
+        memory_plaquettes = get_memory_qubit_plaquettes(second_layer_orientation)
+        hadamard_layer = PlaquetteLayer(
+            get_temporal_hadamard_raw_template(), hadamard_plaquettes
+        )
+        memory_layer = PlaquetteLayer(
+            get_memory_qubit_raw_template(), memory_plaquettes
+        )
+        return Block([hadamard_layer, memory_layer])
 
     # ##############################
     # #    SPATIAL SUBSTITUTION    #
