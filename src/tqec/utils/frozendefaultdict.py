@@ -106,3 +106,9 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         return FrozenDefaultDict(
             {k: callable(v) for k, v in self.items()}, default_factory=default_factory
         )
+
+    def map_keys_if_present(self, mapping: Mapping[K, K]) -> FrozenDefaultDict[K, V]:
+        return FrozenDefaultDict(
+            {mapping[k]: v for k, v in self.items() if k in mapping},
+            default_factory=self._default_factory,
+        )

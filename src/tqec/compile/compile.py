@@ -19,6 +19,7 @@ from tqec.compile.specs.base import (
 )
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
+from tqec.templates.qubit import QubitTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -104,7 +105,11 @@ def compile_block_graph(
         pos1, pos2 = pipe.u.position, pipe.v.position
         pos1 = BlockPosition3D(pos1.x, pos1.y, pos1.z)
         pos2 = BlockPosition3D(pos2.x, pos2.y, pos2.z)
-        key = PipeSpec(cube_specs[pipe.u], cube_specs[pipe.v], pipe.kind)
+        key = PipeSpec(
+            (cube_specs[pipe.u], cube_specs[pipe.v]),
+            (QubitTemplate(), QubitTemplate()),
+            pipe.kind,
+        )
         graph.add_pipe(pos1, pos2, pipe_builder(key))
 
     return graph
