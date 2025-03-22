@@ -69,7 +69,6 @@ def test_compile_two_same_blocks_connected_in_time(
     assert len(dem.shortest_graphlike_error()) == d
 
 
-# FIXME: test failed
 @pytest.mark.parametrize(
     ("spec", "kinds", "k"),
     itertools.product(
