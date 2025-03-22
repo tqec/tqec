@@ -3,7 +3,7 @@ from typing import Callable, Iterable, Iterator
 import sinter
 import stim
 
-from tqec.compile.compile import CompiledGraph
+from tqec.compile.deprecated.compile import CompiledGraph
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.utils.noise_model import NoiseModel
 
