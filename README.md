@@ -63,8 +63,6 @@ import os
 os.path.isfile('/local_path/tqec/assets/logical_cnot.dae')
 ```
 
-
-
 See the [user guide](https://tqec.github.io/tqec/user_guide/index.html) for more tutorials.
 
 ## Contributing
