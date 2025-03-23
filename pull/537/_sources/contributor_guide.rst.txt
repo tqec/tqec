@@ -35,7 +35,7 @@ compatibility with Python 3.13.
     See https://stackoverflow.com/a/71585691 for more info.
 
 .. warning::
-    The ``-e`` option to the ``python -m pip install`` call is **important**. Without that option, changes made
+    The ``-e`` option to the ``python -m pip install`` call is **important** as it installs an editable version of ``tqec``. Without that option, changes made
     in the folder ``tqec`` will **not** be reflected on the ``tqec`` package installed.
 
     Without the ``-e`` option, ``pip`` copies all the files it needs (mainly, the code) to the current Python
