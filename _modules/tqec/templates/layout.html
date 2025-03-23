@@ -473,7 +473,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
@@ -621,7 +621,7 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="s2">&quot;The following expected positions were not found in the &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;provided individual_plaquettes: </span><span class="si">{</span><span class="n">missing_positions</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="n">default_factories</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Plaquette</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">default_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Plaquette</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">index_maps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_indices_map_for_instantiation</span><span class="p">()</span>
         <span class="n">global_plaquettes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Plaquette</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">position</span><span class="p">,</span> <span class="n">index_map</span> <span class="ow">in</span> <span class="n">index_maps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -631,19 +631,19 @@ window.addEventListener("load", () => mermaid.run());
                     <span class="n">position</span>
                 <span class="p">]</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">}</span>
-            <span class="n">default_factories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">individual_plaquettes</span><span class="p">[</span><span class="n">position</span><span class="p">]</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">default_factory</span>
+            <span class="n">default_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">individual_plaquettes</span><span class="p">[</span><span class="n">position</span><span class="p">]</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">default_value</span>
             <span class="p">)</span>
-        <span class="n">unique_default_factories</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">default_factories</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_default_factories</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">unique_default_values</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">default_values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_default_values</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
                 <span class="s2">&quot;Found several different default factories: &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unique_default_factories</span><span class="si">}</span><span class="s2">. Cannot pick one for the merged &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unique_default_values</span><span class="si">}</span><span class="s2">. Cannot pick one for the merged &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Plaquettes</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instance.&quot;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">Plaquettes</span><span class="p">(</span>
             <span class="n">FrozenDefaultDict</span><span class="p">(</span>
-                <span class="n">global_plaquettes</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">unique_default_factories</span><span class="p">))</span>
+                <span class="n">global_plaquettes</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">unique_default_values</span><span class="p">))</span>
             <span class="p">)</span>
         <span class="p">)</span></div>
 

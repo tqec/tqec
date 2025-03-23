@@ -13,7 +13,7 @@ FrozenDefaultDict
    
       ~FrozenDefaultDict.__init__
       ~FrozenDefaultDict.get
-      ~FrozenDefaultDict.has_default_factory
+      ~FrozenDefaultDict.has_default_value
       ~FrozenDefaultDict.items
       ~FrozenDefaultDict.keys
       ~FrozenDefaultDict.map_keys
@@ -28,7 +28,7 @@ FrozenDefaultDict
 
    .. autosummary::
    
-      ~FrozenDefaultDict.default_factory
+      ~FrozenDefaultDict.default_value
    
    
 
@@ -39,7 +39,7 @@ FrozenDefaultDict
    
    .. automethod:: __init__
    .. automethod:: get
-   .. automethod:: has_default_factory
+   .. automethod:: has_default_value
    .. automethod:: items
    .. automethod:: keys
    .. automethod:: map_keys
