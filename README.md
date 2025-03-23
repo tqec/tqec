@@ -56,6 +56,15 @@ circuit = compiled_computation.generate_stim_circuit(
 )
 ```
 
+If the ``assets/logical_cnot.dae`` file cannot be imported, check if the path exists on your local device.
+
+```py
+import os
+os.path.isfile('/local_path/tqec/assets/logical_cnot.dae')
+```
+
+
+
 See the [user guide](https://tqec.github.io/tqec/user_guide/index.html) for more tutorials.
 
 ## Contributing
