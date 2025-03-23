@@ -106,7 +106,7 @@ def _build_plaquettes_for_rotated_surface_code(
                 12: p2.project_on_boundary(PlaquetteOrientation.RIGHT),
                 13: p1.project_on_boundary(PlaquetteOrientation.DOWN),
             },
-            default_factory=empty_square_plaquette,
+            default_value=empty_square_plaquette(),
         )
     )
     if repetitions is not None:
@@ -208,7 +208,7 @@ def _build_plaquettes_for_space_regular_pipe(
     plaquettes = Plaquettes(
         FrozenDefaultDict(
             mapping,
-            default_factory=empty_square_plaquette,
+            default_value=empty_square_plaquette(),
         )
     )
     if repetitions is not None:
