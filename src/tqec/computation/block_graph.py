@@ -414,6 +414,56 @@ class BlockGraph:
 
         return read_block_graph_from_dae_file(filename, graph_name)
 
+    def relabel_cubes(
+        block_graph: BlockGraph, label_mapping: Mapping[Position3D | str, str]
+    ) -> BlockGraph:
+        """
+        Relabel multiple cubes in a BlockGraph using a mapping from position or label to new label.
+
+        Args:
+            block_graph (BlockGraph): The graph containing the cubes to be relabeled.
+            label_mapping (Mapping[Position3D | str, str]): Keys are either Position3D or str (old label),
+                values are the new labels to apply.
+
+        Raises:
+            TQECException: If a target label already exists as a port label.
+
+        Returns:
+            BlockGraph: The updated block graph with relabeled cubes.
+        """
+        cubes = block_graph.cubes
+        updated_graph = block_graph
+
+        for identifier, new_label in label_mapping.items():
+            if isinstance(identifier, Position3D):
+                targets = [cube for cube in cubes if cube.position == identifier]
+            elif isinstance(identifier, str):
+                targets = [cube for cube in cubes if cube.label == identifier]
+            else:
+                raise TQECException(
+                    f"Invalid identifier: {identifier}. Must be a Position3D or str."
+                )
+
+            if not targets:
+                raise TQECException(f"No cubes found for identifier '{identifier}'.")
+
+            # Check if the new label is already in use by another port to raise the TQECException
+            if any(cube.is_port for cube in targets) and any(
+                c.label == new_label for c in cubes if c.is_port
+            ):
+                raise TQECException(
+                    f"The label '{new_label}' is already assigned to a port."
+                )
+
+            # Apply relabeling
+            for cube in targets:
+                new_cube = Cube(position=cube.position, kind=cube.kind, label=new_label)
+                updated_graph._graph.add_node(
+                    cube.position, **{updated_graph._NODE_DATA_KEY: new_cube}
+                )
+
+        return updated_graph
+
     def view_as_html(
         self,
         write_html_filepath: str | pathlib.Path | None = None,

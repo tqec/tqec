@@ -177,15 +177,15 @@ class Plaquettes:
         d: dict[int | Literal["default"], str] = {
             k: p.name for k, p in self.collection.items()
         }
-        if self.collection.default_factory is not None:
-            d["default"] = self.collection.default_factory().name
+        if self.collection.default_value is not None:
+            d["default"] = self.collection.default_value.name
         return d
 
     def without_plaquettes(self, indices: Collection[int]) -> Plaquettes:
         return Plaquettes(
             FrozenDefaultDict(
                 {k: v for k, v in self.collection.items() if k not in indices},
-                default_factory=self.collection.default_factory,
+                default_value=self.collection.default_value,
             )
         )
 
