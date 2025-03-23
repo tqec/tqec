@@ -34,16 +34,16 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         self,
         arg: Mapping[K, V] | Iterable[tuple[K, V]] | None = None,
         *,
-        default_factory: Callable[[], V] | None = None,
+        default_value: V | None = None,
     ) -> None:
         super().__init__()
         self._dict: dict[K, V] = dict(arg) if arg is not None else dict()
-        self._default_factory = default_factory
+        self._default_value = default_value
 
     def __missing__(self, key: K) -> V:
-        if self._default_factory is None:
+        if self._default_value is None:
             raise KeyError(key)
-        return self._default_factory()
+        return self._default_value
 
     @override
     def __getitem__(self, key: K) -> V:
@@ -67,7 +67,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
     def __or__(self, other: Mapping[K, V]) -> FrozenDefaultDict[K, V]:
         mapping = deepcopy(self._dict)
         mapping.update(other)
-        return FrozenDefaultDict(mapping, default_factory=self._default_factory)
+        return FrozenDefaultDict(mapping, default_value=self._default_value)
 
     def __hash__(self) -> int:
         return hash(tuple(sorted(self.items())))
@@ -77,32 +77,26 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
             return False
         other = cast(FrozenDefaultDict[K, V], other)
         return (
-            (self._default_factory is None and other._default_factory is None)
-            or (
-                self._default_factory is not None
-                and other._default_factory is not None
-                and (self._default_factory() == other._default_factory())
-            )
+            self._default_value == other._default_value
         ) and self._dict == other._dict
 
-    def has_default_factory(self) -> bool:
-        return self._default_factory is not None
+    def has_default_value(self) -> bool:
+        return self._default_value is not None
 
     @property
-    def default_factory(self) -> Callable[[], V] | None:
-        return self._default_factory
+    def default_value(self) -> V | None:
+        return self._default_value
 
     def map_keys(self, callable: Callable[[K], K]) -> FrozenDefaultDict[K, V]:
         return FrozenDefaultDict(
             {callable(k): v for k, v in self.items()},
-            default_factory=self._default_factory,
+            default_value=self._default_value,
         )
 
     def map_values(self, callable: Callable[[V], Vp]) -> FrozenDefaultDict[K, Vp]:
-        default_factory: Callable[[], Vp] | None = None
-        if self.default_factory is not None:
-            default_value = callable(self.default_factory())
-            default_factory = lambda: default_value  # noqa: E731
+        default_value: Vp | None = None
+        if self.default_value is not None:
+            default_value = callable(self.default_value)
         return FrozenDefaultDict(
-            {k: callable(v) for k, v in self.items()}, default_factory=default_factory
+            {k: callable(v) for k, v in self.items()}, default_value=default_value
         )

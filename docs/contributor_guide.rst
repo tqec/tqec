@@ -16,6 +16,9 @@ If you want to help maintaining and improving the ``tqec`` package, you will nee
 to install a few more packages than the regular installation. It is also
 recommended to use an editable installation.
 
+Currently, ``tqec`` is compatible with Python 3.10, 3.11 and 3.12. Some dependencies limit the project's
+compatibility with Python 3.13.
+
 .. code-block:: bash
 
     # Clone the repository to have local files to work on
@@ -25,6 +28,10 @@ recommended to use an editable installation.
     # Go in the tqec directory and enable pre-commit
     cd tqec
     pre-commit install
+
+.. warning::
+    You will have to install ``pandoc`` separately as the instructions above only install a ``pandoc`` wrapper.
+    See https://stackoverflow.com/a/71585691 for more info.
 
 If you encounter any issue during the installation, please refer to :ref:`installation` for more information.
 

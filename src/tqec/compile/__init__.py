@@ -12,6 +12,7 @@ from .block import CompiledBlock as CompiledBlock
 from .compile import CompiledGraph as CompiledGraph
 from .compile import compile_block_graph as compile_block_graph
 from .generation import generate_circuit as generate_circuit
+from .graph import TopologicalComputationGraph as TopologicalComputationGraph
 from .specs import BlockBuilder as BlockBuilder
 from .specs import CubeSpec as CubeSpec
 from .specs import PipeSpec as PipeSpec

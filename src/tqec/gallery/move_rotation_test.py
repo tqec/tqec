@@ -56,3 +56,9 @@ def test_move_rotation_correlation_surface(
     assert {
         s.external_stabilizer(io_ports) for s in correlation_surfaces
     } == external_stabilizers
+
+
+def test_move_rotation_ports_filling() -> None:
+    g = move_rotation()
+    filled_graphs = g.fill_ports_for_minimal_simulation()
+    assert len(filled_graphs) == 2

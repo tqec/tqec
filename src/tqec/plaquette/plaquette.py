@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import hashlib
-from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Callable, Literal, Mapping
+from typing import Callable, Collection, Iterable, Literal, Mapping
 
 from typing_extensions import override
 
@@ -145,10 +144,6 @@ class Plaquettes:
     def __getitem__(self, index: int) -> Plaquette:
         return self.collection[index]
 
-    @property
-    def has_default(self) -> bool:
-        return isinstance(self.collection, defaultdict)
-
     def repeat(self, repetitions: LinearFunction) -> RepeatedPlaquettes:
         return RepeatedPlaquettes(self.collection, repetitions)
 
@@ -182,9 +177,20 @@ class Plaquettes:
         d: dict[int | Literal["default"], str] = {
             k: p.name for k, p in self.collection.items()
         }
-        if self.collection.default_factory is not None:
-            d["default"] = self.collection.default_factory().name
+        if self.collection.default_value is not None:
+            d["default"] = self.collection.default_value.name
         return d
+
+    def without_plaquettes(self, indices: Collection[int]) -> Plaquettes:
+        return Plaquettes(
+            FrozenDefaultDict(
+                {k: v for k, v in self.collection.items() if k not in indices},
+                default_value=self.collection.default_value,
+            )
+        )
+
+    def items(self) -> Iterable[tuple[int, Plaquette]]:
+        return self.collection.items()
 
 
 @dataclass(frozen=True)

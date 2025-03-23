@@ -15,7 +15,7 @@ def test_generate_circuit_one_plaquette() -> None:
     circuit = generate_circuit(
         FixedTemplate([[0]]),
         2,
-        Plaquettes(FrozenDefaultDict(default_factory=lambda: plaquette)),
+        Plaquettes(FrozenDefaultDict(default_value=plaquette)),
     )
     assert circuit.get_circuit() == stim.Circuit("""
 QUBIT_COORDS(0, 0) 0
@@ -62,13 +62,13 @@ QUBIT_COORDS(3, 3) 12
 R 3 9
 RX 4 8
 TICK
-CX 0 3 8 5 4 1 6 9
+CX 0 3 4 1 6 9 8 5
 TICK
-CX 5 3 8 6 4 2 11 9
+CX 4 2 5 3 8 6 11 9
 TICK
-CX 1 3 8 10 4 6 7 9
+CX 1 3 4 6 7 9 8 10
 TICK
-CX 6 3 8 11 4 7 12 9
+CX 4 7 6 3 8 11 12 9
 TICK
 M 3 9
 MX 4 8

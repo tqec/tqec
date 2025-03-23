@@ -65,16 +65,23 @@ which outputs
 """
 
 from copy import deepcopy
-from typing import Sequence
+from typing import Mapping, Sequence
 
 import numpy
 import numpy.typing as npt
 from typing_extensions import override
 
-from tqec.utils.exceptions import TQECException
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.base import RectangularTemplate, Template
-from tqec.utils.position import BlockPosition2D, PlaquettePosition2D, Shape2D, Shift2D
-from tqec.utils.scale import Scalable2D
+from tqec.utils.exceptions import TQECException
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
+from tqec.utils.position import (
+    BlockPosition2D,
+    PlaquettePosition2D,
+    PlaquetteShape2D,
+    Shift2D,
+)
+from tqec.utils.scale import PlaquetteScalable2D
 
 
 class LayoutTemplate(Template):
@@ -164,16 +171,74 @@ class LayoutTemplate(Template):
             index_count += template.expected_plaquettes_number
         return indices_map
 
+    def get_global_plaquettes(
+        self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]
+    ) -> Plaquettes:
+        """Merge the provided ``individual_plaquettes`` into a single
+        :class:`~tqec.plaquette.plaquette.Plaquettes` instance that can be used
+        to instantiate ``self``.
+
+        Raises:
+            TQECException: if the provided ``individual_plaquettes`` does not
+                cover all the :class:`~tqec.utils.position.BlockPosition2D` where
+                there is a template in ``self``.
+            TQECException: if the provided ``individual_plaquettes`` have
+                different values for their ``default_factory``.
+
+        Args:
+            individual_plaquettes: a mapping from positions to plaquette
+                collections. The keys should cover all the positions where a
+                template is present in ``self``.
+
+        Returns:
+            a unique :class:`~tqec.plaquette.plaquette.Plaquettes` instance that
+            can be used with ``self`` to generate a quantum circuit with
+            :meth:`~tqec.compile.generation.generate_circuit`.
+        """
+        missing_positions = frozenset(self._layout.keys()) - frozenset(
+            individual_plaquettes.keys()
+        )
+        if missing_positions:
+            raise TQECException(
+                "The following expected positions were not found in the "
+                f"provided individual_plaquettes: {missing_positions}."
+            )
+        default_values: list[Plaquette | None] = []
+        index_maps = self.get_indices_map_for_instantiation()
+        global_plaquettes: dict[int, Plaquette] = {}
+        for position, index_map in index_maps.items():
+            global_plaquettes |= {
+                index_map[local_index]: plaquette
+                for local_index, plaquette in individual_plaquettes[
+                    position
+                ].collection.items()
+            }
+            default_values.append(
+                individual_plaquettes[position].collection.default_value
+            )
+        unique_default_values = frozenset(default_values)
+        if len(unique_default_values) != 1:
+            raise TQECException(
+                "Found several different default factories: "
+                f"{unique_default_values}. Cannot pick one for the merged "
+                f"{Plaquettes.__name__} instance."
+            )
+        return Plaquettes(
+            FrozenDefaultDict(
+                global_plaquettes, default_value=next(iter(unique_default_values))
+            )
+        )
+
     @property
     @override
-    def scalable_shape(self) -> Scalable2D:
+    def scalable_shape(self) -> PlaquetteScalable2D:
         """Returns a scalable version of the template shape."""
-        return Scalable2D(
+        return PlaquetteScalable2D(
             self._nx * self._element_scalable_shape.x,
             self._ny * self._element_scalable_shape.y,
         )
 
-    def element_shape(self, k: int) -> Shape2D:
+    def element_shape(self, k: int) -> PlaquetteShape2D:
         """Return the uniform shape of the element templates."""
         return self._element_scalable_shape.to_shape_2d(k)
 

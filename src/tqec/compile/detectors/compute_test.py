@@ -4,7 +4,6 @@ import stim
 from tqecd.match import MatchedDetector
 from tqecd.measurement import RelativeMeasurementLocation
 
-from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.compute import (
@@ -20,8 +19,6 @@ from tqec.compile.detectors.compute import (
 )
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
-from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
@@ -29,6 +26,9 @@ from tqec.templates._testing import FixedTemplate
 from tqec.templates.layout import LayoutTemplate
 from tqec.templates.qubit import QubitTemplate
 from tqec.templates.subtemplates import SubTemplateType
+from tqec.utils.coordinates import StimCoordinates
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D, Shift2D
 
@@ -142,7 +142,7 @@ def test_center_plaquette_syndrome_qubits_empty(
             empty_center_plaquette_subtemplate,
             Plaquettes(
                 FrozenDefaultDict(
-                    {}, default_factory=lambda: make_css_surface_code_plaquette("X")
+                    {}, default_value=make_css_surface_code_plaquette("X")
                 )
             ),
             Shift2D(2, 2),
@@ -154,7 +154,7 @@ def test_center_plaquette_syndrome_qubits_empty(
             empty_center_plaquette_subtemplate,
             Plaquettes(
                 FrozenDefaultDict(
-                    {}, default_factory=lambda: make_css_surface_code_plaquette("X")
+                    {}, default_value=make_css_surface_code_plaquette("X")
                 )
             ),
             Shift2D(4, 2),
@@ -176,7 +176,7 @@ def test_center_plaquette_syndrome_qubits(
         Plaquettes(
             FrozenDefaultDict(
                 {1: make_css_surface_code_plaquette("X")},
-                default_factory=lambda: empty_square_plaquette(),
+                default_value=empty_square_plaquette(),
             )
         ),
         Shift2D(2, 2),
@@ -186,7 +186,7 @@ def test_center_plaquette_syndrome_qubits(
         Plaquettes(
             FrozenDefaultDict(
                 {1: make_css_surface_code_plaquette("X")},
-                default_factory=lambda: empty_square_plaquette(),
+                default_value=empty_square_plaquette(),
             )
         ),
         Shift2D(4, 2),

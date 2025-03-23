@@ -11,15 +11,15 @@ from tqec.compile.observables.builder import (
 )
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
+from tqec.templates.layout import LayoutTemplate
+from tqec.templates.qubit import QubitTemplate
 from tqec.utils.position import (
     BlockPosition2D,
     Direction3D,
+    PlaquetteShape2D,
     Position3D,
-    Shape2D,
     SignedDirection3D,
 )
-from tqec.templates.layout import LayoutTemplate
-from tqec.templates.qubit import QubitTemplate
 
 
 @pytest.mark.parametrize(
@@ -32,7 +32,7 @@ from tqec.templates.qubit import QubitTemplate
 def test_get_top_readout_cube_qubits(
     kind: str, expected: list[tuple[int, int]]
 ) -> None:
-    shape = Shape2D(6, 6)
+    shape = PlaquetteShape2D(6, 6)
     coords = _get_top_readout_cube_qubits(shape, ZXCube.from_str(kind))
     assert coords == expected
 
@@ -48,7 +48,7 @@ def test_get_top_readout_pipe_qubits(
     direction: Direction3D,
     expected: list[tuple[int, int]],
 ) -> None:
-    shape = Shape2D(6, 6)
+    shape = PlaquetteShape2D(6, 6)
     coords = _get_top_readout_pipe_qubits(shape, direction)
     assert coords == expected
 
@@ -118,7 +118,7 @@ def test_get_bottom_stabilizer_cube_qubits(
     connect_to: SignedDirection3D,
     expected: set[tuple[float, float]],
 ) -> None:
-    shape = Shape2D(6, 6)
+    shape = PlaquetteShape2D(6, 6)
     coords = set(_get_bottom_stabilizer_cube_qubits(shape, connect_to))
     assert coords == expected
 
@@ -126,7 +126,7 @@ def test_get_bottom_stabilizer_cube_qubits(
 @pytest.mark.parametrize("k", (1, 2, 10))
 def test_get_bottom_stabilizer_spatial_cube_qubits(k: int) -> None:
     w = 2 * k + 2
-    shape = Shape2D(w, w)
+    shape = PlaquetteShape2D(w, w)
     coords = set(_get_bottom_stabilizer_spatial_cube_qubits(shape))
     assert len(coords) == w**2 // 2
     assert all(c % 0.5 == 0 for cs in coords for c in cs)
@@ -159,7 +159,7 @@ def test_get_top_readout_spatial_cube_qubits(
     arms: SpatialArms,
     expected: set[tuple[int, int]],
 ) -> None:
-    shape = Shape2D(4, 4)
+    shape = PlaquetteShape2D(4, 4)
     coords = set(_get_top_readout_spatial_cube_qubits(shape, arms))
     assert coords == expected
 
@@ -173,7 +173,7 @@ def test_transform_coords_into_grid() -> None:
         }
     )
     qubit = _transform_coords_into_grid(
-        template_slices=[template],
+        template,
         local_coords=(2, 2),
         block_position=Position3D(1, 1, 0),
         k=5,
@@ -181,7 +181,7 @@ def test_transform_coords_into_grid() -> None:
     assert qubit == GridQubit(27, 27)
 
     qubit = _transform_coords_into_grid(
-        template_slices=[template],
+        template,
         local_coords=(3, 1),
         block_position=Position3D(0, 1, 0),
         k=12,

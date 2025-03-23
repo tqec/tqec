@@ -26,9 +26,9 @@ indexing.
 
 from __future__ import annotations
 
+import re
 from dataclasses import astuple, dataclass
 from enum import Enum
-import re
 
 import numpy as np
 import numpy.typing as npt
@@ -62,6 +62,14 @@ class Position2D(Vec2D):
     def with_block_coordinate_system(self) -> BlockPosition2D:
         return BlockPosition2D(self.x, self.y)
 
+    def is_neighbour(self, other: Position2D) -> bool:
+        """Check if the other position is near to this position, i.e. Manhattan
+        distance is 1."""
+        return abs(self.x - other.x) + abs(self.y - other.y) == 1
+
+    def to_3d(self, z: int = 0) -> Position3D:
+        return Position3D(self.x, self.y, z)
+
 
 class PhysicalQubitPosition2D(Position2D):
     """Represents the position of a physical qubit on a 2-dimensional plane."""
@@ -70,16 +78,16 @@ class PhysicalQubitPosition2D(Position2D):
 class PlaquettePosition2D(Position2D):
     """Represents the position of a plaquette on a 2-dimensional plane."""
 
-    def get_origin_position(self, displacement: Shift2D) -> PhysicalQubitPosition2D:
+    def get_origin_position(self, shift: Shift2D) -> PhysicalQubitPosition2D:
         """Returns the position of the plaquette origin."""
-        return PhysicalQubitPosition2D(displacement.x * self.x, displacement.y * self.y)
+        return PhysicalQubitPosition2D(shift.x * self.x, shift.y * self.y)
 
 
 class BlockPosition2D(Position2D):
     """Represents the position of a block on a 2-dimensional plane."""
 
     def get_top_left_plaquette_position(
-        self, block_shape: Shape2D
+        self, block_shape: PlaquetteShape2D
     ) -> PlaquettePosition2D:
         """Returns the position of the top-left plaquette of the block."""
         return PlaquettePosition2D(block_shape.x * self.x, block_shape.y * self.y)
@@ -95,6 +103,14 @@ class Shape2D(Vec2D):
         the user.
         """
         return (self.y, self.x)
+
+
+class PlaquetteShape2D(Shape2D):
+    """Represents a 2-dimensional shape using plaquette coordinate system."""
+
+
+class PhysicalQubitShape2D(Shape2D):
+    """Represents a 2-dimensional shape using physical qubit coordinate system."""
 
 
 class Shift2D(Vec2D):
@@ -144,6 +160,13 @@ class Position3D(Vec3D):
         return Position2D(self.x, self.y)
 
 
+class BlockPosition3D(Position3D):
+    """Represents the position of a block on a 2-dimensional plane."""
+
+    def as_2d(self) -> BlockPosition2D:
+        return BlockPosition2D(self.x, self.y)
+
+
 class Direction3D(Enum):
     """Axis directions in the 3D spacetime diagram."""
 
@@ -156,8 +179,31 @@ class Direction3D(Enum):
         """Return all the directions."""
         return [Direction3D.X, Direction3D.Y, Direction3D.Z]
 
+    @staticmethod
+    def spatial_directions() -> list[Direction3D]:
+        return [Direction3D.X, Direction3D.Y]
+
+    @staticmethod
+    def temporal_directions() -> list[Direction3D]:
+        return [Direction3D.Z]
+
     def __str__(self) -> str:
         return self.name
+
+    @staticmethod
+    def from_neighbouring_positions(
+        source: Position3D, sink: Position3D
+    ) -> Direction3D:
+        assert source.is_neighbour(sink)
+        for direction, (source_coord, sink_coord) in zip(
+            Direction3D.all_directions(), zip(source.as_tuple(), sink.as_tuple())
+        ):
+            if source_coord != sink_coord:
+                return direction
+        raise TQECException(
+            "Could not find the direction from two neighbouring positions "
+            f"{source:=} and {sink:=}."
+        )
 
 
 @dataclass(frozen=True)

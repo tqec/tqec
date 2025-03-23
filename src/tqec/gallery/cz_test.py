@@ -90,3 +90,11 @@ def test_cz_correlation_surface(
     assert {
         s.external_stabilizer(io_ports) for s in correlation_surfaces
     } == external_stabilizers
+
+
+def test_cz_ports_filling() -> None:
+    g = cz()
+    filled_graphs = g.fill_ports_for_minimal_simulation()
+    assert len(filled_graphs) == 2
+    assert filled_graphs[0].graph == cz(["ZI -> ZI", "IX -> ZX"])
+    assert filled_graphs[1].graph == cz(["XI -> XZ", "IZ -> IZ"])
