@@ -35,14 +35,14 @@ compatibility with Python 3.13.
     See https://stackoverflow.com/a/71585691 for more info.
 
 .. warning::
-    The `-e` option to the `python -m pip install` call is **important**. Without that option, changes made
-    in the folder `tqec` will **not** be reflected on the `tqec` package installed.
+    The ``-e`` option to the ``python -m pip install`` call is **important**. Without that option, changes made
+    in the folder ``tqec`` will **not** be reflected on the ``tqec`` package installed.
 
-    Without the `-e` option, `pip` copies all the files it needs (mainly, the code) to the current Python
-    package folder. Any modification to the original `tqec` folder you installed the package from
+    Without the ``-e`` option, ``pip`` copies all the files it needs (mainly, the code) to the current Python
+    package folder. Any modification to the original ``tqec`` folder you installed the package from
     will not be reflected automatically on the copied files, which will limit your ability to test new
-    changes on the code base. The `-e` option tells `pip` to create a link instead of copying, which means
-    that the code in the `tqec` folder will be the code used when importing `tqec`.
+    changes on the code base. The ``-e`` option tells ``pip`` to create a link instead of copying, which means
+    that the code in the ``tqec`` folder will be the code used when importing ``tqec``.
 
 If you encounter any issue during the installation, please refer to :ref:`installation` for more information.
 
