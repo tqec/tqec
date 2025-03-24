@@ -89,6 +89,11 @@ class BlockGraph:
         return len([node for node in self.cubes if node.is_port])
 
     @property
+    def num_half_y_cubes(self) -> int:
+        """Number of half Y cubes in the graph."""
+        return len([node for node in self.cubes if node.is_y_cube])
+
+    @property
     def ordered_ports(self) -> list[str]:
         """Get the labels of the ports in the alphabetical order."""
         return sorted(self._ports.keys())
@@ -111,14 +116,18 @@ class BlockGraph:
         return list(self._graph.nodes)
 
     @property
-    def spacetime_volume(self) -> int:
-        """Return the spacetime volume of the computation, i.e. the number of
-        non-port cubes in the graph.
+    def spacetime_volume(self) -> float:
+        """Return the spacetime volume of the computation.
+
+        A port cube and the pipes have no spacetime volume. A half Y cube has a
+        spacetime volume of 0.5. Other cubes have a spacetime volume of 1. The
+        spacetime volume of the block graph is the sum of the spacetime volumes
+        of all the cubes in the graph.
 
         Returns:
             The spacetime volume of the computation.
         """
-        return self.num_cubes - self.num_ports
+        return self.num_cubes - self.num_ports - self.num_half_y_cubes * 0.5
 
     def bounding_box_size(self) -> tuple[int, int, int]:
         """Return the size of the bounding box of the computation structure.
