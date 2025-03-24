@@ -6,7 +6,7 @@ import pytest
 from tqec.compile.specs.enums import SpatialArms
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECException
 
 from ._testing import (
     get_spatial_cube_arm_rpng_template,
@@ -38,9 +38,7 @@ def test_4_way_spatial_junction() -> None:
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
-    expected_warning_message = "^Instantiating QubitSpatialCubeTemplate with k=1\\..*"
-    with pytest.warns(TQECWarning, match=expected_warning_message):
-        instantiation = description.instantiate(k=1)
+    instantiation = description.instantiate(k=1)
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT],
         [_EMPT, _ZVHE, _XHHE, _EMPT],
@@ -65,9 +63,7 @@ def test_3_way_UP_RIGHT_DOWN_spatial_junction() -> None:
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
-    expected_warning_message = "^Instantiating QubitSpatialCubeTemplate with k=1\\..*"
-    with pytest.warns(TQECWarning, match=expected_warning_message):
-        instantiation = description.instantiate(k=1)
+    instantiation = description.instantiate(k=1)
     assert instantiation == [
         [__Z_Z, _EMPT, _EMPT, _EMPT],
         [_EMPT, _ZVHE, _XHHE, _EMPT],
@@ -93,9 +89,7 @@ def test_3_way_LEFT_UP_RIGHT_spatial_junction() -> None:
         [_EMPT, _ZZ__, _EMPT, _ZZ__, _EMPT, _ZZ__],
     ]
 
-    expected_warning_message = "^Instantiating QubitSpatialCubeTemplate with k=1\\..*"
-    with pytest.warns(TQECWarning, match=expected_warning_message):
-        instantiation = description.instantiate(k=1)
+    instantiation = description.instantiate(k=1)
     assert instantiation == [
         [_3STL, _EMPT, _EMPT, _EMPT],
         [_EMPT, _ZVHE, _XHHE, _EMPT],
@@ -131,9 +125,7 @@ def test_2_way_L_shape_spatial_junction() -> None:
         [_EMPT, _EMPT, _EMPT, _EMPT, _EMPT, _3SBR],
     ]
 
-    expected_warning_message = "^Instantiating QubitSpatialCubeTemplate with k=1\\..*"
-    with pytest.warns(TQECWarning, match=expected_warning_message):
-        instantiation = description.instantiate(k=1)
+    instantiation = description.instantiate(k=1)
     assert instantiation == [
         [_EMPT, _EMPT, ___ZZ, _EMPT],
         [_EMPT, _3STL, _XVHE, _EMPT],

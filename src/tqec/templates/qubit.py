@@ -1,6 +1,5 @@
 """Defines templates representing logical qubits and its constituent parts."""
 
-import warnings
 from typing import Sequence
 
 import numpy
@@ -9,7 +8,7 @@ from typing_extensions import override
 
 from tqec.templates.base import BorderIndices, RectangularTemplate
 from tqec.templates.enums import TemplateBorder
-from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
@@ -111,15 +110,6 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
     ) -> npt.NDArray[numpy.int_]:
         if plaquette_indices is None:
             plaquette_indices = list(range(1, self.expected_plaquettes_number + 1))
-
-        if k == 1:
-            warnings.warn(
-                "Instantiating QubitSpatialCubeTemplate with k=1. The "
-                "instantiation array returned will not have any plaquette with "
-                "an index in [13, 17], which might break other parts of the "
-                "library.",
-                TQECWarning,
-            )
 
         shape = self.shape(k)
         ret = numpy.zeros(shape.to_numpy_shape(), dtype=numpy.int_)
