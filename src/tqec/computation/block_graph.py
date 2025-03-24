@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
     from tqec.interop.pyzx.positioned import PositionedZX
     from tqec.computation.correlation import CorrelationSurface
+    from tqec.computation.open_graph import FilledGraph
 
 
 BlockKind = CubeKind | PipeKind
@@ -127,6 +128,11 @@ class BlockGraph:
         the computation model.
         """
         return dict(self._ports)
+
+    @property
+    def ordered_ports(self) -> list[str]:
+        """Get the labels of the ports in the alphabetical order."""
+        return sorted(self._ports.keys())
 
     def get_degree(self, position: Position3D) -> int:
         """Get the degree of a node in the graph, i.e. the number of edges
@@ -516,6 +522,21 @@ class BlockGraph:
                 )
             # Delete the port label
             self._ports.pop(label)
+
+    def fill_ports_for_minimal_simulation(self) -> list[FilledGraph]:
+        """Given a block graph with open ports, fill in the ports with the appropriate
+        cubes that will minimize the number of simulation runs needed for the complete
+        logical observable set.
+
+        Returns:
+            A list of :class:`~tqec.computation.open_graph.FilledGraph` instances, each
+            containing a block graph with all ports filled and a set of correlation
+            surfaces that can be used as logical observables for the simulation on that
+            block graph.
+        """
+        from tqec.computation.open_graph import fill_ports_for_minimal_simulation
+
+        return fill_ports_for_minimal_simulation(self)
 
     def compose(self, other: BlockGraph, self_port: str, other_port: str) -> BlockGraph:
         """Compose the current graph with another graph.

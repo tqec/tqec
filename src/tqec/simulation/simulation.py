@@ -1,17 +1,20 @@
 import multiprocessing
-from typing import Callable, Iterable, Iterator, Sequence
+from pathlib import Path
+from typing import Callable, Iterable, Sequence
 
 import sinter
 
 from tqec.compile.compile import compile_block_graph
+from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
-from tqec.compile.specs.library.standard import (
-    STANDARD_BLOCK_BUILDER,
-    STANDARD_SUBSTITUTION_BUILDER,
-)
+from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.simulation.generation import generate_sinter_tasks
+from tqec.simulation.split import (
+    heuristic_custom_error_key,
+    split_stats_for_observables,
+)
 from tqec.utils.noise_model import NoiseModel
 
 
@@ -21,9 +24,10 @@ def start_simulation_using_sinter(
     ps: Sequence[float],
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
-    block_builder: BlockBuilder = STANDARD_BLOCK_BUILDER,
-    substitution_builder: SubstitutionBuilder = STANDARD_SUBSTITUTION_BUILDER,
+    block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
+    substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
     observables: list[CorrelationSurface] | None = None,
+    detector_database: DetectorDatabase | None = None,
     num_workers: int = multiprocessing.cpu_count(),
     progress_callback: Callable[[sinter.Progress], None] | None = None,
     max_shots: int | None = None,
@@ -31,7 +35,10 @@ def start_simulation_using_sinter(
     decoders: Iterable[str] = ("pymatching",),
     print_progress: bool = False,
     custom_decoders: dict[str, sinter.Decoder | sinter.Sampler] | None = None,
-) -> Iterator[list[sinter.TaskStats]]:
+    save_resume_filepath: str | Path | None = None,
+    existing_data_filepaths: Iterable[str | Path] = (),
+    split_observable_stats: bool = True,
+) -> list[list[sinter.TaskStats]]:
     """Helper to run `stim` simulations using `sinter`.
 
     This function is the preferred entry-point to run `sinter` computations using
@@ -70,6 +77,8 @@ def start_simulation_using_sinter(
         observables: a list of correlation surfaces to compile to logical
              observables and generate statistics for. If `None`, all the correlation
              surfaces of the provided computation are used.
+        detector_database: an instance to retrieve from / store in detectors
+            that are computed as part of the circuit generation.
         num_workers: The number of worker processes to use.
         progress_callback: Defaults to None (unused). If specified, then each
             time new sample statistics are acquired from a worker this method
@@ -90,42 +99,63 @@ def start_simulation_using_sinter(
             used if requested by name by a task or by the decoders list.
             If not specified, only decoders with support built into sinter, such
             as 'pymatching' and 'fusion_blossom', can be used.
+        save_resume_filepath: Defaults to None (unused). If set to a filepath,
+            results will be saved to that file while they are collected. If the
+            python interpreter is stopped or killed, calling this method again
+            with the same save_resume_filepath will load the previous results
+            from the file so it can resume where it left off. The stats in this
+            file will be counted in addition to each task's previous_stats field
+            (as opposed to overriding the field). Notes that the stats for each
+            individual observable are not split but saved in the `custom_counts`
+            field of the stats.
+        existing_data_filepaths: CSV data saved to these files will be loaded,
+            included in the returned results, and count towards things like
+            max_shots and max_errors.
+        split_observable_stats: Defaults to True. If True, the results are
+            post-processed to get individual statistics for each observable in
+            `observables`. If False, the results are returned as they are
+            collected.
 
-    Yields:
-        one simulation result (of type `list[sinter.TaskStats]`) per provided
-        observable in `observables`.
+    Returns:
+        A list of lists of `sinter.TaskStats`. If `split_observable_stats` is
+        True, the outer list has one element per provided observable in `observables`.
+        If `split_observable_stats` is False, the outer list has only one element,
+        containing the raw statistics collected.
     """
     if observables is None:
         observables = block_graph.find_correlation_surfaces()
+    custom_error_count_key: str | None = None
+    if split_observable_stats and len(observables) > 1:
+        custom_error_count_key = heuristic_custom_error_key(observables)
 
-    for i, correlation_surface in enumerate(observables):
-        if print_progress:
-            print(
-                f"Generating statistics for observable {i + 1}/{len(observables)}",
-                end="\r",
-            )
-        compiled_graph = compile_block_graph(
-            block_graph,
-            block_builder,
-            substitution_builder,
-            observables=[correlation_surface],
-        )
-        stats = sinter.collect(
-            num_workers=num_workers,
-            tasks=generate_sinter_tasks(
-                compiled_graph,
-                ks,
-                ps,
-                noise_model_factory,
-                manhattan_radius,
-                max_workers=num_workers,
-            ),
-            progress_callback=progress_callback,
-            max_shots=max_shots,
-            max_errors=max_errors,
-            decoders=decoders,
-            print_progress=print_progress,
-            custom_decoders=custom_decoders,
-            hint_num_tasks=len(ks) * len(ps),
-        )
-        yield stats
+    compiled_graph = compile_block_graph(
+        block_graph,
+        block_builder,
+        substitution_builder,
+        observables=observables,
+    )
+    stats = sinter.collect(
+        num_workers=num_workers,
+        tasks=generate_sinter_tasks(
+            compiled_graph,
+            ks,
+            ps,
+            noise_model_factory,
+            manhattan_radius,
+            detector_database,
+        ),
+        existing_data_filepaths=existing_data_filepaths,
+        save_resume_filepath=save_resume_filepath,
+        progress_callback=progress_callback,
+        max_shots=max_shots,
+        max_errors=max_errors,
+        decoders=decoders,
+        print_progress=print_progress,
+        custom_decoders=custom_decoders,
+        hint_num_tasks=len(ks) * len(ps),
+        count_observable_error_combos=True,
+        custom_error_count_key=custom_error_count_key,
+    )
+    if split_observable_stats:
+        return split_stats_for_observables(stats, len(observables))
+    return [stats]

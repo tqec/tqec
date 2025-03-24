@@ -9,6 +9,7 @@ from typing import Iterator, TYPE_CHECKING
 
 from pyzx.graph.graph_s import GraphS
 
+from tqec.computation.block_graph import BlockGraph
 from tqec.utils.enums import Basis
 
 if TYPE_CHECKING:
@@ -169,3 +170,32 @@ class CorrelationSurface:
             for port in io_ports
         ]
         return "".join(paulis)
+
+    def external_stabilizer_on_graph(self, graph: BlockGraph) -> str:
+        """Get the Pauli operator supported on the input/output ports of the graph.
+        The ports are ordered according to their labels.
+
+        Args:
+            g: The block graph to consider.
+
+        Returns:
+            The Pauli operator supported on the input/output ports of the graph.
+        """
+        port_labels = graph.ordered_ports
+        port_positions = [graph.ports[p] for p in port_labels]
+        zx = graph.to_zx_graph()
+        p2v = zx.p2v
+        zx_ports = [p2v[p] for p in port_positions]
+        return self.external_stabilizer(zx_ports)
+
+    def area(self) -> int:
+        """Return the area of the correlation surface.
+
+        The area of the correlation surface is the number of nodes it spans.
+        A X node and a Z node with the same id are counted as two nodes.
+        """
+        span_nodes = {node for edge in self.span for node in edge}
+        return len(span_nodes)
+
+    def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
+        return CorrelationSurface(self.span.symmetric_difference(other.span))
