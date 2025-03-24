@@ -110,8 +110,18 @@ class BlockGraph:
         """Get the positions occupied by the cubes in the graph."""
         return list(self._graph.nodes)
 
-    def spacetime_volume(self) -> tuple[int, int, int]:
-        """Return the spacetime volume of the computation.
+    @property
+    def spacetime_volume(self) -> int:
+        """Return the spacetime volume of the computation, i.e. the number of
+        non-port cubes in the graph.
+
+        Returns:
+            The spacetime volume of the computation.
+        """
+        return self.num_cubes - self.num_ports
+
+    def bounding_box_size(self) -> tuple[int, int, int]:
+        """Return the size of the bounding box of the computation structure.
 
         Returns:
             A tuple of three integers representing the width along the X, Y, and Z
