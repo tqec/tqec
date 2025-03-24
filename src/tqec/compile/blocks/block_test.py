@@ -24,7 +24,7 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 def plaquette_layer_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitTemplate(),
-        Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+        Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
     )
 
 
@@ -32,7 +32,7 @@ def plaquette_layer_fixture() -> PlaquetteLayer:
 def plaquette_layer2_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitSpatialCubeTemplate(),
-        Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+        Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
     )
 
 
@@ -57,11 +57,11 @@ def base_layers_fixture() -> list[BaseLayer]:
     return [
         PlaquetteLayer(
             QubitTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
         ),
         PlaquetteLayer(
             QubitSpatialCubeTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
         ),
         RawCircuitLayer(
             lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
