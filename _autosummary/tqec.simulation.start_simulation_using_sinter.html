@@ -49,7 +49,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="tqec.utils" href="tqec.utils.html" />
-    <link rel="prev" title="plot_observable_as_inset" href="tqec.simulation.plot_observable_as_inset.html" />
+    <link rel="prev" title="split_stats_for_observables" href="tqec.simulation.split_stats_for_observables.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -443,7 +443,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.simulation.html">tqec.simulation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tqec.simulation.heuristic_custom_error_key.html">heuristic_custom_error_key</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html">plot_observable_as_inset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.simulation.split_stats_for_observables.html">split_stats_for_observables</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">start_simulation_using_sinter</a></li>
 </ul>
 </details></li>
@@ -530,7 +532,7 @@
 <h1>start_simulation_using_sinter<a class="headerlink" href="#start-simulation-using-sinter" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tqec.simulation.start_simulation_using_sinter">
-<span class="sig-prename descclassname"><span class="pre">tqec.simulation.</span></span><span class="sig-name descname"><span class="pre">start_simulation_using_sinter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manhattan_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_builder=functools.partial(&lt;function</span> <span class="pre">default_compiled_block_builder&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquette_builder=&lt;function</span> <span class="pre">make_css_surface_code_plaquette&gt;)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitution_builder=functools.partial(&lt;function</span> <span class="pre">default_substitution_builder&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquette_builder=&lt;function</span> <span class="pre">make_css_surface_code_plaquette&gt;)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detector_database=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers=4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shots=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_errors=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decoders=('pymatching'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_progress=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_decoders=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/simulation/simulation.html#start_simulation_using_sinter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.simulation.start_simulation_using_sinter" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tqec.simulation.</span></span><span class="sig-name descname"><span class="pre">start_simulation_using_sinter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manhattan_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_builder=functools.partial(&lt;function</span> <span class="pre">default_compiled_block_builder&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquette_builder=&lt;function</span> <span class="pre">make_css_surface_code_plaquette&gt;)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitution_builder=functools.partial(&lt;function</span> <span class="pre">default_substitution_builder&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquette_builder=&lt;function</span> <span class="pre">make_css_surface_code_plaquette&gt;)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detector_database=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers=4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_shots=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_errors=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decoders=('pymatching'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_progress=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_decoders=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_resume_filepath=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">existing_data_filepaths=()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_observable_stats=True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/simulation/simulation.html#start_simulation_using_sinter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.simulation.start_simulation_using_sinter" title="Link to this definition">#</a></dt>
 <dd><p>Helper to run <cite>stim</cite> simulations using <cite>sinter</cite>.</p>
 <p>This function is the preferred entry-point to run <cite>sinter</cite> computations using
 <cite>stim</cite> from circuits generated by <cite>tqec</cite>.</p>
@@ -590,14 +592,32 @@ collection runs.</p></li>
 used if requested by name by a task or by the decoders list.
 If not specified, only decoders with support built into sinter, such
 as ‘pymatching’ and ‘fusion_blossom’, can be used.</p></li>
+<li><p><strong>save_resume_filepath</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>None</em>) – Defaults to None (unused). If set to a filepath,
+results will be saved to that file while they are collected. If the
+python interpreter is stopped or killed, calling this method again
+with the same save_resume_filepath will load the previous results
+from the file so it can resume where it left off. The stats in this
+file will be counted in addition to each task’s previous_stats field
+(as opposed to overriding the field). Notes that the stats for each
+individual observable are not split but saved in the <cite>custom_counts</cite>
+field of the stats.</p></li>
+<li><p><strong>existing_data_filepaths</strong> (<em>Iterable</em><em>[</em><em>str</em><em> | </em><em>Path</em><em>]</em>) – CSV data saved to these files will be loaded,
+included in the returned results, and count towards things like
+max_shots and max_errors.</p></li>
+<li><p><strong>split_observable_stats</strong> (<em>bool</em>) – Defaults to True. If True, the results are
+post-processed to get individual statistics for each observable in
+<cite>observables</cite>. If False, the results are returned as they are
+collected.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Yields<span class="colon">:</span></dt>
-<dd class="field-even"><p>one simulation result (of type <cite>list[sinter.TaskStats]</cite>) per provided
-observable in <cite>observables</cite>.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of lists of <cite>sinter.TaskStats</cite>. If <cite>split_observable_stats</cite> is
+True, the outer list has one element per provided observable in <cite>observables</cite>.
+If <cite>split_observable_stats</cite> is False, the outer list has only one element,
+containing the raw statistics collected.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Iterator</em>[list[<em>TaskStats</em>]]</p>
+<dd class="field-odd"><p>list[list[<em>TaskStats</em>]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -615,12 +635,12 @@ observable in <cite>observables</cite>.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tqec.simulation.plot_observable_as_inset.html"
+       href="tqec.simulation.split_stats_for_observables.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">plot_observable_as_inset</p>
+        <p class="prev-next-title">split_stats_for_observables</p>
       </div>
     </a>
     <a class="right-next"
