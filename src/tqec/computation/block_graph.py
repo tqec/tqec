@@ -336,14 +336,14 @@ class BlockGraph:
     def _validate_locally_at_cube(self, cube: Cube) -> None:
         """Check the validity of the block structures locally at a cube."""
         pipes = self.pipes_at(cube.position)
-        # a). no fanout
+        # no fanout at ports
         if cube.is_port:
             if len(pipes) != 1:
                 raise TQECException(
                     f"Port at {cube.position} does not have exactly one pipe connected."
                 )
             return
-        # c). time-like Y
+        # time-like Y
         if cube.is_y_cube:
             if len(pipes) != 1:
                 raise TQECException(
@@ -355,13 +355,27 @@ class BlockGraph:
                 )
             return
 
+        assert isinstance(cube.kind, ZXCube)
         # Check the color matching conditions
         pipes_by_direction: dict[Direction3D, list[Pipe]] = {}
         for pipe in pipes:
             pipes_by_direction.setdefault(pipe.direction, []).append(pipe)
-        # d), f), g). Match color
-        for pipe in pipes:
-            pipe.check_compatible_with_cubes()
+        for direction in Direction3D.all_directions():
+            # the pair of faces are shadowed in the direction
+            # we do not care about the colors of shadowed faces
+            if len(pipes_by_direction.get(direction, [])) == 2:
+                continue
+            # faces at the same plane should have the same color
+            cube_color = cube.kind.get_basis_along(direction)
+            for ortho_dir in direction.orthogonal_directions:
+                for pipe in pipes_by_direction.get(ortho_dir, []):
+                    pipe_color = pipe.kind.get_basis_along(
+                        direction, pipe.at_head(cube.position)
+                    )
+                    if pipe_color != cube_color:
+                        raise TQECException(
+                            f"Cube {cube} has mismatched colors with pipe {pipe}."
+                        )
 
     def to_zx_graph(self) -> PositionedZX:
         """Convert the block graph to a positioned PyZX graph.

@@ -118,6 +118,18 @@ def test_block_graph_validate_3d_corner() -> None:
         g.validate()
 
 
+def test_block_graph_validate_ignore_shadowed_faces() -> None:
+    g = BlockGraph()
+    n1 = g.add_cube(Position3D(0, 0, 0), "XXZ")
+    n2 = g.add_cube(Position3D(1, 0, 0), "XXZ")
+    n3 = g.add_cube(Position3D(-1, 0, 0), "XXZ")
+    n4 = g.add_cube(Position3D(0, 0, 1), "ZXX")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n1, n3)
+    g.add_pipe(n1, n4, "ZXO")
+    g.validate()
+
+
 def test_graph_shift() -> None:
     g = BlockGraph()
     g.add_cube(Position3D(0, 0, 1), "ZXZ")
