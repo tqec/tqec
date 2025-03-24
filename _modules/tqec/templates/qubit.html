@@ -408,7 +408,6 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.templates.qubit</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Defines templates representing logical qubits and its constituent parts.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
@@ -417,7 +416,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BorderIndices</span><span class="p">,</span> <span class="n">RectangularTemplate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemplateBorder</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">PlaquetteScalable2D</span>
 
 
@@ -528,15 +527,6 @@ window.addEventListener("load", () => mermaid.run());
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">plaquette_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plaquette_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_plaquettes_number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Instantiating QubitSpatialCubeTemplate with k=1. The &quot;</span>
-                <span class="s2">&quot;instantiation array returned will not have any plaquette with &quot;</span>
-                <span class="s2">&quot;an index in [13, 17], which might break other parts of the &quot;</span>
-                <span class="s2">&quot;library.&quot;</span><span class="p">,</span>
-                <span class="n">TQECWarning</span><span class="p">,</span>
-            <span class="p">)</span>
 
         <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">to_numpy_shape</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">)</span>

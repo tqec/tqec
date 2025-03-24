@@ -431,6 +431,7 @@ compatibility with Python 3.13.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the repository to have local files to work on</span>
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/tqec.git
 <span class="c1"># Install the library with developer dependencies</span>
+<span class="c1"># Note the &quot;-e&quot; option, that&#39;s important.</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;tqec[all]&#39;</span>
 <span class="c1"># Go in the tqec directory and enable pre-commit</span>
 <span class="nb">cd</span><span class="w"> </span>tqec
@@ -441,6 +442,17 @@ pre-commit<span class="w"> </span>install
 <p class="admonition-title">Warning</p>
 <p>You will have to install <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> separately as the instructions above only install a <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> wrapper.
 See <a class="reference external" href="https://stackoverflow.com/a/71585691">https://stackoverflow.com/a/71585691</a> for more info.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">-e</span></code> option to the <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span></code> call is <strong>important</strong> as it installs an editable version
+of <code class="docutils literal notranslate"><span class="pre">tqec</span></code>. Without that option, changes made in the folder <code class="docutils literal notranslate"><span class="pre">tqec</span></code> will <strong>not</strong> be reflected on the
+<code class="docutils literal notranslate"><span class="pre">tqec</span></code> package installed.</p>
+<p>Without the <code class="docutils literal notranslate"><span class="pre">-e</span></code> option, <code class="docutils literal notranslate"><span class="pre">pip</span></code> copies all the files it needs (mainly, the code) to the current Python
+package folder. Any modification to the original <code class="docutils literal notranslate"><span class="pre">tqec</span></code> folder you installed the package from
+will not be reflected automatically on the copied files, which will limit your ability to test new
+changes on the code base. The <code class="docutils literal notranslate"><span class="pre">-e</span></code> option tells <code class="docutils literal notranslate"><span class="pre">pip</span></code> to create a link instead of copying, which means
+that the code in the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> folder will be the code used when importing <code class="docutils literal notranslate"><span class="pre">tqec</span></code>.</p>
 </div>
 <p>If you encounter any issue during the installation, please refer to <a class="reference internal" href="user_guide/installation.html#installation"><span class="std std-ref">How to install tqec</span></a> for more information.</p>
 <p>You can now start contributing, following the rules explained in the next sections.</p>
