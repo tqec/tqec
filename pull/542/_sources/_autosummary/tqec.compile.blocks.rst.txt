@@ -1,0 +1,46 @@
+﻿tqec.compile.blocks
+===================
+
+.. currentmodule:: tqec.compile
+
+.. automodule:: tqec.compile.blocks
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      merge_parallel_block_layers
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+   
+      BaseComposedLayer
+      BaseLayer
+      Block
+      LayoutLayer
+      LayoutPosition2D
+      PlaquetteLayer
+      RawCircuitLayer
+      RepeatedLayer
+      SequencedLayers
+      SpatialBlockBorder
+      TemporalBlockBorder
+   
+   
+
+   
+   
+   
