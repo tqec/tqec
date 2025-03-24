@@ -68,5 +68,5 @@ class SpatialArms(Flag):
 
     def __repr__(self) -> str:
         if self == SpatialArms.NONE:
-            return "JunctionArms.NONE"
-        return " | ".join(f"JunctionArms.{arm.name}" for arm in self)
+            return "SpatialArms.NONE"
+        return " | ".join(f"SpatialArms.{arm.name}" for arm in self)
