@@ -110,6 +110,11 @@ class BlockGraph:
         """Get the positions occupied by the cubes in the graph."""
         return list(self._graph.nodes)
 
+    @property
+    def is_open(self) -> bool:
+        """Whether the graph is an open graph, i.e. the graph has ports."""
+        return bool(self._ports)
+
     def spacetime_volume(self) -> tuple[int, int, int]:
         """Return the spacetime volume of the computation.
 
@@ -480,8 +485,17 @@ class BlockGraph:
             )
         return new_graph
 
-    def find_correlation_surfaces(self) -> list[CorrelationSurface]:
+    def find_correlation_surfaces(
+        self, reduce_to_minimal_generators: bool = True
+    ) -> list[CorrelationSurface]:
         """Find the correlation surfaces in the block graph.
+
+        Args:
+            reduce_to_minimal_generators: Whether to reduce the correlation
+                surfaces to the minimal generators. Other correlation surfaces
+                can be obtained by multiplying the generators. The generators
+                are chosen to be the smallest in terms of the correlation
+                surface area. Default is `True`.
 
         Returns:
             The list of correlation surfaces.
@@ -490,7 +504,9 @@ class BlockGraph:
 
         zx_graph = self.to_zx_graph()
 
-        return find_correlation_surfaces(zx_graph.g)
+        return find_correlation_surfaces(
+            zx_graph.g, reduce_to_minimal_generators=reduce_to_minimal_generators
+        )
 
     def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
         """Fill the ports at specified positions with cubes of the given kind.
