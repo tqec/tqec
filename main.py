@@ -54,7 +54,7 @@ def generate_graphs(style: Literal["STANDARD"]) -> None:
             ax.grid(axis="both")
             ax.legend()
             ax.loglog()
-            ax.set_title(f"{style.upper()} Logical 3-CNOT Error Rate")
+            ax.set_title(f"{style.upper()} {model_name} Error Rate")
             fig.savefig(
                 ASSETS_FOLDER
                 / f"{model_name}_result_simulation_run_{run}_observable_{i}.png"
