@@ -48,8 +48,8 @@ def test_three_cnots_filled(obs_basis: Basis) -> None:
 @pytest.mark.parametrize(
     "obs_basis, num_surfaces, external_stabilizers",
     [
-        (Basis.X, 7, {"XXXXII", "IXXIXI", "IIXIIX"}),
-        (Basis.Z, 7, {"ZIIZII", "ZZIIZI", "IZZIIZ"}),
+        (Basis.X, 3, {"XXIXIX", "IXIIXX", "IIXIIX"}),
+        (Basis.Z, 3, {"IZZIIZ", "ZIIZII", "ZZIIZI"}),
     ],
 )
 def test_three_cnots_correlation_surface(
@@ -59,9 +59,9 @@ def test_three_cnots_correlation_surface(
     io_ports = [1, 4, 8, 0, 7, 11]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert external_stabilizers.issubset(
-        {s.external_stabilizer(io_ports) for s in correlation_surfaces}
-    )
+    assert external_stabilizers == {
+        s.external_stabilizer(io_ports) for s in correlation_surfaces
+    }
 
 
 def test_three_cnots_ports_filling() -> None:
@@ -69,4 +69,4 @@ def test_three_cnots_ports_filling() -> None:
     filled_graphs = g.fill_ports_for_minimal_simulation()
     assert len(filled_graphs) == 2
     assert set(filled_graphs[0].stabilizers) == {"IIXIIX", "IXIIXX", "XXIXIX"}
-    assert set(filled_graphs[1].stabilizers) == {"IIZZZZ", "IZIZZI", "ZIIZII"}
+    assert set(filled_graphs[1].stabilizers) == {"ZIIZII", "IZZIIZ", "ZZIIZI"}
