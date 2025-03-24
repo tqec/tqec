@@ -676,7 +676,7 @@ class BlockGraph:
                 pos_map[pipe.v.position],
                 cast(PipeKind, rotated_kind),
             )
-        return rotated.fix_shadowed_faces()
+        return rotated
 
     def fix_shadowed_faces(self) -> BlockGraph:
         """Fix the basis of those shadowed faces of the cubes in the graph.
