@@ -12,12 +12,14 @@ def test_block_graph_construction() -> None:
     g = BlockGraph()
     assert len(g.cubes) == 0
     assert len(g.pipes) == 0
+    assert g.spacetime_volume == 0
 
 
 def test_block_graph_add_cube() -> None:
     g = BlockGraph()
     v = g.add_cube(Position3D(0, 0, 0), "ZXZ")
     assert g.num_cubes == 1
+    assert g.spacetime_volume == 1
     assert g[v].kind == ZXCube.from_str("ZXZ")
     assert v in g
 
@@ -27,6 +29,7 @@ def test_block_graph_add_cube() -> None:
     v = g.add_cube(Position3D(1, 0, 0), "PORT", "P")
     assert g.num_cubes == 2
     assert g.num_ports == 1
+    assert g.spacetime_volume == 1
     assert g[v].is_port
 
     with pytest.raises(TQECException, match=".* port with the same label .*"):
