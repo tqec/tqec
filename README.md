@@ -37,10 +37,17 @@ Here we generate the circuits for a logical CNOT between two logical qubits to d
 Refer to [quick start](https://tqec.github.io/tqec/user_guide/quick_start.html) in the documentation for more detailed explanation.
 
 ```py
+from pathlib import Path
+
 from tqec import BlockGraph, compile_block_graph, NoiseModel
 
+# 0. Path to the logical_cnot.dae file
+cnot_dae_filepath = Path.cwd() / "assets" / "logical_cnot.dae"
+if not cnot_dae_filepath.exists():
+    print(f"The file '{cnot_dae_filepath}' does not exists.")
+
 # 1. Construct the logical computation
-block_graph = BlockGraph.from_dae_file("assets/logical_cnot.dae")
+block_graph = BlockGraph.from_dae_file(cnot_dae_filepath)
 
 # 2. Get the correlation surfaces of interest and compile the computation
 correlation_surfaces = block_graph.find_correlation_surfaces()
@@ -54,13 +61,6 @@ circuit = compiled_computation.generate_stim_circuit(
     # The noise applied and noise levels can be changed.
     noise_model=NoiseModel.uniform_depolarizing(0.001),
 )
-```
-
-If the ``assets/logical_cnot.dae`` file cannot be imported, check if the path exists on your local device.
-
-```py
-import os
-assert os.path.isfile('/local_path/tqec/assets/logical_cnot.dae')
 ```
 
 See the [user guide](https://tqec.github.io/tqec/user_guide/index.html) for more tutorials.
