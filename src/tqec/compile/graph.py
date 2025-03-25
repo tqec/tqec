@@ -318,7 +318,6 @@ class TopologicalComputationGraph:
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        only_use_database: bool = False,
     ) -> stim.Circuit:
         """Generate the ``stim.Circuit`` from the compiled graph.
 
@@ -330,9 +329,6 @@ class TopologicalComputationGraph:
                 argument is negative.
             detector_database: an instance to retrieve from / store in detectors
                 that are computed as part of the circuit generation.
-            only_use_database: if ``True``, only detectors from the database
-                will be used. An error will be raised if a situation that is not
-                registered in the database is encountered.
 
         Returns:
             A compiled stim circuit.
