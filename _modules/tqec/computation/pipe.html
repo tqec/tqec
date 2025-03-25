@@ -660,33 +660,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The direction along which the pipe connects the cubes.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">direction</span>
 
-<div class="viewcode-block" id="Pipe.check_compatible_with_cubes">
-<a class="viewcode-back" href="../../../_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.check_compatible_with_cubes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">check_compatible_with_cubes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the pipe is compatible with the cubes it connects.</span>
-
-<span class="sd">        For compatibility, each cube (head and tail) must match the pipe&#39;s basis</span>
-<span class="sd">        along each direction, except for the direction of the pipe, if the cube is</span>
-<span class="sd">        of type :py:class:`~tqec.computation.cube.ZXCube`.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            TQECException: If the pipe is not compatible with the cubes.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_port</span> <span class="ow">or</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_y_cube</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">all_directions</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">cube_basis</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">get_basis_along</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span>
-                <span class="n">pipe_basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">get_basis_along</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">cube</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">cube_basis</span> <span class="o">!=</span> <span class="n">pipe_basis</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;The pipe is not compatible with the cube </span><span class="si">{</span><span class="n">cube</span><span class="si">}</span><span class="s2"> along </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2"> direction.&quot;</span>
-                    <span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="Pipe.at_head">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.at_head">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">at_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -700,7 +673,10 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Cube</span><span class="p">]:</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span>
-        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span></div>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="si">}</span><span class="s2">--(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2">)--</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 </pre></div>
 

@@ -745,12 +745,24 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        A :class:`CompiledGraph` object that can be used to generate a</span>
 <span class="sd">        ``stim.Circuit`` and scale easily.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># All the ports should be filled before compiling the block graph.</span>
     <span class="k">if</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-            <span class="s2">&quot;Can not compile a block graph with open ports into circuits.&quot;</span>
+            <span class="s2">&quot;Can not compile a block graph with open ports into circuits. &quot;</span>
+            <span class="s2">&quot;You might want to call `fill_ports` or `fill_ports_for_minimal_simulation` &quot;</span>
+            <span class="s2">&quot;on the block graph before compiling it.&quot;</span>
         <span class="p">)</span>
+    <span class="c1"># Validate the graph can represent a valid computation.</span>
+    <span class="n">block_graph</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
 
-    <span class="c1"># 0. Set the minimum z of block graph to 0.(time starts from zero)</span>
+    <span class="c1"># Fix the shadowed faces of the cubes to avoid using spatial cubes</span>
+    <span class="c1"># when a non-spatial cube can be used at the same position.</span>
+    <span class="c1"># For example, when three XXZ cubes are connected in a row along the x-axis,</span>
+    <span class="c1"># the middle one can be replaced by a ZXX cube because the faces along the</span>
+    <span class="c1"># x-axis are shadowed by the connected pipes.</span>
+    <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">fix_shadowed_faces</span><span class="p">()</span>
+
+    <span class="c1"># Set the minimum z of block graph to 0.(time starts from zero)</span>
     <span class="n">minz</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">minz</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">)</span>
@@ -759,13 +771,13 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">)</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span>
     <span class="p">}</span>
 
-    <span class="c1"># 1. Get the base compiled blocks before applying the substitution rules.</span>
+    <span class="c1"># Get the base compiled blocks before applying the substitution rules.</span>
     <span class="n">blocks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Position3D</span><span class="p">,</span> <span class="n">CompiledBlock</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">:</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">cube</span><span class="p">]</span>
         <span class="n">blocks</span><span class="p">[</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
 
-    <span class="c1"># 2. Apply the substitution rules to the compiled blocks inplace.</span>
+    <span class="c1"># Apply the substitution rules to the compiled blocks inplace.</span>
     <span class="n">pipes</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes</span>
     <span class="n">time_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
     <span class="n">space_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">!=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
@@ -780,7 +792,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">blocks</span><span class="p">[</span><span class="n">pos1</span><span class="p">]</span><span class="o">.</span><span class="n">update_layers</span><span class="p">(</span><span class="n">substitution</span><span class="o">.</span><span class="n">src</span><span class="p">)</span>
         <span class="n">blocks</span><span class="p">[</span><span class="n">pos2</span><span class="p">]</span><span class="o">.</span><span class="n">update_layers</span><span class="p">(</span><span class="n">substitution</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
 
-    <span class="c1"># 3. Collect by time and create the blocks layout.</span>
+    <span class="c1"># Collect by time and create the blocks layout.</span>
     <span class="n">min_z</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">max_z</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">layout_slices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BlockLayout</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -794,7 +806,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_z</span><span class="p">,</span> <span class="n">max_z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="p">]</span>
 
-    <span class="c1"># 4. Get the abstract observables to be included in the compiled circuit.</span>
+    <span class="c1"># Get the abstract observables to be included in the compiled circuit.</span>
     <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>

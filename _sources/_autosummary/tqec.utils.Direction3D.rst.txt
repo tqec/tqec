@@ -24,6 +24,7 @@ Direction3D
 
    .. autosummary::
    
+      ~Direction3D.orthogonal_directions
       ~Direction3D.X
       ~Direction3D.Y
       ~Direction3D.Z

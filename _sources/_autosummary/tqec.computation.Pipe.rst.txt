@@ -13,7 +13,6 @@ Pipe
    
       ~Pipe.__init__
       ~Pipe.at_head
-      ~Pipe.check_compatible_with_cubes
       ~Pipe.from_cubes
    
    
@@ -38,7 +37,6 @@ Pipe
    
    .. automethod:: __init__
    .. automethod:: at_head
-   .. automethod:: check_compatible_with_cubes
    .. automethod:: from_cubes
    
    

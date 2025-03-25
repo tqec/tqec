@@ -413,7 +413,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">cast</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">collada</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">collada.source</span>
@@ -424,7 +423,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">CubeKind</span><span class="p">,</span> <span class="n">Port</span><span class="p">,</span> <span class="n">YHalfCube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeKind</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span><span class="p">,</span> <span class="n">TQECWarning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.collada._geometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BlockGeometries</span><span class="p">,</span>
     <span class="n">Face</span><span class="p">,</span>
@@ -629,14 +628,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">port_index</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">head_pos</span><span class="p">,</span> <span class="n">tail_pos</span><span class="p">,</span> <span class="n">pipe_kind</span><span class="p">)</span>
 
-    <span class="n">graph_fixed</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">fix_shadowed_faces</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">graph_fixed</span> <span class="o">!=</span> <span class="n">graph</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;Some shadowed faces have been fixed. &quot;</span>
-            <span class="s2">&quot;Check `BlockGraph.fix_shadowed_faces` for more details.&quot;</span><span class="p">,</span>
-            <span class="n">TQECWarning</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">graph_fixed</span></div>
+    <span class="k">return</span> <span class="n">graph</span></div>
 
 
 

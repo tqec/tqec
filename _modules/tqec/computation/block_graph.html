@@ -782,14 +782,14 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_locally_at_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check the validity of the block structures locally at a cube.&quot;&quot;&quot;</span>
         <span class="n">pipes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipes_at</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
-        <span class="c1"># a). no fanout</span>
+        <span class="c1"># no fanout at ports</span>
         <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_port</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Port at </span><span class="si">{</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="si">}</span><span class="s2"> does not have exactly one pipe connected.&quot;</span>
                 <span class="p">)</span>
             <span class="k">return</span>
-        <span class="c1"># c). time-like Y</span>
+        <span class="c1"># time-like Y</span>
         <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_y_cube</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
@@ -801,13 +801,27 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="p">)</span>
             <span class="k">return</span>
 
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">ZXCube</span><span class="p">)</span>
         <span class="c1"># Check the color matching conditions</span>
         <span class="n">pipes_by_direction</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Direction3D</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Pipe</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span><span class="p">:</span>
             <span class="n">pipes_by_direction</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pipe</span><span class="p">)</span>
-        <span class="c1"># d), f), g). Match color</span>
-        <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span><span class="p">:</span>
-            <span class="n">pipe</span><span class="o">.</span><span class="n">check_compatible_with_cubes</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">all_directions</span><span class="p">():</span>
+            <span class="c1"># the pair of faces are shadowed in the direction</span>
+            <span class="c1"># we do not care about the colors of shadowed faces</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipes_by_direction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="p">[]))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># faces at the same plane should have the same color</span>
+            <span class="n">cube_color</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">get_basis_along</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ortho_dir</span> <span class="ow">in</span> <span class="n">direction</span><span class="o">.</span><span class="n">orthogonal_directions</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes_by_direction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ortho_dir</span><span class="p">,</span> <span class="p">[]):</span>
+                    <span class="n">pipe_color</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">get_basis_along</span><span class="p">(</span>
+                        <span class="n">direction</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">at_head</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">pipe_color</span> <span class="o">!=</span> <span class="n">cube_color</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Cube </span><span class="si">{</span><span class="n">cube</span><span class="si">}</span><span class="s2"> has mismatched colors with pipe </span><span class="si">{</span><span class="n">pipe</span><span class="si">}</span><span class="s2">.&quot;</span>
+                        <span class="p">)</span>
 
 <div class="viewcode-block" id="BlockGraph.to_zx_graph">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_zx_graph">[docs]</a>
@@ -1140,7 +1154,7 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="n">pos_map</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="p">],</span>
                 <span class="n">cast</span><span class="p">(</span><span class="n">PipeKind</span><span class="p">,</span> <span class="n">rotated_kind</span><span class="p">),</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">rotated</span><span class="o">.</span><span class="n">fix_shadowed_faces</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">rotated</span></div>
 
 
 <div class="viewcode-block" id="BlockGraph.fix_shadowed_faces">

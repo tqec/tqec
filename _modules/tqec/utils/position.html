@@ -661,7 +661,12 @@ window.addEventListener("load", () => mermaid.run());
             <span class="s2">&quot;Could not find the direction from two neighbouring positions &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">:</span><span class="s2">=</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">sink</span><span class="si">:</span><span class="s2">=</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="p">)</span></div>
-</div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">orthogonal_directions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Direction3D</span><span class="p">,</span> <span class="n">Direction3D</span><span class="p">]:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="n">Direction3D</span><span class="p">((</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">),</span> <span class="n">Direction3D</span><span class="p">((</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">)</span></div>
 
 
 
