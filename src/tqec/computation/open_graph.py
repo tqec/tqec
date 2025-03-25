@@ -14,7 +14,7 @@ from tqec.computation.cube import YHalfCube, ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.position import Direction3D
-from tqec.interop.pyzx.correlation import _reduce_to_minimal_generators
+from tqec.interop.pyzx.correlation import reduce_observables_to_minimal_generators
 
 
 @dataclass(frozen=True)
@@ -111,7 +111,9 @@ def fill_ports_for_minimal_simulation(
                     [stab_to_surface[s] for s in comb],
                 )
                 stab_to_surface[stabilizer] = correlation_surface
-        generators = list(_reduce_to_minimal_generators(stab_to_surface).keys())
+        generators = list(
+            reduce_observables_to_minimal_generators(stab_to_surface, num_ports).keys()
+        )
 
     # Two stabilizers are compatible if they can agree on the supported observable
     # basis on the common ports. We can construct a graph that assigns a node to
