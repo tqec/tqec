@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pathlib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import BinaryIO, Iterable, cast
 
 import collada
@@ -221,6 +221,69 @@ def read_block_graph_from_dae_file(
     return graph
 
 
+def core_export(block_graph: BlockGraph, pipe_length: float = 2.0):
+    def scale_position(pos: Position3D) -> FloatPosition3D:
+        return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
+
+    # Loop over all cubes in graph and add them to a cubes _GraphItems
+    cubes = _GraphItems()
+    for cube in block_graph.cubes:
+        # Ignore ports
+        if cube.is_port:
+            continue
+
+        # Get spatial information
+        scaled_position = scale_position(cube.position)
+        if cube.is_y_cube and block_graph.has_pipe_between(
+            cube.position, cube.position.shift_by(dz=1)
+        ):
+            scaled_position = scaled_position.shift_by(dz=0.5)
+
+        # Wrap item into a dataclass
+        cube_item = _GraphItem(
+            cube.position,
+            cube.kind,
+            _Transformation(
+                scaled_position.as_array(),
+                np.array([0.0, 0.0, 0.0]),
+                np.eye(3, dtype=np.float32),
+            ),
+        )
+
+        # Append item to cubes
+        cubes.items.append(cube_item)
+
+    # Loop over all pipes in graph and add them to a cubes _GraphItems
+    pipes = _GraphItems()
+    for pipe in block_graph.pipes:
+        # Get spatial information
+        head_pos = scale_position(pipe.u.position)
+        pipe_pos = head_pos.shift_in_direction(pipe.direction, 1.0)
+        matrix = np.eye(4, dtype=np.float32)
+        matrix[:3, 3] = pipe_pos.as_array()
+        scales = [1.0, 1.0, 1.0]
+
+        # Divide scaling by 2.0 because the pipe's default length is 2.0.
+        scales[pipe.direction.value] = pipe_length / 2.0
+        matrix[:3, :3] = np.diag(scales)
+
+        # Wrap item into a dataclass
+        pipe_item = _GraphItem(
+            pipe.u.position,
+            pipe.kind,
+            _Transformation(
+                pipe_pos.as_array(),
+                np.array([0.0, 0.0, 0.0]),
+                np.eye(3, dtype=np.float32),
+            ),
+        )
+
+        # Append item to pipes
+        pipes.items.append(pipe_item)
+
+    return cubes, pipes
+
+
 def write_block_graph_to_dae_file(
     block_graph: BlockGraph,
     file_like: str | pathlib.Path | BinaryIO,
@@ -232,48 +295,47 @@ def write_block_graph_to_dae_file(
     Collada DAE file.
 
     Args:
-        block_graph: The block graph to write to the DAE file.
+        cubes: An object containing spatial information for all cubes in blockgraph
+        pipes: An object containing spatial information for all pipes in blockgraph
         file: The output file path or file-like object that supports binary write.
-        pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.
         pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
             This is useful for visualizing the internal structure of the blocks. Default is None.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.
     """
+
     if isinstance(pop_faces_at_direction, str):
         pop_faces_at_direction = SignedDirection3D.from_string(pop_faces_at_direction)
     base = _BaseColladaData(pop_faces_at_direction)
 
-    def scale_position(pos: Position3D) -> FloatPosition3D:
-        return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
+    cubes, pipes = core_export(block_graph, pipe_length)
 
-    for cube in block_graph.cubes:
-        if cube.is_port:
-            continue
-        scaled_position = scale_position(cube.position)
-        if cube.is_y_cube and block_graph.has_pipe_between(
-            cube.position, cube.position.shift_by(dz=1)
-        ):
-            scaled_position = scaled_position.shift_by(dz=0.5)
+    # for cube in block_graph.cubes:
+    # for pipe in block_graph.pipes_at(cube.position):
+    # print("from blockgraph iteration: ", cube, pipe.u)
+
+    for item in cubes.items:
         matrix = np.eye(4, dtype=np.float32)
-        matrix[:3, 3] = scaled_position.as_array()
+        matrix[:3, 3] = item.transformation_matrix.translation
+
         pop_faces_at_directions = []
-        for pipe in block_graph.pipes_at(cube.position):
+        for pipe in block_graph.pipes_at(item.position_in_blockgraph):
+            check_for_match = [item.kind, item.position_in_blockgraph] == [
+                pipe.u.kind,
+                pipe.u.position,
+            ]
             pop_faces_at_directions.append(
-                SignedDirection3D(pipe.direction, cube == pipe.u)
+                SignedDirection3D(pipe.direction, check_for_match)
             )
-        base.add_block_instance(matrix, cube.kind, pop_faces_at_directions)
-    for pipe in block_graph.pipes:
-        head_pos = scale_position(pipe.u.position)
-        pipe_pos = head_pos.shift_in_direction(pipe.direction, 1.0)
+        base.add_block_instance(matrix, item.kind, pop_faces_at_directions)
+
+    for pipe in pipes.items:
         matrix = np.eye(4, dtype=np.float32)
-        matrix[:3, 3] = pipe_pos.as_array()
-        scales = [1.0, 1.0, 1.0]
-        # We divide the scaling by 2.0 because the pipe's default length is 2.0.
-        scales[pipe.direction.value] = pipe_length / 2.0
-        matrix[:3, :3] = np.diag(scales)
+        matrix[:3, 3] = pipe.transformation_matrix.translation
         base.add_block_instance(matrix, pipe.kind)
+
     if show_correlation_surface is not None:
         base.add_correlation_surface(block_graph, show_correlation_surface, pipe_length)
+
     base.mesh.write(file_like)
 
 
@@ -503,3 +565,28 @@ class _Transformation:
         mat[:3, :3] = self.rotation * self.scale[None, :]
         mat[:3, 3] = self.translation
         return mat
+
+
+@dataclass(frozen=True)
+class _GraphItem:
+    """Data class to summary key spatial information for a specific cube or pipe."""
+
+    position_in_blockgraph: Position3D
+    kind: BlockKind
+    transformation_matrix: _Transformation
+
+
+@dataclass
+class _GraphItems:
+    """Data class to join _GraphItem into a single object that can be populated with cubes, pipes, or cubes and pipes."""
+
+    items: list[_GraphItem] = field(default_factory=list)
+
+
+## THE FOLLOWING IS TEMPORARY CODE FOR TESTING PURPOSES ONLY
+## DELETE EVERYTHING BELOW BEFORE ANY DRAFT PR, PR, OR MERGE
+if __name__ == "__main__":
+    from tqec.gallery.cnot import cnot
+
+    block_graph = cnot(Basis.Z)
+    write_block_graph_to_dae_file(block_graph, "using_core_export.dae")
