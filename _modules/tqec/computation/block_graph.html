@@ -529,6 +529,11 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the graph is an open graph, i.e. the graph has ports.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spacetime_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the spacetime volume of the computation.</span>
 
@@ -976,8 +981,17 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BlockGraph.find_correlation_surfaces">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.find_correlation_surfaces">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">find_correlation_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_correlation_surfaces</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reduce_to_minimal_generators</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the correlation surfaces in the block graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            reduce_to_minimal_generators: Whether to reduce the correlation</span>
+<span class="sd">                surfaces to the minimal generators. Other correlation surfaces</span>
+<span class="sd">                can be obtained by multiplying the generators. The generators</span>
+<span class="sd">                are chosen to be the smallest in terms of the correlation</span>
+<span class="sd">                surface area. Default is `True`.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The list of correlation surfaces.</span>
@@ -986,7 +1000,9 @@ window.addEventListener("load", () => mermaid.run());
 
         <span class="n">zx_graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">find_correlation_surfaces</span><span class="p">(</span><span class="n">zx_graph</span><span class="o">.</span><span class="n">g</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">find_correlation_surfaces</span><span class="p">(</span>
+            <span class="n">zx_graph</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">reduce_to_minimal_generators</span><span class="o">=</span><span class="n">reduce_to_minimal_generators</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BlockGraph.fill_ports">

@@ -46,6 +46,7 @@ BlockGraph
    .. autosummary::
    
       ~BlockGraph.cubes
+      ~BlockGraph.is_open
       ~BlockGraph.leaf_cubes
       ~BlockGraph.name
       ~BlockGraph.num_cubes

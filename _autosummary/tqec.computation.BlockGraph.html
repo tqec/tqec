@@ -576,7 +576,7 @@ connects. Pipes are represented as edges in the graph.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.fill_ports_for_minimal_simulation" title="tqec.computation.BlockGraph.fill_ports_for_minimal_simulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_ports_for_minimal_simulation</span></code></a>()</p></td>
 <td><p>Given a block graph with open ports, fill in the ports with the appropriate cubes that will minimize the number of simulation runs needed for the complete logical observable set.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="tqec.computation.BlockGraph.find_correlation_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correlation_surfaces</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="tqec.computation.BlockGraph.find_correlation_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correlation_surfaces</span></code></a>([...])</p></td>
 <td><p>Find the correlation surfaces in the block graph.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.fix_shadowed_faces" title="tqec.computation.BlockGraph.fix_shadowed_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_shadowed_faces</span></code></a>()</p></td>
@@ -636,37 +636,40 @@ connects. Pipes are represented as edges in the graph.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cubes</span></code></p></td>
 <td><p>The list of cubes (nodes) in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">leaf_cubes</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_open</span></code></p></td>
+<td><p>Whether the graph is an open graph, i.e. the graph has ports.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">leaf_cubes</span></code></p></td>
 <td><p>Get the leaf cubes of the graph, i.e. the cubes with degree 1.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
 <td><p>Name of the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_cubes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_cubes</span></code></p></td>
 <td><p>Number of cubes (nodes) in the graph, including the ports.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_half_y_cubes</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_half_y_cubes</span></code></p></td>
 <td><p>Number of half Y cubes in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_pipes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_pipes</span></code></p></td>
 <td><p>Number of pipes (edges) in the graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_ports</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_ports</span></code></p></td>
 <td><p>Number of ports in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">occupied_positions</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">occupied_positions</span></code></p></td>
 <td><p>Get the positions occupied by the cubes in the graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ordered_ports</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ordered_ports</span></code></p></td>
 <td><p>Get the labels of the ports in the alphabetical order.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipes</span></code></p></td>
 <td><p>The list of pipes (edges) in the graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ports</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ports</span></code></p></td>
 <td><p>Mapping from port labels to their positions.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">spacetime_volume</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">spacetime_volume</span></code></p></td>
 <td><p>Return the spacetime volume of the computation.</p></td>
 </tr>
 </tbody>
@@ -846,14 +849,21 @@ block graph.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.find_correlation_surfaces">
-<span class="sig-name descname"><span class="pre">find_correlation_surfaces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.find_correlation_surfaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">find_correlation_surfaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduce_to_minimal_generators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.find_correlation_surfaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="Link to this definition">#</a></dt>
 <dd><p>Find the correlation surfaces in the block graph.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The list of correlation surfaces.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reduce_to_minimal_generators</strong> (<em>bool</em>) – Whether to reduce the correlation
+surfaces to the minimal generators. Other correlation surfaces
+can be obtained by multiplying the generators. The generators
+are chosen to be the smallest in terms of the correlation
+surface area. Default is <cite>True</cite>.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[<a class="reference internal" href="tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface" title="tqec.computation.CorrelationSurface">CorrelationSurface</a>]</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The list of correlation surfaces.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface" title="tqec.computation.CorrelationSurface">CorrelationSurface</a>]</p>
 </dd>
 </dl>
 </dd></dl>

@@ -587,7 +587,7 @@ between the logical Z operators at the two nodes.</p>
 <td><p>Get the Pauli operator supported on the given input/output ports.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.external_stabilizer_on_graph" title="tqec.computation.CorrelationSurface.external_stabilizer_on_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">external_stabilizer_on_graph</span></code></a>(graph)</p></td>
-<td><p>Get the Pauli operator supported on the input/output ports of the graph.</p></td>
+<td><p>Get the external stabilizer of the correlation surface on the graph.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.CorrelationSurface.from_pauli_web" title="tqec.computation.CorrelationSurface.from_pauli_web"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_pauli_web</span></code></a>(pauli_web)</p></td>
 <td><p>Create a correlation surface from a Pauli web.</p></td>
@@ -689,8 +689,11 @@ surface.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.CorrelationSurface.external_stabilizer_on_graph">
 <span class="sig-name descname"><span class="pre">external_stabilizer_on_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/correlation.html#CorrelationSurface.external_stabilizer_on_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.CorrelationSurface.external_stabilizer_on_graph" title="Link to this definition">#</a></dt>
-<dd><p>Get the Pauli operator supported on the input/output ports of the graph.
-The ports are ordered according to their labels.</p>
+<dd><p>Get the external stabilizer of the correlation surface on the graph.</p>
+<p>If the provided graph is an open graph, the external stabilizer is the Pauli
+operator supported on the input/output ports of the graph. Otherwise, the
+external stabilizer is the Pauli operator supported on the leaf nodes of the
+graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -699,7 +702,7 @@ The ports are ordered according to their labels.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The Pauli operator supported on the input/output ports of the graph.</p>
+<dd class="field-even"><p>The Pauli operator that is the external stabilizer of the correlation surface.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
