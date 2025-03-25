@@ -59,12 +59,24 @@ def compile_block_graph(
         A :class:`TopologicalComputationGraph` object that can be used to generate a
         ``stim.Circuit`` and scale easily.
     """
+    # All the ports should be filled before compiling the block graph.
     if block_graph.num_ports != 0:
         raise TQECException(
-            "Can not compile a block graph with open ports into circuits."
+            "Can not compile a block graph with open ports into circuits. "
+            "You might want to call `fill_ports` or `fill_ports_for_minimal_simulation` "
+            "on the block graph before compiling it."
         )
+    # Validate the graph can represent a valid computation.
+    block_graph.validate()
 
-    # 0. Set the minimum z of block graph to 0.(time starts from zero)
+    # Fix the shadowed faces of the cubes to avoid using spatial cubes
+    # when a non-spatial cube can be used at the same position.
+    # For example, when three XXZ cubes are connected in a row along the x-axis,
+    # the middle one can be replaced by a ZXX cube because the faces along the
+    # x-axis are shadowed by the connected pipes.
+    block_graph = block_graph.fix_shadowed_faces()
+
+    # Set the minimum z of block graph to 0.(time starts from zero)
     minz = min(cube.position.z for cube in block_graph.cubes)
     if minz != 0:
         block_graph = block_graph.shift_by(dz=-minz)

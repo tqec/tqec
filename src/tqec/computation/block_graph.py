@@ -89,6 +89,11 @@ class BlockGraph:
         return len([node for node in self.cubes if node.is_port])
 
     @property
+    def num_half_y_cubes(self) -> int:
+        """Number of half Y cubes in the graph."""
+        return len([node for node in self.cubes if node.is_y_cube])
+
+    @property
     def ordered_ports(self) -> list[str]:
         """Get the labels of the ports in the alphabetical order."""
         return sorted(self._ports.keys())
@@ -110,8 +115,22 @@ class BlockGraph:
         """Get the positions occupied by the cubes in the graph."""
         return list(self._graph.nodes)
 
-    def spacetime_volume(self) -> tuple[int, int, int]:
+    @property
+    def spacetime_volume(self) -> float:
         """Return the spacetime volume of the computation.
+
+        A port cube and the pipes have no spacetime volume. A half Y cube has a
+        spacetime volume of 0.5. Other cubes have a spacetime volume of 1. The
+        spacetime volume of the block graph is the sum of the spacetime volumes
+        of all the cubes in the graph.
+
+        Returns:
+            The spacetime volume of the computation.
+        """
+        return self.num_cubes - self.num_ports - self.num_half_y_cubes * 0.5
+
+    def bounding_box_size(self) -> tuple[int, int, int]:
+        """Return the size of the bounding box of the computation structure.
 
         Returns:
             A tuple of three integers representing the width along the X, Y, and Z
@@ -336,14 +355,14 @@ class BlockGraph:
     def _validate_locally_at_cube(self, cube: Cube) -> None:
         """Check the validity of the block structures locally at a cube."""
         pipes = self.pipes_at(cube.position)
-        # a). no fanout
+        # no fanout at ports
         if cube.is_port:
             if len(pipes) != 1:
                 raise TQECException(
                     f"Port at {cube.position} does not have exactly one pipe connected."
                 )
             return
-        # c). time-like Y
+        # time-like Y
         if cube.is_y_cube:
             if len(pipes) != 1:
                 raise TQECException(
@@ -355,13 +374,27 @@ class BlockGraph:
                 )
             return
 
+        assert isinstance(cube.kind, ZXCube)
         # Check the color matching conditions
         pipes_by_direction: dict[Direction3D, list[Pipe]] = {}
         for pipe in pipes:
             pipes_by_direction.setdefault(pipe.direction, []).append(pipe)
-        # d), f), g). Match color
-        for pipe in pipes:
-            pipe.check_compatible_with_cubes()
+        for direction in Direction3D.all_directions():
+            # the pair of faces are shadowed in the direction
+            # we do not care about the colors of shadowed faces
+            if len(pipes_by_direction.get(direction, [])) == 2:
+                continue
+            # faces at the same plane should have the same color
+            cube_color = cube.kind.get_basis_along(direction)
+            for ortho_dir in direction.orthogonal_directions:
+                for pipe in pipes_by_direction.get(ortho_dir, []):
+                    pipe_color = pipe.kind.get_basis_along(
+                        direction, pipe.at_head(cube.position)
+                    )
+                    if pipe_color != cube_color:
+                        raise TQECException(
+                            f"Cube {cube} has mismatched colors with pipe {pipe}."
+                        )
 
     def to_zx_graph(self) -> PositionedZX:
         """Convert the block graph to a positioned PyZX graph.
@@ -662,7 +695,7 @@ class BlockGraph:
                 pos_map[pipe.v.position],
                 cast(PipeKind, rotated_kind),
             )
-        return rotated.fix_shadowed_faces()
+        return rotated
 
     def fix_shadowed_faces(self) -> BlockGraph:
         """Fix the basis of those shadowed faces of the cubes in the graph.
