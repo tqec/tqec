@@ -53,6 +53,7 @@ def plot_threshold_as_inset(
     ax_target: Axes,
     stats: list[sinter.TaskStats],
     zoom_bounds: tuple[float, float, float, float],
+    threshold: float | None = None,
     inset_bounds: tuple[float, float, float, float] = (0.53, 0.45, 0.4, 0.4),
 ) -> None:
     # Creating the inset
@@ -98,3 +99,15 @@ def plot_threshold_as_inset(
         group_func=lambda stat: stat.json_metadata["d"],
         plot_args_func=lambda index, group_key, group_stats: {"markersize": 3},
     )
+    # Drawing the threshold if provided
+    if threshold is not None:
+        inset_ax.axvline(threshold, color="r")
+        inset_ax.text(
+            threshold * 1.02,
+            zoom_bounds[1] * 0.96,
+            f"{threshold:.3g}",
+            fontsize=6,
+            color="r",
+            horizontalalignment="left",
+            verticalalignment="top",
+        )
