@@ -533,8 +533,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the graph is an open graph, i.e. the graph has ports.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BlockGraph.spacetime_volume">
-<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.spacetime_volume">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spacetime_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the spacetime volume of the computation.</span>
 
@@ -546,8 +545,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returns:</span>
 <span class="sd">            The spacetime volume of the computation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_cubes</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_half_y_cubes</span> <span class="o">*</span> <span class="mf">0.5</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_cubes</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_half_y_cubes</span> <span class="o">*</span> <span class="mf">0.5</span>
 
 <div class="viewcode-block" id="BlockGraph.bounding_box_size">
 <a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.bounding_box_size">[docs]</a>

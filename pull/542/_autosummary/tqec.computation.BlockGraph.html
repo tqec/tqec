@@ -615,19 +615,16 @@ connects. Pipes are represented as edges in the graph.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.shift_by" title="tqec.computation.BlockGraph.shift_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_by</span></code></a>([dx, dy, dz])</p></td>
 <td><p>Shift the whole graph by the given offset in the x, y, z directions and creat a new graph with the shifted positions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.spacetime_volume" title="tqec.computation.BlockGraph.spacetime_volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spacetime_volume</span></code></a>()</p></td>
-<td><p>Return the spacetime volume of the computation.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_dae_file" title="tqec.computation.BlockGraph.to_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dae_file</span></code></a>(file_path[, pipe_length, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_dae_file" title="tqec.computation.BlockGraph.to_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dae_file</span></code></a>(file_path[, pipe_length, ...])</p></td>
 <td><p>Write the block graph to a Collada DAE file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_zx_graph" title="tqec.computation.BlockGraph.to_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_zx_graph</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_zx_graph" title="tqec.computation.BlockGraph.to_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_zx_graph</span></code></a>()</p></td>
 <td><p>Convert the block graph to a positioned PyZX graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.validate" title="tqec.computation.BlockGraph.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.validate" title="tqec.computation.BlockGraph.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>()</p></td>
 <td><p>Check the validity of the block graph to represent a logical computation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.view_as_html" title="tqec.computation.BlockGraph.view_as_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view_as_html</span></code></a>([write_html_filepath, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.view_as_html" title="tqec.computation.BlockGraph.view_as_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view_as_html</span></code></a>([write_html_filepath, ...])</p></td>
 <td><p>View COLLADA model in html with the help of <code class="docutils literal notranslate"><span class="pre">three.js</span></code>.</p></td>
 </tr>
 </tbody>
@@ -671,6 +668,9 @@ connects. Pipes are represented as edges in the graph.</p>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ports</span></code></p></td>
 <td><p>Mapping from port labels to their positions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">spacetime_volume</span></code></p></td>
+<td><p>Return the spacetime volume of the computation.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1101,24 +1101,6 @@ with the original graph.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.computation.BlockGraph.spacetime_volume">
-<span class="sig-name descname"><span class="pre">spacetime_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.spacetime_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.spacetime_volume" title="Link to this definition">#</a></dt>
-<dd><p>Return the spacetime volume of the computation.</p>
-<p>A port cube and the pipes have no spacetime volume. A half Y cube has a
-spacetime volume of 0.5. Other cubes have a spacetime volume of 1. The
-spacetime volume of the block graph is the sum of the spacetime volumes
-of all the cubes in the graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The spacetime volume of the computation.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.to_dae_file">
 <span class="sig-name descname"><span class="pre">to_dae_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_faces_at_direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_correlation_surface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.to_dae_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.to_dae_file" title="Link to this definition">#</a></dt>
 <dd><p>Write the block graph to a Collada DAE file.</p>
@@ -1277,7 +1259,6 @@ can be directly displayed in IPython compatible environments.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.remove_pipe"><code class="docutils literal notranslate"><span class="pre">BlockGraph.remove_pipe()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.rotate"><code class="docutils literal notranslate"><span class="pre">BlockGraph.rotate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.shift_by"><code class="docutils literal notranslate"><span class="pre">BlockGraph.shift_by()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.spacetime_volume"><code class="docutils literal notranslate"><span class="pre">BlockGraph.spacetime_volume()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_dae_file"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_dae_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_zx_graph"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_zx_graph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.validate"><code class="docutils literal notranslate"><span class="pre">BlockGraph.validate()</span></code></a></li>

@@ -32,7 +32,6 @@ BlockGraph
       ~BlockGraph.remove_pipe
       ~BlockGraph.rotate
       ~BlockGraph.shift_by
-      ~BlockGraph.spacetime_volume
       ~BlockGraph.to_dae_file
       ~BlockGraph.to_zx_graph
       ~BlockGraph.validate
@@ -58,6 +57,7 @@ BlockGraph
       ~BlockGraph.ordered_ports
       ~BlockGraph.pipes
       ~BlockGraph.ports
+      ~BlockGraph.spacetime_volume
    
    
 
@@ -87,7 +87,6 @@ BlockGraph
    .. automethod:: remove_pipe
    .. automethod:: rotate
    .. automethod:: shift_by
-   .. automethod:: spacetime_volume
    .. automethod:: to_dae_file
    .. automethod:: to_zx_graph
    .. automethod:: validate
