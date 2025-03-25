@@ -1,0 +1,719 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tqec.computation.correlation &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/tqec/computation/correlation';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.computation.correlation</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for tqec.computation.correlation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Defines the ``CorrelationSurface`` class and the functions to find the</span>
+<span class="sd">correlation surfaces in the ZX graph.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyzx.graph.graph_s</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphS</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Position3D</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyzx.pauliweb</span><span class="w"> </span><span class="kn">import</span> <span class="n">PauliWeb</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZXNode</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent a node in the ZX graph spanned by the correlation surface.</span>
+
+<span class="sd">    Correlation surface is represented by a set of edges in the ZX graph. Each edge</span>
+<span class="sd">    consists of two nodes. The node id refers to the vertex index in the graph</span>
+<span class="sd">    and the basis represents the Pauli operator on the half edge incident to the node.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id: The index of the vertex in the graph.</span>
+<span class="sd">        basis: The Pauli operator on the half edge incident to the node.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">basis</span><span class="p">:</span> <span class="n">Basis</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZXEdge</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent an edge in the ZX graph spanned by the correlation surface.</span>
+
+<span class="sd">    Correlation surface is represented by a set of edges in the ZX graph. Each edge</span>
+<span class="sd">    consists of two nodes. The edge can be decomposed into two half edges, each</span>
+<span class="sd">    incident to a node. The half edges are labeled with the Pauli operator.</span>
+<span class="sd">    If the edge has no hadamard effect, the Pauli operators on the two half edges</span>
+<span class="sd">    should be the same. Otherwise, the Pauli operators should be flipped.</span>
+
+<span class="sd">    Note that the Pauli operators are represented by `Basis` enum, which only</span>
+<span class="sd">    contains `X` and `Z` operators. The `Y` operator is represented by two</span>
+<span class="sd">    edges with `X` and `Z` operators respectively.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">u</span><span class="p">:</span> <span class="n">ZXNode</span>
+    <span class="n">v</span><span class="p">:</span> <span class="n">ZXNode</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">id</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;u&quot;</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ZXNode</span><span class="p">]:</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_self_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the edge is a self-loop edge.</span>
+
+<span class="sd">        By definition, a self-loop edge represents a correlation surface</span>
+<span class="sd">        within a single node. This is an edge case where the ZX graph</span>
+<span class="sd">        only contains a single node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">id</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_hadamard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the edge has a hadamard effect.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">basis</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">basis</span>
+
+
+<div class="viewcode-block" id="CorrelationSurface">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CorrelationSurface</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A correlation surface in a computation is a set of measurements whose</span>
+<span class="sd">    values determine the parity of the logical operators at the inputs and</span>
+<span class="sd">    outputs associated with the surface.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        We use the term &quot;correlation surface&quot;, &quot;pauli web&quot; and &quot;observable&quot; interchangeably in</span>
+<span class="sd">        the library.</span>
+
+<span class="sd">    Here we represent the correlation surface by the set of edges it spans in the ZX graph.</span>
+<span class="sd">    The insight is that the spiders pose parity constraints on the operators supported on</span>
+<span class="sd">    the incident edges. The flow of the logical operators through the ZX graph, respecting</span>
+<span class="sd">    the parity constraints, forms the correlation between the inputs and outputs. However,</span>
+<span class="sd">    the sign of measurement outcomes is neglected in this representation. And we need to</span>
+<span class="sd">    recover the measurements when instantiating an explicit logical observable from the</span>
+<span class="sd">    correlation surface.</span>
+
+<span class="sd">    Each edge establishes a correlation between the logical operators at the two ends of</span>
+<span class="sd">    the edge. For example, an edge connecting two Z nodes represents the correlation</span>
+<span class="sd">    between the logical Z operators at the two nodes.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        span: A set of ``ZXEdge`` representing the span of the correlation surface.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">span</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">ZXEdge</span><span class="p">]</span>
+
+<div class="viewcode-block" id="CorrelationSurface.bases_at">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.bases_at">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bases_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">Basis</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the bases of the surfaces present at the vertex.&quot;&quot;&quot;</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_at</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">bases</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">v</span><span class="p">:</span>
+                <span class="n">bases</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">basis</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bases</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">basis</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bases</span></div>
+
+
+<div class="viewcode-block" id="CorrelationSurface.to_pauli_web">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.to_pauli_web">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pauli_web</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">GraphS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PauliWeb</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the correlation surface to a Pauli web.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            g: The ZX graph the correlation surface is based on.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A `PauliWeb` representation of the correlation surface.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">correlation_surface_to_pauli_web</span>
+
+        <span class="k">return</span> <span class="n">correlation_surface_to_pauli_web</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CorrelationSurface.from_pauli_web">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.from_pauli_web">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_pauli_web</span><span class="p">(</span><span class="n">pauli_web</span><span class="p">:</span> <span class="n">PauliWeb</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">CorrelationSurface</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a correlation surface from a Pauli web.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">pauli_web_to_correlation_surface</span>
+
+        <span class="k">return</span> <span class="n">pauli_web_to_correlation_surface</span><span class="p">(</span><span class="n">pauli_web</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_single_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the correlation surface contains only a single node.</span>
+
+<span class="sd">        This is an edge case where the ZX graph only contains a single</span>
+<span class="sd">        node. The span of the correlation surface is a self-loop edge at</span>
+<span class="sd">        the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">span</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">span</span><span class="p">))</span><span class="o">.</span><span class="n">is_self_loop</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CorrelationSurface.span_vertices">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.span_vertices">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">span_vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the set of vertices in the correlation surface.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">v</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">span</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">edge</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="CorrelationSurface.edges_at">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.edges_at">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">edges_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">ZXEdge</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the set of edges incident to the vertex in the correlation</span>
+<span class="sd">        surface.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">edge</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">span</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">v</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">edge</span><span class="p">)}</span></div>
+
+
+<div class="viewcode-block" id="CorrelationSurface.external_stabilizer">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.external_stabilizer">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">external_stabilizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">io_ports</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the Pauli operator supported on the given input/output ports.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            io_ports: The list of input/output ports to consider.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The Pauli operator supported on the given ports.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pyzx.pauliweb</span><span class="w"> </span><span class="kn">import</span> <span class="n">multiply_paulis</span>
+
+        <span class="n">paulis</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">reduce</span><span class="p">(</span><span class="n">multiply_paulis</span><span class="p">,</span> <span class="p">{</span><span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bases_at</span><span class="p">(</span><span class="n">port</span><span class="p">)},</span> <span class="s2">&quot;I&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">io_ports</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">paulis</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CorrelationSurface.external_stabilizer_on_graph">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.external_stabilizer_on_graph">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">external_stabilizer_on_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the external stabilizer of the correlation surface on the graph.</span>
+
+<span class="sd">        If the provided graph is an open graph, the external stabilizer is the Pauli</span>
+<span class="sd">        operator supported on the input/output ports of the graph. Otherwise, the</span>
+<span class="sd">        external stabilizer is the Pauli operator supported on the leaf nodes of the</span>
+<span class="sd">        graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            g: The block graph to consider.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The Pauli operator that is the external stabilizer of the correlation surface.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">supports</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Position3D</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">graph</span><span class="o">.</span><span class="n">is_open</span><span class="p">:</span>
+            <span class="n">port_labels</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ordered_ports</span>
+            <span class="n">supports</span> <span class="o">=</span> <span class="p">[</span><span class="n">graph</span><span class="o">.</span><span class="n">ports</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">port_labels</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">supports</span> <span class="o">=</span> <span class="p">[</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">leaf_cubes</span><span class="p">]</span>
+        <span class="n">zx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
+        <span class="n">p2v</span> <span class="o">=</span> <span class="n">zx</span><span class="o">.</span><span class="n">p2v</span>
+        <span class="n">zx_ports</span> <span class="o">=</span> <span class="p">[</span><span class="n">p2v</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">supports</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_stabilizer</span><span class="p">(</span><span class="n">zx_ports</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CorrelationSurface.area">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface.area">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the area of the correlation surface.</span>
+
+<span class="sd">        The area of the correlation surface is the number of nodes it spans.</span>
+<span class="sd">        A X node and a Z node with the same id are counted as two nodes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">span_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">span</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">edge</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">span_nodes</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CorrelationSurface</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CorrelationSurface</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CorrelationSurface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">span</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">span</span><span class="p">))</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
