@@ -120,6 +120,7 @@ class BlockGraph:
         """Whether the graph is an open graph, i.e. the graph has ports."""
         return bool(self._ports)
 
+    @property
     def spacetime_volume(self) -> float:
         """Return the spacetime volume of the computation.
 
