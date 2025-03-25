@@ -177,6 +177,9 @@ class LayoutLayer(BaseLayer):
         # Shift the qubits of the returned scheduled circuit
         mincube, _ = self.bounds
         eshape = self.element_shape.to_shape_2d(k)
+        # See: https://github.com/tqec/tqec/issues/525
+        # This is a temporary fix to the above issue, we may need a utility function
+        # to calculate shift to avoid similar issues in the future.
         shift = Shift2D(mincube.x * (eshape.x - 1), mincube.y * (eshape.y - 1))
         shifted_circuit = scheduled_circuit.map_to_qubits(lambda q: q + shift)
         return shifted_circuit
