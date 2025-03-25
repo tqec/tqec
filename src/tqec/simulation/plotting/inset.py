@@ -85,10 +85,10 @@ def plot_threshold_as_inset(
     _, (lower_left, upper_left, lower_right, upper_right) = (
         ax_target.indicate_inset_zoom(inset_ax, edgecolor="black", alpha=0.8)
     )  # type: ignore
-    lower_left.set_visible(True)
-    upper_right.set_visible(True)
-    lower_right.set_visible(False)
-    upper_left.set_visible(False)
+    lower_left.set_visible(True)  # type: ignore
+    upper_right.set_visible(True)  # type: ignore
+    lower_right.set_visible(False)  # type: ignore
+    upper_left.set_visible(False)  # type: ignore
 
     # Plotting the data
     sinter.plot_error_rate(
