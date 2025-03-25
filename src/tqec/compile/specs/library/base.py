@@ -40,7 +40,7 @@ from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.plaquette.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.base import RectangularTemplate
-from tqec.templates.enums import TemplateBorder, ZObservableOrientation
+from tqec.templates.enums import ZObservableOrientation
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D
@@ -253,66 +253,9 @@ class BasePipeBuilder(PipeBuilder):
         )
         return Block([hadamard_layer, memory_layer])
 
-    # ##############################
-    # #    SPATIAL SUBSTITUTION    #
-    # ##############################
-
-    @staticmethod
-    def _get_plaquette_indices_mapping(
-        qubit_templates: tuple[RectangularTemplate, RectangularTemplate],
-        pipe_template: RectangularTemplate,
-        direction: Direction3D,
-    ) -> tuple[dict[int, int], dict[int, int]]:
-        """Returns the plaquette indices mappings from ``pipe_template`` to the
-        two provided ``qubit_templates``.
-
-        This static method is re-used in different methods of this class to
-        build the mappings from plaquette indices on each borders of the provided
-        ``pipe_template`` to the plaquette indices on the respective border of
-        both of the provided ``qubit_templates``.
-
-        ``qubit_templates`` is supposed to be "sorted": the first template
-        should come "first" (i.e., be associated to the block with the minimum
-        coordinate in the provided ``direction``).
-
-        Args:
-            qubit_templates: templates used by the two blocks that are connected
-                by the pipe. Should be "sorted" (i.e., if
-                ``direction == Direction3D.X`` then ``qubit_template[0]`` is the
-                block on the left of the pipe and ``qubit_templates[1]`` is the
-                block on the right).
-            pipe_template: template used to build the pipe.
-            direction: direction of the pipe. This is used to determine which
-                side of the different templates should be matched together.
-
-        Raises:
-            TQECException: if ``direction == Direction3D.Z``.
-
-        Returns:
-            two mappings, the first one for plaquette indices from
-            ``pipe_template`` to ``qubit_templates[0]`` and the second one from
-            ``pipe_template`` to ``qubit_templates[1]``.
-        """
-        tb1: TemplateBorder
-        tb2: TemplateBorder
-        match direction:
-            case Direction3D.X:
-                tb1 = TemplateBorder.LEFT
-                tb2 = TemplateBorder.RIGHT
-            case Direction3D.Y:
-                tb1 = TemplateBorder.TOP
-                tb2 = TemplateBorder.BOTTOM
-            case Direction3D.Z:
-                raise TQECException("This method cannot be used with a temporal pipe.")
-
-        return (
-            pipe_template.get_border_indices(tb1).to(
-                qubit_templates[0].get_border_indices(tb2)
-            ),
-            pipe_template.get_border_indices(tb2).to(
-                qubit_templates[1].get_border_indices(tb1)
-            ),
-        )
+    ##############################
+    #       SPATIAL PIPE         #
+    ##############################
 
     @staticmethod
     def _get_spatial_cube_arm(spec: PipeSpec) -> SpatialArms:
