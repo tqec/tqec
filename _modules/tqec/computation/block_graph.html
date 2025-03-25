@@ -502,6 +502,11 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_port</span><span class="p">])</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_half_y_cubes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of half Y cubes in the graph.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_y_cube</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ordered_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the labels of the ports in the alphabetical order.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -523,10 +528,24 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the positions occupied by the cubes in the graph.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BlockGraph.spacetime_volume">
-<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.spacetime_volume">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">spacetime_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spacetime_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the spacetime volume of the computation.</span>
+
+<span class="sd">        A port cube and the pipes have no spacetime volume. A half Y cube has a</span>
+<span class="sd">        spacetime volume of 0.5. Other cubes have a spacetime volume of 1. The</span>
+<span class="sd">        spacetime volume of the block graph is the sum of the spacetime volumes</span>
+<span class="sd">        of all the cubes in the graph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The spacetime volume of the computation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_cubes</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_half_y_cubes</span> <span class="o">*</span> <span class="mf">0.5</span>
+
+<div class="viewcode-block" id="BlockGraph.bounding_box_size">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.bounding_box_size">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounding_box_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the size of the bounding box of the computation structure.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A tuple of three integers representing the width along the X, Y, and Z</span>

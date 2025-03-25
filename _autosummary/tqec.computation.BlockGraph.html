@@ -561,59 +561,59 @@ connects. Pipes are represented as edges in the graph.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.add_pipe" title="tqec.computation.BlockGraph.add_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_pipe</span></code></a>(pos1, pos2[, kind])</p></td>
 <td><p>Add a pipe to the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.clone" title="tqec.computation.BlockGraph.clone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clone</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.bounding_box_size" title="tqec.computation.BlockGraph.bounding_box_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bounding_box_size</span></code></a>()</p></td>
+<td><p>Return the size of the bounding box of the computation structure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.clone" title="tqec.computation.BlockGraph.clone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clone</span></code></a>()</p></td>
 <td><p>Create a data-independent copy of the graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.compose" title="tqec.computation.BlockGraph.compose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compose</span></code></a>(other, self_port, other_port)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.compose" title="tqec.computation.BlockGraph.compose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compose</span></code></a>(other, self_port, other_port)</p></td>
 <td><p>Compose the current graph with another graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.fill_ports" title="tqec.computation.BlockGraph.fill_ports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_ports</span></code></a>(fill)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.fill_ports" title="tqec.computation.BlockGraph.fill_ports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_ports</span></code></a>(fill)</p></td>
 <td><p>Fill the ports at specified positions with cubes of the given kind.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.fill_ports_for_minimal_simulation" title="tqec.computation.BlockGraph.fill_ports_for_minimal_simulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_ports_for_minimal_simulation</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.fill_ports_for_minimal_simulation" title="tqec.computation.BlockGraph.fill_ports_for_minimal_simulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_ports_for_minimal_simulation</span></code></a>()</p></td>
 <td><p>Given a block graph with open ports, fill in the ports with the appropriate cubes that will minimize the number of simulation runs needed for the complete logical observable set.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="tqec.computation.BlockGraph.find_correlation_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correlation_surfaces</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.find_correlation_surfaces" title="tqec.computation.BlockGraph.find_correlation_surfaces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_correlation_surfaces</span></code></a>()</p></td>
 <td><p>Find the correlation surfaces in the block graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.fix_shadowed_faces" title="tqec.computation.BlockGraph.fix_shadowed_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_shadowed_faces</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.fix_shadowed_faces" title="tqec.computation.BlockGraph.fix_shadowed_faces"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fix_shadowed_faces</span></code></a>()</p></td>
 <td><p>Fix the basis of those shadowed faces of the cubes in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_dae_file" title="tqec.computation.BlockGraph.from_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dae_file</span></code></a>(filename[, graph_name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_dae_file" title="tqec.computation.BlockGraph.from_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dae_file</span></code></a>(filename[, graph_name])</p></td>
 <td><p>Construct a block graph from a COLLADA DAE file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_cubes_by_label" title="tqec.computation.BlockGraph.get_cubes_by_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cubes_by_label</span></code></a>(label)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_cubes_by_label" title="tqec.computation.BlockGraph.get_cubes_by_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cubes_by_label</span></code></a>(label)</p></td>
 <td><p>Find cubes with the specified label in the BlockGraph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_degree" title="tqec.computation.BlockGraph.get_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_degree</span></code></a>(position)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_degree" title="tqec.computation.BlockGraph.get_degree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_degree</span></code></a>(position)</p></td>
 <td><p>Get the degree of a node in the graph, i.e. the number of edges incident to it.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_pipe" title="tqec.computation.BlockGraph.get_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pipe</span></code></a>(pos1, pos2)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_pipe" title="tqec.computation.BlockGraph.get_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pipe</span></code></a>(pos1, pos2)</p></td>
 <td><p>Get the pipe by its endpoint positions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.has_pipe_between" title="tqec.computation.BlockGraph.has_pipe_between"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_pipe_between</span></code></a>(pos1, pos2)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.has_pipe_between" title="tqec.computation.BlockGraph.has_pipe_between"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_pipe_between</span></code></a>(pos1, pos2)</p></td>
 <td><p>Check if there is a pipe between two positions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.is_single_connected" title="tqec.computation.BlockGraph.is_single_connected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_single_connected</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.is_single_connected" title="tqec.computation.BlockGraph.is_single_connected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_single_connected</span></code></a>()</p></td>
 <td><p>Check if the graph is single connected, i.e. there is only one connected component in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.pipes_at" title="tqec.computation.BlockGraph.pipes_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipes_at</span></code></a>(position)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.pipes_at" title="tqec.computation.BlockGraph.pipes_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipes_at</span></code></a>(position)</p></td>
 <td><p>Get the pipes incident to a position.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.remove_cube" title="tqec.computation.BlockGraph.remove_cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_cube</span></code></a>(position)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.remove_cube" title="tqec.computation.BlockGraph.remove_cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_cube</span></code></a>(position)</p></td>
 <td><p>Remove a cube from the graph, as well as the pipes connected to it.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.remove_pipe" title="tqec.computation.BlockGraph.remove_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_pipe</span></code></a>(pos1, pos2)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.remove_pipe" title="tqec.computation.BlockGraph.remove_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_pipe</span></code></a>(pos1, pos2)</p></td>
 <td><p>Remove a pipe between two positions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.rotate" title="tqec.computation.BlockGraph.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>(rotation_axis[, counterclockwise, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.rotate" title="tqec.computation.BlockGraph.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>(rotation_axis[, counterclockwise, ...])</p></td>
 <td><p>Rotate the graph around an axis by 0, 90, 180, or 270 degrees and create a new graph with the rotated positions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.shift_by" title="tqec.computation.BlockGraph.shift_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_by</span></code></a>([dx, dy, dz])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.shift_by" title="tqec.computation.BlockGraph.shift_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_by</span></code></a>([dx, dy, dz])</p></td>
 <td><p>Shift the whole graph by the given offset in the x, y, z directions and creat a new graph with the shifted positions.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.spacetime_volume" title="tqec.computation.BlockGraph.spacetime_volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spacetime_volume</span></code></a>()</p></td>
-<td><p>Return the spacetime volume of the computation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_dae_file" title="tqec.computation.BlockGraph.to_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dae_file</span></code></a>(file_path[, pipe_length, ...])</p></td>
 <td><p>Write the block graph to a Collada DAE file.</p></td>
@@ -645,23 +645,29 @@ connects. Pipes are represented as edges in the graph.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_cubes</span></code></p></td>
 <td><p>Number of cubes (nodes) in the graph, including the ports.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_pipes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_half_y_cubes</span></code></p></td>
+<td><p>Number of half Y cubes in the graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_pipes</span></code></p></td>
 <td><p>Number of pipes (edges) in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_ports</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_ports</span></code></p></td>
 <td><p>Number of ports in the graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">occupied_positions</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">occupied_positions</span></code></p></td>
 <td><p>Get the positions occupied by the cubes in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ordered_ports</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ordered_ports</span></code></p></td>
 <td><p>Get the labels of the ports in the alphabetical order.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipes</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipes</span></code></p></td>
 <td><p>The list of pipes (edges) in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ports</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ports</span></code></p></td>
 <td><p>Mapping from port labels to their positions.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">spacetime_volume</span></code></p></td>
+<td><p>Return the spacetime volume of the computation.</p></td>
 </tr>
 </tbody>
 </table>
@@ -740,6 +746,21 @@ boundary conditions consistent. Default is None.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.BlockGraph.bounding_box_size">
+<span class="sig-name descname"><span class="pre">bounding_box_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.bounding_box_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.bounding_box_size" title="Link to this definition">#</a></dt>
+<dd><p>Return the size of the bounding box of the computation structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple of three integers representing the width along the X, Y, and Z
+directions, respectively.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[int, int, int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1070,21 +1091,6 @@ with the original graph.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.computation.BlockGraph.spacetime_volume">
-<span class="sig-name descname"><span class="pre">spacetime_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.spacetime_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.spacetime_volume" title="Link to this definition">#</a></dt>
-<dd><p>Return the spacetime volume of the computation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A tuple of three integers representing the width along the X, Y, and Z
-directions, respectively.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple[int, int, int]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.to_dae_file">
 <span class="sig-name descname"><span class="pre">to_dae_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_faces_at_direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_correlation_surface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.to_dae_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.to_dae_file" title="Link to this definition">#</a></dt>
 <dd><p>Write the block graph to a Collada DAE file.</p>
@@ -1225,6 +1231,7 @@ can be directly displayed in IPython compatible environments.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.__init__"><code class="docutils literal notranslate"><span class="pre">BlockGraph.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.add_cube"><code class="docutils literal notranslate"><span class="pre">BlockGraph.add_cube()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.add_pipe"><code class="docutils literal notranslate"><span class="pre">BlockGraph.add_pipe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.bounding_box_size"><code class="docutils literal notranslate"><span class="pre">BlockGraph.bounding_box_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.clone"><code class="docutils literal notranslate"><span class="pre">BlockGraph.clone()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.compose"><code class="docutils literal notranslate"><span class="pre">BlockGraph.compose()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.fill_ports"><code class="docutils literal notranslate"><span class="pre">BlockGraph.fill_ports()</span></code></a></li>
@@ -1242,7 +1249,6 @@ can be directly displayed in IPython compatible environments.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.remove_pipe"><code class="docutils literal notranslate"><span class="pre">BlockGraph.remove_pipe()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.rotate"><code class="docutils literal notranslate"><span class="pre">BlockGraph.rotate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.shift_by"><code class="docutils literal notranslate"><span class="pre">BlockGraph.shift_by()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.spacetime_volume"><code class="docutils literal notranslate"><span class="pre">BlockGraph.spacetime_volume()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_dae_file"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_dae_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_zx_graph"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_zx_graph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.validate"><code class="docutils literal notranslate"><span class="pre">BlockGraph.validate()</span></code></a></li>
