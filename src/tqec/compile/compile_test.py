@@ -6,8 +6,11 @@ from tqec.compile.compile import compile_block_graph
 from tqec.compile.specs.library import ALL_SPECS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
+from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
+
+from tqec.gallery import cnot
 
 
 @pytest.mark.parametrize(
@@ -159,4 +162,31 @@ def test_compile_L_shape_in_space_time(
         == 2 * (d**2 - 1) + (d + 1 + 2 * (d**2 - 1)) * (d - 1) + (d**2 - 1) * d
     )
     assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("spec", "obs_basis", "k"),
+    itertools.product(
+        ALL_SPECS.keys(),
+        (Basis.X, Basis.Z),
+        (1,),
+    ),
+)
+def test_compile_logical_cnot(spec: str, obs_basis: Basis, k: int) -> None:
+    d = 2 * k + 1
+    g = cnot(obs_basis)
+
+    cube_builder, pipe_builder = ALL_SPECS[spec]
+    correlation_surfaces = g.find_correlation_surfaces()
+    assert len(correlation_surfaces) == 2
+    compiled_graph = compile_block_graph(
+        g, cube_builder, pipe_builder, correlation_surfaces
+    )
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 2
     assert len(dem.shortest_graphlike_error()) == d
