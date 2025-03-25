@@ -464,6 +464,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">ax_target</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span>
     <span class="n">stats</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">sinter</span><span class="o">.</span><span class="n">TaskStats</span><span class="p">],</span>
     <span class="n">zoom_bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inset_bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.53</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># Creating the inset</span>
@@ -496,10 +497,10 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">lower_left</span><span class="p">,</span> <span class="n">upper_left</span><span class="p">,</span> <span class="n">lower_right</span><span class="p">,</span> <span class="n">upper_right</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">ax_target</span><span class="o">.</span><span class="n">indicate_inset_zoom</span><span class="p">(</span><span class="n">inset_ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
     <span class="p">)</span>  <span class="c1"># type: ignore</span>
-    <span class="n">lower_left</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">upper_right</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">lower_right</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">upper_left</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">lower_left</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="n">upper_right</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="n">lower_right</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="n">upper_left</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
     <span class="c1"># Plotting the data</span>
     <span class="n">sinter</span><span class="o">.</span><span class="n">plot_error_rate</span><span class="p">(</span>
@@ -509,6 +510,18 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">group_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">],</span>
         <span class="n">plot_args_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">index</span><span class="p">,</span> <span class="n">group_key</span><span class="p">,</span> <span class="n">group_stats</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;markersize&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
     <span class="p">)</span>
+    <span class="c1"># Drawing the threshold if provided</span>
+    <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">inset_ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+        <span class="n">inset_ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="n">threshold</span> <span class="o">*</span> <span class="mf">1.02</span><span class="p">,</span>
+            <span class="n">zoom_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.96</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 </pre></div>
 
                 </article>
