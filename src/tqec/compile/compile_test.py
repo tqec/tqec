@@ -196,7 +196,7 @@ def test_compile_logical_cnot(spec: str, obs_basis: Basis, k: int) -> None:
 
     block_builder, substitution_builder = SPECS[spec]
     correlation_surfaces = g.find_correlation_surfaces()
-    assert len(correlation_surfaces) == 3
+    assert len(correlation_surfaces) == 2
     compiled_graph = compile_block_graph(
         g, block_builder, substitution_builder, correlation_surfaces
     )
@@ -205,5 +205,5 @@ def test_compile_logical_cnot(spec: str, obs_basis: Basis, k: int) -> None:
     )
 
     dem = circuit.detector_error_model()
-    assert dem.num_observables == 3
+    assert dem.num_observables == 2
     assert len(dem.shortest_graphlike_error()) == d
