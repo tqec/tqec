@@ -11,6 +11,7 @@ def test_cz_open() -> None:
     g = cz()
     assert g.num_ports == 4
     assert g.num_cubes == 6
+    assert g.spacetime_volume == 2
     assert g.num_pipes == 5
     assert len(g.leaf_cubes) == 4
     assert {*g.ports.keys()} == {
@@ -19,7 +20,7 @@ def test_cz_open() -> None:
         "In_2",
         "Out_2",
     }
-    assert g.spacetime_volume() == (2, 3, 3)
+    assert g.bounding_box_size() == (2, 3, 3)
 
 
 def test_cz_open_zx() -> None:

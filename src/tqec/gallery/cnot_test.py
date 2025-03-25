@@ -10,6 +10,7 @@ def test_cnot_open() -> None:
     g = cnot()
     assert g.num_ports == 4
     assert g.num_cubes == 10
+    assert g.spacetime_volume == 6
     assert g.num_pipes == 9
     assert len(g.leaf_cubes) == 4
     assert {*g.ports.keys()} == {
@@ -18,7 +19,7 @@ def test_cnot_open() -> None:
         "In_Target",
         "Out_Target",
     }
-    assert g.spacetime_volume() == (2, 2, 4)
+    assert g.bounding_box_size() == (2, 2, 4)
 
 
 def test_cnot_open_zx() -> None:

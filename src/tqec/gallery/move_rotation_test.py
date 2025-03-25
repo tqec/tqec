@@ -9,13 +9,14 @@ def test_move_rotation_open() -> None:
     g = move_rotation()
     assert g.num_ports == 2
     assert g.num_cubes == 5
+    assert g.spacetime_volume == 3
     assert g.num_pipes == 4
     assert len(g.leaf_cubes) == 2
     assert {*g.ports.keys()} == {
         "In",
         "Out",
     }
-    assert g.spacetime_volume() == (2, 2, 3)
+    assert g.bounding_box_size() == (2, 2, 3)
 
 
 def test_move_rotation_open_zx() -> None:

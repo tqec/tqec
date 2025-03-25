@@ -9,6 +9,7 @@ def test_three_cnots_OPEN() -> None:
     g = three_cnots()
     assert g.num_ports == 6
     assert g.num_cubes == 12
+    assert g.spacetime_volume == 6
     assert g.num_pipes == 12
     assert len(g.leaf_cubes) == 6
     assert {*g.ports.keys()} == {
@@ -19,7 +20,7 @@ def test_three_cnots_OPEN() -> None:
         "In_c",
         "Out_c",
     }
-    assert g.spacetime_volume() == (4, 3, 4)
+    assert g.bounding_box_size() == (4, 3, 4)
 
 
 def test_three_cnots_open_zx() -> None:
