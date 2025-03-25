@@ -8,6 +8,7 @@ from pyzx.graph.graph_s import GraphS
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.interop.pyzx.positioned import PositionedZX
+from tqec.interop.pyzx.synthesis.greedy_bfs import greedy_bfs_block_synthesis
 from tqec.interop.pyzx.synthesis.positioned import positioned_block_synthesis
 from tqec.utils.position import Position3D
 
@@ -26,6 +27,8 @@ class SynthesisStrategy(Enum):
     conversion maps each vertex to a cube in the block graph and each
     edge to a pipe connecting the corresponding cubes.
     """
+    GREEDY_BFS = "GREEDY_BFS"
+    """A random greedy breadth-first search strategy."""
 
 
 def block_synthesis(
@@ -43,3 +46,5 @@ def block_synthesis(
                 )
             g = PositionedZX(zx_graph, positions)
             return positioned_block_synthesis(g)
+        case SynthesisStrategy.GREEDY_BFS:
+            return greedy_bfs_block_synthesis(zx_graph)
