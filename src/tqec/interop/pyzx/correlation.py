@@ -142,7 +142,7 @@ def find_correlation_surfaces(
             for surface in correlation_surfaces
         }
         correlation_surfaces = set(
-            _reduce_to_minimal_generators(stabilizers_to_surfaces).values()
+            reduce_observables_to_minimal_generators(stabilizers_to_surfaces).values()
         )
 
     # sort the correlation surfaces to make the result deterministic
@@ -332,12 +332,22 @@ def _check_spiders_are_supported(g: GraphS) -> None:
             )
 
 
-def _reduce_to_minimal_generators(
+def reduce_observables_to_minimal_generators(
     stabilizers_to_surfaces: dict[str, CorrelationSurface],
     hint_num_generators: int | None = None,
 ) -> dict[str, CorrelationSurface]:
-    """Reduce a complete or overcomplete set of stabilizers to a set of genetrators
-    with the smallest correlation surface area."""
+    """Reduce a set of observables to a set of genetrators with the smallest
+    correlation surface area.
+
+    Args:
+        stabilizers_to_surfaces: The mapping from the stabilizer to the correlation surface.
+        hint_num_generators: The hint number of generators to find. If provided,
+            the function will stop after finding the specified number of generators.
+            Otherwise, the function will iterate through all the stabilizers.
+
+    Returns:
+        A mapping from the generators' stabilizers to the correlation surfaces.
+    """
     if not stabilizers_to_surfaces:
         return {}
     # Sort the stabilizers by its corresponding correlation surface's area to
