@@ -1,0 +1,36 @@
+Shift2D
+=======
+
+.. currentmodule:: tqec.utils
+
+.. autoclass:: Shift2D
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Shift2D.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Shift2D.x
+      ~Shift2D.y
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   
+   
