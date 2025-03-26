@@ -467,6 +467,25 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inset_bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.53</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add an inset plot to ``ax_target`` with the provided ``stats``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ax_target: ax on which to insert the inset.</span>
+<span class="sd">        stats: ``sinter`` statistics to plot with ``sinter.plot_error_rate`` on</span>
+<span class="sd">            the created inset.</span>
+<span class="sd">        zoom_bounds: ``(x0, y0, x1, y1)``. The inset will have physical</span>
+<span class="sd">            error-rate (X-axis coordinate) ranging from ``x0`` to ``x1`` and</span>
+<span class="sd">            logical error-rate (Y-axis coordinate) ranging from ``y0` to ``y1``.</span>
+<span class="sd">            Note that you likely want ``y1 &gt; y0`` to have an inset plot that</span>
+<span class="sd">            looks like the main error-rate plot.</span>
+<span class="sd">        threshold: if not ``None``, a red horizontal line is added to the inset</span>
+<span class="sd">            plot to the physical error-rate given in this argument.</span>
+<span class="sd">        inset_bounds: bounds in axes coordinates (i.e., between 0 and 1) for the</span>
+<span class="sd">            rectangle in which the inset should appear on the main axes. The</span>
+<span class="sd">            default value tries to place the inset such that it does not overlap</span>
+<span class="sd">            with the logical error-rate curves on the main plot while still</span>
+<span class="sd">            leaving room to plot the observable in another inset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Creating the inset</span>
     <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">ax_target</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span>
         <span class="n">inset_bounds</span><span class="p">,</span>
