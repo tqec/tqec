@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Final, Iterable, Mapping
 
 from typing_extensions import override
@@ -21,7 +20,6 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
-@dataclass
 class Block(SequencedLayers):
     """Encodes the implementation of a block.
 

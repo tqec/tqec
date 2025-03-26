@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from functools import cached_property
 from typing import Final, Iterable, TypeGuard
 
@@ -33,18 +32,49 @@ def contains_only_plaquette_layers(
     return all(isinstance(layer, PlaquetteLayer) for layer in layers.values())
 
 
-@dataclass(frozen=True)
 class LayoutLayer(BaseLayer):
-    """A layer gluing several other layers together on a 2-dimensional grid."""
+    def __init__(
+        self,
+        layers: dict[LayoutPosition2D, BaseLayer],
+        element_shape: PhysicalQubitScalable2D,
+        trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
+    ) -> None:
+        """A layer gluing several other layers together on a 2-dimensional grid.
 
-    layers: dict[LayoutPosition2D, BaseLayer]
-    element_shape: PhysicalQubitScalable2D
+        Args:
+            layers:
+            element_shape: scalable shape (in qubit coordinates) of each entry
+                in the provided ``layers``.
+            trimmed_spatial_borders: all the spatial borders that have been
+                removed from the layer. For this particular class type, this
+                should always be empty.
 
-    def __post_init__(self) -> None:
+        Raises:
+            TQECException: if ``layers`` is empty.
+            TQECException: if ``trimmed_spatial_borders`` is not empty.
+        """
+        super().__init__(trimmed_spatial_borders)
+        self._layers = layers
+        self._element_shape = element_shape
+        self._post_init_check()
+
+    def _post_init_check(self) -> None:
         if not self.layers:
             raise TQECException(
                 f"An instance of {type(self).__name__} should have at least one layer."
             )
+        if self.trimmed_spatial_borders:
+            raise TQECException(
+                f"{LayoutLayer.__name__} cannot have trimmed spatial borders."
+            )
+
+    @property
+    def layers(self) -> dict[LayoutPosition2D, BaseLayer]:
+        return self._layers
+
+    @property
+    def element_shape(self) -> PhysicalQubitScalable2D:
+        return self._element_shape
 
     @cached_property
     def bounds(self) -> tuple[BlockPosition2D, BlockPosition2D]:

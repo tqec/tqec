@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from itertools import chain
 from typing import Iterable, Mapping, Sequence
 
@@ -13,26 +12,41 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
-@dataclass
 class SequencedLayers(BaseComposedLayer):
-    """Composed layer implementing a fixed sequence of layers.
+    def __init__(
+        self,
+        layer_sequence: Sequence[BaseLayer | BaseComposedLayer],
+        trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
+    ):
+        """Composed layer implementing a fixed sequence of layers.
 
-    This composed layer sequentially applies layers from a fixed sequence.
+        This composed layer sequentially applies layers from a fixed sequence.
 
-    Attributes:
-        layer_sequence: non-empty sequence of layers to apply one after the
-            other. All the layers in this sequence should have exactly the same
-            spatial footprint.
-    """
+        Args:
+            layer_sequence: non-empty sequence of layers to apply one after the
+                other. All the layers in this sequence should have exactly the same
+                spatial footprint.
+            trimmed_spatial_borders: all the spatial borders that have been
+                removed from the layer.
 
-    layer_sequence: Sequence[BaseLayer | BaseComposedLayer]
+        Raises:
+            TQECException: if the provided ``layer_sequence`` is empty.
+        """
+        super().__init__(trimmed_spatial_borders)
+        self._layer_sequence = layer_sequence
+        self._post_init_check()
 
-    def __post_init__(self) -> None:
+    @property
+    def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:
+        return self._layer_sequence
+
+    def _post_init_check(self) -> None:
         if len(self.layer_sequence) < 1:
             raise TQECException(
                 f"An instance of {type(self).__name__} is expected to have "
                 f"at least one layer. Found {len(self.layer_sequence)}."
             )
+        # TODO: Remove that condition.
         shapes = frozenset(layer.scalable_shape for layer in self.layer_sequence)
         if len(shapes) > 1:
             raise TQECException(
