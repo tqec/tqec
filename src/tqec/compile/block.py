@@ -130,7 +130,7 @@ class BlockLayout:
                 )
             plaquettes = Plaquettes(
                 FrozenDefaultDict(
-                    merged_plaquettes, default_factory=empty_square_plaquette
+                    merged_plaquettes, default_value=empty_square_plaquette()
                 )
             )
             if repetitions is not None:

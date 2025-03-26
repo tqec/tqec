@@ -3,6 +3,7 @@ import pytest
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
+from tqec.gallery import cnot
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
@@ -12,12 +13,14 @@ def test_block_graph_construction() -> None:
     g = BlockGraph()
     assert len(g.cubes) == 0
     assert len(g.pipes) == 0
+    assert g.spacetime_volume == 0
 
 
 def test_block_graph_add_cube() -> None:
     g = BlockGraph()
     v = g.add_cube(Position3D(0, 0, 0), "ZXZ")
     assert g.num_cubes == 1
+    assert g.spacetime_volume == 1
     assert g[v].kind == ZXCube.from_str("ZXZ")
     assert v in g
 
@@ -27,6 +30,7 @@ def test_block_graph_add_cube() -> None:
     v = g.add_cube(Position3D(1, 0, 0), "PORT", "P")
     assert g.num_cubes == 2
     assert g.num_ports == 1
+    assert g.spacetime_volume == 1
     assert g[v].is_port
 
     with pytest.raises(TQECException, match=".* port with the same label .*"):
@@ -116,6 +120,18 @@ def test_block_graph_validate_3d_corner() -> None:
 
     with pytest.raises(TQECException):
         g.validate()
+
+
+def test_block_graph_validate_ignore_shadowed_faces() -> None:
+    g = BlockGraph()
+    n1 = g.add_cube(Position3D(0, 0, 0), "XXZ")
+    n2 = g.add_cube(Position3D(1, 0, 0), "XXZ")
+    n3 = g.add_cube(Position3D(-1, 0, 0), "XXZ")
+    n4 = g.add_cube(Position3D(0, 0, 1), "ZXX")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n1, n3)
+    g.add_pipe(n1, n4, "ZXO")
+    g.validate()
 
 
 def test_graph_shift() -> None:
@@ -221,3 +237,10 @@ def test_cnot_graph_rotation(obs_basis: Basis | None) -> None:
 
     # We need to shift the rotated graph in Z direction to match the two
     assert rg.shift_by(dz=2) == rg_from_scratch
+
+
+def test_block_graph_fix_shadowed_faces() -> None:
+    rotated_cnot = cnot().rotate(Direction3D.X, False)
+    fixed = rotated_cnot.fix_shadowed_faces()
+    assert fixed[Position3D(0, 2, -1)].kind == ZXCube.from_str("ZXX")
+    assert fixed[Position3D(1, 1, -2)].kind == ZXCube.from_str("ZXX")

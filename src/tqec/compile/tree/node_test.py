@@ -26,7 +26,7 @@ LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 def plaquette_layer_fixture() -> PlaquetteLayer:
     template = QubitTemplate()
     plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_factory=empty_square_plaquette)
+        FrozenDefaultDict({}, default_value=empty_square_plaquette())
     )
     return PlaquetteLayer(template, plaquettes)
 
@@ -35,7 +35,7 @@ def plaquette_layer_fixture() -> PlaquetteLayer:
 def layout_layer_fixture() -> LayoutLayer:
     template = QubitTemplate()
     plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_factory=empty_square_plaquette)
+        FrozenDefaultDict({}, default_value=empty_square_plaquette())
     )
     return LayoutLayer(
         {

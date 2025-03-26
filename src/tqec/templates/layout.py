@@ -65,7 +65,7 @@ which outputs
 """
 
 from copy import deepcopy
-from typing import Callable, Mapping, Sequence
+from typing import Mapping, Sequence
 
 import numpy
 import numpy.typing as npt
@@ -203,7 +203,7 @@ class LayoutTemplate(Template):
                 "The following expected positions were not found in the "
                 f"provided individual_plaquettes: {missing_positions}."
             )
-        default_factories: list[Callable[[], Plaquette] | None] = []
+        default_values: list[Plaquette | None] = []
         index_maps = self.get_indices_map_for_instantiation()
         global_plaquettes: dict[int, Plaquette] = {}
         for position, index_map in index_maps.items():
@@ -213,19 +213,19 @@ class LayoutTemplate(Template):
                     position
                 ].collection.items()
             }
-            default_factories.append(
-                individual_plaquettes[position].collection.default_factory
+            default_values.append(
+                individual_plaquettes[position].collection.default_value
             )
-        unique_default_factories = frozenset(default_factories)
-        if len(unique_default_factories) != 1:
+        unique_default_values = frozenset(default_values)
+        if len(unique_default_values) != 1:
             raise TQECException(
                 "Found several different default factories: "
-                f"{unique_default_factories}. Cannot pick one for the merged "
+                f"{unique_default_values}. Cannot pick one for the merged "
                 f"{Plaquettes.__name__} instance."
             )
         return Plaquettes(
             FrozenDefaultDict(
-                global_plaquettes, default_factory=next(iter(unique_default_factories))
+                global_plaquettes, default_value=next(iter(unique_default_values))
             )
         )
 
