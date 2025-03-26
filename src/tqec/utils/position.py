@@ -128,6 +128,10 @@ class Position3D(Vec3D):
     y: int
     z: int
 
+    def at_direction(self, direction: Direction3D) -> int:
+        """Return the coordinate in the given direction."""
+        return self.as_tuple()[direction.value]
+
     def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> Position3D:
         """Shift the position by the given offset."""
         return Position3D(self.x + dx, self.y + dy, self.z + dz)
@@ -246,6 +250,16 @@ class SignedDirection3D:
             )
         sign, direction = match.groups()
         return SignedDirection3D(Direction3D("XYZ".index(direction)), sign == "+")
+
+    @staticmethod
+    def from_neighbouring_positions(
+        source: Position3D, sink: Position3D
+    ) -> SignedDirection3D:
+        direction = Direction3D.from_neighbouring_positions(source, sink)
+        towards_positive = (
+            sink.as_tuple()[direction.value] > source.as_tuple()[direction.value]
+        )
+        return SignedDirection3D(direction, towards_positive)
 
 
 @dataclass(frozen=True, order=True)
