@@ -67,7 +67,7 @@ def binary_search_threshold(
     noise_model_factory: Callable[[float], NoiseModel],
     minp: float = 10**-5,
     maxp: float = 0.1,
-    ks: tuple[int, ...] = (1, 2),
+    ks: Sequence[int] = (1, 2),
     atol: float = 10**-8,
     rtol: float = 10**-4,
     manhattan_radius: int = 2,
@@ -75,8 +75,8 @@ def binary_search_threshold(
     substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
     detector_database: DetectorDatabase | None = None,
     num_workers: int = multiprocessing.cpu_count(),
-    max_shots: int | None = None,
-    max_errors: int | None = None,
+    max_shots: int = 10_000_000,
+    max_errors: int = 5_000,
     decoders: Iterable[str] = ("pymatching",),
 ) -> tuple[float, dict[int, list[tuple[float, sinter.Fit]]]]:
     """Search the threshold value for the provided ``observable`` on the provided
