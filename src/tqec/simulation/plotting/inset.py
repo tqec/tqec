@@ -65,6 +65,8 @@ def plot_threshold_as_inset(
         zoom_bounds: ``(x0, y0, x1, y1)``. The inset will have physical
             error-rate (X-axis coordinate) ranging from ``x0`` to ``x1`` and
             logical error-rate (Y-axis coordinate) ranging from ``y0` to ``y1``.
+            Note that you likely want ``y1 > y0`` to have an inset plot that
+            looks like the main error-rate plot.
         threshold: if not ``None``, a red horizontal line is added to the inset
             plot to the physical error-rate given in this argument.
         inset_bounds: bounds in axes coordinates (i.e., between 0 and 1) for the
