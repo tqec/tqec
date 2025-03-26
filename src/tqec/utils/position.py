@@ -261,6 +261,14 @@ class SignedDirection3D:
         )
         return SignedDirection3D(direction, towards_positive)
 
+    @staticmethod
+    def all_directions() -> list[SignedDirection3D]:
+        return [
+            SignedDirection3D(direction, towards_positive)
+            for direction in Direction3D.all_directions()
+            for towards_positive in [True, False]
+        ]
+
 
 @dataclass(frozen=True, order=True)
 class FloatPosition3D:

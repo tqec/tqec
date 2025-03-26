@@ -141,13 +141,13 @@ def _try_to_handle_edges(
         pipe_kind = PipeKind._from_cube_kind(
             cube_kind,
             pg.get_direction(u, v),
-            can_infer_from_u,
+            ipos < opos,
             g.edge_type(edge) == zx.EdgeType.HADAMARD,
         )
         other_cube: Cube
         if is_zx_no_phase(g, other_node):
             other_cube_kind = _infer_cube_kind_from_pipe(
-                pipe_kind, not can_infer_from_u, vt if can_infer_from_u else ut
+                pipe_kind, opos < ipos, vt if can_infer_from_u else ut
             )
             # Check cube kind conflicts
             if other_node not in nodes_to_handle:
