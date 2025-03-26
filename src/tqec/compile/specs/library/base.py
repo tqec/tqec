@@ -11,11 +11,9 @@ from tqec.compile.specs.base import (
 )
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators import (
-    get_memory_qubit_plaquettes,
     get_memory_qubit_raw_template,
     get_spatial_cube_qubit_plaquettes,
     get_spatial_cube_qubit_raw_template,
-    get_temporal_hadamard_plaquettes,
 )
 from tqec.compile.specs.library.generators.hadamard import (
     get_spatial_horizontal_hadamard_plaquettes,
@@ -23,10 +21,12 @@ from tqec.compile.specs.library.generators.hadamard import (
     get_spatial_vertical_hadamard_plaquettes,
     get_spatial_vertical_hadamard_raw_template,
     get_temporal_hadamard_raw_template,
+    get_temporal_hadamard_rpng_descriptions,
 )
 from tqec.compile.specs.library.generators.memory import (
     get_memory_horizontal_boundary_plaquettes,
     get_memory_horizontal_boundary_raw_template,
+    get_memory_qubit_rpng_descriptions,
     get_memory_vertical_boundary_plaquettes,
     get_memory_vertical_boundary_raw_template,
 )
@@ -67,8 +67,8 @@ class BaseCubeBuilder(CubeBuilder):
         self._translator = DefaultRPNGTranslator()
         self._compiler = compiler
 
-    @staticmethod
     def _get_template_and_plaquettes(
+        self,
         spec: CubeSpec,
     ) -> tuple[
         RectangularTemplate,
@@ -92,10 +92,23 @@ class BaseCubeBuilder(CubeBuilder):
                 if x == Basis.Z
                 else ZObservableOrientation.VERTICAL
             )
+
             return get_memory_qubit_raw_template(), (
-                get_memory_qubit_plaquettes(orientation, z, None),
-                get_memory_qubit_plaquettes(orientation, None, None),
-                get_memory_qubit_plaquettes(orientation, None, z),
+                Plaquettes(
+                    get_memory_qubit_rpng_descriptions(orientation, z, None).map_values(
+                        self._get_plaquette
+                    )
+                ),
+                Plaquettes(
+                    get_memory_qubit_rpng_descriptions(
+                        orientation, None, None
+                    ).map_values(self._get_plaquette)
+                ),
+                Plaquettes(
+                    get_memory_qubit_rpng_descriptions(orientation, None, z).map_values(
+                        self._get_plaquette
+                    )
+                ),
             )
         # else:
         return get_spatial_cube_qubit_raw_template(), (
@@ -104,6 +117,9 @@ class BaseCubeBuilder(CubeBuilder):
             get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, None, z),
         )
 
+    def _get_plaquette(self, description: RPNGDescription) -> Plaquette:
+        return self._compiler.compile(self._translator.translate(description))
+
     def __call__(self, spec: CubeSpec) -> Block:
         kind = spec.kind
         if isinstance(kind, Port):
@@ -111,9 +127,7 @@ class BaseCubeBuilder(CubeBuilder):
         elif isinstance(kind, YHalfCube):
             raise NotImplementedError("Y cube is not implemented.")
         # else
-        template, (init, repeat, measure) = (
-            BaseCubeBuilder._get_template_and_plaquettes(spec)
-        )
+        template, (init, repeat, measure) = self._get_template_and_plaquettes(spec)
         layers = [
             PlaquetteLayer(template, init),
             RepeatedLayer(
@@ -201,7 +215,11 @@ class BasePipeBuilder(PipeBuilder):
             if spec.pipe_kind.x == Basis.Z
             else ZObservableOrientation.VERTICAL
         )
-        memory_plaquettes = get_memory_qubit_plaquettes(z_observable_orientation)
+        memory_plaquettes = Plaquettes(
+            get_memory_qubit_rpng_descriptions(
+                z_observable_orientation, None, None
+            ).map_values(self._get_plaquette)
+        )
         template = get_memory_qubit_raw_template()
         return Block([PlaquetteLayer(template, memory_plaquettes) for _ in range(2)])
 
@@ -243,8 +261,16 @@ class BasePipeBuilder(PipeBuilder):
             else (ZObservableOrientation.VERTICAL, ZObservableOrientation.HORIZONTAL)
         )
         first_layer_orientation, second_layer_orientation = orientations
-        hadamard_plaquettes = get_temporal_hadamard_plaquettes(first_layer_orientation)
-        memory_plaquettes = get_memory_qubit_plaquettes(second_layer_orientation)
+        hadamard_plaquettes = Plaquettes(
+            get_temporal_hadamard_rpng_descriptions(first_layer_orientation).map_values(
+                self._get_plaquette
+            )
+        )
+        memory_plaquettes = Plaquettes(
+            get_memory_qubit_rpng_descriptions(second_layer_orientation).map_values(
+                self._get_plaquette
+            )
+        )
         hadamard_layer = PlaquetteLayer(
             get_temporal_hadamard_raw_template(), hadamard_plaquettes
         )
@@ -298,6 +324,7 @@ class BasePipeBuilder(PipeBuilder):
                     "Should never happen as we are in a spatial (i.e., X/Y plane) junction."
                 )
 
+    # FIXME: update this implementation
     def _get_spatial_cube_pipe_block(self, spec: PipeSpec) -> Block:
         xbasis, ybasis = spec.pipe_kind.x, spec.pipe_kind.y
         assert xbasis is not None or ybasis is not None
