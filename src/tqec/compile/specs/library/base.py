@@ -30,10 +30,6 @@ from tqec.compile.specs.library.generators.memory import (
     get_memory_vertical_boundary_plaquettes,
     get_memory_vertical_boundary_raw_template,
 )
-from tqec.compile.specs.library.generators.spatial import (
-    get_spatial_cube_arm_plaquettes,
-    get_spatial_cube_arm_raw_template,
-)
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
@@ -325,34 +321,34 @@ class BasePipeBuilder(PipeBuilder):
                 )
 
     # FIXME: update this implementation
-    def _get_spatial_cube_pipe_block(self, spec: PipeSpec) -> Block:
-        xbasis, ybasis = spec.pipe_kind.x, spec.pipe_kind.y
-        assert xbasis is not None or ybasis is not None
-        spatial_boundary_basis: Basis = xbasis if xbasis is not None else ybasis  # type: ignore
-        # Get the plaquette indices mappings
-        arm = BasePipeBuilder._get_spatial_cube_arm(spec)
-        pipe_template = get_spatial_cube_arm_raw_template(arm)
-        mappings = BasePipeBuilder._get_plaquette_indices_mapping(
-            spec.cube_templates, pipe_template, spec.pipe_kind.direction
-        )
-        # The end goal of this function is to fill in the following 2 variables
-        # and use them to make a Substitution instance.
-        src_block: dict[int, Plaquettes] = {}
-        dst_block: dict[int, Plaquettes] = {}
-        for layer_index, (reset, measurement) in enumerate(
-            [(spec.pipe_kind.z, None), (None, None), (None, spec.pipe_kind.z)]
-        ):
-            plaquettes = get_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis, arm, reset, measurement
-            )
-            src_block[layer_index] = Plaquettes(
-                plaquettes.collection.map_keys_if_present(mappings[0])
-            )
-            dst_block[layer_index] = Plaquettes(
-                plaquettes.collection.map_keys_if_present(mappings[1])
-            )
-        # return Substitution(src_block, dst_block)
-        return Block([])
+    # def _get_spatial_cube_pipe_block(self, spec: PipeSpec) -> Block:
+    #     xbasis, ybasis = spec.pipe_kind.x, spec.pipe_kind.y
+    #     assert xbasis is not None or ybasis is not None
+    #     spatial_boundary_basis: Basis = xbasis if xbasis is not None else ybasis  # type: ignore
+    #     # Get the plaquette indices mappings
+    #     arm = BasePipeBuilder._get_spatial_cube_arm(spec)
+    #     pipe_template = get_spatial_cube_arm_raw_template(arm)
+    #     mappings = BasePipeBuilder._get_plaquette_indices_mapping(
+    #         spec.cube_templates, pipe_template, spec.pipe_kind.direction
+    #     )
+    #     # The end goal of this function is to fill in the following 2 variables
+    #     # and use them to make a Substitution instance.
+    #     src_block: dict[int, Plaquettes] = {}
+    #     dst_block: dict[int, Plaquettes] = {}
+    #     for layer_index, (reset, measurement) in enumerate(
+    #         [(spec.pipe_kind.z, None), (None, None), (None, spec.pipe_kind.z)]
+    #     ):
+    #         plaquettes = get_spatial_cube_arm_plaquettes(
+    #             spatial_boundary_basis, arm, reset, measurement
+    #         )
+    #         src_block[layer_index] = Plaquettes(
+    #             plaquettes.collection.map_keys_if_present(mappings[0])
+    #         )
+    #         dst_block[layer_index] = Plaquettes(
+    #             plaquettes.collection.map_keys_if_present(mappings[1])
+    #         )
+    #     # return Substitution(src_block, dst_block)
+    #     return Block([])
 
     @staticmethod
     def _get_spatial_regular_pipe_template(spec: PipeSpec) -> RectangularTemplate:
@@ -448,8 +444,6 @@ class BasePipeBuilder(PipeBuilder):
     def get_spatial_pipe_block(self, spec: PipeSpec) -> Block:
         assert spec.pipe_kind.is_spatial
         cube_specs = spec.cube_specs
-        return (
-            self._get_spatial_cube_pipe_block(spec)
-            if cube_specs[0].is_spatial or cube_specs[1].is_spatial
-            else self._get_spatial_regular_pipe_block(spec)
-        )
+        if cube_specs[0].is_spatial or cube_specs[1].is_spatial:
+            raise NotImplementedError("Spatial cube junctions are not implemented.")
+        return self._get_spatial_regular_pipe_block(spec)
