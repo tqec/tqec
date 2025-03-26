@@ -84,8 +84,8 @@ def plot_threshold_as_inset(
     inset_ax.grid(which="both", axis="both")
     # 4. Annotate the inset correctly.
     _, (lower_left, upper_left, lower_right, upper_right) = (
-        ax_target.indicate_inset_zoom(inset_ax, edgecolor="black", alpha=0.8)
-    )  # type: ignore
+        ax_target.indicate_inset_zoom(inset_ax, edgecolor="black", alpha=0.8)  # type: ignore
+    )
     lower_left.set_visible(True)  # type: ignore
     upper_right.set_visible(True)  # type: ignore
     lower_right.set_visible(False)  # type: ignore
