@@ -29,21 +29,10 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
         # By definition of a "layer":
         return LinearFunction(0, 1)
 
+    @override
     def with_temporal_borders_replaced(
         self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
     ) -> BaseLayer | None:
-        """Returns ``self`` with the provided temporal borders replaced.
-
-        Args:
-            borders: a mapping from temporal borders to replace to their
-                replacement. A value of ``None`` as a replacement means that the
-                border is removed.
-
-        Returns:
-            a copy of ``self`` with the provided ``borders`` replaced, or ``None``
-            if replacing the provided ``borders`` from ``self`` result in an
-            empty temporal footprint.
-        """
         if not border_replacements:
             return self
         if len(border_replacements) > 1 and any(
