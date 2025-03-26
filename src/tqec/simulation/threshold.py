@@ -65,11 +65,11 @@ def binary_search_threshold(
     block_graph: BlockGraph,
     observable: CorrelationSurface,
     noise_model_factory: Callable[[float], NoiseModel],
-    minp: float = 10**-5,
+    minp: float = 1e-5,
     maxp: float = 0.1,
     ks: Sequence[int] = (1, 2),
-    atol: float = 10**-8,
-    rtol: float = 10**-4,
+    atol: float = 1e-4,
+    rtol: float = 1e-4,
     manhattan_radius: int = 2,
     block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
     substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
@@ -97,6 +97,18 @@ def binary_search_threshold(
         value of ``p`` that leads to logical error-rates above ``0.4`` for all
         the provided ``ks`` is too high (and so recurse the binary search in the
         first half of the interval).
+
+    Warning:
+        Small values for ``atol`` and ``rtol`` make very little sense here.
+
+        Due to finite sampling, logical error-rate estimations will not be exact
+        and will have error bars. This function does not take these error bars
+        into account yet and only uses the best estimate.
+
+        Setting ``atol`` or ``rtol`` to very small values will give the
+        impression that the output estimate is very precise, but the noise
+        floor imposed by ``max_shots`` and the associated sampling error will
+        still be present, and might be higher than ``atol`` and ``rtol``.
 
     Args:
         block_graph: a representation of the QEC computation to find the
