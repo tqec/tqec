@@ -60,3 +60,7 @@ class WithTemporalFootprint(ABC):
             empty temporal footprint.
         """
         pass
+
+    @abstractmethod
+    def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
+        pass

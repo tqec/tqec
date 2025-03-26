@@ -156,3 +156,7 @@ class SequencedLayers(BaseComposedLayer):
             isinstance(value, SequencedLayers)
             and self.layer_sequence == value.layer_sequence
         )
+
+    @override
+    def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
+        return self._layer_sequence[0].get_temporal_layer_on_border(border)

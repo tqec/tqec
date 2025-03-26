@@ -43,3 +43,7 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
                 "an atomic layer that, by definition, only contain one layer."
             )
         return next(iter(border_replacements.values()))
+
+    @override
+    def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
+        return self

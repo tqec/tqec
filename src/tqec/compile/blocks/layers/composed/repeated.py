@@ -216,3 +216,7 @@ class RepeatedLayer(BaseComposedLayer):
             and self.repetitions == value.repetitions
             and self.internal_layer == value.internal_layer
         )
+
+    @override
+    def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
+        return self.internal_layer.get_temporal_layer_on_border(border)
