@@ -56,6 +56,23 @@ def plot_threshold_as_inset(
     threshold: float | None = None,
     inset_bounds: tuple[float, float, float, float] = (0.53, 0.45, 0.4, 0.4),
 ) -> None:
+    """Add an inset plot to ``ax_target`` with the provided ``stats``.
+
+    Args:
+        ax_target: ax on which to insert the inset.
+        stats: ``sinter`` statistics to plot with ``sinter.plot_error_rate`` on
+            the created inset.
+        zoom_bounds: ``(x0, y0, x1, y1)``. The inset will have physical
+            error-rate (X-axis coordinate) ranging from ``x0`` to ``x1`` and
+            logical error-rate (Y-axis coordinate) ranging from ``y0` to ``y1``.
+        threshold: if not ``None``, a red horizontal line is added to the inset
+            plot to the physical error-rate given in this argument.
+        inset_bounds: bounds in axes coordinates (i.e., between 0 and 1) for the
+            rectangle in which the inset should appear on the main axes. The
+            default value tries to place the inset such that it does not overlap
+            with the logical error-rate curves on the main plot while still
+            leaving room to plot the observable in another inset.
+    """
     # Creating the inset
     inset_ax = ax_target.inset_axes(
         inset_bounds,
