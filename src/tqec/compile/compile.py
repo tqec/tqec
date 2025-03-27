@@ -329,12 +329,24 @@ def compile_block_graph(
         A :class:`CompiledGraph` object that can be used to generate a
         ``stim.Circuit`` and scale easily.
     """
+    # All the ports should be filled before compiling the block graph.
     if block_graph.num_ports != 0:
         raise TQECException(
-            "Can not compile a block graph with open ports into circuits."
+            "Can not compile a block graph with open ports into circuits. "
+            "You might want to call `fill_ports` or `fill_ports_for_minimal_simulation` "
+            "on the block graph before compiling it."
         )
+    # Validate the graph can represent a valid computation.
+    block_graph.validate()
 
-    # 0. Set the minimum z of block graph to 0.(time starts from zero)
+    # Fix the shadowed faces of the cubes to avoid using spatial cubes
+    # when a non-spatial cube can be used at the same position.
+    # For example, when three XXZ cubes are connected in a row along the x-axis,
+    # the middle one can be replaced by a ZXX cube because the faces along the
+    # x-axis are shadowed by the connected pipes.
+    block_graph = block_graph.fix_shadowed_faces()
+
+    # Set the minimum z of block graph to 0.(time starts from zero)
     minz = min(cube.position.z for cube in block_graph.cubes)
     if minz != 0:
         block_graph = block_graph.shift_by(dz=-minz)
@@ -343,13 +355,13 @@ def compile_block_graph(
         cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
     }
 
-    # 1. Get the base compiled blocks before applying the substitution rules.
+    # Get the base compiled blocks before applying the substitution rules.
     blocks: dict[Position3D, CompiledBlock] = {}
     for cube in block_graph.cubes:
         spec = cube_specs[cube]
         blocks[cube.position] = block_builder(spec)
 
-    # 2. Apply the substitution rules to the compiled blocks inplace.
+    # Apply the substitution rules to the compiled blocks inplace.
     pipes = block_graph.pipes
     time_pipes = [pipe for pipe in pipes if pipe.direction == Direction3D.Z]
     space_pipes = [pipe for pipe in pipes if pipe.direction != Direction3D.Z]
@@ -364,7 +376,7 @@ def compile_block_graph(
         blocks[pos1].update_layers(substitution.src)
         blocks[pos2].update_layers(substitution.dst)
 
-    # 3. Collect by time and create the blocks layout.
+    # Collect by time and create the blocks layout.
     min_z = min(pos.z for pos in blocks.keys())
     max_z = max(pos.z for pos in blocks.keys())
     layout_slices: list[BlockLayout] = [
@@ -378,7 +390,7 @@ def compile_block_graph(
         for z in range(min_z, max_z + 1)
     ]
 
-    # 4. Get the abstract observables to be included in the compiled circuit.
+    # Get the abstract observables to be included in the compiled circuit.
     obs_included: list[AbstractObservable] = []
     if observables is not None:
         if observables == "auto":

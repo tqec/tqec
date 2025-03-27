@@ -205,6 +205,11 @@ class Direction3D(Enum):
             f"{source:=} and {sink:=}."
         )
 
+    @property
+    def orthogonal_directions(self) -> tuple[Direction3D, Direction3D]:
+        i = self.value
+        return Direction3D((i + 1) % 3), Direction3D((i + 2) % 3)
+
 
 @dataclass(frozen=True)
 class SignedDirection3D:

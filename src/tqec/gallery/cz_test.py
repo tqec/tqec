@@ -11,6 +11,7 @@ def test_cz_open() -> None:
     g = cz()
     assert g.num_ports == 4
     assert g.num_cubes == 6
+    assert g.spacetime_volume == 2
     assert g.num_pipes == 5
     assert len(g.leaf_cubes) == 4
     assert {*g.ports.keys()} == {
@@ -19,7 +20,7 @@ def test_cz_open() -> None:
         "In_2",
         "Out_2",
     }
-    assert g.spacetime_volume() == (2, 3, 3)
+    assert g.bounding_box_size() == (2, 3, 3)
 
 
 def test_cz_open_zx() -> None:
@@ -75,8 +76,8 @@ def test_cz_resolve_ports() -> None:
     "flows, num_surfaces, external_stabilizers",
     [
         (["ZZ -> ZZ"], 2, {"ZIZI", "IZIZ"}),
-        (["XI -> XZ"], 3, {"XIXZ", "IZIZ", "XZXI"}),
-        (None, 6, {"XIXZ", "ZIZI", "IXZX", "IZIZ", "XZXI", "ZXIX"}),
+        (["XI -> XZ"], 2, {"IZIZ", "XIXZ"}),
+        (None, 4, {"IXZX", "ZIZI", "IZIZ", "XIXZ"}),
     ],
 )
 def test_cz_correlation_surface(
@@ -96,5 +97,5 @@ def test_cz_ports_filling() -> None:
     g = cz()
     filled_graphs = g.fill_ports_for_minimal_simulation()
     assert len(filled_graphs) == 2
-    assert filled_graphs[0].graph == cz(["ZI -> ZI", "IX -> ZX"])
-    assert filled_graphs[1].graph == cz(["XI -> XZ", "IZ -> IZ"])
+    assert filled_graphs[0].graph == cz(["XI -> XZ", "IZ -> IZ"])
+    assert filled_graphs[1].graph == cz(["ZI -> ZI", "IX -> ZX"])

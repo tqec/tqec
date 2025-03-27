@@ -24,6 +24,7 @@ compatibility with Python 3.13.
     # Clone the repository to have local files to work on
     git clone https://github.com/tqec/tqec.git
     # Install the library with developer dependencies
+    # Note the "-e" option, that's important.
     python -m pip install -e 'tqec[all]'
     # Go in the tqec directory and enable pre-commit
     cd tqec
@@ -32,6 +33,17 @@ compatibility with Python 3.13.
 .. warning::
     You will have to install ``pandoc`` separately as the instructions above only install a ``pandoc`` wrapper.
     See https://stackoverflow.com/a/71585691 for more info.
+
+.. warning::
+    The ``-e`` option to the ``python -m pip install`` call is **important** as it installs an editable version
+    of ``tqec``. Without that option, changes made in the folder ``tqec`` will **not** be reflected on the
+    ``tqec`` package installed.
+
+    Without the ``-e`` option, ``pip`` copies all the files it needs (mainly, the code) to the current Python
+    package folder. Any modification to the original ``tqec`` folder you installed the package from
+    will not be reflected automatically on the copied files, which will limit your ability to test new
+    changes on the code base. The ``-e`` option tells ``pip`` to create a link instead of copying, which means
+    that the code in the ``tqec`` folder will be the code used when importing ``tqec``.
 
 If you encounter any issue during the installation, please refer to :ref:`installation` for more information.
 
