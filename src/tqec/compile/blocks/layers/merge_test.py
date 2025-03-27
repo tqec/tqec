@@ -328,6 +328,11 @@ def test_merge_composed_layers_unknown_layer_type(
         ) -> SequencedLayers:
             raise NotImplementedError()
 
+        def get_temporal_layer_on_border(
+            self, border: TemporalBlockBorder
+        ) -> BaseLayer:
+            raise NotImplementedError()
+
     plaquette_layer, plaquette_layer2, raw_layer = base_layers
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
