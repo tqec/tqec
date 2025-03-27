@@ -114,3 +114,16 @@ def test_add_temporal_pipe_with_spatial_pipe_existing(
     graph.add_pipe(BlockPosition3D(0, 1, 0), BlockPosition3D(0, 1, 1), XZO)
 
     graph.to_layer_tree()
+
+
+def test_sequenced_layers_with_layout_layers_of_different_shapes(
+    scalable_qubit_shape: PhysicalQubitScalable2D, XZZ: Block, XOZ: Block, XZO: Block
+) -> None:
+    graph = TopologicalComputationGraph(scalable_qubit_shape)
+    graph.add_cube(BlockPosition3D(0, 0, 0), XZZ)
+    graph.add_cube(BlockPosition3D(0, 0, 1), XZZ)
+    graph.add_cube(BlockPosition3D(0, 1, 1), XZZ)
+    graph.add_pipe(BlockPosition3D(0, 0, 0), BlockPosition3D(0, 0, 1), XZO)
+    graph.add_pipe(BlockPosition3D(0, 0, 1), BlockPosition3D(0, 1, 1), XOZ)
+
+    graph.to_layer_tree()

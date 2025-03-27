@@ -7,6 +7,7 @@ from typing_extensions import override
 
 from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
+from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -46,14 +47,6 @@ class SequencedLayers(BaseComposedLayer):
                 f"An instance of {type(self).__name__} is expected to have "
                 f"at least one layer. Found {len(self.layer_sequence)}."
             )
-        # TODO: Remove that condition.
-        shapes = frozenset(layer.scalable_shape for layer in self.layer_sequence)
-        if len(shapes) > 1:
-            raise TQECException(
-                f"Found at least two different shapes in a {self.__class__.__name__}, "
-                "which is forbidden. All the provided layers should have the same "
-                f"shape. Found shapes: {shapes}."
-            )
 
     @property
     def schedule(self) -> tuple[LinearFunction, ...]:
@@ -71,9 +64,16 @@ class SequencedLayers(BaseComposedLayer):
     @property
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        # __post_init__ guarantees that there is at least one item in
-        # self.layer_sequence and that all the layers have the same scalable shape.
-        return self.layer_sequence[0].scalable_shape
+        if any(isinstance(layer, LayoutLayer) for layer in self._layer_sequence):
+            raise NotImplementedError(
+                f"Computation of the scalable_shape for {LayoutLayer.__name__} "
+                "instances has not been implemented yet."
+            )
+        scalable_shape = self._layer_sequence[0].scalable_shape
+        for layer in self._layer_sequence[1:]:
+            if layer.scalable_shape != scalable_shape:
+                raise TQECException("Found a different scalable shape.")
+        return scalable_shape
 
     def _layers_with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
