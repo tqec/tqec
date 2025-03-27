@@ -163,6 +163,10 @@ class Position3D(Vec3D):
         """Return the position as a 2D position."""
         return Position2D(self.x, self.y)
 
+    def manhattan_distance(self, other: Position3D) -> int:
+        """Return the Manhattan distance to another position."""
+        return sum(abs(a - b) for a, b in zip(self.as_tuple(), other.as_tuple()))
+
 
 class BlockPosition3D(Position3D):
     """Represents the position of a block on a 2-dimensional plane."""

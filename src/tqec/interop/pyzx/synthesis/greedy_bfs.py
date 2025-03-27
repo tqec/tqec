@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from itertools import chain
 from typing import Iterable
+import heapq
+
 import numpy as np
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, VertexType
@@ -226,8 +228,8 @@ def greedy_bfs_block_synthesis(g: GraphS, random_seed: int | None = None) -> Blo
         )
         layout_zx.add_edge((n1, n2), edge_type)
     # Synthesize the block graph
-    for v in layout_zx.vertex_set():
-        print(v, layout_zx.type(v).name, v2p[v])
+    # for v in layout_zx.vertex_set():
+    #     print(v, layout_zx.type(v).name, v2p[v])
     return positioned_block_synthesis(PositionedZX(layout_zx, v2p))
 
 
@@ -326,7 +328,8 @@ def _bfs_min_weight_path(
     end_pos = node_positions[end]
     exits_set = set(chain(*exits.values()))
     min_weight_path: Path | None = None
-    queue: list[Path] = []
+    tie_breaker = 0
+    queue = []
     for exit in exits[start]:
         path = Path(
             [start_pos, exit.to_position],
@@ -334,9 +337,16 @@ def _bfs_min_weight_path(
             {exit},
             hadamard,
         )
-        queue.append(path)
+        heuristic = min(
+            exit.to_position.manhattan_distance(ee.to_position) for ee in exits[end]
+        )
+        priority = path.weight + heuristic
+        heapq.heappush(queue, (priority, tie_breaker, path))
+        tie_breaker += 1
+
     while queue:
-        path = queue.pop(0)
+        _, _, path = heapq.heappop(queue)
+
         if path.last == end_pos:
             # orientation is correct
             expected_orientation = path.edge_orientations[-1]
@@ -346,7 +356,21 @@ def _bfs_min_weight_path(
                 expected_orientation,
             )
             if expected_exit in exits[end]:
-                if min_weight_path is None or path.weight < min_weight_path.weight:
+                if (
+                    min_weight_path is not None
+                    and path.weight >= min_weight_path.weight
+                ):
+                    continue
+                prune = False
+                for node, es in exits.items():
+                    num_edges = edges_left[node]
+                    if node == end:
+                        num_edges -= 1
+                    num_exits = len([e for e in es if e not in path.obstructed_exits])
+                    if num_exits < num_edges:
+                        prune = True
+                        break
+                if not prune:
                     min_weight_path = path
             continue
         for dir in SignedDirection3D.all_directions():
@@ -362,17 +386,13 @@ def _bfs_min_weight_path(
                 exit for exit in exits_set if exit.is_obstructed_by_position(next_pos)
             }
             new_path.grow_to(next_pos, obstructed_by_next_pos)
-            prune: bool = False
-            for node, es in exits.items():
-                num_edges = edges_left[node]
-                num_exits = len([e for e in es if e not in new_path.obstructed_exits])
-                if num_exits < num_edges:
-                    prune = True
-                    break
-            if prune:
-                continue
-            if min_weight_path is None or new_path.weight < min_weight_path.weight:
-                queue.append(new_path)
+            heuristic = min(
+                new_path.last.manhattan_distance(ee.to_position) for ee in exits[end]
+            )
+            w = new_path.weight + heuristic
+            if min_weight_path is None or w < min_weight_path.weight:
+                heapq.heappush(queue, (w, tie_breaker, new_path))
+                tie_breaker += 1
     if min_weight_path is None:
         raise TQECException(f"Could not find a path from {start} to {end}.")
     return min_weight_path

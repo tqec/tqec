@@ -4,9 +4,7 @@ from pyzx.utils import VertexType
 from tqec.interop.pyzx.synthesis import greedy_bfs_block_synthesis
 
 g = GraphS()
-g.add_vertices(8)
-# z_vertices = [0, 4, 5, 6]
-# x_vertices = [1, 2, 3, 7]
+g.add_vertices(15)
 z_vertices = [0, 4, 5, 6]
 x_vertices = [1, 2, 3, 7]
 for n in z_vertices:
@@ -22,15 +20,15 @@ edges = [
     (2, 5),
     (3, 6),
     (4, 7),
-    (5, 7),
     (6, 7),
-    # (0, 8),
-    # (1, 9),
-    # (2, 10),
-    # (3, 11),
-    # (4, 12),
-    # (5, 13),
-    # (6, 14),
+    (5, 7),
+    (0, 8),
+    (1, 9),
+    (2, 10),
+    (3, 11),
+    (4, 12),
+    (5, 13),
+    (6, 14),
 ]
 g.add_edges(edges)
 # g = GraphS()
