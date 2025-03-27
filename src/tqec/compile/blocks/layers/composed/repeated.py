@@ -96,7 +96,9 @@ class RepeatedLayer(BaseComposedLayer):
         self, borders: Iterable[SpatialBlockBorder]
     ) -> RepeatedLayer:
         return RepeatedLayer(
-            self.internal_layer.with_spatial_borders_trimmed(borders), self.repetitions
+            self.internal_layer.with_spatial_borders_trimmed(borders),
+            self.repetitions,
+            self.trimmed_spatial_borders | frozenset(borders),
         )
 
     @staticmethod

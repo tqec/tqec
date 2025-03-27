@@ -162,7 +162,7 @@ class PlaquetteLayer(BaseLayer):
         return PlaquetteLayer(
             self.template,
             self.plaquettes.without_plaquettes(border_indices),
-            trimmed_spatial_borders=borders,
+            trimmed_spatial_borders=self.trimmed_spatial_borders | borders,
         )
 
     def __eq__(self, value: object) -> bool:

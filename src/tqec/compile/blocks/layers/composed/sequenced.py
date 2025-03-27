@@ -86,7 +86,10 @@ class SequencedLayers(BaseComposedLayer):
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> SequencedLayers:
-        return SequencedLayers(self._layers_with_spatial_borders_trimmed(borders))
+        return SequencedLayers(
+            self._layers_with_spatial_borders_trimmed(borders),
+            self.trimmed_spatial_borders | frozenset(borders),
+        )
 
     def _layers_with_temporal_borders_replaced(
         self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]

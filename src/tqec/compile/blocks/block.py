@@ -37,7 +37,10 @@ class Block(SequencedLayers):
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> Block:
-        return Block(self._layers_with_spatial_borders_trimmed(borders))
+        return Block(
+            self._layers_with_spatial_borders_trimmed(borders),
+            self.trimmed_spatial_borders | frozenset(borders),
+        )
 
     @override
     def with_temporal_borders_replaced(
