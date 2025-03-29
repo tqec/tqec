@@ -23,25 +23,38 @@ class PlaquetteLayer(BaseLayer):
         self,
         template: RectangularTemplate,
         plaquettes: Plaquettes,
-        spatial_borders_removed: frozenset[SpatialBlockBorder] = frozenset(),
+        trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
     ) -> None:
         """Represents a layer with a template and some plaquettes.
 
         This class implements the layer interface by using a template and some
         plaquettes. This is the preferred way of representing a layer.
 
+        Args:
+            template: template used in conjunction to ``plaquettes`` to
+                represent the quantum circuit implementing the layer.
+            plaquettes: plaquettes used in conjunction to ``template`` to
+                represent the quantum circuit implementing the layer.
+            trimmed_spatial_borders: all the spatial borders that have been
+                removed from the layer.
+
         Raises:
             TQECException: if the provided ``template`` increments do not match
                 with the expected spatial border width.
             TQECException: if the provided ``template`` and
-                ``spatial_borders_removed`` can lead to empty instantiations for
+                ``trimmed_spatial_borders`` can lead to empty instantiations for
                 ``k >= 1``.
         """
-        super().__init__()
+        super().__init__(trimmed_spatial_borders)
+        self._template = template
+        self._plaquettes = plaquettes
+        self._post_init_check()
+
+    def _post_init_check(self) -> None:
         # Shortening variable name for convenience
         EW: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
         expected_shifts = Shift2D(EW, EW)
-        if (shifts := template.get_increments()) != expected_shifts:
+        if (shifts := self._template.get_increments()) != expected_shifts:
             raise TQECException(
                 f"Spatial borders are expected to be {EW} qubits large. Got a "
                 f"Template instance with {shifts:=}. Removing a border from "
@@ -50,12 +63,14 @@ class PlaquetteLayer(BaseLayer):
             )
         # We require the template shape to be strictly positive for any value of
         # k > 0.
-        shape = PlaquetteLayer._get_template_shape(template, spatial_borders_removed)
+        shape = PlaquetteLayer._get_template_shape(
+            self._template, self.trimmed_spatial_borders
+        )
         shape1 = shape.to_numpy_shape(1)
         # Check that the shape is valid (i.e., strictly positive) for k == 1.
         if not all(coord > 0 for coord in shape1):
             raise TQECException(
-                "The provided template/spatial_borders_removed combo leads to an "
+                "The provided template/trimmed_spatial_borders combo leads to an "
                 f"invalid template shape ({shape1}) for k == 1. "
                 f"{PlaquetteLayer.__name__} instances do not support empty templates."
             )
@@ -67,10 +82,6 @@ class PlaquetteLayer(BaseLayer):
                 "which will eventually lead to an empty instantiation, which is "
                 f"not supported by {PlaquetteLayer.__name__} instances."
             )
-
-        self._template = template
-        self._plaquettes = plaquettes
-        self._spatial_borders_removed = spatial_borders_removed
 
     @staticmethod
     def _get_number_of_plaquettes(axis: Literal["X", "Y"], increments: int) -> int:
@@ -129,7 +140,7 @@ class PlaquetteLayer(BaseLayer):
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
         tshape = PlaquetteLayer._get_template_shape(
-            self.template, self._spatial_borders_removed
+            self.template, self.trimmed_spatial_borders
         )
         initial_qubit_offset = PhysicalQubitScalable2D(
             LinearFunction(0, 1), LinearFunction(0, 1)
@@ -151,7 +162,7 @@ class PlaquetteLayer(BaseLayer):
         return PlaquetteLayer(
             self.template,
             self.plaquettes.without_plaquettes(border_indices),
-            spatial_borders_removed=borders,
+            trimmed_spatial_borders=self.trimmed_spatial_borders | borders,
         )
 
     def __eq__(self, value: object) -> bool:
@@ -159,5 +170,4 @@ class PlaquetteLayer(BaseLayer):
             isinstance(value, PlaquetteLayer)
             and self._template == value._template
             and self._plaquettes == value._plaquettes
-            and self._spatial_borders_removed == value._spatial_borders_removed
         )

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Final, Iterable, Mapping
 
 from typing_extensions import override
@@ -21,7 +20,6 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
-@dataclass
 class Block(SequencedLayers):
     """Encodes the implementation of a block.
 
@@ -39,7 +37,10 @@ class Block(SequencedLayers):
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> Block:
-        return Block(self._layers_with_spatial_borders_trimmed(borders))
+        return Block(
+            self._layers_with_spatial_borders_trimmed(borders),
+            self.trimmed_spatial_borders | frozenset(borders),
+        )
 
     @override
     def with_temporal_borders_replaced(

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Iterable, Mapping
+from typing import TYPE_CHECKING, Iterable
 
-from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.spatial import WithSpatialFootprint
 from tqec.compile.blocks.layers.temporal import WithTemporalFootprint
@@ -29,24 +28,6 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
         Returns:
             All the base layers represented by the instance. The returned
             iterable should have as many entries as ``self.timesteps(k)``.
-        """
-        pass
-
-    @abstractmethod
-    def with_temporal_borders_replaced(
-        self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
-    ) -> BaseLayer | BaseComposedLayer | None:
-        """Returns ``self`` with the provided temporal borders replaced.
-
-        Args:
-            borders: a mapping from temporal borders to replace to their
-                replacement. A value of ``None`` as a replacement means that the
-                border is removed.
-
-        Returns:
-            a copy of ``self`` with the provided ``borders`` replaced, or ``None``
-            if replacing the provided ``borders`` from ``self`` result in an
-            empty temporal footprint.
         """
         pass
 

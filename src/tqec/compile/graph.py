@@ -51,12 +51,36 @@ from tqec.compile.blocks.enums import (
     TemporalBlockBorder,
     border_from_signed_direction,
 )
+from tqec.compile.blocks.layers.atomic.base import BaseLayer
+from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.blocks.positioning import LayoutPosition2D, LayoutPosition3D
+from tqec.compile.blocks.positioning import (
+    LayoutPipePosition2D,
+    LayoutPosition2D,
+    LayoutPosition3D,
+)
 from tqec.compile.tree.tree import LayerTree
+from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 from tqec.utils.scale import PhysicalQubitScalable2D
+
+
+def substitute_plaquettes(
+    target: PlaquetteLayer, source: PlaquetteLayer, source_border: TemplateBorder
+) -> PlaquetteLayer:
+    source_border_indices = source.template.get_border_indices(source_border)
+    target_border_indices = target.template.get_border_indices(source_border.opposite())
+    indices_mapping = source_border_indices.to(target_border_indices)
+    plaquettes_mapping = {
+        ti: target.plaquettes.collection[si]
+        for si, ti in indices_mapping.items()
+        if si in target.plaquettes.collection
+    }
+    new_plaquettes = target.plaquettes.with_updated_plaquettes(plaquettes_mapping)
+    return PlaquetteLayer(
+        target.template, new_plaquettes, target.trimmed_spatial_borders
+    )
 
 
 class TopologicalComputationGraph:
@@ -199,6 +223,97 @@ class TopologicalComputationGraph:
             [sink_border]
         )
 
+    def _substitute_part_of_spatial_pipe(
+        self,
+        pipe_pos: LayoutPosition3D[LayoutPipePosition2D],
+        neighbouring_block_layer: PlaquetteLayer,
+        spatial_block_border: SpatialBlockBorder,
+        temporal_pipe_border: TemporalBlockBorder,
+    ) -> None:
+        """Substitutes the plaquettes of the pipe in ``pipe_pos`` using
+        ``neighbouring_block_layer``.
+
+        The pipe in ``pipe_pos`` is modified in-line.
+
+        Args:
+            pipe_pos: position of the pipe that should be modified.
+            neighbouring_block_layer: layer of the neighbouring block that
+                should partially override the pipe.
+            spatial_block_border: spatial border **of the block** that is being
+                replaced by the pipe at ``pipe_pos``.
+            temporal_pipe_border: temporal border of the pipe that should be
+                partially replaced by ``neighbouring_block_layer``.
+
+        Raises:
+            KeyError: if ``pipe_pos not in self._blocks``.
+            NotImplementError: if the pipe layer that should be partially
+                substituted is not an instance of ``PlaquetteLayer``.
+        """
+        pipe_block = self._blocks[pipe_pos]
+        pipe_layer_to_replace = pipe_block.get_temporal_layer_on_border(
+            temporal_pipe_border
+        )
+        if not isinstance(pipe_layer_to_replace, PlaquetteLayer):
+            raise NotImplementedError(
+                "Due to the insertion of a temporal pipe, we need to replace "
+                f"part of a pipe {temporal_pipe_border} border with part of the "
+                f"temporal pipe. That is not possible because the "
+                f"{temporal_pipe_border} spatial pipe border is not an instance "
+                f"of {PlaquetteLayer.__name__}. Found an instance of "
+                f"{type(pipe_layer_to_replace).__name__}."
+            )
+        # We now replace part of pipe_layer_to_replace
+        replaced_pipe_layer = substitute_plaquettes(
+            pipe_layer_to_replace,
+            neighbouring_block_layer,
+            spatial_block_border.to_template_border(),
+        )
+        replaced_block = pipe_block.with_temporal_borders_replaced(
+            {temporal_pipe_border: replaced_pipe_layer}
+        )
+        assert replaced_block is not None, "No layer was removed"
+        self._blocks[pipe_pos] = replaced_block
+
+    def _replace_temporal_border(
+        self,
+        block_pos: BlockPosition3D,
+        block_border: TemporalBlockBorder,
+        layer: BaseLayer,
+    ) -> None:
+        pblock = LayoutPosition3D.from_block_position(block_pos)
+        block = self._blocks[pblock]
+
+        # First replace the layer on the temporal border of the block.
+        layer_on_top_of_block = layer
+        if block.trimmed_spatial_borders:
+            layer_on_top_of_block = layer.with_spatial_borders_trimmed(
+                block.trimmed_spatial_borders
+            )
+        new_block = block.with_temporal_borders_replaced(
+            {block_border: layer_on_top_of_block}
+        )
+        assert new_block is not None, "No layer removal happened, only replacement"
+        self._blocks[pblock] = new_block
+        # Then, if the block has no trimmed spatial border (i.e., no spatial
+        # pipes), we can return because the replacement is over.
+        if not block.trimmed_spatial_borders:
+            return
+        # Else, we also need to replace part of the spatial pipe. Note that for
+        # the moment this requires both the block and the spatial pipes to be
+        # implemented using template / plaquettes.
+        if not isinstance(layer, PlaquetteLayer):
+            raise NotImplementedError(
+                "Cannot substitute spatial pipe piece from a layer that "
+                f"is not a {PlaquetteLayer.__name__} instance."
+            )
+        for trimmed_spatial_border in block.trimmed_spatial_borders:
+            pipe_pos = LayoutPosition3D.from_block_and_signed_direction(
+                block_pos, trimmed_spatial_border.value
+            )
+            self._substitute_part_of_spatial_pipe(
+                pipe_pos, layer, trimmed_spatial_border, block_border
+            )
+
     def _replace_temporal_borders(
         self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
     ) -> None:
@@ -211,27 +326,17 @@ class TopologicalComputationGraph:
                 "be handled separately."
             )
         # Source
-        psource = LayoutPosition3D.from_block_position(source)
-        new_source = self._blocks[psource].with_temporal_borders_replaced(
-            {
-                TemporalBlockBorder.Z_POSITIVE: block.get_temporal_border(
-                    TemporalBlockBorder.Z_POSITIVE
-                )
-            }
+        self._replace_temporal_border(
+            source,
+            TemporalBlockBorder.Z_POSITIVE,
+            block.get_temporal_border(TemporalBlockBorder.Z_POSITIVE),
         )
-        assert new_source is not None, "We did not remove any layers."
-        self._blocks[psource] = new_source
         # Sink
-        psink = LayoutPosition3D.from_block_position(sink)
-        new_sink = self._blocks[psink].with_temporal_borders_replaced(
-            {
-                TemporalBlockBorder.Z_NEGATIVE: block.get_temporal_border(
-                    TemporalBlockBorder.Z_NEGATIVE
-                )
-            }
+        self._replace_temporal_border(
+            sink,
+            TemporalBlockBorder.Z_NEGATIVE,
+            block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
         )
-        assert new_sink is not None, "We did not remove any layers."
-        self._blocks[psink] = new_sink
 
     def add_pipe(
         self, source: BlockPosition3D, sink: BlockPosition3D, block: Block

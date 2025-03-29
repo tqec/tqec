@@ -32,6 +32,7 @@ from enum import Enum
 
 import numpy as np
 import numpy.typing as npt
+from typing_extensions import Self
 
 from tqec.utils.exceptions import TQECException
 
@@ -128,11 +129,11 @@ class Position3D(Vec3D):
     y: int
     z: int
 
-    def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> Position3D:
+    def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> Self:
         """Shift the position by the given offset."""
-        return Position3D(self.x + dx, self.y + dy, self.z + dz)
+        return self.__class__(self.x + dx, self.y + dy, self.z + dz)
 
-    def shift_in_direction(self, direction: Direction3D, shift: int) -> Position3D:
+    def shift_in_direction(self, direction: Direction3D, shift: int) -> Self:
         """Shift the position in the given direction by the given shift."""
         if direction == Direction3D.X:
             return self.shift_by(dx=shift)

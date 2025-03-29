@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from itertools import chain
 from typing import Iterable, Mapping
 
@@ -14,22 +13,46 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D, round_or_fail
 
 
-@dataclass
 class RepeatedLayer(BaseComposedLayer):
-    """Composed layer implementing repetition.
+    def __init__(
+        self,
+        internal_layer: BaseLayer | BaseComposedLayer,
+        repetitions: LinearFunction,
+        trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
+    ):
+        """Composed layer implementing repetition.
 
-    This composed layer repeats another layer (that can be atomic or composed)
-    multiple times.
+        This composed layer repeats another layer (that can be atomic or composed)
+        multiple times.
 
-    Attributes:
-        internal_layer: repeated layer.
-        repetitions: number of repetitions to perform. Can scale with ``k``.
-    """
+        Args:
+            internal_layer: repeated layer.
+            repetitions: number of repetitions to perform. Can scale with ``k``.
+            trimmed_spatial_borders: all the spatial borders that have been
+                removed from the layer.
 
-    internal_layer: BaseLayer | BaseComposedLayer
-    repetitions: LinearFunction
+        Raises:
+            TQECException: if the total number of timesteps is not a linear
+                function (i.e., ``internal_layer.scalable_timesteps.slope != 0``
+                and ``repetitions.slope != 0``).
+            TQECException: if the total number of timesteps is strictly
+                decreasing.
+        """
 
-    def __post_init__(self) -> None:
+        super().__init__(trimmed_spatial_borders)
+        self._internal_layer = internal_layer
+        self._repetitions = repetitions
+        self._post_init_check()
+
+    @property
+    def internal_layer(self) -> BaseLayer | BaseComposedLayer:
+        return self._internal_layer
+
+    @property
+    def repetitions(self) -> LinearFunction:
+        return self._repetitions
+
+    def _post_init_check(self) -> None:
         # Check that the number of timesteps of self is a linear function.
         if (
             self.internal_layer.scalable_timesteps.slope != 0
@@ -73,7 +96,9 @@ class RepeatedLayer(BaseComposedLayer):
         self, borders: Iterable[SpatialBlockBorder]
     ) -> RepeatedLayer:
         return RepeatedLayer(
-            self.internal_layer.with_spatial_borders_trimmed(borders), self.repetitions
+            self.internal_layer.with_spatial_borders_trimmed(borders),
+            self.repetitions,
+            self.trimmed_spatial_borders | frozenset(borders),
         )
 
     @staticmethod
@@ -193,3 +218,7 @@ class RepeatedLayer(BaseComposedLayer):
             and self.repetitions == value.repetitions
             and self.internal_layer == value.internal_layer
         )
+
+    @override
+    def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
+        return self.internal_layer.get_temporal_layer_on_border(border)

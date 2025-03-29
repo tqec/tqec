@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from itertools import chain
 from typing import Iterable, Mapping, Sequence
 
@@ -8,37 +7,45 @@ from typing_extensions import override
 
 from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
+from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
-@dataclass
 class SequencedLayers(BaseComposedLayer):
-    """Composed layer implementing a fixed sequence of layers.
+    def __init__(
+        self,
+        layer_sequence: Sequence[BaseLayer | BaseComposedLayer],
+        trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
+    ):
+        """Composed layer implementing a fixed sequence of layers.
 
-    This composed layer sequentially applies layers from a fixed sequence.
+        This composed layer sequentially applies layers from a fixed sequence.
 
-    Attributes:
-        layer_sequence: non-empty sequence of layers to apply one after the
-            other. All the layers in this sequence should have exactly the same
-            spatial footprint.
-    """
+        Args:
+            layer_sequence: non-empty sequence of layers to apply one after the
+                other. All the layers in this sequence should have exactly the same
+                spatial footprint.
+            trimmed_spatial_borders: all the spatial borders that have been
+                removed from the layer.
 
-    layer_sequence: Sequence[BaseLayer | BaseComposedLayer]
+        Raises:
+            TQECException: if the provided ``layer_sequence`` is empty.
+        """
+        super().__init__(trimmed_spatial_borders)
+        self._layer_sequence = layer_sequence
+        self._post_init_check()
 
-    def __post_init__(self) -> None:
+    @property
+    def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:
+        return self._layer_sequence
+
+    def _post_init_check(self) -> None:
         if len(self.layer_sequence) < 1:
             raise TQECException(
                 f"An instance of {type(self).__name__} is expected to have "
                 f"at least one layer. Found {len(self.layer_sequence)}."
-            )
-        shapes = frozenset(layer.scalable_shape for layer in self.layer_sequence)
-        if len(shapes) > 1:
-            raise TQECException(
-                f"Found at least two different shapes in a {self.__class__.__name__}, "
-                "which is forbidden. All the provided layers should have the same "
-                f"shape. Found shapes: {shapes}."
             )
 
     @property
@@ -57,9 +64,16 @@ class SequencedLayers(BaseComposedLayer):
     @property
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        # __post_init__ guarantees that there is at least one item in
-        # self.layer_sequence and that all the layers have the same scalable shape.
-        return self.layer_sequence[0].scalable_shape
+        if any(isinstance(layer, LayoutLayer) for layer in self._layer_sequence):
+            raise NotImplementedError(
+                f"Computation of the scalable_shape for {LayoutLayer.__name__} "
+                "instances has not been implemented yet."
+            )
+        scalable_shape = self._layer_sequence[0].scalable_shape
+        for layer in self._layer_sequence[1:]:
+            if layer.scalable_shape != scalable_shape:
+                raise TQECException("Found a different scalable shape.")
+        return scalable_shape
 
     def _layers_with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
@@ -72,7 +86,10 @@ class SequencedLayers(BaseComposedLayer):
     def with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> SequencedLayers:
-        return SequencedLayers(self._layers_with_spatial_borders_trimmed(borders))
+        return SequencedLayers(
+            self._layers_with_spatial_borders_trimmed(borders),
+            self.trimmed_spatial_borders | frozenset(borders),
+        )
 
     def _layers_with_temporal_borders_replaced(
         self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
@@ -142,3 +159,9 @@ class SequencedLayers(BaseComposedLayer):
             isinstance(value, SequencedLayers)
             and self.layer_sequence == value.layer_sequence
         )
+
+    @override
+    def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
+        return self._layer_sequence[
+            0 if border == TemporalBlockBorder.Z_NEGATIVE else -1
+        ].get_temporal_layer_on_border(border)

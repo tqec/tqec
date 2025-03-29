@@ -48,19 +48,12 @@ def raw_circuit_fixed_size_layer_fixture() -> RawCircuitLayer:
 
 
 def test_creation(
-    plaquette_layer: PlaquetteLayer,
-    raw_circuit_layer: RawCircuitLayer,
-    raw_circuit_fixed_size_layer: RawCircuitLayer,
+    plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer
 ) -> None:
     # Invalid sequences due to duration < 1
     err_regex = ".*expected to have at least one layer.*"
     with pytest.raises(TQECException, match=err_regex):
         SequencedLayers([])
-    # Invalid sequence due to different shapes
-    with pytest.raises(TQECException, match="Found at least two different shapes.*"):
-        SequencedLayers(
-            [plaquette_layer, raw_circuit_layer, raw_circuit_fixed_size_layer]
-        )
 
     SequencedLayers([plaquette_layer for _ in range(10)])
     SequencedLayers(

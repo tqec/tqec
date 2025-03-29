@@ -23,19 +23,19 @@ def test_creation() -> None:
     PlaquetteLayer(
         large_template,
         plaquettes,
-        spatial_borders_removed=frozenset([SpatialBlockBorder.X_NEGATIVE]),
+        trimmed_spatial_borders=frozenset([SpatialBlockBorder.X_NEGATIVE]),
     )
     PlaquetteLayer(
         large_template,
         plaquettes,
-        spatial_borders_removed=frozenset(SpatialBlockBorder),
+        trimmed_spatial_borders=frozenset(SpatialBlockBorder),
     )
 
     with pytest.raises(TQECException):
         PlaquetteLayer(
             template,
             plaquettes,
-            spatial_borders_removed=frozenset([SpatialBlockBorder.X_NEGATIVE]),
+            trimmed_spatial_borders=frozenset([SpatialBlockBorder.X_NEGATIVE]),
         )
 
 
@@ -52,14 +52,14 @@ def test_scalable_shape() -> None:
     assert PlaquetteLayer(
         large_template,
         plaquettes,
-        spatial_borders_removed=frozenset([SpatialBlockBorder.X_NEGATIVE]),
+        trimmed_spatial_borders=frozenset([SpatialBlockBorder.X_NEGATIVE]),
     ).scalable_shape == PhysicalQubitScalable2D(
         LinearFunction(0, 19), LinearFunction(0, 21)
     )
     assert PlaquetteLayer(
         large_template,
         plaquettes,
-        spatial_borders_removed=frozenset(SpatialBlockBorder),
+        trimmed_spatial_borders=frozenset(SpatialBlockBorder),
     ).scalable_shape == PhysicalQubitScalable2D(
         LinearFunction(0, 17), LinearFunction(0, 17)
     )
