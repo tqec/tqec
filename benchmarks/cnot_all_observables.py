@@ -4,7 +4,7 @@ from pathlib import Path
 import stim
 from tqecd.construction import annotate_detectors_automatically
 
-from tqec.compile.compile import CompiledGraph, compile_block_graph
+from tqec.compile.deprecated.compile import CompiledGraph, compile_block_graph
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
