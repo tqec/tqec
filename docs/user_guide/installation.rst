@@ -62,3 +62,13 @@ Else, a message like
     ModuleNotFoundError: No module named 'tqec'
 
 should appear.
+
+Install dev dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+For some applications, you will need the development dependencies of the ``tqec`` package.
+To install them, run
+
+.. code-block:: bash
+
+    pip install -e . -r requirements-dev.txt
