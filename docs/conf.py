@@ -170,4 +170,3 @@ nbsphinx_thumbnails = {
 autosummary_generate = True
 autosummary_generate_overwrite = True
 autosummary_imported_members = True
-fail_on_warning = True
