@@ -37,23 +37,22 @@ class LayoutLayer(BaseLayer):
         self,
         layers: dict[LayoutPosition2D, BaseLayer],
         element_shape: PhysicalQubitScalable2D,
-        trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
     ) -> None:
         """A layer gluing several other layers together on a 2-dimensional grid.
 
         Args:
-            layers:
+            layers: a mapping from positions on the 2-dimensional space to
+                blocks implementing the circuit that should be present at that
+                position.
+                The mapping is expected to represent a connected computation.
             element_shape: scalable shape (in qubit coordinates) of each entry
                 in the provided ``layers``.
-            trimmed_spatial_borders: all the spatial borders that have been
-                removed from the layer. For this particular class type, this
-                should always be empty.
 
         Raises:
             TQECException: if ``layers`` is empty.
             TQECException: if ``trimmed_spatial_borders`` is not empty.
         """
-        super().__init__(trimmed_spatial_borders)
+        super().__init__(frozenset())
         self._layers = layers
         self._element_shape = element_shape
         self._post_init_check()
