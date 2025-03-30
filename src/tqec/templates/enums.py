@@ -1,5 +1,7 @@
 """Defines enumerations that are only used in :mod:`tqec.templates`."""
 
+from __future__ import annotations
+
 from enum import Enum, auto
 from typing import Literal
 
@@ -20,3 +22,14 @@ class TemplateBorder(Enum):
     BOTTOM = auto()
     LEFT = auto()
     RIGHT = auto()
+
+    def opposite(self) -> TemplateBorder:
+        match self:
+            case TemplateBorder.TOP:
+                return TemplateBorder.BOTTOM
+            case TemplateBorder.BOTTOM:
+                return TemplateBorder.TOP
+            case TemplateBorder.LEFT:
+                return TemplateBorder.RIGHT
+            case TemplateBorder.RIGHT:
+                return TemplateBorder.LEFT
