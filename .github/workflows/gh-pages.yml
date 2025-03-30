@@ -31,7 +31,7 @@ jobs:
       - name: Generate the documentation
         run: |
           cd docs/
-          make clean html
+          make html
       - name: Deploy if 'main' branch
         uses: peaceiris/actions-gh-pages@v4
         # Only publish if we are on main!
