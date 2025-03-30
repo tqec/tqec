@@ -13,6 +13,7 @@ RepeatedLayer
    
       ~RepeatedLayer.__init__
       ~RepeatedLayer.all_layers
+      ~RepeatedLayer.get_temporal_layer_on_border
       ~RepeatedLayer.shape
       ~RepeatedLayer.timesteps
       ~RepeatedLayer.to_sequenced_layer_with_schedule
@@ -27,10 +28,11 @@ RepeatedLayer
 
    .. autosummary::
    
-      ~RepeatedLayer.scalable_shape
-      ~RepeatedLayer.scalable_timesteps
       ~RepeatedLayer.internal_layer
       ~RepeatedLayer.repetitions
+      ~RepeatedLayer.scalable_shape
+      ~RepeatedLayer.scalable_timesteps
+      ~RepeatedLayer.trimmed_spatial_borders
    
    
 
@@ -41,6 +43,7 @@ RepeatedLayer
    
    .. automethod:: __init__
    .. automethod:: all_layers
+   .. automethod:: get_temporal_layer_on_border
    .. automethod:: shape
    .. automethod:: timesteps
    .. automethod:: to_sequenced_layer_with_schedule

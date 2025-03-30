@@ -12,6 +12,7 @@ RawCircuitLayer
    .. autosummary::
    
       ~RawCircuitLayer.__init__
+      ~RawCircuitLayer.get_temporal_layer_on_border
       ~RawCircuitLayer.shape
       ~RawCircuitLayer.timesteps
       ~RawCircuitLayer.with_spatial_borders_trimmed
@@ -25,10 +26,11 @@ RawCircuitLayer
 
    .. autosummary::
    
-      ~RawCircuitLayer.scalable_shape
-      ~RawCircuitLayer.scalable_timesteps
       ~RawCircuitLayer.circuit_factory
       ~RawCircuitLayer.scalable_raw_shape
+      ~RawCircuitLayer.scalable_shape
+      ~RawCircuitLayer.scalable_timesteps
+      ~RawCircuitLayer.trimmed_spatial_borders
    
    
 
@@ -38,6 +40,7 @@ RawCircuitLayer
 
    
    .. automethod:: __init__
+   .. automethod:: get_temporal_layer_on_border
    .. automethod:: shape
    .. automethod:: timesteps
    .. automethod:: with_spatial_borders_trimmed

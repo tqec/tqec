@@ -12,6 +12,7 @@ PlaquetteLayer
    .. autosummary::
    
       ~PlaquetteLayer.__init__
+      ~PlaquetteLayer.get_temporal_layer_on_border
       ~PlaquetteLayer.shape
       ~PlaquetteLayer.timesteps
       ~PlaquetteLayer.with_spatial_borders_trimmed
@@ -29,6 +30,7 @@ PlaquetteLayer
       ~PlaquetteLayer.scalable_shape
       ~PlaquetteLayer.scalable_timesteps
       ~PlaquetteLayer.template
+      ~PlaquetteLayer.trimmed_spatial_borders
    
    
 
@@ -38,6 +40,7 @@ PlaquetteLayer
 
    
    .. automethod:: __init__
+   .. automethod:: get_temporal_layer_on_border
    .. automethod:: shape
    .. automethod:: timesteps
    .. automethod:: with_spatial_borders_trimmed

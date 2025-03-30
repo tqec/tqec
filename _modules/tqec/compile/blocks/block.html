@@ -408,7 +408,6 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.compile.blocks.block</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
@@ -431,7 +430,6 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="Block">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.compile.blocks.Block.html#tqec.compile.blocks.Block">[docs]</a>
-<span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Block</span><span class="p">(</span><span class="n">SequencedLayers</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encodes the implementation of a block.</span>
 
@@ -451,7 +449,10 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">with_spatial_borders_trimmed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">borders</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Block</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Block</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_layers_with_spatial_borders_trimmed</span><span class="p">(</span><span class="n">borders</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">Block</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_layers_with_spatial_borders_trimmed</span><span class="p">(</span><span class="n">borders</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trimmed_spatial_borders</span> <span class="o">|</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">borders</span><span class="p">),</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Block.with_temporal_borders_replaced">

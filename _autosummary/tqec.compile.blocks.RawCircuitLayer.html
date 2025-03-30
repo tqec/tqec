@@ -532,26 +532,41 @@
 <h1>RawCircuitLayer<a class="headerlink" href="#rawcircuitlayer" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.blocks.RawCircuitLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.blocks.</span></span><span class="sig-name descname"><span class="pre">RawCircuitLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalable_raw_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/raw.html#RawCircuitLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.RawCircuitLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.blocks.</span></span><span class="sig-name descname"><span class="pre">RawCircuitLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalable_raw_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimmed_spatial_borders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/raw.html#RawCircuitLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.RawCircuitLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLayer</span></code></a></p>
 <p>Represents a layer with a spatial footprint that is defined by a raw
 circuit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circuit_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>int</em><em>]</em><em>, </em><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit" title="tqec.circuit.ScheduledCircuit"><em>ScheduledCircuit</em></a><em>]</em>) – a function callable returning a quantum circuit for
+any input <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">&gt;=</span> <span class="pre">1</span></code>.</p></li>
+<li><p><strong>scalable_raw_shape</strong> (<em>PhysicalQubitScalable2D</em>) – scalable shape of the quantum circuit returned
+by the provided <code class="docutils literal notranslate"><span class="pre">circuit_factory</span></code>.</p></li>
+<li><p><strong>trimmed_spatial_borders</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>) – all the spatial borders that have been
+removed from the layer.</p></li>
+</ul>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.__init__" title="tqec.compile.blocks.RawCircuitLayer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(circuit_factory, scalable_raw_shape)</p></td>
+<td><p>Represents a layer with a spatial footprint that is defined by a raw circuit.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.get_temporal_layer_on_border" title="tqec.compile.blocks.RawCircuitLayer.get_temporal_layer_on_border"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_temporal_layer_on_border</span></code></a>(border)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.shape" title="tqec.compile.blocks.RawCircuitLayer.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.shape" title="tqec.compile.blocks.RawCircuitLayer.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
 <td><p>Returns the 2-dimensional shape of the object for the given <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.timesteps" title="tqec.compile.blocks.RawCircuitLayer.timesteps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timesteps</span></code></a>(k)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.timesteps" title="tqec.compile.blocks.RawCircuitLayer.timesteps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timesteps</span></code></a>(k)</p></td>
 <td><p>Returns the number of timesteps needed to implement the object for the provided scaling parameter <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.with_spatial_borders_trimmed" title="tqec.compile.blocks.RawCircuitLayer.with_spatial_borders_trimmed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_spatial_borders_trimmed</span></code></a>(borders)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.with_spatial_borders_trimmed" title="tqec.compile.blocks.RawCircuitLayer.with_spatial_borders_trimmed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_spatial_borders_trimmed</span></code></a>(borders)</p></td>
 <td><p>Returns <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided spatial borders removed.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.with_temporal_borders_replaced" title="tqec.compile.blocks.RawCircuitLayer.with_temporal_borders_replaced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_temporal_borders_replaced</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.RawCircuitLayer.with_temporal_borders_replaced" title="tqec.compile.blocks.RawCircuitLayer.with_temporal_borders_replaced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_temporal_borders_replaced</span></code></a>(...)</p></td>
 <td><p>Returns <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided temporal borders replaced.</p></td>
 </tr>
 </tbody>
@@ -560,42 +575,53 @@ circuit.</p>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_shape</span></code></p></td>
-<td><p>Returns the 2-dimensional shape of the object as an exact expression that can then be used to compute the shape for any value of <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_timesteps</span></code></p></td>
-<td><p>Returns the number of timesteps needed to implement the object as an exact expression that can then be used to compute the number of timesteps for any value of <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
-</tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">circuit_factory</span></code></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_raw_shape</span></code></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_shape</span></code></p></td>
+<td><p>Returns the 2-dimensional shape of the object as an exact expression that can then be used to compute the shape for any value of <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_timesteps</span></code></p></td>
+<td><p>Returns the number of timesteps needed to implement the object as an exact expression that can then be used to compute the number of timesteps for any value of <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">trimmed_spatial_borders</span></code></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
 <p class="rubric">Detailed methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.compile.blocks.RawCircuitLayer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalable_raw_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimmed_spatial_borders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/raw.html#RawCircuitLayer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.RawCircuitLayer.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Represents a layer with a spatial footprint that is defined by a raw
+circuit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>circuit_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>int</em><em>]</em><em>, </em><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit" title="tqec.circuit.schedule.circuit.ScheduledCircuit"><em>ScheduledCircuit</em></a><em>]</em>)</p></li>
-<li><p><strong>scalable_raw_shape</strong> (<em>PhysicalQubitScalable2D</em>)</p></li>
+<li><p><strong>circuit_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>int</em><em>]</em><em>, </em><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit" title="tqec.circuit.schedule.circuit.ScheduledCircuit"><em>ScheduledCircuit</em></a><em>]</em>) – a function callable returning a quantum circuit for
+any input <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">&gt;=</span> <span class="pre">1</span></code>.</p></li>
+<li><p><strong>scalable_raw_shape</strong> (<em>PhysicalQubitScalable2D</em>) – scalable shape of the quantum circuit returned
+by the provided <code class="docutils literal notranslate"><span class="pre">circuit_factory</span></code>.</p></li>
+<li><p><strong>trimmed_spatial_borders</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.enums.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>) – all the spatial borders that have been
+removed from the layer.</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
 <dl class="py method">
-<dt class="sig sig-object py" id="tqec.compile.blocks.RawCircuitLayer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalable_raw_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.blocks.RawCircuitLayer.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.compile.blocks.RawCircuitLayer.get_temporal_layer_on_border">
+<span class="sig-name descname"><span class="pre">get_temporal_layer_on_border</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.blocks.RawCircuitLayer.get_temporal_layer_on_border" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>circuit_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>int</em><em>]</em><em>, </em><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html#tqec.circuit.ScheduledCircuit" title="tqec.circuit.schedule.circuit.ScheduledCircuit"><em>ScheduledCircuit</em></a><em>]</em>)</p></li>
-<li><p><strong>scalable_raw_shape</strong> (<em>PhysicalQubitScalable2D</em>)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>border</strong> (<a class="reference internal" href="tqec.compile.blocks.TemporalBlockBorder.html#tqec.compile.blocks.TemporalBlockBorder" title="tqec.compile.blocks.enums.TemporalBlockBorder"><em>TemporalBlockBorder</em></a>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><em>BaseLayer</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -730,6 +756,7 @@ empty temporal footprint.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.RawCircuitLayer"><code class="docutils literal notranslate"><span class="pre">RawCircuitLayer</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.RawCircuitLayer.__init__"><code class="docutils literal notranslate"><span class="pre">RawCircuitLayer.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.RawCircuitLayer.get_temporal_layer_on_border"><code class="docutils literal notranslate"><span class="pre">RawCircuitLayer.get_temporal_layer_on_border()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.RawCircuitLayer.shape"><code class="docutils literal notranslate"><span class="pre">RawCircuitLayer.shape()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.RawCircuitLayer.timesteps"><code class="docutils literal notranslate"><span class="pre">RawCircuitLayer.timesteps()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.RawCircuitLayer.with_spatial_borders_trimmed"><code class="docutils literal notranslate"><span class="pre">RawCircuitLayer.with_spatial_borders_trimmed()</span></code></a></li>

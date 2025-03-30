@@ -13,6 +13,7 @@ BaseComposedLayer
    
       ~BaseComposedLayer.__init__
       ~BaseComposedLayer.all_layers
+      ~BaseComposedLayer.get_temporal_layer_on_border
       ~BaseComposedLayer.shape
       ~BaseComposedLayer.timesteps
       ~BaseComposedLayer.to_sequenced_layer_with_schedule
@@ -29,6 +30,7 @@ BaseComposedLayer
    
       ~BaseComposedLayer.scalable_shape
       ~BaseComposedLayer.scalable_timesteps
+      ~BaseComposedLayer.trimmed_spatial_borders
    
    
 
@@ -39,6 +41,7 @@ BaseComposedLayer
    
    .. automethod:: __init__
    .. automethod:: all_layers
+   .. automethod:: get_temporal_layer_on_border
    .. automethod:: shape
    .. automethod:: timesteps
    .. automethod:: to_sequenced_layer_with_schedule

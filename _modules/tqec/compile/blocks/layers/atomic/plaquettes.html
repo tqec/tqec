@@ -435,25 +435,39 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">template</span><span class="p">:</span> <span class="n">RectangularTemplate</span><span class="p">,</span>
         <span class="n">plaquettes</span><span class="p">:</span> <span class="n">Plaquettes</span><span class="p">,</span>
-        <span class="n">spatial_borders_removed</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span>
+        <span class="n">trimmed_spatial_borders</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Represents a layer with a template and some plaquettes.</span>
 
 <span class="sd">        This class implements the layer interface by using a template and some</span>
 <span class="sd">        plaquettes. This is the preferred way of representing a layer.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            template: template used in conjunction to ``plaquettes`` to</span>
+<span class="sd">                represent the quantum circuit implementing the layer.</span>
+<span class="sd">            plaquettes: plaquettes used in conjunction to ``template`` to</span>
+<span class="sd">                represent the quantum circuit implementing the layer.</span>
+<span class="sd">            trimmed_spatial_borders: all the spatial borders that have been</span>
+<span class="sd">                removed from the layer.</span>
+
 <span class="sd">        Raises:</span>
 <span class="sd">            TQECException: if the provided ``template`` increments do not match</span>
 <span class="sd">                with the expected spatial border width.</span>
 <span class="sd">            TQECException: if the provided ``template`` and</span>
-<span class="sd">                ``spatial_borders_removed`` can lead to empty instantiations for</span>
+<span class="sd">                ``trimmed_spatial_borders`` can lead to empty instantiations for</span>
 <span class="sd">                ``k &gt;= 1``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">trimmed_spatial_borders</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">=</span> <span class="n">template</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plaquettes</span> <span class="o">=</span> <span class="n">plaquettes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_init_check</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post_init_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Shortening variable name for convenience</span>
         <span class="n">EW</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">EXPECTED_SPATIAL_BORDER_WIDTH</span>
         <span class="n">expected_shifts</span> <span class="o">=</span> <span class="n">Shift2D</span><span class="p">(</span><span class="n">EW</span><span class="p">,</span> <span class="n">EW</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">shifts</span> <span class="o">:=</span> <span class="n">template</span><span class="o">.</span><span class="n">get_increments</span><span class="p">())</span> <span class="o">!=</span> <span class="n">expected_shifts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">shifts</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span><span class="o">.</span><span class="n">get_increments</span><span class="p">())</span> <span class="o">!=</span> <span class="n">expected_shifts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Spatial borders are expected to be </span><span class="si">{</span><span class="n">EW</span><span class="si">}</span><span class="s2"> qubits large. Got a &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;Template instance with </span><span class="si">{</span><span class="n">shifts</span><span class="si">:</span><span class="s2">=</span><span class="si">}</span><span class="s2">. Removing a border from &quot;</span>
@@ -462,12 +476,14 @@ window.addEventListener("load", () => mermaid.run());
             <span class="p">)</span>
         <span class="c1"># We require the template shape to be strictly positive for any value of</span>
         <span class="c1"># k &gt; 0.</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="n">PlaquetteLayer</span><span class="o">.</span><span class="n">_get_template_shape</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">spatial_borders_removed</span><span class="p">)</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">PlaquetteLayer</span><span class="o">.</span><span class="n">_get_template_shape</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_template</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimmed_spatial_borders</span>
+        <span class="p">)</span>
         <span class="n">shape1</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">to_numpy_shape</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Check that the shape is valid (i.e., strictly positive) for k == 1.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">coord</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">shape1</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;The provided template/spatial_borders_removed combo leads to an &quot;</span>
+                <span class="s2">&quot;The provided template/trimmed_spatial_borders combo leads to an &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;invalid template shape (</span><span class="si">{</span><span class="n">shape1</span><span class="si">}</span><span class="s2">) for k == 1. &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PlaquetteLayer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instances do not support empty templates.&quot;</span>
             <span class="p">)</span>
@@ -479,11 +495,6 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="s2">&quot;which will eventually lead to an empty instantiation, which is &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;not supported by </span><span class="si">{</span><span class="n">PlaquetteLayer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instances.&quot;</span>
             <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">=</span> <span class="n">template</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_plaquettes</span> <span class="o">=</span> <span class="n">plaquettes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_spatial_borders_removed</span> <span class="o">=</span> <span class="n">spatial_borders_removed</span></div>
-
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_number_of_plaquettes</span><span class="p">(</span><span class="n">axis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">],</span> <span class="n">increments</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -542,7 +553,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">scalable_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">:</span>
         <span class="n">tshape</span> <span class="o">=</span> <span class="n">PlaquetteLayer</span><span class="o">.</span><span class="n">_get_template_shape</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spatial_borders_removed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimmed_spatial_borders</span>
         <span class="p">)</span>
         <span class="n">initial_qubit_offset</span> <span class="o">=</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">(</span>
             <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -566,7 +577,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">PlaquetteLayer</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plaquettes</span><span class="o">.</span><span class="n">without_plaquettes</span><span class="p">(</span><span class="n">border_indices</span><span class="p">),</span>
-            <span class="n">spatial_borders_removed</span><span class="o">=</span><span class="n">borders</span><span class="p">,</span>
+            <span class="n">trimmed_spatial_borders</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trimmed_spatial_borders</span> <span class="o">|</span> <span class="n">borders</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -575,7 +586,6 @@ window.addEventListener("load", () => mermaid.run());
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">)</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">_template</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plaquettes</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">_plaquettes</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spatial_borders_removed</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">_spatial_borders_removed</span>
         <span class="p">)</span></div>
 
 </pre></div>

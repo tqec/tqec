@@ -13,6 +13,7 @@ SequencedLayers
    
       ~SequencedLayers.__init__
       ~SequencedLayers.all_layers
+      ~SequencedLayers.get_temporal_layer_on_border
       ~SequencedLayers.shape
       ~SequencedLayers.timesteps
       ~SequencedLayers.to_sequenced_layer_with_schedule
@@ -27,10 +28,11 @@ SequencedLayers
 
    .. autosummary::
    
+      ~SequencedLayers.layer_sequence
       ~SequencedLayers.scalable_shape
       ~SequencedLayers.scalable_timesteps
       ~SequencedLayers.schedule
-      ~SequencedLayers.layer_sequence
+      ~SequencedLayers.trimmed_spatial_borders
    
    
 
@@ -41,6 +43,7 @@ SequencedLayers
    
    .. automethod:: __init__
    .. automethod:: all_layers
+   .. automethod:: get_temporal_layer_on_border
    .. automethod:: shape
    .. automethod:: timesteps
    .. automethod:: to_sequenced_layer_with_schedule

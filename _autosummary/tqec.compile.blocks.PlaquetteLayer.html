@@ -532,26 +532,29 @@
 <h1>PlaquetteLayer<a class="headerlink" href="#plaquettelayer" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.blocks.PlaquetteLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.blocks.</span></span><span class="sig-name descname"><span class="pre">PlaquetteLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquettes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_borders_removed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/plaquettes.html#PlaquetteLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.PlaquetteLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.blocks.</span></span><span class="sig-name descname"><span class="pre">PlaquetteLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquettes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimmed_spatial_borders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/plaquettes.html#PlaquetteLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.PlaquetteLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLayer</span></code></a></p>
 <p>Represents a layer with a template and some plaquettes.</p>
 <p>This class implements the layer interface by using a template and some
 plaquettes. This is the preferred way of representing a layer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>template</strong> (<em>RectangularTemplate</em>) – template used in conjunction to <code class="docutils literal notranslate"><span class="pre">plaquettes</span></code> to
+represent the quantum circuit implementing the layer.</p></li>
+<li><p><strong>plaquettes</strong> (<a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.Plaquettes"><em>Plaquettes</em></a>) – plaquettes used in conjunction to <code class="docutils literal notranslate"><span class="pre">template</span></code> to
+represent the quantum circuit implementing the layer.</p></li>
+<li><p><strong>trimmed_spatial_borders</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>) – all the spatial borders that have been
+removed from the layer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">template</span></code> increments do not match
     with the expected spatial border width.</p></li>
 <li><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">template</span></code> and
-    <code class="docutils literal notranslate"><span class="pre">spatial_borders_removed</span></code> can lead to empty instantiations for
+    <code class="docutils literal notranslate"><span class="pre">trimmed_spatial_borders</span></code> can lead to empty instantiations for
     <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">&gt;=</span> <span class="pre">1</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>template</strong> (<em>RectangularTemplate</em>)</p></li>
-<li><p><strong>plaquettes</strong> (<a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.Plaquettes"><em>Plaquettes</em></a>)</p></li>
-<li><p><strong>spatial_borders_removed</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -561,16 +564,19 @@ plaquettes. This is the preferred way of representing a layer.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.__init__" title="tqec.compile.blocks.PlaquetteLayer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(template, plaquettes[, ...])</p></td>
 <td><p>Represents a layer with a template and some plaquettes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.shape" title="tqec.compile.blocks.PlaquetteLayer.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.get_temporal_layer_on_border" title="tqec.compile.blocks.PlaquetteLayer.get_temporal_layer_on_border"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_temporal_layer_on_border</span></code></a>(border)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.shape" title="tqec.compile.blocks.PlaquetteLayer.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
 <td><p>Returns the 2-dimensional shape of the object for the given <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.timesteps" title="tqec.compile.blocks.PlaquetteLayer.timesteps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timesteps</span></code></a>(k)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.timesteps" title="tqec.compile.blocks.PlaquetteLayer.timesteps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timesteps</span></code></a>(k)</p></td>
 <td><p>Returns the number of timesteps needed to implement the object for the provided scaling parameter <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.with_spatial_borders_trimmed" title="tqec.compile.blocks.PlaquetteLayer.with_spatial_borders_trimmed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_spatial_borders_trimmed</span></code></a>(borders)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.with_spatial_borders_trimmed" title="tqec.compile.blocks.PlaquetteLayer.with_spatial_borders_trimmed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_spatial_borders_trimmed</span></code></a>(borders)</p></td>
 <td><p>Returns <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided spatial borders removed.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.with_temporal_borders_replaced" title="tqec.compile.blocks.PlaquetteLayer.with_temporal_borders_replaced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_temporal_borders_replaced</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.PlaquetteLayer.with_temporal_borders_replaced" title="tqec.compile.blocks.PlaquetteLayer.with_temporal_borders_replaced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_temporal_borders_replaced</span></code></a>(...)</p></td>
 <td><p>Returns <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided temporal borders replaced.</p></td>
 </tr>
 </tbody>
@@ -591,35 +597,54 @@ plaquettes. This is the preferred way of representing a layer.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">template</span></code></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">trimmed_spatial_borders</span></code></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.blocks.PlaquetteLayer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquettes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_borders_removed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/plaquettes.html#PlaquetteLayer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.PlaquetteLayer.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquettes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimmed_spatial_borders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/plaquettes.html#PlaquetteLayer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.PlaquetteLayer.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Represents a layer with a template and some plaquettes.</p>
 <p>This class implements the layer interface by using a template and some
 plaquettes. This is the preferred way of representing a layer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>template</strong> (<em>RectangularTemplate</em>) – template used in conjunction to <code class="docutils literal notranslate"><span class="pre">plaquettes</span></code> to
+represent the quantum circuit implementing the layer.</p></li>
+<li><p><strong>plaquettes</strong> (<a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><em>Plaquettes</em></a>) – plaquettes used in conjunction to <code class="docutils literal notranslate"><span class="pre">template</span></code> to
+represent the quantum circuit implementing the layer.</p></li>
+<li><p><strong>trimmed_spatial_borders</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.enums.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>) – all the spatial borders that have been
+removed from the layer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">template</span></code> increments do not match
     with the expected spatial border width.</p></li>
 <li><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">template</span></code> and
-    <code class="docutils literal notranslate"><span class="pre">spatial_borders_removed</span></code> can lead to empty instantiations for
+    <code class="docutils literal notranslate"><span class="pre">trimmed_spatial_borders</span></code> can lead to empty instantiations for
     <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">&gt;=</span> <span class="pre">1</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>template</strong> (<em>RectangularTemplate</em>)</p></li>
-<li><p><strong>plaquettes</strong> (<a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><em>Plaquettes</em></a>)</p></li>
-<li><p><strong>spatial_borders_removed</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.enums.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.compile.blocks.PlaquetteLayer.get_temporal_layer_on_border">
+<span class="sig-name descname"><span class="pre">get_temporal_layer_on_border</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.blocks.PlaquetteLayer.get_temporal_layer_on_border" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>border</strong> (<a class="reference internal" href="tqec.compile.blocks.TemporalBlockBorder.html#tqec.compile.blocks.TemporalBlockBorder" title="tqec.compile.blocks.enums.TemporalBlockBorder"><em>TemporalBlockBorder</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><em>BaseLayer</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -754,6 +779,7 @@ empty temporal footprint.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.PlaquetteLayer"><code class="docutils literal notranslate"><span class="pre">PlaquetteLayer</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.PlaquetteLayer.__init__"><code class="docutils literal notranslate"><span class="pre">PlaquetteLayer.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.PlaquetteLayer.get_temporal_layer_on_border"><code class="docutils literal notranslate"><span class="pre">PlaquetteLayer.get_temporal_layer_on_border()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.PlaquetteLayer.shape"><code class="docutils literal notranslate"><span class="pre">PlaquetteLayer.shape()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.PlaquetteLayer.timesteps"><code class="docutils literal notranslate"><span class="pre">PlaquetteLayer.timesteps()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.PlaquetteLayer.with_spatial_borders_trimmed"><code class="docutils literal notranslate"><span class="pre">PlaquetteLayer.with_spatial_borders_trimmed()</span></code></a></li>

@@ -408,7 +408,6 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.compile.blocks.layers.composed.sequenced</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
 
@@ -416,6 +415,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpatialBlockBorder</span><span class="p">,</span> <span class="n">TemporalBlockBorder</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseLayer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutLayer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.composed.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseComposedLayer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">PhysicalQubitScalable2D</span>
@@ -423,32 +423,42 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="SequencedLayers">
 <a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.SequencedLayers.html#tqec.compile.blocks.SequencedLayers">[docs]</a>
-<span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SequencedLayers</span><span class="p">(</span><span class="n">BaseComposedLayer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composed layer implementing a fixed sequence of layers.</span>
+<div class="viewcode-block" id="SequencedLayers.__init__">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.SequencedLayers.html#tqec.compile.blocks.SequencedLayers.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">layer_sequence</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">BaseLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">],</span>
+        <span class="n">trimmed_spatial_borders</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Composed layer implementing a fixed sequence of layers.</span>
 
-<span class="sd">    This composed layer sequentially applies layers from a fixed sequence.</span>
+<span class="sd">        This composed layer sequentially applies layers from a fixed sequence.</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        layer_sequence: non-empty sequence of layers to apply one after the</span>
-<span class="sd">            other. All the layers in this sequence should have exactly the same</span>
-<span class="sd">            spatial footprint.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            layer_sequence: non-empty sequence of layers to apply one after the</span>
+<span class="sd">                other. All the layers in this sequence should have exactly the same</span>
+<span class="sd">                spatial footprint.</span>
+<span class="sd">            trimmed_spatial_borders: all the spatial borders that have been</span>
+<span class="sd">                removed from the layer.</span>
 
-    <span class="n">layer_sequence</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">BaseLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">]</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: if the provided ``layer_sequence`` is empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">trimmed_spatial_borders</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layer_sequence</span> <span class="o">=</span> <span class="n">layer_sequence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_init_check</span><span class="p">()</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">layer_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">BaseLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_sequence</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post_init_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_sequence</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;An instance of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is expected to have &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;at least one layer. Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_sequence</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">shapes</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">scalable_shape</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_sequence</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Found at least two different shapes in a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="s2">&quot;which is forbidden. All the provided layers should have the same &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;shape. Found shapes: </span><span class="si">{</span><span class="n">shapes</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -467,9 +477,16 @@ window.addEventListener("load", () => mermaid.run());
     <span class="nd">@property</span>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">scalable_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">:</span>
-        <span class="c1"># __post_init__ guarantees that there is at least one item in</span>
-        <span class="c1"># self.layer_sequence and that all the layers have the same scalable shape.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_sequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scalable_shape</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">LayoutLayer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_sequence</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Computation of the scalable_shape for </span><span class="si">{</span><span class="n">LayoutLayer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;instances has not been implemented yet.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">scalable_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_sequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scalable_shape</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_sequence</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">scalable_shape</span> <span class="o">!=</span> <span class="n">scalable_shape</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;Found a different scalable shape.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scalable_shape</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_layers_with_spatial_borders_trimmed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">borders</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span>
@@ -484,7 +501,10 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">with_spatial_borders_trimmed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">borders</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SequencedLayers</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">SequencedLayers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_layers_with_spatial_borders_trimmed</span><span class="p">(</span><span class="n">borders</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">SequencedLayers</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_layers_with_spatial_borders_trimmed</span><span class="p">(</span><span class="n">borders</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trimmed_spatial_borders</span> <span class="o">|</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">borders</span><span class="p">),</span>
+        <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_layers_with_temporal_borders_replaced</span><span class="p">(</span>
@@ -563,7 +583,16 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="p">(</span>
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">SequencedLayers</span><span class="p">)</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_sequence</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">layer_sequence</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="SequencedLayers.get_temporal_layer_on_border">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.SequencedLayers.html#tqec.compile.blocks.SequencedLayers.get_temporal_layer_on_border">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_temporal_layer_on_border</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">border</span><span class="p">:</span> <span class="n">TemporalBlockBorder</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseLayer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer_sequence</span><span class="p">[</span>
+            <span class="mi">0</span> <span class="k">if</span> <span class="n">border</span> <span class="o">==</span> <span class="n">TemporalBlockBorder</span><span class="o">.</span><span class="n">Z_NEGATIVE</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">get_temporal_layer_on_border</span><span class="p">(</span><span class="n">border</span><span class="p">)</span></div>
+</div>
 
 </pre></div>
 

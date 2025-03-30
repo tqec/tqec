@@ -532,7 +532,7 @@
 <h1>BaseLayer<a class="headerlink" href="#baselayer" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.blocks.BaseLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.blocks.</span></span><span class="sig-name descname"><span class="pre">BaseLayer</span></span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/base.html#BaseLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.BaseLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.blocks.</span></span><span class="sig-name descname"><span class="pre">BaseLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trimmed_spatial_borders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/base.html#BaseLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.BaseLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">WithSpatialFootprint</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">WithTemporalFootprint</span></code></p>
 <p>Base class representing a “layer”.</p>
 <p>A “layer” is a scalable and repeatable unit of a quantum error correction
@@ -542,22 +542,35 @@ where the spatial footprint scales with the layer circuit, while the temporal
 footprint remains fixed at <code class="docutils literal notranslate"><span class="pre">1</span></code>, representing a single layer. To stack layers
 over time or repeat them in a scalable manner, use
 <a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html#tqec.compile.blocks.BaseComposedLayer" title="tqec.compile.blocks.layers.composed.base.BaseComposedLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComposedLayer</span></code></a> instead.</p>
+<p>Initialise the instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>removed_spatial_borders</strong> – all the spatial borders that have been
+trimmed from the layer.</p></li>
+<li><p><strong>trimmed_spatial_borders</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.__init__" title="tqec.compile.blocks.BaseLayer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.__init__" title="tqec.compile.blocks.BaseLayer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([trimmed_spatial_borders])</p></td>
+<td><p>Initialise the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.get_temporal_layer_on_border" title="tqec.compile.blocks.BaseLayer.get_temporal_layer_on_border"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_temporal_layer_on_border</span></code></a>(border)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.shape" title="tqec.compile.blocks.BaseLayer.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.shape" title="tqec.compile.blocks.BaseLayer.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
 <td><p>Returns the 2-dimensional shape of the object for the given <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.timesteps" title="tqec.compile.blocks.BaseLayer.timesteps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timesteps</span></code></a>(k)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.timesteps" title="tqec.compile.blocks.BaseLayer.timesteps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timesteps</span></code></a>(k)</p></td>
 <td><p>Returns the number of timesteps needed to implement the object for the provided scaling parameter <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.with_spatial_borders_trimmed" title="tqec.compile.blocks.BaseLayer.with_spatial_borders_trimmed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_spatial_borders_trimmed</span></code></a>(borders)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.with_spatial_borders_trimmed" title="tqec.compile.blocks.BaseLayer.with_spatial_borders_trimmed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_spatial_borders_trimmed</span></code></a>(borders)</p></td>
 <td><p>Returns <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided spatial borders removed.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.with_temporal_borders_replaced" title="tqec.compile.blocks.BaseLayer.with_temporal_borders_replaced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_temporal_borders_replaced</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer.with_temporal_borders_replaced" title="tqec.compile.blocks.BaseLayer.with_temporal_borders_replaced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_temporal_borders_replaced</span></code></a>(...)</p></td>
 <td><p>Returns <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided temporal borders replaced.</p></td>
 </tr>
 </tbody>
@@ -572,14 +585,40 @@ over time or repeat them in a scalable manner, use
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_timesteps</span></code></p></td>
 <td><p>Returns the number of timesteps needed to implement the object as an exact expression that can then be used to compute the number of timesteps for any value of <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">trimmed_spatial_borders</span></code></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.blocks.BaseLayer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.blocks.BaseLayer.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trimmed_spatial_borders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.blocks.BaseLayer.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialise the instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>removed_spatial_borders</strong> – all the spatial borders that have been
+trimmed from the layer.</p></li>
+<li><p><strong>trimmed_spatial_borders</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.enums.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.compile.blocks.BaseLayer.get_temporal_layer_on_border">
+<span class="sig-name descname"><span class="pre">get_temporal_layer_on_border</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/atomic/base.html#BaseLayer.get_temporal_layer_on_border"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.BaseLayer.get_temporal_layer_on_border" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>border</strong> (<a class="reference internal" href="tqec.compile.blocks.TemporalBlockBorder.html#tqec.compile.blocks.TemporalBlockBorder" title="tqec.compile.blocks.enums.TemporalBlockBorder"><em>TemporalBlockBorder</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><em>BaseLayer</em></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.blocks.BaseLayer.shape">
@@ -711,6 +750,7 @@ empty temporal footprint.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.BaseLayer"><code class="docutils literal notranslate"><span class="pre">BaseLayer</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.BaseLayer.__init__"><code class="docutils literal notranslate"><span class="pre">BaseLayer.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.BaseLayer.get_temporal_layer_on_border"><code class="docutils literal notranslate"><span class="pre">BaseLayer.get_temporal_layer_on_border()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.BaseLayer.shape"><code class="docutils literal notranslate"><span class="pre">BaseLayer.shape()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.BaseLayer.timesteps"><code class="docutils literal notranslate"><span class="pre">BaseLayer.timesteps()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.BaseLayer.with_spatial_borders_trimmed"><code class="docutils literal notranslate"><span class="pre">BaseLayer.with_spatial_borders_trimmed()</span></code></a></li>

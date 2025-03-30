@@ -441,21 +441,10 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="BaseLayer.with_temporal_borders_replaced">
 <a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer.with_temporal_borders_replaced">[docs]</a>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">with_temporal_borders_replaced</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">border_replacements</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">TemporalBlockBorder</span><span class="p">,</span> <span class="n">BaseLayer</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseLayer</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns ``self`` with the provided temporal borders replaced.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            borders: a mapping from temporal borders to replace to their</span>
-<span class="sd">                replacement. A value of ``None`` as a replacement means that the</span>
-<span class="sd">                border is removed.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            a copy of ``self`` with the provided ``borders`` replaced, or ``None``</span>
-<span class="sd">            if replacing the provided ``borders`` from ``self`` result in an</span>
-<span class="sd">            empty temporal footprint.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">border_replacements</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">border_replacements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
@@ -466,6 +455,13 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="s2">&quot;an atomic layer that, by definition, only contain one layer.&quot;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">border_replacements</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="BaseLayer.get_temporal_layer_on_border">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer.get_temporal_layer_on_border">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_temporal_layer_on_border</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">border</span><span class="p">:</span> <span class="n">TemporalBlockBorder</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseLayer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
 </div>
 
 </pre></div>

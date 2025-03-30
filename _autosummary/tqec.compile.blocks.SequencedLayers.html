@@ -532,50 +532,49 @@
 <h1>SequencedLayers<a class="headerlink" href="#sequencedlayers" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.blocks.SequencedLayers">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.blocks.</span></span><span class="sig-name descname"><span class="pre">SequencedLayers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_sequence</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/composed/sequenced.html#SequencedLayers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.SequencedLayers" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.blocks.</span></span><span class="sig-name descname"><span class="pre">SequencedLayers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimmed_spatial_borders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/composed/sequenced.html#SequencedLayers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.SequencedLayers" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html#tqec.compile.blocks.BaseComposedLayer" title="tqec.compile.blocks.layers.composed.base.BaseComposedLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComposedLayer</span></code></a></p>
 <p>Composed layer implementing a fixed sequence of layers.</p>
 <p>This composed layer sequentially applies layers from a fixed sequence.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>layer_sequence</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><em>BaseLayer</em></a><em> | </em><a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html#tqec.compile.blocks.BaseComposedLayer" title="tqec.compile.blocks.layers.composed.base.BaseComposedLayer"><em>BaseComposedLayer</em></a><em>]</em>)</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tqec.compile.blocks.SequencedLayers.layer_sequence">
-<span class="sig-name descname"><span class="pre">layer_sequence</span></span><a class="headerlink" href="#tqec.compile.blocks.SequencedLayers.layer_sequence" title="Link to this definition">#</a></dt>
-<dd><p>non-empty sequence of layers to apply one after the
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>layer_sequence</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.BaseLayer"><em>BaseLayer</em></a><em> | </em><a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html#tqec.compile.blocks.BaseComposedLayer" title="tqec.compile.blocks.BaseComposedLayer"><em>BaseComposedLayer</em></a><em>]</em>) – non-empty sequence of layers to apply one after the
 other. All the layers in this sequence should have exactly the same
-spatial footprint.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Sequence[<a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer">tqec.compile.blocks.layers.atomic.base.BaseLayer</a> | <a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html#tqec.compile.blocks.BaseComposedLayer" title="tqec.compile.blocks.layers.composed.base.BaseComposedLayer">tqec.compile.blocks.layers.composed.base.BaseComposedLayer</a>]</p>
+spatial footprint.</p></li>
+<li><p><strong>trimmed_spatial_borders</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>) – all the spatial borders that have been
+removed from the layer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">layer_sequence</span></code> is empty.</p>
 </dd>
 </dl>
-</dd></dl>
-
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.__init__" title="tqec.compile.blocks.SequencedLayers.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(layer_sequence)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.__init__" title="tqec.compile.blocks.SequencedLayers.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(layer_sequence[, ...])</p></td>
+<td><p>Composed layer implementing a fixed sequence of layers.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.all_layers" title="tqec.compile.blocks.SequencedLayers.all_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">all_layers</span></code></a>(k)</p></td>
 <td><p>Returns all the base layers represented by the instance.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.shape" title="tqec.compile.blocks.SequencedLayers.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.get_temporal_layer_on_border" title="tqec.compile.blocks.SequencedLayers.get_temporal_layer_on_border"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_temporal_layer_on_border</span></code></a>(border)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.shape" title="tqec.compile.blocks.SequencedLayers.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a>(k)</p></td>
 <td><p>Returns the 2-dimensional shape of the object for the given <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.timesteps" title="tqec.compile.blocks.SequencedLayers.timesteps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timesteps</span></code></a>(k)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.timesteps" title="tqec.compile.blocks.SequencedLayers.timesteps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timesteps</span></code></a>(k)</p></td>
 <td><p>Returns the number of timesteps needed to implement the object for the provided scaling parameter <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.to_sequenced_layer_with_schedule" title="tqec.compile.blocks.SequencedLayers.to_sequenced_layer_with_schedule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_sequenced_layer_with_schedule</span></code></a>(schedule)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.to_sequenced_layer_with_schedule" title="tqec.compile.blocks.SequencedLayers.to_sequenced_layer_with_schedule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_sequenced_layer_with_schedule</span></code></a>(schedule)</p></td>
 <td><p>Splits <code class="docutils literal notranslate"><span class="pre">self</span></code> into a <a class="reference internal" href="#tqec.compile.blocks.SequencedLayers" title="tqec.compile.blocks.layers.composed.sequenced.SequencedLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequencedLayers</span></code></a> instance with the provided schedule.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.with_spatial_borders_trimmed" title="tqec.compile.blocks.SequencedLayers.with_spatial_borders_trimmed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_spatial_borders_trimmed</span></code></a>(borders)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.with_spatial_borders_trimmed" title="tqec.compile.blocks.SequencedLayers.with_spatial_borders_trimmed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_spatial_borders_trimmed</span></code></a>(borders)</p></td>
 <td><p>Returns <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided spatial borders removed.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.with_temporal_borders_replaced" title="tqec.compile.blocks.SequencedLayers.with_temporal_borders_replaced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_temporal_borders_replaced</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.with_temporal_borders_replaced" title="tqec.compile.blocks.SequencedLayers.with_temporal_borders_replaced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_temporal_borders_replaced</span></code></a>(...)</p></td>
 <td><p>Returns <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided temporal borders replaced.</p></td>
 </tr>
 </tbody>
@@ -584,16 +583,19 @@ spatial footprint.</p>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_shape</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_sequence</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_shape</span></code></p></td>
 <td><p>Returns the 2-dimensional shape of the object as an exact expression that can then be used to compute the shape for any value of <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_timesteps</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalable_timesteps</span></code></p></td>
 <td><p>Returns the number of timesteps needed to implement the object as an exact expression that can then be used to compute the number of timesteps for any value of <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">schedule</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">schedule</span></code></p></td>
 <td><p>Returns the duration of each of the sequenced layers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.blocks.SequencedLayers.layer_sequence" title="tqec.compile.blocks.SequencedLayers.layer_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_sequence</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">trimmed_spatial_borders</span></code></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -602,13 +604,21 @@ spatial footprint.</p>
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.blocks.SequencedLayers.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_sequence</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.blocks.SequencedLayers.__init__" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimmed_spatial_borders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/composed/sequenced.html#SequencedLayers.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.SequencedLayers.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Composed layer implementing a fixed sequence of layers.</p>
+<p>This composed layer sequentially applies layers from a fixed sequence.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>layer_sequence</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><em>BaseLayer</em></a><em> | </em><a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html#tqec.compile.blocks.BaseComposedLayer" title="tqec.compile.blocks.layers.composed.base.BaseComposedLayer"><em>BaseComposedLayer</em></a><em>]</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>layer_sequence</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><em>BaseLayer</em></a><em> | </em><a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html#tqec.compile.blocks.BaseComposedLayer" title="tqec.compile.blocks.layers.composed.base.BaseComposedLayer"><em>BaseComposedLayer</em></a><em>]</em>) – non-empty sequence of layers to apply one after the
+other. All the layers in this sequence should have exactly the same
+spatial footprint.</p></li>
+<li><p><strong>trimmed_spatial_borders</strong> (<em>frozenset</em><em>[</em><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html#tqec.compile.blocks.SpatialBlockBorder" title="tqec.compile.blocks.enums.SpatialBlockBorder"><em>SpatialBlockBorder</em></a><em>]</em>) – all the spatial borders that have been
+removed from the layer.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="tqec.utils.TQECException.html#tqec.utils.TQECException" title="tqec.utils.TQECException"><strong>TQECException</strong></a> – if the provided <code class="docutils literal notranslate"><span class="pre">layer_sequence</span></code> is empty.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -627,6 +637,19 @@ iterable should have as many entries as <code class="docutils literal notranslat
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><em>Iterable</em>[<a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><em>BaseLayer</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.compile.blocks.SequencedLayers.get_temporal_layer_on_border">
+<span class="sig-name descname"><span class="pre">get_temporal_layer_on_border</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/blocks/layers/composed/sequenced.html#SequencedLayers.get_temporal_layer_on_border"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.blocks.SequencedLayers.get_temporal_layer_on_border" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>border</strong> (<a class="reference internal" href="tqec.compile.blocks.TemporalBlockBorder.html#tqec.compile.blocks.TemporalBlockBorder" title="tqec.compile.blocks.enums.TemporalBlockBorder"><em>TemporalBlockBorder</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="tqec.compile.blocks.BaseLayer.html#tqec.compile.blocks.BaseLayer" title="tqec.compile.blocks.layers.atomic.base.BaseLayer"><em>BaseLayer</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -782,9 +805,9 @@ empty temporal footprint.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.SequencedLayers"><code class="docutils literal notranslate"><span class="pre">SequencedLayers</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.SequencedLayers.layer_sequence"><code class="docutils literal notranslate"><span class="pre">SequencedLayers.layer_sequence</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.SequencedLayers.__init__"><code class="docutils literal notranslate"><span class="pre">SequencedLayers.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.SequencedLayers.all_layers"><code class="docutils literal notranslate"><span class="pre">SequencedLayers.all_layers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.SequencedLayers.get_temporal_layer_on_border"><code class="docutils literal notranslate"><span class="pre">SequencedLayers.get_temporal_layer_on_border()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.SequencedLayers.shape"><code class="docutils literal notranslate"><span class="pre">SequencedLayers.shape()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.SequencedLayers.timesteps"><code class="docutils literal notranslate"><span class="pre">SequencedLayers.timesteps()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.blocks.SequencedLayers.to_sequenced_layer_with_schedule"><code class="docutils literal notranslate"><span class="pre">SequencedLayers.to_sequenced_layer_with_schedule()</span></code></a></li>

@@ -408,7 +408,6 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.compile.blocks.layers.composed.repeated</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
 
@@ -424,22 +423,49 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="RepeatedLayer">
 <a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.RepeatedLayer.html#tqec.compile.blocks.RepeatedLayer">[docs]</a>
-<span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RepeatedLayer</span><span class="p">(</span><span class="n">BaseComposedLayer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composed layer implementing repetition.</span>
+<div class="viewcode-block" id="RepeatedLayer.__init__">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.RepeatedLayer.html#tqec.compile.blocks.RepeatedLayer.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">internal_layer</span><span class="p">:</span> <span class="n">BaseLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">,</span>
+        <span class="n">repetitions</span><span class="p">:</span> <span class="n">LinearFunction</span><span class="p">,</span>
+        <span class="n">trimmed_spatial_borders</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Composed layer implementing repetition.</span>
 
-<span class="sd">    This composed layer repeats another layer (that can be atomic or composed)</span>
-<span class="sd">    multiple times.</span>
+<span class="sd">        This composed layer repeats another layer (that can be atomic or composed)</span>
+<span class="sd">        multiple times.</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        internal_layer: repeated layer.</span>
-<span class="sd">        repetitions: number of repetitions to perform. Can scale with ``k``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            internal_layer: repeated layer.</span>
+<span class="sd">            repetitions: number of repetitions to perform. Can scale with ``k``.</span>
+<span class="sd">            trimmed_spatial_borders: all the spatial borders that have been</span>
+<span class="sd">                removed from the layer.</span>
 
-    <span class="n">internal_layer</span><span class="p">:</span> <span class="n">BaseLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span>
-    <span class="n">repetitions</span><span class="p">:</span> <span class="n">LinearFunction</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: if the total number of timesteps is not a linear</span>
+<span class="sd">                function (i.e., ``internal_layer.scalable_timesteps.slope != 0``</span>
+<span class="sd">                and ``repetitions.slope != 0``).</span>
+<span class="sd">            TQECException: if the total number of timesteps is strictly</span>
+<span class="sd">                decreasing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">trimmed_spatial_borders</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_internal_layer</span> <span class="o">=</span> <span class="n">internal_layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_repetitions</span> <span class="o">=</span> <span class="n">repetitions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_init_check</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">internal_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_layer</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">repetitions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LinearFunction</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repetitions</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post_init_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Check that the number of timesteps of self is a linear function.</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">internal_layer</span><span class="o">.</span><span class="n">scalable_timesteps</span><span class="o">.</span><span class="n">slope</span> <span class="o">!=</span> <span class="mi">0</span>
@@ -485,7 +511,9 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="p">,</span> <span class="n">borders</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RepeatedLayer</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">RepeatedLayer</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">internal_layer</span><span class="o">.</span><span class="n">with_spatial_borders_trimmed</span><span class="p">(</span><span class="n">borders</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">repetitions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">internal_layer</span><span class="o">.</span><span class="n">with_spatial_borders_trimmed</span><span class="p">(</span><span class="n">borders</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repetitions</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trimmed_spatial_borders</span> <span class="o">|</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">borders</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
@@ -614,7 +642,14 @@ window.addEventListener("load", () => mermaid.run());
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">RepeatedLayer</span><span class="p">)</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">repetitions</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">repetitions</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">internal_layer</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">internal_layer</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="RepeatedLayer.get_temporal_layer_on_border">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.RepeatedLayer.html#tqec.compile.blocks.RepeatedLayer.get_temporal_layer_on_border">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_temporal_layer_on_border</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">border</span><span class="p">:</span> <span class="n">TemporalBlockBorder</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseLayer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">internal_layer</span><span class="o">.</span><span class="n">get_temporal_layer_on_border</span><span class="p">(</span><span class="n">border</span><span class="p">)</span></div>
+</div>
 
 </pre></div>
 

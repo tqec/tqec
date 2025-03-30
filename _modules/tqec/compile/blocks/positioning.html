@@ -414,7 +414,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">BlockPosition3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
 
 
 <div class="viewcode-block" id="LayoutPosition2D">
@@ -552,6 +552,19 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pipe_position</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">u</span><span class="o">.</span><span class="n">is_neighbour</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">LayoutPosition3D</span><span class="p">(</span>
+            <span class="n">LayoutPosition2D</span><span class="o">.</span><span class="n">from_pipe_position</span><span class="p">((</span><span class="n">u</span><span class="o">.</span><span class="n">as_2d</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">as_2d</span><span class="p">())),</span> <span class="n">u</span><span class="o">.</span><span class="n">z</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_block_and_signed_direction</span><span class="p">(</span>
+        <span class="n">pos</span><span class="p">:</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="nb">dir</span><span class="p">:</span> <span class="n">SignedDirection3D</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LayoutPosition3D</span><span class="p">[</span><span class="n">LayoutPipePosition2D</span><span class="p">]:</span>
+        <span class="n">neighbour</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shift_in_direction</span><span class="p">(</span>
+            <span class="nb">dir</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">dir</span><span class="o">.</span><span class="n">towards_positive</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">pos</span><span class="p">,</span> <span class="n">neighbour</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">u</span><span class="o">.</span><span class="n">is_neighbour</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">LayoutPosition3D</span><span class="p">(</span>
             <span class="n">LayoutPosition2D</span><span class="o">.</span><span class="n">from_pipe_position</span><span class="p">((</span><span class="n">u</span><span class="o">.</span><span class="n">as_2d</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">as_2d</span><span class="p">())),</span> <span class="n">u</span><span class="o">.</span><span class="n">z</span>
         <span class="p">)</span>
