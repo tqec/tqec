@@ -56,13 +56,13 @@ from tqec.compile.blocks.enums import (
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import DetectorDatabase
-from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.blocks.positioning import (
     LayoutPipePosition2D,
     LayoutPosition2D,
     LayoutPosition3D,
 )
+from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
