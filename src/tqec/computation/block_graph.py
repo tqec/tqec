@@ -459,7 +459,9 @@ class BlockGraph:
                 raise TQECException(f"No cube found for identifier '{key}'.")
 
             for cube in matching_cubes:
-                updated_cube = Cube(position=cube.position, kind=cube.kind, label=new_label)
+                updated_cube = Cube(
+                    position=cube.position, kind=cube.kind, label=new_label
+                )
                 self._graph.add_node(
                     cube.position, **{self._NODE_DATA_KEY: updated_cube}
                 )
