@@ -435,6 +435,17 @@ class BlockGraph:
             if not new_label:
                 raise TQECException("New label must be non-empty.")
 
+            if new_label in port_labels:
+                raise TQECException(
+                    f"The label '{new_label}' is already used by a port and cannot be reassigned."
+                )
+            if new_label in assigned_new_labels:
+                raise TQECException(
+                    f"The label '{new_label}' is reused multiple times in this relabeling."
+                )
+            assigned_new_labels.add(new_label)
+
+            # Cube lookup
             if isinstance(key, Position3D):
                 matching_cubes = [cube for cube in self.cubes if cube.position == key]
             elif isinstance(key, str):
@@ -446,24 +457,6 @@ class BlockGraph:
 
             if not matching_cubes:
                 raise TQECException(f"No cube found for identifier '{key}'.")
-
-            is_port_relabel = any(cube.is_port for cube in matching_cubes)
-
-            if is_port_relabel:
-                if new_label in port_labels:
-                    raise TQECException(
-                        f"Port label '{new_label}' is already assigned to another port."
-                    )
-                if new_label in assigned_new_labels:
-                    raise TQECException(
-                        f"Port label '{new_label}' is reused multiple times."
-                    )
-                assigned_new_labels.add(new_label)
-            else:
-                if new_label in port_labels:
-                    raise TQECException(
-                        f"The label '{new_label}' belongs to a port and cannot be reused by a non-port cube."
-                    )
 
             for cube in matching_cubes:
                 updated_cube = Cube(position=cube.position, kind=cube.kind, label=new_label)
