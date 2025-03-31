@@ -12,7 +12,7 @@ BUILDDIR      = _build
 # Put it first so that "make" without argument is like "make help".
 clean:
 	rm -rfv "$(SOURCEDIR)/_autosummary"
-	rm -rfv "$(SOURCEDIR)/_build"
+	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
