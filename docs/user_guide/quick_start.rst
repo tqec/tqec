@@ -142,7 +142,6 @@ The compilation of the block graph is done automatically based on the inputs.
         num_workers=cpu_count(),
         max_shots=10_000_000,
         max_errors=5_00,
-        print_progress=True,
     )
 
 .. note::
