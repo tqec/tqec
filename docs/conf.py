@@ -59,6 +59,10 @@ extensions = [
     # Adds a copy button to each code block in the documentation
     # https://sphinx-copybutton.readthedocs.io/en/latest/
     "jupyter_sphinx",
+    # make code blocks in the documentation executable
+    # https://jupyter-sphinx.readthedocs.io/en/latest/
+    "sphinx.ext.duration",
+    # measure documentation build time
 ]
 
 templates_path = ["_templates"]
