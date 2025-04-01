@@ -18,4 +18,3 @@ User Guide
    collada_interop.ipynb
    Detectors Computation <detectors/detector_computation.ipynb>
    Detailed plotting <detailed_plots.ipynb>
-   plots2 <detailed_plots2>
