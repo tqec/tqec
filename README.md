@@ -73,7 +73,7 @@ See the [contributing page](https://tqec.github.io/tqec/contributor_guide.html) 
 
 ## Community
 
-Every Wednesday, we hold [meetings](https://calendar.google.com/calendar/event?action=TEMPLATE&tmeid=Mmw3NHVqZjRvaWo0bzl2bWtpamE0cmV0NzJfMjAyNDEwMzBUMTUzMDAwWiBhdXN0aW5nZm93bGVyQG0&tmsrc=austingfowler%40gmail.com&scp=ALL) to discuss project progress and conduct educational talks related to TQEC.
+Every Wednesday at 8:30am PST, we hold [meetings](https://meet.jit.si/TQEC-design-automation) to discuss project progress and conduct educational talks related to TQEC.
 
 Here are some helpful links to learn more about the community:
 
