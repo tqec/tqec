@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 # -- Updating sys.path to let autodoc find the tqec package ------------------
-import os
 import sys
 import typing as ty
 from pathlib import Path
@@ -16,9 +15,6 @@ PROJECT_DIRECTORY = DOCUMENTATION_DIRECTORY.parent
 SOURCE_DIRECTORY = PROJECT_DIRECTORY / "src"
 
 sys.path.append(str(SOURCE_DIRECTORY))
-
-package_path = os.path.abspath("../..")
-os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
