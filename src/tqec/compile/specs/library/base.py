@@ -12,7 +12,6 @@ from tqec.compile.specs.base import (
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators import (
     get_memory_qubit_raw_template,
-    get_spatial_cube_qubit_plaquettes,
     get_spatial_cube_qubit_raw_template,
 )
 from tqec.compile.specs.library.generators.hadamard import (
@@ -30,6 +29,9 @@ from tqec.compile.specs.library.generators.memory import (
     get_memory_vertical_boundary_plaquettes,
     get_memory_vertical_boundary_raw_template,
 )
+from tqec.compile.specs.library.generators.spatial import (
+    get_spatial_cube_qubit_rpng_descriptions,
+)
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
@@ -39,11 +41,39 @@ from tqec.templates.base import RectangularTemplate
 from tqec.templates.enums import ZObservableOrientation
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
 
 
-class BaseCubeBuilder(CubeBuilder):
+class BaseBuilder:
+    """Base class for :class:`~tqec.compile.specs.library.base.CubeBuilder` and
+    :class:`~tqec.compile.specs.library.base.PipeBuilder`.
+
+    This class provides some common methods that are shared between the cube and
+    pipe builders.
+    """
+
+    def __init__(self, compiler: PlaquetteCompiler) -> None:
+        """Initialise the :class:`BaseBuilder` with a compiler.
+
+        Args:
+            compiler: compiler to transform the plaquettes in the standard
+                implementation to a custom implementation.
+        """
+        self._translator = DefaultRPNGTranslator()
+        self._compiler = compiler
+
+    def _get_plaquette(self, description: RPNGDescription) -> Plaquette:
+        return self._compiler.compile(self._translator.translate(description))
+
+    def _get_plaquettes(
+        self, rpng_descriptions: FrozenDefaultDict[int, RPNGDescription]
+    ) -> Plaquettes:
+        return Plaquettes(rpng_descriptions.map_values(self._get_plaquette))
+
+
+class BaseCubeBuilder(CubeBuilder, BaseBuilder):
     """Base implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
     interface.
 
@@ -52,16 +82,6 @@ class BaseCubeBuilder(CubeBuilder):
     """
 
     DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
-
-    def __init__(self, compiler: PlaquetteCompiler) -> None:
-        """Initialise the :class:`BaseCubeBuilder` with a compiler.
-
-        Args:
-            compiler: compiler to transform the plaquettes in the standard
-                implementation to a custom implementation.
-        """
-        self._translator = DefaultRPNGTranslator()
-        self._compiler = compiler
 
     def _get_template_and_plaquettes(
         self,
@@ -90,31 +110,30 @@ class BaseCubeBuilder(CubeBuilder):
             )
 
             return get_memory_qubit_raw_template(), (
-                Plaquettes(
-                    get_memory_qubit_rpng_descriptions(orientation, z, None).map_values(
-                        self._get_plaquette
-                    )
+                self._get_plaquettes(
+                    get_memory_qubit_rpng_descriptions(orientation, z, None)
                 ),
-                Plaquettes(
-                    get_memory_qubit_rpng_descriptions(
-                        orientation, None, None
-                    ).map_values(self._get_plaquette)
+                self._get_plaquettes(
+                    get_memory_qubit_rpng_descriptions(orientation, None, None)
                 ),
-                Plaquettes(
-                    get_memory_qubit_rpng_descriptions(orientation, None, z).map_values(
-                        self._get_plaquette
-                    )
+                self._get_plaquettes(
+                    get_memory_qubit_rpng_descriptions(orientation, None, z)
                 ),
             )
         # else:
         return get_spatial_cube_qubit_raw_template(), (
-            get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, z, None),
-            get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, None, None),
-            get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, None, z),
+            self._get_plaquettes(
+                get_spatial_cube_qubit_rpng_descriptions(x, spec.spatial_arms, z, None)
+            ),
+            self._get_plaquettes(
+                get_spatial_cube_qubit_rpng_descriptions(
+                    x, spec.spatial_arms, None, None
+                )
+            ),
+            self._get_plaquettes(
+                get_spatial_cube_qubit_rpng_descriptions(x, spec.spatial_arms, None, z)
+            ),
         )
-
-    def _get_plaquette(self, description: RPNGDescription) -> Plaquette:
-        return self._compiler.compile(self._translator.translate(description))
 
     def __call__(self, spec: CubeSpec) -> Block:
         kind = spec.kind
@@ -135,27 +154,13 @@ class BaseCubeBuilder(CubeBuilder):
         return Block(layers)
 
 
-# TODO: finish the implementation of the BasePipeBuilder
-class BasePipeBuilder(PipeBuilder):
+class BasePipeBuilder(PipeBuilder, BaseBuilder):
     """Base implementation of the
     :class:`~tqec.compile.specs.base.PipeBuilder` interface.
 
     This class provides a good enough default implementation that should be
     enough for most of the block builders.
     """
-
-    def __init__(self, compiler: PlaquetteCompiler) -> None:
-        """Initialise the :class:`BaseSubstitutionBuilder` with a compiler.
-
-        Args:
-            compiler: compiler to transform the plaquettes in the standard
-                implementation to a custom implementation.
-        """
-        self._translator = DefaultRPNGTranslator()
-        self._compiler = compiler
-
-    def _get_plaquette(self, description: RPNGDescription) -> Plaquette:
-        return self._compiler.compile(self._translator.translate(description))
 
     def __call__(self, spec: PipeSpec) -> Block:
         if spec.pipe_kind.is_temporal:
@@ -211,10 +216,8 @@ class BasePipeBuilder(PipeBuilder):
             if spec.pipe_kind.x == Basis.Z
             else ZObservableOrientation.VERTICAL
         )
-        memory_plaquettes = Plaquettes(
-            get_memory_qubit_rpng_descriptions(
-                z_observable_orientation, None, None
-            ).map_values(self._get_plaquette)
+        memory_plaquettes = self._get_plaquettes(
+            get_memory_qubit_rpng_descriptions(z_observable_orientation)
         )
         template = get_memory_qubit_raw_template()
         return Block([PlaquetteLayer(template, memory_plaquettes) for _ in range(2)])

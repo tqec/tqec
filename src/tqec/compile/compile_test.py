@@ -41,7 +41,7 @@ def test_compile_single_block_memory(spec: str, kind: str, k: int) -> None:
         ALL_SPECS.keys(),
         ("ZXZ", "ZXX", "XZX", "XZZ"),
         (1,),
-        ((0, 0), (1, 1), (2, 2)),
+        ((0, 0), (1, 1), (2, 2), (-1, -1)),
     ),
 )
 def test_compile_two_same_blocks_connected_in_time(
