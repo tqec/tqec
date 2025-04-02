@@ -191,6 +191,7 @@ Simulation results can be plotted with ``matplolib`` using the
     ax.legend()
     ax.loglog()
     ax.set_title("Logical CNOT Error Rate")
+    plt.show()
     # fig.savefig(f"logical_cnot_result_x_observable_{1}.png")
 
 8. Conclusion
