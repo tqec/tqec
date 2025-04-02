@@ -124,6 +124,7 @@ The compilation of the block graph is done automatically based on the inputs.
 .. jupyter-execute::
 
     from multiprocessing import cpu_count
+    from pathlib import Path
     import numpy as np
 
     from tqec import NoiseModel
@@ -142,6 +143,7 @@ The compilation of the block graph is done automatically based on the inputs.
         num_workers=cpu_count(),
         max_shots=10_000_000,
         max_errors=5_00,
+        save_resume_filepath= Path.cwd() / "simulation_cache" / "quick_start_example.csv"
     )
 
 .. note::
