@@ -23,6 +23,7 @@ Plaquette
 
    .. autosummary::
    
+      ~Plaquette.debug_information
       ~Plaquette.num_measurements
       ~Plaquette.origin
       ~Plaquette.name
