@@ -2,12 +2,12 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="../../../" >
+<html lang="en" data-content_root="../../../../" >
 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>tqec.compile.compile &#8212; TQEC  documentation</title>
+    <title>tqec.compile.deprecated.compile &#8212; TQEC  documentation</title>
   
   
   
@@ -26,23 +26,23 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
@@ -52,9 +52,9 @@
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
 window.addEventListener("load", () => mermaid.run());
 </script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/tqec/compile/compile';</script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/tqec/compile/deprecated/compile';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -76,7 +76,7 @@ window.addEventListener("load", () => mermaid.run());
   <dialog id="pst-search-dialog">
     
 <form class="bd-search d-flex align-items-center"
-      action="../../../search.html"
+      action="../../../../search.html"
       method="get">
   <i class="fa-solid fa-magnifying-glass"></i>
   <input type="search"
@@ -112,7 +112,7 @@ window.addEventListener("load", () => mermaid.run());
     
   
 
-<a class="navbar-brand logo" href="../../../index.html">
+<a class="navbar-brand logo" href="../../../../index.html">
   
   
   
@@ -134,35 +134,35 @@ window.addEventListener("load", () => mermaid.run());
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../index.html">
+  <a class="nav-link nav-internal" href="../../../../index.html">
     Introduction
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
     User Guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../contributor_guide.html">
+  <a class="nav-link nav-internal" href="../../../../contributor_guide.html">
     Contributor Guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../gallery/index.html">
+  <a class="nav-link nav-internal" href="../../../../gallery/index.html">
     Gallery
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
+  <a class="nav-link nav-internal" href="../../../../api.html">
     API Reference
   </a>
 </li>
@@ -267,35 +267,35 @@ window.addEventListener("load", () => mermaid.run());
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../index.html">
+  <a class="nav-link nav-internal" href="../../../../index.html">
     Introduction
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
     User Guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../contributor_guide.html">
+  <a class="nav-link nav-internal" href="../../../../contributor_guide.html">
     Contributor Guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../gallery/index.html">
+  <a class="nav-link nav-internal" href="../../../../gallery/index.html">
     Gallery
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
+  <a class="nav-link nav-internal" href="../../../../api.html">
     API Reference
   </a>
 </li>
@@ -381,14 +381,14 @@ window.addEventListener("load", () => mermaid.run());
   <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
-      <a href="../../../index.html" class="nav-link" aria-label="Home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.compile.compile</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.compile.deprecated.compile</span></li>
   </ul>
 </nav>
 </div>
@@ -405,14 +405,14 @@ window.addEventListener("load", () => mermaid.run());
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>Source code for tqec.compile.compile</h1><div class="highlight"><pre>
+  <h1>Source code for tqec.compile.deprecated.compile</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Defines :class:`~.compile.CompiledGraph` and</span>
 <span class="sd">:func:`~.compile.compile_block_graph`.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 
@@ -444,11 +444,15 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutTemplate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Position3D</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_or_fail</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">,</span> <span class="n">round_or_fail</span>
+
+<span class="n">_DEFAULT_SCALABLE_QUBIT_SHAPE</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">(</span>
+    <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="CompiledGraph">
-<a class="viewcode-back" href="../../../_autosummary/tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CompiledGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a compiled block graph.</span>
@@ -483,7 +487,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The compiled graph includes no observable.&quot;</span><span class="p">,</span> <span class="n">TQECWarning</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CompiledGraph.generate_stim_circuit">
-<a class="viewcode-back" href="../../../_autosummary/tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph.generate_stim_circuit">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph.generate_stim_circuit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_stim_circuit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -714,7 +718,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <div class="viewcode-block" id="compile_block_graph">
-<a class="viewcode-back" href="../../../_autosummary/tqec.compile.compile_block_graph.html#tqec.compile.compile_block_graph">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/tqec.compile.compile_block_graph.html#tqec.compile.compile_block_graph">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compile_block_graph</span><span class="p">(</span>
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
     <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span>
@@ -745,24 +749,12 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        A :class:`CompiledGraph` object that can be used to generate a</span>
 <span class="sd">        ``stim.Circuit`` and scale easily.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># All the ports should be filled before compiling the block graph.</span>
     <span class="k">if</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-            <span class="s2">&quot;Can not compile a block graph with open ports into circuits. &quot;</span>
-            <span class="s2">&quot;You might want to call `fill_ports` or `fill_ports_for_minimal_simulation` &quot;</span>
-            <span class="s2">&quot;on the block graph before compiling it.&quot;</span>
+            <span class="s2">&quot;Can not compile a block graph with open ports into circuits.&quot;</span>
         <span class="p">)</span>
-    <span class="c1"># Validate the graph can represent a valid computation.</span>
-    <span class="n">block_graph</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
 
-    <span class="c1"># Fix the shadowed faces of the cubes to avoid using spatial cubes</span>
-    <span class="c1"># when a non-spatial cube can be used at the same position.</span>
-    <span class="c1"># For example, when three XXZ cubes are connected in a row along the x-axis,</span>
-    <span class="c1"># the middle one can be replaced by a ZXX cube because the faces along the</span>
-    <span class="c1"># x-axis are shadowed by the connected pipes.</span>
-    <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">fix_shadowed_faces</span><span class="p">()</span>
-
-    <span class="c1"># Set the minimum z of block graph to 0.(time starts from zero)</span>
+    <span class="c1"># 0. Set the minimum z of block graph to 0.(time starts from zero)</span>
     <span class="n">minz</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">minz</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">)</span>
@@ -771,13 +763,13 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">)</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span>
     <span class="p">}</span>
 
-    <span class="c1"># Get the base compiled blocks before applying the substitution rules.</span>
+    <span class="c1"># 1. Get the base compiled blocks before applying the substitution rules.</span>
     <span class="n">blocks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Position3D</span><span class="p">,</span> <span class="n">CompiledBlock</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">:</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">cube</span><span class="p">]</span>
         <span class="n">blocks</span><span class="p">[</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
 
-    <span class="c1"># Apply the substitution rules to the compiled blocks inplace.</span>
+    <span class="c1"># 2. Apply the substitution rules to the compiled blocks inplace.</span>
     <span class="n">pipes</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes</span>
     <span class="n">time_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
     <span class="n">space_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">!=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
@@ -786,13 +778,18 @@ window.addEventListener("load", () => mermaid.run());
     <span class="c1"># added by the space-direction substitution rules, we first apply the time-direction</span>
     <span class="c1"># substitution rules.</span>
     <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">time_pipes</span> <span class="o">+</span> <span class="n">space_pipes</span><span class="p">:</span>
-        <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="n">PipeSpec</span><span class="p">(</span><span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="p">],</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="p">],</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">v</span>
+        <span class="n">upos</span><span class="p">,</span> <span class="n">vpos</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">position</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">PipeSpec</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">cube_specs</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">v</span><span class="p">]),</span>
+            <span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="n">upos</span><span class="p">]</span><span class="o">.</span><span class="n">template</span><span class="p">,</span> <span class="n">blocks</span><span class="p">[</span><span class="n">vpos</span><span class="p">]</span><span class="o">.</span><span class="n">template</span><span class="p">),</span>
+            <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">substitution</span> <span class="o">=</span> <span class="n">substitution_builder</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">blocks</span><span class="p">[</span><span class="n">pos1</span><span class="p">]</span><span class="o">.</span><span class="n">update_layers</span><span class="p">(</span><span class="n">substitution</span><span class="o">.</span><span class="n">src</span><span class="p">)</span>
-        <span class="n">blocks</span><span class="p">[</span><span class="n">pos2</span><span class="p">]</span><span class="o">.</span><span class="n">update_layers</span><span class="p">(</span><span class="n">substitution</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="n">upos</span><span class="p">]</span><span class="o">.</span><span class="n">update_layers</span><span class="p">(</span><span class="n">substitution</span><span class="o">.</span><span class="n">src</span><span class="p">)</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="n">vpos</span><span class="p">]</span><span class="o">.</span><span class="n">update_layers</span><span class="p">(</span><span class="n">substitution</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
 
-    <span class="c1"># Collect by time and create the blocks layout.</span>
+    <span class="c1"># 3. Collect by time and create the blocks layout.</span>
     <span class="n">min_z</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">max_z</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">layout_slices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BlockLayout</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -806,7 +803,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_z</span><span class="p">,</span> <span class="n">max_z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="p">]</span>
 
-    <span class="c1"># Get the abstract observables to be included in the compiled circuit.</span>
+    <span class="c1"># 4. Get the abstract observables to be included in the compiled circuit.</span>
     <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
@@ -847,8 +844,8 @@ window.addEventListener("load", () => mermaid.run());
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

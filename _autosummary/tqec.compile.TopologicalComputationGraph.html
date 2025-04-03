@@ -532,14 +532,14 @@
 <h1>TopologicalComputationGraph<a class="headerlink" href="#topologicalcomputationgraph" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.TopologicalComputationGraph">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">TopologicalComputationGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalable_qubit_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">TopologicalComputationGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalable_qubit_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents a topological computation with
 <a class="reference internal" href="tqec.compile.blocks.Block.html#tqec.compile.blocks.Block" title="tqec.compile.blocks.block.Block"><code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code></a> instances.</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.__init__" title="tqec.compile.TopologicalComputationGraph.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(scalable_qubit_shape)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.__init__" title="tqec.compile.TopologicalComputationGraph.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(scalable_qubit_shape[, observables])</p></td>
 <td><p>Represents a topological computation with <a class="reference internal" href="tqec.compile.blocks.Block.html#tqec.compile.blocks.Block" title="tqec.compile.blocks.block.Block"><code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code></a> instances.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.add_cube" title="tqec.compile.TopologicalComputationGraph.add_cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cube</span></code></a>(position, block)</p></td>
@@ -548,7 +548,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.add_pipe" title="tqec.compile.TopologicalComputationGraph.add_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_pipe</span></code></a>(source, sink, block)</p></td>
 <td><p>Add the provided block as a pipe between <code class="docutils literal notranslate"><span class="pre">source</span></code> and <code class="docutils literal notranslate"><span class="pre">sink</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.to_layer_tree" title="tqec.compile.TopologicalComputationGraph.to_layer_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_layer_tree</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.generate_stim_circuit" title="tqec.compile.TopologicalComputationGraph.generate_stim_circuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_stim_circuit</span></code></a>(k[, noise_model, ...])</p></td>
+<td><p>Generate the <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> from the compiled graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.to_layer_tree" title="tqec.compile.TopologicalComputationGraph.to_layer_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_layer_tree</span></code></a>()</p></td>
 <td><p>Merge layers happening in parallel at each time step.</p></td>
 </tr>
 </tbody>
@@ -557,17 +560,23 @@
 <p class="rubric">Detailed methods</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>scalable_qubit_shape</strong> (<em>PhysicalQubitScalable2D</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scalable_qubit_shape</strong> (<em>PhysicalQubitScalable2D</em>)</p></li>
+<li><p><strong>observables</strong> (<em>list</em><em>[</em><em>AbstractObservable</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.TopologicalComputationGraph.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalable_qubit_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalable_qubit_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Represents a topological computation with
 <a class="reference internal" href="tqec.compile.blocks.Block.html#tqec.compile.blocks.Block" title="tqec.compile.blocks.block.Block"><code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code></a> instances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>scalable_qubit_shape</strong> (<em>PhysicalQubitScalable2D</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scalable_qubit_shape</strong> (<em>PhysicalQubitScalable2D</em>)</p></li>
+<li><p><strong>observables</strong> (<em>list</em><em>[</em><em>AbstractObservable</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
@@ -616,6 +625,32 @@
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.compile.TopologicalComputationGraph.generate_stim_circuit">
+<span class="sig-name descname"><span class="pre">generate_stim_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manhattan_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detector_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.generate_stim_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.generate_stim_circuit" title="Link to this definition">#</a></dt>
+<dd><p>Generate the <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> from the compiled graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<em>int</em>) – scale factor of the templates.</p></li>
+<li><p><strong>noise_models</strong> – noise models to be applied to the circuit.</p></li>
+<li><p><strong>manhattan_radius</strong> (<em>int</em>) – radius considered to compute detectors.
+Detectors are not computed and added to the circuit if this
+argument is negative.</p></li>
+<li><p><strong>detector_database</strong> (<em>DetectorDatabase</em><em> | </em><em>None</em>) – an instance to retrieve from / store in detectors
+that are computed as part of the circuit generation.</p></li>
+<li><p><strong>noise_model</strong> (<a class="reference internal" href="tqec.utils.NoiseModel.html#tqec.utils.NoiseModel" title="tqec.utils.noise_model.NoiseModel"><em>NoiseModel</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A compiled stim circuit.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Circuit</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -702,6 +737,7 @@ one block of time.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.__init__"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.add_cube"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.add_cube()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.add_pipe"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.add_pipe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.generate_stim_circuit"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.generate_stim_circuit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.to_layer_tree"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.to_layer_tree()</span></code></a></li>
 </ul>
 </li>
