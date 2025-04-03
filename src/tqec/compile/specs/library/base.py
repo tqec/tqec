@@ -1,7 +1,9 @@
 from typing import Callable, Final
 
 from tqec.compile.blocks.block import Block
+from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
+from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.specs.base import (
     CubeBuilder,
@@ -143,7 +145,7 @@ class BaseCubeBuilder(CubeBuilder, BaseBuilder):
             raise NotImplementedError("Y cube is not implemented.")
         # else
         template, (init, repeat, measure) = self._get_template_and_plaquettes(spec)
-        layers = [
+        layers: list[BaseLayer | BaseComposedLayer] = [
             PlaquetteLayer(template, init),
             RepeatedLayer(
                 PlaquetteLayer(template, repeat),
@@ -425,7 +427,7 @@ class BasePipeBuilder(PipeBuilder, BaseBuilder):
         plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
         template = self._get_spatial_regular_pipe_template(spec)
 
-        layers = [
+        layers: list[BaseLayer | BaseComposedLayer] = [
             PlaquetteLayer(
                 template,
                 plaquettes_factory(spec.pipe_kind.z, None),
