@@ -4,7 +4,7 @@ from typing import Callable, Iterable, Sequence
 
 import sinter
 
-from tqec.compile.compile import compile_block_graph
+from tqec.compile.deprecated.compile import compile_block_graph
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER

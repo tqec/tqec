@@ -45,6 +45,8 @@ For temporal pipes, the layers are replaced in-place within block instances.
 
 from typing import Final
 
+import stim
+
 from tqec.compile.blocks.block import Block, merge_parallel_block_layers
 from tqec.compile.blocks.enums import (
     SpatialBlockBorder,
@@ -59,9 +61,12 @@ from tqec.compile.blocks.positioning import (
     LayoutPosition2D,
     LayoutPosition3D,
 )
+from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
+from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 from tqec.utils.scale import PhysicalQubitScalable2D
 
@@ -84,13 +89,18 @@ def substitute_plaquettes(
 
 
 class TopologicalComputationGraph:
-    def __init__(self, scalable_qubit_shape: PhysicalQubitScalable2D) -> None:
+    def __init__(
+        self,
+        scalable_qubit_shape: PhysicalQubitScalable2D,
+        observables: list[AbstractObservable] | None = None,
+    ) -> None:
         """Represents a topological computation with
         :class:`~tqec.compile.blocks.block.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = (
             scalable_qubit_shape
         )
+        self._observables: list[AbstractObservable] | None = observables
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         if not block.is_cube:
@@ -403,5 +413,35 @@ class TopologicalComputationGraph:
                     )
                     for blocks in blocks_by_z
                 ]
-            )
+            ),
+            abstract_observables=self._observables,
         )
+
+    def generate_stim_circuit(
+        self,
+        k: int,
+        noise_model: NoiseModel | None = None,
+        manhattan_radius: int = 2,
+        detector_database: DetectorDatabase | None = None,
+    ) -> stim.Circuit:
+        """Generate the ``stim.Circuit`` from the compiled graph.
+
+        Args:
+            k: scale factor of the templates.
+            noise_models: noise models to be applied to the circuit.
+            manhattan_radius: radius considered to compute detectors.
+                Detectors are not computed and added to the circuit if this
+                argument is negative.
+            detector_database: an instance to retrieve from / store in detectors
+                that are computed as part of the circuit generation.
+
+        Returns:
+            A compiled stim circuit.
+        """
+        circuit = self.to_layer_tree().generate_circuit(
+            k, manhattan_radius=manhattan_radius, detector_database=detector_database
+        )
+        # If provided, apply the noise model.
+        if noise_model is not None:
+            circuit = noise_model.noisy_circuit(circuit)
+        return circuit
