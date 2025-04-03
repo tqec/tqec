@@ -5,6 +5,7 @@ import stim
 from typing_extensions import override
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
 from tqec.plaquette.rpng import BasisEnum, ExtendedBasisEnum, RPNGDescription
@@ -56,10 +57,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
                     circuit.append(f"{op}{basis.value.upper()}", targets, [])
 
     @override
-    def translate(
-        self,
-        rpng_description: RPNGDescription,
-    ) -> Plaquette:
+    def translate(self, rpng_description: RPNGDescription) -> Plaquette:
         # The current RPNG notation is very much tied to the qubit arrangement
         # in SquarePlaquetteQubits, hence the explicit value here.
         qubits: PlaquetteQubits = deepcopy(DefaultRPNGTranslator.QUBITS)
@@ -137,4 +135,5 @@ class DefaultRPNGTranslator(RPNGTranslator):
             mergeable_instructions=(
                 RESET_INSTRUCTION_NAMES | MEASUREMENT_INSTRUCTION_NAMES
             ),
+            debug_information=PlaquetteDebugInformation(rpng_description),
         )

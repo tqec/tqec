@@ -7,6 +7,7 @@ from typing import Callable, Collection, Iterable, Literal, Mapping
 from typing_extensions import override
 
 from tqec.circuit.schedule import ScheduledCircuit
+from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.qubit import PlaquetteQubits
 from tqec.utils.exceptions import TQECException
@@ -49,6 +50,7 @@ class Plaquette:
     qubits: PlaquetteQubits
     circuit: ScheduledCircuit
     mergeable_instructions: frozenset[str] = field(default_factory=frozenset)
+    debug_information: PlaquetteDebugInformation | None = None
 
     def __post_init__(self) -> None:
         plaquette_qubits = set(self.qubits)
@@ -102,11 +104,15 @@ class Plaquette:
         new_scheduled_circuit = self.circuit.filter_by_qubits(
             new_plaquette_qubits.all_qubits
         )
+        debug_info = self.debug_information
+        if debug_info is not None:
+            debug_info = debug_info.project_on_boundary(projected_orientation)
         return Plaquette(
             f"{self.name}_{projected_orientation.name}",
             new_plaquette_qubits,
             new_scheduled_circuit,
             self.mergeable_instructions,
+            debug_info,
         )
 
     def reliable_hash(self) -> int:

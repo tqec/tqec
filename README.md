@@ -73,7 +73,7 @@ See the [contributing page](https://tqec.github.io/tqec/contributor_guide.html) 
 
 ## Community
 
-Every Wednesday, we hold [meetings](https://calendar.google.com/calendar/event?action=TEMPLATE&tmeid=Mmw3NHVqZjRvaWo0bzl2bWtpamE0cmV0NzJfMjAyNDEwMzBUMTUzMDAwWiBhdXN0aW5nZm93bGVyQG0&tmsrc=austingfowler%40gmail.com&scp=ALL) to discuss project progress and conduct educational talks related to TQEC.
+Every Wednesday at 8:30am PST, we hold [meetings](https://meet.jit.si/TQEC-design-automation) to discuss project progress and conduct educational talks related to TQEC.
 
 Here are some helpful links to learn more about the community:
 
@@ -81,5 +81,7 @@ Here are some helpful links to learn more about the community:
 - Community questions and answers: [Docs](https://docs.google.com/document/d/1VRBPU5eMGVEcxzgHccd98Ooa7geHGRWJoN_fdB1VClM/edit?usp=sharing)
 - Introduction to surface code quantum computation: [Slides](https://docs.google.com/presentation/d/1GxGD9kzDYJA6X47BXGII2qjDVVoub5BsSVrGHRZINO4/edit?usp=sharing)
 - Programming a quantum computer using SketchUp: [Slides](https://docs.google.com/presentation/d/1MjFuODipnmF-jDstEnQrqbsOtbSKZyPsuTOMo8wpSJc/edit#slide=id.p)/[Video](https://drive.google.com/file/d/1o1LMiidtYDcVoEFZXsJPb7XdTkZ83VFX/view?usp=drive_link)
+
+All the resources and group meeting recordings are available at [this link](https://docs.google.com/spreadsheets/d/11DSA2wzKLOrfTGNHunFvzsMYeO7jZ8Ny8kpzoC_wKQg/edit?resourcekey=0-PdGFkp5s-4XWihMSxk0UIg&gid=0#gid=0).
 
 Please join the [Google group](https://groups.google.com/g/tqec-design-automation) to receive more updates and information!
