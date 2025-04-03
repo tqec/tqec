@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from tqec._cli.subcommands.base import TQECSubCommand
 from tqec._cli.subcommands.dae2observables import save_correlation_surfaces_to
-from tqec.compile.compile import compile_block_graph
+from tqec.compile.deprecated.compile import compile_block_graph
 from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
 
