@@ -55,6 +55,7 @@ doc = [
     "docformatter",
     "sphinx-autobuild",
     "sphinx-copybutton",
+    "sphinxcontrib-bibtex",
 ]
 bench = ["pyinstrument"]
 all = ["tqec[test, dev, doc, bench]"]
