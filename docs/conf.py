@@ -54,6 +54,8 @@ extensions = [
     "sphinx_copybutton",
     # Adds a copy button to each code block in the documentation
     # https://sphinx-copybutton.readthedocs.io/en/latest/
+    "sphinxcontrib.bibtex",
+    # Allows us to add references to a page
 ]
 
 templates_path = ["_templates"]
@@ -170,3 +172,9 @@ nbsphinx_thumbnails = {
 autosummary_generate = True
 autosummary_generate_overwrite = True
 autosummary_imported_members = True
+
+# options for sphinxcontrib.bibtex
+# https://sphinxcontrib-bibtex.readthedocs.io/en/latest/index.html
+bibtex_bibfiles = ["refs.bib"]
+bibtex_default_style = "unsrt"
+suppress_warnings = ["bibtex.duplicate_label", "bibtex.duplicate_citation"]
