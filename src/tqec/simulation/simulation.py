@@ -4,10 +4,13 @@ from typing import Callable, Iterable, Sequence
 
 import sinter
 
-from tqec.compile.deprecated.compile import compile_block_graph
+from tqec.compile.compile import compile_block_graph
 from tqec.compile.detectors.database import DetectorDatabase
-from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
+from tqec.compile.specs.base import CubeBuilder, PipeBuilder
+from tqec.compile.specs.library.standard import (
+    STANDARD_CUBE_BUILDER,
+    STANDARD_PIPE_BUILDER,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.simulation.generation import generate_sinter_tasks
@@ -24,8 +27,8 @@ def start_simulation_using_sinter(
     ps: Sequence[float],
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
-    block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
-    substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
+    cube_builder: CubeBuilder = STANDARD_CUBE_BUILDER,
+    pipe_builder: PipeBuilder = STANDARD_PIPE_BUILDER,
     observables: list[CorrelationSurface] | None = None,
     detector_database: DetectorDatabase | None = None,
     num_workers: int = multiprocessing.cpu_count(),
@@ -68,12 +71,14 @@ def start_simulation_using_sinter(
             Default to 2, which is sufficient for regular surface code. If
             negative, detectors are not computed automatically and are not added
             to the generated circuits.
-        block_builder: A callable that specifies how to build the `CompiledBlock` from
-            the specified `CubeSpecs`. Defaults to the block builder for the css type
-            surface code.
-        substitution_builder: A callable that specifies how to build the substitution
-            plaquettes from the specified `PipeSpec`. Defaults to the substitution
-            builder for the css type surface code.
+        cube_builder: A callable that specifies how to build the
+            :class:`~.blocks.block.Block` from the specified
+            :class:`~.specs.base.CubeSpecs`. Defaults to the cube builder for
+            the CSS type surface code.
+        pipe_builder: A callable that specifies how to build the
+            :class:`~.blocks.block.Block` from the specified
+            :class:`~.specs.base.PipeSpec`. Defaults to the pipe builder
+            for the CSS type surface code.
         observables: a list of correlation surfaces to compile to logical
              observables and generate statistics for. If `None`, all the correlation
              surfaces of the provided computation are used.
@@ -130,8 +135,8 @@ def start_simulation_using_sinter(
 
     compiled_graph = compile_block_graph(
         block_graph,
-        block_builder,
-        substitution_builder,
+        cube_builder,
+        pipe_builder,
         observables=observables,
     )
     stats = sinter.collect(
