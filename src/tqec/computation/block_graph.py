@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from collections import Counter
+from itertools import chain
 import pathlib
 from copy import deepcopy
 from io import BytesIO
@@ -414,58 +416,6 @@ class BlockGraph:
 
         return read_block_graph_from_dae_file(filename, graph_name)
 
-    def relabel_cubes(self, label_mapping: Mapping[Position3D | str, str]) -> None:
-        """Relabel cubes in the block graph.
-
-        This method updates the labels of cubes in the graph, based on a mapping
-        from either a cube position or its existing label to a new label.
-
-        Args:
-            label_mapping: A mapping from either Position3D or current cube label (str)
-                to the new label to assign.
-
-        Raises:
-            TQECException: If a cube is not found for the given key, if a port label
-                is reused, or if the new label conflicts with existing port labels.
-        """
-        port_labels = {cube.label for cube in self.cubes if cube.is_port}
-        assigned_new_labels: set[str] = set()
-
-        for key, new_label in label_mapping.items():
-            if not new_label:
-                raise TQECException("New label must be non-empty.")
-
-            if new_label in port_labels:
-                raise TQECException(
-                    f"The label '{new_label}' is already used by a port and cannot be reassigned."
-                )
-            if new_label in assigned_new_labels:
-                raise TQECException(
-                    f"The label '{new_label}' is reused multiple times in this relabeling."
-                )
-            assigned_new_labels.add(new_label)
-
-            # Cube lookup
-            if isinstance(key, Position3D):
-                matching_cubes = [cube for cube in self.cubes if cube.position == key]
-            elif isinstance(key, str):
-                matching_cubes = [cube for cube in self.cubes if cube.label == key]
-            else:
-                raise TQECException(
-                    f"Invalid identifier '{key}'. Must be Position3D or str."
-                )
-
-            if not matching_cubes:
-                raise TQECException(f"No cube found for identifier '{key}'.")
-
-            for cube in matching_cubes:
-                updated_cube = Cube(
-                    position=cube.position, kind=cube.kind, label=new_label
-                )
-                self._graph.add_node(
-                    cube.position, **{self._NODE_DATA_KEY: updated_cube}
-                )
-
     def view_as_html(
         self,
         write_html_filepath: str | pathlib.Path | None = None,
@@ -813,6 +763,64 @@ class BlockGraph:
             The cube instances that have the specified label.
         """
         return [cube for cube in self.cubes if cube.label == label]
+
+    def get_cube_by_position(self, pos: Position3D) -> Cube:
+        """Return the cube at the given position.
+
+        Args:
+            pos: The position of the cube.
+
+        Returns:
+            The cube at the specified position.
+
+        Raises:
+            TQECException: If no cube is found at that position.
+        """
+        return self[pos]
+
+    def relabel_cubes(self, label_mapping: Mapping[Position3D | str, str]) -> None:
+        """Relabel cubes in the block graph.
+
+        This method updates the labels of cubes in the graph, based on a mapping
+        from either a cube position or an existing label to a new label.
+
+        Args:
+            label_mapping: A mapping from either Position3D or current cube label (str)
+                to the new label to assign.
+
+        Raises:
+            TQECException: If a cube is not found for the given key, if a port label
+                is reused, or if the new label conflicts with existing port labels.
+        """
+
+        port_labels = {cube.label for cube in self.cubes if cube.is_port}
+        labels = Counter(chain(port_labels, label_mapping.values()))
+        duplicated_labels = {label for label, count in labels.items() if count > 1}
+        if duplicated_labels:
+            raise TQECException(f"Found duplicated label(s): {duplicated_labels}.")
+
+        for key, new_label in label_mapping.items():
+            if not new_label:
+                raise TQECException("New label must be non-empty.")
+
+            if isinstance(key, Position3D):
+                cubes_to_update = [self.get_cube_by_position(key)]
+            elif isinstance(key, str):
+                cubes_to_update = self.get_cubes_by_label(key)
+            else:
+                raise TQECException(
+                    f"Invalid key '{key}'. Must be a Position3D or label string."
+                )
+
+            for cube in cubes_to_update:
+                updated_cube = Cube(
+                    position=cube.position,
+                    kind=cube.kind,
+                    label=new_label,
+                )
+                self._graph.add_node(
+                    cube.position, **{self._NODE_DATA_KEY: updated_cube}
+                )
 
 
 def block_kind_from_str(string: str) -> BlockKind:
