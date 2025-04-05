@@ -15,16 +15,8 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import (
     FixedBulkConventionPlaquetteGenerator,
 )
-from tqec.compile.specs.library.generators.hadamard import (
-    get_spatial_horizontal_hadamard_raw_template,
-    get_spatial_vertical_hadamard_raw_template,
-)
-from tqec.compile.specs.library.generators.memory import (
-    get_memory_horizontal_boundary_raw_template,
-    get_memory_vertical_boundary_raw_template,
-)
 from tqec.computation.cube import Port, YHalfCube, ZXCube
-from tqec.plaquette.compilation.base import PlaquetteCompiler
+from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
@@ -266,20 +258,19 @@ class FixedBulkPipeBuilder(PipeBuilder):
             ]
         )
 
-    @staticmethod
-    def _get_spatial_regular_pipe_template(spec: PipeSpec) -> RectangularTemplate:
+    def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
         """Returns the ``Template`` instance needed to implement the pipe
         representing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
             case Direction3D.X, False:
-                return get_memory_vertical_boundary_raw_template()
+                return self._generator.get_memory_vertical_boundary_raw_template()
             case Direction3D.X, True:
-                return get_spatial_vertical_hadamard_raw_template()
+                return self._generator.get_spatial_vertical_hadamard_raw_template()
             case Direction3D.Y, False:
-                return get_memory_horizontal_boundary_raw_template()
+                return self._generator.get_memory_horizontal_boundary_raw_template()
             case Direction3D.Y, True:
-                return get_spatial_horizontal_hadamard_raw_template()
+                return self._generator.get_spatial_horizontal_hadamard_raw_template()
             case _:
                 raise TQECException(
                     "Spatial pipes cannot have a direction equal to Direction3D.Z."
@@ -374,3 +365,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         if cube_specs[0].is_spatial or cube_specs[1].is_spatial:
             return self._get_spatial_cube_pipe_block(spec)
         return self._get_spatial_regular_pipe_block(spec)
+
+
+FIXED_BULK_CUBE_BUILDER: CubeBuilder = FixedBulkCubeBuilder(IdentityPlaquetteCompiler)
+FIXED_BULK_PIPE_BUILDER: PipeBuilder = FixedBulkPipeBuilder(IdentityPlaquetteCompiler)

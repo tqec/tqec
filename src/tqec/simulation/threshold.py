@@ -4,10 +4,13 @@ from typing import Callable, Iterable, Sequence, TypeGuard
 
 import sinter
 
-from tqec.compile.deprecated.compile import compile_block_graph
+from tqec.compile.compile import compile_block_graph
 from tqec.compile.detectors.database import DetectorDatabase
-from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
+from tqec.compile.specs.base import CubeBuilder, PipeBuilder
+from tqec.compile.specs.library.standard import (
+    STANDARD_CUBE_BUILDER,
+    STANDARD_PIPE_BUILDER,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.utils.exceptions import TQECException
@@ -71,8 +74,8 @@ def binary_search_threshold(
     atol: float = 1e-4,
     rtol: float = 1e-4,
     manhattan_radius: int = 2,
-    block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
-    substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
+    cube_builder: CubeBuilder = STANDARD_CUBE_BUILDER,
+    pipe_builder: PipeBuilder = STANDARD_PIPE_BUILDER,
     detector_database: DetectorDatabase | None = None,
     num_workers: int = multiprocessing.cpu_count(),
     max_shots: int = 10_000_000,
@@ -162,7 +165,7 @@ def binary_search_threshold(
         the logical error-rates computed while searching the threshold
     """
     compiled_graph = compile_block_graph(
-        block_graph, block_builder, substitution_builder, observables=[observable]
+        block_graph, cube_builder, pipe_builder, observables=[observable]
     )
     ks = tuple(sorted(ks))
     noiseless_circuits = [
