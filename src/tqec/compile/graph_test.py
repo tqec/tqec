@@ -1,18 +1,16 @@
 import pytest
 
 from tqec.compile.blocks.block import Block
+from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
-from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.graph import TopologicalComputationGraph
-from tqec.compile.specs.library.generators.memory import (
-    get_memory_horizontal_boundary_plaquettes,
-    get_memory_horizontal_boundary_raw_template,
-    get_memory_qubit_plaquettes,
-    get_memory_qubit_raw_template,
-    get_memory_vertical_boundary_plaquettes,
-    get_memory_vertical_boundary_raw_template,
+from tqec.compile.specs.base import CubeSpec, PipeSpec
+from tqec.compile.specs.library.standard import (
+    STANDARD_CUBE_BUILDER,
+    STANDARD_PIPE_BUILDER,
 )
-from tqec.utils.enums import Basis
+from tqec.computation.cube import ZXCube
+from tqec.computation.pipe import PipeKind
 from tqec.utils.position import BlockPosition3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -24,82 +22,39 @@ def scalable_qubit_shape_fixture() -> PhysicalQubitScalable2D:
 
 @pytest.fixture(name="XZZ")
 def XZZ_fixture() -> Block:
-    return Block(
-        [
-            PlaquetteLayer(
-                get_memory_qubit_raw_template(),
-                get_memory_qubit_plaquettes(reset=Basis.Z),
-            ),
-            RepeatedLayer(
-                PlaquetteLayer(
-                    get_memory_qubit_raw_template(), get_memory_qubit_plaquettes()
-                ),
-                repetitions=LinearFunction(2, -1),
-            ),
-            PlaquetteLayer(
-                get_memory_qubit_raw_template(),
-                get_memory_qubit_plaquettes(measurement=Basis.Z),
-            ),
-        ]
-    )
+    return STANDARD_CUBE_BUILDER(CubeSpec(ZXCube.from_str("XZZ")))
 
 
 @pytest.fixture(name="XZO")
-def XZO_fixture() -> Block:
-    return Block(
-        [
-            PlaquetteLayer(
-                get_memory_qubit_raw_template(),
-                get_memory_qubit_plaquettes(),
-            )
-            for _ in range(2)
-        ]
+def XZO_fixture(XZZ: Block) -> Block:
+    spec = CubeSpec(ZXCube.from_str("XZZ"))
+    first_layer = XZZ.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
+    assert isinstance(first_layer, PlaquetteLayer)
+    template = first_layer.template
+    return STANDARD_PIPE_BUILDER(
+        PipeSpec((spec, spec), (template, template), PipeKind.from_str("XZO"))
     )
 
 
 @pytest.fixture(name="OZZ")
-def OZZ_fixture() -> Block:
-    return Block(
-        [
-            PlaquetteLayer(
-                get_memory_vertical_boundary_raw_template(),
-                get_memory_vertical_boundary_plaquettes(reset=Basis.Z),
-            ),
-            RepeatedLayer(
-                PlaquetteLayer(
-                    get_memory_vertical_boundary_raw_template(),
-                    get_memory_vertical_boundary_plaquettes(),
-                ),
-                repetitions=LinearFunction(2, -1),
-            ),
-            PlaquetteLayer(
-                get_memory_vertical_boundary_raw_template(),
-                get_memory_vertical_boundary_plaquettes(measurement=Basis.Z),
-            ),
-        ]
+def OZZ_fixture(XZZ: Block) -> Block:
+    spec = CubeSpec(ZXCube.from_str("XZZ"))
+    first_layer = XZZ.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
+    assert isinstance(first_layer, PlaquetteLayer)
+    template = first_layer.template
+    return STANDARD_PIPE_BUILDER(
+        PipeSpec((spec, spec), (template, template), PipeKind.from_str("OZZ"))
     )
 
 
 @pytest.fixture(name="XOZ")
-def XOZ_fixture() -> Block:
-    return Block(
-        [
-            PlaquetteLayer(
-                get_memory_horizontal_boundary_raw_template(),
-                get_memory_horizontal_boundary_plaquettes(reset=Basis.Z),
-            ),
-            RepeatedLayer(
-                PlaquetteLayer(
-                    get_memory_horizontal_boundary_raw_template(),
-                    get_memory_horizontal_boundary_plaquettes(),
-                ),
-                repetitions=LinearFunction(2, -1),
-            ),
-            PlaquetteLayer(
-                get_memory_horizontal_boundary_raw_template(),
-                get_memory_horizontal_boundary_plaquettes(measurement=Basis.Z),
-            ),
-        ]
+def XOZ_fixture(XZZ: Block) -> Block:
+    spec = CubeSpec(ZXCube.from_str("XZZ"))
+    first_layer = XZZ.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
+    assert isinstance(first_layer, PlaquetteLayer)
+    template = first_layer.template
+    return STANDARD_PIPE_BUILDER(
+        PipeSpec((spec, spec), (template, template), PipeKind.from_str("XOZ"))
     )
 
 

@@ -9,13 +9,13 @@ from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
-from tqec.compile.specs.library.generators._testing import RPNGTemplate
 from tqec.compile.tree.annotations import LayerTreeAnnotations
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.template import RPNGTemplate
 from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
 from tqec.utils.exceptions import TQECException
 
