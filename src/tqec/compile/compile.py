@@ -4,6 +4,7 @@ from typing import Final, Literal
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.observables.abstract_observable import (
     AbstractObservable,
@@ -13,21 +14,11 @@ from tqec.compile.observables.builder import (
     compute_observable_qubits,
     get_observable_with_measurement_records,
 )
-from tqec.compile.specs.base import (
-    CubeBuilder,
-    CubeSpec,
-    PipeBuilder,
-    PipeSpec,
-)
-from tqec.compile.specs.library.standard import (
-    STANDARD_CUBE_BUILDER,
-    STANDARD_PIPE_BUILDER,
-)
+from tqec.compile.specs.base import CubeSpec, PipeSpec
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.templates.layout import LayoutTemplate
 from tqec.templates.qubit import QubitTemplate
-from tqec.utils.enums import PatchStyle
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -39,10 +30,8 @@ _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 
 def compile_block_graph(
     block_graph: BlockGraph,
-    cube_builder: CubeBuilder = STANDARD_CUBE_BUILDER,
-    pipe_builder: PipeBuilder = STANDARD_PIPE_BUILDER,
+    convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
-    patch_style: PatchStyle = PatchStyle.FixedBulk,
 ) -> TopologicalComputationGraph:
     """Compile a block graph.
 
@@ -108,14 +97,16 @@ def compile_block_graph(
 
     # 1. Create topological computation graph
     graph = TopologicalComputationGraph(
-        _DEFAULT_SCALABLE_QUBIT_SHAPE, observables=obs_included, patch_style=patch_style
+        _DEFAULT_SCALABLE_QUBIT_SHAPE,
+        observables=obs_included,
+        observable_builder=convention.triplet.observable_builder,
     )
 
     # 2. Add cubes to the graph
     for cube in block_graph.cubes:
         spec = cube_specs[cube]
         position = BlockPosition3D(cube.position.x, cube.position.y, cube.position.z)
-        graph.add_cube(position, cube_builder(spec))
+        graph.add_cube(position, convention.triplet.cube_builder(spec))
 
     # 3. Add pipes to the graph
     # Note that the order of the pipes to add is important.
@@ -133,7 +124,7 @@ def compile_block_graph(
             (QubitTemplate(), QubitTemplate()),
             pipe.kind,
         )
-        graph.add_pipe(pos1, pos2, pipe_builder(key))
+        graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key))
 
     return graph
 

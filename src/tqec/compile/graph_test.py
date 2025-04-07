@@ -4,6 +4,8 @@ from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.graph import TopologicalComputationGraph
+from tqec.compile.observables.builder import ObservableBuilder
+from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
 from tqec.compile.specs.base import CubeSpec, PipeSpec
 from tqec.compile.specs.library.standard import (
     STANDARD_CUBE_BUILDER,
@@ -13,6 +15,11 @@ from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.utils.position import BlockPosition3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+
+
+@pytest.fixture(name="observable_builder")
+def observable_builder_fixture() -> ObservableBuilder:
+    return FIXED_BULK_OBSERVABLE_BUILDER
 
 
 @pytest.fixture(name="scalable_qubit_shape")
@@ -59,9 +66,13 @@ def XOZ_fixture(XZZ: Block) -> Block:
 
 
 def test_add_temporal_pipe_with_spatial_pipe_existing(
-    scalable_qubit_shape: PhysicalQubitScalable2D, XZZ: Block, XOZ: Block, XZO: Block
+    observable_builder: ObservableBuilder,
+    scalable_qubit_shape: PhysicalQubitScalable2D,
+    XZZ: Block,
+    XOZ: Block,
+    XZO: Block,
 ) -> None:
-    graph = TopologicalComputationGraph(scalable_qubit_shape)
+    graph = TopologicalComputationGraph(scalable_qubit_shape, observable_builder)
     graph.add_cube(BlockPosition3D(0, 0, 0), XZZ)
     graph.add_cube(BlockPosition3D(0, 1, 0), XZZ)
     graph.add_cube(BlockPosition3D(0, 1, 1), XZZ)
@@ -72,9 +83,13 @@ def test_add_temporal_pipe_with_spatial_pipe_existing(
 
 
 def test_sequenced_layers_with_layout_layers_of_different_shapes(
-    scalable_qubit_shape: PhysicalQubitScalable2D, XZZ: Block, XOZ: Block, XZO: Block
+    observable_builder: ObservableBuilder,
+    scalable_qubit_shape: PhysicalQubitScalable2D,
+    XZZ: Block,
+    XOZ: Block,
+    XZO: Block,
 ) -> None:
-    graph = TopologicalComputationGraph(scalable_qubit_shape)
+    graph = TopologicalComputationGraph(scalable_qubit_shape, observable_builder)
     graph.add_cube(BlockPosition3D(0, 0, 0), XZZ)
     graph.add_cube(BlockPosition3D(0, 0, 1), XZZ)
     graph.add_cube(BlockPosition3D(0, 1, 1), XZZ)
