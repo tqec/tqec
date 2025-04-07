@@ -1,0 +1,37 @@
+TopologicalComputationGraph
+===========================
+
+.. currentmodule:: tqec.compile
+
+.. autoclass:: TopologicalComputationGraph
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TopologicalComputationGraph.__init__
+      ~TopologicalComputationGraph.add_cube
+      ~TopologicalComputationGraph.add_pipe
+      ~TopologicalComputationGraph.generate_stim_circuit
+      ~TopologicalComputationGraph.to_layer_tree
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: add_cube
+   .. automethod:: add_pipe
+   .. automethod:: generate_stim_circuit
+   .. automethod:: to_layer_tree
+   
+   
