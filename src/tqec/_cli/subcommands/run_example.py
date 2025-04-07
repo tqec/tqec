@@ -11,7 +11,7 @@ import sinter
 from typing_extensions import override
 
 from tqec._cli.subcommands.base import TQECSubCommand
-from tqec.compile.specs.library import ALL_SPECS
+from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.gallery.cnot import cnot
 from tqec.simulation.plotting.inset import plot_observable_as_inset
 from tqec.simulation.simulation import start_simulation_using_sinter
@@ -62,9 +62,9 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             type=int,
         )
         parser.add_argument(
-            "--code-style",
-            help="Use the CSS or ZXXZ code style.",
-            choices=ALL_SPECS.keys(),
+            "--convention",
+            help="Convention to use.",
+            choices=ALL_CONVENTIONS.keys(),
             default="STANDARD",
         )
         parser.add_argument(
@@ -82,7 +82,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         logging.info("Parsing arguments.")
         out_dir: Path = args.out_dir.resolve()
         obs_indices: list[int] = args.obs_include
-        style: str = args.code_style
+        convention_name: str = args.convention
         obs_basis = Basis(args.basis.upper())
         ks: list[int] = args.k
         ps: list[float] = args.p
@@ -112,7 +112,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
                 + f"but requested indices up to {max(obs_indices)}."
             )
 
-        cube_builder, pipe_builder = ALL_SPECS[style]
+        convention = ALL_CONVENTIONS[convention_name]
 
         logging.info("Start the simulation, this might take some time.")
         stats = start_simulation_using_sinter(
@@ -121,8 +121,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             ps,
             NoiseModel.uniform_depolarizing,
             manhattan_radius=2,
-            cube_builder=cube_builder,
-            pipe_builder=pipe_builder,
+            convention=convention,
             observables=[correlation_surfaces[i] for i in obs_indices],
             num_workers=cpu_count(),
             max_shots=10_000_000,
@@ -136,7 +135,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         for i, stat in enumerate(stats):
             with open(
                 simulations_out_dir
-                / f"{style}_logical_cnot_result_{obs_basis.value}_observable_{i}.csv",
+                / f"{convention}_logical_cnot_result_{obs_basis.value}_observable_{i}.csv",
                 "w+",
                 encoding="utf-8",
             ) as stats_file:
@@ -155,8 +154,8 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             ax.grid(axis="both")
             ax.legend()
             ax.loglog()
-            ax.set_title(f"{style} Logical CNOT Error Rate")
+            ax.set_title(f"{convention} Logical CNOT Error Rate")
             fig.savefig(
                 plots_out_dir
-                / f"{style}_logical_cnot_result_{obs_basis.value}_observable_{i}.png"
+                / f"{convention}_logical_cnot_result_{obs_basis.value}_observable_{i}.png"
             )

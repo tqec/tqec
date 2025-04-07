@@ -37,14 +37,7 @@ def compile_block_graph(
 
     Args:
         block_graph: The block graph to compile.
-        cube_builder: A callable that specifies how to build the
-            :class:`~.blocks.block.Block` from the specified
-            :class:`~.specs.base.CubeSpecs`. Defaults to the cube builder for
-            the CSS type surface code.
-        pipe_builder: A callable that specifies how to build the
-            :class:`~.blocks.block.Block` from the specified
-            :class:`~.specs.base.PipeSpec`. Defaults to the pipe builder
-            for the CSS type surface code.
+        convention: convention used to generate the quantum circuits.
         observables: correlation surfaces that should be compiled into
             observables and included in the compiled circuit.
             If set to ``"auto"``, the correlation surfaces will be automatically
@@ -52,8 +45,6 @@ def compile_block_graph(
             is provided, only those surfaces will be compiled into observables
             and included in the compiled circuit. If set to ``None``, no
             observables will be included in the compiled circuit.
-        patch_style: The style of the surface code patch to be used during
-            compilation.
 
     Returns:
         A :class:`TopologicalComputationGraph` object that can be used to generate a

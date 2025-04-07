@@ -5,12 +5,8 @@ from typing import Callable, Iterable, Sequence
 import sinter
 
 from tqec.compile.compile import compile_block_graph
+from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.detectors.database import DetectorDatabase
-from tqec.compile.specs.base import CubeBuilder, PipeBuilder
-from tqec.compile.specs.library.standard import (
-    STANDARD_CUBE_BUILDER,
-    STANDARD_PIPE_BUILDER,
-)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.simulation.generation import generate_sinter_tasks
@@ -27,8 +23,7 @@ def start_simulation_using_sinter(
     ps: Sequence[float],
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
-    cube_builder: CubeBuilder = STANDARD_CUBE_BUILDER,
-    pipe_builder: PipeBuilder = STANDARD_PIPE_BUILDER,
+    convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | None = None,
     detector_database: DetectorDatabase | None = None,
     num_workers: int = multiprocessing.cpu_count(),
@@ -71,14 +66,7 @@ def start_simulation_using_sinter(
             Default to 2, which is sufficient for regular surface code. If
             negative, detectors are not computed automatically and are not added
             to the generated circuits.
-        cube_builder: A callable that specifies how to build the
-            :class:`~.blocks.block.Block` from the specified
-            :class:`~.specs.base.CubeSpecs`. Defaults to the cube builder for
-            the CSS type surface code.
-        pipe_builder: A callable that specifies how to build the
-            :class:`~.blocks.block.Block` from the specified
-            :class:`~.specs.base.PipeSpec`. Defaults to the pipe builder
-            for the CSS type surface code.
+        convention: convention used to generate the quantum circuits.
         observables: a list of correlation surfaces to compile to logical
              observables and generate statistics for. If `None`, all the correlation
              surfaces of the provided computation are used.
@@ -133,12 +121,7 @@ def start_simulation_using_sinter(
     if split_observable_stats and len(observables) > 1:
         custom_error_count_key = heuristic_custom_error_key(observables)
 
-    compiled_graph = compile_block_graph(
-        block_graph,
-        cube_builder,
-        pipe_builder,
-        observables=observables,
-    )
+    compiled_graph = compile_block_graph(block_graph, convention, observables)
     stats = sinter.collect(
         num_workers=num_workers,
         tasks=generate_sinter_tasks(
