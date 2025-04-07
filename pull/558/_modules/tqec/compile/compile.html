@@ -412,6 +412,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.measurement_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeasurementRecordsMap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.schedule.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduledCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.convention</span><span class="w"> </span><span class="kn">import</span> <span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span> <span class="n">Convention</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">TopologicalComputationGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.observables.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AbstractObservable</span><span class="p">,</span>
@@ -421,21 +422,11 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">compute_observable_qubits</span><span class="p">,</span>
     <span class="n">get_observable_with_measurement_records</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">CubeBuilder</span><span class="p">,</span>
-    <span class="n">CubeSpec</span><span class="p">,</span>
-    <span class="n">PipeBuilder</span><span class="p">,</span>
-    <span class="n">PipeSpec</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.library.standard</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">STANDARD_CUBE_BUILDER</span><span class="p">,</span>
-    <span class="n">STANDARD_PIPE_BUILDER</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">CubeSpec</span><span class="p">,</span> <span class="n">PipeSpec</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutTemplate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.qubit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QubitTemplate</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PatchStyle</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="n">Direction3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">PhysicalQubitScalable2D</span>
@@ -449,23 +440,14 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.compile.compile_block_graph.html#tqec.compile.compile_block_graph">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compile_block_graph</span><span class="p">(</span>
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
-    <span class="n">cube_builder</span><span class="p">:</span> <span class="n">CubeBuilder</span> <span class="o">=</span> <span class="n">STANDARD_CUBE_BUILDER</span><span class="p">,</span>
-    <span class="n">pipe_builder</span><span class="p">:</span> <span class="n">PipeBuilder</span> <span class="o">=</span> <span class="n">STANDARD_PIPE_BUILDER</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span> <span class="o">=</span> <span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span>
     <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
-    <span class="n">patch_style</span><span class="p">:</span> <span class="n">PatchStyle</span> <span class="o">=</span> <span class="n">PatchStyle</span><span class="o">.</span><span class="n">FixedBulk</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopologicalComputationGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a block graph.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        block_graph: The block graph to compile.</span>
-<span class="sd">        cube_builder: A callable that specifies how to build the</span>
-<span class="sd">            :class:`~.blocks.block.Block` from the specified</span>
-<span class="sd">            :class:`~.specs.base.CubeSpecs`. Defaults to the cube builder for</span>
-<span class="sd">            the CSS type surface code.</span>
-<span class="sd">        pipe_builder: A callable that specifies how to build the</span>
-<span class="sd">            :class:`~.blocks.block.Block` from the specified</span>
-<span class="sd">            :class:`~.specs.base.PipeSpec`. Defaults to the pipe builder</span>
-<span class="sd">            for the CSS type surface code.</span>
+<span class="sd">        convention: convention used to generate the quantum circuits.</span>
 <span class="sd">        observables: correlation surfaces that should be compiled into</span>
 <span class="sd">            observables and included in the compiled circuit.</span>
 <span class="sd">            If set to ``&quot;auto&quot;``, the correlation surfaces will be automatically</span>
@@ -473,8 +455,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            is provided, only those surfaces will be compiled into observables</span>
 <span class="sd">            and included in the compiled circuit. If set to ``None``, no</span>
 <span class="sd">            observables will be included in the compiled circuit.</span>
-<span class="sd">        patch_style: The style of the surface code patch to be used during</span>
-<span class="sd">            compilation.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`TopologicalComputationGraph` object that can be used to generate a</span>
@@ -518,14 +498,16 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="c1"># 1. Create topological computation graph</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">TopologicalComputationGraph</span><span class="p">(</span>
-        <span class="n">_DEFAULT_SCALABLE_QUBIT_SHAPE</span><span class="p">,</span> <span class="n">observables</span><span class="o">=</span><span class="n">obs_included</span><span class="p">,</span> <span class="n">patch_style</span><span class="o">=</span><span class="n">patch_style</span>
+        <span class="n">_DEFAULT_SCALABLE_QUBIT_SHAPE</span><span class="p">,</span>
+        <span class="n">observables</span><span class="o">=</span><span class="n">obs_included</span><span class="p">,</span>
+        <span class="n">observable_builder</span><span class="o">=</span><span class="n">convention</span><span class="o">.</span><span class="n">triplet</span><span class="o">.</span><span class="n">observable_builder</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># 2. Add cubes to the graph</span>
     <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">:</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">cube</span><span class="p">]</span>
         <span class="n">position</span> <span class="o">=</span> <span class="n">BlockPosition3D</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">cube_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">convention</span><span class="o">.</span><span class="n">triplet</span><span class="o">.</span><span class="n">cube_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
 
     <span class="c1"># 3. Add pipes to the graph</span>
     <span class="c1"># Note that the order of the pipes to add is important.</span>
@@ -543,7 +525,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="p">(</span><span class="n">QubitTemplate</span><span class="p">(),</span> <span class="n">QubitTemplate</span><span class="p">()),</span>
             <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">pipe_builder</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">convention</span><span class="o">.</span><span class="n">triplet</span><span class="o">.</span><span class="n">pipe_builder</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">graph</span></div>
 
