@@ -25,3 +25,8 @@ class Basis(Enum):
 
     def __lt__(self, other: Basis) -> bool:
         return self.value < other.value
+
+
+class PatchStyle(Enum):
+    FixedBulk = auto()
+    FixedBoundaryParity = auto()

@@ -61,11 +61,11 @@ from tqec.compile.blocks.positioning import (
     LayoutPosition2D,
     LayoutPosition3D,
 )
-from tqec.compile.compile import PatchStyle
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
+from tqec.utils.enums import PatchStyle
 from tqec.utils.exceptions import TQECException
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D

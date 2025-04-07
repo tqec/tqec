@@ -1,6 +1,5 @@
 """Defines :func:`~.compile.compile_block_graph`."""
 
-from enum import Enum, auto
 from typing import Final, Literal
 
 from tqec.compile.graph import TopologicalComputationGraph
@@ -21,6 +20,7 @@ from tqec.compile.specs.base import (
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.templates.qubit import QubitTemplate
+from tqec.utils.enums import PatchStyle
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -28,11 +28,6 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
     LinearFunction(4, 5), LinearFunction(4, 5)
 )
-
-
-class PatchStyle(Enum):
-    FixedBulk = auto()
-    FixedBoundaryParity = auto()
 
 
 def compile_block_graph(
