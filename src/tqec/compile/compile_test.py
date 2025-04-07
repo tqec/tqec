@@ -6,7 +6,7 @@ from tqec.compile.compile import compile_block_graph
 from tqec.compile.specs.library import ALL_SPECS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, PatchStyle
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
 
@@ -181,7 +181,11 @@ def test_compile_logical_cnot(spec: str, obs_basis: Basis, k: int) -> None:
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 2
     compiled_graph = compile_block_graph(
-        g, cube_builder, pipe_builder, correlation_surfaces
+        g,
+        cube_builder,
+        pipe_builder,
+        correlation_surfaces,
+        patch_style=PatchStyle.FixedBoundaryParity,
     )
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2

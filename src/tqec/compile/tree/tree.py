@@ -17,6 +17,7 @@ from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.template import RPNGTemplate
 from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
+from tqec.utils.enums import PatchStyle
 from tqec.utils.exceptions import TQECException
 
 
@@ -84,6 +85,7 @@ class LayerTree:
         root: SequencedLayers,
         abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
+        patch_style: PatchStyle = PatchStyle.FixedBulk,
     ):
         """Represents a computation as a tree.
 
@@ -95,13 +97,19 @@ class LayerTree:
 
         Args:
             root: root node of the tree.
+            abstract_observables: a list of abstract observables to be compiled into
+                observables. If set to ``None``, no observables will be compiled
+                into the circuit.
             annotations: a mapping from positive integers representing the value
                 of ``k``, the scaling factor, to annotations computed for that
                 value of ``k``.
+            patch_style: the style of the surface code patch.
+
         """
         self._root = LayerNode(root)
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
+        self._patch_style = patch_style
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -125,7 +133,7 @@ class LayerTree:
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(self._root, k, observable, obs_idx)
+            annotate_observable(self._root, k, observable, obs_idx, self._patch_style)
 
     def _annotate_detectors(
         self,
