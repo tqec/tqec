@@ -1,5 +1,6 @@
 """Defines :func:`~.compile.compile_block_graph`."""
 
+from enum import Enum, auto
 from typing import Final, Literal
 
 from tqec.compile.graph import TopologicalComputationGraph
@@ -29,11 +30,17 @@ _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 )
 
 
+class PatchStyle(Enum):
+    FixedBulk = auto()
+    FixedBoundaryParity = auto()
+
+
 def compile_block_graph(
     block_graph: BlockGraph,
     cube_builder: CubeBuilder = STANDARD_CUBE_BUILDER,
     pipe_builder: PipeBuilder = STANDARD_PIPE_BUILDER,
     observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
+    patch_style: PatchStyle = PatchStyle.FixedBulk,
 ) -> TopologicalComputationGraph:
     """Compile a block graph.
 
@@ -54,6 +61,8 @@ def compile_block_graph(
             is provided, only those surfaces will be compiled into observables
             and included in the compiled circuit. If set to ``None``, no
             observables will be included in the compiled circuit.
+        patch_style: The style of the surface code patch to be used during
+            compilation.
 
     Returns:
         A :class:`TopologicalComputationGraph` object that can be used to generate a
@@ -97,7 +106,7 @@ def compile_block_graph(
 
     # 1. Create topological computation graph
     graph = TopologicalComputationGraph(
-        _DEFAULT_SCALABLE_QUBIT_SHAPE, observables=obs_included
+        _DEFAULT_SCALABLE_QUBIT_SHAPE, observables=obs_included, patch_style=patch_style
     )
 
     # 2. Add cubes to the graph

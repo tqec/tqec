@@ -1,4 +1,5 @@
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
+from tqec.compile.compile import PatchStyle
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import (
     compute_observable_qubits,
@@ -27,6 +28,7 @@ def annotate_observable(
     k: int,
     observable: AbstractObservable,
     observable_index: int,
+    patch_style: PatchStyle,
 ) -> None:
     """Annotates the observables on the tree.
 
@@ -35,6 +37,7 @@ def annotate_observable(
         k: distance parameter.
         observable: observable to annotate.
         observable_index: index of the observable in the circuit.
+        patch_style: style of the surface code patch to be used during compilation.
     """
     for z, subtree_root in enumerate(root.children):
         first_leaf = _get_first_leaf(subtree_root)
@@ -48,7 +51,7 @@ def annotate_observable(
                 )
             template, _ = node._layer.to_template_and_plaquettes()
             obs_qubits = compute_observable_qubits(
-                k, observable, template, z, at_bottom
+                k, observable, template, z, at_bottom, patch_style
             )
             if obs_qubits:
                 obs_annotation = get_observable_with_circuit(
