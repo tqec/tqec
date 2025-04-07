@@ -162,7 +162,7 @@ class Position3D(Vec3D):
 
 
 class BlockPosition3D(Position3D):
-    """Represents the position of a block on a 2-dimensional plane."""
+    """Represents the position of a block in 3D space."""
 
     def as_2d(self) -> BlockPosition2D:
         return BlockPosition2D(self.x, self.y)

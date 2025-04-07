@@ -20,6 +20,7 @@ from tqec.compile.specs.base import (
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.templates.qubit import QubitTemplate
+from tqec.utils.enums import PatchStyle
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -34,6 +35,7 @@ def compile_block_graph(
     cube_builder: CubeBuilder = STANDARD_CUBE_BUILDER,
     pipe_builder: PipeBuilder = STANDARD_PIPE_BUILDER,
     observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
+    patch_style: PatchStyle = PatchStyle.FixedBulk,
 ) -> TopologicalComputationGraph:
     """Compile a block graph.
 
@@ -54,6 +56,8 @@ def compile_block_graph(
             is provided, only those surfaces will be compiled into observables
             and included in the compiled circuit. If set to ``None``, no
             observables will be included in the compiled circuit.
+        patch_style: The style of the surface code patch to be used during
+            compilation.
 
     Returns:
         A :class:`TopologicalComputationGraph` object that can be used to generate a
@@ -97,7 +101,7 @@ def compile_block_graph(
 
     # 1. Create topological computation graph
     graph = TopologicalComputationGraph(
-        _DEFAULT_SCALABLE_QUBIT_SHAPE, observables=obs_included
+        _DEFAULT_SCALABLE_QUBIT_SHAPE, observables=obs_included, patch_style=patch_style
     )
 
     # 2. Add cubes to the graph
