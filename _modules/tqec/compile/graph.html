@@ -473,6 +473,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.observables.abstract_observable</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractObservable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.tree.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayerTree</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemplateBorder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PatchStyle</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
@@ -505,6 +506,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">scalable_qubit_shape</span><span class="p">:</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">,</span>
         <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">patch_style</span><span class="p">:</span> <span class="n">PatchStyle</span> <span class="o">=</span> <span class="n">PatchStyle</span><span class="o">.</span><span class="n">FixedBulk</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Represents a topological computation with</span>
 <span class="sd">        :class:`~tqec.compile.blocks.block.Block` instances.&quot;&quot;&quot;</span>
@@ -512,7 +514,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">_scalable_qubit_shape</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="n">PhysicalQubitScalable2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">scalable_qubit_shape</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">observables</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">observables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_patch_style</span> <span class="o">=</span> <span class="n">patch_style</span></div>
 
 
 <div class="viewcode-block" id="TopologicalComputationGraph.add_cube">
@@ -836,6 +839,7 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="p">]</span>
             <span class="p">),</span>
             <span class="n">abstract_observables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_observables</span><span class="p">,</span>
+            <span class="n">patch_style</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_patch_style</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 

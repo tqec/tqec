@@ -416,6 +416,10 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.observables.builder</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compute_observable_qubits</span><span class="p">,</span>
+    <span class="n">get_observable_with_measurement_records</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">StimCoordinates</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.measurement_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeasurementRecordsMap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.qubit_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">QubitMap</span>
@@ -428,7 +432,6 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">AbstractObservable</span><span class="p">,</span>
     <span class="n">compile_correlation_surface_to_abstract_observable</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.observables.builder</span><span class="w"> </span><span class="kn">import</span> <span class="n">inplace_add_observable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BlockBuilder</span><span class="p">,</span>
     <span class="n">CubeSpec</span><span class="p">,</span>
@@ -815,6 +818,55 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="k">return</span> <span class="n">CompiledGraph</span><span class="p">(</span><span class="n">layout_slices</span><span class="p">,</span> <span class="n">obs_included</span><span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">inplace_add_observable</span><span class="p">(</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">]],</span>
+    <span class="n">template_slices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LayoutTemplate</span><span class="p">],</span>
+    <span class="n">abstract_observable</span><span class="p">:</span> <span class="n">AbstractObservable</span><span class="p">,</span>
+    <span class="n">observable_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inplace add the observable components to the circuits.</span>
+
+<span class="sd">    This functions takes the compiled ``AbstractObservable`` and calculates</span>
+<span class="sd">    the measurement coordinates in it. Then it collects the measurements</span>
+<span class="sd">    into logical observable and adds them in the correct locations in the</span>
+<span class="sd">    sliced circuits.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        k: The scaling factor of the block.</span>
+<span class="sd">        circuits: The circuits to add the observables to. The circuits are</span>
+<span class="sd">            grouped by time slices and layers. The outer list represents the</span>
+<span class="sd">            time slices and the inner list represents the layers.</span>
+<span class="sd">        template_slices: The layout templates of the blocks indexed by the</span>
+<span class="sd">            time steps.</span>
+<span class="sd">        abstract_observable: The abstract observable to add to the circuits.</span>
+<span class="sd">        observable_index: The index of the observable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.observables.fixed_parity_builder</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">FIXED_PARITY_OBSERVABLE_BUILDER</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">circuits</span><span class="p">)):</span>
+        <span class="n">obs_slice</span> <span class="o">=</span> <span class="n">abstract_observable</span><span class="o">.</span><span class="n">slice_at_z</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">at_bottom</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]:</span>
+            <span class="n">obs_qubits</span> <span class="o">=</span> <span class="n">compute_observable_qubits</span><span class="p">(</span>
+                <span class="n">k</span><span class="p">,</span>
+                <span class="n">obs_slice</span><span class="p">,</span>
+                <span class="n">template_slices</span><span class="p">[</span><span class="n">z</span><span class="p">],</span>
+                <span class="n">at_bottom</span><span class="p">,</span>
+                <span class="n">FIXED_PARITY_OBSERVABLE_BUILDER</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">obs_qubits</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">circuit</span> <span class="o">=</span> <span class="n">circuits</span><span class="p">[</span><span class="n">z</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">at_bottom</span> <span class="k">else</span> <span class="n">circuits</span><span class="p">[</span><span class="n">z</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">measurement_records</span> <span class="o">=</span> <span class="n">MeasurementRecordsMap</span><span class="o">.</span><span class="n">from_scheduled_circuit</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+            <span class="n">obs</span> <span class="o">=</span> <span class="n">get_observable_with_measurement_records</span><span class="p">(</span>
+                <span class="n">obs_qubits</span><span class="p">,</span> <span class="n">measurement_records</span><span class="p">,</span> <span class="n">observable_index</span>
+            <span class="p">)</span>
+            <span class="n">obs_instruction</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">to_instruction</span><span class="p">()</span>
+            <span class="n">circuit</span><span class="o">.</span><span class="n">append_annotation</span><span class="p">(</span><span class="n">obs_instruction</span><span class="p">)</span>
 </pre></div>
 
                 </article>
