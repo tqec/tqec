@@ -6,11 +6,10 @@ from tqec.compile.compile import compile_block_graph
 from tqec.compile.specs.library import ALL_SPECS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
+from tqec.gallery import cnot
 from tqec.utils.enums import Basis, PatchStyle
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
-
-from tqec.gallery import cnot
 
 
 @pytest.mark.parametrize(
@@ -185,7 +184,7 @@ def test_compile_logical_cnot(spec: str, obs_basis: Basis, k: int) -> None:
         cube_builder,
         pipe_builder,
         correlation_surfaces,
-        patch_style=PatchStyle.FixedBoundaryParity,
+        patch_style=PatchStyle.FixedBulk,
     )
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
