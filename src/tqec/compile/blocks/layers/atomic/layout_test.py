@@ -5,8 +5,9 @@ import pytest
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.positioning import LayoutPosition2D
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.layout import LayoutTemplate
 from tqec.templates.qubit import QubitTemplate
 from tqec.utils.exceptions import TQECException
@@ -19,13 +20,14 @@ LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
     LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE
 )
 
+_TRANSLATOR = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
+
 
 @pytest.fixture(name="plaquette_layer")
 def plaquette_layer_fixture() -> PlaquetteLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_value=empty_square_plaquette())
-    )
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     return PlaquetteLayer(template, plaquettes)
 
 

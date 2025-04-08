@@ -21,13 +21,17 @@ from tqec.compile.blocks.layers.merge import (
     merge_sequenced_layers,
 )
 from tqec.compile.blocks.positioning import LayoutPosition2D
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+
+_TRANSLATOR = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
 
 
 @pytest.fixture(name="base_layers")
@@ -35,11 +39,11 @@ def base_layers_fixture() -> list[BaseLayer]:
     return [
         PlaquetteLayer(
             QubitTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+            Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
         ),
         PlaquetteLayer(
             QubitSpatialCubeTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+            Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
         ),
         RawCircuitLayer(
             lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
