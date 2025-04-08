@@ -186,7 +186,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_qubit_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -246,7 +246,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_qubit_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -299,7 +299,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_vertical_boundary_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_vertical_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -367,7 +367,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_vertical_boundary_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_vertical_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -421,7 +421,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_horizontal_boundary_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_horizontal_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -489,7 +489,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_horizontal_boundary_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_horizontal_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -553,7 +553,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_spatial_cube_qubit_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_cube_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -734,7 +734,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_spatial_cube_qubit_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_cube_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -817,7 +817,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_spatial_cube_arm_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_cube_arm_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -890,7 +890,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_spatial_cube_arm_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_cube_arm_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
