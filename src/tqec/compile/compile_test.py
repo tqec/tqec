@@ -3,30 +3,29 @@ import itertools
 import pytest
 
 from tqec.compile.compile import compile_block_graph
-from tqec.compile.specs.library import ALL_SPECS
+from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
+from tqec.gallery.cnot import cnot
+from tqec.gallery.stability import stability
+from tqec.gallery.move_rotation import move_rotation
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
 
-from tqec.gallery import cnot
-
 
 @pytest.mark.parametrize(
-    ("spec", "kind", "k"),
-    itertools.product(ALL_SPECS.keys(), ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
+    ("convention_name", "kind", "k"),
+    itertools.product(ALL_CONVENTIONS.keys(), ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
 )
-def test_compile_single_block_memory(spec: str, kind: str, k: int) -> None:
+def test_compile_single_block_memory(convention_name: str, kind: str, k: int) -> None:
     d = 2 * k + 1
     g = BlockGraph("Single Block Memory Experiment")
     g.add_cube(Position3D(0, 0, 0), kind)
-    cube_builder, pipe_builder = ALL_SPECS[spec]
+    convention = ALL_CONVENTIONS[convention_name]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
-    compiled_graph = compile_block_graph(
-        g, cube_builder, pipe_builder, correlation_surfaces
-    )
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
@@ -36,16 +35,16 @@ def test_compile_single_block_memory(spec: str, kind: str, k: int) -> None:
 
 
 @pytest.mark.parametrize(
-    ("spec", "kind", "k", "xy"),
+    ("convention_name", "kind", "k", "xy"),
     itertools.product(
-        ALL_SPECS.keys(),
+        ALL_CONVENTIONS.keys(),
         ("ZXZ", "ZXX", "XZX", "XZZ"),
         (1,),
         ((0, 0), (1, 1), (2, 2), (-1, -1)),
     ),
 )
 def test_compile_two_same_blocks_connected_in_time(
-    spec: str, kind: str, k: int, xy: tuple[int, int]
+    convention_name: str, kind: str, k: int, xy: tuple[int, int]
 ) -> None:
     d = 2 * k + 1
     g = BlockGraph("Two Same Blocks in Time Experiment")
@@ -55,12 +54,10 @@ def test_compile_two_same_blocks_connected_in_time(
     g.add_cube(p2, kind)
     g.add_pipe(p1, p2)
 
-    cube_builder, pipe_builder = ALL_SPECS[spec]
+    convention = ALL_CONVENTIONS[convention_name]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
-    compiled_graph = compile_block_graph(
-        g, cube_builder, pipe_builder, correlation_surfaces
-    )
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
 
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
@@ -73,9 +70,9 @@ def test_compile_two_same_blocks_connected_in_time(
 
 
 @pytest.mark.parametrize(
-    ("spec", "kinds", "k"),
+    ("convention_name", "kinds", "k"),
     itertools.product(
-        ALL_SPECS.keys(),
+        ALL_CONVENTIONS.keys(),
         (
             ("ZXZ", "OXZ"),
             ("ZXX", "ZOX"),
@@ -86,7 +83,7 @@ def test_compile_two_same_blocks_connected_in_time(
     ),
 )
 def test_compile_two_same_blocks_connected_in_space(
-    spec: str, kinds: tuple[str, str], k: int
+    convention_name: str, kinds: tuple[str, str], k: int
 ) -> None:
     d = 2 * k + 1
     g = BlockGraph("Two Same Blocks in Space Experiment")
@@ -99,12 +96,10 @@ def test_compile_two_same_blocks_connected_in_space(
     g.add_cube(p2, cube_kind)
     g.add_pipe(p1, p2)
 
-    cube_builder, pipe_builder = ALL_SPECS[spec]
+    convention = ALL_CONVENTIONS[convention_name]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
-    compiled_graph = compile_block_graph(
-        g, cube_builder, pipe_builder, correlation_surfaces
-    )
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
@@ -116,9 +111,9 @@ def test_compile_two_same_blocks_connected_in_space(
 
 
 @pytest.mark.parametrize(
-    ("spec", "kinds", "k"),
+    ("convention_name", "kinds", "k"),
     itertools.product(
-        ALL_SPECS.keys(),
+        ALL_CONVENTIONS.keys(),
         (
             ("ZXZ", "OXZ"),
             ("ZXX", "ZOX"),
@@ -129,7 +124,7 @@ def test_compile_two_same_blocks_connected_in_space(
     ),
 )
 def test_compile_L_shape_in_space_time(
-    spec: str, kinds: tuple[str, str], k: int
+    convention_name: str, kinds: tuple[str, str], k: int
 ) -> None:
     d = 2 * k + 1
     g = BlockGraph("L-shape Blocks Experiment")
@@ -146,12 +141,10 @@ def test_compile_L_shape_in_space_time(
     g.add_pipe(p1, p2, space_pipe_kind)
     g.add_pipe(p2, p3, time_pipe_type)
 
-    cube_builder, pipe_builder = ALL_SPECS[spec]
+    convention = ALL_CONVENTIONS[convention_name]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 1
-    compiled_graph = compile_block_graph(
-        g, cube_builder, pipe_builder, correlation_surfaces
-    )
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
@@ -166,27 +159,102 @@ def test_compile_L_shape_in_space_time(
 
 
 @pytest.mark.parametrize(
-    ("spec", "obs_basis", "k"),
+    ("convention_name", "obs_basis", "k"),
     itertools.product(
-        ALL_SPECS.keys(),
+        ALL_CONVENTIONS.keys(),
         (Basis.X, Basis.Z),
         (1,),
     ),
 )
-def test_compile_logical_cnot(spec: str, obs_basis: Basis, k: int) -> None:
+def test_compile_logical_cnot(convention_name: str, obs_basis: Basis, k: int) -> None:
     d = 2 * k + 1
     g = cnot(obs_basis)
 
-    cube_builder, pipe_builder = ALL_SPECS[spec]
+    convention = ALL_CONVENTIONS[convention_name]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == 2
-    compiled_graph = compile_block_graph(
-        g, cube_builder, pipe_builder, correlation_surfaces
-    )
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
 
     dem = circuit.detector_error_model()
     assert dem.num_observables == 2
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "obs_basis", "k"),
+    itertools.product(
+        ALL_CONVENTIONS.keys(),
+        (Basis.X, Basis.Z),
+        (1, 2),
+    ),
+)
+def test_compile_stability(convention_name: str, obs_basis: Basis, k: int) -> None:
+    d = 2 * k + 1
+    g = stability(obs_basis)
+
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
+    num_spatial_basis_stabilizers = (d - 1) // 2 * 4 + (d - 1) ** 2 // 2
+    num_temporal_basis_stabilizers = (d - 1) ** 2 // 2
+    assert (
+        dem.num_detectors
+        == (d - 1) * num_spatial_basis_stabilizers
+        + (d + 1) * num_temporal_basis_stabilizers
+    )
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "k"),
+    itertools.product(ALL_CONVENTIONS.keys(), (1, 2)),
+)
+def test_compile_L_spatial_junction(convention_name: str, k: int) -> None:
+    d = 2 * k + 1
+    g = BlockGraph("L Spatial Junction")
+    n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
+    n2 = g.add_cube(Position3D(0, 1, 0), "ZZX")
+    n3 = g.add_cube(Position3D(1, 1, 0), "XZX")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n2, n3)
+
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "obs_basis", "k"),
+    itertools.product(
+        ALL_CONVENTIONS.keys(),
+        (Basis.X, Basis.Z),
+        (1, 2),
+    ),
+)
+def test_compile_move_rotation(convention_name: str, obs_basis: Basis, k: int) -> None:
+    d = 2 * k + 1
+    g = move_rotation(obs_basis)
+
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
     assert len(dem.shortest_graphlike_error()) == d

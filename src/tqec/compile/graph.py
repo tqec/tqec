@@ -63,6 +63,7 @@ from tqec.compile.blocks.positioning import (
 )
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
+from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
@@ -92,6 +93,7 @@ class TopologicalComputationGraph:
     def __init__(
         self,
         scalable_qubit_shape: PhysicalQubitScalable2D,
+        observable_builder: ObservableBuilder,
         observables: list[AbstractObservable] | None = None,
     ) -> None:
         """Represents a topological computation with
@@ -101,6 +103,7 @@ class TopologicalComputationGraph:
             scalable_qubit_shape
         )
         self._observables: list[AbstractObservable] | None = observables
+        self._observable_builder = observable_builder
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         if not block.is_cube:
@@ -415,6 +418,7 @@ class TopologicalComputationGraph:
                 ]
             ),
             abstract_observables=self._observables,
+            observable_builder=self._observable_builder,
         )
 
     def generate_stim_circuit(

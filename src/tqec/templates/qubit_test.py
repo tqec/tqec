@@ -23,7 +23,7 @@ def test_expected_plaquettes_number() -> None:
     assert QubitTemplate().expected_plaquettes_number == 14
     assert QubitHorizontalBorders().expected_plaquettes_number == 8
     assert QubitVerticalBorders().expected_plaquettes_number == 8
-    assert QubitSpatialCubeTemplate().expected_plaquettes_number == 21
+    assert QubitSpatialCubeTemplate().expected_plaquettes_number == 24
 
 
 def test_scalable_shape() -> None:
@@ -184,20 +184,20 @@ def test_qubit_spatial_cube_template_instantiation() -> None:
         template.instantiate(1),
         [
             [1, 9, 10, 2],
-            [11, 5, 6, 18],
-            [12, 7, 8, 19],
-            [3, 20, 21, 4],
+            [11, 5, 6, 21],
+            [12, 7, 8, 22],
+            [3, 23, 24, 4],
         ],
     )
     numpy.testing.assert_array_equal(
         template.instantiate(2),
         [
             [1, 9, 10, 9, 10, 2],
-            [11, 5, 17, 13, 6, 18],
-            [12, 17, 13, 17, 14, 19],
-            [11, 16, 17, 15, 17, 18],
-            [12, 7, 15, 17, 8, 19],
-            [3, 20, 21, 20, 21, 4],
+            [11, 5, 17, 13, 6, 21],
+            [12, 20, 13, 17, 14, 22],
+            [11, 16, 19, 15, 18, 21],
+            [12, 7, 15, 19, 8, 22],
+            [3, 23, 24, 23, 24, 4],
         ],
     )
 

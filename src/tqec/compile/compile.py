@@ -2,21 +2,13 @@
 
 from typing import Final, Literal
 
+from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.graph import TopologicalComputationGraph
-from tqec.compile.specs.library.standard import (
-    STANDARD_CUBE_BUILDER,
-    STANDARD_PIPE_BUILDER,
-)
 from tqec.compile.observables.abstract_observable import (
     AbstractObservable,
     compile_correlation_surface_to_abstract_observable,
 )
-from tqec.compile.specs.base import (
-    CubeBuilder,
-    CubeSpec,
-    PipeBuilder,
-    PipeSpec,
-)
+from tqec.compile.specs.base import CubeSpec, PipeSpec
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.templates.qubit import QubitTemplate
@@ -31,22 +23,14 @@ _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 
 def compile_block_graph(
     block_graph: BlockGraph,
-    cube_builder: CubeBuilder = STANDARD_CUBE_BUILDER,
-    pipe_builder: PipeBuilder = STANDARD_PIPE_BUILDER,
+    convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
 ) -> TopologicalComputationGraph:
     """Compile a block graph.
 
     Args:
         block_graph: The block graph to compile.
-        cube_builder: A callable that specifies how to build the
-            :class:`~.blocks.block.Block` from the specified
-            :class:`~.specs.base.CubeSpecs`. Defaults to the cube builder for
-            the CSS type surface code.
-        pipe_builder: A callable that specifies how to build the
-            :class:`~.blocks.block.Block` from the specified
-            :class:`~.specs.base.PipeSpec`. Defaults to the pipe builder
-            for the CSS type surface code.
+        convention: convention used to generate the quantum circuits.
         observables: correlation surfaces that should be compiled into
             observables and included in the compiled circuit.
             If set to ``"auto"``, the correlation surfaces will be automatically
@@ -97,14 +81,16 @@ def compile_block_graph(
 
     # 1. Create topological computation graph
     graph = TopologicalComputationGraph(
-        _DEFAULT_SCALABLE_QUBIT_SHAPE, observables=obs_included
+        _DEFAULT_SCALABLE_QUBIT_SHAPE,
+        observables=obs_included,
+        observable_builder=convention.triplet.observable_builder,
     )
 
     # 2. Add cubes to the graph
     for cube in block_graph.cubes:
         spec = cube_specs[cube]
         position = BlockPosition3D(cube.position.x, cube.position.y, cube.position.z)
-        graph.add_cube(position, cube_builder(spec))
+        graph.add_cube(position, convention.triplet.cube_builder(spec))
 
     # 3. Add pipes to the graph
     # Note that the order of the pipes to add is important.
@@ -122,6 +108,6 @@ def compile_block_graph(
             (QubitTemplate(), QubitTemplate()),
             pipe.kind,
         )
-        graph.add_pipe(pos1, pos2, pipe_builder(key))
+        graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key))
 
     return graph
