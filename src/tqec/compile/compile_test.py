@@ -6,7 +6,9 @@ from tqec.compile.compile import compile_block_graph
 from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
-from tqec.gallery import cnot
+from tqec.gallery.cnot import cnot
+from tqec.gallery.stability import stability
+from tqec.gallery.move_rotation import move_rotation
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
@@ -178,4 +180,81 @@ def test_compile_logical_cnot(convention_name: str, obs_basis: Basis, k: int) ->
 
     dem = circuit.detector_error_model()
     assert dem.num_observables == 2
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "obs_basis", "k"),
+    itertools.product(
+        ALL_CONVENTIONS.keys(),
+        (Basis.X, Basis.Z),
+        (1, 2),
+    ),
+)
+def test_compile_stability(convention_name: str, obs_basis: Basis, k: int) -> None:
+    d = 2 * k + 1
+    g = stability(obs_basis)
+
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
+    num_spatial_basis_stabilizers = (d - 1) // 2 * 4 + (d - 1) ** 2 // 2
+    num_temporal_basis_stabilizers = (d - 1) ** 2 // 2
+    assert (
+        dem.num_detectors
+        == (d - 1) * num_spatial_basis_stabilizers
+        + (d + 1) * num_temporal_basis_stabilizers
+    )
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "k"),
+    itertools.product(ALL_CONVENTIONS.keys(), (1, 2)),
+)
+def test_compile_L_spatial_junction(convention_name: str, k: int) -> None:
+    d = 2 * k + 1
+    g = BlockGraph("L Spatial Junction")
+    n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
+    n2 = g.add_cube(Position3D(0, 1, 0), "ZZX")
+    n3 = g.add_cube(Position3D(1, 1, 0), "XZX")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n2, n3)
+
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "obs_basis", "k"),
+    itertools.product(
+        ALL_CONVENTIONS.keys(),
+        (Basis.X, Basis.Z),
+        (1, 2),
+    ),
+)
+def test_compile_move_rotation(convention_name: str, obs_basis: Basis, k: int) -> None:
+    d = 2 * k + 1
+    g = move_rotation(obs_basis)
+
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
     assert len(dem.shortest_graphlike_error()) == d
