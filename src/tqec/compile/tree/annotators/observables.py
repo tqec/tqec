@@ -2,11 +2,11 @@ from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import (
+    ObservableBuilder,
     compute_observable_qubits,
     get_observable_with_measurement_records,
 )
 from tqec.compile.tree.node import LayerNode
-from tqec.utils.enums import PatchStyle
 from tqec.utils.exceptions import TQECException
 
 
@@ -29,7 +29,7 @@ def annotate_observable(
     k: int,
     observable: AbstractObservable,
     observable_index: int,
-    patch_style: PatchStyle,
+    observable_builder: ObservableBuilder,
 ) -> None:
     """Annotates the observables on the tree.
 
@@ -38,20 +38,9 @@ def annotate_observable(
         k: distance parameter.
         observable: observable to annotate.
         observable_index: index of the observable in the circuit.
-        patch_style: style of the surface code patch to be used during compilation.
+        observable_builder: builder that computes and constructs qubits whose
+            measurements will be included in the logical observable.
     """
-    from tqec.compile.observables.fixed_parity_builder import (
-        FIXED_PARITY_OBSERVABLE_BUILDER,
-    )
-    from tqec.compile.observables.fixed_bulk_builder import (
-        FIXED_BULK_OBSERVABLE_BUILDER,
-    )
-
-    obs_builder = (
-        FIXED_PARITY_OBSERVABLE_BUILDER
-        if patch_style == PatchStyle.FixedBoundaryParity
-        else FIXED_BULK_OBSERVABLE_BUILDER
-    )
 
     for z, subtree_root in enumerate(root.children):
         first_leaf = _get_first_leaf(subtree_root)
@@ -66,7 +55,7 @@ def annotate_observable(
                 )
             template, _ = node._layer.to_template_and_plaquettes()
             obs_qubits = compute_observable_qubits(
-                k, obs_slice, template, at_bottom, obs_builder
+                k, obs_slice, template, at_bottom, observable_builder
             )
             if obs_qubits:
                 measurement_record = MeasurementRecordsMap.from_scheduled_circuit(

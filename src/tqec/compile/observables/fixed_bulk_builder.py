@@ -1,9 +1,9 @@
 from tqec.compile.observables.builder import ObservableBuilder
-from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.observables.fixed_parity_builder import (
     _get_top_readout_cube_qubits,
     _get_top_readout_pipe_qubits,
 )
+from tqec.compile.specs.enums import SpatialArms
 from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 

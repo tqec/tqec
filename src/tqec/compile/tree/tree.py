@@ -9,15 +9,15 @@ from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
-from tqec.compile.specs.library.generators._testing import RPNGTemplate
+from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.template import RPNGTemplate
 from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
-from tqec.utils.enums import PatchStyle
 from tqec.utils.exceptions import TQECException
 
 
@@ -83,9 +83,9 @@ class LayerTree:
     def __init__(
         self,
         root: SequencedLayers,
+        observable_builder: ObservableBuilder,
         abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
-        patch_style: PatchStyle = PatchStyle.FixedBulk,
     ):
         """Represents a computation as a tree.
 
@@ -103,13 +103,13 @@ class LayerTree:
             annotations: a mapping from positive integers representing the value
                 of ``k``, the scaling factor, to annotations computed for that
                 value of ``k``.
-            patch_style: the style of the surface code patch.
+            observable_builder: the style of the surface code patch.
 
         """
         self._root = LayerNode(root)
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
-        self._patch_style = patch_style
+        self._observable_builder = observable_builder
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -133,7 +133,9 @@ class LayerTree:
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(self._root, k, observable, obs_idx, self._patch_style)
+            annotate_observable(
+                self._root, k, observable, obs_idx, self._observable_builder
+            )
 
     def _annotate_detectors(
         self,

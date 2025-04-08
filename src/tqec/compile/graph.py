@@ -63,9 +63,9 @@ from tqec.compile.blocks.positioning import (
 )
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
+from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
-from tqec.utils.enums import PatchStyle
 from tqec.utils.exceptions import TQECException
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
@@ -93,8 +93,8 @@ class TopologicalComputationGraph:
     def __init__(
         self,
         scalable_qubit_shape: PhysicalQubitScalable2D,
+        observable_builder: ObservableBuilder,
         observables: list[AbstractObservable] | None = None,
-        patch_style: PatchStyle = PatchStyle.FixedBulk,
     ) -> None:
         """Represents a topological computation with
         :class:`~tqec.compile.blocks.block.Block` instances."""
@@ -103,7 +103,7 @@ class TopologicalComputationGraph:
             scalable_qubit_shape
         )
         self._observables: list[AbstractObservable] | None = observables
-        self._patch_style = patch_style
+        self._observable_builder = observable_builder
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         if not block.is_cube:
@@ -418,7 +418,7 @@ class TopologicalComputationGraph:
                 ]
             ),
             abstract_observables=self._observables,
-            patch_style=self._patch_style,
+            observable_builder=self._observable_builder,
         )
 
     def generate_stim_circuit(
