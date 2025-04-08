@@ -1,19 +1,211 @@
 from __future__ import annotations
 
 import inspect
+from dataclasses import dataclass
 from typing import Literal
 
+import stim
+
+from tqec.circuit.moment import Moment
+from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
-from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
+from tqec.plaquette.qubit import SquarePlaquetteQubits
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+from tqec.utils.instructions import (
+    MEASUREMENT_INSTRUCTION_NAMES,
+    RESET_INSTRUCTION_NAMES,
+)
+
+
+def _get_spatial_cube_arm_name(
+    basis: Basis,
+    reset: Basis | None,
+    measurement: Basis | None,
+    position: Literal["UP", "DOWN"],
+    is_reverse: bool,
+) -> str:
+    parts = ["SpatialCubeArm", basis.value.upper(), position]
+    if is_reverse:
+        parts.append("reversed")
+    if reset is not None:
+        parts.append(f"reset({reset.value.upper()})")
+    if measurement is not None:
+        parts.append(f"datameas({measurement.value.upper()})")
+    return "_".join(parts)
+
+
+def _make_spatial_cube_arm_memory_moments_up(
+    basis: Basis, is_reverse: bool
+) -> list[Moment]:
+    """
+    Implement circuit for the following plaquette::
+
+        0 ----- 1
+        |       |
+        |   4   |
+        |       |
+        2 -----
+    """
+    args = [1, 0] if is_reverse else [0, 1]
+    b = basis.name.upper()
+    return [
+        Moment(stim.Circuit("RX 4\nRZ 2")),
+        Moment(stim.Circuit("CX 4 2")),
+        Moment(stim.Circuit(f"C{b} 4 {args[0]}")),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit(f"C{b} 4 {args[1]}")),
+        Moment(stim.Circuit("CX 2 4")),
+    ]
+
+
+def _make_spatial_cube_arm_memory_moments_down(
+    basis: Basis, is_reverse: bool
+) -> list[Moment]:
+    """
+    Implement circuit for the following plaquette::
+
+        0 -----
+        |       |
+        |   4   |
+        |       |
+        2 ----- 3
+
+        1 -----
+        |       |
+        |   0   |
+        |       |
+        3 ----- 4
+    """
+    args = [3, 2] if is_reverse else [2, 3]
+    b = basis.name.upper()
+    return [
+        Moment(stim.Circuit("RZ 0")),
+        Moment(stim.Circuit("RZ 4")),
+        Moment(stim.Circuit("CX 0 4")),
+        Moment(stim.Circuit(f"C{b} 4 {args[0]}")),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit(f"C{b} 4 {args[1]}")),
+        Moment(stim.Circuit("CX 4 0")),
+        Moment(stim.Circuit("MX 4")),
+    ]
+
+
+def make_spatial_cube_arm_plaquettes(
+    basis: Basis,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
+    is_reverse: bool = False,
+) -> tuple[Plaquette, Plaquette]:
+    """Make a plaquette for spatial cube arms.
+
+    The below text represents the qubits in a stretched stabilizer ::
+
+        a ----- b
+        |       |
+        |   c   |
+        |       |
+        d ------
+        |       |
+        |   e   |
+        |       |
+        f ----- g
+
+    This is split into two plaquettes, with ``UP`` being ``(a, b, c, d)`` and
+    ``DOWN`` being ``(d, e, f, g)``.
+
+    Args:
+        basis: the basis of the plaquette.
+        reset: the logical basis for data qubit initialization. Defaults to
+            ``None`` which means "no initialization of data qubits".
+        measurement: the logical basis for data qubit measurement. Defaults to
+            ``None`` means "no measurement of data qubits".
+        is_reverse: whether the schedules of controlled-A gates are reversed.
+
+    Returns:
+        A tuple ``(UP, DOWN)`` containing the two plaquettes needed to implement
+        spatial cube arms.
+    """
+    up_moments = _make_spatial_cube_arm_memory_moments_up(basis, is_reverse)
+    down_moments = _make_spatial_cube_arm_memory_moments_down(basis, is_reverse)
+
+    qubits = SquarePlaquetteQubits()
+    qubit_map = qubits.qubit_map
+    up_qubits = [qubit_map[q] for q in qubits.get_qubits_on_side(PlaquetteSide.UP)]
+    down_qubits = [qubit_map[q] for q in qubits.get_qubits_on_side(PlaquetteSide.DOWN)]
+
+    b = basis.value.upper()
+    if reset is not None:
+        up_moments[0].append(f"R{b}", down_qubits, [])
+        down_moments[0].append(f"R{b}", up_qubits, [])
+    if measurement is not None:
+        up_moments[-1].append(f"M{b}", down_qubits, [])
+        down_moments[-1].append(f"M{b}", up_qubits, [])
+
+    mergeable_instructions = MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES
+
+    return (
+        Plaquette(
+            _get_spatial_cube_arm_name(basis, reset, measurement, "UP", is_reverse),
+            qubits,
+            ScheduledCircuit(up_moments, 0, qubit_map),
+            mergeable_instructions,
+        ),
+        Plaquette(
+            _get_spatial_cube_arm_name(basis, reset, measurement, "DOWN", is_reverse),
+            qubits,
+            ScheduledCircuit(down_moments, 0, qubit_map),
+            mergeable_instructions,
+        ),
+    )
+
+
+@dataclass(frozen=True)
+class ExtendedPlaquette:
+    top: Plaquette
+    bottom: Plaquette
+
+
+@dataclass(frozen=True)
+class ExtendedPlaquetteCollection:
+    bulk: ExtendedPlaquette
+    left_with_arm: ExtendedPlaquette
+    left_without_arm: ExtendedPlaquette
+    right_with_arm: ExtendedPlaquette
+    right_without_arm: ExtendedPlaquette
+
+    @staticmethod
+    def from_args(
+        basis: Basis, reset: Basis, measurement: Basis, is_reverse: bool
+    ) -> ExtendedPlaquetteCollection:
+        up, down = make_spatial_cube_arm_plaquettes(
+            basis, reset, measurement, is_reverse
+        )
+        return ExtendedPlaquetteCollection(
+            bulk=ExtendedPlaquette(up, down),
+            left_with_arm=ExtendedPlaquette(
+                up.project_on_data_qubit_indices([1, 2, 3]), down
+            ),
+            left_without_arm=ExtendedPlaquette(
+                up.project_on_data_qubit_indices([1, 3]),
+                down.project_on_data_qubit_indices([1, 3]),
+            ),
+            right_with_arm=ExtendedPlaquette(
+                up, down.project_on_data_qubit_indices([0, 1, 2])
+            ),
+            right_without_arm=ExtendedPlaquette(
+                up.project_on_data_qubit_indices([0, 2]),
+                down.project_on_data_qubit_indices([0, 2]),
+            ),
+        )
 
 
 class FixedParityConventionGenerator:
@@ -34,19 +226,138 @@ class FixedParityConventionGenerator:
         measurement: Basis | None = None,
         reset_and_measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
     ) -> dict[Basis, dict[Orientation, RPNGDescription]]:
-        raise self._not_implemented_exception()
+        """Get plaquettes that are supposed to be used in the bulk.
+
+        This function returns the four 4-body stabilizer measurement plaquettes
+        containing 5 rounds that can be arbitrarily tiled without any gate schedule
+        clash. These plaquettes are organised by basis and hook orientation.
+
+        Args:
+            reset: basis of the reset operation performed on data-qubits. Defaults
+                to ``None`` that translates to no reset being applied on data-qubits.
+            measurement: basis of the measurement operation performed on data-qubits.
+                Defaults to ``None`` that translates to no measurement being applied
+                on data-qubits.
+            reset_and_measured_indices: data-qubit indices that should be impacted
+                by the provided ``reset`` and ``measurement`` values.
+
+        Returns:
+            a mapping with 4 plaquettes: one for each basis (either ``X`` or ``Z``)
+            and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
+        """
+        # _r/_m: reset/measurement basis applied to each data-qubit in
+        # reset_and_measured_indices
+        _r = reset.value.lower() if reset is not None else "-"
+        _m = measurement.value.lower() if measurement is not None else "-"
+        # rs/ms: resets/measurements basis applied for each data-qubit
+        rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
+        ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
+        # 2-qubit gate schedules
+        vsched, hsched = (1, 4, 3, 5), (1, 2, 3, 5)
+        return {
+            Basis.X: {
+                Orientation.VERTICAL: RPNGDescription.from_string(
+                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, vsched, ms))
+                ),
+                Orientation.HORIZONTAL: RPNGDescription.from_string(
+                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, hsched, ms))
+                ),
+            },
+            Basis.Z: {
+                Orientation.VERTICAL: RPNGDescription.from_string(
+                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, vsched, ms))
+                ),
+                Orientation.HORIZONTAL: RPNGDescription.from_string(
+                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, hsched, ms))
+                ),
+            },
+        }
 
     def get_3_body_rpng_descriptions(
         self,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
-        raise self._not_implemented_exception()
+        # r/m: reset/measurement basis applied to each data-qubit
+        r = reset.value.lower() if reset is not None else "-"
+        m = measurement.value.lower() if measurement is not None else "-"
+        # Note: the schedule of CNOT gates in corner plaquettes is less important
+        # because hook errors do not exist on 3-body stabilizers. We arbitrarily
+        # chose the schedule of the plaquette group the corner belongs to.
+        # Note that we include resets and measurements on all the used data-qubits.
+        # That should be fine because this plaquette only touches cubes and pipes
+        # that are related to the spatial junction being implemented, and it is not
+        # valid to have a temporal pipe coming from below a spatial junction, hence
+        # the data-qubits cannot be already initialised to a value we would like to
+        # keep and that would be destroyed by reset/measurement.
+        return (
+            RPNGDescription.from_string(f"---- {r}z4{m} {r}z3{m} {r}z5{m}"),
+            RPNGDescription.from_string(f"{r}x1{m} ---- {r}x3{m} {r}x5{m}"),
+            RPNGDescription.from_string(f"{r}x1{m} {r}x2{m} ---- {r}x5{m}"),
+            RPNGDescription.from_string(f"{r}z1{m} {r}z4{m} {r}z3{m} ----"),
+        )
 
     def get_2_body_rpng_descriptions(
         self,
     ) -> dict[Basis, dict[PlaquetteOrientation, RPNGDescription]]:
-        raise self._not_implemented_exception()
+        """Get plaquettes that are supposed to be used on the boundaries.
+
+        This function returns the eight 2-body stabilizer measurement plaquettes
+        that can be used on the 5-round plaquettes returned by
+        :meth:`get_bulk_plaquettes`.
+
+        Note:
+            The 2-body stabilizer measurement plaquettes returned by this function
+            all follow the same schedule: ``1-2-3-5``.
+
+        Warning:
+            By convention, the 2-body stabilizers never reset/measure any
+            data-qubit. This is done because it is way simpler to reset the correct
+            data-qubits in 4-body stabilizers, and the resets/measurements in 2-body
+            stabilizers would be redundant.
+
+        Warning:
+            This function uses the :class:`~tqec.plaquette.enums.PlaquetteOrientation`
+            class. For a 2-body stabilizer measurement plaquette, the "orientation"
+            corresponds to the direction in which the rounded side is pointing.
+            So a plaquette with the orientation ``PlaquetteOrientation.DOWN`` has the
+            following properties:
+            - it measures the 2 data-qubits on the **top** side of the usual 4-body
+            stabilizer measurement plaquette,
+            - it can be used for a bottom boundary,
+            - its rounded side points downwards.
+
+        Returns:
+            a mapping with 8 plaquettes: one for each basis (either ``X`` or ``Z``)
+            and for each plaquette orientation (``UP``, ``DOWN``, ``LEFT`` or
+            ``RIGHT``).
+        """
+        PO = PlaquetteOrientation
+        return {
+            Basis.X: {
+                PO.DOWN: RPNGDescription.from_string("-x1- -x2- ---- ----"),
+                PO.LEFT: RPNGDescription.from_string("---- -x2- ---- -x5-"),
+                PO.UP: RPNGDescription.from_string("---- ---- -x3- -x5-"),
+                PO.RIGHT: RPNGDescription.from_string("-x1- ---- -x3- ----"),
+            },
+            Basis.Z: {
+                PO.DOWN: RPNGDescription.from_string("-z1- -z2- ---- ----"),
+                PO.LEFT: RPNGDescription.from_string("---- -z2- ---- -z5-"),
+                PO.UP: RPNGDescription.from_string("---- ---- -z3- -z5-"),
+                PO.RIGHT: RPNGDescription.from_string("-z1- ---- -z3- ----"),
+            },
+        }
+
+    def get_extended_plaquettes(
+        self, reset: Basis, measurement: Basis
+    ) -> dict[Basis, tuple[ExtendedPlaquetteCollection, ExtendedPlaquetteCollection]]:
+        return {
+            b: (
+                ExtendedPlaquetteCollection.from_args(b, reset, measurement, False),
+                ExtendedPlaquetteCollection.from_args(b, reset, measurement, True),
+            )
+            for b in Basis
+        }
 
     ############################################################
     #                          Memory                          #
