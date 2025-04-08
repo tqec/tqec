@@ -18,6 +18,7 @@ from typing import Callable, Iterable
 import stim
 
 from tqec.circuit.qubit import GridQubit
+from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import round_or_fail
 
@@ -110,7 +111,11 @@ class QubitMap:
         ``self``."""
         ret = stim.Circuit()
         for qi, qubit in sorted(self.i2q.items(), key=lambda t: t[0]):
-            ret.append("QUBIT_COORDS", qi, (float(qubit.x), float(qubit.y)))
+            ret.append(
+                "QUBIT_COORDS",
+                qi,
+                StimCoordinates(qubit.x, qubit.y).to_stim_coordinates(),
+            )
         return ret
 
     def __getitem__(self, index: GridQubit) -> int:
