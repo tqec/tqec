@@ -38,8 +38,8 @@ def annotate_observable(
         k: distance parameter.
         observable: observable to annotate.
         observable_index: index of the observable in the circuit.
-        observable_builder: style of the surface code patch to be used during
-            compilation.
+        observable_builder: builder that computes and constructs qubits whose
+            measurements will be included in the logical observable.
     """
 
     for z, subtree_root in enumerate(root.children):

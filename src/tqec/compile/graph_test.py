@@ -7,9 +7,9 @@ from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
 from tqec.compile.specs.base import CubeSpec, PipeSpec
-from tqec.compile.specs.library.standard import (
-    STANDARD_CUBE_BUILDER,
-    STANDARD_PIPE_BUILDER,
+from tqec.compile.specs.library.fixed_bulk import (
+    FIXED_BULK_CUBE_BUILDER,
+    FIXED_BULK_PIPE_BUILDER,
 )
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
@@ -29,7 +29,7 @@ def scalable_qubit_shape_fixture() -> PhysicalQubitScalable2D:
 
 @pytest.fixture(name="XZZ")
 def XZZ_fixture() -> Block:
-    return STANDARD_CUBE_BUILDER(CubeSpec(ZXCube.from_str("XZZ")))
+    return FIXED_BULK_CUBE_BUILDER(CubeSpec(ZXCube.from_str("XZZ")))
 
 
 @pytest.fixture(name="XZO")
@@ -38,7 +38,7 @@ def XZO_fixture(XZZ: Block) -> Block:
     first_layer = XZZ.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
-    return STANDARD_PIPE_BUILDER(
+    return FIXED_BULK_PIPE_BUILDER(
         PipeSpec((spec, spec), (template, template), PipeKind.from_str("XZO"))
     )
 
@@ -49,7 +49,7 @@ def OZZ_fixture(XZZ: Block) -> Block:
     first_layer = XZZ.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
-    return STANDARD_PIPE_BUILDER(
+    return FIXED_BULK_PIPE_BUILDER(
         PipeSpec((spec, spec), (template, template), PipeKind.from_str("OZZ"))
     )
 
@@ -60,7 +60,7 @@ def XOZ_fixture(XZZ: Block) -> Block:
     first_layer = XZZ.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
-    return STANDARD_PIPE_BUILDER(
+    return FIXED_BULK_PIPE_BUILDER(
         PipeSpec((spec, spec), (template, template), PipeKind.from_str("XOZ"))
     )
 

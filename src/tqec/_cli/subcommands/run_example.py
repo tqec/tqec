@@ -65,7 +65,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             "--convention",
             help="Convention to use.",
             choices=ALL_CONVENTIONS.keys(),
-            default="STANDARD",
+            default="fixed_bulk",
         )
         parser.add_argument(
             "--basis",

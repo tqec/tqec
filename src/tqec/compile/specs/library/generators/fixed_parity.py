@@ -16,9 +16,8 @@ from tqec.utils.enums import Basis, Orientation
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
-class FixedParityConventionPlaquetteGenerator:
+class FixedParityConventionGenerator:
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
-        super().__init__()
         self._mapper = PlaquetteMapper(translator, compiler)
 
     def _not_implemented_exception(self) -> NotImplementedError:

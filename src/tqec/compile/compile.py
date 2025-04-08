@@ -2,22 +2,15 @@
 
 from typing import Final, Literal
 
-from tqec.circuit.measurement_map import MeasurementRecordsMap
-from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.observables.abstract_observable import (
     AbstractObservable,
     compile_correlation_surface_to_abstract_observable,
 )
-from tqec.compile.observables.builder import (
-    compute_observable_qubits,
-    get_observable_with_measurement_records,
-)
 from tqec.compile.specs.base import CubeSpec, PipeSpec
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.templates.layout import LayoutTemplate
 from tqec.templates.qubit import QubitTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D
@@ -118,52 +111,3 @@ def compile_block_graph(
         graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key))
 
     return graph
-
-
-def inplace_add_observable(
-    k: int,
-    circuits: list[list[ScheduledCircuit]],
-    template_slices: list[LayoutTemplate],
-    abstract_observable: AbstractObservable,
-    observable_index: int,
-) -> None:
-    """Inplace add the observable components to the circuits.
-
-    This functions takes the compiled ``AbstractObservable`` and calculates
-    the measurement coordinates in it. Then it collects the measurements
-    into logical observable and adds them in the correct locations in the
-    sliced circuits.
-
-    Args:
-        k: The scaling factor of the block.
-        circuits: The circuits to add the observables to. The circuits are
-            grouped by time slices and layers. The outer list represents the
-            time slices and the inner list represents the layers.
-        template_slices: The layout templates of the blocks indexed by the
-            time steps.
-        abstract_observable: The abstract observable to add to the circuits.
-        observable_index: The index of the observable.
-    """
-    from tqec.compile.observables.fixed_parity_builder import (
-        FIXED_PARITY_OBSERVABLE_BUILDER,
-    )
-
-    for z in range(len(circuits)):
-        obs_slice = abstract_observable.slice_at_z(z)
-        for at_bottom in [True, False]:
-            obs_qubits = compute_observable_qubits(
-                k,
-                obs_slice,
-                template_slices[z],
-                at_bottom,
-                FIXED_PARITY_OBSERVABLE_BUILDER,
-            )
-            if not obs_qubits:
-                continue
-            circuit = circuits[z][0] if at_bottom else circuits[z][-1]
-            measurement_records = MeasurementRecordsMap.from_scheduled_circuit(circuit)
-            obs = get_observable_with_measurement_records(
-                obs_qubits, measurement_records, observable_index
-            )
-            obs_instruction = obs.to_instruction()
-            circuit.append_annotation(obs_instruction)

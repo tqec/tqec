@@ -11,7 +11,7 @@ from tqec.compile.detectors.database import (
 )
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.specs.library.generators.fixed_bulk import (
-    FixedBulkConventionPlaquetteGenerator,
+    FixedBulkConventionGenerator,
 )
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
@@ -25,7 +25,7 @@ from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECException
 
-GENERATOR = FixedBulkConventionPlaquetteGenerator(
+GENERATOR = FixedBulkConventionGenerator(
     DefaultRPNGTranslator(), IdentityPlaquetteCompiler
 )
 # Pre-computing Plaquettes and SubTemplateType instances to be able to re-use them

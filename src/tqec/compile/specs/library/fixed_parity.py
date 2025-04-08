@@ -8,7 +8,7 @@ from tqec.compile.specs.base import (
     PipeSpec,
 )
 from tqec.compile.specs.library.generators.fixed_parity import (
-    FixedParityConventionPlaquetteGenerator,
+    FixedParityConventionGenerator,
 )
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
@@ -32,7 +32,7 @@ class FixedParityCubeBuilder(CubeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        self._generator = FixedParityConventionPlaquetteGenerator(translator, compiler)
+        self._generator = FixedParityConventionGenerator(translator, compiler)
 
     def __call__(self, spec: CubeSpec) -> Block:
         raise NotImplementedError("Fixed parity builder is not implemented yet.")
@@ -52,7 +52,7 @@ class FixedParityPipeBuilder(PipeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        self._generator = FixedParityConventionPlaquetteGenerator(translator, compiler)
+        self._generator = FixedParityConventionGenerator(translator, compiler)
 
     def __call__(self, spec: PipeSpec) -> Block:
         raise NotImplementedError("Fixed parity pipe builder is not implemented yet.")

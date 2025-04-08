@@ -13,7 +13,7 @@ from tqec.compile.specs.base import (
 )
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import (
-    FixedBulkConventionPlaquetteGenerator,
+    FixedBulkConventionGenerator,
 )
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
@@ -35,7 +35,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
 
     This class provides an implementation following the fixed-bulk convention.
     This convention consists in the fact that the top-left most plaquette in the
-    bulk always measures a known-parity stabilizer (Z-basis for this class).
+    bulk always measures a known-basis stabilizer (Z-basis for this class).
     """
 
     def __init__(
@@ -43,7 +43,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        self._generator = FixedBulkConventionPlaquetteGenerator(translator, compiler)
+        self._generator = FixedBulkConventionGenerator(translator, compiler)
 
     def _get_template_and_plaquettes(
         self, spec: CubeSpec
@@ -114,7 +114,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        self._generator = FixedBulkConventionPlaquetteGenerator(translator, compiler)
+        self._generator = FixedBulkConventionGenerator(translator, compiler)
 
     def __call__(self, spec: PipeSpec) -> Block:
         if spec.pipe_kind.is_temporal:

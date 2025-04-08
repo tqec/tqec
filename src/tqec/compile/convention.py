@@ -10,6 +10,10 @@ from tqec.compile.specs.library.fixed_bulk import (
     FIXED_BULK_CUBE_BUILDER,
     FIXED_BULK_PIPE_BUILDER,
 )
+from tqec.compile.specs.library.fixed_parity import (
+    FIXED_PARITY_CUBE_BUILDER,
+    FIXED_PARITY_PIPE_BUILDER,
+)
 
 
 @dataclass(frozen=True)
@@ -44,8 +48,8 @@ FIXED_BULK_CONVENTION = Convention(
 FIXED_PARITY_CONVENTION = Convention(
     "fixed_parity",
     ConventionTriplet(
-        FIXED_BULK_CUBE_BUILDER,
-        FIXED_BULK_PIPE_BUILDER,
+        FIXED_PARITY_CUBE_BUILDER,
+        FIXED_PARITY_PIPE_BUILDER,
         FIXED_PARITY_OBSERVABLE_BUILDER,
     ),
 )

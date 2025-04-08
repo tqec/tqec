@@ -23,9 +23,8 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
-class FixedBulkConventionPlaquetteGenerator:
+class FixedBulkConventionGenerator:
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
-        super().__init__()
         self._mapper = PlaquetteMapper(translator, compiler)
 
     def _not_implemented_exception(self) -> NotImplementedError:
