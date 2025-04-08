@@ -195,13 +195,14 @@ class LayerTree:
             a string representing the Crumble URL of the quantum circuit.
         """
         if not add_polygons:
-            return self.generate_circuit(
+            circuit = self.generate_circuit(
                 k,
                 include_qubit_coords=True,
                 manhattan_radius=manhattan_radius,
                 detector_database=detector_database,
                 lookback=lookback,
-            ).to_crumble_url()
+            )
+            return str(circuit.to_crumble_url())
         self._generate_annotations(
             k, manhattan_radius, detector_database, lookback, add_polygons=True
         )
