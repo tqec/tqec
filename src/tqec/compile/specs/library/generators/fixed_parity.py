@@ -18,6 +18,11 @@ from tqec.plaquette.qubit import SquarePlaquetteQubits
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.templates.base import RectangularTemplate
+from tqec.templates.qubit import (
+    QubitHorizontalBorders,
+    QubitTemplate,
+    QubitVerticalBorders,
+)
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.instructions import (
@@ -351,6 +356,15 @@ class FixedParityConventionGenerator:
     def get_extended_plaquettes(
         self, reset: Basis, measurement: Basis
     ) -> dict[Basis, tuple[ExtendedPlaquetteCollection, ExtendedPlaquetteCollection]]:
+        """Get plaquettes that are supposed to be used to implement ``UP`` or
+        ``DOWN`` spatial pipes.
+
+        Returns:
+            a map from stabilizer basis to a pair of
+            :class:`ExtendedPlaquetteCollection`. The first entry of the pair
+            contains plaquettes that have not been reversed, the second entry
+            contains plaquettes that have been reversed.
+        """
         return {
             b: (
                 ExtendedPlaquetteCollection.from_args(b, reset, measurement, False),
@@ -369,7 +383,7 @@ class FixedParityConventionGenerator:
     def get_memory_qubit_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance
         needed to implement a single logical qubit."""
-        raise self._not_implemented_exception()
+        return QubitTemplate()
 
     def get_memory_qubit_rpng_descriptions(
         self,
@@ -404,7 +418,25 @@ class FixedParityConventionGenerator:
             memory operation on a logical qubit, optionally with resets or
             measurements on the data-qubits too.
         """
-        raise self._not_implemented_exception()
+        # Basis for top/bottom and left/right boundary plaquettes
+        HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+        VBASIS = HBASIS.flipped()
+        # BPs: Bulk Plaquettes.
+        BPs = self.get_bulk_rpng_descriptions(reset, measurement)
+        # TBPs: Two Body Plaquettes.
+        TBPs = self.get_2_body_rpng_descriptions()
+        return FrozenDefaultDict(
+            {
+                6: TBPs[VBASIS][PlaquetteOrientation.UP],
+                7: TBPs[HBASIS][PlaquetteOrientation.LEFT],
+                # Bulk
+                9: BPs[VBASIS][Orientation.HORIZONTAL],
+                10: BPs[HBASIS][Orientation.VERTICAL],
+                12: TBPs[HBASIS][PlaquetteOrientation.RIGHT],
+                13: TBPs[VBASIS][PlaquetteOrientation.DOWN],
+            },
+            default_value=RPNGDescription.empty(),
+        )
 
     def get_memory_qubit_plaquettes(
         self,
@@ -450,7 +482,7 @@ class FixedParityConventionGenerator:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate`
         instance needed to implement a regular spatial pipe between two logical
         qubits aligned on the ``X`` axis."""
-        raise self._not_implemented_exception()
+        return QubitVerticalBorders()
 
     def get_memory_vertical_boundary_rpng_descriptions(
         self,
@@ -493,7 +525,28 @@ class FixedParityConventionGenerator:
             the ``X``-axis, optionally with resets or measurements on the
             data-qubits too.
         """
-        raise self._not_implemented_exception()
+        # Basis for top/bottom boundary plaquettes
+        VBASIS = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
+        HBASIS = VBASIS.flipped()
+        # BPs: Bulk Plaquettes.
+        BPs_LEFT = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
+        BPs_RIGHT = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
+        # TBPs: Two Body Plaquettes.
+        TBPs = self.get_2_body_rpng_descriptions()
+
+        return FrozenDefaultDict(
+            {
+                2: TBPs[VBASIS][PlaquetteOrientation.UP],
+                3: TBPs[VBASIS][PlaquetteOrientation.DOWN],
+                # LEFT bulk
+                5: BPs_LEFT[VBASIS][Orientation.HORIZONTAL],
+                6: BPs_LEFT[HBASIS][Orientation.VERTICAL],
+                # RIGHT bulk
+                7: BPs_RIGHT[HBASIS][Orientation.VERTICAL],
+                8: BPs_RIGHT[VBASIS][Orientation.HORIZONTAL],
+            },
+            default_value=RPNGDescription.empty(),
+        )
 
     def get_memory_vertical_boundary_plaquettes(
         self,
@@ -547,7 +600,7 @@ class FixedParityConventionGenerator:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance
         needed to implement a regular spatial pipe between two logical qubits
         aligned on the ``Y`` axis."""
-        raise self._not_implemented_exception()
+        return QubitHorizontalBorders()
 
     def get_memory_horizontal_boundary_rpng_descriptions(
         self,
@@ -590,7 +643,28 @@ class FixedParityConventionGenerator:
             the ``Y``-axis, optionally with resets or measurements on the
             data-qubits too.
         """
-        raise self._not_implemented_exception()
+        # Basis for left/right boundary plaquettes
+        HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+        VBASIS = HBASIS.flipped()
+        # BPs: Bulk Plaquettes.
+        BPs_UP = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
+        BPs_DOWN = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
+        # TBPs: Two Body Plaquettes.
+        TBPs = self.get_2_body_rpng_descriptions()
+
+        return FrozenDefaultDict(
+            {
+                1: TBPs[HBASIS][PlaquetteOrientation.LEFT],
+                4: TBPs[HBASIS][PlaquetteOrientation.RIGHT],
+                # TOP bulk
+                5: BPs_UP[VBASIS][Orientation.HORIZONTAL],
+                6: BPs_UP[HBASIS][Orientation.VERTICAL],
+                # BOTTOM bulk
+                7: BPs_DOWN[HBASIS][Orientation.VERTICAL],
+                8: BPs_DOWN[VBASIS][Orientation.HORIZONTAL],
+            },
+            default_value=RPNGDescription.empty(),
+        )
 
     def get_memory_horizontal_boundary_plaquettes(
         self,
