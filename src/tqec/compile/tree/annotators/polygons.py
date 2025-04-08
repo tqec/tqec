@@ -1,11 +1,8 @@
-from dataclasses import dataclass
-
 from typing_extensions import override
 
-from tqec.circuit.qubit import GridQubit
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
+from tqec.compile.tree.annotations import Polygon
 from tqec.compile.tree.node import LayerNode, NodeWalker
-from tqec.plaquette.rpng.rpng import BasisEnum
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
 
@@ -23,12 +20,6 @@ class AnnotatePolygonOnLayerNode(NodeWalker):
             node._layer, self._k
         )
         node.set_circuit_annotation(self._k, node._layer.to_circuit(self._k))
-
-
-@dataclass(frozen=True)
-class Polygon:
-    basis: BasisEnum
-    qubits: frozenset[GridQubit]
 
 
 def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polygon]:
@@ -50,14 +41,12 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
                     raise TQECException(
                         "Plaquette basis can only be determined for plaquettes with rpng information."
                     )
-                bases = set(
+                bases = {
                     rpng.p for rpng in debug_info.rpng.corners if rpng.p is not None
-                )
+                }
+                # Only construct polygons for plaquettes with a single basis.
                 if len(bases) != 1:
-                    raise TQECException(
-                        "Plaquette basis can only be determined for plaquettes with a single interaction"
-                        "basis."
-                    )
+                    continue
                 basis = bases.pop()
 
                 qubit_offset = Shift2D(

@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import math
 from typing import Any
 
 import stim
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
+from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.observables.builder import Observable
-from tqec.compile.tree.annotators.polygon import Polygon
+from tqec.plaquette.rpng.rpng import BasisEnum
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 
@@ -46,6 +48,30 @@ class DetectorAnnotation:
         )
 
 
+@dataclass(frozen=True)
+class Polygon:
+    """A polygon representing a stabilizer region in Crumble."""
+
+    basis: BasisEnum
+    qubits: frozenset[GridQubit]
+
+    def _sorted_qubits(self) -> list[GridQubit]:
+        """Return the qubits in a sorted order that can be used to draw the
+        polygon."""
+        cx = sum(q.x for q in self.qubits) / len(self.qubits)
+        cy = sum(q.y for q in self.qubits) / len(self.qubits)
+        return sorted(self.qubits, key=lambda q: math.atan2(q.y - cy, q.x - cx))
+
+    def to_crumble_url_string(self, qubit_map: QubitMap) -> str:
+        """Convert the polygon to the representation in a crumble url."""
+        rgba = [0, 0, 0, 0.25]
+        rgba["xyz".index(self.basis.value)] = 1
+        rgba_str = ",".join(str(i) for i in rgba)
+        qubits_idx = [qubit_map[q] for q in self._sorted_qubits()]
+        qubits_str = "_".join(str(i) for i in qubits_idx)
+        return f"POLYGON({rgba_str}){qubits_str};"
+
+
 @dataclass
 class LayerNodeAnnotations:
     circuit: ScheduledCircuit | None = None
@@ -60,6 +86,7 @@ class LayerNodeAnnotations:
             ),
             "detectors": self.detectors,
             "observables": self.observables,
+            "polygons": self.polygons,
         }
 
 
