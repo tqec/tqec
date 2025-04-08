@@ -412,10 +412,9 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.deprecated.compile</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.compile</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.convention</span><span class="w"> </span><span class="kn">import</span> <span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span> <span class="n">Convention</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.detectors.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DetectorDatabase</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockBuilder</span><span class="p">,</span> <span class="n">SubstitutionBuilder</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.library.css</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.generation</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_sinter_tasks</span>
@@ -434,8 +433,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">ps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">noise_model_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="n">NoiseModel</span><span class="p">],</span>
     <span class="n">manhattan_radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">block_builder</span><span class="p">:</span> <span class="n">BlockBuilder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span>
-    <span class="n">substitution_builder</span><span class="p">:</span> <span class="n">SubstitutionBuilder</span> <span class="o">=</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span> <span class="o">=</span> <span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span>
     <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">detector_database</span><span class="p">:</span> <span class="n">DetectorDatabase</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
@@ -478,12 +476,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            Default to 2, which is sufficient for regular surface code. If</span>
 <span class="sd">            negative, detectors are not computed automatically and are not added</span>
 <span class="sd">            to the generated circuits.</span>
-<span class="sd">        block_builder: A callable that specifies how to build the `CompiledBlock` from</span>
-<span class="sd">            the specified `CubeSpecs`. Defaults to the block builder for the css type</span>
-<span class="sd">            surface code.</span>
-<span class="sd">        substitution_builder: A callable that specifies how to build the substitution</span>
-<span class="sd">            plaquettes from the specified `PipeSpec`. Defaults to the substitution</span>
-<span class="sd">            builder for the css type surface code.</span>
+<span class="sd">        convention: convention used to generate the quantum circuits.</span>
 <span class="sd">        observables: a list of correlation surfaces to compile to logical</span>
 <span class="sd">             observables and generate statistics for. If `None`, all the correlation</span>
 <span class="sd">             surfaces of the provided computation are used.</span>
@@ -538,12 +531,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">if</span> <span class="n">split_observable_stats</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">observables</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">custom_error_count_key</span> <span class="o">=</span> <span class="n">heuristic_custom_error_key</span><span class="p">(</span><span class="n">observables</span><span class="p">)</span>
 
-    <span class="n">compiled_graph</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span>
-        <span class="n">block_graph</span><span class="p">,</span>
-        <span class="n">block_builder</span><span class="p">,</span>
-        <span class="n">substitution_builder</span><span class="p">,</span>
-        <span class="n">observables</span><span class="o">=</span><span class="n">observables</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="n">compiled_graph</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">convention</span><span class="p">,</span> <span class="n">observables</span><span class="p">)</span>
     <span class="n">stats</span> <span class="o">=</span> <span class="n">sinter</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span>
         <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
         <span class="n">tasks</span><span class="o">=</span><span class="n">generate_sinter_tasks</span><span class="p">(</span>

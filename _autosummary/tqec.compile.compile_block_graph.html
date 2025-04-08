@@ -397,12 +397,8 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">compile_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.generate_circuit.html">generate_circuit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledGraph.html">CompiledGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CubeSpec.html">CubeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.PipeSpec.html">PipeSpec</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.SubstitutionBuilder.html">SubstitutionBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.TopologicalComputationGraph.html">TopologicalComputationGraph</a></li>
 </ul>
 </details></li>
@@ -533,20 +529,13 @@
 <h1>compile_block_graph<a class="headerlink" href="#compile-block-graph" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tqec.compile.compile_block_graph">
-<span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">compile_block_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_builder=functools.partial(&lt;function</span> <span class="pre">default_compiled_block_builder&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquette_builder=&lt;function</span> <span class="pre">make_css_surface_code_plaquette&gt;)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substitution_builder=functools.partial(&lt;function</span> <span class="pre">default_substitution_builder&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaquette_builder=&lt;function</span> <span class="pre">make_css_surface_code_plaquette&gt;)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables='auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/deprecated/compile.html#compile_block_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.compile_block_graph" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">compile_block_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convention=Convention(name='fixed_bulk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triplet=ConventionTriplet(cube_builder=&lt;tqec.compile.specs.library.fixed_bulk.FixedBulkCubeBuilder</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_builder=&lt;tqec.compile.specs.library.fixed_bulk.FixedBulkPipeBuilder</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observable_builder=ObservableBuilder(cube_top_readouts_builder=&lt;function</span> <span class="pre">_get_top_readout_cube_qubits&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_cube_top_readouts_builder=&lt;function</span> <span class="pre">_get_top_readout_spatial_cube_qubits&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_top_readouts_builder=&lt;function</span> <span class="pre">_get_top_readout_pipe_qubits&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_bottom_stabilizers_builder=&lt;function</span> <span class="pre">_get_bottom_stabilizer_cube_qubits&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_cube_bottom_stabilizers_builder=&lt;function</span> <span class="pre">_get_bottom_stabilizer_spatial_cube_qubits&gt;)))</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables='auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/compile.html#compile_block_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.compile_block_graph" title="Link to this definition">#</a></dt>
 <dd><p>Compile a block graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>block_graph</strong> (<a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a>) – The block graph to compile.</p></li>
-<li><p><strong>block_builder</strong> (<a class="reference internal" href="tqec.compile.BlockBuilder.html#tqec.compile.BlockBuilder" title="tqec.compile.specs.base.BlockBuilder"><em>BlockBuilder</em></a>) – A callable that specifies how to build the
-<a class="reference internal" href="tqec.compile.CompiledBlock.html#tqec.compile.CompiledBlock" title="tqec.compile.block.CompiledBlock"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompiledBlock</span></code></a> from the specified
-<code class="xref py py-class docutils literal notranslate"><span class="pre">CubeSpecs</span></code>. Defaults to the block builder for
-the CSS type surface code.</p></li>
-<li><p><strong>substitution_builder</strong> (<a class="reference internal" href="tqec.compile.SubstitutionBuilder.html#tqec.compile.SubstitutionBuilder" title="tqec.compile.specs.base.SubstitutionBuilder"><em>SubstitutionBuilder</em></a>) – A callable that specifies how to build the
-substitution plaquettes from the specified
-<a class="reference internal" href="tqec.compile.PipeSpec.html#tqec.compile.PipeSpec" title="tqec.compile.specs.base.PipeSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">PipeSpec</span></code></a>. Defaults to the substitution builder
-for the CSS type surface code.</p></li>
+<li><p><strong>convention</strong> (<em>Convention</em>) – convention used to generate the quantum circuits.</p></li>
 <li><p><strong>observables</strong> (<em>list</em><em>[</em><a class="reference internal" href="tqec.computation.CorrelationSurface.html#tqec.computation.CorrelationSurface" title="tqec.computation.correlation.CorrelationSurface"><em>CorrelationSurface</em></a><em>] </em><em>| </em><em>Literal</em><em>[</em><em>'auto'</em><em>] </em><em>| </em><em>None</em>) – correlation surfaces that should be compiled into
 observables and included in the compiled circuit.
 If set to <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, the correlation surfaces will be automatically
@@ -557,11 +546,11 @@ observables will be included in the compiled circuit.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A <a class="reference internal" href="tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph" title="tqec.compile.CompiledGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompiledGraph</span></code></a> object that can be used to generate a
+<dd class="field-even"><p>A <a class="reference internal" href="tqec.compile.TopologicalComputationGraph.html#tqec.compile.TopologicalComputationGraph" title="tqec.compile.TopologicalComputationGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">TopologicalComputationGraph</span></code></a> object that can be used to generate a
 <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> and scale easily.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="tqec.compile.CompiledGraph.html#tqec.compile.CompiledGraph" title="tqec.compile.deprecated.compile.CompiledGraph"><em>CompiledGraph</em></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="tqec.compile.TopologicalComputationGraph.html#tqec.compile.TopologicalComputationGraph" title="tqec.compile.graph.TopologicalComputationGraph"><em>TopologicalComputationGraph</em></a></p>
 </dd>
 </dl>
 </dd></dl>

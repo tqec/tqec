@@ -397,12 +397,8 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.generate_circuit.html">generate_circuit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledGraph.html">CompiledGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CubeSpec.html">CubeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.PipeSpec.html">PipeSpec</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.SubstitutionBuilder.html">SubstitutionBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.TopologicalComputationGraph.html">TopologicalComputationGraph</a></li>
 </ul>
 </details></li>
@@ -536,6 +532,15 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.utils.</span></span><span class="sig-name descname"><span class="pre">Orientation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/enums.html#Orientation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.utils.Orientation" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Either horizontal or vertical orientation.</p>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.utils.Orientation.flip" title="tqec.utils.Orientation.flip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flip</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
@@ -548,6 +553,17 @@
 </tbody>
 </table>
 </div>
+<p class="rubric">Detailed methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.utils.Orientation.flip">
+<span class="sig-name descname"><span class="pre">flip</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/enums.html#Orientation.flip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.utils.Orientation.flip" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.utils.Orientation" title="tqec.utils.enums.Orientation"><em>Orientation</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -599,7 +615,10 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.Orientation"><code class="docutils literal notranslate"><span class="pre">Orientation</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.Orientation"><code class="docutils literal notranslate"><span class="pre">Orientation</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.utils.Orientation.flip"><code class="docutils literal notranslate"><span class="pre">Orientation.flip()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

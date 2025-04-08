@@ -417,7 +417,17 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Either horizontal or vertical orientation.&quot;&quot;&quot;</span>
 
     <span class="n">HORIZONTAL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
-    <span class="n">VERTICAL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+    <span class="n">VERTICAL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Orientation.flip">
+<a class="viewcode-back" href="../../../_autosummary/tqec.utils.Orientation.html#tqec.utils.Orientation.flip">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flip</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Orientation</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">Orientation</span><span class="o">.</span><span class="n">HORIZONTAL</span>
+            <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">Orientation</span><span class="o">.</span><span class="n">VERTICAL</span>
+            <span class="k">else</span> <span class="n">Orientation</span><span class="o">.</span><span class="n">VERTICAL</span>
+        <span class="p">)</span></div>
+</div>
 
 
 

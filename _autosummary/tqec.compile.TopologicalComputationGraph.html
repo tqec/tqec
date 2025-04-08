@@ -49,7 +49,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="tqec.compile.blocks" href="tqec.compile.blocks.html" />
-    <link rel="prev" title="SubstitutionBuilder" href="tqec.compile.SubstitutionBuilder.html" />
+    <link rel="prev" title="PipeSpec" href="tqec.compile.PipeSpec.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -397,12 +397,8 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.generate_circuit.html">generate_circuit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.BlockBuilder.html">BlockBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledBlock.html">CompiledBlock</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.CompiledGraph.html">CompiledGraph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.CubeSpec.html">CubeSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.compile.PipeSpec.html">PipeSpec</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.compile.SubstitutionBuilder.html">SubstitutionBuilder</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">TopologicalComputationGraph</a></li>
 </ul>
 </details></li>
@@ -533,14 +529,14 @@
 <h1>TopologicalComputationGraph<a class="headerlink" href="#topologicalcomputationgraph" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.TopologicalComputationGraph">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">TopologicalComputationGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalable_qubit_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PatchStyle.FixedBulk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">TopologicalComputationGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalable_qubit_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observable_builder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents a topological computation with
 <a class="reference internal" href="tqec.compile.blocks.Block.html#tqec.compile.blocks.Block" title="tqec.compile.blocks.block.Block"><code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code></a> instances.</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.__init__" title="tqec.compile.TopologicalComputationGraph.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(scalable_qubit_shape[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.__init__" title="tqec.compile.TopologicalComputationGraph.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(scalable_qubit_shape, ...[, ...])</p></td>
 <td><p>Represents a topological computation with <a class="reference internal" href="tqec.compile.blocks.Block.html#tqec.compile.blocks.Block" title="tqec.compile.blocks.block.Block"><code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code></a> instances.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.add_cube" title="tqec.compile.TopologicalComputationGraph.add_cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cube</span></code></a>(position, block)</p></td>
@@ -563,22 +559,22 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>scalable_qubit_shape</strong> (<em>PhysicalQubitScalable2D</em>)</p></li>
+<li><p><strong>observable_builder</strong> (<em>ObservableBuilder</em>)</p></li>
 <li><p><strong>observables</strong> (<em>list</em><em>[</em><em>AbstractObservable</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>patch_style</strong> (<a class="reference internal" href="tqec.utils.PatchStyle.html#tqec.utils.PatchStyle" title="tqec.utils.enums.PatchStyle"><em>PatchStyle</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.TopologicalComputationGraph.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalable_qubit_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PatchStyle.FixedBulk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalable_qubit_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observable_builder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Represents a topological computation with
 <a class="reference internal" href="tqec.compile.blocks.Block.html#tqec.compile.blocks.Block" title="tqec.compile.blocks.block.Block"><code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code></a> instances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>scalable_qubit_shape</strong> (<em>PhysicalQubitScalable2D</em>)</p></li>
+<li><p><strong>observable_builder</strong> (<em>ObservableBuilder</em>)</p></li>
 <li><p><strong>observables</strong> (<em>list</em><em>[</em><em>AbstractObservable</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>patch_style</strong> (<a class="reference internal" href="tqec.utils.PatchStyle.html#tqec.utils.PatchStyle" title="tqec.utils.enums.PatchStyle"><em>PatchStyle</em></a>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -700,12 +696,12 @@ one block of time.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="tqec.compile.SubstitutionBuilder.html"
+       href="tqec.compile.PipeSpec.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">SubstitutionBuilder</p>
+        <p class="prev-next-title">PipeSpec</p>
       </div>
     </a>
     <a class="right-next"

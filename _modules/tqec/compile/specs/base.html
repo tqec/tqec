@@ -411,7 +411,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.block</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompiledBlock</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.block</span><span class="w"> </span><span class="kn">import</span> <span class="n">Block</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpatialArms</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
@@ -419,7 +418,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.pipe</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipeKind</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangularTemplate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquettes</span>
 
 
 <div class="viewcode-block" id="CubeSpec">
@@ -467,24 +465,6 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="n">spatial_arms</span> <span class="o">|=</span> <span class="n">flag</span>
         <span class="k">return</span> <span class="n">CubeSpec</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">spatial_arms</span><span class="p">)</span></div>
 </div>
-
-
-
-<div class="viewcode-block" id="BlockBuilder">
-<a class="viewcode-back" href="../../../../_autosummary/tqec.compile.BlockBuilder.html#tqec.compile.BlockBuilder">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">BlockBuilder</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for building a `CompiledBlock` based on a `CubeSpec`.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompiledBlock</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a `CompiledBlock` instance from a `CubeSpec`.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            spec: Specification of the cube in the block graph.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            a `CompiledBlock` based on the provided `CubeSpec`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="o">...</span></div>
 
 
 
@@ -542,47 +522,6 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">cube_specs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">CubeSpec</span><span class="p">,</span> <span class="n">CubeSpec</span><span class="p">]</span>
     <span class="n">cube_templates</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RectangularTemplate</span><span class="p">,</span> <span class="n">RectangularTemplate</span><span class="p">]</span>
     <span class="n">pipe_kind</span><span class="p">:</span> <span class="n">PipeKind</span></div>
-
-
-
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">Substitution</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Collection of plaquettes categorized by the layer index.</span>
-
-<span class="sd">    This specifies how to substitute plaquettes in the two `CompiledBlock`s</span>
-<span class="sd">    connected by a pipe. When applying the substitution, the plaquettes in</span>
-<span class="sd">    the map will be used to update the corresponding layer in the `CompiledBlock`.</span>
-
-<span class="sd">    Both the source and destination maps are indexed by the layer index in the</span>
-<span class="sd">    `CompiledBlock`. The index can be negative, which means the layer is counted</span>
-<span class="sd">    from the end of the layers list.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        src: a mapping from the index of the layer in the source `CompiledBlock` to</span>
-<span class="sd">            the plaquettes that should be used to update the layer.</span>
-<span class="sd">        dst: a mapping from the index of the layer in the destination `CompiledBlock`</span>
-<span class="sd">            to the plaquettes that should be used to update</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">src</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Plaquettes</span><span class="p">]</span>
-    <span class="n">dst</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Plaquettes</span><span class="p">]</span>
-
-
-<div class="viewcode-block" id="SubstitutionBuilder">
-<a class="viewcode-back" href="../../../../_autosummary/tqec.compile.SubstitutionBuilder.html#tqec.compile.SubstitutionBuilder">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SubstitutionBuilder</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for building the `Substitution` based on a `PipeSpec`.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="n">PipeSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Substitution</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a `Substitution` instance from a `PipeSpec`.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            spec: Specification of the pipe in the block graph.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            a `Substitution` based on the provided `PipeSpec`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="o">...</span></div>
 
 </pre></div>
 

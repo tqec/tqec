@@ -28,12 +28,8 @@
    .. autosummary::
       :toctree:
    
-      BlockBuilder
-      CompiledBlock
-      CompiledGraph
       CubeSpec
       PipeSpec
-      SubstitutionBuilder
       TopologicalComputationGraph
    
    
