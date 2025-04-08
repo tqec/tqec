@@ -14,6 +14,7 @@ from tqec.compile.tree.annotations import LayerTreeAnnotations
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
+from tqec.compile.tree.annotators.polygon import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.template import RPNGTemplate
@@ -150,6 +151,12 @@ class LayerTree:
             )
         )
 
+    def _annotate_polygons(
+        self,
+        k: int,
+    ) -> None:
+        self._root.walk(AnnotatePolygonOnLayerNode(k))
+
     def generate_circuit(
         self,
         k: int,
@@ -157,6 +164,7 @@ class LayerTree:
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
         lookback: int = 2,
+        add_polygon_pragmas: bool = False,
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -189,6 +197,8 @@ class LayerTree:
         self._annotate_qubit_map(k)
         self._annotate_detectors(k, manhattan_radius, detector_database, lookback)
         self._annotate_observables(k)
+        if add_polygon_pragmas:
+            self._annotate_polygons(k)
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
 

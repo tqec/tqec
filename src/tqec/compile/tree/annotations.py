@@ -10,6 +10,7 @@ from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.observables.builder import Observable
+from tqec.compile.tree.annotators.polygon import Polygon
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 
@@ -50,6 +51,7 @@ class LayerNodeAnnotations:
     circuit: ScheduledCircuit | None = None
     detectors: list[DetectorAnnotation] = field(default_factory=list)
     observables: list[Observable] = field(default_factory=list)
+    polygons: list[Polygon] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
