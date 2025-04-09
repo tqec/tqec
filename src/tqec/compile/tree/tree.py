@@ -209,7 +209,7 @@ class LayerTree:
         annotations = self._get_annotation(k)
         qubit_map = annotations.qubit_map
         assert qubit_map is not None
-        circuits_with_polygons = self._root._generate_circuits_with_potential_polygons(
+        circuits_with_polygons = self._root.generate_circuits_with_potential_polygons(
             k, qubit_map, add_polygons=True
         )
         crumble_url: str = qubit_map.to_circuit().to_crumble_url() + ";"
