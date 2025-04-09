@@ -39,7 +39,7 @@ the order in which the sub-modules will be covered here.
         C[tqec.templates] --> E
         D[tqec.plaquette] --> E
         E --> F[tqec.circuit]
-        F --> G[tqec.noise_models]
+        F --> G[tqec.utils.noise_models]
         G --> H[tqec.simulation]
 
 A user starts with a computation and an observable. The computation is represented as a ``BlockGraph``
@@ -65,9 +65,24 @@ Implements the BlockGraph structure using the surface code.
 
 Translations between internal representations.
 
-BlockGraph from everything in interop which further translated into CompiledGraph
+BlockGraph from everything in interop which is further translated into CompiledGraph
 
-BlockGraph => CompiledGraph => ScheduledCircuit => stim.Circuit
+.. mermaid::
+    :align: center
+    :config: {"theme": "base", "darkMode": "true"}
+
+    %%{
+    init: {
+        'theme': 'base',
+        'themeVariables': {
+        'primaryColor': '#AFEEEE',
+        'lineColor': '#6495ED'
+        }
+    }
+    }%%
+
+    graph
+        A[BlockGraph] --> B[CompiledGraph] --> C[ScheduledCircuit]--> D[stim.Circuit]
 
 Generating a stim.Circuit is the end goal of tqec. The input is transformed into a topologically quantum error
 corrected quantum computation.
@@ -100,24 +115,44 @@ Mapping from the numbered templates to some plaquettes that implement small loca
 ``tqec.circuit``
 ----------------
 
-Implementation of ScheduledCircuit - quantum circuit representation in tqec.
+Implementation of :class:`.ScheduledCircuit`, a quantum circuit representation in tqec, where each and every gate of a regular quantum circuit is associated with the time of execution.
 
-A regular quantum circuit where each and every gate is associated with the time of execution.
+``tqec.utils.noise_model``
+--------------------------
 
-``tqec.noise_models``
----------------------
+.. note::
 
-See :cite:t:`1987:nelson` for an introduction to non-standard analysis.
-Non-standard analysis is fun\ :cite:p:`1987:nelson`.
+    The code for this module was modified from the code for :cite:`Gidney_inplace_access_2024`.
+
+This module implements the following noise models for ``Stim`` simulations:
+
+#. **Superconducting Inspired Circuit Error Model (SI1000)**: A modified version of the noise model introduced in :cite:`Gidney_si1000_2021` which represents the noise on Google's superconducting quantum chip.
+
+    In :meth:`.si1000`:
+
+    * Depolarizing noise on measured qubits from the noise modeil in :cite:`Gidney_si1000_2021` has been removed because ``tqec`` measurements are immediately followed by resets.
+
+    * The measurement result is probabilistically flipped instead of the input qubit.
+
+#. **Uniform Depolarizing Noise**: Single qubit depolarizing noise is uniformly applied to both single qubit and two qubit Clifford gates.
+
+    In :meth:`.uniform_depolarizing`:
+
+    * The result of dissipative gates is probabilistically bit or phase flipped.
+
+    * Result of non-demolition measurements is flipped instead of the input qubit.
+
 
 
 ``tqec.simulation``
 -------------------
 
-Utilities related to simulations through ``sinter``, a Python library. This is a submodule in ``stim`` which ``tqec`` uses
-to simulate quantum circuits.
-
+Utilities related to quantum circuit simulations through ``sinter``, a Python submodule in ``stim``.
 Plotting functions are in this module too.
+
+Additional information is available in :mod:`.simulation`.
+
+
 
 References
 -----------
