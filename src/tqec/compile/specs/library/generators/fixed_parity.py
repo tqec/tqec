@@ -1282,7 +1282,7 @@ class FixedParityConventionGenerator:
         SBB = spatial_boundary_basis
         OTB = spatial_boundary_basis.flipped()
         # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_hadamard_rpng_descriptions()
+        BPs = self.get_bulk_rpng_descriptions()
         # CSs: Corner Stabilizers (3-body stabilizers).
         CSs = self.get_3_body_rpng_descriptions(SBB, reset, measurement)
         return FrozenDefaultDict(
