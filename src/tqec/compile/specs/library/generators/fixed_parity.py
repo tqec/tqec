@@ -85,12 +85,6 @@ def _make_spatial_cube_arm_memory_moments_down(
         |   4   |
         |       |
         2 ----- 3
-
-        1 -----
-        |       |
-        |   0   |
-        |       |
-        3 ----- 4
     """
     args = [3, 2] if is_reverse else [2, 3]
     b = basis.name.upper()
@@ -149,13 +143,14 @@ def make_spatial_cube_arm_plaquettes(
     up_qubits = [qubit_map[q] for q in qubits.get_qubits_on_side(PlaquetteSide.UP)]
     down_qubits = [qubit_map[q] for q in qubits.get_qubits_on_side(PlaquetteSide.DOWN)]
 
-    b = basis.value.upper()
     if reset is not None:
-        up_moments[0].append(f"R{b}", down_qubits, [])
-        down_moments[0].append(f"R{b}", up_qubits, [])
+        r = reset.value.upper()
+        up_moments[0].append(f"R{r}", up_qubits, [])
+        down_moments[0].append(f"R{r}", down_qubits, [])
     if measurement is not None:
-        up_moments[-1].append(f"M{b}", down_qubits, [])
-        down_moments[-1].append(f"M{b}", up_qubits, [])
+        m = measurement.value.upper()
+        up_moments[-1].append(f"M{m}", up_qubits, [])
+        down_moments[-1].append(f"M{m}", down_qubits, [])
 
     mergeable_instructions = MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES
 
