@@ -873,6 +873,43 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">if</span> <span class="n">noise_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">circuit</span> <span class="o">=</span> <span class="n">noise_model</span><span class="o">.</span><span class="n">noisy_circuit</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">circuit</span></div>
+
+
+<div class="viewcode-block" id="TopologicalComputationGraph.generate_crumble_url">
+<a class="viewcode-back" href="../../../_autosummary/tqec.compile.TopologicalComputationGraph.html#tqec.compile.TopologicalComputationGraph.generate_crumble_url">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_crumble_url</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">manhattan_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">detector_database</span><span class="p">:</span> <span class="n">DetectorDatabase</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">add_polygons</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the Crumble URL from the compiled graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            k: scaling factor.</span>
+<span class="sd">            manhattan_radius: Parameter for the automatic computation of detectors.</span>
+<span class="sd">                Should be large enough so that flows canceling each other to</span>
+<span class="sd">                form a detector are strictly contained in plaquettes that are at</span>
+<span class="sd">                most at a distance of ``manhattan_radius`` from the central</span>
+<span class="sd">                plaquette. Detector computation runtime grows with this parameter,</span>
+<span class="sd">                so you should try to keep it to its minimum. A value too low might</span>
+<span class="sd">                produce invalid detectors.</span>
+<span class="sd">            detector_database: existing database of detectors that is used to</span>
+<span class="sd">                avoid computing detectors if the database already contains them.</span>
+<span class="sd">                Default to `None` which result in not using any kind of database</span>
+<span class="sd">                and unconditionally performing the detector computation.</span>
+<span class="sd">            add_polygons: whether to include polygons in the Crumble URL. If</span>
+<span class="sd">                ``True``, the polygons representing the stabilizers will be generated</span>
+<span class="sd">                based on the RPNG information of underlying plaquettes and add</span>
+<span class="sd">                to the Crumble URL.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a string representing the Crumble URL of the quantum circuit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_layer_tree</span><span class="p">()</span><span class="o">.</span><span class="n">generate_crumble_url</span><span class="p">(</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">manhattan_radius</span><span class="p">,</span> <span class="n">detector_database</span><span class="p">,</span> <span class="n">add_polygons</span><span class="o">=</span><span class="n">add_polygons</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>

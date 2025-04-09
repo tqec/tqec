@@ -545,10 +545,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.add_pipe" title="tqec.compile.TopologicalComputationGraph.add_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_pipe</span></code></a>(source, sink, block)</p></td>
 <td><p>Add the provided block as a pipe between <code class="docutils literal notranslate"><span class="pre">source</span></code> and <code class="docutils literal notranslate"><span class="pre">sink</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.generate_stim_circuit" title="tqec.compile.TopologicalComputationGraph.generate_stim_circuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_stim_circuit</span></code></a>(k[, noise_model, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.generate_crumble_url" title="tqec.compile.TopologicalComputationGraph.generate_crumble_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_crumble_url</span></code></a>(k[, manhattan_radius, ...])</p></td>
+<td><p>Generate the Crumble URL from the compiled graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.generate_stim_circuit" title="tqec.compile.TopologicalComputationGraph.generate_stim_circuit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_stim_circuit</span></code></a>(k[, noise_model, ...])</p></td>
 <td><p>Generate the <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> from the compiled graph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.to_layer_tree" title="tqec.compile.TopologicalComputationGraph.to_layer_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_layer_tree</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.TopologicalComputationGraph.to_layer_tree" title="tqec.compile.TopologicalComputationGraph.to_layer_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_layer_tree</span></code></a>()</p></td>
 <td><p>Merge layers happening in parallel at each time step.</p></td>
 </tr>
 </tbody>
@@ -624,6 +627,40 @@
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.compile.TopologicalComputationGraph.generate_crumble_url">
+<span class="sig-name descname"><span class="pre">generate_crumble_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manhattan_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detector_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_polygons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.generate_crumble_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.generate_crumble_url" title="Link to this definition">#</a></dt>
+<dd><p>Generate the Crumble URL from the compiled graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<em>int</em>) – scaling factor.</p></li>
+<li><p><strong>manhattan_radius</strong> (<em>int</em>) – Parameter for the automatic computation of detectors.
+Should be large enough so that flows canceling each other to
+form a detector are strictly contained in plaquettes that are at
+most at a distance of <code class="docutils literal notranslate"><span class="pre">manhattan_radius</span></code> from the central
+plaquette. Detector computation runtime grows with this parameter,
+so you should try to keep it to its minimum. A value too low might
+produce invalid detectors.</p></li>
+<li><p><strong>detector_database</strong> (<em>DetectorDatabase</em><em> | </em><em>None</em>) – existing database of detectors that is used to
+avoid computing detectors if the database already contains them.
+Default to <cite>None</cite> which result in not using any kind of database
+and unconditionally performing the detector computation.</p></li>
+<li><p><strong>add_polygons</strong> (<em>bool</em>) – whether to include polygons in the Crumble URL. If
+<code class="docutils literal notranslate"><span class="pre">True</span></code>, the polygons representing the stabilizers will be generated
+based on the RPNG information of underlying plaquettes and add
+to the Crumble URL.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a string representing the Crumble URL of the quantum circuit.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -736,6 +773,7 @@ one block of time.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.__init__"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.add_cube"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.add_cube()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.add_pipe"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.add_pipe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.generate_crumble_url"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.generate_crumble_url()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.generate_stim_circuit"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.generate_stim_circuit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.TopologicalComputationGraph.to_layer_tree"><code class="docutils literal notranslate"><span class="pre">TopologicalComputationGraph.to_layer_tree()</span></code></a></li>
 </ul>
