@@ -19,7 +19,6 @@ class AnnotatePolygonOnLayerNode(NodeWalker):
         node.get_annotations(self._k).polygons = generate_polygons_for_layout_layer(
             node._layer, self._k
         )
-        node.set_circuit_annotation(self._k, node._layer.to_circuit(self._k))
 
 
 def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polygon]:
