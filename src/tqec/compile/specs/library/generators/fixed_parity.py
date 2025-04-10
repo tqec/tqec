@@ -1284,7 +1284,8 @@ class FixedParityConventionGenerator:
         SBB = spatial_boundary_basis
         OTB = spatial_boundary_basis.flipped()
         # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions()
+        BPs_UP = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
+        BPs_DOWN = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
         # CSs: Corner Stabilizers (3-body stabilizers).
         CSs = self.get_3_body_rpng_descriptions(SBB, reset, measurement)
         # TBPs: Two Body Plaquettes.
@@ -1304,10 +1305,10 @@ class FixedParityConventionGenerator:
             {
                 2: top_right,
                 3: bottom_left,
-                5: BPs[SBB][Orientation.VERTICAL],
-                6: BPs[OTB][Orientation.HORIZONTAL],
-                7: BPs[OTB][Orientation.HORIZONTAL],
-                8: BPs[SBB][Orientation.VERTICAL],
+                5: BPs_UP[SBB][Orientation.VERTICAL],
+                6: BPs_UP[OTB][Orientation.HORIZONTAL],
+                7: BPs_DOWN[OTB][Orientation.HORIZONTAL],
+                8: BPs_DOWN[SBB][Orientation.VERTICAL],
             },
             default_value=RPNGDescription.empty(),
         )
