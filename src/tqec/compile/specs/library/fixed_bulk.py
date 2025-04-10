@@ -197,7 +197,26 @@ class FixedBulkPipeBuilder(PipeBuilder):
             the block to implement the provided
             ``spec``.
         """
-        raise NotImplementedError()
+        assert spec.pipe_kind.is_temporal
+        assert spec.pipe_kind.has_hadamard
+        z_observable_orientation = (
+            Orientation.HORIZONTAL
+            if spec.pipe_kind.x == Basis.Z
+            else Orientation.VERTICAL
+        )
+        memory_plaquettes = self._generator.get_memory_qubit_plaquettes(
+            z_observable_orientation, None, None
+        )
+        hadamard_plaquettes = self._generator.get_memory_qubit_plaquettes(
+            z_observable_orientation, None, "h"
+        )
+        template = self._generator.get_memory_qubit_raw_template()
+        return Block(
+            [
+                PlaquetteLayer(template, hadamard_plaquettes),
+                PlaquetteLayer(template, memory_plaquettes),
+            ]
+        )
 
     ##############################
     #       SPATIAL PIPE         #

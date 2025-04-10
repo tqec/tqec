@@ -49,5 +49,7 @@ class PlaquetteCompiler:
 
 
 IdentityPlaquetteCompiler: Final[PlaquetteCompiler] = PlaquetteCompiler(
-    "ID", [], lambda x: x | MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES
+    "ID",
+    [],
+    lambda x: x | MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES | {"H"},
 )

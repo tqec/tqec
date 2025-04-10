@@ -38,7 +38,7 @@ PLAQUETTE_COLLECTIONS: list[Plaquettes] = [
     GENERATOR.get_memory_qubit_plaquettes(Orientation.HORIZONTAL),
     GENERATOR.get_memory_qubit_plaquettes(reset=Basis.Z),
     GENERATOR.get_memory_qubit_plaquettes(reset=Basis.X),
-    GENERATOR.get_memory_qubit_plaquettes(measurement=Basis.Z),
+    GENERATOR.get_memory_qubit_plaquettes(gate=Basis.Z),
     GENERATOR.get_memory_qubit_plaquettes(Orientation.VERTICAL),
 ]
 # Note: sorting is important here to guarantee the order in which subtemplates

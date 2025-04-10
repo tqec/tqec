@@ -38,8 +38,8 @@ class FixedBulkConventionGenerator:
     def get_bulk_rpng_descriptions(
         self,
         reset: Basis | None = None,
-        measurement: Basis | None = None,
-        reset_and_measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
+        gate: Basis | Literal["h"] | None = None,
+        reset_and_gate_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
     ) -> dict[Basis, dict[Orientation, RPNGDescription]]:
         """Get plaquettes that are supposed to be used in the bulk.
 
@@ -50,11 +50,11 @@ class FixedBulkConventionGenerator:
         Args:
             reset: basis of the reset operation performed on data-qubits. Defaults
                 to ``None`` that translates to no reset being applied on data-qubits.
-            measurement: basis of the measurement operation performed on data-qubits.
-                Defaults to ``None`` that translates to no measurement being applied
+            gate: basis of the measurement operation or hadamard gate performed on
+                data-qubits. Defaults to ``None`` that translates to no gate being applied
                 on data-qubits.
-            reset_and_measured_indices: data-qubit indices that should be impacted
-                by the provided ``reset`` and ``measurement`` values.
+            reset_and_gate_indices: data-qubit indices that should be impacted
+                by the provided ``reset`` and ``gate`` values.
 
         Returns:
             a mapping with 4 plaquettes: one for each basis (either ``X`` or ``Z``)
@@ -63,27 +63,33 @@ class FixedBulkConventionGenerator:
         # _r/_m: reset/measurement basis applied to each data-qubit in
         # reset_and_measured_indices
         _r = reset.value.lower() if reset is not None else "-"
-        _m = measurement.value.lower() if measurement is not None else "-"
+        _g: str
+        if gate is None:
+            _g = "-"
+        elif isinstance(gate, Basis):
+            _g = gate.value.lower()
+        else:
+            _g = "h"
         # rs/ms: resets/measurements basis applied for each data-qubit
-        rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
-        ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
+        rs = [_r if i in reset_and_gate_indices else "-" for i in range(4)]
+        gs = [_g if i in reset_and_gate_indices else "-" for i in range(4)]
         # 2-qubit gate schedules
         vsched, hsched = (1, 4, 3, 5), (1, 2, 3, 5)
         return {
             Basis.X: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, vsched, ms))
+                    " ".join(f"{r}x{s}{g}" for r, s, g in zip(rs, vsched, gs))
                 ),
                 Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, hsched, ms))
+                    " ".join(f"{r}x{s}{g}" for r, s, g in zip(rs, hsched, gs))
                 ),
             },
             Basis.Z: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, vsched, ms))
+                    " ".join(f"{r}z{s}{g}" for r, s, g in zip(rs, vsched, gs))
                 ),
                 Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, hsched, ms))
+                    " ".join(f"{r}z{s}{g}" for r, s, g in zip(rs, hsched, gs))
                 ),
             },
         }
@@ -179,7 +185,7 @@ class FixedBulkConventionGenerator:
         self,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
-        measurement: Basis | None = None,
+        gate: Basis | Literal["h"] | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
         """Returns a description of the plaquettes needed to implement a
         standard memory operation on a logical qubit.
@@ -199,14 +205,14 @@ class FixedBulkConventionGenerator:
             reset: basis of the reset operation performed on data-qubits.
                 Defaults to ``None`` that translates to no reset being applied
                 on data-qubits.
-            measurement: basis of the measurement operation performed on
-                data-qubits. Defaults to ``None`` that translates to no
-                measurement being applied on data-qubits.
+            gate: basis of the measurement operation or Hadamard gate performed on
+                data-qubits. Defaults to ``None`` that translates to no gate being
+                applied on data-qubits.
 
         Returns:
             a description of the plaquettes needed to implement a standard
             memory operation on a logical qubit, optionally with resets or
-            measurements on the data-qubits too.
+            measurements or hadamard on the data-qubits too.
         """
         # Border plaquette indices
         UP, DOWN, LEFT, RIGHT = (
@@ -219,7 +225,7 @@ class FixedBulkConventionGenerator:
         ZHOOK = z_orientation.flip()
         XHOOK = ZHOOK.flip()
         # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(reset, measurement)
+        BPs = self.get_bulk_rpng_descriptions(reset, gate)
         # TBPs: Two Body Plaquettes.
         TBPs = self.get_2_body_rpng_descriptions()
         return FrozenDefaultDict(
@@ -239,7 +245,7 @@ class FixedBulkConventionGenerator:
         self,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
-        measurement: Basis | None = None,
+        gate: Basis | Literal["h"] | None = None,
     ) -> Plaquettes:
         """Returns the plaquettes needed to implement a standard memory
         operation on a logical qubit.
@@ -259,17 +265,17 @@ class FixedBulkConventionGenerator:
             reset: basis of the reset operation performed on data-qubits.
                 Defaults to ``None`` that translates to no reset being applied
                 on data-qubits.
-            measurement: basis of the measurement operation performed on
-                data-qubits. Defaults to ``None`` that translates to no
-                measurement being applied on data-qubits.
+            gate: basis of the measurement operation or Hadamard gate performed on
+                data-qubits. Defaults to ``None`` that translates to no gate being
+                applied on data-qubits.
 
         Returns:
             a description of the plaquettes needed to implement a standard
             memory operation on a logical qubit, optionally with resets or
-            measurements on the data-qubits too.
+            measurements or hadamard on the data-qubits too.
         """
         return self._mapper(self.get_memory_qubit_rpng_descriptions)(
-            z_orientation, reset, measurement
+            z_orientation, reset, gate
         )
 
     ########################################
@@ -1049,50 +1055,6 @@ class FixedBulkConventionGenerator:
     ############################################################
     #                         Hadamard                         #
     ############################################################
-
-    ########################################
-    #           Regular junction           #
-    ########################################
-    def get_temporal_hadamard_raw_template(self) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.Template` instance
-        needed to implement a transversal Hadamard gate applied on one logical
-        qubit."""
-        raise self._not_implemented_exception()
-
-    def get_temporal_hadamard_rpng_descriptions(
-        self, z_orientation: Orientation = Orientation.HORIZONTAL
-    ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Returns a description of the plaquettes needed to implement a transversal
-        Hadamard gate applied on one logical qubit.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_temporal_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.Template` instance returned by this
-            method.
-
-        Arguments:
-            z_orientation: orientation of the ``Z`` observable at the beginning
-                of the generated circuit description. The ``Z`` observable
-                orientation will be flipped at the end of the returned circuit
-                description, which is exactly the expected behaviour for a
-                Hadamard transition.
-                Used to compute the stabilizers that should be measured on the
-                boundaries and in the bulk of the returned logical qubit
-                description.
-
-        Returns:
-            a description of the plaquettes needed to implement a transversal
-            Hadamard gate applied on one logical qubit.
-        """
-        raise self._not_implemented_exception()
-
-    def get_temporal_hadamard_plaquettes(
-        self, z_orientation: Orientation = Orientation.HORIZONTAL
-    ) -> Plaquettes:
-        return self._mapper(self.get_temporal_hadamard_rpng_descriptions)(z_orientation)
 
     ########################################
     #                X pipe                #
