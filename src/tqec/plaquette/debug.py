@@ -3,12 +3,22 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.rpng.rpng import RPNG, RPNGDescription
+from tqec.plaquette.rpng.rpng import RPNG, XYZBasis, RPNGDescription
 
 
 @dataclass(frozen=True)
 class PlaquetteDebugInformation:
     rpng: RPNGDescription | None = None
+    basis: XYZBasis | None = None
+
+    def get_basis(self) -> XYZBasis | None:
+        if self.basis is not None:
+            return self.basis
+        if self.rpng is not None:
+            bases = {rpng.p for rpng in self.rpng.corners if rpng.p is not None}
+            if len(bases) == 1:
+                return bases.pop()
+        return None
 
     def project_on_boundary(
         self, projected_orientation: PlaquetteOrientation

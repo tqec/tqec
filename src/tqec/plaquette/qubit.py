@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Iterator
+from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
@@ -116,4 +117,12 @@ class SquarePlaquetteQubits(PlaquetteQubits):
             # bottom-right.
             [GridQubit(-1, -1), GridQubit(1, -1), GridQubit(-1, 1), GridQubit(1, 1)],
             [GridQubit(0, 0)],
+        )
+
+    @property
+    @override
+    def qubit_map(self) -> QubitMap:
+        return QubitMap(
+            {0: self.syndrome_qubits[0]}
+            | {i + 1: q for i, q in enumerate(self.data_qubits)}
         )
