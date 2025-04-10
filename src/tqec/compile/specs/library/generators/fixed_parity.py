@@ -1226,7 +1226,7 @@ class FixedParityConventionGenerator:
         if arms == SpatialArms.UP | SpatialArms.DOWN:
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis, reset, measurement
+                spatial_boundary_basis, linked_cubes, reset, measurement
             )
         # General case, need extended stabilizers.
         SBB, OTB = spatial_boundary_basis, spatial_boundary_basis.flipped()
@@ -1266,16 +1266,18 @@ class FixedParityConventionGenerator:
     def _get_up_and_down_spatial_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
+        linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
         return self._mapper(self._get_up_and_down_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, reset, measurement
+            spatial_boundary_basis, linked_cubes, reset, measurement
         )
 
     def _get_up_and_down_spatial_cube_arm_rpng_descriptions(
         self,
         spatial_boundary_basis: Basis,
+        linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -1285,10 +1287,23 @@ class FixedParityConventionGenerator:
         BPs = self.get_bulk_rpng_descriptions()
         # CSs: Corner Stabilizers (3-body stabilizers).
         CSs = self.get_3_body_rpng_descriptions(SBB, reset, measurement)
+        # TBPs: Two Body Plaquettes.
+        TBPs = self.get_2_body_rpng_descriptions()
+        u, v = linked_cubes
+        top_right = (
+            CSs[1]
+            if SpatialArms.RIGHT in u.spatial_arms
+            else TBPs[SBB][PlaquetteOrientation.RIGHT]
+        )
+        bottom_left = (
+            CSs[0]
+            if SpatialArms.LEFT in v.spatial_arms
+            else TBPs[SBB][PlaquetteOrientation.LEFT]
+        )
         return FrozenDefaultDict(
             {
-                2: CSs[1],
-                3: CSs[0],
+                2: top_right,
+                3: bottom_left,
                 5: BPs[SBB][Orientation.VERTICAL],
                 6: BPs[OTB][Orientation.HORIZONTAL],
                 7: BPs[OTB][Orientation.HORIZONTAL],
