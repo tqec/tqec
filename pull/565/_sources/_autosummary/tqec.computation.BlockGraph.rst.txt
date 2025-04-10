@@ -1,0 +1,95 @@
+BlockGraph
+==========
+
+.. currentmodule:: tqec.computation
+
+.. autoclass:: BlockGraph
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BlockGraph.__init__
+      ~BlockGraph.add_cube
+      ~BlockGraph.add_pipe
+      ~BlockGraph.bounding_box_size
+      ~BlockGraph.clone
+      ~BlockGraph.compose
+      ~BlockGraph.fill_ports
+      ~BlockGraph.fill_ports_for_minimal_simulation
+      ~BlockGraph.find_correlation_surfaces
+      ~BlockGraph.fix_shadowed_faces
+      ~BlockGraph.from_dae_file
+      ~BlockGraph.get_cubes_by_label
+      ~BlockGraph.get_degree
+      ~BlockGraph.get_pipe
+      ~BlockGraph.has_pipe_between
+      ~BlockGraph.is_single_connected
+      ~BlockGraph.pipes_at
+      ~BlockGraph.remove_cube
+      ~BlockGraph.remove_pipe
+      ~BlockGraph.rotate
+      ~BlockGraph.shift_by
+      ~BlockGraph.to_dae_file
+      ~BlockGraph.to_zx_graph
+      ~BlockGraph.validate
+      ~BlockGraph.view_as_html
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BlockGraph.cubes
+      ~BlockGraph.is_open
+      ~BlockGraph.leaf_cubes
+      ~BlockGraph.name
+      ~BlockGraph.num_cubes
+      ~BlockGraph.num_half_y_cubes
+      ~BlockGraph.num_pipes
+      ~BlockGraph.num_ports
+      ~BlockGraph.occupied_positions
+      ~BlockGraph.ordered_ports
+      ~BlockGraph.pipes
+      ~BlockGraph.ports
+      ~BlockGraph.spacetime_volume
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: add_cube
+   .. automethod:: add_pipe
+   .. automethod:: bounding_box_size
+   .. automethod:: clone
+   .. automethod:: compose
+   .. automethod:: fill_ports
+   .. automethod:: fill_ports_for_minimal_simulation
+   .. automethod:: find_correlation_surfaces
+   .. automethod:: fix_shadowed_faces
+   .. automethod:: from_dae_file
+   .. automethod:: get_cubes_by_label
+   .. automethod:: get_degree
+   .. automethod:: get_pipe
+   .. automethod:: has_pipe_between
+   .. automethod:: is_single_connected
+   .. automethod:: pipes_at
+   .. automethod:: remove_cube
+   .. automethod:: remove_pipe
+   .. automethod:: rotate
+   .. automethod:: shift_by
+   .. automethod:: to_dae_file
+   .. automethod:: to_zx_graph
+   .. automethod:: validate
+   .. automethod:: view_as_html
+   
+   
