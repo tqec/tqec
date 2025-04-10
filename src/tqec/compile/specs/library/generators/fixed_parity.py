@@ -957,11 +957,11 @@ class FixedParityConventionGenerator:
         if SpatialArms.UP not in arms:
             mapping[10] = TBPs[SBB][PlaquetteOrientation.UP]
         if SpatialArms.RIGHT not in arms:
-            mapping[22] = TBPs[SBB][PlaquetteOrientation.RIGHT]
+            mapping[21] = TBPs[SBB][PlaquetteOrientation.RIGHT]
         if SpatialArms.DOWN not in arms:
             mapping[23] = TBPs[SBB][PlaquetteOrientation.DOWN]
         if SpatialArms.LEFT not in arms:
-            mapping[11] = TBPs[SBB][PlaquetteOrientation.LEFT]
+            mapping[12] = TBPs[SBB][PlaquetteOrientation.LEFT]
 
         ####################
         #       Bulk       #
