@@ -13,7 +13,7 @@ from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.tree.annotations import LayerNodeAnnotations
+from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction
@@ -131,13 +131,15 @@ class LayerNode:
     def set_circuit_annotation(self, k: int, circuit: ScheduledCircuit) -> None:
         self.get_annotations(k).circuit = circuit
 
-    def generate_circuit(
+    def generate_circuits_with_potential_polygons(
         self,
         k: int,
         global_qubit_map: QubitMap,
         shift_coords: StimCoordinates | None = None,
-    ) -> stim.Circuit:
-        """Generate the quantum circuit representing the node.
+        add_polygons: bool = False,
+    ) -> list[stim.Circuit | list[Polygon]]:
+        """Generate the circuits and polygons for each nodes in the subtree rooted
+        at ``self``.
 
         Args:
             k: scaling parameter.
@@ -147,11 +149,19 @@ class LayerNode:
             shift_coords: if provided, a ``SHIFT_COORDS`` instruction with the
                 provided shift will be appended before each block of ``DETECTOR``
                 annotations. Defaults to ``None`` which means "no shift".
+            add_polygons: if ``True``, polygon objects for visualization in Crumble
+                will be added to the returned list.
 
         Returns:
-            a ``stim.Circuit`` instance representing ``self`` with the provided
-            ``global_qubit_map``.
+            a list of ``stim.Circuit`` and/or ``list[Polygon]`` objects.
+            Each ``stim.Circuit`` represents a quantum circuit of a leaf node in
+            the tree. Each polygon list represents the stabilizer configuration
+            for the corresponding leaf node and will be placed right before the
+            corresponding circuit in the returned list. If two consecutive leaf
+            nodes have the same stabilizer configuration, only the first polygons
+            will be kept.
         """
+
         if isinstance(self._layer, LayoutLayer):
             annotations = self.get_annotations(k)
             base_circuit = annotations.circuit
@@ -174,31 +184,76 @@ class LayerNode:
                 )
             for annotation in annotations.detectors + annotations.observables:
                 mapped_circuit.append_annotation(annotation.to_instruction())
-            return mapped_circuit.get_circuit(include_qubit_coords=False)
+            ret: list[stim.Circuit | list[Polygon]] = [
+                mapped_circuit.get_circuit(include_qubit_coords=False)
+            ]
+            if add_polygons:
+                ret.insert(0, annotations.polygons)
+
+            return ret
 
         if isinstance(self._layer, SequencedLayers):
-            ret = stim.Circuit()
-            for child, next in zip(self._children[:-1], self._children[1:]):
-                ret += child.generate_circuit(k, global_qubit_map, shift_coords)
-                if not next.is_repeated:
-                    ret.append("TICK")
-            ret += self._children[-1].generate_circuit(
-                k, global_qubit_map, shift_coords
+            ret = []
+            for child, next_child in zip(self._children[:-1], self._children[1:]):
+                ret += child.generate_circuits_with_potential_polygons(
+                    k, global_qubit_map, shift_coords, add_polygons
+                )
+                if not next_child.is_repeated:
+                    assert isinstance(ret[-1], stim.Circuit)
+                    ret[-1].append("TICK")
+            ret += self._children[-1].generate_circuits_with_potential_polygons(
+                k, global_qubit_map, shift_coords, add_polygons
             )
             return ret
 
         if isinstance(self._layer, RepeatedLayer):
-            body = self._children[0].generate_circuit(
+            body = self._children[0].generate_circuits_with_potential_polygons(
                 k,
                 global_qubit_map,
                 shift_coords=StimCoordinates(
                     0, 0, self._layer.internal_layer.timesteps(k)
                 ),
+                add_polygons=add_polygons,
             )
-            body.insert(0, stim.CircuitInstruction("TICK"))
-            ret = stim.Circuit()
-            ret.append(
-                stim.CircuitRepeatBlock(self._layer.repetitions.integer_eval(k), body)
+            body_circuit = sum(
+                (i for i in body if isinstance(i, stim.Circuit)),
+                start=stim.Circuit(),
             )
+            body_circuit.insert(0, stim.CircuitInstruction("TICK"))
+            ret = []
+            if add_polygons:
+                # only keep the first set of polygons
+                ret.append(body[0])
+            ret.append(body_circuit * self._layer.repetitions.integer_eval(k))
             return ret
         raise TQECException(f"Unknown layer type found: {type(self._layer).__name__}.")
+
+    def generate_circuit(
+        self,
+        k: int,
+        global_qubit_map: QubitMap,
+        shift_coords: StimCoordinates | None = None,
+    ) -> stim.Circuit:
+        """Generate the quantum circuit representing the node.
+
+        Args:
+            k: scaling parameter.
+            global_qubit_map: qubit map that should be used to generate the
+                quantum circuit. Qubits from the returned quantum circuit will
+                adhere to the provided qubit map.
+            shift_coords: if provided, a ``SHIFT_COORDS`` instruction with the
+                provided shift will be appended before each block of ``DETECTOR``
+                annotations. Defaults to ``None`` which means "no shift".
+
+        Returns:
+            a ``stim.Circuit`` instance representing ``self`` with the provided
+            ``global_qubit_map``.
+        """
+        circuits = self.generate_circuits_with_potential_polygons(
+            k, global_qubit_map, shift_coords, add_polygons=False
+        )
+        ret = stim.Circuit()
+        for circuit in circuits:
+            assert isinstance(circuit, stim.Circuit)
+            ret += circuit
+        return ret

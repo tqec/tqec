@@ -449,3 +449,37 @@ class TopologicalComputationGraph:
         if noise_model is not None:
             circuit = noise_model.noisy_circuit(circuit)
         return circuit
+
+    def generate_crumble_url(
+        self,
+        k: int,
+        manhattan_radius: int = 2,
+        detector_database: DetectorDatabase | None = None,
+        add_polygons: bool = False,
+    ) -> str:
+        """Generate the Crumble URL from the compiled graph.
+
+        Args:
+            k: scaling factor.
+            manhattan_radius: Parameter for the automatic computation of detectors.
+                Should be large enough so that flows canceling each other to
+                form a detector are strictly contained in plaquettes that are at
+                most at a distance of ``manhattan_radius`` from the central
+                plaquette. Detector computation runtime grows with this parameter,
+                so you should try to keep it to its minimum. A value too low might
+                produce invalid detectors.
+            detector_database: existing database of detectors that is used to
+                avoid computing detectors if the database already contains them.
+                Default to `None` which result in not using any kind of database
+                and unconditionally performing the detector computation.
+            add_polygons: whether to include polygons in the Crumble URL. If
+                ``True``, the polygons representing the stabilizers will be generated
+                based on the RPNG information of underlying plaquettes and add
+                to the Crumble URL.
+
+        Returns:
+            a string representing the Crumble URL of the quantum circuit.
+        """
+        return self.to_layer_tree().generate_crumble_url(
+            k, manhattan_radius, detector_database, add_polygons=add_polygons
+        )

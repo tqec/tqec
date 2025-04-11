@@ -10,10 +10,11 @@ from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
-from tqec.compile.tree.annotations import LayerTreeAnnotations
+from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
 from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
+from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.template import RPNGTemplate
@@ -150,6 +151,102 @@ class LayerTree:
             )
         )
 
+    def _annotate_polygons(
+        self,
+        k: int,
+    ) -> None:
+        self._root.walk(AnnotatePolygonOnLayerNode(k))
+
+    def generate_crumble_url(
+        self,
+        k: int,
+        manhattan_radius: int = 2,
+        detector_database: DetectorDatabase | None = None,
+        lookback: int = 2,
+        add_polygons: bool = True,
+    ) -> str:
+        """Generate the Crumble URL of the quantum circuit representing ``self``.
+
+        This method first annotates the tree according to the provided arguments
+        and then use these annotations to generate the final quantum circuit and
+        convert it to a Crumble URL.
+
+        Args:
+            k: scaling factor.
+            manhattan_radius: Parameter for the automatic computation of detectors.
+                Should be large enough so that flows canceling each other to
+                form a detector are strictly contained in plaquettes that are at
+                most at a distance of ``manhattan_radius`` from the central
+                plaquette. Detector computation runtime grows with this parameter,
+                so you should try to keep it to its minimum. A value too low might
+                produce invalid detectors.
+            detector_database: existing database of detectors that is used to
+                avoid computing detectors if the database already contains them.
+                Default to `None` which result in not using any kind of database
+                and unconditionally performing the detector computation.
+            lookback: number of QEC rounds to consider to try to find detectors.
+                Including more rounds increases computation time.
+            add_polygons: whether to include polygons in the Crumble URL. If
+                ``True``, the polygons representing the stabilizers will be generated
+                based on the RPNG information of underlying plaquettes and add
+                to the Crumble URL.
+
+        Returns:
+            a string representing the Crumble URL of the quantum circuit.
+        """
+        if not add_polygons:
+            circuit = self.generate_circuit(
+                k,
+                include_qubit_coords=True,
+                manhattan_radius=manhattan_radius,
+                detector_database=detector_database,
+                lookback=lookback,
+            )
+            return str(circuit.to_crumble_url())
+        self._generate_annotations(
+            k, manhattan_radius, detector_database, lookback, add_polygons=True
+        )
+        annotations = self._get_annotation(k)
+        qubit_map = annotations.qubit_map
+        assert qubit_map is not None
+        circuits_with_polygons = self._root.generate_circuits_with_potential_polygons(
+            k, qubit_map, add_polygons=True
+        )
+        crumble_url: str = qubit_map.to_circuit().to_crumble_url() + ";"
+        last_polygons: set[Polygon] = set()
+        for item in circuits_with_polygons:
+            if isinstance(item, stim.Circuit):
+                circuit_crumble_url = item.to_crumble_url().replace(
+                    "https://algassert.com/crumble#circuit=", ""
+                )
+                crumble_url += circuit_crumble_url
+                crumble_url += ";"
+            else:
+                polygons = set(item)
+                if polygons == last_polygons:
+                    continue
+                crumble_url += "".join(
+                    polygon.to_crumble_url_string(qubit_map) for polygon in item
+                )
+                last_polygons = polygons
+        return crumble_url
+
+    def _generate_annotations(
+        self,
+        k: int,
+        manhattan_radius: int = 2,
+        detector_database: DetectorDatabase | None = None,
+        lookback: int = 2,
+        add_polygons: bool = False,
+    ) -> None:
+        """Annotate the tree with circuits, qubit maps, detectors and observables."""
+        self._annotate_circuits(k)
+        self._annotate_qubit_map(k)
+        self._annotate_detectors(k, manhattan_radius, detector_database, lookback)
+        self._annotate_observables(k)
+        if add_polygons:
+            self._annotate_polygons(k)
+
     def generate_circuit(
         self,
         k: int,
@@ -185,10 +282,12 @@ class LayerTree:
             a ``stim.Circuit`` instance implementing the computation described
             by ``self``.
         """
-        self._annotate_circuits(k)
-        self._annotate_qubit_map(k)
-        self._annotate_detectors(k, manhattan_radius, detector_database, lookback)
-        self._annotate_observables(k)
+        self._generate_annotations(
+            k,
+            manhattan_radius,
+            detector_database,
+            lookback,
+        )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
 
