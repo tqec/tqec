@@ -128,7 +128,9 @@ class Plaquette:
 
         An empty plaquette is a plaquette that contain empty scheduled circuit.
         """
-        return self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit()
+        return bool(
+            self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit()
+        )
 
 
 @dataclass(frozen=True)
