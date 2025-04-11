@@ -5,7 +5,7 @@ from enum import Enum
 from pathlib import Path
 
 
-class BasisEnum(Enum):
+class XYZBasis(Enum):
     X = "x"
     Y = "y"
     Z = "z"
@@ -13,14 +13,14 @@ class BasisEnum(Enum):
     def __str__(self) -> str:
         return self.value
 
-    def to_extended_basis(self) -> ExtendedBasisEnum:
-        return ExtendedBasisEnum(self.value)
+    def to_extended_basis(self) -> XYZHBasis:
+        return XYZHBasis(self.value)
 
 
-class ExtendedBasisEnum(Enum):
-    X = BasisEnum.X.value
-    Y = BasisEnum.Y.value
-    Z = BasisEnum.Z.value
+class XYZHBasis(Enum):
+    X = XYZBasis.X.value
+    Y = XYZBasis.Y.value
+    Z = XYZBasis.Z.value
     H = "h"
 
     def __str__(self) -> str:
@@ -58,10 +58,10 @@ class RPNG:
         g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
     """
 
-    r: ExtendedBasisEnum | None
-    p: BasisEnum | None
+    r: XYZHBasis | None
+    p: XYZBasis | None
     n: int | None
-    g: ExtendedBasisEnum | None
+    g: XYZHBasis | None
 
     @classmethod
     def from_string(cls, rpng_string: str) -> RPNG:
@@ -74,18 +74,10 @@ class RPNG:
             raise ValueError("The rpng string must be exactly 4-character long.")
         r_str, p_str, n_str, g_str = tuple(rpng_string)
         # Convert the characters into the enum attributes (or raise error).
-        r = (
-            ExtendedBasisEnum(r_str)
-            if r_str in ExtendedBasisEnum._value2member_map_
-            else None
-        )
-        p = BasisEnum(p_str) if p_str in BasisEnum._value2member_map_ else None
+        r = XYZHBasis(r_str) if r_str in XYZHBasis._value2member_map_ else None
+        p = XYZBasis(p_str) if p_str in XYZBasis._value2member_map_ else None
         n = int(n_str) if n_str.isdigit() else None
-        g = (
-            ExtendedBasisEnum(g_str)
-            if g_str in ExtendedBasisEnum._value2member_map_
-            else None
-        )
+        g = XYZHBasis(g_str) if g_str in XYZHBasis._value2member_map_ else None
         # Raise error if anythiong but '-' was used to indicate None.
         if not r and r_str != "-":
             raise ValueError("Unacceptable character for the R field.")
@@ -102,7 +94,7 @@ class RPNG:
         op = self.r
         if op is None:
             return None
-        elif op.value in BasisEnum._value2member_map_:
+        elif op.value in XYZBasis._value2member_map_:
             return f"R{op.value.upper()}"
         else:
             return f"{op.value.upper()}"
@@ -112,7 +104,7 @@ class RPNG:
         op = self.g
         if op is None:
             return None
-        elif op.value in BasisEnum._value2member_map_:
+        elif op.value in XYZBasis._value2member_map_:
             return f"M{op.value.upper()}"
         else:
             return f"{op.value.upper()}"
@@ -138,8 +130,8 @@ class RG:
         g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
     """
 
-    r: BasisEnum | None
-    g: BasisEnum | None
+    r: XYZBasis | None
+    g: XYZBasis | None
 
     @classmethod
     def from_string(cls, rg_string: str) -> RG:
@@ -149,8 +141,8 @@ class RG:
         r_str, g_str = tuple(rg_string)
 
         try:
-            r = None if r_str == "-" else BasisEnum(r_str)
-            g = None if g_str == "-" else BasisEnum(g_str)
+            r = None if r_str == "-" else XYZBasis(r_str)
+            g = None if g_str == "-" else XYZBasis(g_str)
             return cls(r, g)
         except ValueError as err:
             raise ValueError(f"Invalid RG string: '{rg_string}'.") from err
@@ -186,7 +178,7 @@ class RPNGDescription:
     """
 
     corners: tuple[RPNG, RPNG, RPNG, RPNG]
-    ancilla: RG = RG(BasisEnum.X, BasisEnum.X)
+    ancilla: RG = RG(XYZBasis.X, XYZBasis.X)
 
     def __post_init__(self) -> None:
         """Validation of the initialization arguments

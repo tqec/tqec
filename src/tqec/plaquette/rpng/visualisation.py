@@ -6,7 +6,7 @@ from typing import Literal, cast
 
 from tqec.utils.exceptions import TQECException
 from tqec.interop.color import RGBA, TQECColor
-from tqec.plaquette.rpng import RPNG, ExtendedBasisEnum, RPNGDescription
+from tqec.plaquette.rpng import RPNG, XYZHBasis, RPNGDescription
 
 
 def rpng_svg_viewer(
@@ -64,8 +64,8 @@ def rpng_svg_viewer(
     data_qubits: set[complex] = set()
     plaquettes: dict[complex, dict[complex, RPNG]] = {}
     hook_error: dict[complex, tuple[complex, complex]] = {}
-    merged_r: dict[complex, ExtendedBasisEnum | None] = {}
-    merged_g: dict[complex, ExtendedBasisEnum | None] = {}
+    merged_r: dict[complex, XYZHBasis | None] = {}
+    merged_g: dict[complex, XYZHBasis | None] = {}
     indices: dict[complex, int] = {}
 
     if isinstance(rpng_object, RPNGDescription):
@@ -158,8 +158,8 @@ def rpng_svg_viewer(
 
 
 def _merge_rg_field(
-    value1: ExtendedBasisEnum | None, value2: ExtendedBasisEnum | None
-) -> ExtendedBasisEnum | None:
+    value1: XYZHBasis | None, value2: XYZHBasis | None
+) -> XYZHBasis | None:
     if value1 is None:
         return value2
     if value2 is None:
@@ -348,8 +348,8 @@ def _draw_plaquette_index(
 
 def _draw_rg_fields(
     rg_lines: list[str],
-    rs: dict[complex, ExtendedBasisEnum | None],
-    gs: dict[complex, ExtendedBasisEnum | None],
+    rs: dict[complex, XYZHBasis | None],
+    gs: dict[complex, XYZHBasis | None],
     q2p: Callable[[complex], complex],
     scale_factor: float,
 ) -> None:
@@ -359,7 +359,7 @@ def _draw_rg_fields(
 
 def _draw_rg_field(
     rg_lines: list[str],
-    mapping: dict[complex, ExtendedBasisEnum | None],
+    mapping: dict[complex, XYZHBasis | None],
     q2p: Callable[[complex], complex],
     scale_factor: float,
     radius: float,
