@@ -39,5 +39,6 @@ class PlaquetteDebugInformation:
         return PlaquetteDebugInformation(
             RPNGDescription(
                 (corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla
-            )
+            ),
+            self.basis,
         )

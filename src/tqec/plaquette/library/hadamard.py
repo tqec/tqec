@@ -10,65 +10,46 @@ from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import SquarePlaquetteQubits
 from tqec.plaquette.rpng.rpng import XYZBasis
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 
 
 SCHEDULES = [0, 1, 2, 3, 4, MEASUREMENT_SCHEDULE]
 
 
-def shift_x_stabilizer_to_left_plaquette(
-    mq_reset: Basis, mq_measurement: Basis, debug_basis: XYZBasis | None = XYZBasis.Z
+def make_fixed_bulk_realignment_plaquette(
+    stabilizer_basis: Basis,
+    z_orientation: Orientation,
+    mq_reset: Basis,
+    mq_measurement: Basis,
+    debug_basis: XYZBasis | None = None,
 ) -> Plaquette:
+    """Make the plaquette used for fixed-bulk temporal Hadamard transition."""
     qubits = SquarePlaquetteQubits()
-
-    circuit = stim.Circuit(f"""
-R{mq_reset.value} 0
-TICK
-CX 0 1
-TICK
-CX 0 3
-TICK
-CX 2 0
-TICK
-CX 1 0
-TICK
-M{mq_measurement.value} 0
-""")
+    cx_targets: list[tuple[int, int]]
+    match stabilizer_basis, z_orientation:
+        case Basis.Z, Orientation.VERTICAL:
+            cx_targets = [(0, 4), (1, 4), (4, 2), (4, 0)]
+        case Basis.Z, Orientation.HORIZONTAL:
+            cx_targets = [(0, 4), (2, 4), (4, 1), (4, 0)]
+        case Basis.X, Orientation.VERTICAL:
+            cx_targets = [(4, 0), (4, 2), (1, 4), (0, 4)]
+        case Basis.X, Orientation.HORIZONTAL:
+            cx_targets = [(4, 0), (4, 1), (2, 4), (0, 4)]
+    circuit = stim.Circuit()
+    circuit.append(f"R{mq_reset.value}", qubits.syndrome_qubits_indices, [])
+    circuit.append("TICK")
+    for targets in cx_targets:
+        circuit.append("CX", targets, [])
+        circuit.append("TICK")
+    circuit.append(f"M{mq_measurement.value}", qubits.syndrome_qubits_indices, [])
+    circuit.append("H", qubits.data_qubits_indices, [])
     scheduled_circuit = ScheduledCircuit.from_circuit(
         circuit, SCHEDULES, qubits.qubit_map
     )
     return Plaquette(
-        f"shift_x_stabilizer_to_left_R{mq_reset}_M{mq_measurement}",
+        f"fixed_bulk_realignment_{stabilizer_basis}_{z_orientation.value}_R{mq_reset}_M{mq_measurement}",
         qubits,
         scheduled_circuit,
-        debug_information=PlaquetteDebugInformation(basis=debug_basis),
-    )
-
-
-def shift_z_stabilizer_to_up_plaquette(
-    mq_reset: Basis, mq_measurement: Basis, debug_basis: XYZBasis | None = XYZBasis.Z
-) -> Plaquette:
-    qubits = SquarePlaquetteQubits()
-
-    circuit = stim.Circuit(f"""
-R{mq_reset.value} 0
-TICK
-CX 1 0
-TICK
-CX 2 0
-TICK
-CX 0 3
-TICK
-CX 0 1
-TICK
-M{mq_measurement.value} 0
-""")
-    scheduled_circuit = ScheduledCircuit.from_circuit(
-        circuit, SCHEDULES, qubits.qubit_map
-    )
-    return Plaquette(
-        f"shift_z_stabilizer_to_up_R{mq_reset}_M{mq_measurement}",
-        qubits,
-        scheduled_circuit,
+        mergeable_instructions=frozenset({"H"}),
         debug_information=PlaquetteDebugInformation(basis=debug_basis),
     )

@@ -34,6 +34,8 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
             if plaquette_index != 0:
                 # Computing the offset that should be applied to each qubits.
                 plaquette = plaquettes[plaquette_index]
+                if plaquette.is_empty():
+                    continue
                 debug_info = plaquette.debug_information
                 basis = debug_info.get_basis()
 

@@ -4,6 +4,7 @@ import hashlib
 from dataclasses import dataclass, field
 from typing import Callable, Collection, Iterable, Literal, Mapping
 
+import stim
 from typing_extensions import override
 
 from tqec.circuit.schedule import ScheduledCircuit
@@ -106,9 +107,7 @@ class Plaquette:
         new_scheduled_circuit = self.circuit.filter_by_qubits(
             new_plaquette_qubits.all_qubits
         )
-        debug_info = self.debug_information
-        if debug_info is not None:
-            debug_info = debug_info.project_on_boundary(projected_orientation)
+        debug_info = self.debug_information.project_on_boundary(projected_orientation)
         return Plaquette(
             f"{self.name}_{projected_orientation.name}",
             new_plaquette_qubits,
@@ -123,6 +122,13 @@ class Plaquette:
     @property
     def num_measurements(self) -> int:
         return self.circuit.num_measurements
+
+    def is_empty(self) -> bool:
+        """Check if the plaquette is empty.
+
+        An empty plaquette is a plaquette that contain empty scheduled circuit.
+        """
+        return self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit()
 
 
 @dataclass(frozen=True)
