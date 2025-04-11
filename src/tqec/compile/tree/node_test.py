@@ -8,8 +8,9 @@ from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import LayoutPosition2D
 from tqec.compile.tree.node import LayerNode, NodeWalker
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import QubitTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
@@ -21,22 +22,21 @@ LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
     LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE
 )
 
+_TRANSLATOR = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
+
 
 @pytest.fixture(name="plaquette_layer")
 def plaquette_layer_fixture() -> PlaquetteLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_value=empty_square_plaquette())
-    )
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     return PlaquetteLayer(template, plaquettes)
 
 
 @pytest.fixture(name="layout_layer")
 def layout_layer_fixture() -> LayoutLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_value=empty_square_plaquette())
-    )
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     return LayoutLayer(
         {
             LayoutPosition2D.from_block_position(BlockPosition2D(x, y)): PlaquetteLayer(

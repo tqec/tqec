@@ -10,6 +10,25 @@ from tqec.plaquette.rpng.rpng import RPNG, RPNGDescription
 class PlaquetteDebugInformation:
     rpng: RPNGDescription | None = None
 
+    def with_data_qubits_removed(
+        self, removed_data_qubits: list[int]
+    ) -> PlaquetteDebugInformation:
+        if self.rpng is None:
+            return self
+        corners: list[RPNG] = list(self.rpng.corners)
+        empty_rpng = RPNG.from_string("----")
+        return PlaquetteDebugInformation(
+            RPNGDescription(
+                (
+                    corners[0] if 0 not in removed_data_qubits else empty_rpng,
+                    corners[1] if 1 not in removed_data_qubits else empty_rpng,
+                    corners[2] if 2 not in removed_data_qubits else empty_rpng,
+                    corners[3] if 3 not in removed_data_qubits else empty_rpng,
+                ),
+                self.rpng.ancilla,
+            )
+        )
+
     def project_on_boundary(
         self, projected_orientation: PlaquetteOrientation
     ) -> PlaquetteDebugInformation:
