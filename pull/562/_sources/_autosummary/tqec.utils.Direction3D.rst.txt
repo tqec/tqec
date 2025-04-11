@@ -1,0 +1,44 @@
+Direction3D
+===========
+
+.. currentmodule:: tqec.utils
+
+.. autoclass:: Direction3D
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Direction3D.all_directions
+      ~Direction3D.spatial_directions
+      ~Direction3D.temporal_directions
+      ~Direction3D.from_neighbouring_positions
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Direction3D.orthogonal_directions
+      ~Direction3D.X
+      ~Direction3D.Y
+      ~Direction3D.Z
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: all_directions
+   .. automethod:: spatial_directions
+   .. automethod:: temporal_directions
+   .. automethod:: from_neighbouring_positions
+   
+   
