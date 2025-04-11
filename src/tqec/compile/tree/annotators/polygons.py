@@ -35,17 +35,7 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
                 # Computing the offset that should be applied to each qubits.
                 plaquette = plaquettes[plaquette_index]
                 debug_info = plaquette.debug_information
-                # No rpng information is available for this plaquette.
-                if debug_info is None or debug_info.rpng is None:
-                    basis = None
-                else:
-                    bases = {
-                        rpng.p for rpng in debug_info.rpng.corners if rpng.p is not None
-                    }
-                    # Only construct polygons for plaquettes with a single basis.
-                    if len(bases) != 1:
-                        continue
-                    basis = bases.pop()
+                basis = debug_info.get_basis() if debug_info else None
 
                 qubit_offset = Shift2D(
                     plaquette.origin.x + column_index * increments.x,
