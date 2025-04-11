@@ -50,7 +50,9 @@ class Plaquette:
     qubits: PlaquetteQubits
     circuit: ScheduledCircuit
     mergeable_instructions: frozenset[str] = field(default_factory=frozenset)
-    debug_information: PlaquetteDebugInformation | None = None
+    debug_information: PlaquetteDebugInformation = field(
+        default_factory=PlaquetteDebugInformation
+    )
 
     def __post_init__(self) -> None:
         plaquette_qubits = set(self.qubits)
