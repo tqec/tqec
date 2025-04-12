@@ -342,13 +342,13 @@ class TopologicalComputationGraph:
         self._replace_temporal_border(
             source,
             TemporalBlockBorder.Z_POSITIVE,
-            block.get_temporal_border(TemporalBlockBorder.Z_POSITIVE),
+            block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
         )
         # Sink
         self._replace_temporal_border(
             sink,
             TemporalBlockBorder.Z_NEGATIVE,
-            block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
+            block.get_temporal_border(TemporalBlockBorder.Z_POSITIVE),
         )
 
     def add_pipe(
