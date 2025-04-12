@@ -13,9 +13,6 @@ from tqec.plaquette.rpng.rpng import XYZBasis
 from tqec.utils.enums import Basis, Orientation
 
 
-SCHEDULES = [0, 1, 2, 3, 4, MEASUREMENT_SCHEDULE]
-
-
 def make_fixed_bulk_realignment_plaquette(
     stabilizer_basis: Basis,
     z_orientation: Orientation,
@@ -26,15 +23,21 @@ def make_fixed_bulk_realignment_plaquette(
     """Make the plaquette used for fixed-bulk temporal Hadamard transition."""
     qubits = SquarePlaquetteQubits()
     cx_targets: list[tuple[int, int]]
+    # used to match the 5-timestep schedule in the other part of computation
+    cx_schedule: list[int]
     match stabilizer_basis, z_orientation:
         case Basis.Z, Orientation.VERTICAL:
             cx_targets = [(0, 4), (1, 4), (4, 2), (4, 0)]
+            cx_schedule = [1, 2, 3, 5]
         case Basis.Z, Orientation.HORIZONTAL:
             cx_targets = [(0, 4), (2, 4), (4, 1), (4, 0)]
+            cx_schedule = [1, 3, 4, 5]
         case Basis.X, Orientation.VERTICAL:
             cx_targets = [(4, 0), (4, 2), (1, 4), (0, 4)]
+            cx_schedule = [1, 3, 4, 5]
         case Basis.X, Orientation.HORIZONTAL:
             cx_targets = [(4, 0), (4, 1), (2, 4), (0, 4)]
+            cx_schedule = [1, 2, 3, 5]
     circuit = stim.Circuit()
     circuit.append(f"R{mq_reset.value}", qubits.syndrome_qubits_indices, [])
     circuit.append("TICK")
@@ -43,8 +46,9 @@ def make_fixed_bulk_realignment_plaquette(
         circuit.append("TICK")
     circuit.append(f"M{mq_measurement.value}", qubits.syndrome_qubits_indices, [])
     circuit.append("H", qubits.data_qubits_indices, [])
+    schedule = [0, *cx_schedule, MEASUREMENT_SCHEDULE]
     scheduled_circuit = ScheduledCircuit.from_circuit(
-        circuit, SCHEDULES, qubits.qubit_map
+        circuit, schedule, qubits.qubit_map
     )
     return Plaquette(
         f"fixed_bulk_realignment_{stabilizer_basis}_{z_orientation.value}_R{mq_reset}_M{mq_measurement}",
