@@ -209,7 +209,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
             z_observable_orientation
         )
         memory_plaquettes = self._generator.get_memory_qubit_plaquettes(
-            z_observable_orientation, None, None
+            z_observable_orientation.flip(), None, None
         )
         template = self._generator.get_temporal_hadamard_raw_template()
         return Block(
