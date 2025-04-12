@@ -124,15 +124,38 @@ def test_abstract_observable_for_three_cnots() -> None:
     assert len(observables[0].top_readout_spatial_cubes) == 1
     assert len(observables[0].bottom_stabilizer_pipes) == 0
     assert len(observables[0].bottom_stabilizer_spatial_cubes) == 0
+    assert len(observables[0].temporal_hadamard_pipes) == 0
 
     assert len(observables[1].top_readout_cubes) == 2
     assert len(observables[1].top_readout_pipes) == 2
     assert len(observables[1].top_readout_spatial_cubes) == 1
     assert len(observables[1].bottom_stabilizer_pipes) == 0
     assert len(observables[1].bottom_stabilizer_spatial_cubes) == 0
+    assert len(observables[1].temporal_hadamard_pipes) == 0
 
     assert len(observables[2].top_readout_cubes) == 1
     assert len(observables[2].top_readout_pipes) == 4
     assert len(observables[2].top_readout_spatial_cubes) == 2
     assert len(observables[2].bottom_stabilizer_pipes) == 1
     assert len(observables[2].bottom_stabilizer_spatial_cubes) == 0
+    assert len(observables[2].temporal_hadamard_pipes) == 0
+
+
+def test_abstract_observable_for_temporal_hadamard() -> None:
+    g = BlockGraph()
+    n1 = g.add_cube(Position3D(0, 0, 0), "XZZ")
+    n2 = g.add_cube(Position3D(0, 0, 1), "ZXX")
+    g.add_pipe(n1, n2)
+    surfaces = g.find_correlation_surfaces()
+    assert len(surfaces) == 1
+    observable = compile_correlation_surface_to_abstract_observable(g, surfaces[0])
+    assert len(observable.top_readout_cubes) == 1
+    assert len(observable.temporal_hadamard_pipes) == 1
+
+    g = BlockGraph()
+    n1 = g.add_cube(Position3D(0, 0, 0), "XZX")
+    n2 = g.add_cube(Position3D(0, 0, 1), "ZXZ")
+    g.add_pipe(n1, n2)
+    surfaces = g.find_correlation_surfaces()
+    observable = compile_correlation_surface_to_abstract_observable(g, surfaces[0])
+    assert len(observable.temporal_hadamard_pipes) == 0

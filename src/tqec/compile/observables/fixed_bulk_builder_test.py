@@ -4,9 +4,10 @@ from tqec.compile.observables.fixed_bulk_builder import (
     _get_bottom_stabilizer_cube_qubits,
     _get_bottom_stabilizer_spatial_cube_qubits,
     _get_top_readout_spatial_cube_qubits,
+    _get_temporal_hadamard_includes_qubits,
 )
 from tqec.compile.specs.enums import SpatialArms
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.position import (
     Direction3D,
     PlaquetteShape2D,
@@ -159,4 +160,25 @@ def test_get_top_readout_spatial_cube_qubits(
 ) -> None:
     shape = PlaquetteShape2D(4, 4)
     coords = set(_get_top_readout_spatial_cube_qubits(shape, arms, observabel_basis))
+    assert coords == expected
+
+
+@pytest.mark.parametrize(
+    "k, z_orientation, expected",
+    [
+        (1, Orientation.HORIZONTAL, set()),
+        (1, Orientation.VERTICAL, set()),
+        (2, Orientation.HORIZONTAL, {(5.5, 3.5)}),
+        (2, Orientation.VERTICAL, {(3.5, 5.5)}),
+        (3, Orientation.HORIZONTAL, set()),
+        (3, Orientation.VERTICAL, set()),
+    ],
+)
+def test_get_temporal_hadamard_includes(
+    k: int,
+    z_orientation: Orientation,
+    expected: set[tuple[float, float]],
+) -> None:
+    shape = PlaquetteShape2D(2 * k + 2, 2 * k + 2)
+    coords = set(_get_temporal_hadamard_includes_qubits(shape, z_orientation))
     assert coords == expected
