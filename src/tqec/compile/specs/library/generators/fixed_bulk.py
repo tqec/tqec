@@ -9,7 +9,6 @@ from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.library.hadamard import make_fixed_bulk_realignment_plaquette
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.rpng import RPNGDescription, XYZBasis
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
@@ -1121,7 +1120,7 @@ class FixedBulkConventionGenerator:
                 13: Z_DOWN,
                 14: X_DOWN,
             },
-            default_value=empty_square_plaquette(),
+            default_value=self._mapper.get_plaquette(RPNGDescription.empty()),
         )
         return Plaquettes(realign_mapping)
 
