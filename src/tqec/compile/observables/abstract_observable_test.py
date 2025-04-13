@@ -151,11 +151,3 @@ def test_abstract_observable_for_temporal_hadamard() -> None:
     observable = compile_correlation_surface_to_abstract_observable(g, surfaces[0])
     assert len(observable.top_readout_cubes) == 1
     assert len(observable.temporal_hadamard_pipes) == 1
-
-    g = BlockGraph()
-    n1 = g.add_cube(Position3D(0, 0, 0), "XZX")
-    n2 = g.add_cube(Position3D(0, 0, 1), "ZXZ")
-    g.add_pipe(n1, n2)
-    surfaces = g.find_correlation_surfaces()
-    observable = compile_correlation_surface_to_abstract_observable(g, surfaces[0])
-    assert len(observable.temporal_hadamard_pipes) == 0

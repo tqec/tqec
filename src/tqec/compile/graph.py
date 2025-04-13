@@ -382,8 +382,8 @@ class TopologicalComputationGraph:
                 }
             )
             if block_trimmed_temporal_borders:
-                key = LayoutPosition3D.from_block_position(source)
-                self._temporal_pipes[key] = block_trimmed_temporal_borders
+                u_pos = LayoutPosition3D.from_block_position(source)
+                self._temporal_pipes[u_pos] = block_trimmed_temporal_borders
         else:  # block is a spatial pipe
             self._trim_cube_spatial_borders(source, sink)
             key = LayoutPosition3D.from_pipe_position((source, sink))

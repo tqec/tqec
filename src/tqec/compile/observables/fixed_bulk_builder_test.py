@@ -164,21 +164,26 @@ def test_get_top_readout_spatial_cube_qubits(
 
 
 @pytest.mark.parametrize(
-    "k, z_orientation, expected",
+    "k, obs_basis, z_orientation, expected",
     [
-        (1, Orientation.HORIZONTAL, set()),
-        (1, Orientation.VERTICAL, set()),
-        (2, Orientation.HORIZONTAL, {(5.5, 3.5)}),
-        (2, Orientation.VERTICAL, {(3.5, 5.5)}),
-        (3, Orientation.HORIZONTAL, set()),
-        (3, Orientation.VERTICAL, set()),
+        (1, Basis.Z, Orientation.VERTICAL, set()),
+        (1, Basis.Z, Orientation.HORIZONTAL, set()),
+        (1, Basis.X, Orientation.VERTICAL, {(3.5, 2.5)}),
+        (1, Basis.X, Orientation.HORIZONTAL, {(2.5, 3.5)}),
+        (2, Basis.Z, Orientation.VERTICAL, {(3.5, 5.5)}),
+        (2, Basis.Z, Orientation.HORIZONTAL, {(5.5, 3.5)}),
+        (2, Basis.X, Orientation.VERTICAL, set()),
+        (2, Basis.X, Orientation.HORIZONTAL, set()),
     ],
 )
 def test_get_temporal_hadamard_includes(
     k: int,
+    obs_basis: Basis,
     z_orientation: Orientation,
     expected: set[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(2 * k + 2, 2 * k + 2)
-    coords = set(_get_temporal_hadamard_includes_qubits(shape, z_orientation))
+    coords = set(
+        _get_temporal_hadamard_includes_qubits(shape, obs_basis, z_orientation)
+    )
     assert coords == expected
