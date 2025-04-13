@@ -157,3 +157,4 @@ Additional information is available in :mod:`.simulation`.
 References
 -----------
 .. bibliography::
+   :filter: docname in docnames
