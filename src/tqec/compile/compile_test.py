@@ -290,22 +290,23 @@ def test_compile_temporal_hadamard(
 
 
 @pytest.mark.parametrize(
-    ("convention_name", "k"),
+    ("convention_name", "h_top_obs_basis", "k"),
     itertools.product(
         ALL_CONVENTIONS.keys(),
+        [Basis.X, Basis.Z],
         (1, 2),
     ),
 )
 def test_compile_bell_state_with_single_temporal_hadamard(
-    convention_name: str, k: int
+    convention_name: str, h_top_obs_basis: Basis, k: int
 ) -> None:
     d = 2 * k + 1
 
     g = BlockGraph("Test Bell State with a Temporal Hadamard")
     n1 = g.add_cube(Position3D(0, 0, 0), "XZZ")
     n2 = g.add_cube(Position3D(0, 1, 0), "XZZ")
-    n3 = g.add_cube(Position3D(0, 0, 1), "ZXX")
-    n4 = g.add_cube(Position3D(0, 1, 1), "XZZ")
+    n3 = g.add_cube(Position3D(0, 0, 1), "ZX" + h_top_obs_basis.value)
+    n4 = g.add_cube(Position3D(0, 1, 1), "XZ" + h_top_obs_basis.flipped().value)
     g.add_pipe(n1, n2)
     g.add_pipe(n1, n3)
     g.add_pipe(n2, n4)
