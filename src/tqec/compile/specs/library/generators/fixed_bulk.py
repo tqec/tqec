@@ -1109,7 +1109,7 @@ class FixedBulkConventionGenerator:
             z_orientation=z_orientation,
             mq_reset=down_boundary_basis,
             mq_measurement=down_boundary_basis,
-            debug_basis=XYZBasis.X if z_orientation == Orientation.VERTICAL else None,
+            debug_basis=XYZBasis.Z if z_orientation == Orientation.VERTICAL else None,
         ).project_on_boundary(PlaquetteOrientation.DOWN)
         realign_mapping = FrozenDefaultDict(
             {
