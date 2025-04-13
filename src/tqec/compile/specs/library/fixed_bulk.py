@@ -174,7 +174,12 @@ class FixedBulkPipeBuilder(PipeBuilder):
             z_observable_orientation, None, None
         )
         template = self._generator.get_memory_qubit_raw_template()
-        return Block([PlaquetteLayer(template, memory_plaquettes) for _ in range(2)])
+        return Block(
+            [
+                PlaquetteLayer(template, memory_plaquettes)
+                for _ in range(3 if spec.at_temporal_hadamard_layer else 2)
+            ]
+        )
 
     def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
         """Returns the block to implement a
@@ -205,17 +210,21 @@ class FixedBulkPipeBuilder(PipeBuilder):
             if spec.pipe_kind.x == Basis.Z
             else Orientation.VERTICAL
         )
+        memory_plaquettes_before = self._generator.get_memory_qubit_plaquettes(
+            z_observable_orientation, None, None
+        )
         realignment_plaquettes = self._generator.get_temporal_hadamard_plaquettes(
             z_observable_orientation
         )
-        memory_plaquettes = self._generator.get_memory_qubit_plaquettes(
+        memory_plaquettes_after = self._generator.get_memory_qubit_plaquettes(
             z_observable_orientation.flip(), None, None
         )
         template = self._generator.get_temporal_hadamard_raw_template()
         return Block(
             [
+                PlaquetteLayer(template, memory_plaquettes_before),
                 PlaquetteLayer(template, realignment_plaquettes),
-                PlaquetteLayer(template, memory_plaquettes),
+                PlaquetteLayer(template, memory_plaquettes_after),
             ]
         )
 

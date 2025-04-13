@@ -98,6 +98,9 @@ def compile_block_graph(
     # added by the space-direction pipes, we first add the time-direction pipes
     pipes = block_graph.pipes
     time_pipes = [pipe for pipe in pipes if pipe.direction == Direction3D.Z]
+    temporal_hadamard_z_positions: set[int] = {
+        pipe.u.position.z for pipe in time_pipes if pipe.kind.has_hadamard
+    }
     space_pipes = [pipe for pipe in pipes if pipe.direction != Direction3D.Z]
     for pipe in time_pipes + space_pipes:
         pos1, pos2 = pipe.u.position, pipe.v.position
@@ -107,6 +110,8 @@ def compile_block_graph(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (QubitTemplate(), QubitTemplate()),
             pipe.kind,
+            at_temporal_hadamard_layer=pipe.kind.is_temporal
+            and pos1.z in temporal_hadamard_z_positions,
         )
         graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key))
 

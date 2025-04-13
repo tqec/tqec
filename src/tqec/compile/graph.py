@@ -99,6 +99,7 @@ class TopologicalComputationGraph:
         """Represents a topological computation with
         :class:`~tqec.compile.blocks.block.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
+        self._temporal_pipes: dict[LayoutPosition3D, Block] = {}
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = (
             scalable_qubit_shape
         )
@@ -374,6 +375,15 @@ class TopologicalComputationGraph:
         if block.is_temporal_pipe:
             self._check_block_spatial_shape(block)
             self._replace_temporal_borders(source, sink, block)
+            block_trimmed_temporal_borders = block.with_temporal_borders_replaced(
+                {
+                    TemporalBlockBorder.Z_NEGATIVE: None,
+                    TemporalBlockBorder.Z_POSITIVE: None,
+                }
+            )
+            if block_trimmed_temporal_borders:
+                key = LayoutPosition3D.from_block_position(source)
+                self._temporal_pipes[key] = block_trimmed_temporal_borders
         else:  # block is a spatial pipe
             self._trim_cube_spatial_borders(source, sink)
             key = LayoutPosition3D.from_pipe_position((source, sink))
@@ -406,15 +416,23 @@ class TopologicalComputationGraph:
         blocks_by_z: list[dict[LayoutPosition2D, Block]] = [
             {} for _ in range(min_z, max_z + 1)
         ]
+        temporal_pipes_by_z: list[dict[LayoutPosition2D, Block]] = [
+            {} for _ in range(min_z, max_z + 1)
+        ]
         for pos, block in self._blocks.items():
             blocks_by_z[pos.z - min_z][pos.as_2d()] = block
+        for pos, pipe in self._temporal_pipes.items():
+            temporal_pipes_by_z[pos.z - min_z][pos.as_2d()] = pipe
         return LayerTree(
             SequencedLayers(
                 [
                     SequencedLayers(
                         merge_parallel_block_layers(blocks, self._scalable_qubit_shape)
+                        + merge_parallel_block_layers(
+                            pipes, self._scalable_qubit_shape
+                        ),
                     )
-                    for blocks in blocks_by_z
+                    for blocks, pipes in zip(blocks_by_z, temporal_pipes_by_z)
                 ]
             ),
             abstract_observables=self._observables,
