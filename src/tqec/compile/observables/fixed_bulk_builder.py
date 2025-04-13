@@ -109,15 +109,18 @@ def _get_bottom_stabilizer_spatial_cube_qubits(
 
 def _get_temporal_hadamard_includes_qubits(
     shape: PlaquetteShape2D,
+    observable_basis: Basis,
     z_orientation: Orientation,
 ) -> list[tuple[float, float]]:
-    if z_orientation == Orientation.HORIZONTAL:
-        if shape.x % 4 == 0:
-            return []
-        return [(shape.x - 0.5, shape.y // 2 + 0.5)]
-    if shape.y % 4 == 0:
+    # observable is horizontal
+    if (observable_basis == Basis.X) ^ (z_orientation == Orientation.HORIZONTAL):
+        if (shape.x % 4 == 0) ^ (observable_basis == Basis.Z):
+            return [(shape.x - 0.5, shape.y // 2 + 0.5)]
         return []
-    return [(shape.x // 2 + 0.5, shape.y - 0.5)]
+    # observable is vertical
+    if (shape.y % 4 == 0) ^ (observable_basis == Basis.Z):
+        return [(shape.x // 2 + 0.5, shape.y - 0.5)]
+    return []
 
 
 FIXED_BULK_OBSERVABLE_BUILDER = ObservableBuilder(

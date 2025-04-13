@@ -1,6 +1,7 @@
 """Provides helper functions to add observables to circuits."""
 
 from dataclasses import dataclass
+from enum import Enum
 from typing import Iterable, Protocol
 
 import stim
@@ -123,6 +124,7 @@ class TemporalHadamardIncludesBuilder(Protocol):
     def __call__(
         self,
         shape: PlaquetteShape2D,
+        observable_basis: Basis,
         z_orientation: Orientation,
         /,
     ) -> list[tuple[float, float]]: ...
@@ -181,12 +183,18 @@ def _transform_coords_into_grid(
     return GridQubit(x, y)
 
 
+class ObservableComponent(Enum):
+    BOTTOM_STABILIZERS = "bottom_stabilizers"
+    TOP_READOUTS = "top_readouts"
+    REALIGNMENT = "realignment"
+
+
 def compute_observable_qubits(
     k: int,
     obs_slice: AbstractObservable,
     template: LayoutTemplate,
-    at_bottom: bool,
     obs_builder: ObservableBuilder,
+    component: ObservableComponent,
 ) -> set[GridQubit]:
     """Compute the qubits whose measurements will be included in the observable.
 
@@ -211,7 +219,7 @@ def compute_observable_qubits(
         )
 
     # The stabilizer measurements that will be added to the end of the first layer of circuits at z.
-    if at_bottom:
+    if component == ObservableComponent.BOTTOM_STABILIZERS:
         for pipe in obs_slice.bottom_stabilizer_pipes:
             for cube in pipe:
                 # the stabilizer measurements included in spatial cubes will be
@@ -238,44 +246,50 @@ def compute_observable_qubits(
             )
         return obs_qubits
 
-    # The readouts that will be added to the end of the last layer of circuits at z.
-    for pipe in obs_slice.top_readout_pipes:
-        collect(
-            pipe.u.position,
-            obs_builder.pipe_top_readouts_builder(shape, pipe.direction),
-        )
-    for cube in obs_slice.top_readout_cubes:
-        assert isinstance(cube.kind, ZXCube)
-        # Determine the middle line orientation based on the cube kind.
-        # Since the basis of the top face decides the measurement basis of the data
-        # qubits, i.e. the logical operator basis. We only need to find the spatial
-        # boundaries that the logical operator can be attached to.
-        obs_orientation = (
-            Orientation.VERTICAL
-            if cube.kind.y == cube.kind.z
-            else Orientation.HORIZONTAL
-        )
-        collect(
-            cube.position,
-            obs_builder.cube_top_readouts_builder(shape, obs_orientation),
-        )
-    for cube, arms in obs_slice.top_readout_spatial_cubes:
-        assert isinstance(cube.kind, ZXCube)
-        collect(
-            cube.position,
-            obs_builder.spatial_cube_top_readouts_builder(shape, arms, cube.kind.z),
-        )
-    for pipe in obs_slice.temporal_hadamard_pipes:
-        z_orientation = (
-            Orientation.VERTICAL
-            if pipe.kind.get_basis_along(Direction3D.Y) == Basis.Z
-            else Orientation.HORIZONTAL
-        )
-        collect(
-            pipe.u.position,
-            obs_builder.temporal_hadamard_includes_builder(shape, z_orientation),
-        )
-    return obs_qubits
+    if component == ObservableComponent.TOP_READOUTS:
+        # The readouts that will be added to the end of the last layer of circuits at z.
+        for pipe in obs_slice.top_readout_pipes:
+            collect(
+                pipe.u.position,
+                obs_builder.pipe_top_readouts_builder(shape, pipe.direction),
+            )
+        for cube in obs_slice.top_readout_cubes:
+            assert isinstance(cube.kind, ZXCube)
+            # Determine the middle line orientation based on the cube kind.
+            # Since the basis of the top face decides the measurement basis of the data
+            # qubits, i.e. the logical operator basis. We only need to find the spatial
+            # boundaries that the logical operator can be attached to.
+            obs_orientation = (
+                Orientation.VERTICAL
+                if cube.kind.y == cube.kind.z
+                else Orientation.HORIZONTAL
+            )
+            collect(
+                cube.position,
+                obs_builder.cube_top_readouts_builder(shape, obs_orientation),
+            )
+        for cube, arms in obs_slice.top_readout_spatial_cubes:
+            assert isinstance(cube.kind, ZXCube)
+            collect(
+                cube.position,
+                obs_builder.spatial_cube_top_readouts_builder(shape, arms, cube.kind.z),
+            )
+        return obs_qubits
+
+    else:  # component == ObservableComponent.REALIGNMENT
+        for pipe, obs_basis in obs_slice.temporal_hadamard_pipes:
+            z_orientation = (
+                Orientation.VERTICAL
+                if pipe.kind.get_basis_along(Direction3D.Y) == Basis.Z
+                else Orientation.HORIZONTAL
+            )
+            collect(
+                pipe.u.position,
+                obs_builder.temporal_hadamard_includes_builder(
+                    shape, obs_basis, z_orientation
+                ),
+            )
+        return obs_qubits
 
 
 def get_observable_with_measurement_records(
