@@ -511,6 +511,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Represents a topological computation with</span>
 <span class="sd">        :class:`~tqec.compile.blocks.block.Block` instances.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition3D</span><span class="p">,</span> <span class="n">Block</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temporal_pipes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition3D</span><span class="p">,</span> <span class="n">Block</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scalable_qubit_shape</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="n">PhysicalQubitScalable2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">scalable_qubit_shape</span>
         <span class="p">)</span>
@@ -792,6 +793,15 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">is_temporal_pipe</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_block_spatial_shape</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_replace_temporal_borders</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">sink</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
+            <span class="n">block_trimmed_temporal_borders</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">with_temporal_borders_replaced</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="n">TemporalBlockBorder</span><span class="o">.</span><span class="n">Z_NEGATIVE</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">TemporalBlockBorder</span><span class="o">.</span><span class="n">Z_POSITIVE</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">block_trimmed_temporal_borders</span><span class="p">:</span>
+                <span class="n">u_pos</span> <span class="o">=</span> <span class="n">LayoutPosition3D</span><span class="o">.</span><span class="n">from_block_position</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_temporal_pipes</span><span class="p">[</span><span class="n">u_pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_trimmed_temporal_borders</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># block is a spatial pipe</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_trim_cube_spatial_borders</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">sink</span><span class="p">)</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">LayoutPosition3D</span><span class="o">.</span><span class="n">from_pipe_position</span><span class="p">((</span><span class="n">source</span><span class="p">,</span> <span class="n">sink</span><span class="p">))</span>
@@ -827,15 +837,23 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">blocks_by_z</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_z</span><span class="p">,</span> <span class="n">max_z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">]</span>
+        <span class="n">temporal_pipes_by_z</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">Block</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_z</span><span class="p">,</span> <span class="n">max_z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">]</span>
         <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">blocks_by_z</span><span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">min_z</span><span class="p">][</span><span class="n">pos</span><span class="o">.</span><span class="n">as_2d</span><span class="p">()]</span> <span class="o">=</span> <span class="n">block</span>
+        <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temporal_pipes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">temporal_pipes_by_z</span><span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">min_z</span><span class="p">][</span><span class="n">pos</span><span class="o">.</span><span class="n">as_2d</span><span class="p">()]</span> <span class="o">=</span> <span class="n">pipe</span>
         <span class="k">return</span> <span class="n">LayerTree</span><span class="p">(</span>
             <span class="n">SequencedLayers</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="n">SequencedLayers</span><span class="p">(</span>
                         <span class="n">merge_parallel_block_layers</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scalable_qubit_shape</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="n">merge_parallel_block_layers</span><span class="p">(</span>
+                            <span class="n">pipes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scalable_qubit_shape</span>
+                        <span class="p">),</span>
                     <span class="p">)</span>
-                    <span class="k">for</span> <span class="n">blocks</span> <span class="ow">in</span> <span class="n">blocks_by_z</span>
+                    <span class="k">for</span> <span class="n">blocks</span><span class="p">,</span> <span class="n">pipes</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">blocks_by_z</span><span class="p">,</span> <span class="n">temporal_pipes_by_z</span><span class="p">)</span>
                 <span class="p">]</span>
             <span class="p">),</span>
             <span class="n">abstract_observables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_observables</span><span class="p">,</span>
