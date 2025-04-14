@@ -71,7 +71,7 @@ def _get_block(
             "spatial junction is present."
         )
     halved_repetitions = LinearFunction(repetitions.slope // 2, repetitions.offset // 2)
-    remainder = repetitions.offset // 2
+    remainder = repetitions.offset % 2
     loop_replacement: list[BaseLayer | BaseComposedLayer] = [
         RepeatedLayer(
             SequencedLayers(
