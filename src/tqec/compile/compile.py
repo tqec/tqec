@@ -65,8 +65,12 @@ def compile_block_graph(
     if minz != 0:
         block_graph = block_graph.shift_by(dz=-minz)
 
+    spatial_junction_slices: frozenset[int] = frozenset(
+        cube.position.z for cube in block_graph.cubes if cube.is_spatial
+    )
     cube_specs = {
-        cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
+        cube: CubeSpec.from_cube(cube, block_graph, spatial_junction_slices)
+        for cube in block_graph.cubes
     }
 
     # 0. Get the abstract observables to be included in the compiled circuit.
@@ -107,6 +111,9 @@ def compile_block_graph(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (QubitTemplate(), QubitTemplate()),
             pipe.kind,
+            has_spatial_junction_in_timeslice=(
+                pos1.z == pos2.z and pos1.z in spatial_junction_slices
+            ),
         )
         graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key))
 

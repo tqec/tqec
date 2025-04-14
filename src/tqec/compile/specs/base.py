@@ -46,11 +46,13 @@ class CubeSpec:
         return isinstance(self.kind, ZXCube) and self.kind.is_spatial
 
     @staticmethod
-    def from_cube(cube: Cube, graph: BlockGraph) -> CubeSpec:
+    def from_cube(
+        cube: Cube,
+        graph: BlockGraph,
+        spatial_junction_slices: frozenset[int] = frozenset(),
+    ) -> CubeSpec:
         """Returns the cube spec from a cube in a block graph."""
-        has_spatial_junction_in_timeslice = any(
-            c.is_spatial for c in graph.cubes if c.position.z == cube.position.z
-        )
+        has_spatial_junction_in_timeslice = cube.position.z in spatial_junction_slices
         if not cube.is_spatial:
             return CubeSpec(
                 cube.kind,
