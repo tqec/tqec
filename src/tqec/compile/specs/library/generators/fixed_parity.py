@@ -211,8 +211,14 @@ class ExtendedPlaquetteCollection:
 
 
 class FixedParityConventionGenerator:
-    VSCHED: ClassVar[tuple[int, int, int, int]] = (1, 4, 3, 5)
-    HSCHED: ClassVar[tuple[int, int, int, int]] = (1, 2, 3, 5)
+    VSCHED: ClassVar[dict[bool, tuple[int, int, int, int]]] = {
+        False: (1, 4, 3, 5),
+        True: (5, 3, 4, 1),
+    }
+    HSCHED: ClassVar[dict[bool, tuple[int, int, int, int]]] = {
+        True: (1, 2, 3, 5),
+        False: (5, 3, 2, 1),
+    }
 
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
         self._mapper = PlaquetteMapper(translator, compiler)
@@ -227,6 +233,7 @@ class FixedParityConventionGenerator:
 
     def get_bulk_rpng_descriptions(
         self,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
         reset_and_measured_indices: tuple[Literal[0, 1, 2, 3], ...] = (0, 1, 2, 3),
@@ -258,8 +265,8 @@ class FixedParityConventionGenerator:
         rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
         ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
         # 2-qubit gate schedules
-        vsched = FixedParityConventionGenerator.VSCHED
-        hsched = FixedParityConventionGenerator.HSCHED
+        vsched = FixedParityConventionGenerator.VSCHED[is_reversed]
+        hsched = FixedParityConventionGenerator.HSCHED[is_reversed]
         return {
             Basis.X: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
@@ -282,6 +289,7 @@ class FixedParityConventionGenerator:
     def get_3_body_rpng_descriptions(
         self,
         basis: Basis,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription]:
@@ -292,7 +300,7 @@ class FixedParityConventionGenerator:
         # Note: the schedule of CNOT gates in corner plaquettes is less important
         # because hook errors do not exist on 3-body stabilizers. We arbitrarily
         # chose the vertical schedule.
-        s = FixedParityConventionGenerator.VSCHED
+        s = FixedParityConventionGenerator.VSCHED[is_reversed]
         # Note that we include resets and measurements on all the used data-qubits.
         # That should be fine because this plaquette only touches cubes and pipes
         # that are related to the spatial junction being implemented, and it is not
@@ -309,7 +317,7 @@ class FixedParityConventionGenerator:
         )
 
     def get_2_body_rpng_descriptions(
-        self, hadamard: bool = False
+        self, is_reversed: bool, hadamard: bool = False
     ) -> dict[Basis, dict[PlaquetteOrientation, RPNGDescription]]:
         """Get plaquettes that are supposed to be used on the boundaries.
 
@@ -352,7 +360,7 @@ class FixedParityConventionGenerator:
         # Note: the schedule of CNOT gates in weight-2 plaquettes is less
         # important because hook errors do not exist. We arbitrarily chose the
         # vertical schedule.
-        s = FixedParityConventionGenerator.VSCHED
+        s = FixedParityConventionGenerator.VSCHED[is_reversed]
         for basis in Basis:
             b = basis.value.lower()
             ret[basis] = {
@@ -372,8 +380,8 @@ class FixedParityConventionGenerator:
         return ret
 
     def get_extended_plaquettes(
-        self, reset: Basis | None, measurement: Basis | None
-    ) -> dict[Basis, tuple[ExtendedPlaquetteCollection, ExtendedPlaquetteCollection]]:
+        self, is_reversed: bool, reset: Basis | None, measurement: Basis | None
+    ) -> dict[Basis, ExtendedPlaquetteCollection]:
         """Get plaquettes that are supposed to be used to implement ``UP`` or
         ``DOWN`` spatial pipes.
 
@@ -385,18 +393,19 @@ class FixedParityConventionGenerator:
         """
         return {
             b: (
-                ExtendedPlaquetteCollection.from_args(b, reset, measurement, False),
-                ExtendedPlaquetteCollection.from_args(b, reset, measurement, True),
+                ExtendedPlaquetteCollection.from_args(
+                    b, reset, measurement, is_reversed
+                )
             )
             for b in Basis
         }
 
     def get_bulk_hadamard_rpng_descriptions(
-        self,
+        self, is_reversed: bool
     ) -> dict[Basis, dict[Orientation, RPNGDescription]]:
         # 2-qubit gate schedules
-        vsched = FixedParityConventionGenerator.VSCHED
-        hsched = FixedParityConventionGenerator.HSCHED
+        vsched = FixedParityConventionGenerator.VSCHED[is_reversed]
+        hsched = FixedParityConventionGenerator.HSCHED[is_reversed]
         return {
             basis: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
@@ -412,6 +421,7 @@ class FixedParityConventionGenerator:
     def get_spatial_x_hadamard_rpng_descriptions(
         self,
         top_left_basis: Basis,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription]:
@@ -445,8 +455,8 @@ class FixedParityConventionGenerator:
         r = reset.value.lower() if reset is not None else "-"
         m = measurement.value.lower() if measurement is not None else "-"
         # 2-qubit gate schedules
-        vs = FixedParityConventionGenerator.VSCHED
-        hs = FixedParityConventionGenerator.HSCHED
+        vs = FixedParityConventionGenerator.VSCHED[is_reversed]
+        hs = FixedParityConventionGenerator.HSCHED[is_reversed]
         return (
             RPNGDescription.from_string(
                 f"-{b}{hs[0]}- {r}{o}{hs[1]}{m} -{b}{hs[2]}- {r}{o}{hs[3]}{m}"
@@ -460,6 +470,7 @@ class FixedParityConventionGenerator:
     def get_spatial_y_hadamard_rpng_descriptions(
         self,
         top_left_basis: Basis,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription]:
@@ -501,8 +512,8 @@ class FixedParityConventionGenerator:
         r = reset.value.lower() if reset is not None else "-"
         m = measurement.value.lower() if measurement is not None else "-"
         # 2-qubit gate schedules
-        vs = FixedParityConventionGenerator.VSCHED
-        hs = FixedParityConventionGenerator.HSCHED
+        vs = FixedParityConventionGenerator.VSCHED[is_reversed]
+        hs = FixedParityConventionGenerator.HSCHED[is_reversed]
         return (
             RPNGDescription.from_string(
                 f"-{o}{hs[0]}- -{o}{hs[1]}{m} {r}{b}{hs[2]}- {r}{b}{hs[3]}{m}"
@@ -527,6 +538,7 @@ class FixedParityConventionGenerator:
 
     def get_memory_qubit_rpng_descriptions(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -562,9 +574,9 @@ class FixedParityConventionGenerator:
         HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
         VBASIS = HBASIS.flipped()
         # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(reset, measurement)
+        BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
         # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
         return FrozenDefaultDict(
             {
                 6: TBPs[VBASIS][PlaquetteOrientation.UP],
@@ -580,6 +592,7 @@ class FixedParityConventionGenerator:
 
     def get_memory_qubit_plaquettes(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -612,7 +625,7 @@ class FixedParityConventionGenerator:
             measurements on the data-qubits too.
         """
         return self._mapper(self.get_memory_qubit_rpng_descriptions)(
-            z_orientation, reset, measurement
+            is_reversed, z_orientation, reset, measurement
         )
 
     ########################################
@@ -626,6 +639,7 @@ class FixedParityConventionGenerator:
 
     def get_memory_vertical_boundary_rpng_descriptions(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -669,10 +683,14 @@ class FixedParityConventionGenerator:
         VBASIS = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
         HBASIS = VBASIS.flipped()
         # BPs: Bulk Plaquettes.
-        BPs_LEFT = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
-        BPs_RIGHT = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
+        BPs_LEFT = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (1, 3)
+        )
+        BPs_RIGHT = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (0, 2)
+        )
         # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
 
         return FrozenDefaultDict(
             {
@@ -690,6 +708,7 @@ class FixedParityConventionGenerator:
 
     def get_memory_vertical_boundary_plaquettes(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -730,7 +749,7 @@ class FixedParityConventionGenerator:
             data-qubits too.
         """
         return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
-            z_orientation, reset, measurement
+            is_reversed, z_orientation, reset, measurement
         )
 
     ########################################
@@ -744,6 +763,7 @@ class FixedParityConventionGenerator:
 
     def get_memory_horizontal_boundary_rpng_descriptions(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -787,10 +807,14 @@ class FixedParityConventionGenerator:
         HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
         VBASIS = HBASIS.flipped()
         # BPs: Bulk Plaquettes.
-        BPs_UP = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
-        BPs_DOWN = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
+        BPs_UP = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (2, 3)
+        )
+        BPs_DOWN = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (0, 1)
+        )
         # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
 
         return FrozenDefaultDict(
             {
@@ -808,6 +832,7 @@ class FixedParityConventionGenerator:
 
     def get_memory_horizontal_boundary_plaquettes(
         self,
+        is_reversed: bool,
         z_orientation: Orientation = Orientation.HORIZONTAL,
         reset: Basis | None = None,
         measurement: Basis | None = None,
@@ -848,7 +873,7 @@ class FixedParityConventionGenerator:
             data-qubits too.
         """
         return self._mapper(self.get_memory_horizontal_boundary_rpng_descriptions)(
-            z_orientation, reset, measurement
+            is_reversed, z_orientation, reset, measurement
         )
 
     ############################################################
@@ -872,6 +897,7 @@ class FixedParityConventionGenerator:
         self,
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -940,9 +966,9 @@ class FixedParityConventionGenerator:
         SBB = spatial_boundary_basis
         # Pre-define some collection of plaquettes
         # CSs: Corner Stabilizers (3-body stabilizers).
-        CSs = self.get_3_body_rpng_descriptions(SBB, reset, measurement)
+        CSs = self.get_3_body_rpng_descriptions(SBB, is_reversed, reset, measurement)
         # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(reset, measurement)
+        BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
 
         mapping: dict[int, RPNGDescription] = {}
 
@@ -953,7 +979,7 @@ class FixedParityConventionGenerator:
         # because they have no arms, and so will not be filled later.
         # Note that resets and measurements are included on all data-qubits here.
         # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
         if SpatialArms.UP not in arms:
             mapping[10] = TBPs[SBB][PlaquetteOrientation.UP]
         if SpatialArms.RIGHT not in arms:
@@ -1027,6 +1053,7 @@ class FixedParityConventionGenerator:
         self,
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1070,7 +1097,7 @@ class FixedParityConventionGenerator:
             the plaquettes needed to implement a spatial cube.
         """
         return self._mapper(self.get_spatial_cube_qubit_rpng_descriptions)(
-            spatial_boundary_basis, arms, reset, measurement
+            spatial_boundary_basis, arms, is_reversed, reset, measurement
         )
 
     ########################################
@@ -1172,7 +1199,12 @@ class FixedParityConventionGenerator:
             SpatialArms.LEFT | SpatialArms.RIGHT,
         ]:
             return self._get_left_right_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis, arms, linked_cubes, reset, measurement
+                spatial_boundary_basis,
+                arms,
+                linked_cubes,
+                is_reversed,
+                reset,
+                measurement,
             )
         if arms in [
             SpatialArms.UP,
@@ -1194,6 +1226,7 @@ class FixedParityConventionGenerator:
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1205,7 +1238,7 @@ class FixedParityConventionGenerator:
             else Orientation.HORIZONTAL
         )
         regular_memory = self.get_memory_vertical_boundary_plaquettes(
-            z_orientation, reset, measurement
+            is_reversed, z_orientation, reset, measurement
         )
         u, v = linked_cubes
         if SpatialArms.LEFT in arms and SpatialArms.UP in v.spatial_arms:
@@ -1226,21 +1259,21 @@ class FixedParityConventionGenerator:
         if arms == SpatialArms.UP | SpatialArms.DOWN:
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis, linked_cubes, reset, measurement
+                spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
             )
         # General case, need extended stabilizers.
         SBB, OTB = spatial_boundary_basis, spatial_boundary_basis.flipped()
         # EPs: extended plaquettes
-        EPs = self.get_extended_plaquettes(reset, measurement)
+        EPs = self.get_extended_plaquettes(is_reversed, reset, measurement)
         # Dictionary that will be filled with plaquettes
         plaquettes: dict[int, Plaquette] = {}
         # Getting the extended plaquettes for the bulk and filling the dictionary
-        bulk1 = EPs[OTB if arms == SpatialArms.UP else SBB][is_reversed].bulk
-        bulk2 = EPs[SBB if arms == SpatialArms.UP else OTB][is_reversed].bulk
+        bulk1 = EPs[OTB if arms == SpatialArms.UP else SBB].bulk
+        bulk2 = EPs[SBB if arms == SpatialArms.UP else OTB].bulk
         plaquettes |= {5: bulk1.top, 6: bulk2.top, 7: bulk1.bottom, 8: bulk2.bottom}
         # Getting the extended plaquette, either for the left or the right
         # boundary depending on the spatial arm that is being asked for.
-        boundary_collection = EPs[SBB][is_reversed]
+        boundary_collection = EPs[SBB]
         u, v = linked_cubes
         if arms == SpatialArms.UP:
             boundary = (
@@ -1267,29 +1300,35 @@ class FixedParityConventionGenerator:
         self,
         spatial_boundary_basis: Basis,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
         return self._mapper(self._get_up_and_down_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, linked_cubes, reset, measurement
+            spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
         )
 
     def _get_up_and_down_spatial_cube_arm_rpng_descriptions(
         self,
         spatial_boundary_basis: Basis,
         linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
         SBB = spatial_boundary_basis
         OTB = spatial_boundary_basis.flipped()
         # BPs: Bulk Plaquettes.
-        BPs_UP = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
-        BPs_DOWN = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
+        BPs_UP = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (2, 3)
+        )
+        BPs_DOWN = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (0, 1)
+        )
         # CSs: Corner Stabilizers (3-body stabilizers).
-        CSs = self.get_3_body_rpng_descriptions(SBB, reset, measurement)
+        CSs = self.get_3_body_rpng_descriptions(SBB, is_reversed, reset, measurement)
         # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
         u, v = linked_cubes
         top_right = (
             CSs[1]
@@ -1327,7 +1366,7 @@ class FixedParityConventionGenerator:
         return QubitTemplate()
 
     def get_temporal_hadamard_rpng_descriptions(
-        self, z_orientation: Orientation = Orientation.HORIZONTAL
+        self, is_reversed: bool, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> FrozenDefaultDict[int, RPNGDescription]:
         """Returns a description of the plaquettes needed to implement a
         transversal Hadamard gate applied on one logical qubit.
@@ -1355,9 +1394,9 @@ class FixedParityConventionGenerator:
             Hadamard gate applied on one logical qubit.
         """
         # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_hadamard_rpng_descriptions()
+        BPs = self.get_bulk_hadamard_rpng_descriptions(is_reversed)
         # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions(hadamard=True)
+        TBPs = self.get_2_body_rpng_descriptions(is_reversed, hadamard=True)
         HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
         VBASIS = HBASIS.flipped()
         return FrozenDefaultDict(
@@ -1373,9 +1412,11 @@ class FixedParityConventionGenerator:
         )
 
     def get_temporal_hadamard_plaquettes(
-        self, z_orientation: Orientation = Orientation.HORIZONTAL
+        self, is_reversed: bool, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> Plaquettes:
-        return self._mapper(self.get_temporal_hadamard_rpng_descriptions)(z_orientation)
+        return self._mapper(self.get_temporal_hadamard_rpng_descriptions)(
+            is_reversed, z_orientation
+        )
 
     ########################################
     #                X pipe                #
@@ -1389,6 +1430,7 @@ class FixedParityConventionGenerator:
     def get_spatial_vertical_hadamard_rpng_descriptions(
         self,
         top_left_basis: Basis,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -1427,11 +1469,11 @@ class FixedParityConventionGenerator:
             on the ``X`` axis.
         """
         # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(reset, measurement)
+        BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
         # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
         bulk1, bulk2, bottom = self.get_spatial_x_hadamard_rpng_descriptions(
-            top_left_basis, reset, measurement
+            top_left_basis, is_reversed, reset, measurement
         )
         # tlb: top-left basis, otb: other basis.
         tlb, otb = top_left_basis, top_left_basis.flipped()
@@ -1450,11 +1492,12 @@ class FixedParityConventionGenerator:
     def get_spatial_vertical_hadamard_plaquettes(
         self,
         top_left_basis: Basis,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
         return self._mapper(self.get_spatial_vertical_hadamard_rpng_descriptions)(
-            top_left_basis, reset, measurement
+            top_left_basis, is_reversed, reset, measurement
         )
 
     ########################################
@@ -1469,6 +1512,7 @@ class FixedParityConventionGenerator:
     def get_spatial_horizontal_hadamard_rpng_descriptions(
         self,
         top_left_basis: Basis,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
@@ -1507,11 +1551,11 @@ class FixedParityConventionGenerator:
             on the ``Y`` axis.
         """
         # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(reset, measurement)
+        BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
         # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
         bulk1, bulk2, left = self.get_spatial_y_hadamard_rpng_descriptions(
-            top_left_basis, reset, measurement
+            top_left_basis, is_reversed, reset, measurement
         )
         # tlb: top-left basis, otb: other basis.
         tlb, otb = top_left_basis, top_left_basis.flipped()
@@ -1530,9 +1574,10 @@ class FixedParityConventionGenerator:
     def get_spatial_horizontal_hadamard_plaquettes(
         self,
         top_left_basis: Basis,
+        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
         return self._mapper(self.get_spatial_horizontal_hadamard_rpng_descriptions)(
-            top_left_basis, reset, measurement
+            top_left_basis, is_reversed, reset, measurement
         )

@@ -25,10 +25,14 @@ class CubeSpec:
         spatial_arms: Flag indicating the spatial directions the cube connects to the
             adjacent cubes. This is useful for spatial cubes (XXZ and ZZX) where
             the arms can determine the template used to implement the cube.
+        has_spatial_junction_in_timeslice: a flag indicating if a spatial
+            junction is executed on the same timeslice as this cube. This
+            information is needed for the fixed parity convention.
     """
 
     kind: CubeKind
     spatial_arms: SpatialArms = SpatialArms.NONE
+    has_spatial_junction_in_timeslice: bool = False
 
     def __post_init__(self) -> None:
         if self.spatial_arms != SpatialArms.NONE:
@@ -44,14 +48,20 @@ class CubeSpec:
     @staticmethod
     def from_cube(cube: Cube, graph: BlockGraph) -> CubeSpec:
         """Returns the cube spec from a cube in a block graph."""
+        has_spatial_junction_in_timeslice = any(
+            c.is_spatial for c in graph.cubes if c.position.z == cube.position.z
+        )
         if not cube.is_spatial:
-            return CubeSpec(cube.kind)
+            return CubeSpec(
+                cube.kind,
+                has_spatial_junction_in_timeslice=has_spatial_junction_in_timeslice,
+            )
         pos = cube.position
         spatial_arms = SpatialArms.NONE
         for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
             if graph.has_pipe_between(pos, pos.shift_by(*shift)):
                 spatial_arms |= flag
-        return CubeSpec(cube.kind, spatial_arms)
+        return CubeSpec(cube.kind, spatial_arms, has_spatial_junction_in_timeslice)
 
 
 class CubeBuilder(Protocol):
@@ -101,8 +111,12 @@ class PipeSpec:
         cube_templates: templates used to implement the respective entry in
             ``cube_specs``.
         pipe_type: the type of the pipe connecting the two cubes.
+        has_spatial_junction_in_timeslice: a flag indicating if a spatial
+            junction is executed on the same timeslice as this pipe. This
+            information is needed for the fixed parity convention.
     """
 
     cube_specs: tuple[CubeSpec, CubeSpec]
     cube_templates: tuple[RectangularTemplate, RectangularTemplate]
     pipe_kind: PipeKind
+    has_spatial_junction_in_timeslice: bool = False

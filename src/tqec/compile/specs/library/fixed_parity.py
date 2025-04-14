@@ -30,6 +30,68 @@ from tqec.utils.scale import LinearFunction
 _DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
 
 
+def _get_block(
+    z_basis: Basis | None,
+    has_spatial_junction_in_timeslice: bool,
+    template: RectangularTemplate,
+    plaquettes_generator: Callable[[bool, Basis | None, Basis | None], Plaquettes],
+    repetitions: LinearFunction,
+) -> Block:
+    """Get the block implemented with the provided ``template`` and
+    ``plaquettes_generator``."""
+    finit = plaquettes_generator(False, z_basis, None)
+    fmemory = plaquettes_generator(False, None, None)
+    fmeas = plaquettes_generator(False, None, z_basis)
+    bmemory = plaquettes_generator(True, None, None)
+    bmeas = plaquettes_generator(True, None, z_basis)
+
+    if not has_spatial_junction_in_timeslice:
+        return Block(
+            [
+                PlaquetteLayer(template, finit),
+                RepeatedLayer(PlaquetteLayer(template, fmemory), repetitions),
+                PlaquetteLayer(template, fmeas),
+            ]
+        )
+    # else
+    # Here, we need to implement the block by alternating forward/backward
+    # schedules. To do so, we need to repeat the REPEAT block body only half the
+    # initial number of repetitions. Basically, we need to compute
+    # `repetitions // 2` and `repetitions % 2`. The problem is that a simple
+    # `LinearFunction` instance is not enough to encode the result of these
+    # operations. See for example `LinearFunction(3, 0) // 2` that should give
+    # `1` for `k=1`, `3` for `k=2` and `4` for `k=3`. These three points are
+    # not forming a straight line, so a `LinearFunction` instance cannot
+    # represent them. Circumventing this issue could be done by adding more
+    # classes (e.g., ModFunction), but it seems simpler for the moment to just
+    # raise on unsupported inputs.
+    if repetitions.slope % 2 == 1:
+        raise NotImplementedError(
+            "Cannot have an odd slope for the number of repetitions when a "
+            "spatial junction is present."
+        )
+    halved_repetitions = LinearFunction(repetitions.slope // 2, repetitions.offset // 2)
+    remainder = repetitions.offset // 2
+    loop_replacement: list[BaseLayer | BaseComposedLayer] = [
+        RepeatedLayer(
+            SequencedLayers(
+                [PlaquetteLayer(template, bmemory), PlaquetteLayer(template, fmemory)]
+            ),
+            halved_repetitions,
+        )
+    ]
+    if remainder == 1:  # Note that remainder can only be 0 or 1.
+        loop_replacement.append(PlaquetteLayer(template, bmemory))
+
+    return Block(
+        [
+            PlaquetteLayer(template, finit),
+            SequencedLayers(loop_replacement),
+            PlaquetteLayer(template, fmeas if remainder == 1 else bmeas),
+        ]
+    )
+
+
 class FixedParityCubeBuilder(CubeBuilder):
     """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
     interface for the fixed parity convention.
@@ -46,37 +108,39 @@ class FixedParityCubeBuilder(CubeBuilder):
     ) -> None:
         self._generator = FixedParityConventionGenerator(translator, compiler)
 
-    def _get_template_and_plaquettes(
+    def _get_template_and_plaquettes_generator(
         self, spec: CubeSpec
-    ) -> tuple[RectangularTemplate, tuple[Plaquettes, Plaquettes, Plaquettes]]:
-        """Get the template and plaquettes corresponding to the provided ``spec``.
-
-        Args:
-            spec: specification of the cube we want to implement.
-
-        Returns:
-            the template and list of 3 mappings from plaquette indices to RPNG
-            descriptions that are needed to implement the cube corresponding to
-            the provided ``spec``.
-        """
+    ) -> tuple[
+        RectangularTemplate, Callable[[bool, Basis | None, Basis | None], Plaquettes]
+    ]:
         assert isinstance(spec.kind, ZXCube)
-        x, _, z = spec.kind.as_tuple()
+        x = spec.kind.x
         if not spec.is_spatial:
             orientation = (
                 Orientation.HORIZONTAL if x == Basis.Z else Orientation.VERTICAL
             )
-            return self._generator.get_memory_qubit_raw_template(), (
-                self._generator.get_memory_qubit_plaquettes(orientation, z, None),
-                self._generator.get_memory_qubit_plaquettes(orientation, None, None),
-                self._generator.get_memory_qubit_plaquettes(orientation, None, z),
+            template = self._generator.get_memory_qubit_raw_template()
+
+            def _memory_plaquettes_generator(
+                is_reversed: bool, r: Basis | None, m: Basis | None
+            ) -> Plaquettes:
+                return self._generator.get_memory_qubit_plaquettes(
+                    is_reversed, orientation, r, m
+                )
+
+            return template, _memory_plaquettes_generator
+        # else
+        sa = spec.spatial_arms
+        template = self._generator.get_spatial_cube_qubit_raw_template()
+
+        def _spatial_plaquettes_generator(
+            is_reversed: bool, r: Basis | None, m: Basis | None
+        ) -> Plaquettes:
+            return self._generator.get_spatial_cube_qubit_plaquettes(
+                x, sa, is_reversed, r, m
             )
-        # else:
-        SA = spec.spatial_arms
-        return self._generator.get_spatial_cube_qubit_raw_template(), (
-            self._generator.get_spatial_cube_qubit_plaquettes(x, SA, z, None),
-            self._generator.get_spatial_cube_qubit_plaquettes(x, SA, None, None),
-            self._generator.get_spatial_cube_qubit_plaquettes(x, SA, None, z),
-        )
+
+        return template, _spatial_plaquettes_generator
 
     def __call__(self, spec: CubeSpec) -> Block:
         kind = spec.kind
@@ -84,16 +148,14 @@ class FixedParityCubeBuilder(CubeBuilder):
             raise TQECException("Cannot build a block for a Port.")
         elif isinstance(kind, YHalfCube):
             raise NotImplementedError("Y cube is not implemented.")
-        # else
-        template, (init, repeat, measure) = self._get_template_and_plaquettes(spec)
-        layers: list[BaseLayer | BaseComposedLayer] = [
-            PlaquetteLayer(template, init),
-            RepeatedLayer(
-                PlaquetteLayer(template, repeat), repetitions=_DEFAULT_BLOCK_REPETITIONS
-            ),
-            PlaquetteLayer(template, measure),
-        ]
-        return Block(layers)
+        template, pgen = self._get_template_and_plaquettes_generator(spec)
+        return _get_block(
+            kind.z,
+            spec.has_spatial_junction_in_timeslice,
+            template,
+            pgen,
+            _DEFAULT_BLOCK_REPETITIONS,
+        )
 
 
 class FixedParityPipeBuilder(PipeBuilder):
@@ -143,14 +205,14 @@ class FixedParityPipeBuilder(PipeBuilder):
         )
         memory_template = self._generator.get_memory_qubit_raw_template()
         memory_plaquettes = self._generator.get_memory_qubit_plaquettes(
-            z_orientation, None, None
+            False, z_orientation, None, None
         )
         memory_layer = PlaquetteLayer(memory_template, memory_plaquettes)
 
         if spec.pipe_kind.has_hadamard:
             hadamard_template = self._generator.get_temporal_hadamard_raw_template()
             hadamard_plaquettes = self._generator.get_temporal_hadamard_plaquettes(
-                z_orientation
+                False, z_orientation
             )
             hadamard_layer = PlaquetteLayer(hadamard_template, hadamard_plaquettes)
             return Block([hadamard_layer, memory_layer])
@@ -200,41 +262,20 @@ class FixedParityPipeBuilder(PipeBuilder):
         # Get the plaquette indices mappings
         arms = FixedParityPipeBuilder._get_spatial_cube_arms(spec)
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
-        SBB = spatial_boundary_basis
-        initialisation_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            SBB, arms, spec.cube_specs, is_reversed=False, reset=z, measurement=None
-        )
-        reversed_memory_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            SBB, arms, spec.cube_specs, is_reversed=True, reset=None, measurement=None
-        )
-        forward_memory_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            SBB, arms, spec.cube_specs, is_reversed=False, reset=None, measurement=None
-        )
-        measurement_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            SBB, arms, spec.cube_specs, is_reversed=False, reset=None, measurement=z
-        )
-        _expected_reps = LinearFunction(2, -1)
-        if _DEFAULT_BLOCK_REPETITIONS != _expected_reps:
-            raise NotImplementedError(
-                "Not implemented for a number of temporal repetitions != "
-                f"{_expected_reps}. Got {_DEFAULT_BLOCK_REPETITIONS}."
+
+        def plaquettes_generator(
+            is_reversed: bool, r: Basis | None, m: Basis | None
+        ) -> Plaquettes:
+            return self._generator.get_spatial_cube_arm_plaquettes(
+                spatial_boundary_basis, arms, spec.cube_specs, is_reversed, r, m
             )
-        forward_layer = PlaquetteLayer(pipe_template, forward_memory_plaquettes)
-        reversed_layer = PlaquetteLayer(pipe_template, reversed_memory_plaquettes)
-        return Block(
-            [
-                PlaquetteLayer(pipe_template, initialisation_plaquettes),
-                SequencedLayers(
-                    [
-                        RepeatedLayer(
-                            SequencedLayers([reversed_layer, forward_layer]),
-                            repetitions=LinearFunction(1, -1),
-                        ),
-                        reversed_layer,
-                    ]
-                ),
-                PlaquetteLayer(pipe_template, measurement_plaquettes),
-            ]
+
+        return _get_block(
+            z,
+            spec.has_spatial_junction_in_timeslice,
+            pipe_template,
+            plaquettes_generator,
+            _DEFAULT_BLOCK_REPETITIONS,
         )
 
     def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
@@ -257,7 +298,7 @@ class FixedParityPipeBuilder(PipeBuilder):
 
     def _get_spatial_regular_non_hadamard_pipe_plaquettes_factory(
         self, spec: PipeSpec
-    ) -> Callable[[Basis | None, Basis | None], Plaquettes]:
+    ) -> Callable[[bool, Basis | None, Basis | None], Plaquettes]:
         if spec.pipe_kind.direction == Direction3D.X:
             # Pipe between two cubes aligned on the X axis
             z_observable_orientation = (
@@ -265,8 +306,10 @@ class FixedParityPipeBuilder(PipeBuilder):
                 if spec.pipe_kind.y == Basis.X
                 else Orientation.VERTICAL
             )
-            return lambda r, m: self._generator.get_memory_vertical_boundary_plaquettes(
-                z_observable_orientation, r, m
+            return lambda is_reversed, r, m: (
+                self._generator.get_memory_vertical_boundary_plaquettes(
+                    is_reversed, z_observable_orientation, r, m
+                )
             )
         # Else, pipe between two cubes aligned on the Y axis
         z_observable_orientation = (
@@ -274,13 +317,15 @@ class FixedParityPipeBuilder(PipeBuilder):
             if spec.pipe_kind.x == Basis.Z
             else Orientation.VERTICAL
         )
-        return lambda r, m: self._generator.get_memory_horizontal_boundary_plaquettes(
-            z_observable_orientation, r, m
+        return lambda is_reversed, r, m: (
+            self._generator.get_memory_horizontal_boundary_plaquettes(
+                is_reversed, z_observable_orientation, r, m
+            )
         )
 
     def _get_spatial_regular_pipe_plaquettes_factory(
         self, spec: PipeSpec
-    ) -> Callable[[Basis | None, Basis | None], Plaquettes]:
+    ) -> Callable[[bool, Basis | None, Basis | None], Plaquettes]:
         assert spec.pipe_kind.is_spatial
         if not spec.pipe_kind.has_hadamard:
             return self._get_spatial_regular_non_hadamard_pipe_plaquettes_factory(spec)
@@ -294,39 +339,31 @@ class FixedParityPipeBuilder(PipeBuilder):
         assert top_left_basis is not None
         if pipe_in_x_direction:
             # Hadamard pipe between two cubes aligned on the X axis
-            return (
-                lambda r, m: self._generator.get_spatial_vertical_hadamard_plaquettes(
-                    top_left_basis, r, m
+            return lambda is_reversed, r, m: (
+                self._generator.get_spatial_vertical_hadamard_plaquettes(
+                    top_left_basis, is_reversed, r, m
                 )
             )
         # Else, Hadamard pipe between two cubes aligned on the Y axis
-        return lambda r, m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
-            top_left_basis, r, m
+        return lambda is_reversed, r, m: (
+            self._generator.get_spatial_horizontal_hadamard_plaquettes(
+                top_left_basis, is_reversed, r, m
+            )
         )
 
     def _get_spatial_regular_pipe_block(self, spec: PipeSpec) -> Block:
         assert all(not spec.is_spatial for spec in spec.cube_specs)
         plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
         template = self._get_spatial_regular_pipe_template(spec)
-
-        layers: list[BaseLayer | BaseComposedLayer] = [
-            PlaquetteLayer(
-                template,
-                plaquettes_factory(spec.pipe_kind.z, None),
-            ),
-            RepeatedLayer(
-                PlaquetteLayer(
-                    template,
-                    plaquettes_factory(None, None),
-                ),
-                repetitions=_DEFAULT_BLOCK_REPETITIONS,
-            ),
-            PlaquetteLayer(
-                template,
-                plaquettes_factory(None, spec.pipe_kind.z),
-            ),
-        ]
-        return Block(layers)
+        z = spec.pipe_kind.z
+        assert z is not None, "Spatial pipe should have a basis in the Z direction."
+        return _get_block(
+            z,
+            spec.has_spatial_junction_in_timeslice,
+            template,
+            plaquettes_factory,
+            _DEFAULT_BLOCK_REPETITIONS,
+        )
 
     def get_spatial_pipe_block(self, spec: PipeSpec) -> Block:
         assert spec.pipe_kind.is_spatial
