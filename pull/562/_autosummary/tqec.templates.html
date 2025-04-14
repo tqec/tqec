@@ -1,0 +1,802 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>tqec.templates &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/tqec.templates';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="display_template" href="tqec.templates.display_template.html" />
+    <link rel="prev" title="API Reference" href="../api.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">tqec.templates</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template.html">display_template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html">display_template_from_instantiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.LayoutTemplate.html">LayoutTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.QubitTemplate.html">QubitTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.templates.Template.html">Template</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.plaquette.html">tqec.plaquette</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.FrozenDefaultDict.html">FrozenDefaultDict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquette.html">Plaquette</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteOrientation.html">PlaquetteOrientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html">PlaquetteQubits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.PlaquetteSide.html">PlaquetteSide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.Plaquettes.html">Plaquettes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RG.html">RG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RepeatedPlaquettes.html">RepeatedPlaquettes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.SquarePlaquetteQubits.html">SquarePlaquetteQubits</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.circuit.html">tqec.circuit</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.circuit.merge_scheduled_circuits.html">merge_scheduled_circuits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.circuit.QubitMap.html">QubitMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.circuit.ScheduledCircuit.html">ScheduledCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.circuit.ScheduleException.html">tqec.circuit.ScheduleException</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.computation.html">tqec.computation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.BlockGraph.html">BlockGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.CorrelationSurface.html">CorrelationSurface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.Cube.html">Cube</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.Pipe.html">Pipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.PipeKind.html">PipeKind</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.Port.html">Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.YHalfCube.html">YHalfCube</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.computation.ZXCube.html">ZXCube</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.html">tqec.compile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.compile_block_graph.html">compile_block_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.generate_circuit.html">generate_circuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.CubeSpec.html">CubeSpec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.PipeSpec.html">PipeSpec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.TopologicalComputationGraph.html">TopologicalComputationGraph</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.compile.blocks.html">tqec.compile.blocks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.merge_parallel_block_layers.html">merge_parallel_block_layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.BaseComposedLayer.html">BaseComposedLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.BaseLayer.html">BaseLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.Block.html">Block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.LayoutLayer.html">LayoutLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.LayoutPosition2D.html">LayoutPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.PlaquetteLayer.html">PlaquetteLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.RawCircuitLayer.html">RawCircuitLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.RepeatedLayer.html">RepeatedLayer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.SequencedLayers.html">SequencedLayers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.SpatialBlockBorder.html">SpatialBlockBorder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.compile.blocks.TemporalBlockBorder.html">TemporalBlockBorder</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.gallery.html">tqec.gallery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cnot.html">cnot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.cz.html">cz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.memory.html">memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.move_rotation.html">move_rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.stability.html">stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.gallery.three_cnots.html">three_cnots</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.interop.html">tqec.interop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.block_synthesis.html">block_synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.display_collada_model.html">display_collada_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.positioned_block_synthesis.html">positioned_block_synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.read_block_graph_from_dae_file.html">read_block_graph_from_dae_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.write_block_graph_to_dae_file.html">write_block_graph_to_dae_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.PositionedZX.html">PositionedZX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.RGBA.html">RGBA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.SynthesisStrategy.html">SynthesisStrategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.interop.TQECColor.html">TQECColor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.simulation.html">tqec.simulation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.simulation.heuristic_custom_error_key.html">heuristic_custom_error_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.simulation.plot_observable_as_inset.html">plot_observable_as_inset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.simulation.split_stats_for_observables.html">split_stats_for_observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.simulation.start_simulation_using_sinter.html">start_simulation_using_sinter</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tqec.utils.html">tqec.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.round_or_fail.html">round_or_fail</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Basis.html">Basis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.BlockPosition2D.html">BlockPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Direction3D.html">Direction3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.LinearFunction.html">LinearFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.NoiseModel.html">NoiseModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Orientation.html">Orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PatchStyle.html">PatchStyle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PhysicalQubitPosition2D.html">PhysicalQubitPosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.PlaquettePosition2D.html">PlaquettePosition2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Position3D.html">Position3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.Shift2D.html">Shift2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.SignedDirection3D.html">SignedDirection3D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tqec.utils.TQECException.html">tqec.utils.TQECException</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.templates</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-tqec.templates">
+<span id="tqec-templates"></span><h1>tqec.templates<a class="headerlink" href="#module-tqec.templates" title="Link to this heading">#</a></h1>
+<p>Defines several scalable arrays of numbers used to tile plaquettes.</p>
+<p>This module defines the <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> interface that
+should be implemented by subclasses implementing different templates.</p>
+<section id="terminology-used">
+<h2>Terminology used<a class="headerlink" href="#terminology-used" title="Link to this heading">#</a></h2>
+<p>The <strong>template</strong> terminology is used to describe an object (instance of a subclass
+of the <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> class) that can be
+“instantiated” into an array of integers from an input integer scaling parameter
+<span class="math notranslate nohighlight">\(k\)</span>.</p>
+<p>A <strong>subtemplate</strong> is a constant-size sub-array of a template instantiation. For the
+moment, a subtemplate is always a square sub-array with odd-sized sides.</p>
+<p>The <strong>scaling parameter</strong> <span class="math notranslate nohighlight">\(k\)</span> directly relates to the code distance <span class="math notranslate nohighlight">\(d\)</span>
+(at least for regular surface code) where <span class="math notranslate nohighlight">\(d = 2 k + 1\)</span>.</p>
+</section>
+<section id="templates">
+<h2>Templates<a class="headerlink" href="#templates" title="Link to this heading">#</a></h2>
+<p>As noted in the terminology section, a “template” is defined as something that
+can be “instantiated”, i.e., that can generate an array of integer from a given
+scaling parameter <span class="math notranslate nohighlight">\(k\)</span>.</p>
+<p>Templates should all inherit from the base <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a>
+class that defines a few abstract methods that have to be overridden by child
+classes. The most canonical example of a template is implemented by the
+<a class="reference internal" href="tqec.templates.QubitTemplate.html#tqec.templates.QubitTemplate" title="tqec.templates.qubit.QubitTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitTemplate</span></code></a> class: it represents the
+arrangement of plaquettes needed to make a logical qubit.</p>
+<p>The following code demonstrates quite well what a template is supposed to be.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display_template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.qubit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QubitTemplate</span>
+
+<span class="n">template</span> <span class="o">=</span> <span class="n">QubitTemplate</span><span class="p">()</span>
+<span class="n">display_template</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It outputs</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1   5   6   5   6   2
+7   9   10  9   10  11
+8   10  9   10  9   12
+7   9   10  9   10  11
+8   10  9   10  9   12
+3   13  14  13  14  4
+</pre></div>
+</div>
+<p>The template instantiation is an array of size <span class="math notranslate nohighlight">\(6 \times 6\)</span>, filled with
+integers. Each unique integer will eventually either be linked to a plaquette or
+be left empty. Let’s try to clean up a little bit the array by setting the
+values <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">4</span></code>, <code class="docutils literal notranslate"><span class="pre">5</span></code>, <code class="docutils literal notranslate"><span class="pre">8</span></code>, <code class="docutils literal notranslate"><span class="pre">12</span></code> and <code class="docutils literal notranslate"><span class="pre">14</span></code> to the value
+<code class="docutils literal notranslate"><span class="pre">0</span></code> that means “no plaquette here” for all templates (and that is represented
+by <code class="docutils literal notranslate"><span class="pre">.</span></code> for visibility).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">k</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">removed_plaquettes</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">}</span>
+<span class="n">display_template</span><span class="p">(</span>
+    <span class="n">template</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">removed_plaquettes</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>that outputs</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.   .   6   .   6   .
+7   9   10  9   10  11
+.   10  9   10  9   .
+7   9   10  9   10  11
+.   10  9   10  9   .
+.   13  .   13  .   .
+</pre></div>
+</div>
+<p>The above array looks very much like a logical qubit arrangement as can be seen in
+most of the papers using the surface code and below!</p>
+<img alt="../_images/logical_qubit.png" src="../_images/logical_qubit.png" />
+<p>But that is only a distance
+<span class="math notranslate nohighlight">\(5 = 2 \times 2 + 1 = 2 k + 1\)</span> code. Let’s try to scale that up:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">k</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">display_template</span><span class="p">(</span>
+    <span class="n">template</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">removed_plaquettes</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>outputs what we would expect: the “template” of plaquettes for a logical qubit
+using a distance <span class="math notranslate nohighlight">\(d = 2 k + 1 = 2 \times 5 + 1 = 11\)</span> code:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.   .   6   .   6   .   6   .   6   .   6   .
+7   9   10  9   10  9   10  9   10  9   10  11
+.   10  9   10  9   10  9   10  9   10  9   .
+7   9   10  9   10  9   10  9   10  9   10  11
+.   10  9   10  9   10  9   10  9   10  9   .
+7   9   10  9   10  9   10  9   10  9   10  11
+.   10  9   10  9   10  9   10  9   10  9   .
+7   9   10  9   10  9   10  9   10  9   10  11
+.   10  9   10  9   10  9   10  9   10  9   .
+7   9   10  9   10  9   10  9   10  9   10  11
+.   10  9   10  9   10  9   10  9   10  9   .
+.   13  .   13  .   13  .   13  .   13  .   .
+</pre></div>
+</div>
+<p>This ability to scale to arbitrarily large values of <span class="math notranslate nohighlight">\(k\)</span> (as long as your
+computer can store a matrix of shape <span class="math notranslate nohighlight">\((2k+1, 2k+1)\)</span>) is exactly the reason
+of existence of the <a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> class.</p>
+<p>This module also includes a few sub-classes implementing the
+<a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.base.Template"><code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code></a> interface:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="tqec.templates.QubitTemplate.html#tqec.templates.QubitTemplate" title="tqec.templates.qubit.QubitTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitTemplate</span></code></a> that has already been used in
+documentation and that represents a logical qubit.</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitSpatialCubeTemplate</span></code> that represents a
+a logical qubit with all the spatial boundaries in the same basis.</p></li>
+<li><p><a class="reference internal" href="tqec.templates.LayoutTemplate.html#tqec.templates.LayoutTemplate" title="tqec.templates.layout.LayoutTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayoutTemplate</span></code></a> that represent an arbitrary
+layout of other templates arranged on a regular grid.</p></li>
+</ol>
+</section>
+<section id="sub-templates">
+<h2>Sub-templates<a class="headerlink" href="#sub-templates" title="Link to this heading">#</a></h2>
+<p>This module also implements helpers to list and represent sub-templates. A
+sub-template is basically a sub-array of a given template instantiation.
+Sub-templates are all of known constant size and cannot be scaled. Sub-templates
+are represented as an array of integers with a square shape (i.e., 2-dimensional
+with the same number of elements in each dimension) with odd-sized sides.</p>
+<p>The module <code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec.templates.subtemplates</span></code> provides functions to compute
+all the subtemplates for given template instantiation and subtemplate size along
+with some data-structure to represent efficiently this collection of
+sub-templates.</p>
+</section>
+<section id="displaying">
+<h2>Displaying<a class="headerlink" href="#displaying" title="Link to this heading">#</a></h2>
+<p>Templates are basically scalable arrays of integers. The module
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec.templates.display</span></code> provides a few functions to display a pretty and
+human readable representation of a given template instantiation. These functions
+are used in the documentation about templates above, and so their output can be
+observed above.</p>
+</section>
+<p class="rubric">Functions</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.templates.display_template.html#tqec.templates.display_template" title="tqec.templates.display_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_template</span></code></a>(template, k[, ...])</p></td>
+<td><p>Display a template instance with ASCII output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.templates.display_template_from_instantiation.html#tqec.templates.display_template_from_instantiation" title="tqec.templates.display_template_from_instantiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_template_from_instantiation</span></code></a>(...)</p></td>
+<td><p>Display an array representing a template instantiation with ASCII output.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Classes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.templates.LayoutTemplate.html#tqec.templates.LayoutTemplate" title="tqec.templates.LayoutTemplate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayoutTemplate</span></code></a>(element_layout[, ...])</p></td>
+<td><p>A template representing a layout of other templates.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tqec.templates.QubitTemplate.html#tqec.templates.QubitTemplate" title="tqec.templates.QubitTemplate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QubitTemplate</span></code></a>([default_increments])</p></td>
+<td><p>An error-corrected qubit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tqec.templates.Template.html#tqec.templates.Template" title="tqec.templates.Template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Template</span></code></a>([default_increments])</p></td>
+<td><p>Base class for all the templates.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../api.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">API Reference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="tqec.templates.display_template.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">display_template</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#terminology-used">Terminology used</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#templates">Templates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sub-templates">Sub-templates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#displaying">Displaying</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_autosummary/tqec.templates.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
