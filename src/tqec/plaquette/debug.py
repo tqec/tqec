@@ -3,15 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.rpng.rpng import RPNG, XYZBasis, RPNGDescription
+from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
 
 
 @dataclass(frozen=True)
 class PlaquetteDebugInformation:
     rpng: RPNGDescription | None = None
-    basis: XYZBasis | None = None
+    basis: PauliBasis | None = None
 
-    def get_basis(self) -> XYZBasis | None:
+    def get_basis(self) -> PauliBasis | None:
         if self.basis is not None:
             return self.basis
         if self.rpng is not None:

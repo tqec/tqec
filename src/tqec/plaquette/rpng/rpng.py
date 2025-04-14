@@ -5,7 +5,7 @@ from enum import Enum
 from pathlib import Path
 
 
-class XYZBasis(Enum):
+class PauliBasis(Enum):
     X = "x"
     Y = "y"
     Z = "z"
@@ -13,14 +13,14 @@ class XYZBasis(Enum):
     def __str__(self) -> str:
         return self.value
 
-    def to_extended_basis(self) -> XYZHBasis:
-        return XYZHBasis(self.value)
+    def to_extended_basis(self) -> ExtendedBasis:
+        return ExtendedBasis(self.value)
 
 
-class XYZHBasis(Enum):
-    X = XYZBasis.X.value
-    Y = XYZBasis.Y.value
-    Z = XYZBasis.Z.value
+class ExtendedBasis(Enum):
+    X = PauliBasis.X.value
+    Y = PauliBasis.Y.value
+    Z = PauliBasis.Z.value
     H = "h"
 
     def __str__(self) -> str:
@@ -58,10 +58,10 @@ class RPNG:
         g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
     """
 
-    r: XYZHBasis | None
-    p: XYZBasis | None
+    r: ExtendedBasis | None
+    p: PauliBasis | None
     n: int | None
-    g: XYZHBasis | None
+    g: ExtendedBasis | None
 
     @classmethod
     def from_string(cls, rpng_string: str) -> RPNG:
@@ -74,10 +74,10 @@ class RPNG:
             raise ValueError("The rpng string must be exactly 4-character long.")
         r_str, p_str, n_str, g_str = tuple(rpng_string)
         # Convert the characters into the enum attributes (or raise error).
-        r = XYZHBasis(r_str) if r_str in XYZHBasis._value2member_map_ else None
-        p = XYZBasis(p_str) if p_str in XYZBasis._value2member_map_ else None
+        r = ExtendedBasis(r_str) if r_str in ExtendedBasis._value2member_map_ else None
+        p = PauliBasis(p_str) if p_str in PauliBasis._value2member_map_ else None
         n = int(n_str) if n_str.isdigit() else None
-        g = XYZHBasis(g_str) if g_str in XYZHBasis._value2member_map_ else None
+        g = ExtendedBasis(g_str) if g_str in ExtendedBasis._value2member_map_ else None
         # Raise error if anythiong but '-' was used to indicate None.
         if not r and r_str != "-":
             raise ValueError("Unacceptable character for the R field.")
@@ -94,7 +94,7 @@ class RPNG:
         op = self.r
         if op is None:
             return None
-        elif op.value in XYZBasis._value2member_map_:
+        elif op.value in PauliBasis._value2member_map_:
             return f"R{op.value.upper()}"
         else:
             return f"{op.value.upper()}"
@@ -104,7 +104,7 @@ class RPNG:
         op = self.g
         if op is None:
             return None
-        elif op.value in XYZBasis._value2member_map_:
+        elif op.value in PauliBasis._value2member_map_:
             return f"M{op.value.upper()}"
         else:
             return f"{op.value.upper()}"
@@ -130,8 +130,8 @@ class RG:
         g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
     """
 
-    r: XYZBasis | None
-    g: XYZBasis | None
+    r: PauliBasis | None
+    g: PauliBasis | None
 
     @classmethod
     def from_string(cls, rg_string: str) -> RG:
@@ -141,8 +141,8 @@ class RG:
         r_str, g_str = tuple(rg_string)
 
         try:
-            r = None if r_str == "-" else XYZBasis(r_str)
-            g = None if g_str == "-" else XYZBasis(g_str)
+            r = None if r_str == "-" else PauliBasis(r_str)
+            g = None if g_str == "-" else PauliBasis(g_str)
             return cls(r, g)
         except ValueError as err:
             raise ValueError(f"Invalid RG string: '{rg_string}'.") from err
@@ -178,7 +178,7 @@ class RPNGDescription:
     """
 
     corners: tuple[RPNG, RPNG, RPNG, RPNG]
-    ancilla: RG = RG(XYZBasis.X, XYZBasis.X)
+    ancilla: RG = RG(PauliBasis.X, PauliBasis.X)
 
     def __post_init__(self) -> None:
         """Validation of the initialization arguments

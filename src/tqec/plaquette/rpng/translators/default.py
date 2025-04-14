@@ -9,7 +9,7 @@ from tqec.plaquette.constants import MEASUREMENT_SCHEDULE
 from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
-from tqec.plaquette.rpng import XYZBasis, XYZHBasis, RPNGDescription
+from tqec.plaquette.rpng import PauliBasis, ExtendedBasis, RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.utils.exceptions import TQECException
 from tqec.utils.instructions import (
@@ -44,16 +44,16 @@ class DefaultRPNGTranslator(RPNGTranslator):
     def _add_extended_basis_operation(
         circuit: stim.Circuit,
         op: Literal["R", "M"],
-        timestep_operations: dict[XYZHBasis, list[int]],
+        timestep_operations: dict[ExtendedBasis, list[int]],
     ) -> None:
-        for basis in XYZHBasis:
+        for basis in ExtendedBasis:
             if basis not in timestep_operations:
                 continue
             targets = sorted(timestep_operations[basis])
             match basis:
-                case XYZHBasis.H:
+                case ExtendedBasis.H:
                     circuit.append("H", targets, [])
-                case XYZHBasis.X | XYZHBasis.Y | XYZHBasis.Z:
+                case ExtendedBasis.X | ExtendedBasis.Y | ExtendedBasis.Z:
                     circuit.append(f"{op}{basis.value.upper()}", targets, [])
 
     @override
@@ -74,14 +74,14 @@ class DefaultRPNGTranslator(RPNGTranslator):
         syndrome_qubit_index = syndrome_qubit_indices[0]
 
         # Handling syndrome qubit reset/measurement
-        reset_timestep_operations: dict[XYZHBasis, list[int]] = {}
-        meas_timestep_operations: dict[XYZHBasis, list[int]] = {}
+        reset_timestep_operations: dict[ExtendedBasis, list[int]] = {}
+        meas_timestep_operations: dict[ExtendedBasis, list[int]] = {}
         if (r := rpng_description.ancilla.r) is not None:
             reset_timestep_operations[r.to_extended_basis()] = [syndrome_qubit_index]
         if (g := rpng_description.ancilla.g) is not None:
             meas_timestep_operations[g.to_extended_basis()] = [syndrome_qubit_index]
         # Handling data-qubits
-        entangling_operations: list[tuple[XYZBasis, int] | None] = [
+        entangling_operations: list[tuple[PauliBasis, int] | None] = [
             None for _ in range(MEASUREMENT_SCHEDULE - 1)
         ]
         for qi, rpng in enumerate(rpng_description.corners):
