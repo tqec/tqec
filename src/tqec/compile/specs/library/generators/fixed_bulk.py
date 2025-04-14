@@ -3,14 +3,18 @@ from __future__ import annotations
 import inspect
 from typing import Literal
 
+import stim
+
+from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
+from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.library.hadamard import make_fixed_bulk_realignment_plaquette
-from tqec.plaquette.plaquette import Plaquettes
-from tqec.plaquette.rpng.rpng import RPNGDescription, XYZBasis
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
+from tqec.plaquette.qubit import SquarePlaquetteQubits
+from tqec.plaquette.rpng.rpng import RPNGDescription, PauliBasis
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.templates.qubit import (
@@ -22,6 +26,52 @@ from tqec.templates.qubit import (
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+
+
+def make_fixed_bulk_realignment_plaquette(
+    stabilizer_basis: Basis,
+    z_orientation: Orientation,
+    mq_reset: Basis,
+    mq_measurement: Basis,
+    debug_basis: PauliBasis | None = None,
+) -> Plaquette:
+    """Make the plaquette used for fixed-bulk temporal Hadamard transition."""
+    qubits = SquarePlaquetteQubits()
+    cx_targets: list[tuple[int, int]]
+    # used to match the 5-timestep schedule in the other part of computation
+    cx_schedule: list[int]
+    match stabilizer_basis, z_orientation:
+        case Basis.Z, Orientation.VERTICAL:
+            cx_targets = [(0, 4), (1, 4), (4, 2), (4, 0)]
+            cx_schedule = [1, 2, 3, 5]
+        case Basis.Z, Orientation.HORIZONTAL:
+            cx_targets = [(0, 4), (2, 4), (4, 1), (4, 0)]
+            cx_schedule = [1, 3, 4, 5]
+        case Basis.X, Orientation.VERTICAL:
+            cx_targets = [(4, 0), (4, 2), (1, 4), (0, 4)]
+            cx_schedule = [1, 3, 4, 5]
+        case Basis.X, Orientation.HORIZONTAL:
+            cx_targets = [(4, 0), (4, 1), (2, 4), (0, 4)]
+            cx_schedule = [1, 2, 3, 5]
+    circuit = stim.Circuit()
+    circuit.append(f"R{mq_reset.value}", qubits.syndrome_qubits_indices, [])
+    circuit.append("TICK")
+    for targets in cx_targets:
+        circuit.append("CX", targets, [])
+        circuit.append("TICK")
+    circuit.append(f"M{mq_measurement.value}", qubits.syndrome_qubits_indices, [])
+    circuit.append("H", qubits.data_qubits_indices, [])
+    schedule = [0, *cx_schedule, 6]
+    scheduled_circuit = ScheduledCircuit.from_circuit(
+        circuit, schedule, qubits.qubit_map
+    )
+    return Plaquette(
+        f"fixed_bulk_realignment_{stabilizer_basis}_{z_orientation.value}_R{mq_reset}_M{mq_measurement}",
+        qubits,
+        scheduled_circuit,
+        mergeable_instructions=frozenset({"H"}),
+        debug_information=PlaquetteDebugInformation(basis=debug_basis),
+    )
 
 
 class FixedBulkConventionGenerator:
@@ -1069,14 +1119,14 @@ class FixedBulkConventionGenerator:
             z_orientation=z_orientation,
             mq_reset=Basis.X,
             mq_measurement=Basis.Z,
-            debug_basis=XYZBasis.X,
+            debug_basis=PauliBasis.X,
         )
         Z_BULK = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.Z,
             z_orientation=z_orientation,
             mq_reset=Basis.Z,
             mq_measurement=Basis.X,
-            debug_basis=XYZBasis.Z,
+            debug_basis=PauliBasis.Z,
         )
         # plaquettes at the right boundary of the template
         right_boundary_basis = (
@@ -1087,14 +1137,16 @@ class FixedBulkConventionGenerator:
             z_orientation=z_orientation,
             mq_reset=right_boundary_basis,
             mq_measurement=right_boundary_basis,
-            debug_basis=XYZBasis.X if z_orientation == Orientation.VERTICAL else None,
+            debug_basis=PauliBasis.X if z_orientation == Orientation.VERTICAL else None,
         ).project_on_boundary(PlaquetteOrientation.RIGHT)
         Z_RIGHT = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.Z,
             z_orientation=z_orientation,
             mq_reset=right_boundary_basis,
             mq_measurement=right_boundary_basis,
-            debug_basis=XYZBasis.Z if z_orientation == Orientation.HORIZONTAL else None,
+            debug_basis=PauliBasis.Z
+            if z_orientation == Orientation.HORIZONTAL
+            else None,
         ).project_on_boundary(PlaquetteOrientation.RIGHT)
         down_boundary_basis = right_boundary_basis.flipped()
         X_DOWN = make_fixed_bulk_realignment_plaquette(
@@ -1102,14 +1154,16 @@ class FixedBulkConventionGenerator:
             z_orientation=z_orientation,
             mq_reset=down_boundary_basis,
             mq_measurement=down_boundary_basis,
-            debug_basis=XYZBasis.X if z_orientation == Orientation.HORIZONTAL else None,
+            debug_basis=PauliBasis.X
+            if z_orientation == Orientation.HORIZONTAL
+            else None,
         ).project_on_boundary(PlaquetteOrientation.DOWN)
         Z_DOWN = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.Z,
             z_orientation=z_orientation,
             mq_reset=down_boundary_basis,
             mq_measurement=down_boundary_basis,
-            debug_basis=XYZBasis.Z if z_orientation == Orientation.VERTICAL else None,
+            debug_basis=PauliBasis.Z if z_orientation == Orientation.VERTICAL else None,
         ).project_on_boundary(PlaquetteOrientation.DOWN)
         realign_mapping = FrozenDefaultDict(
             {
