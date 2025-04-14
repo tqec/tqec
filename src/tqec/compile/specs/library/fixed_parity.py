@@ -285,18 +285,21 @@ class FixedParityPipeBuilder(PipeBuilder):
         if not spec.pipe_kind.has_hadamard:
             return self._get_spatial_regular_non_hadamard_pipe_plaquettes_factory(spec)
         # Else, a Hadamard pipe.
-        if spec.pipe_kind.direction == Direction3D.X:
+        pipe_in_x_direction = spec.pipe_kind.direction == Direction3D.X
+        top_left_basis = (
+            spec.pipe_kind.get_basis_along(Direction3D.Y, at_head=True)
+            if pipe_in_x_direction
+            else spec.pipe_kind.get_basis_along(Direction3D.X, at_head=True)
+        )
+        assert top_left_basis is not None
+        if pipe_in_x_direction:
             # Hadamard pipe between two cubes aligned on the X axis
-            top_left_basis = spec.pipe_kind.get_basis_along(Direction3D.Y, at_head=True)
-            assert top_left_basis is not None
             return (
                 lambda r, m: self._generator.get_spatial_vertical_hadamard_plaquettes(
                     top_left_basis, r, m
                 )
             )
         # Else, Hadamard pipe between two cubes aligned on the Y axis
-        top_left_basis = spec.pipe_kind.get_basis_along(Direction3D.X, at_head=True)
-        assert top_left_basis is not None
         return lambda r, m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
             top_left_basis, r, m
         )
