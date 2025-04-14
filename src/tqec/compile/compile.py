@@ -110,8 +110,9 @@ def compile_block_graph(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (QubitTemplate(), QubitTemplate()),
             pipe.kind,
-            at_temporal_hadamard_layer=pipe.kind.is_temporal
-            and pos1.z in temporal_hadamard_z_positions,
+            at_temporal_hadamard_layer=(
+                pipe.kind.is_temporal and pos1.z in temporal_hadamard_z_positions
+            ),
         )
         graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key))
 
