@@ -182,13 +182,12 @@ class FixedBulkPipeBuilder(PipeBuilder):
         )
 
     def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a
-        Hadamard temporal junction.
+        """Returns the block to implement a temporal Hadamard pipe.
 
         Note:
-            This method performs the Hadamard transition at the end of the
-            layer that appear first (i.e., temporally before the other, or in
-            other words the one with a lower Z index).
+            This method performs the realignment and Hadamard transition at the
+            end of the layer that appear first (i.e., temporally before the other,
+            or in other words the one with a lower Z index).
 
         Args:
             spec: description of the pipe that should be implemented by this
@@ -199,8 +198,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
                 if it is not a Hadamard transition.
 
         Returns:
-            the block to implement the provided
-            ``spec``.
+            the block to implement the provided ``spec``.
         """
         assert spec.pipe_kind.is_temporal
         assert spec.pipe_kind.has_hadamard
@@ -213,8 +211,10 @@ class FixedBulkPipeBuilder(PipeBuilder):
         memory_plaquettes_before = self._generator.get_memory_qubit_plaquettes(
             z_observable_orientation, None, None
         )
-        realignment_plaquettes = self._generator.get_temporal_hadamard_plaquettes(
-            z_observable_orientation
+        realignment_plaquettes = (
+            self._generator.get_temporal_hadamard_realignment_plaquettes(
+                z_observable_orientation
+            )
         )
         memory_plaquettes_after = self._generator.get_memory_qubit_plaquettes(
             z_observable_orientation.flip(), None, None

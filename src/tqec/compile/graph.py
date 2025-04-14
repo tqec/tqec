@@ -99,7 +99,10 @@ class TopologicalComputationGraph:
         """Represents a topological computation with
         :class:`~tqec.compile.blocks.block.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
-        self._temporal_pipes: dict[LayoutPosition3D, Block] = {}
+        # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
+        # extent. We need to keep track of the temporal pipes that are at the
+        # same layer of at least one temporal Hadamard pipe.
+        self._temporal_pipes_at_hadamard_layer: dict[LayoutPosition3D, Block] = {}
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = (
             scalable_qubit_shape
         )
@@ -383,7 +386,9 @@ class TopologicalComputationGraph:
             )
             if block_trimmed_temporal_borders:
                 u_pos = LayoutPosition3D.from_block_position(source)
-                self._temporal_pipes[u_pos] = block_trimmed_temporal_borders
+                self._temporal_pipes_at_hadamard_layer[u_pos] = (
+                    block_trimmed_temporal_borders
+                )
         else:  # block is a spatial pipe
             self._trim_cube_spatial_borders(source, sink)
             key = LayoutPosition3D.from_pipe_position((source, sink))
@@ -421,7 +426,7 @@ class TopologicalComputationGraph:
         ]
         for pos, block in self._blocks.items():
             blocks_by_z[pos.z - min_z][pos.as_2d()] = block
-        for pos, pipe in self._temporal_pipes.items():
+        for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():
             temporal_pipes_by_z[pos.z - min_z][pos.as_2d()] = pipe
         return LayerTree(
             SequencedLayers(

@@ -1101,18 +1101,22 @@ class FixedBulkConventionGenerator:
     #                         Hadamard                         #
     ############################################################
 
-    ########################################
-    #           Regular junction           #
-    ########################################
     def get_temporal_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.Template` instance
         needed to implement a transversal Hadamard gate applied on one logical
         qubit."""
         return QubitTemplate()
 
-    def get_temporal_hadamard_plaquettes(
+    def get_temporal_hadamard_realignment_plaquettes(
         self, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> Plaquettes:
+        """Returns the :class:`~tqec.templates.base.Plaquettes` instance
+        needed to implement the realignment of the bulk stabilizer basis
+        of the code. This is needed because a transversal Hadamard layer
+        will change the bulk stabilizer basis of the code. Under fixed-bulk
+        convention, we use an extra realignment layer to realign the bulk
+        stabilizer basis of the code to the original one.
+        """
         # plaquettes at the bulk
         X_BULK = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.X,
