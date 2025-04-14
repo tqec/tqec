@@ -216,8 +216,8 @@ class FixedParityConventionGenerator:
         True: (5, 3, 4, 1),
     }
     HSCHED: ClassVar[dict[bool, tuple[int, int, int, int]]] = {
-        True: (1, 2, 3, 5),
-        False: (5, 3, 2, 1),
+        False: (1, 2, 3, 5),
+        True: (5, 3, 2, 1),
     }
 
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
