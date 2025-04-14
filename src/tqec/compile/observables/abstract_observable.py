@@ -49,7 +49,6 @@ class AbstractObservable:
         temporal_hadamard_pipes: A set of pipes with the observable basis of which
             a single stabilizer measurements at the realignment layer might be
             included in the logical observable.
-
     """
 
     top_readout_cubes: frozenset[Cube] = frozenset()

@@ -104,7 +104,6 @@ class PipeSpec:
         at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal
             pipe and there is a temporal Hadamard pipe at the same Z position
             in the block graph.
-
     """
 
     cube_specs: tuple[CubeSpec, CubeSpec]
