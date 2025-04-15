@@ -265,7 +265,10 @@ class ScheduledCircuit:
         return ret
 
     def map_qubit_indices(
-        self, qubit_index_map: dict[int, int], inplace: bool = False
+        self,
+        qubit_index_map: dict[int, int],
+        inplace: bool = False,
+        with_qubit_map: bool = True,
     ) -> ScheduledCircuit:
         """Map the qubits **indices** the :class:`ScheduledCircuit` instance is
         applied on.
@@ -285,13 +288,20 @@ class ScheduledCircuit:
                 ``self``. Else, perform the modification in a copy and return
                 the copy. Note that the runtime cost of this method should be
                 the same independently of the value provided here.
+            with_qubit_map: if ``True``, the qubit map is also changed and the
+                returned circuit is equivalent to ``self`` before calling this
+                method (this only changes internal representation). If ``False``,
+                the qubit map is left unchanged, meaning that this method
+                permutes the qubits on which operations are applied.
 
         Returns:
             a modified instance of :class:`ScheduledCircuit` (a copy if
             ``inplace`` is ``True``, else ``self``).
         """
-        mapped_final_qubits = QubitMap(
-            {qubit_index_map[qi]: q for qi, q in self._qubit_map.items()}
+        mapped_final_qubits = (
+            QubitMap({qubit_index_map[qi]: q for qi, q in self._qubit_map.items()})
+            if with_qubit_map
+            else self._qubit_map
         )
         mapped_moments: list[Moment] = []
         for moment in self._moments:
