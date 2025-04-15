@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Generator
+from typing import Any, Generator
 
 from tqec.computation.cube import Cube, ZXCube
 from tqec.utils.enums import Basis
@@ -252,3 +252,11 @@ class Pipe:
 
     def __str__(self) -> str:
         return f"{self.u}--({self.kind})--{self.v}"
+
+    def to_dict(self) -> dict[str, Any]:
+        """Returns the dictionary representation of the pipe."""
+        return {
+            "u": self.u.position.as_tuple(),
+            "v": self.v.position.as_tuple(),
+            "kind": str(self.kind),
+        }

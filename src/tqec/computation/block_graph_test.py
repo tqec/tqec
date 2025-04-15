@@ -1,9 +1,11 @@
+import os
+import tempfile
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.gallery import cnot
+from tqec.gallery import cz, memory, cnot
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
@@ -244,3 +246,43 @@ def test_block_graph_fix_shadowed_faces() -> None:
     fixed = rotated_cnot.fix_shadowed_faces()
     assert fixed[Position3D(0, 2, -1)].kind == ZXCube.from_str("ZXX")
     assert fixed[Position3D(1, 1, -2)].kind == ZXCube.from_str("ZXX")
+
+
+def test_block_graph_to_from_dict() -> None:
+    g = memory()
+    g_dict = g.to_dict()
+    assert g_dict == {
+        "cubes": [{"kind": "ZXZ", "label": "", "position": (0, 0, 0)}],
+        "name": "Logical Z Memory Experiment",
+        "pipes": [],
+        "ports": {},
+    }
+    assert g.from_dict(g_dict) == g
+
+    g = cnot()
+    g_dict = g.to_dict()
+    assert g_dict["name"] == "Logical CNOT"
+    assert len(g_dict["cubes"]) == 10
+    assert len(g_dict["pipes"]) == 9
+    assert len(g_dict["ports"]) == 4
+    assert g.from_dict(g_dict) == g
+
+
+def test_block_graph_to_from_json() -> None:
+    g = BlockGraph("Horizontal Hadamard Line")
+    n = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    n2 = g.add_cube(Position3D(1, 0, 0), "P", "In")
+    g.add_pipe(n, n2, "OXZH")
+    json_text = g.to_json(indent=None)
+    assert (
+        json_text
+        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": ""}, {"position": [1, 0, 0], "kind": "PORT", "label": "In"}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH"}], "ports": {"In": [1, 0, 0]}}"""
+    )
+    assert g.from_json(json_text=json_text) == g
+
+    g = cz()
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as temp_file:
+        g.to_json(temp_file.name)
+        read_g = BlockGraph.from_json(temp_file.name)
+        assert read_g == g
+    os.remove(temp_file.name)

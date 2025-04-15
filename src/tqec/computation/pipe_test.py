@@ -66,3 +66,8 @@ def test_pipe() -> None:
     assert pipe.direction == Direction3D.X
     assert pipe.u.position < pipe.v.position
     assert list(iter(pipe)) == [pipe.u, pipe.v]
+    assert pipe.to_dict() == {
+        "u": (0, 0, 0),
+        "v": (1, 0, 0),
+        "kind": "OXZ",
+    }
