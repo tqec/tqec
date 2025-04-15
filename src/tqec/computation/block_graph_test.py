@@ -276,7 +276,7 @@ def test_block_graph_to_from_json() -> None:
     json_text = g.to_json(indent=None)
     assert (
         json_text
-        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": ""}, {"position": [1, 0, 0], "kind": "PORT", "label": "In"}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH"}], "ports": {"In": [1, 0, 0]}}"""
+        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": "", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, {"position": [1, 0, 0], "kind": "PORT", "label": "In", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "ports": {"In": [1, 0, 0]}}"""
     )
     assert g.from_json(json_text=json_text) == g
 

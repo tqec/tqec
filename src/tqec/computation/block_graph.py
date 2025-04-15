@@ -856,7 +856,17 @@ class BlockGraph:
             The JSON string representation of the block graph if `file_path` is None,
             otherwise None.
         """
+        # Get dictionary from blockgraph
         obj_dict = self.to_dict()
+
+        # Add transform matrix to keep schema symmetric
+        for cube in obj_dict["cubes"]:
+            cube["transform"] = np.eye(3, dtype=int).tolist()
+
+        for pipe in obj_dict["pipes"]:
+            pipe["transform"] = np.eye(3, dtype=int).tolist()
+
+        # Return or write
         if file_path is None:
             return json.dumps(obj_dict, indent=indent)
         with open(file_path, "w") as fp:
@@ -881,17 +891,25 @@ class BlockGraph:
             The :py:class:`~tqec.computation.block_graph.BlockGraph` object
             constructed from the JSON string or file.
         """
+
+        # Assert file
         if (file_path is None) == (json_text is None):
             raise TQECException(
                 "Either file_path or json_text should be provided, but not both."
             )
         obj_dict: dict[str, Any]
+
+        # Get dictionary from JSON
         if json_text is None:
             assert file_path is not None
             with open(file_path) as fp:
                 obj_dict = json.load(fp)
         else:
             obj_dict = json.loads(json_text)
+
+        # Handle any necessary rotations
+        # NEEDS IMPLEMENTATION
+
         return BlockGraph.from_dict(obj_dict)
 
 
@@ -904,3 +922,14 @@ def block_kind_from_str(string: str) -> BlockKind:
         return YHalfCube()
     else:
         return ZXCube.from_str(string)
+
+
+if __name__ == "__main__":
+    g = BlockGraph("Horizontal Hadamard Line")
+    n = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    n2 = g.add_cube(Position3D(1, 0, 0), "P", "In")
+    g.add_pipe(n, n2, "OXZH")
+
+    json_text = g.to_json(indent=None)
+
+    print(json_text)
