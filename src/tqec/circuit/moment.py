@@ -11,13 +11,28 @@ instead of using ``cirq`` data-structures.
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Callable, Iterable, Iterator, cast
+from typing import Any, Callable, Iterable, Iterator, Sequence, cast
 
 import stim
 
 from tqec.circuit.qubit import count_qubit_accesses, get_used_qubit_indices
 from tqec.utils.exceptions import TQECException
 from tqec.utils.instructions import is_annotation_instruction
+
+
+class MultipleOperationsOnSameQubitException(TQECException):
+    def __init__(self, qubits: Sequence[int]):
+        self._qubits = sorted(qubits)
+        super().__init__(
+            "Moment instances cannot be initialized with a stim.Circuit "
+            "instance containing gates applied on the same qubit. Found "
+            "multiple gates applied on the following qubits: "
+            f"{self._qubits}."
+        )
+
+    @property
+    def qubits(self) -> list[int]:
+        return self._qubits
 
 
 class Moment:
@@ -114,12 +129,7 @@ class Moment:
             qi for qi, usage_count in qubit_usage.items() if usage_count > 1
         ]
         if multi_used_qubits:
-            raise TQECException(
-                "Moment instances cannot be initialized with a stim.Circuit "
-                "instance containing gates applied on the same qubit. Found "
-                "multiple gates applied on the following qubits: "
-                f"{multi_used_qubits}."
-            )
+            raise MultipleOperationsOnSameQubitException(multi_used_qubits)
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
             raise TQECException(
                 "Moment instances should no contain any instance "
