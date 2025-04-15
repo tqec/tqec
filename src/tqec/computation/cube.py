@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import astuple, dataclass
+from typing import Any
 
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
@@ -241,3 +242,28 @@ class Cube:
         There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.
         """
         return isinstance(self.kind, ZXCube) and self.kind.is_spatial
+
+    def to_dict(self) -> dict[str, Any]:
+        """Returns the dictionary representation of the cube."""
+        return {
+            "position": self.position.as_tuple(),
+            "kind": str(self.kind),
+            "label": self.label,
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> Cube:
+        """Creates a cube from the dictionary representation.
+
+        Args:
+            data: The dictionary representation of the cube.
+
+        Returns:
+            The :py:class:`~tqec.computation.cube.Cube` instance created from the
+            dictionary representation.
+        """
+        return Cube(
+            position=Position3D(*data["position"]),
+            kind=cube_kind_from_string(data["kind"]),
+            label=data["label"],
+        )
