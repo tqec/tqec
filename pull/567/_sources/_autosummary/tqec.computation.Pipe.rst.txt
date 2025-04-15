@@ -14,6 +14,7 @@ Pipe
       ~Pipe.__init__
       ~Pipe.at_head
       ~Pipe.from_cubes
+      ~Pipe.to_dict
    
    
 
@@ -38,5 +39,6 @@ Pipe
    .. automethod:: __init__
    .. automethod:: at_head
    .. automethod:: from_cubes
+   .. automethod:: to_dict
    
    

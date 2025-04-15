@@ -595,6 +595,12 @@ labels are not allowed. Default is an empty string.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.Cube.__init__" title="tqec.computation.Cube.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(position, kind[, label])</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.Cube.from_dict" title="tqec.computation.Cube.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a>(data)</p></td>
+<td><p>Creates a cube from the dictionary representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.Cube.to_dict" title="tqec.computation.Cube.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
+<td><p>Returns the dictionary representation of the cube.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -639,6 +645,35 @@ labels are not allowed. Default is an empty string.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.Cube.from_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/cube.html#Cube.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.Cube.from_dict" title="Link to this definition">#</a></dt>
+<dd><p>Creates a cube from the dictionary representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The dictionary representation of the cube.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <a class="reference internal" href="#tqec.computation.Cube" title="tqec.computation.cube.Cube"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cube</span></code></a> instance created from the
+dictionary representation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.computation.Cube" title="tqec.computation.cube.Cube"><em>Cube</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.Cube.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/cube.html#Cube.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.Cube.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Returns the dictionary representation of the cube.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <em>Any</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -699,6 +734,8 @@ labels are not allowed. Default is an empty string.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Cube.kind"><code class="docutils literal notranslate"><span class="pre">Cube.kind</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Cube.label"><code class="docutils literal notranslate"><span class="pre">Cube.label</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Cube.__init__"><code class="docutils literal notranslate"><span class="pre">Cube.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Cube.from_dict"><code class="docutils literal notranslate"><span class="pre">Cube.from_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.Cube.to_dict"><code class="docutils literal notranslate"><span class="pre">Cube.to_dict()</span></code></a></li>
 </ul>
 </li>
 </ul>

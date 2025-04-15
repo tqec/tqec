@@ -582,6 +582,12 @@ connects. Pipes are represented as edges in the graph.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_dae_file" title="tqec.computation.BlockGraph.from_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dae_file</span></code></a>(filename[, graph_name])</p></td>
 <td><p>Construct a block graph from a COLLADA DAE file.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_dict" title="tqec.computation.BlockGraph.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a>(data)</p></td>
+<td><p>Construct a block graph from a dictionary representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.from_json" title="tqec.computation.BlockGraph.from_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_json</span></code></a>([file_path, json_text])</p></td>
+<td><p>Deserialize a block graph from a JSON string or read it from a file.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.get_cubes_by_label" title="tqec.computation.BlockGraph.get_cubes_by_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cubes_by_label</span></code></a>(label)</p></td>
 <td><p>Find cubes with the specified label in the BlockGraph.</p></td>
 </tr>
@@ -614,6 +620,12 @@ connects. Pipes are represented as edges in the graph.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_dae_file" title="tqec.computation.BlockGraph.to_dae_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dae_file</span></code></a>(file_path[, pipe_length, ...])</p></td>
 <td><p>Write the block graph to a Collada DAE file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_dict" title="tqec.computation.BlockGraph.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
+<td><p>Return a dictionary representation of the block graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_json" title="tqec.computation.BlockGraph.to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_json</span></code></a>([file_path, indent])</p></td>
+<td><p>Serialize the block graph to a JSON string or write it to a file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.computation.BlockGraph.to_zx_graph" title="tqec.computation.BlockGraph.to_zx_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_zx_graph</span></code></a>()</p></td>
 <td><p>Convert the block graph to a positioned PyZX graph.</p></td>
@@ -915,6 +927,44 @@ the validity of the graph.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.BlockGraph.from_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.from_dict" title="Link to this definition">#</a></dt>
+<dd><p>Construct a block graph from a dictionary representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.BlockGraph.from_json">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.from_json" title="Link to this definition">#</a></dt>
+<dd><p>Deserialize a block graph from a JSON string or read it from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>None</em>) – The input json file path to read from, or <code class="docutils literal notranslate"><span class="pre">None</span></code> to indicate
+that the JSON string will be provided in <cite>json_text</cite>. Default is None.</p></li>
+<li><p><strong>json_text</strong> (<em>str</em><em> | </em><em>None</em>) – The JSON string representation of the block graph, or <code class="docutils literal notranslate"><span class="pre">None</span></code>
+to indicate that the JSON file will be read from <cite>file_path</cite>.
+Default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <a class="reference internal" href="#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code></a> object
+constructed from the JSON string or file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.get_cubes_by_label">
 <span class="sig-name descname"><span class="pre">get_cubes_by_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.get_cubes_by_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.get_cubes_by_label" title="Link to this definition">#</a></dt>
 <dd><p>Find cubes with the specified label in the BlockGraph.</p>
@@ -1118,6 +1168,39 @@ This is useful for visualizing the internal structure of the blocks. Default is 
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.BlockGraph.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return a dictionary representation of the block graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.computation.BlockGraph.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.to_json" title="Link to this definition">#</a></dt>
+<dd><p>Serialize the block graph to a JSON string or write it to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>None</em>) – The output file path. If None, the JSON string will be returned.</p></li>
+<li><p><strong>indent</strong> (<em>int</em><em> | </em><em>None</em>) – The indentation level for pretty printing, passed to
+<cite>json.dumps</cite>. Default is 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The JSON string representation of the block graph if <cite>file_path</cite> is None,
+otherwise None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tqec.computation.BlockGraph.to_zx_graph">
 <span class="sig-name descname"><span class="pre">to_zx_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/computation/block_graph.html#BlockGraph.to_zx_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.computation.BlockGraph.to_zx_graph" title="Link to this definition">#</a></dt>
 <dd><p>Convert the block graph to a positioned PyZX graph.</p>
@@ -1246,6 +1329,8 @@ can be directly displayed in IPython compatible environments.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.find_correlation_surfaces"><code class="docutils literal notranslate"><span class="pre">BlockGraph.find_correlation_surfaces()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.fix_shadowed_faces"><code class="docutils literal notranslate"><span class="pre">BlockGraph.fix_shadowed_faces()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.from_dae_file"><code class="docutils literal notranslate"><span class="pre">BlockGraph.from_dae_file()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.from_dict"><code class="docutils literal notranslate"><span class="pre">BlockGraph.from_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.from_json"><code class="docutils literal notranslate"><span class="pre">BlockGraph.from_json()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.get_cubes_by_label"><code class="docutils literal notranslate"><span class="pre">BlockGraph.get_cubes_by_label()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.get_degree"><code class="docutils literal notranslate"><span class="pre">BlockGraph.get_degree()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.get_pipe"><code class="docutils literal notranslate"><span class="pre">BlockGraph.get_pipe()</span></code></a></li>
@@ -1257,6 +1342,8 @@ can be directly displayed in IPython compatible environments.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.rotate"><code class="docutils literal notranslate"><span class="pre">BlockGraph.rotate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.shift_by"><code class="docutils literal notranslate"><span class="pre">BlockGraph.shift_by()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_dae_file"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_dae_file()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_dict"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_json"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_json()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.to_zx_graph"><code class="docutils literal notranslate"><span class="pre">BlockGraph.to_zx_graph()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.validate"><code class="docutils literal notranslate"><span class="pre">BlockGraph.validate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.computation.BlockGraph.view_as_html"><code class="docutils literal notranslate"><span class="pre">BlockGraph.view_as_html()</span></code></a></li>

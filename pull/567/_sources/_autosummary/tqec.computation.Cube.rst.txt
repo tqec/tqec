@@ -12,6 +12,8 @@ Cube
    .. autosummary::
    
       ~Cube.__init__
+      ~Cube.from_dict
+      ~Cube.to_dict
    
    
 
@@ -37,5 +39,7 @@ Cube
 
    
    .. automethod:: __init__
+   .. automethod:: from_dict
+   .. automethod:: to_dict
    
    
