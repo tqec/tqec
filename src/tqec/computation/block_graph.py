@@ -888,7 +888,7 @@ class BlockGraph:
         obj_dict: dict[str, Any]
         if json_text is None:
             assert file_path is not None
-            with open(file_path, "r") as fp:
+            with open(file_path) as fp:
                 obj_dict = json.load(fp)
         else:
             obj_dict = json.loads(json_text)
