@@ -414,7 +414,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1294,6 +1295,100 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            The cube instances that have the specified label.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">cube</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.to_dict">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary representation of the block graph.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;cubes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">cube</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span><span class="p">],</span>
+            <span class="s2">&quot;pipes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipes</span><span class="p">],</span>
+            <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">pos</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">()</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ports</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.from_dict">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.from_dict">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a block graph from a dictionary representation.&quot;&quot;&quot;</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;cubes&quot;</span><span class="p">]:</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">Position3D</span><span class="p">(</span><span class="o">*</span><span class="n">cube</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]),</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">cube</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">],</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">cube</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;pipes&quot;</span><span class="p">]:</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span>
+                <span class="n">pos1</span><span class="o">=</span><span class="n">Position3D</span><span class="p">(</span><span class="o">*</span><span class="n">pipe</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]),</span>
+                <span class="n">pos2</span><span class="o">=</span><span class="n">Position3D</span><span class="p">(</span><span class="o">*</span><span class="n">pipe</span><span class="p">[</span><span class="s2">&quot;v&quot;</span><span class="p">]),</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">pipe</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">graph</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.to_json">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.to_json">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_json</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serialize the block graph to a JSON string or write it to a file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path: The output file path. If None, the JSON string will be returned.</span>
+<span class="sd">            indent: The indentation level for pretty printing, passed to</span>
+<span class="sd">                `json.dumps`. Default is 2.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The JSON string representation of the block graph if `file_path` is None,</span>
+<span class="sd">            otherwise None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">file_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj_dict</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj_dict</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.from_json">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.from_json">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_json</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">json_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deserialize a block graph from a JSON string or read it from a file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path: The input json file path to read from, or ``None`` to indicate</span>
+<span class="sd">                that the JSON string will be provided in `json_text`. Default is None.</span>
+<span class="sd">            json_text: The JSON string representation of the block graph, or ``None``</span>
+<span class="sd">                to indicate that the JSON file will be read from `file_path`.</span>
+<span class="sd">                Default is None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The :py:class:`~tqec.computation.block_graph.BlockGraph` object</span>
+<span class="sd">            constructed from the JSON string or file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">file_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">json_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="s2">&quot;Either file_path or json_text should be provided, but not both.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">obj_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">json_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="n">obj_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">obj_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">obj_dict</span><span class="p">)</span></div>
 </div>
 
 

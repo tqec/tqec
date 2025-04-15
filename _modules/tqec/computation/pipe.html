@@ -411,7 +411,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span><span class="p">,</span> <span class="n">ZXCube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
@@ -676,7 +676,18 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="si">}</span><span class="s2">--(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2">)--</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="si">}</span><span class="s2">--(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2">)--</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="Pipe.to_dict">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.Pipe.html#tqec.computation.Pipe.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the dictionary representation of the pipe.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">(),</span>
+            <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">(),</span>
+            <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">),</span>
+        <span class="p">}</span></div>
+</div>
 
 </pre></div>
 
