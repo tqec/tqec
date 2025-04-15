@@ -922,14 +922,3 @@ def block_kind_from_str(string: str) -> BlockKind:
         return YHalfCube()
     else:
         return ZXCube.from_str(string)
-
-
-if __name__ == "__main__":
-    g = BlockGraph("Horizontal Hadamard Line")
-    n = g.add_cube(Position3D(0, 0, 0), "ZXZ")
-    n2 = g.add_cube(Position3D(1, 0, 0), "P", "In")
-    g.add_pipe(n, n2, "OXZH")
-
-    json_text = g.to_json(indent=None)
-
-    print(json_text)
