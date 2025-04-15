@@ -6,7 +6,8 @@ from collections.abc import Mapping
 import pathlib
 from copy import deepcopy
 from io import BytesIO
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
+import json
 
 import networkx as nx
 import numpy as np
@@ -810,6 +811,88 @@ class BlockGraph:
             The cube instances that have the specified label.
         """
         return [cube for cube in self.cubes if cube.label == label]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the block graph."""
+        return {
+            "name": self.name,
+            "cubes": [cube.to_dict() for cube in self.cubes],
+            "pipes": [pipe.to_dict() for pipe in self.pipes],
+            "ports": {label: pos.as_tuple() for label, pos in self.ports.items()},
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> BlockGraph:
+        """Construct a block graph from a dictionary representation."""
+        graph = BlockGraph(data["name"])
+        for cube in data["cubes"]:
+            graph.add_cube(
+                position=Position3D(*cube["position"]),
+                kind=cube["kind"],
+                label=cube["label"],
+            )
+        for pipe in data["pipes"]:
+            graph.add_pipe(
+                pos1=Position3D(*pipe["u"]),
+                pos2=Position3D(*pipe["v"]),
+                kind=pipe["kind"],
+            )
+        return graph
+
+    def to_json(
+        self,
+        file_path: str | pathlib.Path | None = None,
+        *,
+        indent: int | None = 2,
+    ) -> str | None:
+        """Serialize the block graph to a JSON string or write it to a file.
+
+        Args:
+            file_path: The output file path. If None, the JSON string will be returned.
+            indent: The indentation level for pretty printing, passed to
+                `json.dumps`. Default is 2.
+
+        Returns:
+            The JSON string representation of the block graph if `file_path` is None,
+            otherwise None.
+        """
+        obj_dict = self.to_dict()
+        if file_path is None:
+            return json.dumps(obj_dict, indent=indent)
+        with open(file_path, "w") as fp:
+            json.dump(obj_dict, fp, indent=indent)
+            return None
+
+    @staticmethod
+    def from_json(
+        file_path: str | pathlib.Path | None = None,
+        json_text: str | None = None,
+    ) -> BlockGraph:
+        """Deserialize a block graph from a JSON string or read it from a file.
+
+        Args:
+            file_path: The input json file path to read from, or ``None`` to indicate
+                that the JSON string will be provided in `json_text`. Default is None.
+            json_text: The JSON string representation of the block graph, or ``None``
+                to indicate that the JSON file will be read from `file_path`.
+                Default is None.
+
+        Returns:
+            The :py:class:`~tqec.computation.block_graph.BlockGraph` object
+            constructed from the JSON string or file.
+        """
+        if (file_path is None) == (json_text is None):
+            raise TQECException(
+                "Either file_path or json_text should be provided, but not both."
+            )
+        obj_dict: dict[str, Any]
+        if json_text is None:
+            assert file_path is not None
+            with open(file_path, "r") as fp:
+                obj_dict = json.load(fp)
+        else:
+            obj_dict = json.loads(json_text)
+        return BlockGraph.from_dict(obj_dict)
 
 
 def block_kind_from_str(string: str) -> BlockKind:
