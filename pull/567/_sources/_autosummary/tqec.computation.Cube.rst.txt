@@ -1,0 +1,41 @@
+Cube
+====
+
+.. currentmodule:: tqec.computation
+
+.. autoclass:: Cube
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Cube.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Cube.is_port
+      ~Cube.is_spatial
+      ~Cube.is_y_cube
+      ~Cube.is_zx_cube
+      ~Cube.label
+      ~Cube.position
+      ~Cube.kind
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   
+   

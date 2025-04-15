@@ -1,0 +1,66 @@
+ScheduledCircuit
+================
+
+.. currentmodule:: tqec.circuit
+
+.. autoclass:: ScheduledCircuit
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ScheduledCircuit.__init__
+      ~ScheduledCircuit.add_to_schedule_index
+      ~ScheduledCircuit.append_annotation
+      ~ScheduledCircuit.append_new_moment
+      ~ScheduledCircuit.append_observable
+      ~ScheduledCircuit.empty
+      ~ScheduledCircuit.filter_by_qubits
+      ~ScheduledCircuit.from_circuit
+      ~ScheduledCircuit.get_circuit
+      ~ScheduledCircuit.get_qubit_coords_definition_preamble
+      ~ScheduledCircuit.get_repeated_circuit
+      ~ScheduledCircuit.map_qubit_indices
+      ~ScheduledCircuit.map_to_qubits
+      ~ScheduledCircuit.moment_at_schedule
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ScheduledCircuit.moments
+      ~ScheduledCircuit.num_measurements
+      ~ScheduledCircuit.qubit_map
+      ~ScheduledCircuit.qubits
+      ~ScheduledCircuit.schedule
+      ~ScheduledCircuit.scheduled_moments
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: add_to_schedule_index
+   .. automethod:: append_annotation
+   .. automethod:: append_new_moment
+   .. automethod:: append_observable
+   .. automethod:: empty
+   .. automethod:: filter_by_qubits
+   .. automethod:: from_circuit
+   .. automethod:: get_circuit
+   .. automethod:: get_qubit_coords_definition_preamble
+   .. automethod:: get_repeated_circuit
+   .. automethod:: map_qubit_indices
+   .. automethod:: map_to_qubits
+   .. automethod:: moment_at_schedule
+   
+   
