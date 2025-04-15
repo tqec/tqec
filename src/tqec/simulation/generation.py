@@ -3,13 +3,13 @@ from typing import Callable, Iterable, Iterator
 import sinter
 import stim
 
-from tqec.compile.compile import CompiledGraph
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.graph import TopologicalComputationGraph
 from tqec.utils.noise_model import NoiseModel
 
 
 def generate_stim_circuits_with_detectors(
-    compiled_graph: CompiledGraph,
+    compiled_graph: TopologicalComputationGraph,
     ks: Iterable[int],
     ps: Iterable[float],
     noise_model_factory: Callable[[float], NoiseModel],
@@ -75,7 +75,7 @@ def generate_stim_circuits_with_detectors(
 
 
 def generate_sinter_tasks(
-    compiled_graph: CompiledGraph,
+    compiled_graph: TopologicalComputationGraph,
     ks: Iterable[int],
     ps: Iterable[float],
     noise_model_factory: Callable[[float], NoiseModel],

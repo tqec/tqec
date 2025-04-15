@@ -8,15 +8,14 @@ from dataclasses import dataclass
 from pyzx.graph.graph_s import GraphS
 
 from tqec.compile.specs.enums import SpatialArms
-from tqec.computation.correlation import CorrelationSurface
+from tqec.computation.block_graph import BlockGraph
+from tqec.computation.correlation import CorrelationSurface, ZXEdge
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe
-from tqec.utils.enums import Basis
-from tqec.utils.position import Direction3D, Position3D
-from tqec.utils.exceptions import TQECException
-from tqec.computation.block_graph import BlockGraph
-from tqec.computation.correlation import ZXEdge
 from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECException
+from tqec.utils.position import Direction3D, Position3D
 
 
 @dataclass(frozen=True)

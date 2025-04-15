@@ -352,6 +352,10 @@ def test_get_or_default() -> None:
         _get_or_default(array, [(1000, 1002), (345, 347)], default=34),
         numpy.full((2, 2), 34),
     )
+    numpy.testing.assert_array_equal(
+        _get_or_default(array, [(-1, 1), (0, 2)], default=42),
+        [[42, 42], [0, 1]],
+    )
     with pytest.raises(
         TQECException, match="^The provided slices should be non-empty.$"
     ):

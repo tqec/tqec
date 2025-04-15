@@ -3,13 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol
 
-from tqec.compile.block import CompiledBlock
+from tqec.compile.blocks.block import Block
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, CubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
+from tqec.templates.base import RectangularTemplate
 from tqec.utils.exceptions import TQECException
-from tqec.plaquette.plaquette import Plaquettes
 
 
 @dataclass(frozen=True)
@@ -54,17 +54,32 @@ class CubeSpec:
         return CubeSpec(cube.kind, spatial_arms)
 
 
-class BlockBuilder(Protocol):
-    """Protocol for building a `CompiledBlock` based on a `CubeSpec`."""
+class CubeBuilder(Protocol):
+    """Protocol for building a `Block` based on a `CubeSpec`."""
 
-    def __call__(self, spec: CubeSpec) -> CompiledBlock:
-        """Build a `CompiledBlock` instance from a `CubeSpec`.
+    def __call__(self, spec: CubeSpec) -> Block:
+        """Build a ``Block`` instance from a ``CubeSpec``.
 
         Args:
             spec: Specification of the cube in the block graph.
 
         Returns:
-            a `CompiledBlock` based on the provided `CubeSpec`.
+            a ``Block`` based on the provided ``CubeSpec``.
+        """
+        ...
+
+
+class PipeBuilder(Protocol):
+    """Protocol for building a `Block` based on a `PipeSpec`."""
+
+    def __call__(self, spec: PipeSpec) -> Block:
+        """Build a `CompiledBlock` instance from a `PipeSpec`.
+
+        Args:
+            spec: Specification of the cube in the block graph.
+
+        Returns:
+            a `CompiledBlock` based on the provided `PipeSpec`.
         """
         ...
 
@@ -78,52 +93,16 @@ class PipeSpec:
     update the layers of the `CompiledBlock`s based on the plaquettes in the
     `Substitution`.
 
+
     Attributes:
-        spec1: the cube specification of the first cube. By convention, the cube
-            corresponding to `spec1` should have a smaller position than the cube
-            corresponding to `spec2`.
-        spec2: the cube specification of the second cube.
+        cube_specs: the ordered cube specifications. By convention, the cube
+            corresponding to ``cube_specs[0]`` should have a smaller position
+            than the cube corresponding to ``cube_specs[1]``.
+        cube_templates: templates used to implement the respective entry in
+            ``cube_specs``.
         pipe_type: the type of the pipe connecting the two cubes.
     """
 
-    spec1: CubeSpec
-    spec2: CubeSpec
+    cube_specs: tuple[CubeSpec, CubeSpec]
+    cube_templates: tuple[RectangularTemplate, RectangularTemplate]
     pipe_kind: PipeKind
-
-
-@dataclass(frozen=True)
-class Substitution:
-    """Collection of plaquettes categorized by the layer index.
-
-    This specifies how to substitute plaquettes in the two `CompiledBlock`s
-    connected by a pipe. When applying the substitution, the plaquettes in
-    the map will be used to update the corresponding layer in the `CompiledBlock`.
-
-    Both the source and destination maps are indexed by the layer index in the
-    `CompiledBlock`. The index can be negative, which means the layer is counted
-    from the end of the layers list.
-
-    Attributes:
-        src: a mapping from the index of the layer in the source `CompiledBlock` to
-            the plaquettes that should be used to update the layer.
-        dst: a mapping from the index of the layer in the destination `CompiledBlock`
-            to the plaquettes that should be used to update
-    """
-
-    src: dict[int, Plaquettes]
-    dst: dict[int, Plaquettes]
-
-
-class SubstitutionBuilder(Protocol):
-    """Protocol for building the `Substitution` based on a `PipeSpec`."""
-
-    def __call__(self, spec: PipeSpec) -> Substitution:
-        """Build a `Substitution` instance from a `PipeSpec`.
-
-        Args:
-            spec: Specification of the pipe in the block graph.
-
-        Returns:
-            a `Substitution` based on the provided `PipeSpec`.
-        """
-        ...

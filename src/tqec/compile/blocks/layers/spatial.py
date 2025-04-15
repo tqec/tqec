@@ -26,6 +26,18 @@ class WithSpatialFootprint(ABC):
     """Base class providing the interface that should be implemented by objects
     that have a spatial footprint."""
 
+    def __init__(
+        self, trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset()
+    ):
+        """Initialise the instance.
+
+        Args:
+            removed_spatial_borders: all the spatial borders that have been
+                trimmed from the layer.
+        """
+        super().__init__()
+        self._trimmed_spatial_borders = trimmed_spatial_borders
+
     @property
     @abstractmethod
     def scalable_shape(self) -> PhysicalQubitScalable2D:
@@ -70,3 +82,7 @@ class WithSpatialFootprint(ABC):
             a copy of ``self`` with the provided ``borders`` removed.
         """
         pass
+
+    @property
+    def trimmed_spatial_borders(self) -> frozenset[SpatialBlockBorder]:
+        return self._trimmed_spatial_borders

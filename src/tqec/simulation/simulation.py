@@ -5,9 +5,8 @@ from typing import Callable, Iterable, Sequence
 import sinter
 
 from tqec.compile.compile import compile_block_graph
+from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.detectors.database import DetectorDatabase
-from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.simulation.generation import generate_sinter_tasks
@@ -24,8 +23,7 @@ def start_simulation_using_sinter(
     ps: Sequence[float],
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
-    block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
-    substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
+    convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | None = None,
     detector_database: DetectorDatabase | None = None,
     num_workers: int = multiprocessing.cpu_count(),
@@ -68,12 +66,7 @@ def start_simulation_using_sinter(
             Default to 2, which is sufficient for regular surface code. If
             negative, detectors are not computed automatically and are not added
             to the generated circuits.
-        block_builder: A callable that specifies how to build the `CompiledBlock` from
-            the specified `CubeSpecs`. Defaults to the block builder for the css type
-            surface code.
-        substitution_builder: A callable that specifies how to build the substitution
-            plaquettes from the specified `PipeSpec`. Defaults to the substitution
-            builder for the css type surface code.
+        convention: convention used to generate the quantum circuits.
         observables: a list of correlation surfaces to compile to logical
              observables and generate statistics for. If `None`, all the correlation
              surfaces of the provided computation are used.
@@ -128,12 +121,7 @@ def start_simulation_using_sinter(
     if split_observable_stats and len(observables) > 1:
         custom_error_count_key = heuristic_custom_error_key(observables)
 
-    compiled_graph = compile_block_graph(
-        block_graph,
-        block_builder,
-        substitution_builder,
-        observables=observables,
-    )
+    compiled_graph = compile_block_graph(block_graph, convention, observables)
     stats = sinter.collect(
         num_workers=num_workers,
         tasks=generate_sinter_tasks(

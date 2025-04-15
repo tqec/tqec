@@ -3,7 +3,6 @@ from typing import Iterable, cast
 import numpy
 import pytest
 
-from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.database import (
@@ -11,20 +10,24 @@ from tqec.compile.detectors.database import (
     _DetectorDatabaseKey,  # pyright: ignore[reportPrivateUsage]
 )
 from tqec.compile.detectors.detector import Detector
-from tqec.compile.specs.library._utils import (
-    _build_plaquettes_for_rotated_surface_code,  # pyright: ignore[reportPrivateUsage]
+from tqec.compile.specs.library.generators.fixed_bulk import (
+    FixedBulkConventionGenerator,
 )
-from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
-from tqec.plaquette.library.css import make_css_surface_code_plaquette
-from tqec.plaquette.library.zxxz import make_zxxz_surface_code_plaquette
+from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import QubitTemplate
 from tqec.templates.subtemplates import (
     SubTemplateType,
     get_spatially_distinct_subtemplates,
 )
+from tqec.utils.coordinates import StimCoordinates
+from tqec.utils.enums import Basis, Orientation
+from tqec.utils.exceptions import TQECException
 
+GENERATOR = FixedBulkConventionGenerator(
+    DefaultRPNGTranslator(), IdentityPlaquetteCompiler
+)
 # Pre-computing Plaquettes and SubTemplateType instances to be able to re-use them
 # in tests.
 # WARNING: the order in which values of the two constants below are defined is
@@ -32,42 +35,11 @@ from tqec.templates.subtemplates import (
 #          change a few pre-computed values in tests that check that the computed
 #          hashes are reliable across OS, Python version, interpreter, ...
 PLAQUETTE_COLLECTIONS: list[Plaquettes] = [
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_css_surface_code_plaquette, x_boundary_orientation="VERTICAL"
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_css_surface_code_plaquette, x_boundary_orientation="HORIZONTAL"
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_css_surface_code_plaquette,
-        x_boundary_orientation="VERTICAL",
-        temporal_basis=Basis.X,
-        data_init=True,
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_css_surface_code_plaquette,
-        x_boundary_orientation="VERTICAL",
-        temporal_basis=Basis.Z,
-        data_meas=True,
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_zxxz_surface_code_plaquette, x_boundary_orientation="VERTICAL"
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_zxxz_surface_code_plaquette, x_boundary_orientation="HORIZONTAL"
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_zxxz_surface_code_plaquette,
-        x_boundary_orientation="VERTICAL",
-        temporal_basis=Basis.X,
-        data_init=True,
-    ),
-    _build_plaquettes_for_rotated_surface_code(
-        builder=make_zxxz_surface_code_plaquette,
-        x_boundary_orientation="VERTICAL",
-        temporal_basis=Basis.Z,
-        data_meas=True,
-    ),
+    GENERATOR.get_memory_qubit_plaquettes(Orientation.HORIZONTAL),
+    GENERATOR.get_memory_qubit_plaquettes(reset=Basis.Z),
+    GENERATOR.get_memory_qubit_plaquettes(reset=Basis.X),
+    GENERATOR.get_memory_qubit_plaquettes(measurement=Basis.Z),
+    GENERATOR.get_memory_qubit_plaquettes(Orientation.VERTICAL),
 ]
 # Note: sorting is important here to guarantee the order in which subtemplates
 #       are in the SUBTEMPLATES list. See comment above PLAQUETTE_COLLECTIONS
@@ -154,14 +126,14 @@ def test_detector_database_key_hash() -> None:
     # This is a value that has been pre-computed locally. It is hard-coded here
     # to check that the hash of a dbkey is reliable and does not change depending
     # on the Python interpreter, Python version, host OS, process ID, ...
-    assert hash(dbkey) == 1085786788918911944
+    assert hash(dbkey) == 1068059953232381272
 
     dbkey = _DetectorDatabaseKey(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])
     assert hash(dbkey) == hash(dbkey)
     # This is a value that has been pre-computed locally. It is hard-coded here
     # to check that the hash of a dbkey is reliable and does not change depending
     # on the Python interpreter, Python version, host OS, process ID, ...
-    assert hash(dbkey) == 1699471538780763110
+    assert hash(dbkey) == 1986764458427930321
 
 
 def test_detector_database_creation() -> None:
