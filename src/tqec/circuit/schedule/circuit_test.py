@@ -93,12 +93,12 @@ def test_scheduled_circuit_get_qubit_coords_definition_preamble() -> None:
     ).get_qubit_coords_definition_preamble() == stim.Circuit("QUBIT_COORDS(0, 0) 0")
     assert ScheduledCircuit.from_circuit(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(-2345, 3456) 1\nH 0 1")
-    ).get_qubit_coords_definition_preamble() == stim.Circuit(
+    ).get_qubit_coords_definition_preamble(shift_to_positive=True) == stim.Circuit(
         "QUBIT_COORDS(2345, 0) 0\nQUBIT_COORDS(0, 3456) 1"
     )
     assert ScheduledCircuit.from_circuit(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(-2345, 3456) 1\nH 0 1")
-    ).get_qubit_coords_definition_preamble(shift_to_positive=False) == stim.Circuit(
+    ).get_qubit_coords_definition_preamble() == stim.Circuit(
         "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(-2345, 3456) 1"
     )
 
@@ -178,7 +178,7 @@ def test_scheduled_circuit_map_to_qubits() -> None:
     )
     mapped_circuit = circuit.map_to_qubits(lambda q: qubit_map[q])
     assert mapped_circuit.get_circuit() == stim.Circuit(
-        "QUBIT_COORDS(17, 345) 0\nQUBIT_COORDS(0, 0) 1\nH 0 1"
+        "QUBIT_COORDS(18, 345) 0\nQUBIT_COORDS(1, 0) 1\nH 0 1"
     )
     assert circuit.get_circuit() == stim.Circuit(
         "QUBIT_COORDS(0.0, 0.0) 0\nQUBIT_COORDS(0.0, 1.0) 1\nH 0 1"
