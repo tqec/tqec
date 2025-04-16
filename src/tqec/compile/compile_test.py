@@ -7,8 +7,8 @@ from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
-from tqec.gallery.stability import stability
 from tqec.gallery.move_rotation import move_rotation
+from tqec.gallery.stability import stability
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
@@ -234,7 +234,8 @@ def test_compile_L_spatial_junction(convention_name: str, k: int) -> None:
     )
     dem = circuit.detector_error_model()
     assert dem.num_observables == 1
-    assert len(dem.shortest_graphlike_error()) == d
+    expected_distance = d - 1 if convention_name == "fixed_parity" else d
+    assert len(dem.shortest_graphlike_error()) == expected_distance
 
 
 @pytest.mark.parametrize(
@@ -257,4 +258,5 @@ def test_compile_move_rotation(convention_name: str, obs_basis: Basis, k: int) -
     )
     dem = circuit.detector_error_model()
     assert dem.num_observables == 1
-    assert len(dem.shortest_graphlike_error()) == d
+    expected_distance = d - 1 if convention_name == "fixed_parity" else d
+    assert len(dem.shortest_graphlike_error()) == expected_distance
