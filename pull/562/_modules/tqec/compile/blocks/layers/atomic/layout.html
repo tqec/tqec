@@ -1,0 +1,711 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tqec.compile.blocks.layers.atomic.layout &#8212; TQEC  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/tqec/compile/blocks/layers/atomic/layout';</script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">TQEC  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../index.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../contributor_guide.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../gallery/index.html">
+    Gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/tqec/tqec" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://groups.google.com/g/tqec-design-automation" title="Google Group" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Google Group</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec.compile.blocks.layers.atomic.layout</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for tqec.compile.blocks.layers.atomic.layout</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">TypeGuard</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.schedule.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduledCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpatialBlockBorder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseLayer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.layers.atomic.plaquettes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteLayer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.blocks.positioning</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LayoutCubePosition2D</span><span class="p">,</span>
+    <span class="n">LayoutPipePosition2D</span><span class="p">,</span>
+    <span class="n">LayoutPosition2D</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.generation</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_circuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.plaquette</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plaquettes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemplateBorder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.layout</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayoutTemplate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">Shift2D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalQubitScalable2D</span>
+
+<span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="sd">&quot;&quot;&quot;Default number of qubits that are shared between two neighbouring layers.&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">contains_only_plaquette_layers</span><span class="p">(</span>
+    <span class="n">layers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">BaseLayer</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TypeGuard</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">]]:</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="LayoutLayer">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.LayoutLayer.html#tqec.compile.blocks.LayoutLayer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LayoutLayer</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutLayer.__init__">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.LayoutLayer.html#tqec.compile.blocks.LayoutLayer.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">layers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">BaseLayer</span><span class="p">],</span>
+        <span class="n">element_shape</span><span class="p">:</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A layer gluing several other layers together on a 2-dimensional grid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            layers: a mapping from positions on the 2-dimensional space to</span>
+<span class="sd">                blocks implementing the circuit that should be present at that</span>
+<span class="sd">                position.</span>
+<span class="sd">                The mapping is expected to represent a connected computation.</span>
+<span class="sd">            element_shape: scalable shape (in qubit coordinates) of each entry</span>
+<span class="sd">                in the provided ``layers``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: if ``layers`` is empty.</span>
+<span class="sd">            TQECException: if ``trimmed_spatial_borders`` is not empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">frozenset</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layers</span> <span class="o">=</span> <span class="n">layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element_shape</span> <span class="o">=</span> <span class="n">element_shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_init_check</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_post_init_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;An instance of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> should have at least one layer.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trimmed_spatial_borders</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">LayoutLayer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> cannot have trimmed spatial borders.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">layers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LayoutPosition2D</span><span class="p">,</span> <span class="n">BaseLayer</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layers</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">element_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_shape</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">BlockPosition2D</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the top-left and bottom-right corners of the bounding box of ``self``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a tuple containing the corners of ``self``&#39;s bounding box as positions</span>
+<span class="sd">            containing the two minimum (top-left corner) or maximum (bottom-right</span>
+<span class="sd">            corner) coordinates found in ``self``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">_x</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">_y</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+        <span class="n">minx</span><span class="p">,</span> <span class="n">maxx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">xs</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+        <span class="n">miny</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+        <span class="c1"># We know for sure that the minima and maxima above are located on cube</span>
+        <span class="c1"># positions and so are multiples of 2.</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">BlockPosition2D</span><span class="p">(</span><span class="n">minx</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">miny</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">BlockPosition2D</span><span class="p">(</span><span class="n">maxx</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scalable_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">:</span>
+        <span class="n">minp</span><span class="p">,</span> <span class="n">maxp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span>
+        <span class="n">shapex</span><span class="p">,</span> <span class="n">shapey</span> <span class="o">=</span> <span class="p">(</span><span class="n">maxp</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">minp</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">maxp</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">minp</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">(</span>
+            <span class="n">shapex</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element_shape</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">,</span>
+            <span class="n">shapey</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element_shape</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="LayoutLayer.with_spatial_borders_trimmed">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.LayoutLayer.html#tqec.compile.blocks.LayoutLayer.with_spatial_borders_trimmed">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_spatial_borders_trimmed</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">borders</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SpatialBlockBorder</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LayoutLayer</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot trim spatial borders of a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instance.&quot;</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">LayoutLayer</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_shape</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">element_shape</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">layers</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="LayoutLayer.to_template_and_plaquettes">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.LayoutLayer.html#tqec.compile.blocks.LayoutLayer.to_template_and_plaquettes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_template_and_plaquettes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">LayoutTemplate</span><span class="p">,</span> <span class="n">Plaquettes</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an equivalent representation of ``self`` with a template and some</span>
+<span class="sd">        plaquettes.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: if not all layers composing ``self`` are instances</span>
+<span class="sd">                of :class:`~tqec.compile.blocks.layers.atomic.plaquette.PlaquetteLayer`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a tuple ``(template, plaquettes)`` that is ready to be used with</span>
+<span class="sd">            :meth:`~tqec.compile.generation.generate_circuit` to obtain the quantum</span>
+<span class="sd">            circuit representing ``self``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">contains_only_plaquette_layers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found a layer that is not an instance of </span><span class="si">{</span><span class="n">PlaquetteLayer</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Detector computation is not implemented (yet) for this case.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">cubes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">pos</span><span class="o">.</span><span class="n">to_block_position</span><span class="p">():</span> <span class="n">layer</span>
+            <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">LayoutCubePosition2D</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">template_dict</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="p">{</span><span class="n">pos</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">template</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">cubes</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">plaquettes_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">pos</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">plaquettes</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">cubes</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="c1"># Add plaquettes from each pipe to the plaquette_dict.</span>
+        <span class="n">pipes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">BlockPosition2D</span><span class="p">,</span> <span class="n">BlockPosition2D</span><span class="p">],</span> <span class="n">PlaquetteLayer</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">pos</span><span class="o">.</span><span class="n">to_pipe</span><span class="p">():</span> <span class="n">layer</span>
+            <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">LayoutPipePosition2D</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">pipe_layer</span> <span class="ow">in</span> <span class="n">pipes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">pipe_direction</span> <span class="o">=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">from_neighbouring_positions</span><span class="p">(</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">to_3d</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">to_3d</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="c1"># {u,v}_border: border of the respective node that is touched by the</span>
+            <span class="c1"># the pipe.</span>
+            <span class="n">u_border</span><span class="p">:</span> <span class="n">TemplateBorder</span>
+            <span class="n">v_border</span><span class="p">:</span> <span class="n">TemplateBorder</span>
+            <span class="k">match</span> <span class="n">pipe_direction</span><span class="p">:</span>
+                <span class="k">case</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
+                    <span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span> <span class="o">=</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">LEFT</span>
+                <span class="k">case</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">:</span>
+                    <span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span> <span class="o">=</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">BOTTOM</span><span class="p">,</span> <span class="n">TemplateBorder</span><span class="o">.</span><span class="n">TOP</span>
+                <span class="k">case</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;Should not happen. This is a logical error.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Updating plaquettes in plaquettes_dict</span>
+            <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="n">cube_border</span><span class="p">,</span> <span class="n">pipe_border</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="n">u_border</span><span class="p">,</span> <span class="n">v_border</span><span class="p">)),</span>
+                <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="n">v_border</span><span class="p">,</span> <span class="n">u_border</span><span class="p">)),</span>
+            <span class="p">]:</span>
+                <span class="n">plaquette_indices_mapping</span> <span class="o">=</span> <span class="n">pipe_layer</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">get_border_indices</span><span class="p">(</span>
+                    <span class="n">pipe_border</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">template_dict</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">get_border_indices</span><span class="p">(</span><span class="n">cube_border</span><span class="p">))</span>
+                <span class="n">plaquettes_dict</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">plaquettes_dict</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">with_updated_plaquettes</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="n">plaquette_indices_mapping</span><span class="p">[</span><span class="n">pipe_plaquette_index</span><span class="p">]:</span> <span class="n">plaquette</span>
+                        <span class="k">for</span> <span class="n">pipe_plaquette_index</span><span class="p">,</span> <span class="n">plaquette</span> <span class="ow">in</span> <span class="n">pipe_layer</span><span class="o">.</span><span class="n">plaquettes</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="c1"># Filtering only plaquette indices that are on the side we are</span>
+                        <span class="c1"># interested in.</span>
+                        <span class="k">if</span> <span class="n">pipe_plaquette_index</span> <span class="ow">in</span> <span class="n">plaquette_indices_mapping</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+        <span class="n">template</span> <span class="o">=</span> <span class="n">LayoutTemplate</span><span class="p">(</span><span class="n">template_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">template</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">get_global_plaquettes</span><span class="p">(</span><span class="n">plaquettes_dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LayoutLayer.to_circuit">
+<a class="viewcode-back" href="../../../../../../_autosummary/tqec.compile.blocks.LayoutLayer.html#tqec.compile.blocks.LayoutLayer.to_circuit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_circuit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduledCircuit</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the quantum circuit representing the layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            k: scaling factor.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            quantum circuit representing the layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">template</span><span class="p">,</span> <span class="n">plaquettes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_template_and_plaquettes</span><span class="p">()</span>
+        <span class="n">scheduled_circuit</span> <span class="o">=</span> <span class="n">generate_circuit</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">plaquettes</span><span class="p">)</span>
+        <span class="c1"># Shift the qubits of the returned scheduled circuit</span>
+        <span class="n">mincube</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span>
+        <span class="n">eshape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_shape</span><span class="o">.</span><span class="n">to_shape_2d</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="c1"># See: https://github.com/tqec/tqec/issues/525</span>
+        <span class="c1"># This is a temporary fix to the above issue, we may need a utility function</span>
+        <span class="c1"># to calculate shift to avoid similar issues in the future.</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">Shift2D</span><span class="p">(</span><span class="n">mincube</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">eshape</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">mincube</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="n">eshape</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">shifted_circuit</span> <span class="o">=</span> <span class="n">scheduled_circuit</span><span class="o">.</span><span class="n">map_to_qubits</span><span class="p">(</span><span class="k">lambda</span> <span class="n">q</span><span class="p">:</span> <span class="n">q</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">shifted_circuit</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, TQEC Community.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
