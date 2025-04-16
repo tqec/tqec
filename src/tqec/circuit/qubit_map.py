@@ -106,7 +106,7 @@ class QubitMap:
         kept_qubits = frozenset(qubits_to_keep)
         return QubitMap({i: q for i, q in self.i2q.items() if q in kept_qubits})
 
-    def to_circuit(self, shift_to_positive: bool = True) -> stim.Circuit:
+    def to_circuit(self, shift_to_positive: bool = False) -> stim.Circuit:
         """Get a circuit with only ``QUBIT_COORDS`` instructions representing
         ``self``.
 
