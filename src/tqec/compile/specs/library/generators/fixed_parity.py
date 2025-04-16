@@ -12,7 +12,7 @@ from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
-from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
+from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.plaquette.qubit import SquarePlaquetteQubits
 from tqec.plaquette.rpng.rpng import RPNGDescription
@@ -35,18 +35,12 @@ from tqec.utils.instructions import (
 
 def _get_spatial_cube_arm_name(
     basis: Basis,
-    reset: Basis | None,
-    measurement: Basis | None,
     position: Literal["UP", "DOWN"],
     is_reverse: bool,
 ) -> str:
     parts = ["SpatialCubeArm", basis.value.upper(), position]
     if is_reverse:
         parts.append("reversed")
-    if reset is not None:
-        parts.append(f"reset({reset.value.upper()})")
-    if measurement is not None:
-        parts.append(f"datameas({measurement.value.upper()})")
     return "_".join(parts)
 
 
@@ -97,10 +91,7 @@ def _make_spatial_cube_arm_memory_moments_down_forward(basis: Basis) -> list[Mom
 
 
 def make_spatial_cube_arm_plaquettes(
-    basis: Basis,
-    reset: Basis | None = None,
-    measurement: Basis | None = None,
-    is_reverse: bool = False,
+    basis: Basis, is_reverse: bool = False
 ) -> tuple[Plaquette, Plaquette]:
     """Make a plaquette for spatial cube arms.
 
@@ -121,33 +112,17 @@ def make_spatial_cube_arm_plaquettes(
 
     Args:
         basis: the basis of the plaquette.
-        reset: the logical basis for data qubit initialization. Defaults to
-            ``None`` which means "no initialization of data qubits".
-        measurement: the logical basis for data qubit measurement. Defaults to
-            ``None`` means "no measurement of data qubits".
         is_reverse: whether the schedules of controlled-A gates are reversed.
 
     Returns:
         A tuple ``(UP, DOWN)`` containing the two plaquettes needed to implement
         spatial cube arms.
     """
-    up_moments = _make_spatial_cube_arm_memory_moments_up_forward(basis)
-    down_moments = _make_spatial_cube_arm_memory_moments_down_forward(basis)
-
     qubits = SquarePlaquetteQubits()
     qubit_map = qubits.qubit_map
-    up_qubits = [qubit_map[q] for q in qubits.get_qubits_on_side(PlaquetteSide.UP)]
-    down_qubits = [qubit_map[q] for q in qubits.get_qubits_on_side(PlaquetteSide.DOWN)]
 
-    if reset is not None:
-        r = reset.value.upper()
-        up_moments[0].append(f"R{r}", up_qubits, [])
-        down_moments[0].append(f"R{r}", down_qubits, [])
-    if measurement is not None:
-        m = measurement.value.upper()
-        up_moments[6].append(f"M{m}", up_qubits, [])
-        down_moments[6].append(f"M{m}", down_qubits, [])
-
+    up_moments = _make_spatial_cube_arm_memory_moments_up_forward(basis)
+    down_moments = _make_spatial_cube_arm_memory_moments_down_forward(basis)
     up_circuit = ScheduledCircuit(up_moments, 0, qubit_map)
     down_circuit = ScheduledCircuit(down_moments, 0, qubit_map)
 
@@ -165,13 +140,13 @@ def make_spatial_cube_arm_plaquettes(
     mergeable_instructions = MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES
     return (
         Plaquette(
-            _get_spatial_cube_arm_name(basis, reset, measurement, "UP", is_reverse),
+            _get_spatial_cube_arm_name(basis, "UP", is_reverse),
             qubits,
             up_circuit,
             mergeable_instructions,
         ),
         Plaquette(
-            _get_spatial_cube_arm_name(basis, reset, measurement, "DOWN", is_reverse),
+            _get_spatial_cube_arm_name(basis, "DOWN", is_reverse),
             qubits,
             down_circuit,
             mergeable_instructions,
@@ -194,20 +169,16 @@ class ExtendedPlaquetteCollection:
     right_without_arm: ExtendedPlaquette
 
     @staticmethod
-    def from_args(
-        basis: Basis, reset: Basis | None, measurement: Basis | None, is_reverse: bool
-    ) -> ExtendedPlaquetteCollection:
-        up, down = make_spatial_cube_arm_plaquettes(
-            basis, reset, measurement, is_reverse
-        )
+    def from_args(basis: Basis, is_reverse: bool) -> ExtendedPlaquetteCollection:
+        up, down = make_spatial_cube_arm_plaquettes(basis, is_reverse)
         return ExtendedPlaquetteCollection(
             bulk=ExtendedPlaquette(up, down),
             left_with_arm=ExtendedPlaquette(
                 up.project_on_data_qubit_indices([1, 2, 3]), down
             ),
             left_without_arm=ExtendedPlaquette(
-                up.project_on_data_qubit_indices([1, 3]),
-                down.project_on_data_qubit_indices([1, 3]),
+                up.project_on_data_qubit_indices([1, 2, 3]),
+                down.project_on_data_qubit_indices([0, 1, 3]),
             ),
             right_with_arm=ExtendedPlaquette(
                 up, down.project_on_data_qubit_indices([0, 1, 2])
@@ -389,7 +360,7 @@ class FixedParityConventionGenerator:
         return ret
 
     def get_extended_plaquettes(
-        self, is_reversed: bool, reset: Basis | None, measurement: Basis | None
+        self, is_reversed: bool
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
         """Get plaquettes that are supposed to be used to implement ``UP`` or
         ``DOWN`` spatial pipes.
@@ -401,12 +372,7 @@ class FixedParityConventionGenerator:
             contains plaquettes that have been reversed.
         """
         return {
-            b: (
-                ExtendedPlaquetteCollection.from_args(
-                    b, reset, measurement, is_reversed
-                )
-            )
-            for b in Basis
+            b: (ExtendedPlaquetteCollection.from_args(b, is_reversed)) for b in Basis
         }
 
     def get_bulk_hadamard_rpng_descriptions(
@@ -1273,7 +1239,7 @@ class FixedParityConventionGenerator:
         # General case, need extended stabilizers.
         SBB, OTB = spatial_boundary_basis, spatial_boundary_basis.flipped()
         # EPs: extended plaquettes
-        EPs = self.get_extended_plaquettes(is_reversed, reset, measurement)
+        EPs = self.get_extended_plaquettes(is_reversed)
         # Dictionary that will be filled with plaquettes
         plaquettes: dict[int, Plaquette] = {}
         # Getting the extended plaquettes for the bulk and filling the dictionary
