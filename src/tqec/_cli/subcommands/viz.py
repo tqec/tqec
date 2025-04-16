@@ -143,7 +143,7 @@ class VisualisationTQECSubCommand(TQECSubCommand):
                 # Step one, generate the individual TICKs
                 print("Generating individual images...")
                 for t in range(start_tick, end_tick):
-                    with open(f"{tmpdirname}/{t}.svg", "w") as f:
+                    with open(f"{tmpdirname}/{t:0>4}.svg", "w") as f:
                         f.write(str(circuit.diagram(style, tick=t)))
                 # Step two, generate a video with ffmpeg
                 print("Generating animation (this may take some time)...")
