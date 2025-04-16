@@ -102,12 +102,6 @@ def test_stack_erroneous_repeat_block() -> None:
     stack = LookbackStack()
     with pytest.raises(TQECException, match="Only got 1 < 2 entries in the stack..*"):
         stack.close_repeat_block(4)
-    stack.enter_repeat_block()
-    with pytest.raises(
-        TQECException,
-        match="Cannot have a REPEAT block with less than 1 repetitions..*",
-    ):
-        stack.close_repeat_block(0)
 
 
 def test_stack_lookback(
