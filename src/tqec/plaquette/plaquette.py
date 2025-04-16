@@ -89,11 +89,11 @@ class Plaquette:
             data_qubits: data-qubit indices that will be kept in the returned
                 plaquette. Follow the standard indexing::
 
-                    1 ----- 2
+                    0 ----- 1
                     |       |
-                    |   0   |
+                    |   4   |
                     |       |
-                    3 ----- 4
+                    2 ----- 3
 
         Returns:
             A new plaquette with projected qubits and circuit. The qubits are
