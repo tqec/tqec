@@ -165,7 +165,7 @@ class ScheduledCircuit:
         return self._schedule
 
     def get_qubit_coords_definition_preamble(
-        self, shift_to_positive: bool = True
+        self, shift_to_positive: bool = False
     ) -> stim.Circuit:
         """Get a circuit with only ``QUBIT_COORDS`` instructions.
 
@@ -177,7 +177,7 @@ class ScheduledCircuit:
         return self._qubit_map.to_circuit(shift_to_positive)
 
     def get_circuit(
-        self, include_qubit_coords: bool = True, shift_to_positive: bool = True
+        self, include_qubit_coords: bool = True, shift_to_positive: bool = False
     ) -> stim.Circuit:
         """Build and return the ``stim.Circuit`` instance represented by
         ``self``.
