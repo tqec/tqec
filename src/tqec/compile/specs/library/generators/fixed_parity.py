@@ -50,9 +50,7 @@ def _get_spatial_cube_arm_name(
     return "_".join(parts)
 
 
-def _make_spatial_cube_arm_memory_moments_up(
-    basis: Basis, is_reverse: bool
-) -> list[Moment]:
+def _make_spatial_cube_arm_memory_moments_up_forward(basis: Basis) -> list[Moment]:
     """
     Implement circuit for the following plaquette::
 
@@ -62,21 +60,20 @@ def _make_spatial_cube_arm_memory_moments_up(
         |       |
         2 -----
     """
-    args = [1, 0] if is_reverse else [0, 1]
     b = basis.name.upper()
     return [
         Moment(stim.Circuit("RX 4\nRZ 2")),
         Moment(stim.Circuit("CX 4 2")),
-        Moment(stim.Circuit(f"C{b} 4 {args[0]}")),
+        Moment(stim.Circuit(f"C{b} 4 0")),
         Moment(stim.Circuit()),
-        Moment(stim.Circuit(f"C{b} 4 {args[1]}")),
+        Moment(stim.Circuit(f"C{b} 4 1")),
         Moment(stim.Circuit("CX 2 4")),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit()),
     ]
 
 
-def _make_spatial_cube_arm_memory_moments_down(
-    basis: Basis, is_reverse: bool
-) -> list[Moment]:
+def _make_spatial_cube_arm_memory_moments_down_forward(basis: Basis) -> list[Moment]:
     """
     Implement circuit for the following plaquette::
 
@@ -86,15 +83,14 @@ def _make_spatial_cube_arm_memory_moments_down(
         |       |
         2 ----- 3
     """
-    args = [3, 2] if is_reverse else [2, 3]
     b = basis.name.upper()
     return [
         Moment(stim.Circuit("RZ 0")),
         Moment(stim.Circuit("RZ 4")),
         Moment(stim.Circuit("CX 0 4")),
-        Moment(stim.Circuit(f"C{b} 4 {args[0]}")),
+        Moment(stim.Circuit(f"C{b} 4 2")),
         Moment(stim.Circuit()),
-        Moment(stim.Circuit(f"C{b} 4 {args[1]}")),
+        Moment(stim.Circuit(f"C{b} 4 3")),
         Moment(stim.Circuit("CX 4 0")),
         Moment(stim.Circuit("MX 4")),
     ]
@@ -135,8 +131,8 @@ def make_spatial_cube_arm_plaquettes(
         A tuple ``(UP, DOWN)`` containing the two plaquettes needed to implement
         spatial cube arms.
     """
-    up_moments = _make_spatial_cube_arm_memory_moments_up(basis, is_reverse)
-    down_moments = _make_spatial_cube_arm_memory_moments_down(basis, is_reverse)
+    up_moments = _make_spatial_cube_arm_memory_moments_up_forward(basis)
+    down_moments = _make_spatial_cube_arm_memory_moments_down_forward(basis)
 
     qubits = SquarePlaquetteQubits()
     qubit_map = qubits.qubit_map
@@ -149,22 +145,35 @@ def make_spatial_cube_arm_plaquettes(
         down_moments[0].append(f"R{r}", down_qubits, [])
     if measurement is not None:
         m = measurement.value.upper()
-        up_moments[-1].append(f"M{m}", up_qubits, [])
-        down_moments[-1].append(f"M{m}", down_qubits, [])
+        up_moments[6].append(f"M{m}", up_qubits, [])
+        down_moments[6].append(f"M{m}", down_qubits, [])
+
+    up_circuit = ScheduledCircuit(up_moments, 0, qubit_map)
+    down_circuit = ScheduledCircuit(down_moments, 0, qubit_map)
+
+    if is_reverse:
+        inverse_qubit_indices_map = {0: 3, 1: 2, 2: 1, 3: 0, 4: 4}
+        up_circuit, down_circuit = (
+            down_circuit.map_qubit_indices(
+                inverse_qubit_indices_map, with_qubit_map=False
+            ),
+            up_circuit.map_qubit_indices(
+                inverse_qubit_indices_map, with_qubit_map=False
+            ),
+        )
 
     mergeable_instructions = MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES
-
     return (
         Plaquette(
             _get_spatial_cube_arm_name(basis, reset, measurement, "UP", is_reverse),
             qubits,
-            ScheduledCircuit(up_moments, 0, qubit_map),
+            up_circuit,
             mergeable_instructions,
         ),
         Plaquette(
             _get_spatial_cube_arm_name(basis, reset, measurement, "DOWN", is_reverse),
             qubits,
-            ScheduledCircuit(down_moments, 0, qubit_map),
+            down_circuit,
             mergeable_instructions,
         ),
     )
