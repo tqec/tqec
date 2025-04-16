@@ -20,7 +20,7 @@ def cnot(observable_basis: Basis | None = None) -> BlockGraph:
         the logical CNOT gate.
     """
 
-    g = BlockGraph()
+    g = BlockGraph("Logical CNOT")
     nodes = [
         (Position3D(0, 0, 0), "P", "In_Control"),
         (Position3D(0, 0, 1), "ZXX", ""),

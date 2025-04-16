@@ -67,8 +67,8 @@ specific example, the command line
 
     tqec dae2observables --out-dir observables/ logical_cnot.dae
 
-should populate the ``observables`` directory with 3 ``.png`` images representing the
-3 valid observables found.
+should populate the ``observables`` directory with 2 ``.png`` images representing the
+two independent logical observables.
 
 4. Compile and export the computation
 -------------------------------------
