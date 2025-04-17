@@ -25,9 +25,9 @@ from tqec.interop.color import TQECColor
 from tqec.computation.correlation import CorrelationSurface
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.utils.rotations import (
-    calc_rotation_angles,
     get_axes_directions,
-    rotate_block_kind_by_matrix,
+    rotate_on_import,
+    adjust_hadamards_direction,
 )
 from tqec.utils.scale import round_or_fail
 
@@ -104,46 +104,20 @@ def read_block_graph_from_dae_file(
             axes_directions = get_axes_directions(transformation.rotation)
             kind = block_kind_from_str(name)
 
-            # Rotation health checks
-            # - If node's matrix NOT rotated: proceed automatically
+            # Rotations step 1. Skip if node's matrix not rotated
             # - If node's matrix YES rotated: check closer & make necessary adjustments
             if not np.allclose(transformation.rotation, np.eye(3), atol=1e-9):
-                # Calculate rotation
-                rotation_angles = calc_rotation_angles(transformation.rotation)
-
-                # Reject invalid rotations for all other cubes/pipes:
-                if (
-                    # Any rotation with angle not an integer multiply of 90 degrees: partially rotated block/pipe
-                    any([int(angle) not in [0, 90, 180] for angle in rotation_angles])
-                    # At least 1 * 180-deg or 2 * 90-deg rotation to avoid dimensional collapse
-                    # (A single 90-deg rotation would put the rotated vector on the plane made by the other two axes)
-                    or sum([angle for angle in rotation_angles]) < 180
-                ):
-                    raise TQECException(
-                        f"There is an invalid rotation for {kind} block at position {translation}."
-                    )
-
-                # Rotate node name
-                # Calculate rotated kind and directions for all axes in case it is needed
-                kind = rotate_block_kind_by_matrix(kind, transformation.rotation)
-
-                # Shift nodes slightly according to rotation
-                translation = FloatPosition3D(
-                    *transformation.translation
-                    + transformation.rotation.dot(transformation.scale)
+                translation, kind = rotate_on_import(
+                    transformation.rotation,
+                    transformation.translation,
+                    transformation.scale,
+                    kind,
                 )
 
-            # Adjust hadamards if pipe direction is negative
+            # Rotations step 2. Skip if hadamard points in positive direction
             if isinstance(kind, PipeKind):
                 if axes_directions[str(kind.direction)] == -1 and "H" in str(kind):
-                    hdm_equivalences = {"ZXOH": "XZOH", "XOZH": "ZOXH", "OXZH": "OZXH"}
-                    if str(kind) in hdm_equivalences.keys():
-                        kind = block_kind_from_str(hdm_equivalences[str(kind)])
-                    else:
-                        inv_equivalences = {
-                            value: key for key, value in hdm_equivalences.items()
-                        }
-                        kind = block_kind_from_str(inv_equivalences[str(kind)])
+                    kind = adjust_hadamards_direction(kind)
 
             # Direction, scaling and checks for pipes
             if isinstance(kind, PipeKind):
@@ -308,10 +282,6 @@ def write_block_graph_to_dae_file(
     base = _BaseColladaData(pop_faces_at_direction)
 
     cubes, pipes = core_export(block_graph, pipe_length)
-
-    # for cube in block_graph.cubes:
-    # for pipe in block_graph.pipes_at(cube.position):
-    # print("from blockgraph iteration: ", cube, pipe.u)
 
     for item in cubes.items:
         matrix = np.eye(4, dtype=np.float32)
