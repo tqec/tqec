@@ -4,7 +4,6 @@ from tqec.compile.observables.fixed_parity_builder import (
     _get_bottom_stabilizer_cube_qubits,
     _get_bottom_stabilizer_spatial_cube_qubits,
     _get_top_readout_cube_qubits,
-    _get_top_readout_pipe_qubits,
     _get_top_readout_spatial_cube_qubits,
 )
 from tqec.compile.specs.enums import SpatialArms
@@ -28,22 +27,6 @@ def test_get_top_readout_cube_qubits(
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
     coords = _get_top_readout_cube_qubits(shape, ZXCube.from_str(kind))
-    assert coords == expected
-
-
-@pytest.mark.parametrize(
-    "direction, expected",
-    [
-        (Direction3D.X, [(6, 3)]),
-        (Direction3D.Y, [(3, 6)]),
-    ],
-)
-def test_get_top_readout_pipe_qubits(
-    direction: Direction3D,
-    expected: list[tuple[int, int]],
-) -> None:
-    shape = PlaquetteShape2D(6, 6)
-    coords = _get_top_readout_pipe_qubits(shape, direction)
     assert coords == expected
 
 

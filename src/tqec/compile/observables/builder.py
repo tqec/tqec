@@ -10,6 +10,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
+from tqec.computation.pipe import Pipe
 from tqec.templates.layout import LayoutTemplate
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
@@ -80,7 +81,7 @@ class PipeTopReadoutsBuilder(Protocol):
     def __call__(
         self,
         shape: PlaquetteShape2D,
-        connect_to: Direction3D,
+        pipe: Pipe,
         /,
     ) -> list[tuple[int, int]]: ...
 
@@ -227,7 +228,7 @@ def compute_observable_qubits(
     for pipe in obs_slice.top_readout_pipes:
         collect(
             pipe.u.position,
-            obs_builder.pipe_top_readouts_builder(shape, pipe.direction),
+            obs_builder.pipe_top_readouts_builder(shape, pipe),
         )
     for cube in obs_slice.top_readout_cubes:
         assert isinstance(cube.kind, ZXCube)

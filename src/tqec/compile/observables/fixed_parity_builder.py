@@ -1,6 +1,7 @@
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
+from tqec.computation.pipe import Pipe
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
 
@@ -19,10 +20,13 @@ def _get_top_readout_cube_qubits(
 
 
 def _get_top_readout_pipe_qubits(
-    u_shape: PlaquetteShape2D, connect_to: Direction3D
+    u_shape: PlaquetteShape2D, pipe: Pipe
 ) -> list[tuple[int, int]]:
-    assert connect_to != Direction3D.Z
-    if connect_to == Direction3D.X:
+    direction = pipe.direction
+    assert direction != Direction3D.Z
+    if (pipe.u.is_spatial or pipe.v.is_spatial) and direction == Direction3D.Y:
+        return []
+    if direction == Direction3D.X:
         return [(u_shape.x, u_shape.y // 2)]
     else:
         return [(u_shape.x // 2, u_shape.y)]

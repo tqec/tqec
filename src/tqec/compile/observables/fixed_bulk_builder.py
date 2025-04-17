@@ -1,9 +1,7 @@
 from tqec.compile.observables.builder import ObservableBuilder
-from tqec.compile.observables.fixed_parity_builder import (
-    _get_top_readout_cube_qubits,
-    _get_top_readout_pipe_qubits,
-)
+from tqec.compile.observables.fixed_parity_builder import _get_top_readout_cube_qubits
 from tqec.compile.specs.enums import SpatialArms
+from tqec.computation.pipe import Pipe
 from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
@@ -52,6 +50,19 @@ def _get_bottom_stabilizer_cube_qubits(
         )
         for x, y in stabilizers
     ]
+
+
+def _get_top_readout_pipe_qubits(
+    u_shape: PlaquetteShape2D, pipe: Pipe
+) -> list[tuple[int, int]]:
+    direction = pipe.direction
+    assert direction != Direction3D.Z
+    if (pipe.u.is_spatial or pipe.v.is_spatial) and direction == Direction3D.Y:
+        return []
+    if direction == Direction3D.X:
+        return [(u_shape.x, u_shape.y // 2)]
+    else:
+        return [(u_shape.x // 2, u_shape.y)]
 
 
 def _get_top_readout_spatial_cube_qubits(
