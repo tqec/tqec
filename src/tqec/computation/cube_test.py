@@ -27,6 +27,11 @@ def test_zx_cube() -> None:
     assert not cube.is_port
     assert not cube.is_y_cube
     assert str(cube) == "ZXZ(0,0,0)"
+    assert cube.to_dict() == {
+        "position": (0, 0, 0),
+        "kind": "ZXZ",
+        "label": "",
+    }
 
 
 def test_port() -> None:
@@ -40,3 +45,8 @@ def test_port() -> None:
         Cube(Position3D(0, 0, 0), Port())
 
     assert cube == Cube(Position3D(0, 0, 0), Port(), "p")
+    assert cube.to_dict() == {
+        "position": (0, 0, 0),
+        "kind": "PORT",
+        "label": "p",
+    }
