@@ -2,7 +2,7 @@
 =====================
 
 This document is mainly targeted at a developer wanting to contribute to the
-``tqec`` library. It gives a high-level overview of the different pieces that compose
+``tqec`` library. It provides a high-level overview of the different pieces that compose
 the ``tqec`` library and how they interact with each other.
 
 .. warning::
@@ -42,30 +42,49 @@ the order in which the sub-modules will be covered here.
         F --> G[tqec.utils.noise_models]
         G --> H[tqec.simulation]
 
-A user starts with a computation and an observable. The computation is represented as a ``BlockGraph``
-structure while the observable is represented as a correlation surface.
+A user starts with a computation and an observable. The input computation can be provided as a :class:`.BlockGraph`
+structure while an observable is represented as a correlation surface. The end goal of ``tqec`` is to generate a ``stim.Circuit``
+such that the input is transformed into a topologically quantum error corrected quantum computation protected by a surface code.
 
-``tqec.interop``
+.. _interop_ref:
+
+:mod:`.interop`
+--------------------
+
+Allows a user to provide a ``.dae`` file or a ``pyzx`` graph as an input to ``tqec``.
+
+* A :class:`.BlockGraph` can be constructed through a Collada ``.dae`` file through :func:`.read_block_graph_from_dae_file`
+  and vice versa through :func:`.write_block_graph_to_dae_file`.
+* A ZX graph can be mapped to a :class:`.BlockGraph` through :class:`.SynthesisStrategy`.
+
+Standard color representations as described in :ref:`terminology` are predefined in :class:`.TQECColor`.
+
+Some conventional implementations of computations in ``.dae`` format are available in the :ref:`gallery-reference-label`.
+
+:mod:`.computation`
+--------------------
+
+Defines data structures for the high-level :class:`.BlockGraph` representations of a fault-tolerant computation protected by the surface code.
+
+The ``3D`` structures discussed in detail in :ref:`terminology` are defined in this module.
+
+* A :class:`.CorrelationSurface` represents a set of parity measurements between the input and output logical operators.
+* A :class:`.Cube` is a fundamental building block constituting of a block of quantum operations that occupy a specific spacetime volume.
+  Quantum information encoded in the logical qubits can be preserved or manipulated by these blocks.
+* A :class:`.Pipe` is a block that connects :class:`.Cube` objects in a :class:`.BlockGraph` but does not occupy spacetime volume on its own.
+* :class:`.PipeKind` helps determine the kind of a pipe in a  :class:`.BlockGraph` based on the wall bases at the head of the pipe in
+  addition to a Hadamard transition.
+* :class:`.Port` depicts the open ports in a :class:`.BlockGraph`.
+* A :class:`.YHalfCube` represents Y-basis initialization and measurements.
+* :class:`.ZXCube` defines cubes with only X or Z basis boundaries.
+
+
+:mod:`.compile`
 ----------------
 
-This module allows a user to provide a ``.dae`` file or a ``pyzx`` graph as an input to ``tqec``. The gallery also
-provides some implementations of standard computations (memory, CNOT, etc.).
+Responsible for translations between internal representations.
 
-Standard colors and 3D models imported from SketchUp.
-
-``tqec.computation``
---------------------
-
-BlockGraph representation of a computation.
-
-Implements the BlockGraph structure using the surface code.
-
-``tqec.compile``
---------------------
-
-Translations between internal representations.
-
-BlockGraph from everything in interop which is further translated into CompiledGraph
+:class:`.BlockGraph` from the functionality in :ref:`interop_ref` is further translated into a compiled graph through :func:`.compile_block_graph`.
 
 .. mermaid::
     :align: center
@@ -82,43 +101,33 @@ BlockGraph from everything in interop which is further translated into CompiledG
     }%%
 
     graph
-        A[BlockGraph] --> B[CompiledGraph] --> C[ScheduledCircuit]--> D[stim.Circuit]
+        A[BlockGraph] --> B[compiled graph] --> C[ScheduledCircuit]--> D[stim.Circuit]
 
-Generating a stim.Circuit is the end goal of tqec. The input is transformed into a topologically quantum error
-corrected quantum computation.
+Multiple block builder protocols defined in ``tqec/compile/observables/builder.py`` will take the high-level structure of a block to
+templates and plaquettes i.e. a fully annotated ``stim.Circuit``.
 
-BlockBuilder will take the high-level structure of a block to templates and plaquettes.
+:mod:`.templates`
+^^^^^^^^^^^^^^^^^
 
-SubstitutionBuilder encodes all the information needed to perform an operation to merge 2 logical qubits.
-
-``tqec.templates``
-------------------
-
-Representation of a 2-dimensional, scalable, arrangement of plaquettes
-
-Allow us to describe a circuit that scales the desired code distance.
-
-Something that can generate an array of numbers.
-
-``tqec.plaquette``
-------------------
-
-Representation of a local quantum circuit: Plaquette
-
-Allow us to describe a circuit that scales the desired code distance.
-
-A surface code patch implements one layer in time or one round of the surface code.
-
-Mapping from the numbered templates to some plaquettes that implement small local circuits to measure a stabilizer.
+Generates an array of numbers in a representation of a 2-dimensional, scalable, arrangement of plaquettes. This allows us to describe a
+circuit that can scale the desired code distance.
 
 
-``tqec.circuit``
-----------------
+:mod:`.plaquette`
+^^^^^^^^^^^^^^^^^
+
+A plaquette is the representation of a local quantum circuit. A surface code patch implements one layer in time or one round of the surface code.
+
+This module maps from the numbered templates to some plaquettes that implement small local circuits to measure a stabilizer as a :class:`.ScheduledCircuit` instance.
+
+
+:mod:`.circuit`
+^^^^^^^^^^^^^^^
 
 Implementation of :class:`.ScheduledCircuit`, a quantum circuit representation in tqec, where each and every gate of a regular quantum circuit is associated with the time of execution.
 
-``tqec.utils.noise_model``
---------------------------
+:class:`.NoiseModel`
+--------------------
 
 .. note::
 
@@ -144,13 +153,11 @@ This module implements the following noise models for ``Stim`` simulations:
 
 
 
-``tqec.simulation``
+:mod:`.simulation`
 -------------------
 
 Utilities related to quantum circuit simulations through ``sinter``, a Python submodule in ``stim``.
 Plotting functions are in this module too.
-
-Additional information is available in :mod:`.simulation`.
 
 
 
