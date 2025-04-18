@@ -7,7 +7,7 @@ the ``tqec`` library and how they interact with each other.
 
 .. warning::
 
-    This is a rapidly evolving project - codebase might change. If you encounter any
+    This is a rapidly evolving project — codebase might change. If you encounter any
     inconsistencies, please open `an issue <https://github.com/tqec/tqec/issues/new/choose>`_.
 
 
@@ -55,7 +55,7 @@ Allows a user to provide a ``.dae`` file or a ``pyzx`` graph as an input to ``tq
 
 * A :class:`.BlockGraph` can be constructed through a Collada ``.dae`` file through :func:`.read_block_graph_from_dae_file`
   and vice versa through :func:`.write_block_graph_to_dae_file`.
-* A ZX graph can be mapped to a :class:`.BlockGraph` through :class:`.SynthesisStrategy`.
+* A ZX graph can be mapped to a :class:`.BlockGraph` through :func:`.block_synthesis`. 
 
 Standard color representations as described in :ref:`terminology` are predefined in :class:`.TQECColor`.
 
@@ -103,7 +103,7 @@ Responsible for translations between internal representations.
     graph
         A[BlockGraph] --> B[compiled graph] --> C[ScheduledCircuit]--> D[stim.Circuit]
 
-Multiple block builder protocols defined in ``tqec/compile/observables/builder.py`` will take the high-level structure of a block to
+Multiple block builder protocols defined in ``tqec.compile.spec.library`` will take the high-level structure of a block to
 templates and plaquettes i.e. a fully annotated ``stim.Circuit``.
 
 :mod:`.templates`

@@ -54,8 +54,8 @@ extensions = [
     "sphinx_copybutton",
     # Adds a copy button to each code block in the documentation
     # https://sphinx-copybutton.readthedocs.io/en/latest/
-    "sphinxcontrib.bibtex",
     # Allows us to add references to a page
+    "sphinxcontrib.bibtex",
 ]
 
 templates_path = ["_templates"]
