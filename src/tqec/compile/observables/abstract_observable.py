@@ -46,9 +46,10 @@ class AbstractObservable:
         bottom_stabilizer_spatial_cubes: A set of spatial cubes of which
             the stabilizer measurements on the bottom face should be included in
             the observable.
-        temporal_hadamard_pipes: A set of pipes with the observable basis of which
-            a single stabilizer measurements at the realignment layer might be
-            included in the logical observable.
+        temporal_hadamard_pipes: A set of tuples of pipes and the observable basis
+            supported at the bottom of the pipe. A single stabilizer measurements
+            at the realignment layer represented by the pipe might be included in
+            the logical observable.
     """
 
     top_readout_cubes: frozenset[Cube] = frozenset()

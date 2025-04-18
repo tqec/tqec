@@ -102,6 +102,8 @@ class TopologicalComputationGraph:
         # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
         # extent. We need to keep track of the temporal pipes that are at the
         # same layer of at least one temporal Hadamard pipe.
+        # We use the bottom cube position `z` to store the temporal pipe, s.t.
+        # the pipe is actually at the position `z+0.5`
         self._temporal_pipes_at_hadamard_layer: dict[LayoutPosition3D, Block] = {}
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = (
             scalable_qubit_shape
@@ -386,6 +388,8 @@ class TopologicalComputationGraph:
             )
             if block_trimmed_temporal_borders:
                 u_pos = LayoutPosition3D.from_block_position(source)
+                # We use the bottom cube position `z` to store the temporal pipe, s.t.
+                # the pipe is actually at the position `z+0.5`
                 self._temporal_pipes_at_hadamard_layer[u_pos] = (
                     block_trimmed_temporal_borders
                 )
