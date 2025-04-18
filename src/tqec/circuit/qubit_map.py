@@ -15,6 +15,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import Callable, Iterable
 
+import numpy
 import stim
 
 from tqec.circuit.qubit import GridQubit
@@ -135,6 +136,18 @@ class QubitMap:
 
     def __getitem__(self, index: GridQubit) -> int:
         return self.q2i[index]
+
+    def bounding_box(self) -> tuple[tuple[float, float], tuple[float, float]]:
+        """Compute and return the bounding box of ``self``.
+
+        Returns:
+            ``(mins, maxes)`` where each of ``mins`` (resp. ``maxes``) is a pair
+            of values ``(x, y)`` corresponding to the dimension.
+        """
+        coordinates = numpy.array([(q.x, q.y) for q in self.qubits])
+        mins = numpy.min(coordinates, axis=0)
+        maxes = numpy.max(coordinates, axis=0)
+        return ((mins[0], mins[1]), (maxes[0], maxes[1]))
 
 
 def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
