@@ -37,10 +37,13 @@ def _get_spatial_cube_arm_name(
     basis: Basis,
     position: Literal["UP", "DOWN"],
     is_reverse: bool,
+    measure_ancilla: bool,
 ) -> str:
     parts = ["SpatialCubeArm", basis.value.upper(), position]
     if is_reverse:
         parts.append("reversed")
+    if measure_ancilla:
+        parts.append("measure-ancilla")
     return "_".join(parts)
 
 
@@ -91,7 +94,7 @@ def _make_spatial_cube_arm_memory_moments_down_forward(basis: Basis) -> list[Mom
 
 
 def make_spatial_cube_arm_plaquettes(
-    basis: Basis, is_reverse: bool = False
+    basis: Basis, is_reverse: bool = False, measure_ancillas: bool = False
 ) -> tuple[Plaquette, Plaquette]:
     """Make a plaquette for spatial cube arms.
 
@@ -113,6 +116,7 @@ def make_spatial_cube_arm_plaquettes(
     Args:
         basis: the basis of the plaquette.
         is_reverse: whether the schedules of controlled-A gates are reversed.
+        measure_ancillas: whether ancillas should be measured.
 
     Returns:
         A tuple ``(UP, DOWN)`` containing the two plaquettes needed to implement
@@ -123,6 +127,10 @@ def make_spatial_cube_arm_plaquettes(
 
     up_moments = _make_spatial_cube_arm_memory_moments_up_forward(basis)
     down_moments = _make_spatial_cube_arm_memory_moments_down_forward(basis)
+    if measure_ancillas:
+        up_moments[-1].append("M", [2, 4], [])
+        down_moments[-1].append("M", [0], [])
+
     up_circuit = ScheduledCircuit(up_moments, 0, qubit_map)
     down_circuit = ScheduledCircuit(down_moments, 0, qubit_map)
 
@@ -140,13 +148,13 @@ def make_spatial_cube_arm_plaquettes(
     mergeable_instructions = MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES
     return (
         Plaquette(
-            _get_spatial_cube_arm_name(basis, "UP", is_reverse),
+            _get_spatial_cube_arm_name(basis, "UP", is_reverse, measure_ancillas),
             qubits,
             up_circuit,
             mergeable_instructions,
         ),
         Plaquette(
-            _get_spatial_cube_arm_name(basis, "DOWN", is_reverse),
+            _get_spatial_cube_arm_name(basis, "DOWN", is_reverse, measure_ancillas),
             qubits,
             down_circuit,
             mergeable_instructions,
@@ -169,8 +177,10 @@ class ExtendedPlaquetteCollection:
     right_without_arm: ExtendedPlaquette
 
     @staticmethod
-    def from_args(basis: Basis, is_reverse: bool) -> ExtendedPlaquetteCollection:
-        up, down = make_spatial_cube_arm_plaquettes(basis, is_reverse)
+    def from_args(
+        basis: Basis, is_reverse: bool, measure_ancillas: bool = False
+    ) -> ExtendedPlaquetteCollection:
+        up, down = make_spatial_cube_arm_plaquettes(basis, is_reverse, measure_ancillas)
         return ExtendedPlaquetteCollection(
             bulk=ExtendedPlaquette(up, down),
             left_with_arm=ExtendedPlaquette(
@@ -360,7 +370,7 @@ class FixedParityConventionGenerator:
         return ret
 
     def get_extended_plaquettes(
-        self, is_reversed: bool
+        self, is_reversed: bool, measure_ancillas: bool = False
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
         """Get plaquettes that are supposed to be used to implement ``UP`` or
         ``DOWN`` spatial pipes.
@@ -372,7 +382,8 @@ class FixedParityConventionGenerator:
             contains plaquettes that have been reversed.
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_args(b, is_reversed)) for b in Basis
+            b: (ExtendedPlaquetteCollection.from_args(b, is_reversed, measure_ancillas))
+            for b in Basis
         }
 
     def get_bulk_hadamard_rpng_descriptions(
@@ -1239,7 +1250,9 @@ class FixedParityConventionGenerator:
         # General case, need extended stabilizers.
         SBB, OTB = spatial_boundary_basis, spatial_boundary_basis.flipped()
         # EPs: extended plaquettes
-        EPs = self.get_extended_plaquettes(is_reversed)
+        EPs = self.get_extended_plaquettes(
+            is_reversed, measure_ancillas=measurement is not None
+        )
         # Dictionary that will be filled with plaquettes
         plaquettes: dict[int, Plaquette] = {}
         # Getting the extended plaquettes for the bulk and filling the dictionary
