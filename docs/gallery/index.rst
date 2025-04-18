@@ -1,3 +1,5 @@
+.. _gallery-reference-label:
+
 Computation Gallery
 ===================
 
