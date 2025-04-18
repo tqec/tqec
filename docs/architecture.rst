@@ -55,7 +55,7 @@ Allows a user to provide a ``.dae`` file or a ``pyzx`` graph as an input to ``tq
 
 * A :class:`.BlockGraph` can be constructed through a Collada ``.dae`` file through :func:`.read_block_graph_from_dae_file`
   and vice versa through :func:`.write_block_graph_to_dae_file`.
-* A ZX graph can be mapped to a :class:`.BlockGraph` through :func:`.block_synthesis`. 
+* A ZX graph can be mapped to a :class:`.BlockGraph` through :func:`.block_synthesis`.
 
 Standard color representations as described in :ref:`terminology` are predefined in :class:`.TQECColor`.
 

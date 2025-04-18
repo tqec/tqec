@@ -51,10 +51,11 @@ extensions = [
     # Include Mermaid diagrams in the documentation
     # https://sphinxcontrib-mermaid-demo.readthedocs.io/en/latest/
     "sphinxcontrib.mermaid",
-    "sphinx_copybutton",
     # Adds a copy button to each code block in the documentation
     # https://sphinx-copybutton.readthedocs.io/en/latest/
+    "sphinx_copybutton",
     # Allows us to add references to a page
+    # https://sphinxcontrib-bibtex.readthedocs.io/en/latest/
     "sphinxcontrib.bibtex",
 ]
 
