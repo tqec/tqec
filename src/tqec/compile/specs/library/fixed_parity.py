@@ -198,6 +198,7 @@ class FixedParityPipeBuilder(PipeBuilder):
             ``spec``.
         """
         assert spec.pipe_kind.is_temporal
+        hadamard_transition = spec.pipe_kind.has_hadamard
         z_orientation = (
             Orientation.HORIZONTAL
             if spec.pipe_kind.x == Basis.Z
@@ -205,11 +206,14 @@ class FixedParityPipeBuilder(PipeBuilder):
         )
         memory_template = self._generator.get_memory_qubit_raw_template()
         memory_plaquettes = self._generator.get_memory_qubit_plaquettes(
-            False, z_orientation, None, None
+            False,
+            z_orientation.flip() if hadamard_transition else z_orientation,
+            None,
+            None,
         )
         memory_layer = PlaquetteLayer(memory_template, memory_plaquettes)
 
-        if spec.pipe_kind.has_hadamard:
+        if hadamard_transition:
             hadamard_template = self._generator.get_temporal_hadamard_raw_template()
             hadamard_plaquettes = self._generator.get_temporal_hadamard_plaquettes(
                 False, z_orientation
