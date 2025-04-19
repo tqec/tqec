@@ -65,8 +65,12 @@ def compile_block_graph(
     if minz != 0:
         block_graph = block_graph.shift_by(dz=-minz)
 
+    spatial_junction_slices: frozenset[int] = frozenset(
+        cube.position.z for cube in block_graph.cubes if cube.is_spatial
+    )
     cube_specs = {
-        cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
+        cube: CubeSpec.from_cube(cube, block_graph, spatial_junction_slices)
+        for cube in block_graph.cubes
     }
 
     # 0. Get the abstract observables to be included in the compiled circuit.
@@ -74,8 +78,11 @@ def compile_block_graph(
     if observables is not None:
         if observables == "auto":
             observables = block_graph.find_correlation_surfaces()
+        include_temporal_hadamard_pipes = convention.name == "fixed_bulk"
         obs_included = [
-            compile_correlation_surface_to_abstract_observable(block_graph, surface)
+            compile_correlation_surface_to_abstract_observable(
+                block_graph, surface, include_temporal_hadamard_pipes
+            )
             for surface in observables
         ]
 
@@ -110,6 +117,9 @@ def compile_block_graph(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (QubitTemplate(), QubitTemplate()),
             pipe.kind,
+            has_spatial_junction_in_timeslice=(
+                pos1.z == pos2.z and pos1.z in spatial_junction_slices
+            ),
             at_temporal_hadamard_layer=(
                 pipe.kind.is_temporal and pos1.z in temporal_hadamard_z_positions
             ),

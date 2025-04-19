@@ -164,13 +164,28 @@ class ScheduledCircuit:
         """Schedule of the internal moments."""
         return self._schedule
 
-    def get_qubit_coords_definition_preamble(self) -> stim.Circuit:
-        """Get a circuit with only ``QUBIT_COORDS`` instructions."""
-        return self._qubit_map.to_circuit()
+    def get_qubit_coords_definition_preamble(
+        self, shift_to_positive: bool = False
+    ) -> stim.Circuit:
+        """Get a circuit with only ``QUBIT_COORDS`` instructions.
 
-    def get_circuit(self, include_qubit_coords: bool = True) -> stim.Circuit:
+        Args:
+            shift_to_positive: if ``True``, the qubit coordinates are shift such
+                that they are all positive. Their relative positioning stays
+                unchanged.
+        """
+        return self._qubit_map.to_circuit(shift_to_positive)
+
+    def get_circuit(
+        self, include_qubit_coords: bool = True, shift_to_positive: bool = False
+    ) -> stim.Circuit:
         """Build and return the ``stim.Circuit`` instance represented by
         ``self``.
+
+        Args:
+            shift_to_positive: if ``True``, the qubit coordinates are shift such
+                that they are all positive. Their relative positioning stays
+                unchanged.
 
         Warning:
             The circuit is re-built at each call! Use that function wisely.
@@ -184,7 +199,7 @@ class ScheduledCircuit:
 
         # Appending the QUBIT_COORDS instructions first.
         if include_qubit_coords:
-            ret += self.get_qubit_coords_definition_preamble()
+            ret += self.get_qubit_coords_definition_preamble(shift_to_positive)
 
         # Building the actual circuit.
         current_schedule: int = 0
@@ -250,7 +265,10 @@ class ScheduledCircuit:
         return ret
 
     def map_qubit_indices(
-        self, qubit_index_map: dict[int, int], inplace: bool = False
+        self,
+        qubit_index_map: dict[int, int],
+        inplace: bool = False,
+        with_qubit_map: bool = True,
     ) -> ScheduledCircuit:
         """Map the qubits **indices** the :class:`ScheduledCircuit` instance is
         applied on.
@@ -270,13 +288,20 @@ class ScheduledCircuit:
                 ``self``. Else, perform the modification in a copy and return
                 the copy. Note that the runtime cost of this method should be
                 the same independently of the value provided here.
+            with_qubit_map: if ``True``, the qubit map is also changed and the
+                returned circuit is equivalent to ``self`` before calling this
+                method (this only changes internal representation). If ``False``,
+                the qubit map is left unchanged, meaning that this method
+                permutes the qubits on which operations are applied.
 
         Returns:
             a modified instance of :class:`ScheduledCircuit` (a copy if
             ``inplace`` is ``True``, else ``self``).
         """
-        mapped_final_qubits = QubitMap(
-            {qubit_index_map[qi]: q for qi, q in self._qubit_map.items()}
+        mapped_final_qubits = (
+            QubitMap({qubit_index_map[qi]: q for qi, q in self._qubit_map.items()})
+            if with_qubit_map
+            else self._qubit_map
         )
         mapped_moments: list[Moment] = []
         for moment in self._moments:

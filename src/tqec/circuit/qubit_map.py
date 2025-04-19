@@ -18,6 +18,7 @@ from typing import Callable, Iterable
 import stim
 
 from tqec.circuit.qubit import GridQubit
+from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import round_or_fail
 
@@ -105,12 +106,31 @@ class QubitMap:
         kept_qubits = frozenset(qubits_to_keep)
         return QubitMap({i: q for i, q in self.i2q.items() if q in kept_qubits})
 
-    def to_circuit(self) -> stim.Circuit:
+    def to_circuit(self, shift_to_positive: bool = False) -> stim.Circuit:
         """Get a circuit with only ``QUBIT_COORDS`` instructions representing
-        ``self``."""
+        ``self``.
+
+        Args:
+            shift_to_positive: if ``True``, the qubit coordinates are shift such
+                that they are all positive. Their relative positioning stays
+                unchanged.
+
+        Returns:
+            a ``stim.Circuit`` containing only ``QUBIT_COORDS`` instructions.
+        """
+        shiftx, shifty = 0, 0
+        if shift_to_positive:
+            shiftx = -min((q.x for q in self.i2q.values()), default=0)
+            shifty = -min((q.y for q in self.i2q.values()), default=0)
         ret = stim.Circuit()
         for qi, qubit in sorted(self.i2q.items(), key=lambda t: t[0]):
-            ret.append("QUBIT_COORDS", qi, (float(qubit.x), float(qubit.y)))
+            ret.append(
+                "QUBIT_COORDS",
+                qi,
+                StimCoordinates(
+                    qubit.x + shiftx, qubit.y + shifty
+                ).to_stim_coordinates(),
+            )
         return ret
 
     def __getitem__(self, index: GridQubit) -> int:
