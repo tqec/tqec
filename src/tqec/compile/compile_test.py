@@ -258,3 +258,65 @@ def test_compile_move_rotation(convention_name: str, obs_basis: Basis, k: int) -
     dem = circuit.detector_error_model()
     assert dem.num_observables == 1
     assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "in_obs_basis", "k"),
+    itertools.product(
+        ALL_CONVENTIONS.keys(),
+        (Basis.X, Basis.Z),
+        (1, 2),
+    ),
+)
+def test_compile_temporal_hadamard(
+    convention_name: str, in_obs_basis: Basis, k: int
+) -> None:
+    d = 2 * k + 1
+
+    g = BlockGraph("Test Temporal Hadamard")
+    n1 = g.add_cube(Position3D(0, 0, 0), "XZZ" if in_obs_basis == Basis.Z else "XZX")
+    n2 = g.add_cube(Position3D(0, 0, 1), "ZXX" if in_obs_basis == Basis.Z else "ZXZ")
+    g.add_pipe(n1, n2)
+
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error()) == d
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "h_top_obs_basis", "k"),
+    itertools.product(
+        ALL_CONVENTIONS.keys(),
+        [Basis.X, Basis.Z],
+        (1, 2),
+    ),
+)
+def test_compile_bell_state_with_single_temporal_hadamard(
+    convention_name: str, h_top_obs_basis: Basis, k: int
+) -> None:
+    d = 2 * k + 1
+
+    g = BlockGraph("Test Bell State with a Temporal Hadamard")
+    n1 = g.add_cube(Position3D(0, 0, 0), "XZZ")
+    n2 = g.add_cube(Position3D(0, 1, 0), "XZZ")
+    n3 = g.add_cube(Position3D(0, 0, 1), "ZX" + h_top_obs_basis.value)
+    n4 = g.add_cube(Position3D(0, 1, 1), "XZ" + h_top_obs_basis.flipped().value)
+    g.add_pipe(n1, n2)
+    g.add_pipe(n1, n3)
+    g.add_pipe(n2, n4)
+
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model()
+    assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error()) == d

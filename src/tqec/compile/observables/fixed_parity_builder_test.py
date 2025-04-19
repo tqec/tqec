@@ -8,7 +8,7 @@ from tqec.compile.observables.fixed_parity_builder import (
     _get_top_readout_spatial_cube_qubits,
 )
 from tqec.compile.specs.enums import SpatialArms
-from tqec.computation.cube import ZXCube
+from tqec.utils.enums import Orientation
 from tqec.utils.position import (
     Direction3D,
     PlaquetteShape2D,
@@ -17,17 +17,17 @@ from tqec.utils.position import (
 
 
 @pytest.mark.parametrize(
-    "kind, expected",
+    "orientation, expected",
     [
-        ("ZXZ", [(1, 3), (2, 3), (3, 3), (4, 3), (5, 3)]),
-        ("XZZ", [(3, 1), (3, 2), (3, 3), (3, 4), (3, 5)]),
+        (Orientation.HORIZONTAL, [(1, 3), (2, 3), (3, 3), (4, 3), (5, 3)]),
+        (Orientation.VERTICAL, [(3, 1), (3, 2), (3, 3), (3, 4), (3, 5)]),
     ],
 )
 def test_get_top_readout_cube_qubits(
-    kind: str, expected: list[tuple[int, int]]
+    orientation: Orientation, expected: list[tuple[int, int]]
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
-    coords = _get_top_readout_cube_qubits(shape, ZXCube.from_str(kind))
+    coords = _get_top_readout_cube_qubits(shape, orientation)
     assert coords == expected
 
 

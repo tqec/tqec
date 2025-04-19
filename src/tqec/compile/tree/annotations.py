@@ -12,7 +12,7 @@ from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.observables.builder import Observable
-from tqec.plaquette.rpng.rpng import BasisEnum
+from tqec.plaquette.rpng.rpng import PauliBasis
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 
@@ -52,7 +52,7 @@ class DetectorAnnotation:
 class Polygon:
     """A polygon representing a stabilizer region in Crumble."""
 
-    basis: BasisEnum | None
+    basis: PauliBasis | None
     qubits: frozenset[GridQubit]
 
     def _sorted_qubits(self) -> list[GridQubit]:

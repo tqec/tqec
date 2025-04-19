@@ -4,7 +4,7 @@ from tqec.compile.observables.fixed_parity_builder import (
     _get_top_readout_pipe_qubits,
 )
 from tqec.compile.specs.enums import SpatialArms
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Orientation
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
 
@@ -107,10 +107,27 @@ def _get_bottom_stabilizer_spatial_cube_qubits(
     ]
 
 
+def _get_temporal_hadamard_includes_qubits(
+    shape: PlaquetteShape2D,
+    observable_basis: Basis,
+    z_orientation: Orientation,
+) -> list[tuple[float, float]]:
+    # observable is horizontal
+    if (observable_basis == Basis.X) ^ (z_orientation == Orientation.HORIZONTAL):
+        if (shape.x % 4 == 0) ^ (observable_basis == Basis.Z):
+            return [(shape.x - 0.5, shape.y // 2 + 0.5)]
+        return []
+    # observable is vertical
+    if (shape.y % 4 == 0) ^ (observable_basis == Basis.Z):
+        return [(shape.x // 2 + 0.5, shape.y - 0.5)]
+    return []
+
+
 FIXED_BULK_OBSERVABLE_BUILDER = ObservableBuilder(
     _get_top_readout_cube_qubits,
     _get_top_readout_spatial_cube_qubits,
     _get_top_readout_pipe_qubits,
     _get_bottom_stabilizer_cube_qubits,
     _get_bottom_stabilizer_spatial_cube_qubits,
+    _get_temporal_hadamard_includes_qubits,
 )
