@@ -488,8 +488,11 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">if</span> <span class="n">observables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
             <span class="n">observables</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
+        <span class="n">include_temporal_hadamard_pipes</span> <span class="o">=</span> <span class="n">convention</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;fixed_bulk&quot;</span>
         <span class="n">obs_included</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">compile_correlation_surface_to_abstract_observable</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">surface</span><span class="p">)</span>
+            <span class="n">compile_correlation_surface_to_abstract_observable</span><span class="p">(</span>
+                <span class="n">block_graph</span><span class="p">,</span> <span class="n">surface</span><span class="p">,</span> <span class="n">include_temporal_hadamard_pipes</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">observables</span>
         <span class="p">]</span>
 
