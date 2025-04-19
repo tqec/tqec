@@ -517,11 +517,15 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        cube_templates: templates used to implement the respective entry in</span>
 <span class="sd">            ``cube_specs``.</span>
 <span class="sd">        pipe_type: the type of the pipe connecting the two cubes.</span>
+<span class="sd">        at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal</span>
+<span class="sd">            pipe and there is a temporal Hadamard pipe at the same Z position</span>
+<span class="sd">            in the block graph.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">cube_specs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">CubeSpec</span><span class="p">,</span> <span class="n">CubeSpec</span><span class="p">]</span>
     <span class="n">cube_templates</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RectangularTemplate</span><span class="p">,</span> <span class="n">RectangularTemplate</span><span class="p">]</span>
-    <span class="n">pipe_kind</span><span class="p">:</span> <span class="n">PipeKind</span></div>
+    <span class="n">pipe_kind</span><span class="p">:</span> <span class="n">PipeKind</span>
+    <span class="n">at_temporal_hadamard_layer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 </pre></div>
 

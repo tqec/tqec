@@ -413,7 +413,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">BasisEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PauliBasis</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">X</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span>
     <span class="n">Y</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span>
     <span class="n">Z</span> <span class="o">=</span> <span class="s2">&quot;z&quot;</span>
@@ -421,14 +421,14 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_extended_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExtendedBasisEnum</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ExtendedBasisEnum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_extended_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExtendedBasis</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ExtendedBasis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">ExtendedBasisEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">X</span> <span class="o">=</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">value</span>
-    <span class="n">Y</span> <span class="o">=</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">value</span>
-    <span class="n">Z</span> <span class="o">=</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">Z</span><span class="o">.</span><span class="n">value</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExtendedBasis</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">Z</span><span class="o">.</span><span class="n">value</span>
     <span class="n">H</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -468,10 +468,10 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">r</span><span class="p">:</span> <span class="n">ExtendedBasisEnum</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">p</span><span class="p">:</span> <span class="n">BasisEnum</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">r</span><span class="p">:</span> <span class="n">ExtendedBasis</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">p</span><span class="p">:</span> <span class="n">PauliBasis</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">g</span><span class="p">:</span> <span class="n">ExtendedBasisEnum</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">g</span><span class="p">:</span> <span class="n">ExtendedBasis</span> <span class="o">|</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="RPNG.from_string">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.from_string">[docs]</a>
@@ -486,18 +486,10 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The rpng string must be exactly 4-character long.&quot;</span><span class="p">)</span>
         <span class="n">r_str</span><span class="p">,</span> <span class="n">p_str</span><span class="p">,</span> <span class="n">n_str</span><span class="p">,</span> <span class="n">g_str</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">rpng_string</span><span class="p">)</span>
         <span class="c1"># Convert the characters into the enum attributes (or raise error).</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">ExtendedBasisEnum</span><span class="p">(</span><span class="n">r_str</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">r_str</span> <span class="ow">in</span> <span class="n">ExtendedBasisEnum</span><span class="o">.</span><span class="n">_value2member_map_</span>
-            <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">)</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">BasisEnum</span><span class="p">(</span><span class="n">p_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">p_str</span> <span class="ow">in</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">_value2member_map_</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">ExtendedBasis</span><span class="p">(</span><span class="n">r_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">r_str</span> <span class="ow">in</span> <span class="n">ExtendedBasis</span><span class="o">.</span><span class="n">_value2member_map_</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">PauliBasis</span><span class="p">(</span><span class="n">p_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">p_str</span> <span class="ow">in</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">_value2member_map_</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">n_str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">ExtendedBasisEnum</span><span class="p">(</span><span class="n">g_str</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">g_str</span> <span class="ow">in</span> <span class="n">ExtendedBasisEnum</span><span class="o">.</span><span class="n">_value2member_map_</span>
-            <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ExtendedBasis</span><span class="p">(</span><span class="n">g_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">g_str</span> <span class="ow">in</span> <span class="n">ExtendedBasis</span><span class="o">.</span><span class="n">_value2member_map_</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="c1"># Raise error if anythiong but &#39;-&#39; was used to indicate None.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r_str</span> <span class="o">!=</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unacceptable character for the R field.&quot;</span><span class="p">)</span>
@@ -517,7 +509,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span>
         <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="n">op</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">_value2member_map_</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">op</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">_value2member_map_</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;R</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span></div>
@@ -530,7 +522,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span>
         <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="n">op</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">_value2member_map_</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">op</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">_value2member_map_</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;M</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span></div>
@@ -560,8 +552,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">r</span><span class="p">:</span> <span class="n">BasisEnum</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">g</span><span class="p">:</span> <span class="n">BasisEnum</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">r</span><span class="p">:</span> <span class="n">PauliBasis</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">g</span><span class="p">:</span> <span class="n">PauliBasis</span> <span class="o">|</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="RG.from_string">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RG.html#tqec.plaquette.RG.from_string">[docs]</a>
@@ -573,8 +565,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">r_str</span><span class="p">,</span> <span class="n">g_str</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">rg_string</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">r_str</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="k">else</span> <span class="n">BasisEnum</span><span class="p">(</span><span class="n">r_str</span><span class="p">)</span>
-            <span class="n">g</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">g_str</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="k">else</span> <span class="n">BasisEnum</span><span class="p">(</span><span class="n">g_str</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">r_str</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="k">else</span> <span class="n">PauliBasis</span><span class="p">(</span><span class="n">r_str</span><span class="p">)</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">g_str</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span> <span class="k">else</span> <span class="n">PauliBasis</span><span class="p">(</span><span class="n">g_str</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid RG string: &#39;</span><span class="si">{</span><span class="n">rg_string</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span></div>
@@ -614,7 +606,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">corners</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RPNG</span><span class="p">,</span> <span class="n">RPNG</span><span class="p">,</span> <span class="n">RPNG</span><span class="p">,</span> <span class="n">RPNG</span><span class="p">]</span>
-    <span class="n">ancilla</span><span class="p">:</span> <span class="n">RG</span> <span class="o">=</span> <span class="n">RG</span><span class="p">(</span><span class="n">BasisEnum</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">BasisEnum</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">ancilla</span><span class="p">:</span> <span class="n">RG</span> <span class="o">=</span> <span class="n">RG</span><span class="p">(</span><span class="n">PauliBasis</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validation of the initialization arguments</span>

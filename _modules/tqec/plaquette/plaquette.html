@@ -412,6 +412,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Mapping</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.schedule</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduledCircuit</span>
@@ -460,7 +461,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">qubits</span><span class="p">:</span> <span class="n">PlaquetteQubits</span>
     <span class="n">circuit</span><span class="p">:</span> <span class="n">ScheduledCircuit</span>
     <span class="n">mergeable_instructions</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">)</span>
-    <span class="n">debug_information</span><span class="p">:</span> <span class="n">PlaquetteDebugInformation</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">debug_information</span><span class="p">:</span> <span class="n">PlaquetteDebugInformation</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="n">PlaquetteDebugInformation</span>
+    <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plaquette_qubits</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
@@ -516,9 +519,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">new_scheduled_circuit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">filter_by_qubits</span><span class="p">(</span>
             <span class="n">new_plaquette_qubits</span><span class="o">.</span><span class="n">all_qubits</span>
         <span class="p">)</span>
-        <span class="n">debug_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_information</span>
-        <span class="k">if</span> <span class="n">debug_info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">debug_info</span> <span class="o">=</span> <span class="n">debug_info</span><span class="o">.</span><span class="n">project_on_boundary</span><span class="p">(</span><span class="n">projected_orientation</span><span class="p">)</span>
+        <span class="n">debug_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_information</span><span class="o">.</span><span class="n">project_on_boundary</span><span class="p">(</span><span class="n">projected_orientation</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Plaquette</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">projected_orientation</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">new_plaquette_qubits</span><span class="p">,</span>
@@ -536,7 +537,19 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">num_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_measurements</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_measurements</span>
+
+<div class="viewcode-block" id="Plaquette.is_empty">
+<a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.is_empty">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the plaquette is empty.</span>
+
+<span class="sd">        An empty plaquette is a plaquette that contain empty scheduled circuit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">get_circuit</span><span class="p">(</span><span class="n">include_qubit_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">()</span>
+        <span class="p">)</span></div>
+</div>
 
 
 
