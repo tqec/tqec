@@ -174,16 +174,20 @@ class FixedBulkPipeBuilder(PipeBuilder):
             z_observable_orientation, None, None
         )
         template = self._generator.get_memory_qubit_raw_template()
-        return Block([PlaquetteLayer(template, memory_plaquettes) for _ in range(2)])
+        return Block(
+            [
+                PlaquetteLayer(template, memory_plaquettes)
+                for _ in range(3 if spec.at_temporal_hadamard_layer else 2)
+            ]
+        )
 
     def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a
-        Hadamard temporal junction.
+        """Returns the block to implement a temporal Hadamard pipe.
 
         Note:
-            This method performs the Hadamard transition at the end of the
-            layer that appear first (i.e., temporally before the other, or in
-            other words the one with a lower Z index).
+            This method performs the realignment and Hadamard transition at the
+            end of the layer that appear first (i.e., temporally before the other,
+            or in other words the one with a lower Z index).
 
         Args:
             spec: description of the pipe that should be implemented by this
@@ -194,10 +198,35 @@ class FixedBulkPipeBuilder(PipeBuilder):
                 if it is not a Hadamard transition.
 
         Returns:
-            the block to implement the provided
-            ``spec``.
+            the block to implement the provided ``spec``.
         """
-        raise NotImplementedError()
+        assert spec.pipe_kind.is_temporal
+        assert spec.pipe_kind.has_hadamard
+
+        z_observable_orientation = (
+            Orientation.HORIZONTAL
+            if spec.pipe_kind.x == Basis.Z
+            else Orientation.VERTICAL
+        )
+        memory_plaquettes_before = self._generator.get_memory_qubit_plaquettes(
+            z_observable_orientation, None, None
+        )
+        realignment_plaquettes = (
+            self._generator.get_temporal_hadamard_realignment_plaquettes(
+                z_observable_orientation
+            )
+        )
+        memory_plaquettes_after = self._generator.get_memory_qubit_plaquettes(
+            z_observable_orientation.flip(), None, None
+        )
+        template = self._generator.get_temporal_hadamard_raw_template()
+        return Block(
+            [
+                PlaquetteLayer(template, memory_plaquettes_before),
+                PlaquetteLayer(template, realignment_plaquettes),
+                PlaquetteLayer(template, memory_plaquettes_after),
+            ]
+        )
 
     ##############################
     #       SPATIAL PIPE         #

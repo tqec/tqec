@@ -116,9 +116,13 @@ class PipeSpec:
         has_spatial_junction_in_timeslice: a flag indicating if a spatial
             junction is executed on the same timeslice as this pipe. This
             information is needed for the fixed parity convention.
+        at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal
+            pipe and there is a temporal Hadamard pipe at the same Z position
+            in the block graph.
     """
 
     cube_specs: tuple[CubeSpec, CubeSpec]
     cube_templates: tuple[RectangularTemplate, RectangularTemplate]
     pipe_kind: PipeKind
     has_spatial_junction_in_timeslice: bool = False
+    at_temporal_hadamard_layer: bool = False

@@ -3,12 +3,22 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.rpng.rpng import RPNG, RPNGDescription
+from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
 
 
 @dataclass(frozen=True)
 class PlaquetteDebugInformation:
     rpng: RPNGDescription | None = None
+    basis: PauliBasis | None = None
+
+    def get_basis(self) -> PauliBasis | None:
+        if self.basis is not None:
+            return self.basis
+        if self.rpng is not None:
+            bases = {rpng.p for rpng in self.rpng.corners if rpng.p is not None}
+            if len(bases) == 1:
+                return bases.pop()
+        return None
 
     def with_data_qubits_removed(
         self, removed_data_qubits: list[int]
@@ -48,5 +58,6 @@ class PlaquetteDebugInformation:
         return PlaquetteDebugInformation(
             RPNGDescription(
                 (corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla
-            )
+            ),
+            self.basis,
         )

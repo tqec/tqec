@@ -102,6 +102,9 @@ def compile_block_graph(
     # added by the space-direction pipes, we first add the time-direction pipes
     pipes = block_graph.pipes
     time_pipes = [pipe for pipe in pipes if pipe.direction == Direction3D.Z]
+    temporal_hadamard_z_positions: set[int] = {
+        pipe.u.position.z for pipe in time_pipes if pipe.kind.has_hadamard
+    }
     space_pipes = [pipe for pipe in pipes if pipe.direction != Direction3D.Z]
     for pipe in time_pipes + space_pipes:
         pos1, pos2 = pipe.u.position, pipe.v.position
@@ -113,6 +116,9 @@ def compile_block_graph(
             pipe.kind,
             has_spatial_junction_in_timeslice=(
                 pos1.z == pos2.z and pos1.z in spatial_junction_slices
+            ),
+            at_temporal_hadamard_layer=(
+                pipe.kind.is_temporal and pos1.z in temporal_hadamard_z_positions
             ),
         )
         graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key))
