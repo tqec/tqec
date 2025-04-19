@@ -57,8 +57,6 @@ def _get_top_readout_pipe_qubits(
 ) -> list[tuple[int, int]]:
     direction = pipe.direction
     assert direction != Direction3D.Z
-    if (pipe.u.is_spatial or pipe.v.is_spatial) and direction == Direction3D.Y:
-        return []
     if direction == Direction3D.X:
         return [(u_shape.x, u_shape.y // 2)]
     else:
