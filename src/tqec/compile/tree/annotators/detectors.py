@@ -188,7 +188,9 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             )
         self._k = k
         self._manhattan_radius = manhattan_radius
-        self._database = detector_database or DetectorDatabase()
+        self._database = (
+            detector_database if detector_database is not None else DetectorDatabase()
+        )
         self._lookback_size = lookback
         self._lookback_stack = LookbackStack()
 
