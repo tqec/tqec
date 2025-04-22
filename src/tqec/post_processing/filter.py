@@ -75,5 +75,4 @@ def subcircuit(
         for i, q in qubit_map.i2q.items()
         if ((minx <= q.x < maxx) and (miny <= q.y < maxy))
     )
-    print(indices_to_keep)
     return subcircuit_only_on_indices(circuit, indices_to_keep)
