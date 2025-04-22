@@ -25,6 +25,9 @@ def subcircuit_only_on_indices(
                 ret.append(
                     stim.CircuitRepeatBlock(instruction.repeat_count, filtered_body)
                 )
+        elif instruction.name == "TICK":
+            # Unconditionally append TICK annotations.
+            ret.append(instruction)
         else:
             targets = sum(
                 (
