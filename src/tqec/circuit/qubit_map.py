@@ -104,8 +104,21 @@ class QubitMap:
             a copy of ``self`` for which the assertion
             ``set(return_value.qubits).issubset(qubits_to_keep)`` is ``True``.
         """
-        kept_qubits = frozenset(qubits_to_keep)
-        return QubitMap({i: q for i, q in self.i2q.items() if q in kept_qubits})
+        return self.filter_by_qubit_indices(self.q2i[q] for q in qubits_to_keep)
+
+    def filter_by_qubit_indices(self, qubit_indices_to_keep: Iterable[int]) -> QubitMap:
+        """Filter the qubit map to only keep qubits present in the provided
+        ``qubit_indices_to_keep``.
+
+        Args:
+            qubit_indices_to_keep: the qubits to keep in the circuit.
+
+        Returns:
+            a copy of ``self`` with all the qubits associated to indices not in
+            ``qubit_indices_to_keep`` removed.
+        """
+        kept_qubit_indices = frozenset(qubit_indices_to_keep)
+        return QubitMap({i: q for i, q in self.i2q.items() if i in kept_qubit_indices})
 
     def to_circuit(self, shift_to_positive: bool = False) -> stim.Circuit:
         """Get a circuit with only ``QUBIT_COORDS`` instructions representing

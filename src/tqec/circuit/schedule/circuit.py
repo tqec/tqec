@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import bisect
 from copy import copy, deepcopy
+from itertools import chain
 from typing import Any, Callable, Iterable, Iterator, Sequence
 
 import stim
@@ -556,4 +557,21 @@ class ScheduledCircuit:
             and self._schedule == other._schedule
             and self._qubit_map == other._qubit_map
             and self._moments == other._moments
+        )
+
+    def without_unused_qubits(self) -> ScheduledCircuit:
+        """Removes from the internal qubit map all qubits that are not used by
+        the underlying moments.
+
+        Returns:
+            A copy of ``self`` with unused qubits removed.
+        """
+        used_qubit_indices = frozenset(
+            chain.from_iterable(m.qubits_indices for m in self.moments)
+        )
+        return ScheduledCircuit(
+            deepcopy(self._moments),
+            self._schedule,
+            self._qubit_map.filter_by_qubit_indices(used_qubit_indices),
+            _avoid_checks=True,
         )
