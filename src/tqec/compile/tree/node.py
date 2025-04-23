@@ -13,6 +13,7 @@ from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
+from tqec.compile.detectors import DetectorDatabase
 from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
@@ -41,6 +42,7 @@ class LayerNode:
         self,
         layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
+        detector_database: DetectorDatabase | None = None,
     ) -> None:
         """Represents a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
 
@@ -53,6 +55,7 @@ class LayerNode:
         self._layer = layer
         self._children = LayerNode._get_children(layer)
         self._annotations = dict(annotations) if annotations is not None else {}
+        self._detector_database = detector_database
 
     @staticmethod
     def _get_children(layer: LayoutLayer | BaseComposedLayer) -> list[LayerNode]:
@@ -257,3 +260,11 @@ class LayerNode:
             assert isinstance(circuit, stim.Circuit)
             ret += circuit
         return ret
+
+    def set_detector_database(self, detector_database: DetectorDatabase | None = None):
+        self._detector_database = detector_database
+
+    def save_detector_database_to_file(self, path_name: str):
+        updated_detector_database = self._detector_database
+        if updated_detector_database is not None:
+            updated_detector_database.to_file(path_name)

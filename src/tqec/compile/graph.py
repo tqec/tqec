@@ -61,7 +61,10 @@ from tqec.compile.blocks.positioning import (
     LayoutPosition2D,
     LayoutPosition3D,
 )
-from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.detectors.database import (
+    DetectorDatabase,
+    DEFAULT_DETECTOR_DATABASE_PATH,
+)
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.tree import LayerTree
@@ -427,6 +430,9 @@ class TopologicalComputationGraph:
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        database_path: str = DEFAULT_DETECTOR_DATABASE_PATH,
+        do_not_use_database: bool = False,
+        only_use_database: bool = False,
     ) -> stim.Circuit:
         """Generate the ``stim.Circuit`` from the compiled graph.
 
@@ -436,15 +442,29 @@ class TopologicalComputationGraph:
             manhattan_radius: radius considered to compute detectors.
                 Detectors are not computed and added to the circuit if this
                 argument is negative.
-            detector_database: an instance to retrieve from / store in detectors
-                that are computed as part of the circuit generation.
-
+           detector_database: an instance to retrieve from / store in detectors
+                that are computed as part of the circuit generation. If not given,
+                the detectors are retrieved from/stored in the default location of
+                /my_detector_database.
+            database_path: specify where to save to after the calculation, when augmented.
+                As for detector_database, this defaults to /my_detector_database if
+                not specified. If detector_database is not passed in, the code attempts to
+                retrieve the database from this location.
+            do_not_use_database: if True, even the default database will not be used.
+            only_use_database: if ``True``, only detectors from the database
+                will be used. An error will be raised if a situation that is not
+                registered in the database is encountered.
         Returns:
             A compiled stim circuit.
         """
         circuit = self.to_layer_tree().generate_circuit(
-            k, manhattan_radius=manhattan_radius, detector_database=detector_database
-        )
+            k,
+            manhattan_radius=manhattan_radius,
+            detector_database=detector_database,
+            database_path=database_path,
+            do_not_use_database=do_not_use_database,
+            only_use_database=only_use_database,
+        )  # pass through the variables
         # If provided, apply the noise model.
         if noise_model is not None:
             circuit = noise_model.noisy_circuit(circuit)

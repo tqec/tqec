@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Mapping
 
 import stim
@@ -7,7 +8,10 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.detectors.database import (
+    DetectorDatabase,
+    DEFAULT_DETECTOR_DATABASE_PATH,
+)
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -143,13 +147,21 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        database_path: Path = Path(DEFAULT_DETECTOR_DATABASE_PATH),
+        only_use_database: bool = False,
         lookback: int = 2,
     ) -> None:
+        self._root.set_detector_database(detector_database)
         self._root.walk(
             AnnotateDetectorsOnLayerNode(
-                k, manhattan_radius, detector_database, lookback
+                k, manhattan_radius, detector_database, only_use_database, lookback
             )
         )
+        # NB if database is None when passed in to the above function, then no database will be created in
+        # this function and database will still be None afterwards and so nothing will be saved to file
+        # in the subsequent function. Therefore the 'do not use database' code path will produce nothing at the end,
+        # as desired.
+        self._root.save_detector_database_to_file(database_path)
 
     def _annotate_polygons(
         self,
@@ -236,13 +248,23 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        database_path: Path = Path(DEFAULT_DETECTOR_DATABASE_PATH),
+        only_use_database: bool = False,
         lookback: int = 2,
         add_polygons: bool = False,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
-        self._annotate_detectors(k, manhattan_radius, detector_database, lookback)
+        self._annotate_detectors(
+            k,
+            manhattan_radius,
+            detector_database,
+            database_path,
+            only_use_database,
+            lookback,
+        )
+        # This function will also update the detector_database and save it to disk at database_path.
         self._annotate_observables(k)
         if add_polygons:
             self._annotate_polygons(k)
@@ -253,6 +275,9 @@ class LayerTree:
         include_qubit_coords: bool = True,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        database_path: str = DEFAULT_DETECTOR_DATABASE_PATH,
+        do_not_use_database: bool = False,
+        only_use_database: bool = False,
         lookback: int = 2,
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
@@ -271,10 +296,18 @@ class LayerTree:
                 plaquette. Detector computation runtime grows with this parameter,
                 so you should try to keep it to its minimum. A value too low might
                 produce invalid detectors.
-            detector_database: existing database of detectors that is used to
-                avoid computing detectors if the database already contains them.
-                Default to `None` which result in not using any kind of database
-                and unconditionally performing the detector computation.
+            detector_database: an instance to retrieve from / store in detectors
+                that are computed as part of the circuit generation. If not given,
+                the detectors are retrieved from/stored in the default location of
+                /my_detector_database.
+            database_path: specify where to save to after the calculation, when augmented.
+                As for detector_database, this defaults to /my_detector_database if
+                not specified. If detector_database is not passed in, the code attempts to
+                retrieve the database from this location.
+            do_not_use_database: if True, even the default database will not be used.
+            only_use_database: if ``True``, only detectors from the database
+                will be used. An error will be raised if a situation that is not
+                registered in the database is encountered.
             lookback: number of QEC rounds to consider to try to find detectors.
                 Including more rounds increases computation time.
 
@@ -282,11 +315,24 @@ class LayerTree:
             a ``stim.Circuit`` instance implementing the computation described
             by ``self``.
         """
+        # First, before we start any computations, decide which detector database to use.
+        database_path = Path(database_path)
+        # If the user has passed a database in, use that, otherwise:
+        if detector_database is None:  # Nothing passed in,
+            if database_path.exists():  # look for an existing database at the path.
+                detector_database = DetectorDatabase.from_file(database_path)
+            else:  # if there is no existing database, create one.
+                detector_database = DetectorDatabase()
+        if do_not_use_database:
+            detector_database = None
+
         self._generate_annotations(
             k,
             manhattan_radius,
-            detector_database,
-            lookback,
+            detector_database=detector_database,
+            database_path=database_path,
+            only_use_database=only_use_database,
+            lookback=lookback,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None

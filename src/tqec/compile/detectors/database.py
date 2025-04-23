@@ -21,6 +21,8 @@ from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
 
+DEFAULT_DETECTOR_DATABASE_PATH = "./my_detector_database.pkl"
+
 
 @dataclass(frozen=True)
 class _DetectorDatabaseKey:
