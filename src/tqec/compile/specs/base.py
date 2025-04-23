@@ -101,8 +101,12 @@ class PipeSpec:
         cube_templates: templates used to implement the respective entry in
             ``cube_specs``.
         pipe_type: the type of the pipe connecting the two cubes.
+        at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal
+            pipe and there is a temporal Hadamard pipe at the same Z position
+            in the block graph.
     """
 
     cube_specs: tuple[CubeSpec, CubeSpec]
     cube_templates: tuple[RectangularTemplate, RectangularTemplate]
     pipe_kind: PipeKind
+    at_temporal_hadamard_layer: bool = False

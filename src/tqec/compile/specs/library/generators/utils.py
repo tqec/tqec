@@ -30,7 +30,7 @@ class PlaquetteMapper:
         self._translator = translator
         self._compiler = compiler
 
-    def _get_plaquette(self, description: RPNGDescription) -> Plaquette:
+    def get_plaquette(self, description: RPNGDescription) -> Plaquette:
         return self._compiler.compile(self._translator.translate(description))
 
     def __call__(
@@ -41,7 +41,7 @@ class PlaquetteMapper:
         # docstring, ... is correctly transmitted to the wrapper.
         @wraps(f)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> Plaquettes:
-            return Plaquettes(f(*args, **kwargs).map_values(self._get_plaquette))
+            return Plaquettes(f(*args, **kwargs).map_values(self.get_plaquette))
 
         # Because the function name have to change, we need to explicitly change
         # it here.

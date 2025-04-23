@@ -151,6 +151,8 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
     ) -> None:
+        if manhattan_radius <= 0:
+            return
         self._root.set_detector_database(detector_database)
         self._root.walk(
             AnnotateDetectorsOnLayerNode(
