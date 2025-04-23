@@ -453,6 +453,23 @@ class BlockGraph:
 
         return read_block_graph_from_dae_file(filename, graph_name)
 
+    @staticmethod
+    def from_json_file(
+        filename: str | pathlib.Path, graph_name: str = ""
+    ) -> BlockGraph:
+        """Construct a block graph from a JSON file.
+
+        Args:
+            filename: The input ``.json`` file path.
+            graph_name: The name of the block graph. Default is an empty string.
+
+        Returns:
+            The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.
+        """
+        from tqec.interop.collada.read_write import read_block_graph_from_json
+
+        return read_block_graph_from_json(filename, graph_name)
+
     def view_as_html(
         self,
         write_html_filepath: str | pathlib.Path | None = None,

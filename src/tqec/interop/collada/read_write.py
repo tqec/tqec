@@ -6,6 +6,7 @@ import pathlib
 from dataclasses import dataclass, field
 from typing import BinaryIO, Iterable, cast
 
+import json
 import collada
 import collada.source
 import numpy as np
@@ -38,6 +39,146 @@ _ASSET_UNIT_METER = 0.02539999969303608
 
 _MATERIAL_SYMBOL = "MaterialSymbol"
 _CORRELATION_SUFFIX = "_CORRELATION"
+
+
+def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Position3D:
+    return Position3D(
+        x=round_or_fail(pos.x / (1 + pipe_length), atol=0.35),
+        y=round_or_fail(pos.y / (1 + pipe_length), atol=0.35),
+        z=round_or_fail(pos.z / (1 + pipe_length), atol=0.35),
+    )
+
+
+def offset_y_cube_position(pos: FloatPosition3D, pipe_length: float) -> FloatPosition3D:
+    if np.isclose(pos.z - 0.5, np.floor(pos.z), atol=1e-9):
+        pos = pos.shift_by(dz=-0.5)
+    return FloatPosition3D(pos.x, pos.y, pos.z / (1 + pipe_length))
+
+
+def read_block_graph_from_json(
+    filepath: str | pathlib.Path,
+    graph_name: str = "",
+) -> BlockGraph:
+    """Read a Collada JSON file and construct a
+    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.
+
+    Args:
+        filepath: The input dae file path.
+        graph_name: The name of the block graph. Default is an empty string.
+
+    Returns:
+        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
+
+    Raises:
+        TQECException: If the JSON file cannot be parsed and converted to a block graph.
+    """
+
+    # Read JSON file
+    try:
+        with open(filepath) as f:
+            data = json.load(f)
+    except Exception:
+        raise TQECException("JSON file not found.")
+
+    # Check JSON file has cubes and pipes
+    try:
+        cubes = data["cubes"]
+        pipes = data["pipes"]
+        if not len(cubes) > 0 or not len(pipes) > 0:
+            raise TQECException("No cubes or pipes found.")
+    except Exception:
+        raise TQECException("JSON file is not appropriately formatted.")
+
+    # Initialise list of cubes and pipes
+    parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
+    parsed_pipes: list[
+        tuple[FloatPosition3D, FloatPosition3D, PipeKind, dict[str, int]]
+    ] = []
+
+    # Get cubes data
+    for cube in data["cubes"]:
+        # Raise error if any cube has "PORT" as kind
+        # We export "PORTS" from blockgraph, but there is no 3D primitive for a PORT
+        # Instead, a 3D object in a 3D software would either have a cube of regular kind as port or an open end (no cube at all)
+        if cube["kind"] == "PORT":
+            raise TQECException(
+                'Incorrect cube kind: PORT. To specify a given cube is a port, give it a standard cube kind and use "In" or "Out" as label.'
+            )
+
+        # Get key spatial info
+        translation = FloatPosition3D(*cube["position"])
+        axes_directions = get_axes_directions(cube["transform"])
+        kind = block_kind_from_str(cube["kind"])
+
+        # Rotations step 1. Skip if node's matrix not rotated
+        # - If node's matrix YES rotated: check closer & make necessary adjustments
+        if not np.allclose(cube["transform"], np.eye(3), atol=1e-9):
+            translation, kind = rotate_on_import(
+                cube["transform"],
+                cube["position"],
+                np.array([1.0, 1.0, 1.0]),
+                kind,
+            )
+
+        # Append to parsed cubes
+        if isinstance(kind, CubeKind):
+            parsed_cubes.append((translation, kind, axes_directions))
+
+    # Get pipes data
+    for pipe in data["pipes"]:
+        # Get key spatial info
+        translation = FloatPosition3D(*pipe["u"])  # This is also the head_pos
+        tail_pos = FloatPosition3D(*pipe["v"])
+        axes_directions = get_axes_directions(pipe["transform"])
+        kind = block_kind_from_str(pipe["kind"])
+
+        # Rotations step 1. Skip if node's matrix not rotated
+        # - If node's matrix YES rotated: check closer & make necessary adjustments
+        if not np.allclose(pipe["transform"], np.eye(3), atol=1e-9):
+            translation, kind = rotate_on_import(
+                pipe["transform"],
+                pipe["position"],
+                np.array([1.0, 1.0, 1.0]),
+                kind,
+            )
+
+        # Rotations step 2. Skip if hadamard points in positive direction
+        # Check kind is pipe
+        if isinstance(kind, PipeKind):
+            if axes_directions[str(kind.direction)] == -1 and "H" in str(kind):
+                kind = adjust_hadamards_direction(kind)
+
+        # Recheck kind since it might have been regenerated
+        if isinstance(kind, PipeKind):
+            parsed_pipes.append((translation, tail_pos, kind, axes_directions))
+
+    # Construct graph
+    # Create graph
+    graph = BlockGraph(graph_name)
+
+    # Add cubes
+    for pos, cube_kind, axes_directions in parsed_cubes:
+        if isinstance(cube_kind, YHalfCube):
+            pos = offset_y_cube_position(pos, 0.0)
+        graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
+    port_index = 0
+
+    # Add pipes
+    for head_pos, tail_pos, pipe_kind, axes_directions in parsed_pipes:
+        # Write head_pos and tail_pos as Position3D
+        head_pos = int_position_before_scale(head_pos, 0)
+        tail_pos = int_position_before_scale(tail_pos, 0)
+
+        # Add pipe
+        if head_pos not in graph:
+            graph.add_cube(head_pos, Port(), label=f"Port{port_index}")
+            port_index += 1
+        if tail_pos not in graph:
+            graph.add_cube(tail_pos, Port(), label=f"Port{port_index}")
+            port_index += 1
+        graph.add_pipe(head_pos, tail_pos, pipe_kind)
+
+    return graph
 
 
 def read_block_graph_from_dae_file(
@@ -149,18 +290,6 @@ def read_block_graph_from_dae_file(
 
     pipe_length = 2.0 if pipe_length is None else pipe_length
 
-    def int_position_before_scale(pos: FloatPosition3D) -> Position3D:
-        return Position3D(
-            x=round_or_fail(pos.x / (1 + pipe_length), atol=0.35),
-            y=round_or_fail(pos.y / (1 + pipe_length), atol=0.35),
-            z=round_or_fail(pos.z / (1 + pipe_length), atol=0.35),
-        )
-
-    def offset_y_cube_position(pos: FloatPosition3D) -> FloatPosition3D:
-        if np.isclose(pos.z - 0.5, np.floor(pos.z), atol=1e-9):
-            pos = pos.shift_by(dz=-0.5)
-        return FloatPosition3D(pos.x, pos.y, pos.z / (1 + pipe_length))
-
     # Construct graph
     # Create graph
     graph = BlockGraph(graph_name)
@@ -168,8 +297,8 @@ def read_block_graph_from_dae_file(
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
-            pos = offset_y_cube_position(pos)
-        graph.add_cube(int_position_before_scale(pos), cube_kind)
+            pos = offset_y_cube_position(pos, pipe_length)
+        graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -177,7 +306,8 @@ def read_block_graph_from_dae_file(
         # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers from previous operations
         directional_multiplier = axes_directions[str(pipe_kind.direction)]
         head_pos = int_position_before_scale(
-            pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier)
+            pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier),
+            pipe_length,
         )
         tail_pos = head_pos.shift_in_direction(
             pipe_kind.direction, 1 * directional_multiplier
@@ -556,7 +686,36 @@ class _GraphItems:
 ## THE FOLLOWING IS TEMPORARY CODE FOR TESTING PURPOSES ONLY
 ## DELETE EVERYTHING BELOW BEFORE ANY DRAFT PR, PR, OR MERGE
 if __name__ == "__main__":
-    from tqec.gallery.cnot import cnot
+    json_test_files = ["hadamard_line", "cnot"]
 
-    block_graph = cnot(Basis.Z)
-    write_block_graph_to_dae_file(block_graph, "using_core_export.dae")
+    for test_file in json_test_files:
+        blockgraph_name = test_file
+        filepath = f"assets/{blockgraph_name}.json"
+        block_graph = BlockGraph.from_json_file(filepath, blockgraph_name)
+
+        # Write blockgraph to file
+        html = block_graph.view_as_html()
+        with open(f"from_json_{blockgraph_name}.html", "w") as f:
+            f.write(str(html))
+            f.close()
+
+    dae_test_files = [
+        "memory",
+        "memory_90",
+        "logical_cnot",
+        "logical_cnot_90",
+        "with_hadamards",
+        "with_hadamards_270",
+        "Y_rotated",
+    ]
+
+    for test_file in dae_test_files:
+        blockgraph_name = test_file
+        filepath = f"assets/{blockgraph_name}.dae"
+        block_graph = BlockGraph.from_dae_file(filepath, blockgraph_name)
+
+        # Write blockgraph to file
+        html = block_graph.view_as_html()
+        with open(f"from_dae_{blockgraph_name}.html", "w") as f:
+            f.write(str(html))
+            f.close()
