@@ -1,16 +1,19 @@
 """Provides helper functions to add observables to circuits."""
 
-from typing import Iterable
+from dataclasses import dataclass
+from enum import Enum
+from typing import Iterable, Protocol
 
 import stim
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit import GridQubit
-from tqec.circuit.schedule import ScheduledCircuit
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
 from tqec.templates.layout import LayoutTemplate
+from tqec.utils.enums import Basis, Orientation
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import (
     Direction3D,
     PlaquetteShape2D,
@@ -20,129 +23,135 @@ from tqec.utils.position import (
 from tqec.utils.scale import round_or_fail
 
 
-def inplace_add_observable(
-    k: int,
-    circuits: list[list[ScheduledCircuit]],
-    template_slices: list[LayoutTemplate],
-    abstract_observable: AbstractObservable,
-    observable_index: int,
-) -> None:
-    """Inplace add the observable components to the circuits.
+@dataclass(frozen=True)
+class Observable:
+    """Logical observable consisting of a list of measurements."""
 
-    This functions takes the compiled ``AbstractObservable`` and calculates
-    the measurement coordinates in it. Then it collects the measurements
-    into logical observable and adds them in the correct locations in the
-    sliced circuits.
+    observable_index: int
+    measurement_offsets: list[int]
 
-    Args:
-        k: The scaling factor of the block.
-        circuits: The circuits to add the observables to. The circuits are
-            grouped by time slices and layers. The outer list represents the
-            time slices and the inner list represents the layers.
-        template_slices: The layout templates of the blocks indexed by the
-            time steps.
-        abstract_observable: The abstract observable to add to the circuits.
-        observable_index: The index of the observable.
+    def __post_init__(self) -> None:
+        if any(m >= 0 for m in self.measurement_offsets):
+            raise TQECException("Expected strictly negative measurement offsets.")
+
+    def to_instruction(self) -> stim.CircuitInstruction:
+        return stim.CircuitInstruction(
+            "OBSERVABLE_INCLUDE",
+            [stim.target_rec(offset) for offset in self.measurement_offsets],
+            [self.observable_index],
+        )
+
+
+class CubeTopReadoutsBuilder(Protocol):
+    """The data qubits on the middle line of the cube will be read out and
+    included in the logical observable.
+
+    This calculates the coordinates of these data qubits in the local coordinate
+    system.
     """
-    top_data_qubits: dict[int, set[GridQubit]] = {}
-    bottom_stabilizer_qubits: dict[int, set[GridQubit]] = {}
 
-    def _block_shape(z: int, k: int) -> PlaquetteShape2D:
-        return template_slices[z].element_shape(k)
+    def __call__(
+        self, shape: PlaquetteShape2D, obs_orientation: Orientation, /
+    ) -> list[tuple[int, int]]: ...
 
-    def _collect_into(
-        out_dict: dict[int, set[GridQubit]],
-        pos: Position3D,
-        qubits: Iterable[tuple[float, float] | tuple[int, int]],
-    ) -> None:
-        out_dict.setdefault(pos.z, set()).update(
-            _transform_coords_into_grid(template_slices, q, pos, k) for q in qubits
-        )
 
-    # 1. The stabilizer measurements that will be added to the end of the first layer of circuits at z.
-    for pipe in abstract_observable.bottom_stabilizer_pipes:
-        for cube in pipe:
-            # the stabilizer measurements included in spatial cubes will be
-            # handled later
-            if cube.is_spatial:
-                continue
-            _collect_into(
-                bottom_stabilizer_qubits,
-                cube.position,
-                _get_bottom_stabilizer_cube_qubits(
-                    _block_shape(cube.position.z, k),
-                    SignedDirection3D(pipe.direction, cube == pipe.u),
-                ),
-            )
-    for cube in abstract_observable.bottom_stabilizer_spatial_cubes:
-        _collect_into(
-            bottom_stabilizer_qubits,
-            cube.position,
-            _get_bottom_stabilizer_spatial_cube_qubits(
-                _block_shape(cube.position.z, k)
-            ),
-        )
+class SpatialCubeTopReadoutsBuilder(Protocol):
+    """The data qubits at the spatial cubes will be read out and included in
+    the logical observable.
 
-    # 2. The data qubit readouts that will be added to the end of the last layer of circuits at z.
-    for pipe in abstract_observable.top_readout_pipes:
-        _collect_into(
-            top_data_qubits,
-            pipe.u.position,
-            _get_top_readout_pipe_qubits(
-                _block_shape(pipe.u.position.z, k), pipe.direction
-            ),
-        )
-    for cube in abstract_observable.top_readout_cubes:
-        assert isinstance(cube.kind, ZXCube)
-        _collect_into(
-            top_data_qubits,
-            cube.position,
-            _get_top_readout_cube_qubits(_block_shape(cube.position.z, k), cube.kind),
-        )
-    for cube, arms in abstract_observable.top_readout_spatial_cubes:
-        _collect_into(
-            top_data_qubits,
-            cube.position,
-            _get_top_readout_spatial_cube_qubits(
-                _block_shape(cube.position.z, k), arms
-            ),
-        )
+    This function calculates the coordinates of the data qubits in the
+    local coordinate system of the cube based on which arms the
+    correlation surface touches.
+    """
 
-    # Finally, convert the qubit sets to the measurement records at the specific circuit location
-    # and add the observables to the circuits.
-    for z, qubits in bottom_stabilizer_qubits.items():
-        measurement_records = MeasurementRecordsMap.from_scheduled_circuit(
-            circuits[z][0]
-        )
-        circuits[z][0].append_observable(
-            observable_index,
-            [
-                stim.target_rec(measurement_records[q][-1])
-                for q in qubits
-                # Filter out those qubits that are not in the circuit.
-                # This is required because the current implementation of
-                # bottom stabilizer calculation for spatial cubes
-                # may include qubits that are not in the circuit, as
-                # intended for simplifying the calculation.
-                # This has the risk of not catching the coordinate
-                # calculation errors but the tests for determinism
-                # and code distance should catch them.
-                if q in measurement_records
-            ],
-        )
+    def __call__(
+        self, shape: PlaquetteShape2D, arms: SpatialArms, observable_basis: Basis, /
+    ) -> list[tuple[int, int]]: ...
 
-    for z, qubits in top_data_qubits.items():
-        measurement_records = MeasurementRecordsMap.from_scheduled_circuit(
-            circuits[z][-1]
-        )
-        circuits[z][-1].append_observable(
-            observable_index,
-            [stim.target_rec(measurement_records[q][-1]) for q in qubits],
-        )
+
+class PipeTopReadoutsBuilder(Protocol):
+    """The top line at a pipe is actually a single data qubits at the interface
+    of the two connected cubes.
+
+    The measurement result of this qubit will be included in the logical
+    observable. This calculates the coordinates of that data qubit in the local
+    coordinate system of the cube at the head of the pipe.
+    """
+
+    def __call__(
+        self,
+        shape: PlaquetteShape2D,
+        connect_to: Direction3D,
+        /,
+    ) -> list[tuple[int, int]]: ...
+
+
+class CubeBottomStabilizersBuilder(Protocol):
+    """The stabilizer measurements at the bottom of the cube will be included
+    in the logical observable. Note that only half of the stabilizers in the
+    basis of the boundary that the cube connects to will be included. Each cube
+    is only responsible for the stabilizer measurements within its bounding
+    box. Collecting the measurements from the two cubes connected by the pipe
+    will give the full stabilizer measurements, of which the product determines
+    the parity of the logical operators.
+
+    This calculates the coordinates of the measurement qubits in the local
+    coordinate system of the cube.
+    """
+
+    def __call__(
+        self,
+        shape: PlaquetteShape2D,
+        connect_to: SignedDirection3D,
+        stabilizer_basis: Basis,
+        /,
+    ) -> list[tuple[float, float]]: ...
+
+
+class SpatialCubeBottomStabilizersBuilder(Protocol):
+    """The stabilizer measurements at the spatial cubes will be included in the
+    logical observable."""
+
+    def __call__(
+        self, shape: PlaquetteShape2D, stabilizer_basis: Basis, /
+    ) -> list[tuple[float, float]]: ...
+
+
+class TemporalHadamardIncludesBuilder(Protocol):
+    """Measurements at the temporal logical Hadamard layer that might be included
+    in the logical Z observable."""
+
+    def __call__(
+        self,
+        shape: PlaquetteShape2D,
+        observable_basis: Basis,
+        z_orientation: Orientation,
+        /,
+    ) -> list[tuple[float, float]]: ...
+
+
+@dataclass
+class ObservableBuilder:
+    """Compute the qubits whose measurements will be included in the logical
+    observable.
+
+    The builders can include the qubits that are not in the circuit like qubits in the
+    scretched stabilizers to simplify the calculation. The qubits that are not
+    measured in the circuit will be ignored when calling ``get_observable_with_measurement_records``.
+    """
+
+    cube_top_readouts_builder: CubeTopReadoutsBuilder
+    spatial_cube_top_readouts_builder: SpatialCubeTopReadoutsBuilder
+    pipe_top_readouts_builder: PipeTopReadoutsBuilder
+    cube_bottom_stabilizers_builder: CubeBottomStabilizersBuilder
+    spatial_cube_bottom_stabilizers_builder: SpatialCubeBottomStabilizersBuilder
+    temporal_hadamard_includes_builder: TemporalHadamardIncludesBuilder = (
+        lambda *args: []
+    )
 
 
 def _transform_coords_into_grid(
-    template_slices: list[LayoutTemplate],
+    template: LayoutTemplate,
     local_coords: tuple[float, float] | tuple[int, int],
     block_position: Position3D,
     k: int,
@@ -150,17 +159,17 @@ def _transform_coords_into_grid(
     """Transform local coordinates at a block to the global coordinates in the
     circuit.
 
-    When calculating the coordinates of the measurement qubits, we use a local coordinate system
-    in the individual blocks. The top-left corner of the block starts at (0, 0) and each column
-    is separated by 0.5. That is, all the data qubits are placed at the integer coordinates while
-    all the measurement qubits are placed at the half-integer coordinates.
+    When calculating the coordinates of the measurement qubits, we use a local
+    coordinate system in the individual blocks. The top-left corner of the
+    block starts at (0, 0) and each column is separated by 0.5. That is, all
+    the data qubits are placed at the integer coordinates while all the
+    measurement qubits are placed at the half-integer coordinates.
 
-    This convention helps reducing the number of arguments needed to pass around and simplifies
-    the calculation of the qubit coordinates. The global coordinates are calculated by offsetting
-    the local coordinates by the global position of the block and accounting for the
-    ``Template.default_increments``.
+    This convention helps reducing the number of arguments needed to pass around
+    and simplifies the calculation of the qubit coordinates. The global coordinates
+    are calculated by offsetting the local coordinates by the global position of
+    the block and accounting for the ``Template.default_increments``.
     """
-    template = template_slices[block_position.z]
     block_shape = template.element_shape(k)
     template_increments = template.get_increments()
     width = block_shape.x * template_increments.x
@@ -174,140 +183,150 @@ def _transform_coords_into_grid(
     return GridQubit(x, y)
 
 
-def _get_top_readout_cube_qubits(
-    shape: PlaquetteShape2D, cube_kind: ZXCube
-) -> list[tuple[int, int]]:
-    """The data qubits on the middle line of the cube will be read out and
-    included in the logical observable.
+class ObservableComponent(Enum):
+    BOTTOM_STABILIZERS = "bottom_stabilizers"
+    TOP_READOUTS = "top_readouts"
+    REALIGNMENT = "realignment"
 
-    This function calculates the coordinates of these data qubits in the
-    local coordinate system.
+
+def compute_observable_qubits(
+    k: int,
+    obs_slice: AbstractObservable,
+    template: LayoutTemplate,
+    obs_builder: ObservableBuilder,
+    component: ObservableComponent,
+) -> set[GridQubit]:
+    """Compute the qubits whose measurements will be included in the observable.
+
+    This function targets at a single time slice (circuit layer) and calculates
+    the qubits that will be included in the logical observable at that time.
+
+    Args:
+        k: The scaling parameter.
+        obs_slice: The slice of an abstract observable at the time step.
+        template: The layout template of the block at the time step.
+        at_bottom: Whether the observable is at the bottom of the block.
     """
-    # Determine the middle line orientation based on the cube kind.
-    # Since the basis of the top face decides the measurement basis of the data
-    # qubits, i.e. the logical operator basis. We only need to find the spatial
-    # boundaries that the logical operator can be attached to.
-    obs_orientation = Direction3D(int(cube_kind.y == cube_kind.z))
-    if obs_orientation == Direction3D.X:
-        return [(x, shape.y // 2) for x in range(1, shape.x)]
-    else:
-        return [(shape.x // 2, y) for y in range(1, shape.y)]
+    shape = template.element_shape(k)
+    obs_qubits: set[GridQubit] = set()
 
-
-def _get_top_readout_pipe_qubits(
-    u_shape: PlaquetteShape2D, connect_to: Direction3D
-) -> list[tuple[int, int]]:
-    """The top line at a pipe is actually a single data qubits at the interface
-    of the two connected cubes.
-
-    The measurement result of this qubit will be included in the logical
-    observable. This function calculates the coordinates of this data
-    qubit in the local coordinate system of the cube at the head of the
-    pipe.
-    """
-    assert connect_to != Direction3D.Z
-    if connect_to == Direction3D.X:
-        return [(u_shape.x, u_shape.y // 2)]
-    else:
-        return [(u_shape.x // 2, u_shape.y)]
-
-
-def _get_bottom_stabilizer_cube_qubits(
-    cube_shape: PlaquetteShape2D, connect_to: SignedDirection3D
-) -> list[tuple[float, float]]:
-    """The stabilizer measurements at the bottom of the cube will be included
-    in the logical observable. Note that only half of the stabilizers in the
-    basis of the boundary that the cube connects to will be included. Each cube
-    is only responsible for the stabilizer measurements within its bounding
-    box. Collecting the measurements from the two cubes connected by the pipe
-    will give the full stabilizer measurements, of which the product determines
-    the parity of the logical operators.
-
-    This function calculates the coordinates of the measurement qubits
-    in the local coordinate system of the cube.
-    """
-    stabilizers: list[tuple[float, float]] = []
-    # We calculate the qubits for the connect_to=SignedDirection3D(Direction3D.X, True) case
-    # and rotate to get the correct orientation.
-    for i in range(cube_shape.x // 2):
-        x = cube_shape.x - i - 0.5
-        for j in range(cube_shape.y // 2):
-            y = (1 - i % 2) + 2 * j + 0.5
-            stabilizers.append((x, y))
-    # rotate all coordinates around the block center:
-    # rx = cx + a * (x - cx) - b * (y - cy)
-    # ry = cy + b * (x - cx) + a * (y - cy)
-    # in which (cx, cy) is the center of the block, a = cos(theta), b = sin(theta)
-    # and theta is the angle of rotation.
-    a, b = 1, 0
-    match connect_to:
-        case SignedDirection3D(Direction3D.X, False):
-            a, b = -1, 0
-        case SignedDirection3D(Direction3D.Y, True):
-            a, b = 0, 1
-        case SignedDirection3D(Direction3D.Y, False):
-            a, b = 0, -1
-        case _:
-            pass
-    cx, cy = cube_shape.x // 2, cube_shape.y // 2
-    return [
-        (
-            cx + a * (x - cx) - b * (y - cy),
-            cy + b * (x - cx) + a * (y - cy),
+    def collect(
+        pos: Position3D,
+        qubits: Iterable[tuple[float, float] | tuple[int, int]],
+    ) -> None:
+        obs_qubits.update(
+            _transform_coords_into_grid(template, q, pos, k) for q in qubits
         )
-        for x, y in stabilizers
-    ]
+
+    # The stabilizer measurements that will be added to the end of the first layer of circuits at z.
+    if component == ObservableComponent.BOTTOM_STABILIZERS:
+        for pipe in obs_slice.bottom_stabilizer_pipes:
+            for cube in pipe:
+                # the stabilizer measurements included in spatial cubes will be
+                # handled later
+                if cube.is_spatial:
+                    continue
+                assert isinstance(cube.kind, ZXCube)
+                stabilizer_basis = cube.kind.get_basis_along(
+                    Direction3D(1 - pipe.direction.value)
+                )
+                collect(
+                    cube.position,
+                    obs_builder.cube_bottom_stabilizers_builder(
+                        shape,
+                        SignedDirection3D(pipe.direction, cube == pipe.u),
+                        stabilizer_basis,
+                    ),
+                )
+        for cube in obs_slice.bottom_stabilizer_spatial_cubes:
+            assert isinstance(cube.kind, ZXCube)
+            collect(
+                cube.position,
+                obs_builder.spatial_cube_bottom_stabilizers_builder(shape, cube.kind.x),
+            )
+        return obs_qubits
+
+    if component == ObservableComponent.TOP_READOUTS:
+        # The readouts that will be added to the end of the last layer of circuits at z.
+        for pipe in obs_slice.top_readout_pipes:
+            collect(
+                pipe.u.position,
+                obs_builder.pipe_top_readouts_builder(shape, pipe.direction),
+            )
+        for cube in obs_slice.top_readout_cubes:
+            assert isinstance(cube.kind, ZXCube)
+            # Determine the middle line orientation based on the cube kind.
+            # Since the basis of the top face decides the measurement basis of the data
+            # qubits, i.e. the logical operator basis. We only need to find the spatial
+            # boundaries that the logical operator can be attached to.
+            obs_orientation = (
+                Orientation.VERTICAL
+                if cube.kind.y == cube.kind.z
+                else Orientation.HORIZONTAL
+            )
+            collect(
+                cube.position,
+                obs_builder.cube_top_readouts_builder(shape, obs_orientation),
+            )
+        for cube, arms in obs_slice.top_readout_spatial_cubes:
+            assert isinstance(cube.kind, ZXCube)
+            collect(
+                cube.position,
+                obs_builder.spatial_cube_top_readouts_builder(shape, arms, cube.kind.z),
+            )
+        return obs_qubits
+
+    else:  # component == ObservableComponent.REALIGNMENT
+        for pipe, obs_basis in obs_slice.temporal_hadamard_pipes:
+            z_orientation = (
+                Orientation.VERTICAL
+                if pipe.kind.get_basis_along(Direction3D.Y) == Basis.Z
+                else Orientation.HORIZONTAL
+            )
+            collect(
+                pipe.u.position,
+                obs_builder.temporal_hadamard_includes_builder(
+                    shape, obs_basis, z_orientation
+                ),
+            )
+        return obs_qubits
 
 
-def _get_top_readout_spatial_cube_qubits(
-    cube_shape: PlaquetteShape2D, arms: SpatialArms
-) -> list[tuple[int, int]]:
-    """The data qubits at the spatial cubes will be read out and included in
-    the logical observable.
+def get_observable_with_measurement_records(
+    qubits: set[GridQubit],
+    measurement_records: MeasurementRecordsMap,
+    observable_index: int,
+    ignore_qubits_with_no_measurement: bool = True,
+) -> Observable:
+    """Calculate the measurement offsets of the observable qubits measured at
+    the end of the circuit and construct the observable.
 
-    This function calculates the coordinates of the data qubits in the
-    local coordinate system of the cube based on which arms the
-    correlation surface touches.
+    Args:
+        qubits: The qubits whose measurements will be included in the observable.
+        measurement_records: The measurement records of the qubits in a circuit.
+        observable_index: The index of the observable.
+        ignore_qubits_with_no_measurement: Whether to skip qubits that are not
+            measured in the circuit. If set to False, an exception will be raised
+            if any of the qubits is not measured.
+
+    Returns:
+        The logical observable.
     """
-    assert len(arms) == 2
-    half_x, half_y = cube_shape.x // 2, cube_shape.y // 2
+    if not ignore_qubits_with_no_measurement and any(
+        len(measurement_records.mapping.get(q, [])) == 0 for q in qubits
+    ):
+        raise TQECException(
+            "Some qubits are not measured in the circuit. "
+            "Set ignore_qubits_with_no_measurement to True to ignore them."
+        )
 
-    if arms == SpatialArms.LEFT | SpatialArms.RIGHT:
-        return [(x, half_y) for x in range(cube_shape.x + 1)]
-    elif arms == SpatialArms.UP | SpatialArms.DOWN:
-        return [(half_x, y) for y in range(cube_shape.y + 1)]
-    elif arms == SpatialArms.LEFT | SpatialArms.UP:
-        return [(x, half_y) for x in range(half_x)] + [
-            (half_x, y) for y in range(half_y)
-        ]
-    elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
-        return [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
-            (half_x, y) for y in range(cube_shape.y, half_y, -1)
-        ]
-    elif arms == SpatialArms.UP | SpatialArms.RIGHT:
-        return [(x, half_y) for x in range(cube_shape.x, half_x, -1)] + [
-            (half_x, y) for y in range(half_y + 1)
-        ]
-    else:  # arms == SpatialArms.LEFT | SpatialArms.DOWN:
-        return [(x, half_y) for x in range(half_x + 1)] + [
-            (half_x, y) for y in range(cube_shape.y, half_y, -1)
-        ]
-
-
-def _get_bottom_stabilizer_spatial_cube_qubits(
-    cube_shape: PlaquetteShape2D,
-) -> list[tuple[float, float]]:
-    """The stabilizer measurements at the spatial cubes will be included in the
-    logical observable.
-
-    For simplicity of implementation, this function
-    include all the measurement qubits of the spatial basis in the results and
-    will filter out the qubits not used in the measurement records in
-    ``inplace_add_observable``.
-    """
-    return [
-        (i + 0.5, j + 0.5)
-        for i in range(cube_shape.x)
-        for j in range(cube_shape.y)
-        if (i + j) % 2 == 0
+    measurement_offsets = [
+        measurement_records[q][-1]
+        for q in qubits
+        # Ignore those qubits that are not measured in the circuit.
+        # This is required because the some observable builders
+        # include the qubits that are not in the circuit like qubits
+        # in the scretched stabilizers to simplify the calculation.
+        if q in measurement_records
     ]
+    return Observable(observable_index, measurement_offsets)

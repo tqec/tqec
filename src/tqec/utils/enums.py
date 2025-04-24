@@ -9,6 +9,13 @@ class Orientation(Enum):
     HORIZONTAL = auto()
     VERTICAL = auto()
 
+    def flip(self) -> Orientation:
+        return (
+            Orientation.HORIZONTAL
+            if self == Orientation.VERTICAL
+            else Orientation.VERTICAL
+        )
+
 
 class Basis(Enum):
     X = "X"
@@ -25,3 +32,8 @@ class Basis(Enum):
 
     def __lt__(self, other: Basis) -> bool:
         return self.value < other.value
+
+
+class PatchStyle(Enum):
+    FixedBulk = auto()
+    FixedBoundaryParity = auto()

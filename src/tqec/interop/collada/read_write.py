@@ -50,6 +50,9 @@ def read_block_graph_from_dae_file(
     Args:
         filepath: The input dae file path.
         graph_name: The name of the block graph. Default is an empty string.
+        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph.
+            See :py:meth:`~tqec.computation.block_graph.BlockGraph.fix_shadowed_faces`
+            for more details. Default is True.
 
     Returns:
         The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
@@ -214,6 +217,7 @@ def read_block_graph_from_dae_file(
             graph.add_cube(tail_pos, Port(), label=f"Port{port_index}")
             port_index += 1
         graph.add_pipe(head_pos, tail_pos, pipe_kind)
+
     return graph
 
 

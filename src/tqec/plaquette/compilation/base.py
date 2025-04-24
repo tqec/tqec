@@ -5,6 +5,10 @@ from typing import Callable, Final, Iterable
 
 from tqec.plaquette.compilation.passes.base import CompilationPass
 from tqec.plaquette.plaquette import Plaquette
+from tqec.utils.instructions import (
+    MEASUREMENT_INSTRUCTION_NAMES,
+    RESET_INSTRUCTION_NAMES,
+)
 
 
 class PlaquetteCompiler:
@@ -36,13 +40,14 @@ class PlaquetteCompiler:
         for compilation_pass in self._passes:
             circuit = compilation_pass.run(circuit)
         return Plaquette(
-            f"{plaquette.name}_{self._name}",
+            f"{self._name}({plaquette.name})",
             plaquette.qubits,
             circuit,
             self._mergeable_instructions_modifier(plaquette.mergeable_instructions),
+            plaquette.debug_information,
         )
 
 
 IdentityPlaquetteCompiler: Final[PlaquetteCompiler] = PlaquetteCompiler(
-    "ID", [], lambda x: x
+    "ID", [], lambda x: x | MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES
 )

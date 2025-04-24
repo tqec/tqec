@@ -5,11 +5,17 @@ import stim
 from typing_extensions import override
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.plaquette.constants import MEASUREMENT_SCHEDULE
+from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
-from tqec.plaquette.rpng import BasisEnum, ExtendedBasisEnum, RPNGDescription
+from tqec.plaquette.rpng import PauliBasis, ExtendedBasis, RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.utils.exceptions import TQECException
+from tqec.utils.instructions import (
+    MEASUREMENT_INSTRUCTION_NAMES,
+    RESET_INSTRUCTION_NAMES,
+)
 
 
 class DefaultRPNGTranslator(RPNGTranslator):
@@ -32,30 +38,26 @@ class DefaultRPNGTranslator(RPNGTranslator):
     - targets of reset, measurement and hadamard are always ordered.
     """
 
-    MEASUREMENT_SCHEDULE: Final[int] = 6
     QUBITS: Final[PlaquetteQubits] = SquarePlaquetteQubits()
 
     @staticmethod
     def _add_extended_basis_operation(
         circuit: stim.Circuit,
         op: Literal["R", "M"],
-        timestep_operations: dict[ExtendedBasisEnum, list[int]],
+        timestep_operations: dict[ExtendedBasis, list[int]],
     ) -> None:
-        for basis in ExtendedBasisEnum:
+        for basis in ExtendedBasis:
             if basis not in timestep_operations:
                 continue
             targets = sorted(timestep_operations[basis])
             match basis:
-                case ExtendedBasisEnum.H:
+                case ExtendedBasis.H:
                     circuit.append("H", targets, [])
-                case ExtendedBasisEnum.X | ExtendedBasisEnum.Y | ExtendedBasisEnum.Z:
+                case ExtendedBasis.X | ExtendedBasis.Y | ExtendedBasis.Z:
                     circuit.append(f"{op}{basis.value.upper()}", targets, [])
 
     @override
-    def translate(
-        self,
-        rpng_description: RPNGDescription,
-    ) -> Plaquette:
+    def translate(self, rpng_description: RPNGDescription) -> Plaquette:
         # The current RPNG notation is very much tied to the qubit arrangement
         # in SquarePlaquetteQubits, hence the explicit value here.
         qubits: PlaquetteQubits = deepcopy(DefaultRPNGTranslator.QUBITS)
@@ -72,15 +74,15 @@ class DefaultRPNGTranslator(RPNGTranslator):
         syndrome_qubit_index = syndrome_qubit_indices[0]
 
         # Handling syndrome qubit reset/measurement
-        reset_timestep_operations: dict[ExtendedBasisEnum, list[int]] = {}
-        meas_timestep_operations: dict[ExtendedBasisEnum, list[int]] = {}
+        reset_timestep_operations: dict[ExtendedBasis, list[int]] = {}
+        meas_timestep_operations: dict[ExtendedBasis, list[int]] = {}
         if (r := rpng_description.ancilla.r) is not None:
             reset_timestep_operations[r.to_extended_basis()] = [syndrome_qubit_index]
         if (g := rpng_description.ancilla.g) is not None:
             meas_timestep_operations[g.to_extended_basis()] = [syndrome_qubit_index]
         # Handling data-qubits
-        entangling_operations: list[tuple[BasisEnum, int] | None] = [
-            None for _ in range(DefaultRPNGTranslator.MEASUREMENT_SCHEDULE - 1)
+        entangling_operations: list[tuple[PauliBasis, int] | None] = [
+            None for _ in range(MEASUREMENT_SCHEDULE - 1)
         ]
         for qi, rpng in enumerate(rpng_description.corners):
             dqi = data_qubit_indices[qi]
@@ -113,7 +115,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
 
         # Add measurement operations
         self._add_extended_basis_operation(circuit, "M", meas_timestep_operations)
-        schedule.append(DefaultRPNGTranslator.MEASUREMENT_SCHEDULE)
+        schedule.append(MEASUREMENT_SCHEDULE)
 
         # Filter out unused qubits
         kept_data_qubits = [qubits.data_qubits[i] for i in used_data_qubit_indices]
@@ -130,4 +132,8 @@ class DefaultRPNGTranslator(RPNGTranslator):
             name=str(rpng_description),
             qubits=new_plaquette_qubits,
             circuit=filtered_circuit,
+            mergeable_instructions=(
+                RESET_INSTRUCTION_NAMES | MEASUREMENT_INSTRUCTION_NAMES
+            ),
+            debug_information=PlaquetteDebugInformation(rpng_description),
         )

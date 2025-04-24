@@ -32,6 +32,7 @@ from enum import Enum
 
 import numpy as np
 import numpy.typing as npt
+from typing_extensions import Self
 
 from tqec.utils.exceptions import TQECException
 
@@ -66,6 +67,9 @@ class Position2D(Vec2D):
         """Check if the other position is near to this position, i.e. Manhattan
         distance is 1."""
         return abs(self.x - other.x) + abs(self.y - other.y) == 1
+
+    def to_3d(self, z: int = 0) -> Position3D:
+        return Position3D(self.x, self.y, z)
 
 
 class PhysicalQubitPosition2D(Position2D):
@@ -125,11 +129,11 @@ class Position3D(Vec3D):
     y: int
     z: int
 
-    def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> Position3D:
+    def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> Self:
         """Shift the position by the given offset."""
-        return Position3D(self.x + dx, self.y + dy, self.z + dz)
+        return self.__class__(self.x + dx, self.y + dy, self.z + dz)
 
-    def shift_in_direction(self, direction: Direction3D, shift: int) -> Position3D:
+    def shift_in_direction(self, direction: Direction3D, shift: int) -> Self:
         """Shift the position in the given direction by the given shift."""
         if direction == Direction3D.X:
             return self.shift_by(dx=shift)
@@ -158,7 +162,7 @@ class Position3D(Vec3D):
 
 
 class BlockPosition3D(Position3D):
-    """Represents the position of a block on a 2-dimensional plane."""
+    """Represents the position of a block in 3D space."""
 
     def as_2d(self) -> BlockPosition2D:
         return BlockPosition2D(self.x, self.y)
@@ -201,6 +205,11 @@ class Direction3D(Enum):
             "Could not find the direction from two neighbouring positions "
             f"{source:=} and {sink:=}."
         )
+
+    @property
+    def orthogonal_directions(self) -> tuple[Direction3D, Direction3D]:
+        i = self.value
+        return Direction3D((i + 1) % 3), Direction3D((i + 2) % 3)
 
 
 @dataclass(frozen=True)

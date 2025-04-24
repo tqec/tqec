@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import hashlib
-from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Callable, Collection, Literal, Mapping
+from typing import Callable, Collection, Iterable, Literal, Mapping
 
+import stim
 from typing_extensions import override
 
 from tqec.circuit.schedule import ScheduledCircuit
+from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.qubit import PlaquetteQubits
 from tqec.utils.exceptions import TQECException
@@ -50,6 +51,9 @@ class Plaquette:
     qubits: PlaquetteQubits
     circuit: ScheduledCircuit
     mergeable_instructions: frozenset[str] = field(default_factory=frozenset)
+    debug_information: PlaquetteDebugInformation = field(
+        default_factory=PlaquetteDebugInformation
+    )
 
     def __post_init__(self) -> None:
         plaquette_qubits = set(self.qubits)
@@ -103,11 +107,13 @@ class Plaquette:
         new_scheduled_circuit = self.circuit.filter_by_qubits(
             new_plaquette_qubits.all_qubits
         )
+        debug_info = self.debug_information.project_on_boundary(projected_orientation)
         return Plaquette(
             f"{self.name}_{projected_orientation.name}",
             new_plaquette_qubits,
             new_scheduled_circuit,
             self.mergeable_instructions,
+            debug_info,
         )
 
     def reliable_hash(self) -> int:
@@ -116,6 +122,15 @@ class Plaquette:
     @property
     def num_measurements(self) -> int:
         return self.circuit.num_measurements
+
+    def is_empty(self) -> bool:
+        """Check if the plaquette is empty.
+
+        An empty plaquette is a plaquette that contain empty scheduled circuit.
+        """
+        return bool(
+            self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit()
+        )
 
 
 @dataclass(frozen=True)
@@ -144,10 +159,6 @@ class Plaquettes:
 
     def __getitem__(self, index: int) -> Plaquette:
         return self.collection[index]
-
-    @property
-    def has_default(self) -> bool:
-        return isinstance(self.collection, defaultdict)
 
     def repeat(self, repetitions: LinearFunction) -> RepeatedPlaquettes:
         return RepeatedPlaquettes(self.collection, repetitions)
@@ -182,17 +193,20 @@ class Plaquettes:
         d: dict[int | Literal["default"], str] = {
             k: p.name for k, p in self.collection.items()
         }
-        if self.collection.default_factory is not None:
-            d["default"] = self.collection.default_factory().name
+        if self.collection.default_value is not None:
+            d["default"] = self.collection.default_value.name
         return d
 
     def without_plaquettes(self, indices: Collection[int]) -> Plaquettes:
         return Plaquettes(
             FrozenDefaultDict(
                 {k: v for k, v in self.collection.items() if k not in indices},
-                default_factory=self.collection.default_factory,
+                default_value=self.collection.default_value,
             )
         )
+
+    def items(self) -> Iterable[tuple[int, Plaquette]]:
+        return self.collection.items()
 
 
 @dataclass(frozen=True)

@@ -1,6 +1,5 @@
 """Defines templates representing logical qubits and its constituent parts."""
 
-import warnings
 from typing import Sequence
 
 import numpy
@@ -9,7 +8,7 @@ from typing_extensions import override
 
 from tqec.templates.base import BorderIndices, RectangularTemplate
 from tqec.templates.enums import TemplateBorder
-from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
@@ -89,15 +88,15 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
     The below text represents this template for an input ``k == 4`` ::
 
          1   9  10   9  10   9  10   9  10   2
-        11   5  17  13  17  13  17  13   6  18
-        12  17  13  17  13  17  13  17  14  19
-        11  16  17  13  17  13  17  14  17  18
-        12  17  16  17  13  17  14  17  14  19
-        11  16  17  16  17  15  17  14  17  18
-        12  17  16  17  15  17  15  17  14  19
-        11  16  17  15  17  15  17  15  17  18
-        12   7  15  17  15  17  15  17   8  19
-         3  20  21  20  21  20  21  20  21   4
+        11   5  17  13  17  13  17  13   6  21
+        12  20  13  17  13  17  13  17  14  22
+        11  16  20  13  17  13  17  14  18  21
+        12  20  16  20  13  17  14  18  14  22
+        11  16  20  16  19  15  18  14  18  21
+        12  20  16  19  15  19  15  18  14  22
+        11  16  19  15  19  15  19  15  18  21
+        12   7  15  19  15  19  15  19   8  22
+         3  23  24  23  24  23  24  23  24   4
 
     Warning:
         For ``k == 1``, this template does not include any of the plaquette
@@ -111,15 +110,6 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
     ) -> npt.NDArray[numpy.int_]:
         if plaquette_indices is None:
             plaquette_indices = list(range(1, self.expected_plaquettes_number + 1))
-
-        if k == 1:
-            warnings.warn(
-                "Instantiating QubitSpatialCubeTemplate with k=1. The "
-                "instantiation array returned will not have any plaquette with "
-                "an index in [13, 17], which might break other parts of the "
-                "library.",
-                TQECWarning,
-            )
 
         shape = self.shape(k)
         ret = numpy.zeros(shape.to_numpy_shape(), dtype=numpy.int_)
@@ -137,40 +127,37 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
         ret[1:-1:2, 0] = plaquette_indices[10]
         ret[2:-1:2, 0] = plaquette_indices[11]
         # The center, which is the complex part.
-        # Start by plaquette_indices[16] which is the plaquette that is
-        # uniformly spread on the template
-        ret[1:-1:2, 2:-1:2] = plaquette_indices[16]
-        ret[2:-1:2, 1:-1:2] = plaquette_indices[16]
-        # Now initialize the other plaquettes
+        # Plaquette indices between 12 and 15 (both inclusive) are for plaquettes
+        # on positions where (i + j) is even. Plaquettes indices between 16 and
+        # 19 (both inclusive) are for plaquettes on positions where (i + j) is
+        # odd. This is represented by an offset when (i + j) is odd.
         for i in range(1, size - 1):
-            # We want (i + j) to be even, because that are the only places where
-            # we should set plaquettes. We do that directly in the range expression.
-            # We need to avoid 0 here because it is the border of the template.
-            for j in range(1 if i % 2 == 1 else 2, size - 1, 2):
+            for j in range(1, size - 1):
+                offset = 4 if (i + j) % 2 == 1 else 0
                 # If the cell represented by (i, j) is:
                 # - on the top (above the main diagonal and above the anti-diagonal)
-                if i <= j and i < (size - 1 - j):
-                    ret[i, j] = plaquette_indices[12]
+                if i <= j and i <= (size - 1 - j):
+                    ret[i, j] = plaquette_indices[12 + offset]
                 # - on the right (above the main diagonal and below the anti-diagonal)
                 elif i < j and i > (size - 1 - j):
-                    ret[i, j] = plaquette_indices[13]
+                    ret[i, j] = plaquette_indices[13 + offset]
                 # - on the bottom (below the main diagonal and below the anti-diagonal)
-                elif i >= j and i > (size - 1 - j):
-                    ret[i, j] = plaquette_indices[14]
+                elif i >= j and i >= (size - 1 - j):
+                    ret[i, j] = plaquette_indices[14 + offset]
                 # - on the left (below the main diagonal and above the anti-diagonal)
                 elif i > j and i < (size - 1 - j):
-                    ret[i, j] = plaquette_indices[15]
+                    ret[i, j] = plaquette_indices[15 + offset]
 
         ret[1, 1] = plaquette_indices[4]
         ret[1, -2] = plaquette_indices[5]
         ret[-2, 1] = plaquette_indices[6]
         ret[-2, -2] = plaquette_indices[7]
         # The right side
-        ret[1:-1:2, -1] = plaquette_indices[17]
-        ret[2:-1:2, -1] = plaquette_indices[18]
+        ret[1:-1:2, -1] = plaquette_indices[20]
+        ret[2:-1:2, -1] = plaquette_indices[21]
         # The bottom side
-        ret[-1, 1:-1:2] = plaquette_indices[19]
-        ret[-1, 2:-1:2] = plaquette_indices[20]
+        ret[-1, 1:-1:2] = plaquette_indices[22]
+        ret[-1, 2:-1:2] = plaquette_indices[23]
 
         return ret
 
@@ -182,7 +169,7 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
     @property
     @override
     def expected_plaquettes_number(self) -> int:
-        return 21
+        return 24
 
     @override
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
@@ -190,11 +177,11 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
             case TemplateBorder.TOP:
                 return BorderIndices(1, 9, 10, 2)
             case TemplateBorder.BOTTOM:
-                return BorderIndices(3, 20, 21, 4)
+                return BorderIndices(3, 23, 24, 4)
             case TemplateBorder.LEFT:
                 return BorderIndices(1, 11, 12, 3)
             case TemplateBorder.RIGHT:
-                return BorderIndices(2, 18, 19, 4)
+                return BorderIndices(2, 21, 22, 4)
 
 
 class QubitVerticalBorders(RectangularTemplate):

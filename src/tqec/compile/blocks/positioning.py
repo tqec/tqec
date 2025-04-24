@@ -6,7 +6,7 @@ from typing import Generic
 from typing_extensions import Self, TypeVar
 
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import BlockPosition2D, BlockPosition3D
+from tqec.utils.position import BlockPosition2D, BlockPosition3D, SignedDirection3D
 
 
 class LayoutPosition2D(ABC):
@@ -87,6 +87,15 @@ class LayoutPipePosition2D(LayoutPosition2D):
             )
         super().__init__(x, y)
 
+    def to_pipe(self) -> tuple[BlockPosition2D, BlockPosition2D]:
+        if self._x % 2 == 1:
+            return BlockPosition2D((self._x - 1) // 2, self._y // 2), BlockPosition2D(
+                (self._x + 1) // 2, self._y // 2
+            )
+        return BlockPosition2D(self._x // 2, (self._y - 1) // 2), BlockPosition2D(
+            self._x // 2, (self._y + 1) // 2
+        )
+
 
 T = TypeVar("T", bound=LayoutPosition2D, covariant=True, default=LayoutPosition2D)
 
@@ -123,6 +132,19 @@ class LayoutPosition3D(ABC, Generic[T]):
         u, v = sorted(pipe_position)
         assert u.is_neighbour(v)
         assert u < v
+        return LayoutPosition3D(
+            LayoutPosition2D.from_pipe_position((u.as_2d(), v.as_2d())), u.z
+        )
+
+    @staticmethod
+    def from_block_and_signed_direction(
+        pos: BlockPosition3D, dir: SignedDirection3D
+    ) -> LayoutPosition3D[LayoutPipePosition2D]:
+        neighbour = pos.shift_in_direction(
+            dir.direction, 1 if dir.towards_positive else -1
+        )
+        u, v = sorted((pos, neighbour))
+        assert u.is_neighbour(v)
         return LayoutPosition3D(
             LayoutPosition2D.from_pipe_position((u.as_2d(), v.as_2d())), u.z
         )

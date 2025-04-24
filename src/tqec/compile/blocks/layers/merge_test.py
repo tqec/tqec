@@ -35,11 +35,11 @@ def base_layers_fixture() -> list[BaseLayer]:
     return [
         PlaquetteLayer(
             QubitTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
         ),
         PlaquetteLayer(
             QubitSpatialCubeTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
         ),
         RawCircuitLayer(
             lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
@@ -113,9 +113,6 @@ def test_merge_repeated_layers_different_inner_durations(
     )
     assert isinstance(merged_layer, RepeatedLayer)
     assert merged_layer.scalable_timesteps == LinearFunction(2, 2)
-    assert merged_layer.scalable_shape == PhysicalQubitScalable2D(
-        logical_qubit_shape.x, 2 * logical_qubit_shape.y - 1
-    )
     assert merged_layer.repetitions == LinearFunction(1, 1)
     assert isinstance(merged_layer.internal_layer, SequencedLayers)
     assert merged_layer.internal_layer.scalable_timesteps == LinearFunction(0, 2)
@@ -161,9 +158,6 @@ def test_merge_sequenced_layers(
     )
     assert isinstance(merged_layer, SequencedLayers)
     assert merged_layer.scalable_timesteps == LinearFunction(0, 2)
-    assert merged_layer.scalable_shape == PhysicalQubitScalable2D(
-        2 * logical_qubit_shape.x - 1, 2 * logical_qubit_shape.y - 1
-    )
     assert merged_layer.layer_sequence == [
         LayoutLayer(
             {b00: plaquette_layer, b01: plaquette_layer2, b11: raw_layer},
@@ -199,9 +193,6 @@ def test_merge_sequenced_layers_composed(
     )
     assert isinstance(merged_layer, SequencedLayers)
     assert merged_layer.scalable_timesteps == LinearFunction(0, 3)
-    assert merged_layer.scalable_shape == PhysicalQubitScalable2D(
-        2 * logical_qubit_shape.x - 1, 2 * logical_qubit_shape.y - 1
-    )
     assert merged_layer.layer_sequence == [
         SequencedLayers(
             [
@@ -269,9 +260,6 @@ def test_merge_repeated_and_sequenced_layers(
     )
     assert isinstance(merged_layer, SequencedLayers)
     assert merged_layer.scalable_timesteps == LinearFunction(2, 2)
-    assert merged_layer.scalable_shape == PhysicalQubitScalable2D(
-        logical_qubit_shape.x, 2 * logical_qubit_shape.y - 1
-    )
     assert merged_layer.layer_sequence == [
         LayoutLayer({b00: plaquette_layer, b01: plaquette_layer}, logical_qubit_shape),
         RepeatedLayer(
@@ -326,6 +314,11 @@ def test_merge_composed_layers_unknown_layer_type(
         def to_sequenced_layer_with_schedule(
             self, schedule: tuple[LinearFunction, ...]
         ) -> SequencedLayers:
+            raise NotImplementedError()
+
+        def get_temporal_layer_on_border(
+            self, border: TemporalBlockBorder
+        ) -> BaseLayer:
             raise NotImplementedError()
 
     plaquette_layer, plaquette_layer2, raw_layer = base_layers

@@ -14,9 +14,9 @@ class SpatialArms(Flag):
     @classmethod
     def get_map_from_arm_to_shift(cls) -> dict[SpatialArms, tuple[int, int]]:
         return {
-            cls.UP: (0, 1),
+            cls.UP: (0, -1),
             cls.RIGHT: (1, 0),
-            cls.DOWN: (0, -1),
+            cls.DOWN: (0, 1),
             cls.LEFT: (-1, 0),
         }
 
@@ -68,5 +68,5 @@ class SpatialArms(Flag):
 
     def __repr__(self) -> str:
         if self == SpatialArms.NONE:
-            return "JunctionArms.NONE"
-        return " | ".join(f"JunctionArms.{arm.name}" for arm in self)
+            return f"{SpatialArms.__name__}.NONE"
+        return " | ".join(f"{SpatialArms.__name__}.{arm.name}" for arm in self)

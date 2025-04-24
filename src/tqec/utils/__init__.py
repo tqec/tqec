@@ -7,6 +7,7 @@ the other ``tqec`` sub-modules.
 
 from .enums import Basis as Basis
 from .enums import Orientation as Orientation
+from .enums import PatchStyle as PatchStyle
 from .exceptions import TQECException as TQECException
 from .noise_model import NoiseModel as NoiseModel
 from .position import BlockPosition2D as BlockPosition2D

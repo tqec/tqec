@@ -5,8 +5,8 @@ from typing import Iterator
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
-from tqec.utils.enums import Orientation
 from tqec.plaquette.enums import PlaquetteSide
+from tqec.utils.enums import Orientation
 
 
 @dataclass(frozen=True)
@@ -56,6 +56,7 @@ class PlaquetteQubits:
 
         Args:
             side: the side to find qubits on.
+
         Returns:
             The qubits on the edge of the plaquette.
         """

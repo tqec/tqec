@@ -9,7 +9,9 @@ from typing import Iterator, TYPE_CHECKING
 
 from pyzx.graph.graph_s import GraphS
 
+from tqec.computation.block_graph import BlockGraph
 from tqec.utils.enums import Basis
+from tqec.utils.position import Position3D
 
 if TYPE_CHECKING:
     from pyzx.pauliweb import PauliWeb
@@ -169,3 +171,40 @@ class CorrelationSurface:
             for port in io_ports
         ]
         return "".join(paulis)
+
+    def external_stabilizer_on_graph(self, graph: BlockGraph) -> str:
+        """Get the external stabilizer of the correlation surface on the graph.
+
+        If the provided graph is an open graph, the external stabilizer is the Pauli
+        operator supported on the input/output ports of the graph. Otherwise, the
+        external stabilizer is the Pauli operator supported on the leaf nodes of the
+        graph.
+
+        Args:
+            g: The block graph to consider.
+
+        Returns:
+            The Pauli operator that is the external stabilizer of the correlation surface.
+        """
+        supports: list[Position3D]
+        if graph.is_open:
+            port_labels = graph.ordered_ports
+            supports = [graph.ports[p] for p in port_labels]
+        else:
+            supports = [cube.position for cube in graph.leaf_cubes]
+        zx = graph.to_zx_graph()
+        p2v = zx.p2v
+        zx_ports = [p2v[p] for p in supports]
+        return self.external_stabilizer(zx_ports)
+
+    def area(self) -> int:
+        """Return the area of the correlation surface.
+
+        The area of the correlation surface is the number of nodes it spans.
+        A X node and a Z node with the same id are counted as two nodes.
+        """
+        span_nodes = {node for edge in self.span for node in edge}
+        return len(span_nodes)
+
+    def __xor__(self, other: CorrelationSurface) -> CorrelationSurface:
+        return CorrelationSurface(self.span.symmetric_difference(other.span))

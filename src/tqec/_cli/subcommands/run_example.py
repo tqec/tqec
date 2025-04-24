@@ -11,16 +11,12 @@ import sinter
 from typing_extensions import override
 
 from tqec._cli.subcommands.base import TQECSubCommand
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
-from tqec.compile.specs.library.zxxz import (
-    ZXXZ_BLOCK_BUILDER,
-    ZXXZ_SUBSTITUTION_BUILDER,
-)
+from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.gallery.cnot import cnot
-from tqec.utils.enums import Basis
-from tqec.utils.noise_model import NoiseModel
 from tqec.simulation.plotting.inset import plot_observable_as_inset
 from tqec.simulation.simulation import start_simulation_using_sinter
+from tqec.utils.enums import Basis
+from tqec.utils.noise_model import NoiseModel
 
 
 class RunExampleTQECSubCommand(TQECSubCommand):
@@ -49,7 +45,6 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             type=int,
             default=[1, 2, 3, 4],
         )
-
         parser.add_argument(
             "-p",
             help="The noise levels applied to the simulation.",
@@ -57,7 +52,6 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             type=float,
             default=list(np.logspace(-4, -1, 10)),
         )
-
         parser.add_argument(
             "--obs-include",
             help=(
@@ -68,10 +62,10 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             type=int,
         )
         parser.add_argument(
-            "--code-style",
-            help="Use the CSS or ZXXZ code style.",
-            choices=["CSS", "ZXXZ"],
-            default="CSS",
+            "--convention",
+            help="Convention to use.",
+            choices=ALL_CONVENTIONS.keys(),
+            default="fixed_bulk",
         )
         parser.add_argument(
             "--basis",
@@ -88,7 +82,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         logging.info("Parsing arguments.")
         out_dir: Path = args.out_dir.resolve()
         obs_indices: list[int] = args.obs_include
-        style: str = args.code_style
+        convention_name: str = args.convention
         obs_basis = Basis(args.basis.upper())
         ks: list[int] = args.k
         ps: list[float] = args.p
@@ -118,10 +112,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
                 + f"but requested indices up to {max(obs_indices)}."
             )
 
-        block_builder = CSS_BLOCK_BUILDER if style == "CSS" else ZXXZ_BLOCK_BUILDER
-        substitution_builder = (
-            CSS_SUBSTITUTION_BUILDER if style == "CSS" else ZXXZ_SUBSTITUTION_BUILDER
-        )
+        convention = ALL_CONVENTIONS[convention_name]
 
         logging.info("Start the simulation, this might take some time.")
         stats = start_simulation_using_sinter(
@@ -130,8 +121,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             ps,
             NoiseModel.uniform_depolarizing,
             manhattan_radius=2,
-            block_builder=block_builder,
-            substitution_builder=substitution_builder,
+            convention=convention,
             observables=[correlation_surfaces[i] for i in obs_indices],
             num_workers=cpu_count(),
             max_shots=10_000_000,
@@ -145,7 +135,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         for i, stat in enumerate(stats):
             with open(
                 simulations_out_dir
-                / f"{style}_logical_cnot_result_{obs_basis.value}_observable_{i}.csv",
+                / f"{convention}_logical_cnot_result_{obs_basis.value}_observable_{i}.csv",
                 "w+",
                 encoding="utf-8",
             ) as stats_file:
@@ -164,8 +154,8 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             ax.grid(axis="both")
             ax.legend()
             ax.loglog()
-            ax.set_title(f"{style} Logical CNOT Error Rate")
+            ax.set_title(f"{convention} Logical CNOT Error Rate")
             fig.savefig(
                 plots_out_dir
-                / f"{style}_logical_cnot_result_{obs_basis.value}_observable_{i}.png"
+                / f"{convention}_logical_cnot_result_{obs_basis.value}_observable_{i}.png"
             )

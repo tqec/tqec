@@ -70,8 +70,7 @@ def test_logical_cnot_collada_write_read(pipe_length: float) -> None:
     os.remove(temp_file.name)
 
 
-@pytest.mark.parametrize("pipe_length", [0.5, 1.0, 2.0, 10.0])
-def test_rotated_cnot_collada_write_read(pipe_length: float) -> None:
+def test_rotated_cnot_collada_write_read() -> None:
     block_graph = rotated_cnot(Basis.Z)
 
     ROTATED_CNOT_DAE = Path(__file__).parent / "test_files/rotated_cnot.dae"

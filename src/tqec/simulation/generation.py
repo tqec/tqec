@@ -1,40 +1,20 @@
-import functools
-import itertools
-from concurrent.futures import ProcessPoolExecutor
 from typing import Callable, Iterable, Iterator
 
 import sinter
 import stim
 
-from tqec.compile.compile import CompiledGraph
+from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.graph import TopologicalComputationGraph
 from tqec.utils.noise_model import NoiseModel
 
 
-def _parallel_func(
-    kp: tuple[int, float],
-    *,
-    compiled_graph: CompiledGraph,
-    noise_model_factory: Callable[[float], NoiseModel],
-    manhattan_radius: int,
-) -> tuple[stim.Circuit, int, float]:
-    k, p = kp
-    noise_model = noise_model_factory(p)
-    return (
-        compiled_graph.generate_stim_circuit(
-            k, noise_model, manhattan_radius=manhattan_radius
-        ),
-        k,
-        p,
-    )
-
-
 def generate_stim_circuits_with_detectors(
-    compiled_graph: CompiledGraph,
+    compiled_graph: TopologicalComputationGraph,
     ks: Iterable[int],
     ps: Iterable[float],
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
-    max_workers: int | None = None,
+    detector_database: DetectorDatabase | None = None,
 ) -> Iterator[tuple[stim.Circuit, int, float]]:
     """Generate stim circuits in parallel.
 
@@ -70,34 +50,37 @@ def generate_stim_circuits_with_detectors(
             Default to 2, which is sufficient for regular surface code. If
             negative, detectors are not computed automatically and are not added
             to the generated circuits.
-        max_workers: The maximum number of processes that can be used to
-            execute the given calls. If None or not given then as many
-            worker processes will be created as the machine has processors.
+        detector_database: an instance to retrieve from / store in detectors
+            that are computed as part of the circuit generation.
 
     Yields:
         a tuple containing the resulting circuit, the value of `k` that
         corresponds to the returned circuit and the value of `p` that corresponds
         to the returned circuit.
     """
-    with ProcessPoolExecutor(max_workers) as executor:
-        yield from executor.map(
-            functools.partial(
-                _parallel_func,
-                compiled_graph=compiled_graph,
-                noise_model_factory=noise_model_factory,
-                manhattan_radius=manhattan_radius,
-            ),
-            itertools.product(ks, ps),
+    noise_models = {p: noise_model_factory(p) for p in ps}
+    circuits = {
+        k: compiled_graph.generate_stim_circuit(
+            k,
+            manhattan_radius=manhattan_radius,
+            detector_database=detector_database,
         )
+        for k in ks
+    }
+    yield from (
+        (nm.noisy_circuit(circuit), k, p)
+        for k, circuit in circuits.items()
+        for p, nm in noise_models.items()
+    )
 
 
 def generate_sinter_tasks(
-    compiled_graph: CompiledGraph,
+    compiled_graph: TopologicalComputationGraph,
     ks: Iterable[int],
     ps: Iterable[float],
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
-    max_workers: int | None = None,
+    detector_database: DetectorDatabase | None = None,
 ) -> Iterator[sinter.Task]:
     """Generate `sinter.Task` instances from the provided parameters.
 
@@ -121,9 +104,8 @@ def generate_sinter_tasks(
             Default to 2, which is sufficient for regular surface code. If
             negative, detectors are not computed automatically and are not added
             to the generated circuits.
-        max_workers: The maximum number of processes that can be used to
-            execute the given calls. If None or not given then as many
-            worker processes will be created as the machine has processors.
+        detector_database: an instance to retrieve from / store in detectors
+            that are computed as part of the circuit generation.
 
     Yields:
         tasks to be collected by a call to `sinter.collect`.
@@ -134,6 +116,11 @@ def generate_sinter_tasks(
             json_metadata={"d": 2 * k + 1, "r": 2 * k + 1, "p": p},
         )
         for circuit, k, p in generate_stim_circuits_with_detectors(
-            compiled_graph, ks, ps, noise_model_factory, manhattan_radius, max_workers
+            compiled_graph,
+            ks,
+            ps,
+            noise_model_factory,
+            manhattan_radius,
+            detector_database,
         )
     )

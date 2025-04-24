@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Generator
+from typing import Any, Generator
 
 from tqec.computation.cube import Cube, ZXCube
 from tqec.utils.enums import Basis
@@ -238,30 +238,6 @@ class Pipe:
         """The direction along which the pipe connects the cubes."""
         return self.kind.direction
 
-    def check_compatible_with_cubes(self) -> None:
-        """Check if the pipe is compatible with the cubes it connects.
-
-        For compatibility, each cube (head and tail) must match the pipe's basis
-        along each direction, except for the direction of the pipe, if the cube is
-        of type :py:class:`~tqec.computation.cube.ZXCube`.
-
-        Raises:
-            TQECException: If the pipe is not compatible with the cubes.
-        """
-        for cube in self:
-            if cube.is_port or cube.is_y_cube:
-                continue
-            assert isinstance(cube.kind, ZXCube)
-            for direction in Direction3D.all_directions():
-                if direction == self.direction:
-                    continue
-                cube_basis = cube.kind.get_basis_along(direction)
-                pipe_basis = self.kind.get_basis_along(direction, cube == self.u)
-                if cube_basis != pipe_basis:
-                    raise TQECException(
-                        f"The pipe is not compatible with the cube {cube} along {direction} direction."
-                    )
-
     def at_head(self, position: Position3D) -> bool:
         """Whether the position is at the head (u) of the pipe."""
         if position == self.u.position:
@@ -273,3 +249,14 @@ class Pipe:
     def __iter__(self) -> Generator[Cube]:
         yield self.u
         yield self.v
+
+    def __str__(self) -> str:
+        return f"{self.u}--({self.kind})--{self.v}"
+
+    def to_dict(self) -> dict[str, Any]:
+        """Returns the dictionary representation of the pipe."""
+        return {
+            "u": self.u.position.as_tuple(),
+            "v": self.v.position.as_tuple(),
+            "kind": str(self.kind),
+        }

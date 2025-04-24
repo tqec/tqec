@@ -3,7 +3,6 @@ import pytest
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
 
 
@@ -66,16 +65,9 @@ def test_pipe() -> None:
     )
     assert pipe.direction == Direction3D.X
     assert pipe.u.position < pipe.v.position
-    pipe.check_compatible_with_cubes()
     assert list(iter(pipe)) == [pipe.u, pipe.v]
-
-
-def test_pipe_compatible() -> None:
-    pipe = Pipe(
-        Cube(Position3D(1, 0, 0), ZXCube.from_str("XXZ")),
-        Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
-        PipeKind.from_str("OZX"),
-    )
-
-    with pytest.raises(TQECException, match="The pipe is not compatible"):
-        pipe.check_compatible_with_cubes()
+    assert pipe.to_dict() == {
+        "u": (0, 0, 0),
+        "v": (1, 0, 0),
+        "kind": "OXZ",
+    }

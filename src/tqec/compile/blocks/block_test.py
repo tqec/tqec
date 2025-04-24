@@ -24,7 +24,7 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 def plaquette_layer_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitTemplate(),
-        Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+        Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
     )
 
 
@@ -32,7 +32,7 @@ def plaquette_layer_fixture() -> PlaquetteLayer:
 def plaquette_layer2_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitSpatialCubeTemplate(),
-        Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+        Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
     )
 
 
@@ -57,11 +57,11 @@ def base_layers_fixture() -> list[BaseLayer]:
     return [
         PlaquetteLayer(
             QubitTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
         ),
         PlaquetteLayer(
             QubitSpatialCubeTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_factory=empty_square_plaquette)),
+            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
         ),
         RawCircuitLayer(
             lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
@@ -76,18 +76,12 @@ def logical_qubit_shape_fixture() -> PhysicalQubitScalable2D:
 
 
 def test_creation(
-    plaquette_layer: PlaquetteLayer,
-    raw_circuit_layer: RawCircuitLayer,
-    raw_circuit_fixed_size_layer: RawCircuitLayer,
+    plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer
 ) -> None:
-    # Invalid sequences due to duration <= 1
-    err_regex = ".*expected to have multiple layers in sequence.*"
-    for seq in ([], [plaquette_layer], [raw_circuit_layer]):
-        with pytest.raises(TQECException, match=err_regex):
-            Block(seq)
-    # Invalid sequence due to different shapes
-    with pytest.raises(TQECException, match="Found at least two different shapes.*"):
-        Block([plaquette_layer, raw_circuit_layer, raw_circuit_fixed_size_layer])
+    # Invalid sequences due to duration < 1
+    err_regex = ".*expected to have at least one layer.*"
+    with pytest.raises(TQECException, match=err_regex):
+        Block([])
 
     Block([plaquette_layer for _ in range(10)])
     Block(
@@ -131,13 +125,9 @@ def test_with_temporal_borders_replaced_none(
     assert block.with_temporal_borders_replaced(
         {TemporalBlockBorder.Z_POSITIVE: None}
     ) == Block([plaquette_layer, plaquette_layer2])
-    with pytest.raises(
-        TQECException,
-        match="An instance of Block is expected to have multiple layers in sequence.",
-    ):
-        block.with_temporal_borders_replaced(
-            {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
-        )
+    assert block.with_temporal_borders_replaced(
+        {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
+    ) == Block([plaquette_layer2])
     # Shorter to cover one edge-case:
     assert (
         Block([plaquette_layer, raw_circuit_layer]).with_temporal_borders_replaced(
