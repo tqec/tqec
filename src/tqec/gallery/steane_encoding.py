@@ -17,4 +17,7 @@ def steane_encoding(observable_basis: Basis = Basis.Z) -> BlockGraph:
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance.
     """
-    return BlockGraph.from_dae_file(ASSETS_FOLDER / "steane_encoding.dae")
+    graph = BlockGraph.from_dae_file(ASSETS_FOLDER / "steane_encoding.dae")
+
+    filled_graphs = graph.fill_ports_for_minimal_simulation()
+    return filled_graphs[0].graph
