@@ -9,4 +9,4 @@ This section contains a collection of constructed logical computations and their
    cnot.ipynb
    move_rotation.ipynb
    three_cnots.ipynb
-   stean_encoding.ipynb
+   steane_encoding.ipynb
