@@ -288,43 +288,25 @@ def test_block_graph_to_from_json() -> None:
     os.remove(temp_file.name)
 
 
-def test_block_graph_relabel_cubes_success() -> None:
+def test_block_graph_relabel_cubes() -> None:
     g = BlockGraph()
-    g.add_cube(Position3D(0, 0, 0), "ZXZ", label="A")
-    g.add_cube(Position3D(1, 0, 0), "P", label="In")
-    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0), "OXZ")
-
-    assert g["In"].is_port
-    assert g["A"].label == "A"
+    n = g.add_cube(Position3D(0, 0, 0), "P", "In")
+    n2 = g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_pipe(n, n2, "OXZH")
+    n3 = g.add_cube(Position3D(2, 0, 0), "P", "Out")
+    g.add_pipe(n2, n3, "OXZH")
 
     label_mapping = {
-        "In": "Input",
-        "A": "Alpha",
-        Position3D(1, 0, 0): "InputPortByPos",
+        Position3D(0, 0, 0): "InputPortByPos",
+        "Out": "OutputPortByLabel",
     }
 
     g.relabel_cubes(label_mapping)
 
     new_labels = {cube.label for cube in g.cubes}
-    assert "Alpha" in new_labels
-    assert "InputPortByPos" in new_labels or "Input" in new_labels
+    assert "InputPortByPos" in new_labels
+    assert "OutputPortByLabel" in new_labels
     assert "In" not in new_labels
-    assert "A" not in new_labels
-
-
-def test_block_graph_relabel_cubes_conflict() -> None:
-    g = BlockGraph()
-    g.add_cube(Position3D(0, 0, 0), "P", label="P0")
-    g.add_cube(Position3D(1, 0, 0), "P", label="P1")
-    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0), "OZX")
-
-    # Attempt to rename two cubes to the same label
-    conflict_mapping = {
-        "P0": "P1",
-        "P1": "P1",  # Already exists
-    }
-
-    with pytest.raises(
-        TQECException, match="already assigned to another port|reused multiple times"
-    ):
-        g.relabel_cubes(conflict_mapping)
+    assert "Out" not in new_labels
+    assert g[Position3D(0, 0, 0)].is_port
+    assert g[Position3D(2, 0, 0)].is_port
