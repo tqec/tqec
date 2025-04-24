@@ -9,7 +9,6 @@ from tqec.gallery import cz, memory, cnot
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
-from tqec.interop.collada import read_block_graph_from_dae_file
 
 
 def test_block_graph_construction() -> None:
@@ -289,32 +288,43 @@ def test_block_graph_to_from_json() -> None:
     os.remove(temp_file.name)
 
 
-def test_relabel_cubes():
-    block_graph = read_block_graph_from_dae_file("slide67_open.dae")
+def test_block_graph_relabel_cubes_success() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "ZXZ", label="A")
+    g.add_cube(Position3D(1, 0, 0), "P", label="In")
+    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0), "OXZ")
 
-    print("\nCubes before relabeling:")
-    for cube in block_graph.cubes:
-        print(f"  {cube} — label: '{cube.label}'")
+    assert g["In"].is_port
+    assert g["A"].label == "A"
 
-    # Update the label of a cube by old label or position
     label_mapping = {
-        "Port3": "Port1110",
-        Position3D(-1, 0, 0): "Port_relabeled_by_position",
-        "Port4": "Port40",
+        "In": "Input",
+        "A": "Alpha",
+        Position3D(1, 0, 0): "InputPortByPos",
     }
 
-    try:
-        block_graph.relabel_cubes(label_mapping)
-        print("\n✅ Relabeling completed successfully.")
-    except TQECException as e:
-        print(f"\n❌ Relabeling failed: {e}")
-        return
+    g.relabel_cubes(label_mapping)
 
-    print("\nCubes after relabeling:")
-    for cube in block_graph.cubes:
-        print(f"  {cube} — label: '{cube.label}'")
+    new_labels = {cube.label for cube in g.cubes}
+    assert "Alpha" in new_labels
+    assert "InputPortByPos" in new_labels or "Input" in new_labels
+    assert "In" not in new_labels
+    assert "A" not in new_labels
 
-    block_graph.view_as_html("relabeled_ports.html")
-    print(
-        "\n Visualization saved to 'relabeled_ports.html'. You can open it in your browser."
-    )
+
+def test_block_graph_relabel_cubes_conflict() -> None:
+    g = BlockGraph()
+    g.add_cube(Position3D(0, 0, 0), "P", label="P0")
+    g.add_cube(Position3D(1, 0, 0), "P", label="P1")
+    g.add_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0), "OZX")
+
+    # Attempt to rename two cubes to the same label
+    conflict_mapping = {
+        "P0": "P1",
+        "P1": "P1",  # Already exists
+    }
+
+    with pytest.raises(
+        TQECException, match="already assigned to another port|reused multiple times"
+    ):
+        g.relabel_cubes(conflict_mapping)
