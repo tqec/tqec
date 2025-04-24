@@ -296,7 +296,7 @@ def test_block_graph_relabel_cubes() -> None:
     n3 = g.add_cube(Position3D(2, 0, 0), "P", "Out")
     g.add_pipe(n2, n3, "OXZH")
 
-    label_mapping = {
+    label_mapping: dict[Position3D | str, str] = {
         Position3D(0, 0, 0): "InputPortByPos",
         "Out": "OutputPortByLabel",
     }
