@@ -9,6 +9,7 @@ from tqec.gallery import cz, memory, cnot
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
+from tqec.interop.collada import read_block_graph_from_dae_file
 
 
 def test_block_graph_construction() -> None:
@@ -286,3 +287,34 @@ def test_block_graph_to_from_json() -> None:
         read_g = BlockGraph.from_json(temp_file.name)
         assert read_g == g
     os.remove(temp_file.name)
+
+
+def test_relabel_cubes():
+    block_graph = read_block_graph_from_dae_file("slide67_open.dae")
+
+    print("\nCubes before relabeling:")
+    for cube in block_graph.cubes:
+        print(f"  {cube} — label: '{cube.label}'")
+
+    # Update the label of a cube by old label or position
+    label_mapping = {
+        "Port3": "Port1110",
+        Position3D(-1, 0, 0): "Port_relabeled_by_position",
+        "Port4": "Port40",
+    }
+
+    try:
+        block_graph.relabel_cubes(label_mapping)
+        print("\n✅ Relabeling completed successfully.")
+    except TQECException as e:
+        print(f"\n❌ Relabeling failed: {e}")
+        return
+
+    print("\nCubes after relabeling:")
+    for cube in block_graph.cubes:
+        print(f"  {cube} — label: '{cube.label}'")
+
+    block_graph.view_as_html("relabeled_ports.html")
+    print(
+        "\n Visualization saved to 'relabeled_ports.html'. You can open it in your browser."
+    )
