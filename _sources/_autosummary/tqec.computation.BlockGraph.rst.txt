@@ -30,6 +30,7 @@ BlockGraph
       ~BlockGraph.has_pipe_between
       ~BlockGraph.is_single_connected
       ~BlockGraph.pipes_at
+      ~BlockGraph.relabel_cubes
       ~BlockGraph.remove_cube
       ~BlockGraph.remove_pipe
       ~BlockGraph.rotate
@@ -89,6 +90,7 @@ BlockGraph
    .. automethod:: has_pipe_between
    .. automethod:: is_single_connected
    .. automethod:: pipes_at
+   .. automethod:: relabel_cubes
    .. automethod:: remove_cube
    .. automethod:: remove_pipe
    .. automethod:: rotate

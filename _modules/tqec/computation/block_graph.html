@@ -1389,6 +1389,68 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">else</span><span class="p">:</span>
             <span class="n">obj_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_text</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">obj_dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BlockGraph.relabel_cubes">
+<a class="viewcode-back" href="../../../_autosummary/tqec.computation.BlockGraph.html#tqec.computation.BlockGraph.relabel_cubes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">relabel_cubes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Position3D</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Relabel cubes in the block graph.</span>
+
+<span class="sd">        This method updates the labels of cubes in the graph, based on a mapping</span>
+<span class="sd">        from either a cube position or its existing label to a new label.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label_mapping: A mapping from either Position3D or current cube label (str)</span>
+<span class="sd">                to the new label to assign.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECException: If a cube is not found for the given key, if a port label</span>
+<span class="sd">                is reused, or if the new label conflicts with existing port labels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">port_labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">cube</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_port</span><span class="p">}</span>
+        <span class="n">assigned_new_labels</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_label</span> <span class="ow">in</span> <span class="n">label_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">new_label</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;New label must be non-empty.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">Position3D</span><span class="p">):</span>
+                <span class="n">matching_cubes</span> <span class="o">=</span> <span class="p">[</span><span class="n">cube</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">matching_cubes</span> <span class="o">=</span> <span class="p">[</span><span class="n">cube</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Invalid identifier &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;. Must be Position3D or str.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">matching_cubes</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No cube found for identifier &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+
+            <span class="n">is_port_relabel</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">is_port</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">matching_cubes</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">is_port_relabel</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">new_label</span> <span class="ow">in</span> <span class="n">port_labels</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Port label &#39;</span><span class="si">{</span><span class="n">new_label</span><span class="si">}</span><span class="s2">&#39; is already assigned to another port.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">new_label</span> <span class="ow">in</span> <span class="n">assigned_new_labels</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Port label &#39;</span><span class="si">{</span><span class="n">new_label</span><span class="si">}</span><span class="s2">&#39; is reused multiple times.&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">assigned_new_labels</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_label</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">new_label</span> <span class="ow">in</span> <span class="n">port_labels</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;The label &#39;</span><span class="si">{</span><span class="n">new_label</span><span class="si">}</span><span class="s2">&#39; belongs to a port and cannot be reused by a non-port cube.&quot;</span>
+                    <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">matching_cubes</span><span class="p">:</span>
+                <span class="n">updated_cube</span> <span class="o">=</span> <span class="n">Cube</span><span class="p">(</span>
+                    <span class="n">position</span><span class="o">=</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">new_label</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+                    <span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_NODE_DATA_KEY</span><span class="p">:</span> <span class="n">updated_cube</span><span class="p">}</span>
+                <span class="p">)</span></div>
 </div>
 
 
