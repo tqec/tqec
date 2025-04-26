@@ -104,7 +104,9 @@ class QubitMap:
             a copy of ``self`` for which the assertion
             ``set(return_value.qubits).issubset(qubits_to_keep)`` is ``True``.
         """
-        return self.filter_by_qubit_indices(self.q2i[q] for q in qubits_to_keep)
+        return self.filter_by_qubit_indices(
+            self.q2i[q] for q in qubits_to_keep if q in self.q2i
+        )
 
     def filter_by_qubit_indices(self, qubit_indices_to_keep: Iterable[int]) -> QubitMap:
         """Filter the qubit map to only keep qubits present in the provided
