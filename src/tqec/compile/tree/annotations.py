@@ -52,7 +52,7 @@ class DetectorAnnotation:
 class Polygon:
     """A polygon representing a stabilizer region in Crumble."""
 
-    basis: PauliBasis | None
+    basis: PauliBasis
     qubits: frozenset[GridQubit]
 
     def _sorted_qubits(self) -> list[GridQubit]:
@@ -65,11 +65,8 @@ class Polygon:
     def to_crumble_url_string(self, qubit_map: QubitMap) -> str:
         """Convert the polygon to the representation in a crumble url."""
         # default grey color for polygons with no basis information
-        if self.basis is None:
-            rgba = [0.5, 0.5, 0.5, 0.25]
-        else:
-            rgba = [0, 0, 0, 0.25]
-            rgba["xyz".index(self.basis.value)] = 1
+        rgba = [0, 0, 0, 0.25]
+        rgba["xyz".index(self.basis.value)] = 1
         rgba_str = ",".join(str(i) for i in rgba)
         qubits_idx = [qubit_map[q] for q in self._sorted_qubits()]
         qubits_str = "_".join(str(i) for i in qubits_idx)

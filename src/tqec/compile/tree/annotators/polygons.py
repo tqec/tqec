@@ -39,14 +39,12 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
                 if plaquette.is_empty():
                     continue
                 debug_info = plaquette.debug_information
-                draw_polygons: (
-                    dict[PauliBasis, list[GridQubit]] | dict[None, list[GridQubit]]
-                )
                 polygons_info = debug_info.get_polygons()
+                if not polygons_info:
+                    continue
+                draw_polygons: dict[PauliBasis, list[GridQubit]]
                 if isinstance(polygons_info, PauliBasis):
                     draw_polygons = {polygons_info: plaquette.qubits.data_qubits}
-                elif not polygons_info:
-                    draw_polygons = {None: plaquette.qubits.data_qubits}
                 else:
                     draw_polygons = polygons_info
 
