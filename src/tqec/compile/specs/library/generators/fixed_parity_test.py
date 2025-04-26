@@ -25,5 +25,6 @@ def test_spatial_cube_arm_plaquette(basis: Basis, is_reverse: bool) -> None:
     )
     circuit = scheduled_circuit.get_circuit()
     b = basis.value.upper()
-    assert circuit.has_flow(stim.Flow(f"1 -> {b}_{b}__{b}_{b} xor rec[0]"))
-    assert circuit.has_flow(stim.Flow(f"{b}_{b}__{b}_{b} -> rec[0]"))
+    lf, rf = ("", "_") if is_reverse else ("_", "")
+    assert circuit.has_flow(stim.Flow(f"1 -> {b}{lf}{b}__{b}{rf}{b} xor rec[0]"))
+    assert circuit.has_flow(stim.Flow(f"{b}{lf}{b}__{b}{rf}{b} -> rec[0]"))

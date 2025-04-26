@@ -7,15 +7,17 @@ from typing import ClassVar, Literal
 import stim
 
 from tqec.circuit.moment import Moment
+from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
+from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
-from tqec.plaquette.qubit import SquarePlaquetteQubits
-from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.qubit import PlaquetteQubits
+from tqec.plaquette.rpng.rpng import PauliBasis, RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.templates.qubit import (
@@ -47,50 +49,116 @@ def _get_spatial_cube_arm_name(
     return "_".join(parts)
 
 
-def _make_spatial_cube_arm_memory_moments_up_forward(basis: Basis) -> list[Moment]:
-    """
-    Implement circuit for the following plaquette::
-
-        0 ----- 1
-        |       |
-        |   4   |
-        |       |
-        2 -----
-    """
-    b = basis.name.upper()
-    return [
-        Moment(stim.Circuit("RX 4\nRZ 2")),
-        Moment(stim.Circuit("CX 4 2")),
-        Moment(stim.Circuit(f"C{b} 4 0")),
+def _make_spatial_cube_arm_memory_plaquette_up(
+    basis: Basis, reversed: bool = False, measure_ancilla: bool = False
+) -> Plaquette:
+    # d1 ---- d2
+    # |        |
+    # |   s1   |
+    # |        |
+    # s2 ---- s2
+    qubits = PlaquetteQubits(
+        [GridQubit(-1, -1), GridQubit(1, -1)],
+        [GridQubit(0, 0), GridQubit(1 if reversed else -1, 1)],
+    )
+    d1, d2 = tuple(qubits.data_qubits_indices)
+    s1, s2 = tuple(qubits.syndrome_qubits_indices)
+    # Define the base moments, only containing the reset on s2 as that is the
+    # only operation that does not depend on the parameters of this function.
+    base_moments = [
+        Moment(stim.Circuit(f"RZ {s2}")),
         Moment(stim.Circuit()),
-        Moment(stim.Circuit(f"C{b} 4 1")),
-        Moment(stim.Circuit("CX 2 4")),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit()),
         Moment(stim.Circuit()),
         Moment(stim.Circuit()),
     ]
-
-
-def _make_spatial_cube_arm_memory_moments_down_forward(basis: Basis) -> list[Moment]:
-    """
-    Implement circuit for the following plaquette::
-
-        0 -----
-        |       |
-        |   4   |
-        |       |
-        2 ----- 3
-    """
+    # Add the GHZ state creation and measurement.
+    if not reversed:
+        base_moments[0].append("RX", [s1], [])
+        base_moments[1].append("CX", [s1, s2], [])
+        base_moments[5].append("CX", [s2, s1], [])
+    else:
+        base_moments[1].append("RZ", [s1], [])
+        base_moments[2].append("CX", [s2, s1], [])
+        base_moments[6].append("CX", [s1, s2], [])
+        base_moments[7].append("MX", [s1], [])
+    # Add controlled gates
     b = basis.name.upper()
-    return [
-        Moment(stim.Circuit("RZ 0")),
-        Moment(stim.Circuit("RZ 4")),
-        Moment(stim.Circuit("CX 0 4")),
-        Moment(stim.Circuit(f"C{b} 4 2")),
+    schedule = (2, 4) if not reversed else (5, 3)
+    for d, s in zip((d1, d2), schedule):
+        base_moments[s].append(f"C{b}", [s1, d], [])
+    # Add ancilla measurement if needed
+    if measure_ancilla:
+        base_moments[-1].append("M", [s2] if reversed else [s1, s2], [])
+    # Finally, return the plaquette
+    return Plaquette(
+        _get_spatial_cube_arm_name(basis, "UP", reversed, measure_ancilla),
+        qubits,
+        ScheduledCircuit(base_moments, 0, qubits.qubit_map),
+        MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES,
+        debug_information=PlaquetteDebugInformation(
+            basis=PauliBasis.X if basis == Basis.X else PauliBasis.Z
+        ),
+    )
+
+
+def _make_spatial_cube_arm_memory_plaquette_down(
+    basis: Basis, reversed: bool = False, measure_ancilla: bool = False
+) -> Plaquette:
+    # s2 ---- s2
+    # |        |
+    # |   s1   |
+    # |        |
+    # d1 ---- d2
+    qubits = PlaquetteQubits(
+        [GridQubit(-1, 1), GridQubit(1, 1)],
+        [GridQubit(0, 0), GridQubit(1 if reversed else -1, -1)],
+    )
+    d1, d2 = tuple(qubits.data_qubits_indices)
+    s1, s2 = tuple(qubits.syndrome_qubits_indices)
+    # Define the base moments, only containing the reset on s2 as that is the
+    # only operation that does not depend on the parameters of this function.
+    base_moments = [
+        Moment(stim.Circuit(f"RZ {s2}")),
         Moment(stim.Circuit()),
-        Moment(stim.Circuit(f"C{b} 4 3")),
-        Moment(stim.Circuit("CX 4 0")),
-        Moment(stim.Circuit("MX 4")),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit()),
+        Moment(stim.Circuit()),
     ]
+    # Add the GHZ state creation and measurement.
+    if reversed:
+        base_moments[0].append("RX", [s1], [])
+        base_moments[1].append("CX", [s1, s2], [])
+        base_moments[5].append("CX", [s2, s1], [])
+    else:
+        base_moments[1].append("RZ", [s1], [])
+        base_moments[2].append("CX", [s2, s1], [])
+        base_moments[6].append("CX", [s1, s2], [])
+        base_moments[7].append("MX", [s1], [])
+    # Add controlled gates
+    b = basis.name.upper()
+    schedule = (3, 5) if not reversed else (4, 2)
+    for d, s in zip((d1, d2), schedule):
+        base_moments[s].append(f"C{b}", [s1, d], [])
+    # Add ancilla measurement if needed
+    if measure_ancilla:
+        base_moments[-1].append("M", [s1, s2] if reversed else [s2], [])
+    # Finally, return the plaquette
+    return Plaquette(
+        _get_spatial_cube_arm_name(basis, "DOWN", reversed, measure_ancilla),
+        qubits,
+        ScheduledCircuit(base_moments, 0, qubits.qubit_map),
+        MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES,
+        debug_information=PlaquetteDebugInformation(
+            basis=PauliBasis.X if basis == Basis.X else PauliBasis.Z
+        ),
+    )
 
 
 def make_spatial_cube_arm_plaquettes(
@@ -122,42 +190,10 @@ def make_spatial_cube_arm_plaquettes(
         A tuple ``(UP, DOWN)`` containing the two plaquettes needed to implement
         spatial cube arms.
     """
-    qubits = SquarePlaquetteQubits()
-    qubit_map = qubits.qubit_map
-
-    up_moments = _make_spatial_cube_arm_memory_moments_up_forward(basis)
-    down_moments = _make_spatial_cube_arm_memory_moments_down_forward(basis)
-    if measure_ancillas:
-        up_moments[-1].append("M", [2, 4], [])
-        down_moments[-1].append("M", [0], [])
-
-    up_circuit = ScheduledCircuit(up_moments, 0, qubit_map)
-    down_circuit = ScheduledCircuit(down_moments, 0, qubit_map)
-
-    if is_reverse:
-        inverse_qubit_indices_map = {0: 3, 1: 2, 2: 1, 3: 0, 4: 4}
-        up_circuit, down_circuit = (
-            down_circuit.map_qubit_indices(
-                inverse_qubit_indices_map, with_qubit_map=False
-            ),
-            up_circuit.map_qubit_indices(
-                inverse_qubit_indices_map, with_qubit_map=False
-            ),
-        )
-
-    mergeable_instructions = MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES
     return (
-        Plaquette(
-            _get_spatial_cube_arm_name(basis, "UP", is_reverse, measure_ancillas),
-            qubits,
-            up_circuit,
-            mergeable_instructions,
-        ),
-        Plaquette(
-            _get_spatial_cube_arm_name(basis, "DOWN", is_reverse, measure_ancillas),
-            qubits,
-            down_circuit,
-            mergeable_instructions,
+        _make_spatial_cube_arm_memory_plaquette_up(basis, is_reverse, measure_ancillas),
+        _make_spatial_cube_arm_memory_plaquette_down(
+            basis, is_reverse, measure_ancillas
         ),
     )
 
