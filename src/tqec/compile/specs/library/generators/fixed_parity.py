@@ -99,9 +99,6 @@ def _make_spatial_cube_arm_memory_plaquette_up(
         qubits,
         ScheduledCircuit(base_moments, 0, qubits.qubit_map),
         MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES,
-        debug_information=PlaquetteDebugInformation(
-            basis=PauliBasis.X if basis == Basis.X else PauliBasis.Z
-        ),
     )
 
 
@@ -155,9 +152,6 @@ def _make_spatial_cube_arm_memory_plaquette_down(
         qubits,
         ScheduledCircuit(base_moments, 0, qubits.qubit_map),
         MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES,
-        debug_information=PlaquetteDebugInformation(
-            basis=PauliBasis.X if basis == Basis.X else PauliBasis.Z
-        ),
     )
 
 
@@ -213,25 +207,57 @@ class ExtendedPlaquetteCollection:
     right_without_arm: ExtendedPlaquette
 
     @staticmethod
+    def _plaquette_debug_information(
+        basis: PauliBasis,
+    ) -> list[PlaquetteDebugInformation]:
+        extended_corners = [
+            GridQubit(-1, -1),
+            GridQubit(1, -1),
+            GridQubit(-1, 3),
+            GridQubit(1, 3),
+        ]
+        return [
+            PlaquetteDebugInformation(
+                draw_polygons={basis: [extended_corners[i] for i in indices]}
+            )
+            for indices in [
+                # bulk
+                [0, 1, 2, 3],
+                # left with arm
+                [1, 2, 3],
+                # left without arm
+                [1, 3],
+                # right with arm
+                [0, 1, 2],
+                # right without arm
+                [0, 2],
+            ]
+        ]
+
+    @staticmethod
     def from_args(
         basis: Basis, is_reverse: bool, measure_ancillas: bool = False
     ) -> ExtendedPlaquetteCollection:
         up, down = make_spatial_cube_arm_plaquettes(basis, is_reverse, measure_ancillas)
+        debug_info = ExtendedPlaquetteCollection._plaquette_debug_information(
+            PauliBasis(basis.value.lower())
+        )
+        up_plaquettes = [up.with_debug_information(info) for info in debug_info]
         return ExtendedPlaquetteCollection(
-            bulk=ExtendedPlaquette(up, down),
+            bulk=ExtendedPlaquette(up_plaquettes[0], down),
             left_with_arm=ExtendedPlaquette(
-                up.project_on_data_qubit_indices([1, 2, 3]), down
+                up_plaquettes[1].project_on_data_qubit_indices([1]), down
             ),
             left_without_arm=ExtendedPlaquette(
-                up.project_on_data_qubit_indices([1, 2, 3]),
-                down.project_on_data_qubit_indices([0, 1, 3]),
+                up_plaquettes[2].project_on_data_qubit_indices([1]),
+                down.project_on_data_qubit_indices([1]),
             ),
             right_with_arm=ExtendedPlaquette(
-                up, down.project_on_data_qubit_indices([0, 1, 2])
+                up_plaquettes[3], down.project_on_data_qubit_indices([0])
             ),
             right_without_arm=ExtendedPlaquette(
-                up.project_on_data_qubit_indices([0, 2]),
-                down.project_on_data_qubit_indices([0, 2]),
+                up_plaquettes[4].project_on_data_qubit_indices([0]),
+                down.project_on_data_qubit_indices([0]),
             ),
         )
 

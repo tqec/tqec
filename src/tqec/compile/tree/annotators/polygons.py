@@ -1,8 +1,10 @@
 from typing_extensions import override
 
+from tqec.circuit.qubit import GridQubit
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.tree.annotations import Polygon
 from tqec.compile.tree.node import LayerNode, NodeWalker
+from tqec.plaquette.rpng.rpng import PauliBasis
 from tqec.utils.position import Shift2D
 
 
@@ -37,16 +39,25 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
                 if plaquette.is_empty():
                     continue
                 debug_info = plaquette.debug_information
-                basis = debug_info.get_basis()
+                draw_polygons: (
+                    dict[PauliBasis, list[GridQubit]] | dict[None, list[GridQubit]]
+                )
+                polygons_info = debug_info.get_polygons()
+                if isinstance(polygons_info, PauliBasis):
+                    draw_polygons = {polygons_info: plaquette.qubits.data_qubits}
+                elif not polygons_info:
+                    draw_polygons = {None: plaquette.qubits.data_qubits}
+                else:
+                    draw_polygons = polygons_info
 
-                qubit_offset = Shift2D(
-                    plaquette.origin.x + column_index * increments.x,
-                    plaquette.origin.y + row_index * increments.y,
-                )
-                qubits = frozenset(
-                    q + qubit_offset for q in plaquette.qubits.data_qubits
-                )
-                polygons.append(Polygon(basis, qubits))
+                for basis, qubits in draw_polygons.items():
+                    qubit_offset = Shift2D(
+                        plaquette.origin.x + column_index * increments.x,
+                        plaquette.origin.y + row_index * increments.y,
+                    )
+                    polygons.append(
+                        Polygon(basis, frozenset(q + qubit_offset for q in qubits))
+                    )
 
     # Shift the qubits of the returned scheduled circuit
     mincube, _ = layer.bounds

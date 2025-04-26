@@ -70,7 +70,7 @@ def make_fixed_bulk_realignment_plaquette(
         qubits,
         scheduled_circuit,
         mergeable_instructions=frozenset({"H"}),
-        debug_information=PlaquetteDebugInformation(basis=debug_basis),
+        debug_information=PlaquetteDebugInformation(draw_polygons=debug_basis),
     )
 
 

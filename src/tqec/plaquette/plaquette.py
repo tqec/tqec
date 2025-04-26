@@ -200,6 +200,17 @@ class Plaquette:
             self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit()
         )
 
+    def with_debug_information(
+        self, debug_information: PlaquetteDebugInformation
+    ) -> Plaquette:
+        return Plaquette(
+            self.name,
+            self.qubits,
+            self.circuit,
+            self.mergeable_instructions,
+            debug_information,
+        )
+
 
 @dataclass(frozen=True)
 class Plaquettes:
