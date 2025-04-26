@@ -2,17 +2,14 @@
 
 from pathlib import Path
 from tqec.computation.block_graph import BlockGraph
-from tqec.utils.enums import Basis
 
 ASSETS_FOLDER = Path(__file__).resolve().parents[3] / "assets"
 
 
 # TODO:
-def steane_encoding(observable_basis: Basis = Basis.Z) -> BlockGraph:
+def steane_encoding() -> BlockGraph:
     """Create a block graph that represents a Steane encoding circuit.
-
-    Args:
-        observable_basis: The logical observable basis for the memory experiment.
+    The block graph is created from a DAE file that describes the circuit.
 
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance.
