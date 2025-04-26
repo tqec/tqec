@@ -258,7 +258,10 @@ def test_compile_move_rotation(convention_name: str, obs_basis: Basis, k: int) -
     )
     dem = circuit.detector_error_model()
     assert dem.num_observables == 1
-    expected_distance = d - 1 if convention_name == "fixed_parity" else d
+    if convention_name == "fixed_bulk":
+        expected_distance = d
+    else:
+        expected_distance = d - 1 if obs_basis == Basis.X else d
     assert len(dem.shortest_graphlike_error()) == expected_distance
 
 
