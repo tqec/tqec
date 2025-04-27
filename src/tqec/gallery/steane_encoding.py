@@ -7,10 +7,14 @@ from tqec.utils.enums import Basis
 ASSETS_FOLDER = Path(__file__).resolve().parents[3] / "assets"
 
 
-# TODO:
 def steane_encoding(observable_basis: Basis | None = None) -> BlockGraph:
     """Create a block graph that represents a Steane encoding circuit.
     The block graph is created from a DAE file that describes the circuit.
+
+    Args:
+        observable_basis: The observable basis that the block graph can support. If
+            None, the block graph will have open ports. Otherwise, the ports will be
+            filled with the given observable basis.
 
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance.
