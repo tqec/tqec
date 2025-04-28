@@ -261,6 +261,7 @@ class LayerTree:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
+        # This method will also update the detector_database and save it to disk at database_path.        
         self._annotate_detectors(
             k,
             manhattan_radius,
@@ -269,7 +270,6 @@ class LayerTree:
             only_use_database,
             lookback,
         )
-        # This function will also update the detector_database and save it to disk at database_path.
         self._annotate_observables(k)
         if add_polygons:
             self._annotate_polygons(k)
