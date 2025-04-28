@@ -22,8 +22,11 @@ from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
 
-DEFAULT_DETECTOR_DATABASE_PATH: Final[Path] = Path(
-    user_data_dir(appname="TQEC") + "\\my_detector_database.pkl"
+DEFAULT_DETECTOR_DATABASE_PATH: Final[Path] = (
+    # Note the use of the "*_path" variant that returns directly a Path instance.
+    # Operator "/" is overloaded by the Path class to be the correct path separator depending on the OS,
+    # so the below line should be a valid path independently of the OS.
+    user_data_path(appname="TQEC") / "my_detector_database.pkl"
 )
 
 
