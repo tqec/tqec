@@ -378,13 +378,24 @@ def get_spatially_distinct_3d_subtemplates(
     Returns:
         a representation of all the sub-templates found.
     """
-    unique_2d_subtemplates = [
+    # Note: we explicitly do not avoid 0-indexed plaquette in the individual
+    # 2-dimensional sub-templates (except the last one) because that led to
+    # issues. The problem is that the computation is done independently for each
+    # timeslice here, but we cannot "ignore" (i.e., return a 0-filled array) one
+    # timeslice (again, except the last one) directly because the other
+    # timeslices might need the potentially non-0 plaquettes around the center.
+    # That issue arose when extending a qubit to perform a spatial junction with
+    # stretched stabilizers (i.e., in fixed-parity convention).
+    unique_2d_subtemplates: list[UniqueSubTemplates] = [
         get_spatially_distinct_subtemplates(
             inst,
             manhattan_radius=manhattan_radius,
-            avoid_zero_plaquettes=avoid_zero_plaquettes,
+            avoid_zero_plaquettes=(
+                # Only if asked for it, and if this is the last instantiation.
+                avoid_zero_plaquettes and i == (len(instantiations) - 1)
+            ),
         )
-        for inst in instantiations
+        for i, inst in enumerate(instantiations)
     ]
 
     subtemplates_indices = numpy.stack(
