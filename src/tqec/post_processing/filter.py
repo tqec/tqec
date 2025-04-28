@@ -29,7 +29,7 @@ def subcircuit_only_on_indices(
             # Unconditionally append TICK annotations.
             ret.append(instruction)
         else:
-            targets = sum(
+            targets: list[stim.GateTarget] = sum(
                 (
                     tg
                     for tg in instruction.target_groups()
