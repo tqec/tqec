@@ -38,19 +38,25 @@ from tqec.utils.instructions import (
 def _get_spatial_cube_arm_name(
     basis: Basis,
     position: Literal["UP", "DOWN"],
+    reset: Basis | None,
+    measurement: Basis | None,
     is_reverse: bool,
-    measure_ancilla: bool,
 ) -> str:
     parts = ["SpatialCubeArm", basis.value.upper(), position]
+    if reset is not None:
+        parts.append(f"R{reset.value.upper()}")
+    if measurement is not None:
+        parts.append(f"M{measurement.value.upper()}")
     if is_reverse:
         parts.append("reversed")
-    if measure_ancilla:
-        parts.append("measure-ancilla")
     return "_".join(parts)
 
 
 def _make_spatial_cube_arm_memory_plaquette_up(
-    basis: Basis, reversed: bool = False, measure_ancilla: bool = False
+    basis: Basis,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
+    reversed: bool = False,
 ) -> Plaquette:
     # d1 ---- d2
     # |        |
@@ -90,12 +96,19 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     schedule = (2, 4) if not reversed else (5, 3)
     for d, s in zip((d1, d2), schedule):
         base_moments[s].append(f"C{b}", [s1, d], [])
-    # Add ancilla measurement if needed
-    if measure_ancilla:
+    # Add data-qubit reset/measurement if needed
+    # Note about resets: data-qubits (i.e., the 4 corners) are already in a
+    # correct state and we should not reset them. Internal qubits are also
+    # already reset individually by the circuit constructed above. That means
+    # that we should NOT reset anything here. Nevertheless, the reset argument
+    # is kept because the plaquette naming should be adapted.
+    if measurement:
+        base_moments[-2].append(f"M{measurement.value.upper()}", [d1, d2], [])
+        # Also add ancilla measurements if data-qubits are measured.
         base_moments[-1].append("M", [s2] if reversed else [s1, s2], [])
     # Finally, return the plaquette
     return Plaquette(
-        _get_spatial_cube_arm_name(basis, "UP", reversed, measure_ancilla),
+        _get_spatial_cube_arm_name(basis, "UP", reset, measurement, reversed),
         qubits,
         ScheduledCircuit(base_moments, 0, qubits.qubit_map),
         MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES,
@@ -103,7 +116,10 @@ def _make_spatial_cube_arm_memory_plaquette_up(
 
 
 def _make_spatial_cube_arm_memory_plaquette_down(
-    basis: Basis, reversed: bool = False, measure_ancilla: bool = False
+    basis: Basis,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
+    reversed: bool = False,
 ) -> Plaquette:
     # s2 ---- s2
     # |        |
@@ -143,12 +159,20 @@ def _make_spatial_cube_arm_memory_plaquette_down(
     schedule = (3, 5) if not reversed else (4, 2)
     for d, s in zip((d1, d2), schedule):
         base_moments[s].append(f"C{b}", [s1, d], [])
-    # Add ancilla measurement if needed
-    if measure_ancilla:
+    # Add data-qubit reset/measurement if needed
+
+    # Note about resets: data-qubits (i.e., the 4 corners) are already in a
+    # correct state and we should not reset them. Internal qubits are also
+    # already reset individually by the circuit constructed above. That means
+    # that we should NOT reset anything here. Nevertheless, the reset argument
+    # is kept because the plaquette naming should be adapted.
+    if measurement:
+        base_moments[-2].append(f"M{measurement.value.upper()}", [d1, d2], [])
+        # Also add ancilla measurements if data-qubits are measured.
         base_moments[-1].append("M", [s1, s2] if reversed else [s2], [])
     # Finally, return the plaquette
     return Plaquette(
-        _get_spatial_cube_arm_name(basis, "DOWN", reversed, measure_ancilla),
+        _get_spatial_cube_arm_name(basis, "DOWN", reset, measurement, reversed),
         qubits,
         ScheduledCircuit(base_moments, 0, qubits.qubit_map),
         MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES,
@@ -156,7 +180,10 @@ def _make_spatial_cube_arm_memory_plaquette_down(
 
 
 def make_spatial_cube_arm_plaquettes(
-    basis: Basis, is_reverse: bool = False, measure_ancillas: bool = False
+    basis: Basis,
+    reset: Basis | None = None,
+    measurement: Basis | None = None,
+    is_reverse: bool = False,
 ) -> tuple[Plaquette, Plaquette]:
     """Make a plaquette for spatial cube arms.
 
@@ -177,17 +204,23 @@ def make_spatial_cube_arm_plaquettes(
 
     Args:
         basis: the basis of the plaquette.
+        reset: basis of the reset operation performed on data-qubits. Defaults
+            to ``None`` that translates to no reset being applied on data-qubits.
+        measurement: basis of the measurement operation performed on data-qubits.
+            Defaults to ``None`` that translates to no measurement being applied
+            on data-qubits.
         is_reverse: whether the schedules of controlled-A gates are reversed.
-        measure_ancillas: whether ancillas should be measured.
 
     Returns:
         A tuple ``(UP, DOWN)`` containing the two plaquettes needed to implement
         spatial cube arms.
     """
     return (
-        _make_spatial_cube_arm_memory_plaquette_up(basis, is_reverse, measure_ancillas),
+        _make_spatial_cube_arm_memory_plaquette_up(
+            basis, reset, measurement, is_reverse
+        ),
         _make_spatial_cube_arm_memory_plaquette_down(
-            basis, is_reverse, measure_ancillas
+            basis, reset, measurement, is_reverse
         ),
     )
 
@@ -236,9 +269,11 @@ class ExtendedPlaquetteCollection:
 
     @staticmethod
     def from_args(
-        basis: Basis, is_reverse: bool, measure_ancillas: bool = False
+        basis: Basis, reset: Basis | None, measurement: Basis | None, is_reverse: bool
     ) -> ExtendedPlaquetteCollection:
-        up, down = make_spatial_cube_arm_plaquettes(basis, is_reverse, measure_ancillas)
+        up, down = make_spatial_cube_arm_plaquettes(
+            basis, reset, measurement, is_reverse
+        )
         debug_info = ExtendedPlaquetteCollection._plaquette_debug_information(
             PauliBasis(basis.value.lower())
         )
@@ -432,7 +467,10 @@ class FixedParityConventionGenerator:
         return ret
 
     def get_extended_plaquettes(
-        self, is_reversed: bool, measure_ancillas: bool = False
+        self,
+        reset: Basis | None,
+        measurement: Basis | None,
+        is_reversed: bool,
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
         """Get plaquettes that are supposed to be used to implement ``UP`` or
         ``DOWN`` spatial pipes.
@@ -444,7 +482,11 @@ class FixedParityConventionGenerator:
             contains plaquettes that have been reversed.
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_args(b, is_reversed, measure_ancillas))
+            b: (
+                ExtendedPlaquetteCollection.from_args(
+                    b, reset, measurement, is_reversed
+                )
+            )
             for b in Basis
         }
 
@@ -1312,9 +1354,7 @@ class FixedParityConventionGenerator:
         # General case, need extended stabilizers.
         SBB, OTB = spatial_boundary_basis, spatial_boundary_basis.flipped()
         # EPs: extended plaquettes
-        EPs = self.get_extended_plaquettes(
-            is_reversed, measure_ancillas=measurement is not None
-        )
+        EPs = self.get_extended_plaquettes(reset, measurement, is_reversed)
         # Dictionary that will be filled with plaquettes
         plaquettes: dict[int, Plaquette] = {}
         # Getting the extended plaquettes for the bulk and filling the dictionary
