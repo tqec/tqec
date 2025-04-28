@@ -472,8 +472,8 @@ class TopologicalComputationGraph:
                 argument is negative.
            detector_database: an instance to retrieve from / store in detectors
                 that are computed as part of the circuit generation. If not given,
-                the detectors are retrieved from/stored in the default location of
-                /my_detector_database.
+                the detectors are retrieved from/stored in the provided 
+                ``database_path``.
             database_path: specify where to save to after the calculation, when augmented.
                 As for detector_database, this defaults to /my_detector_database if
                 not specified. If detector_database is not passed in, the code attempts to
