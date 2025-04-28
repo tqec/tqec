@@ -5,7 +5,8 @@ import pickle
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
-from typing import Sequence
+from platformdirs import user_data_dir
+from typing import Final, Sequence
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.moment import Moment
@@ -21,7 +22,9 @@ from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
 
-DEFAULT_DETECTOR_DATABASE_PATH = "./my_detector_database.pkl"
+DEFAULT_DETECTOR_DATABASE_PATH: Final[Path] = Path(
+    user_data_dir(appname="TQEC") + "\\my_detector_database.pkl"
+)
 
 
 @dataclass(frozen=True)

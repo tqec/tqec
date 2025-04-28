@@ -277,7 +277,7 @@ def compute_detectors_at_end_of_situation(
     increments: Shift2D,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
-) -> (frozenset[Detector], DetectorDatabase):
+) -> frozenset[Detector]:
     """Returns detectors that should be added at the end of the provided
     situation.
 
@@ -343,11 +343,7 @@ def compute_detectors_at_end_of_situation(
     # origin.
     shift_x, shift_y = -radius * increments.x, -radius * increments.y
 
-    return (
-        frozenset(d.offset_spatially_by(shift_x, shift_y) for d in detectors),
-        database,
-    )
-    # The detector database has been added to in this function and so needs passing back up
+    return frozenset(d.offset_spatially_by(shift_x, shift_y) for d in detectors)
 
 
 def _get_or_default(
@@ -505,7 +501,7 @@ def compute_detectors_for_fixed_radius(
     fixed_subtemplate_radius: int = 2,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
-) -> (list[Detector], DetectorDatabase):
+) -> list[Detector]:
     """Returns detectors that should be added at the end of the circuit that
     would be obtained from the provided `template_at_timestep` and
     `plaquettes_at_timestep`.
@@ -562,18 +558,16 @@ def compute_detectors_for_fixed_radius(
 
     # Each detector in detectors_by_subtemplate is using a coordinate system
     # centered on the central plaquette origin.
-    updated_database = database
-    detectors_by_subtemplate = dict()
-    for indices, s3d in unique_3d_subtemplates.subtemplates.items():
-        detectors_and_database = compute_detectors_at_end_of_situation(
+    detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]] = {
+        indices: compute_detectors_at_end_of_situation(
             [s3d[:, :, i] for i in range(s3d.shape[2])],
             plaquettes,
             increments,
-            updated_database,
+            database,
             only_use_database,
         )
-        detectors_by_subtemplate[indices] = detectors_and_database[0]
-        updated_database = detectors_and_database[1]
+        for indices, s3d in unique_3d_subtemplates.subtemplates.items()
+    }
 
     # We know for sure that detectors in each subtemplate all involve a measurement
     # on at least one syndrome qubit of the central plaquette. That means that
@@ -595,4 +589,4 @@ def compute_detectors_for_fixed_radius(
                     )
                 )
 
-    return (detectors, updated_database)
+    return detectors

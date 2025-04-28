@@ -147,23 +147,26 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path = Path(DEFAULT_DETECTOR_DATABASE_PATH),
+        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
     ) -> None:
         if manhattan_radius <= 0:
             return
-        self._root.set_detector_database(detector_database)
         self._root.walk(
             AnnotateDetectorsOnLayerNode(
                 k, manhattan_radius, detector_database, only_use_database, lookback
             )
         )
-        # NB if database is None when passed in to the above function, then no database will be created in
-        # this function and database will still be None afterwards and so nothing will be saved to file
-        # in the subsequent function. Therefore the 'do not use database' code path will produce nothing at the end,
-        # as desired.
-        self._root.save_detector_database_to_file(database_path)
+        # The database will have been updated inside the above function, and here at the end of the computation we save it
+        # to file:
+        if detector_database is not None:
+            detector_database.to_file(database_path)
+
+        # NB if database is None when passed in to .walk(AnnotateDetectorsOnLayerNode), then no database will be created
+        # in this function, the database will still be None afterwards and so nothing will be saved to file.
+        # Therefore, the 'do not use database' code path (which was initialised by setting the database to None) will
+        # produce nothing at the end, as desired.
 
     def _annotate_polygons(
         self,
@@ -250,7 +253,7 @@ class LayerTree:
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: Path = Path(DEFAULT_DETECTOR_DATABASE_PATH),
+        database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
         add_polygons: bool = False,
@@ -277,7 +280,7 @@ class LayerTree:
         include_qubit_coords: bool = True,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
-        database_path: str = DEFAULT_DETECTOR_DATABASE_PATH,
+        database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
         do_not_use_database: bool = False,
         only_use_database: bool = False,
         lookback: int = 2,
@@ -318,14 +321,17 @@ class LayerTree:
             by ``self``.
         """
         # First, before we start any computations, decide which detector database to use.
-        database_path = Path(database_path)
+        if isinstance(database_path, str):
+            database_path = Path(database_path)
         # If the user has passed a database in, use that, otherwise:
         if detector_database is None:  # Nothing passed in,
             if database_path.exists():  # look for an existing database at the path.
                 detector_database = DetectorDatabase.from_file(database_path)
             else:  # if there is no existing database, create one.
                 detector_database = DetectorDatabase()
-        if do_not_use_database:
+        if (
+            do_not_use_database
+        ):  # override the above code and reset the database to None.
             detector_database = None
 
         self._generate_annotations(

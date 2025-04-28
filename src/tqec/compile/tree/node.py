@@ -55,7 +55,6 @@ class LayerNode:
         self._layer = layer
         self._children = LayerNode._get_children(layer)
         self._annotations = dict(annotations) if annotations is not None else {}
-        self._detector_database = detector_database
 
     @staticmethod
     def _get_children(layer: LayoutLayer | BaseComposedLayer) -> list[LayerNode]:
@@ -260,11 +259,3 @@ class LayerNode:
             assert isinstance(circuit, stim.Circuit)
             ret += circuit
         return ret
-
-    def set_detector_database(self, detector_database: DetectorDatabase | None = None):
-        self._detector_database = detector_database
-
-    def save_detector_database_to_file(self, path_name: str):
-        updated_detector_database = self._detector_database
-        if updated_detector_database is not None:
-            updated_detector_database.to_file(path_name)

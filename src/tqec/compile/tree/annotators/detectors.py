@@ -219,7 +219,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             self._lookback_size
         )
 
-        detectors_and_database = compute_detectors_for_fixed_radius(
+        detectors = compute_detectors_for_fixed_radius(
             templates,
             self._k,
             plaquettes,
@@ -227,11 +227,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             self._database,
             self._only_use_database,
         )
-        detectors = detectors_and_database[0]
-        updated_database = detectors_and_database[1]
-        # Update the detector database on both the walker and the node
-        self._database = updated_database
-        node._detector_database = updated_database
+
         for detector in detectors:
             annotations.detectors.append(
                 DetectorAnnotation.from_detector(detector, measurement_records)
