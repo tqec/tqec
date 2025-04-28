@@ -259,15 +259,30 @@ def _compute_detectors_at_end_of_situation(
         return frozenset()
 
     # Note: if there is more than 1 time slice, remove any initial time slice
-    #       that is empty.
+    # that is trivially empty. This is a faster version of the next while loop,
+    # but this might not catch all empty circuits (e.g., those that have an
+    # explicit plaquette, that turns out to be empty).
     while len(subtemplates) > 1 and numpy.all(subtemplates[0] == 0):
         assert len(plaquettes) > 1  # make type checkers happy
         subtemplates = subtemplates[1:]
         plaquettes = plaquettes[1:]
 
+    # Note: if there is more than 1 time slice, remove any initial time slice
+    # that is empty. Same as above, but without any false negative and less
+    # efficient.
+    current_circuit = generate_circuit_from_instantiation(
+        subtemplates[0], plaquettes[0], increments
+    )
+    while len(subtemplates) > 1 and current_circuit.is_empty():
+        assert len(plaquettes) > 1  # make type checkers happy
+        subtemplates = subtemplates[1:]
+        plaquettes = plaquettes[1:]
+        current_circuit = generate_circuit_from_instantiation(
+            subtemplates[0], plaquettes[0], increments
+        )
     # Build subcircuit for each Plaquettes layer
-    subcircuits: list[ScheduledCircuit] = []
-    for subtemplate, plaqs in zip(subtemplates, plaquettes):
+    subcircuits: list[ScheduledCircuit] = [current_circuit]
+    for subtemplate, plaqs in zip(subtemplates[1:], plaquettes[1:]):
         subcircuit = generate_circuit_from_instantiation(subtemplate, plaqs, increments)
         subcircuits.append(subcircuit)
     # Extract the global qubit map from the generated sub-circuits, relabeling
