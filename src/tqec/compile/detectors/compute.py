@@ -86,11 +86,25 @@ def _matched_detectors_to_detectors(
 def _center_plaquette_syndrome_qubits(
     subtemplate: SubTemplateType, plaquettes: Plaquettes, increments: Shift2D
 ) -> list[GridQubit]:
-    """Return a collection of qubits that are used as syndrome qubits by the
+    """Return a subset of qubits that are used as syndrome qubits by the
     central plaquette of the provided `subtemplate`.
 
     The qubits are returned in the sub-template coordinates (i.e., origin at
     top-left corner of the provided `subtemplate`).
+
+    Note:
+        This function only returns a subset of the syndrome qubits. This is
+        because, for some plaquettes (e.g., extended stabilizer measurement),
+        some corner qubits are syndrome qubits, but are shared by 4 plaquettes.
+        For this reason, each plaquette "owns" its top-left qubit. Following
+        this rule, there are a few cases where a data-qubit is owned by nobody,
+        hence a few exceptions to the above rule are added.
+
+    Warning:
+        If the provided ``subtemplate`` has been obtained from a manhattan radius
+        ``r == 0`` (i.e., no neighbouring plaquette is taken into account), only
+        the top-left data-qubit is owned by the plaquette, and no exception come
+        into play.
 
     Args:
         subtemplate: 2-dimensional array representing the sub-template we are
@@ -112,10 +126,65 @@ def _center_plaquette_syndrome_qubits(
     if central_plaquette_index == 0:
         return []
 
+    # In the following, "X" is a qubit that "belongs" to the plaquette drawn
+    # using "=" and "|", "O" is a qubit that does not, and plaquette(s) drawn
+    # using "-" and "'" are representing empty plaquettes. Numbers in the center
+    # of empty plaquettes correspond to the case applied to justify the absence
+    # of owner.
+
+    # Case 1, General case, always valid:
+    # X ===== O
+    # |       |
+    # |   X   |
+    # |       |
+    # O ===== O
+    considered_syndrome_qubits = {GridQubit(0, 0), GridQubit(-1, -1)}
+    # Case 2, when the top-right qubit should be added because no plaquette on
+    # the left.
+    # X ===== X ~~~~~ O
+    # |       |       '
+    # |   X   |   1   '
+    # |       |       '
+    # O ===== O ~~~~~ O
+    if r != 0 and subtemplate[r, r + 1] == 0:
+        considered_syndrome_qubits |= {GridQubit(1, -1)}
+    # When the bottom-left qubit should be added because no plaquette on the
+    # bottom and bottom-left.
+    #         X ===== O
+    #         |       |
+    #         |   X   |
+    #         |       |
+    # O ~~~~~ X ===== O
+    # '       '       '
+    # '   2   '   1   '
+    # '       '       '
+    # O ~~~~~ O ~~~~~ O
+    if r != 0 and (subtemplate[r + 1, r - 1] == subtemplate[r + 1, r] == 0):
+        considered_syndrome_qubits |= {GridQubit(-1, 1)}
+    # When the bottom-right qubit should be added because no plaquette on the
+    # bottom, bottom-right and right.
+    # X ===== O ~~~~~ O
+    # |       |       '
+    # |   X   |   3   '
+    # |       |       '
+    # O ===== X ~~~~~ O
+    # '       '       '
+    # '   2   '   1   '
+    # '       '       '
+    # O ~~~~~ O ~~~~~ O
+    if r != 0 and (
+        subtemplate[r + 1, r - 1] == subtemplate[r + 1, r] == subtemplate[r, r + 1] == 0
+    ):
+        considered_syndrome_qubits |= {GridQubit(1, 1)}
+
     central_plaquette = plaquettes[central_plaquette_index]
     origin = central_plaquette.origin
     offset = Shift2D(r * increments.x + origin.x, r * increments.y + origin.y)
-    return [q + offset for q in central_plaquette.qubits.syndrome_qubits]
+    return [
+        q + offset
+        for q in central_plaquette.qubits.syndrome_qubits
+        if q in considered_syndrome_qubits
+    ]
 
 
 def _filter_detectors(
