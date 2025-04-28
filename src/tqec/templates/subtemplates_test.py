@@ -107,25 +107,19 @@ _TEMPLATE_PAIRS_TO_TEST = [
 
 @pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
-    "templates,k,r,avoid_zero_plaquettes",
+    "templates,k,r",
     itertools.product(
         _TEMPLATE_PAIRS_TO_TEST,
         _VALUES_OF_K_TO_TEST,
         _VALUES_OF_MANHATTAN_RADIUS_TO_TEST,
-        [True, False],
     ),
 )
 def test_get_spatially_distinct_3d_subtemplates(
-    templates: tuple[Template, ...],
-    k: int,
-    r: int,
-    avoid_zero_plaquettes: bool,
+    templates: tuple[Template, ...], k: int, r: int
 ) -> None:
     instantiations = tuple(t.instantiate(k) for t in templates)
     instantiation_3d = numpy.stack(instantiations, axis=2)
-    unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(
-        instantiations, r, avoid_zero_plaquettes
-    )
+    unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(instantiations, r)
     # Check that the radius is correctly recovered.
     assert unique_3d_subtemplates.manhattan_radius == r
 

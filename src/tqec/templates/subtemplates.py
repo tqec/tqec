@@ -332,9 +332,7 @@ class Unique3DSubTemplates:
 
 
 def get_spatially_distinct_3d_subtemplates(
-    instantiations: Sequence[npt.NDArray[numpy.int_]],
-    manhattan_radius: int = 1,
-    avoid_zero_plaquettes: bool = True,
+    instantiations: Sequence[npt.NDArray[numpy.int_]], manhattan_radius: int = 1
 ) -> Unique3DSubTemplates:
     """Returns a representation of all the distinct 3-dimensional sub-templates
     of the provided manhattan radius.
@@ -371,9 +369,6 @@ def get_spatially_distinct_3d_subtemplates(
         manhattan_radius: radius of the considered ball using the Manhattan
             distance. Only squares with sides of ``2*manhattan_radius+1``
             plaquettes will be considered.
-        avoid_zero_plaquettes: ``True`` if sub-templates with an empty plaquette
-            (i.e., 0 value in the instantiation of the Template instance) at
-            its center should be ignored. Default to ``True``.
 
     Returns:
         a representation of all the sub-templates found.
@@ -388,12 +383,7 @@ def get_spatially_distinct_3d_subtemplates(
     # stretched stabilizers (i.e., in fixed-parity convention).
     unique_2d_subtemplates: list[UniqueSubTemplates] = [
         get_spatially_distinct_subtemplates(
-            inst,
-            manhattan_radius=manhattan_radius,
-            avoid_zero_plaquettes=(
-                # Only if asked for it, and if this is the last instantiation.
-                avoid_zero_plaquettes and i == (len(instantiations) - 1)
-            ),
+            inst, manhattan_radius=manhattan_radius, avoid_zero_plaquettes=False
         )
         for i, inst in enumerate(instantiations)
     ]

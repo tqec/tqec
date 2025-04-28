@@ -635,9 +635,7 @@ def compute_detectors_for_fixed_radius(
         templates, k
     )
     unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(
-        template_instantiations,
-        manhattan_radius=fixed_subtemplate_radius,
-        avoid_zero_plaquettes=True,
+        template_instantiations, manhattan_radius=fixed_subtemplate_radius
     )
 
     # Each detector in detectors_by_subtemplate is using a coordinate system
