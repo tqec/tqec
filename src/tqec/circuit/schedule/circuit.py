@@ -575,3 +575,6 @@ class ScheduledCircuit:
             self._qubit_map.filter_by_qubit_indices(used_qubit_indices),
             _avoid_checks=True,
         )
+
+    def is_empty(self) -> bool:
+        return all(m.is_empty for m in self._moments)
