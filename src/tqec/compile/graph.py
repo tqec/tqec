@@ -468,7 +468,7 @@ class TopologicalComputationGraph:
             manhattan_radius: radius considered to compute detectors.
                 Detectors are not computed and added to the circuit if this
                 argument is negative.
-           detector_database: an instance to retrieve from / store in detectors
+            detector_database: an instance to retrieve from / store in detectors
                 that are computed as part of the circuit generation. If not given,
                 the detectors are retrieved from/stored in the provided
                 ``database_path``.
@@ -481,6 +481,7 @@ class TopologicalComputationGraph:
             only_use_database: if ``True``, only detectors from the database
                 will be used. An error will be raised if a situation that is not
                 registered in the database is encountered.
+
         Returns:
             A compiled stim circuit.
         """
