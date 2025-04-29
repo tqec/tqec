@@ -568,7 +568,6 @@ def compute_detectors_for_fixed_radius(
         )
         for indices, s3d in unique_3d_subtemplates.subtemplates.items()
     }
-
     # We know for sure that detectors in each subtemplate all involve a measurement
     # on at least one syndrome qubit of the central plaquette. That means that
     # detectors computed here are unique and we do not have to check for

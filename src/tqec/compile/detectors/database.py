@@ -5,8 +5,7 @@ import pickle
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
-from platformdirs import user_data_dir
-from typing import Final, Sequence
+from typing import Sequence
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.moment import Moment
@@ -21,13 +20,6 @@ from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
-
-DEFAULT_DETECTOR_DATABASE_PATH: Final[Path] = (
-    # Note the use of the "*_path" variant that returns directly a Path instance.
-    # Operator "/" is overloaded by the Path class to be the correct path separator depending on the OS,
-    # so the below line should be a valid path independently of the OS.
-    user_data_path(appname="TQEC") / "my_detector_database.pkl"
-)
 
 
 @dataclass(frozen=True)

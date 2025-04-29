@@ -13,7 +13,6 @@ from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors import DetectorDatabase
 from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
@@ -42,7 +41,6 @@ class LayerNode:
         self,
         layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
-        detector_database: DetectorDatabase | None = None,
     ) -> None:
         """Represents a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
 

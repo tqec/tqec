@@ -62,10 +62,7 @@ from tqec.compile.blocks.positioning import (
     LayoutPosition2D,
     LayoutPosition3D,
 )
-from tqec.compile.detectors.database import (
-    DetectorDatabase,
-    DEFAULT_DETECTOR_DATABASE_PATH,
-)
+from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.tree import LayerTree
@@ -73,6 +70,7 @@ from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
+from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 from tqec.utils.scale import PhysicalQubitScalable2D
 
 
@@ -472,10 +470,10 @@ class TopologicalComputationGraph:
                 argument is negative.
            detector_database: an instance to retrieve from / store in detectors
                 that are computed as part of the circuit generation. If not given,
-                the detectors are retrieved from/stored in the provided 
+                the detectors are retrieved from/stored in the provided
                 ``database_path``.
             database_path: specify where to save to after the calculation, when augmented.
-                As for detector_database, this defaults to /my_detector_database if
+                This defaults to tqec.utils.paths.DEFAULT_DETECTOR_DATABASE_PATH if
                 not specified. If detector_database is not passed in, the code attempts to
                 retrieve the database from this location. The user may pass in the path
                 either in str format, or as a Path instance.

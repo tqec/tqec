@@ -8,10 +8,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import (
-    DetectorDatabase,
-    DEFAULT_DETECTOR_DATABASE_PATH,
-)
+from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -24,6 +21,7 @@ from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.template import RPNGTemplate
 from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
 from tqec.utils.exceptions import TQECException
+from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
 
 class QubitLister(NodeWalker):
@@ -261,7 +259,7 @@ class LayerTree:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
-        # This method will also update the detector_database and save it to disk at database_path.        
+        # This method will also update the detector_database and save it to disk at database_path.
         self._annotate_detectors(
             k,
             manhattan_radius,
@@ -303,10 +301,10 @@ class LayerTree:
                 produce invalid detectors.
             detector_database: an instance to retrieve from / store in detectors
                 that are computed as part of the circuit generation. If not given,
-                the detectors are retrieved from/stored in the default location of
-                /my_detector_database.
+                the detectors are retrieved from/stored in the the provided
+                ``database_path``.
             database_path: specify where to save to after the calculation, when augmented.
-                As for detector_database, this defaults to /my_detector_database if
+                This defaults to tqec.utils.paths.DEFAULT_DETECTOR_DATABASE_PATH if
                 not specified. If detector_database is not passed in, the code attempts to
                 retrieve the database from this location.
             do_not_use_database: if True, even the default database will not be used.
@@ -329,9 +327,8 @@ class LayerTree:
                 detector_database = DetectorDatabase.from_file(database_path)
             else:  # if there is no existing database, create one.
                 detector_database = DetectorDatabase()
-        if (
-            do_not_use_database
-        ):  # override the above code and reset the database to None.
+        # If do_not_use_database is True, override the above code and reset the database to None
+        if do_not_use_database:
             detector_database = None
 
         self._generate_annotations(
