@@ -3,13 +3,18 @@ from __future__ import annotations
 import inspect
 from typing import Literal
 
+import stim
+
+from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
+from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.plaquette import Plaquettes
-from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
+from tqec.plaquette.qubit import SquarePlaquetteQubits
+from tqec.plaquette.rpng.rpng import RPNGDescription, PauliBasis
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.templates.qubit import (
@@ -21,6 +26,52 @@ from tqec.templates.qubit import (
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+
+
+def make_fixed_bulk_realignment_plaquette(
+    stabilizer_basis: Basis,
+    z_orientation: Orientation,
+    mq_reset: Basis,
+    mq_measurement: Basis,
+    debug_basis: PauliBasis | None = None,
+) -> Plaquette:
+    """Make the plaquette used for fixed-bulk temporal Hadamard transition."""
+    qubits = SquarePlaquetteQubits()
+    cx_targets: list[tuple[int, int]]
+    # used to match the 5-timestep schedule in the other part of computation
+    cx_schedule: list[int]
+    match stabilizer_basis, z_orientation:
+        case Basis.Z, Orientation.VERTICAL:
+            cx_targets = [(0, 4), (1, 4), (4, 2), (4, 0)]
+            cx_schedule = [1, 2, 3, 5]
+        case Basis.Z, Orientation.HORIZONTAL:
+            cx_targets = [(0, 4), (2, 4), (4, 1), (4, 0)]
+            cx_schedule = [1, 3, 4, 5]
+        case Basis.X, Orientation.VERTICAL:
+            cx_targets = [(4, 0), (4, 2), (1, 4), (0, 4)]
+            cx_schedule = [1, 3, 4, 5]
+        case Basis.X, Orientation.HORIZONTAL:
+            cx_targets = [(4, 0), (4, 1), (2, 4), (0, 4)]
+            cx_schedule = [1, 2, 3, 5]
+    circuit = stim.Circuit()
+    circuit.append(f"R{mq_reset.value}", qubits.syndrome_qubits_indices, [])
+    circuit.append("TICK")
+    for targets in cx_targets:
+        circuit.append("CX", targets, [])
+        circuit.append("TICK")
+    circuit.append(f"M{mq_measurement.value}", qubits.syndrome_qubits_indices, [])
+    circuit.append("H", qubits.data_qubits_indices, [])
+    schedule = [0, *cx_schedule, 6]
+    scheduled_circuit = ScheduledCircuit.from_circuit(
+        circuit, schedule, qubits.qubit_map
+    )
+    return Plaquette(
+        f"fixed_bulk_realignment_{stabilizer_basis}_{z_orientation.value}_R{mq_reset}_M{mq_measurement}",
+        qubits,
+        scheduled_circuit,
+        mergeable_instructions=frozenset({"H"}),
+        debug_information=PlaquetteDebugInformation(basis=debug_basis),
+    )
 
 
 class FixedBulkConventionGenerator:
@@ -1050,49 +1101,86 @@ class FixedBulkConventionGenerator:
     #                         Hadamard                         #
     ############################################################
 
-    ########################################
-    #           Regular junction           #
-    ########################################
     def get_temporal_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.Template` instance
         needed to implement a transversal Hadamard gate applied on one logical
         qubit."""
-        raise self._not_implemented_exception()
+        return QubitTemplate()
 
-    def get_temporal_hadamard_rpng_descriptions(
-        self, z_orientation: Orientation = Orientation.HORIZONTAL
-    ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Returns a description of the plaquettes needed to implement a transversal
-        Hadamard gate applied on one logical qubit.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_temporal_hadamard_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.Template` instance returned by this
-            method.
-
-        Arguments:
-            z_orientation: orientation of the ``Z`` observable at the beginning
-                of the generated circuit description. The ``Z`` observable
-                orientation will be flipped at the end of the returned circuit
-                description, which is exactly the expected behaviour for a
-                Hadamard transition.
-                Used to compute the stabilizers that should be measured on the
-                boundaries and in the bulk of the returned logical qubit
-                description.
-
-        Returns:
-            a description of the plaquettes needed to implement a transversal
-            Hadamard gate applied on one logical qubit.
-        """
-        raise self._not_implemented_exception()
-
-    def get_temporal_hadamard_plaquettes(
+    def get_temporal_hadamard_realignment_plaquettes(
         self, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> Plaquettes:
-        return self._mapper(self.get_temporal_hadamard_rpng_descriptions)(z_orientation)
+        """Returns the :class:`~tqec.templates.base.Plaquettes` instance
+        needed to implement the realignment of the bulk stabilizer basis
+        of the code. This is needed because a transversal Hadamard layer
+        will change the bulk stabilizer basis of the code. Under fixed-bulk
+        convention, we use an extra realignment layer to realign the bulk
+        stabilizer basis of the code to the original one.
+        """
+        # plaquettes at the bulk
+        X_BULK = make_fixed_bulk_realignment_plaquette(
+            stabilizer_basis=Basis.X,
+            z_orientation=z_orientation,
+            mq_reset=Basis.X,
+            mq_measurement=Basis.Z,
+            debug_basis=PauliBasis.X,
+        )
+        Z_BULK = make_fixed_bulk_realignment_plaquette(
+            stabilizer_basis=Basis.Z,
+            z_orientation=z_orientation,
+            mq_reset=Basis.Z,
+            mq_measurement=Basis.X,
+            debug_basis=PauliBasis.Z,
+        )
+        # plaquettes at the right boundary of the template
+        right_boundary_basis = (
+            Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+        )
+        X_RIGHT = make_fixed_bulk_realignment_plaquette(
+            stabilizer_basis=Basis.X,
+            z_orientation=z_orientation,
+            mq_reset=right_boundary_basis,
+            mq_measurement=right_boundary_basis,
+            debug_basis=PauliBasis.X if z_orientation == Orientation.VERTICAL else None,
+        ).project_on_boundary(PlaquetteOrientation.RIGHT)
+        Z_RIGHT = make_fixed_bulk_realignment_plaquette(
+            stabilizer_basis=Basis.Z,
+            z_orientation=z_orientation,
+            mq_reset=right_boundary_basis,
+            mq_measurement=right_boundary_basis,
+            debug_basis=PauliBasis.Z
+            if z_orientation == Orientation.HORIZONTAL
+            else None,
+        ).project_on_boundary(PlaquetteOrientation.RIGHT)
+        down_boundary_basis = right_boundary_basis.flipped()
+        X_DOWN = make_fixed_bulk_realignment_plaquette(
+            stabilizer_basis=Basis.X,
+            z_orientation=z_orientation,
+            mq_reset=down_boundary_basis,
+            mq_measurement=down_boundary_basis,
+            debug_basis=PauliBasis.X
+            if z_orientation == Orientation.HORIZONTAL
+            else None,
+        ).project_on_boundary(PlaquetteOrientation.DOWN)
+        Z_DOWN = make_fixed_bulk_realignment_plaquette(
+            stabilizer_basis=Basis.Z,
+            z_orientation=z_orientation,
+            mq_reset=down_boundary_basis,
+            mq_measurement=down_boundary_basis,
+            debug_basis=PauliBasis.Z if z_orientation == Orientation.VERTICAL else None,
+        ).project_on_boundary(PlaquetteOrientation.DOWN)
+        realign_mapping = FrozenDefaultDict(
+            {
+                9: Z_BULK,
+                10: X_BULK,
+                11: Z_RIGHT,
+                12: X_RIGHT,
+                13: Z_DOWN,
+                14: X_DOWN,
+            },
+            default_value=self._mapper.get_plaquette(RPNGDescription.empty()),
+        )
+        return Plaquettes(realign_mapping)
 
     ########################################
     #                X pipe                #

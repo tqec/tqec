@@ -46,6 +46,10 @@ class AbstractObservable:
         bottom_stabilizer_spatial_cubes: A set of spatial cubes of which
             the stabilizer measurements on the bottom face should be included in
             the observable.
+        temporal_hadamard_pipes: A set of tuples of pipes and the observable basis
+            supported at the bottom of the pipe. A single stabilizer measurements
+            at the realignment layer represented by the pipe might be included in
+            the logical observable.
     """
 
     top_readout_cubes: frozenset[Cube] = frozenset()
@@ -53,6 +57,7 @@ class AbstractObservable:
     bottom_stabilizer_pipes: frozenset[Pipe] = frozenset()
     top_readout_spatial_cubes: frozenset[tuple[Cube, SpatialArms]] = frozenset()
     bottom_stabilizer_spatial_cubes: frozenset[Cube] = frozenset()
+    temporal_hadamard_pipes: frozenset[tuple[Pipe, Basis]] = frozenset()
 
     def slice_at_z(self, z: int) -> AbstractObservable:
         """Get the observable slice at the given z position."""
@@ -65,6 +70,9 @@ class AbstractObservable:
             ),
             frozenset(
                 c for c in self.bottom_stabilizer_spatial_cubes if c.position.z == z
+            ),
+            frozenset(
+                p for p in self.temporal_hadamard_pipes if p[0].u.position.z == z
             ),
         )
 
@@ -150,9 +158,6 @@ def compile_correlation_surface_to_abstract_observable(
     pg = block_graph.to_zx_graph()
     _check_correlation_surface_validity(correlation_surface, pg.g)
 
-    pg = block_graph.to_zx_graph()
-    _check_correlation_surface_validity(correlation_surface, pg.g)
-
     endpoints_to_edge: dict[frozenset[Position3D], list[ZXEdge]] = {}
     for edge in correlation_surface.span:
         u, v = edge.u.id, edge.v.id
@@ -164,6 +169,7 @@ def compile_correlation_surface_to_abstract_observable(
     bottom_stabilizer_pipes: set[Pipe] = set()
     top_readout_spatial_cubes: set[tuple[Cube, SpatialArms]] = set()
     bottom_stabilizer_spatial_cubes: set[Cube] = set()
+    temporal_hadamard_pipes: set[tuple[Pipe, Basis]] = set()
 
     # 1. Handle all spatial cubes
     for node in correlation_surface.span_vertices():
@@ -227,6 +233,10 @@ def compile_correlation_surface_to_abstract_observable(
         pipe = block_graph.get_pipe(up, vp)
         # Vertical pipes
         if pipe.direction == Direction3D.Z:
+            # Temporal Hadamard might have measurements that should be included
+            # during realignment of plaquettes under fixed-bulk convention
+            if pipe.kind.has_hadamard:
+                temporal_hadamard_pipes.add((pipe, edge.u.basis))
             if has_obs_include(pipe.v, edge.v.basis):
                 top_readout_cubes.add(pipe.v)
             continue
@@ -251,6 +261,7 @@ def compile_correlation_surface_to_abstract_observable(
         frozenset(bottom_stabilizer_pipes),
         frozenset(top_readout_spatial_cubes),
         frozenset(bottom_stabilizer_spatial_cubes),
+        frozenset(temporal_hadamard_pipes),
     )
 
 
