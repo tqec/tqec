@@ -157,7 +157,6 @@ class LayerNode:
             nodes have the same stabilizer configuration, only the first polygons
             will be kept.
         """
-
         if isinstance(self._layer, LayoutLayer):
             annotations = self.get_annotations(k)
             base_circuit = annotations.circuit
