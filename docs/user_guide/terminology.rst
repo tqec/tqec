@@ -307,7 +307,7 @@ scheduled at a precise time (or moment) in the quantum circuit.
 
 These condition make plaquettes easily representable as visual $2$-dimensional pictures. It is worth noting that the
 numbering of a plaquette represents the order in which the data qubits interact with the measure qubit. The interaction
-order resembles a ``Z`` or ``S`` shape to ensure commutation relationships with the neighboring stabilizers :cite:`Fowler_2012, Tomita_2014`.
+order resembles a ``Z`` or inverted ``N`` shape to ensure commutation relationships with the neighboring stabilizers :cite:`Fowler_2012, Tomita_2014`.
 The examples below utilize the ``Z`` shape.
 
 .. admonition:: Examples

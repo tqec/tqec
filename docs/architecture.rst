@@ -1,3 +1,7 @@
+:orphan:
+
+.. _architecture_dev:
+
 ``tqec`` architecture
 =====================
 
@@ -71,7 +75,8 @@ The ``3D`` structures discussed in detail in :ref:`terminology` are defined in t
 * A :class:`.CorrelationSurface` represents a set of parity measurements between the input and output logical operators.
 * A :class:`.Cube` is a fundamental building block constituting of a block of quantum operations that occupy a specific spacetime volume.
   Quantum information encoded in the logical qubits can be preserved or manipulated by these blocks.
-* A :class:`.Pipe` is a block that connects :class:`.Cube` objects in a :class:`.BlockGraph` but does not occupy spacetime volume on its own.
+* A :class:`.Pipe` is a block that connects :class:`.Cube` objects in a :class:`.BlockGraph` but does not occupy spacetime volume on its own. The exception
+  here are temporal hadamard pipes that have a volume when compiled using the fixed bulk convention.
 * :class:`.PipeKind` helps determine the kind of a pipe in a  :class:`.BlockGraph` based on the wall bases at the head of the pipe in
   addition to a Hadamard transition.
 * :class:`.Port` depicts the open ports in a :class:`.BlockGraph`.
@@ -116,15 +121,15 @@ circuit that can scale the desired code distance.
 :mod:`.plaquette`
 ^^^^^^^^^^^^^^^^^
 
-A plaquette is the representation of a local quantum circuit. A surface code patch implements one layer in time or one round of the surface code.
-
-This module maps from the numbered templates to some plaquettes that implement small local circuits to measure a stabilizer as a :class:`.ScheduledCircuit` instance.
+A plaquette is the representation of a local quantum circuit. A surface code patch implements one layer in time or one round of the surface code. Same as
+:mod:`.templates`, this module allows us to define scalable quantum circuits.
 
 
 :mod:`.circuit`
 ^^^^^^^^^^^^^^^
 
-Implementation of :class:`.ScheduledCircuit`, a quantum circuit representation in tqec, where each and every gate of a regular quantum circuit is associated with the time of execution.
+Implementation of :class:`.ScheduledCircuit`, a quantum circuit representation in tqec, where each and every gate of a regular quantum circuit is associated with the time of execution. This module
+maps from the numbered templates to some plaquettes that implement small local circuits to measure a stabilizer as a :class:`.ScheduledCircuit` instance.
 
 :class:`.NoiseModel`
 --------------------
