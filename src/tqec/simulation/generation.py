@@ -131,7 +131,7 @@ def generate_sinter_tasks(
             the detectors are retrieved from/stored in the provided
             ``database_path``.
         database_path: specify where to save to after the calculation, when augmented.
-            This defaults to tqec.utils.paths.DEFAULT_DETECTOR_DATABASE_PATH if
+            This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
             not specified. If ``detector_database`` is not passed in, the code attempts to
             retrieve the database from this location. The user may pass in the path
             either in str format, or as a Path instance.
