@@ -477,7 +477,7 @@ class TopologicalComputationGraph:
                 if not specified. If detector_database is not passed in, the code
                 attempts to retrieve the database from this location. The user
                 may pass in the path either in str format, or as a Path instance.
-            do_not_use_database: if True, even the default database will not be used.
+            do_not_use_database: if ``True``, even the default database will not be used.
             only_use_database: if ``True``, only detectors from the database
                 will be used. An error will be raised if a situation that is not
                 registered in the database is encountered.
