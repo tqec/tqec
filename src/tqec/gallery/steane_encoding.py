@@ -1,10 +1,10 @@
 """Block graph that represents a logical stability experiment."""
 
-from pathlib import Path
 from tqec.computation.block_graph import BlockGraph
 from tqec.utils.enums import Basis
+from tqec.utils.paths import GALLERY_DAE_DIR
 
-ASSETS_FOLDER = Path(__file__).resolve().parents[3] / "assets"
+STEANE_CODE_DAE = GALLERY_DAE_DIR / "steane_encoding.dae"
 
 
 def steane_encoding(observable_basis: Basis | None = None) -> BlockGraph:
@@ -19,7 +19,7 @@ def steane_encoding(observable_basis: Basis | None = None) -> BlockGraph:
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance.
     """
-    graph = BlockGraph.from_dae_file(ASSETS_FOLDER / "steane_encoding.dae")
+    graph = BlockGraph.from_dae_file(STEANE_CODE_DAE)
     filled_graphs = graph.fill_ports_for_minimal_simulation()
     assert len(filled_graphs) == 2
     if observable_basis == Basis.X:
