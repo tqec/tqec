@@ -43,6 +43,7 @@ rather remove the cube boundary and implement its own layers.
 For temporal pipes, the layers are replaced in-place within block instances.
 """
 
+from pathlib import Path
 from typing import Final
 
 import stim
@@ -69,6 +70,7 @@ from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
+from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 from tqec.utils.scale import PhysicalQubitScalable2D
 
 
@@ -454,23 +456,42 @@ class TopologicalComputationGraph:
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
+        do_not_use_database: bool = False,
+        only_use_database: bool = False,
     ) -> stim.Circuit:
         """Generate the ``stim.Circuit`` from the compiled graph.
 
         Args:
             k: scale factor of the templates.
-            noise_models: noise models to be applied to the circuit.
+            noise_model: noise model to be applied to the circuit.
             manhattan_radius: radius considered to compute detectors.
                 Detectors are not computed and added to the circuit if this
                 argument is negative.
             detector_database: an instance to retrieve from / store in detectors
-                that are computed as part of the circuit generation.
+                that are computed as part of the circuit generation. If not given,
+                the detectors are retrieved from/stored in the provided
+                ``database_path``.
+            database_path: specify where to save to after the calculation. This
+                defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH`
+                if not specified. If detector_database is not passed in, the code
+                attempts to retrieve the database from this location. The user
+                may pass in the path either in str format, or as a Path instance.
+            do_not_use_database: if ``True``, even the default database will not be used.
+            only_use_database: if ``True``, only detectors from the database
+                will be used. An error will be raised if a situation that is not
+                registered in the database is encountered.
 
         Returns:
             A compiled stim circuit.
         """
         circuit = self.to_layer_tree().generate_circuit(
-            k, manhattan_radius=manhattan_radius, detector_database=detector_database
+            k,
+            manhattan_radius=manhattan_radius,
+            detector_database=detector_database,
+            database_path=database_path,
+            do_not_use_database=do_not_use_database,
+            only_use_database=only_use_database,
         )
         # If provided, apply the noise model.
         if noise_model is not None:
