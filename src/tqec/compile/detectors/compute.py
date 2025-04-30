@@ -1,5 +1,6 @@
 import json
 from typing import Sequence
+
 import numpy
 import numpy.typing as npt
 import stim
@@ -299,7 +300,7 @@ def compute_detectors_at_end_of_situation(
         only_use_database: if ``True``, only detectors from the database will be
             used. An error will be raised if a situation that is not registered
             in the database is encountered or if the database is not provided.
-            Default to ``False``.``
+            Default to ``False``.
 
     Returns:
         all the detectors that can be appended at the end of the circuit
