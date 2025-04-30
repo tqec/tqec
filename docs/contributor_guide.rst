@@ -4,7 +4,12 @@ How to contribute
 Architecture Overview
 ---------------------
 
-A high-level overview of the different modules in ``tqec`` is available in :ref:`architecture_dev`.
+A high-level overview of the different modules in ``tqec`` is available in
+
+.. toctree::
+   :maxdepth: 1
+
+   architecture
 
 Installation procedure (for developers)
 ---------------------------------------

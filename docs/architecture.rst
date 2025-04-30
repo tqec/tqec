@@ -1,7 +1,3 @@
-:orphan:
-
-.. _architecture_dev:
-
 ``tqec`` architecture
 =====================
 
