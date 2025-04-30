@@ -667,19 +667,29 @@ to the Crumble URL.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.TopologicalComputationGraph.generate_stim_circuit">
-<span class="sig-name descname"><span class="pre">generate_stim_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manhattan_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detector_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.generate_stim_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.generate_stim_circuit" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">generate_stim_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manhattan_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detector_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('/home/runner/.local/share/TQEC/detector_database.pkl')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_not_use_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_use_database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/graph.html#TopologicalComputationGraph.generate_stim_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.TopologicalComputationGraph.generate_stim_circuit" title="Link to this definition">#</a></dt>
 <dd><p>Generate the <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> from the compiled graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>k</strong> (<em>int</em>) – scale factor of the templates.</p></li>
-<li><p><strong>noise_models</strong> – noise models to be applied to the circuit.</p></li>
+<li><p><strong>noise_model</strong> (<a class="reference internal" href="tqec.utils.NoiseModel.html#tqec.utils.NoiseModel" title="tqec.utils.noise_model.NoiseModel"><em>NoiseModel</em></a><em> | </em><em>None</em>) – noise model to be applied to the circuit.</p></li>
 <li><p><strong>manhattan_radius</strong> (<em>int</em>) – radius considered to compute detectors.
 Detectors are not computed and added to the circuit if this
 argument is negative.</p></li>
 <li><p><strong>detector_database</strong> (<em>DetectorDatabase</em><em> | </em><em>None</em>) – an instance to retrieve from / store in detectors
-that are computed as part of the circuit generation.</p></li>
-<li><p><strong>noise_model</strong> (<a class="reference internal" href="tqec.utils.NoiseModel.html#tqec.utils.NoiseModel" title="tqec.utils.noise_model.NoiseModel"><em>NoiseModel</em></a><em> | </em><em>None</em>)</p></li>
+that are computed as part of the circuit generation. If not given,
+the detectors are retrieved from/stored in the provided
+<code class="docutils literal notranslate"><span class="pre">database_path</span></code>.</p></li>
+<li><p><strong>database_path</strong> (<em>str</em><em> | </em><em>Path</em>) – specify where to save to after the calculation. This
+defaults to <code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_DETECTOR_DATABASE_PATH</span></code>
+if not specified. If detector_database is not passed in, the code
+attempts to retrieve the database from this location. The user
+may pass in the path either in str format, or as a Path instance.</p></li>
+<li><p><strong>do_not_use_database</strong> (<em>bool</em>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, even the default database will not be used.</p></li>
+<li><p><strong>only_use_database</strong> (<em>bool</em>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, only detectors from the database
+will be used. An error will be raised if a situation that is not
+registered in the database is encountered.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

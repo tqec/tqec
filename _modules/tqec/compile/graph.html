@@ -451,6 +451,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">For temporal pipes, the layers are replaced in-place within block instances.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
@@ -477,6 +478,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="n">Direction3D</span><span class="p">,</span> <span class="n">SignedDirection3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_DETECTOR_DATABASE_PATH</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalQubitScalable2D</span>
 
 
@@ -878,23 +880,42 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">noise_model</span><span class="p">:</span> <span class="n">NoiseModel</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">manhattan_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">detector_database</span><span class="p">:</span> <span class="n">DetectorDatabase</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">database_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DEFAULT_DETECTOR_DATABASE_PATH</span><span class="p">,</span>
+        <span class="n">do_not_use_database</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">only_use_database</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the ``stim.Circuit`` from the compiled graph.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            k: scale factor of the templates.</span>
-<span class="sd">            noise_models: noise models to be applied to the circuit.</span>
+<span class="sd">            noise_model: noise model to be applied to the circuit.</span>
 <span class="sd">            manhattan_radius: radius considered to compute detectors.</span>
 <span class="sd">                Detectors are not computed and added to the circuit if this</span>
 <span class="sd">                argument is negative.</span>
 <span class="sd">            detector_database: an instance to retrieve from / store in detectors</span>
-<span class="sd">                that are computed as part of the circuit generation.</span>
+<span class="sd">                that are computed as part of the circuit generation. If not given,</span>
+<span class="sd">                the detectors are retrieved from/stored in the provided</span>
+<span class="sd">                ``database_path``.</span>
+<span class="sd">            database_path: specify where to save to after the calculation. This</span>
+<span class="sd">                defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH`</span>
+<span class="sd">                if not specified. If detector_database is not passed in, the code</span>
+<span class="sd">                attempts to retrieve the database from this location. The user</span>
+<span class="sd">                may pass in the path either in str format, or as a Path instance.</span>
+<span class="sd">            do_not_use_database: if ``True``, even the default database will not be used.</span>
+<span class="sd">            only_use_database: if ``True``, only detectors from the database</span>
+<span class="sd">                will be used. An error will be raised if a situation that is not</span>
+<span class="sd">                registered in the database is encountered.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A compiled stim circuit.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">circuit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_layer_tree</span><span class="p">()</span><span class="o">.</span><span class="n">generate_circuit</span><span class="p">(</span>
-            <span class="n">k</span><span class="p">,</span> <span class="n">manhattan_radius</span><span class="o">=</span><span class="n">manhattan_radius</span><span class="p">,</span> <span class="n">detector_database</span><span class="o">=</span><span class="n">detector_database</span>
+            <span class="n">k</span><span class="p">,</span>
+            <span class="n">manhattan_radius</span><span class="o">=</span><span class="n">manhattan_radius</span><span class="p">,</span>
+            <span class="n">detector_database</span><span class="o">=</span><span class="n">detector_database</span><span class="p">,</span>
+            <span class="n">database_path</span><span class="o">=</span><span class="n">database_path</span><span class="p">,</span>
+            <span class="n">do_not_use_database</span><span class="o">=</span><span class="n">do_not_use_database</span><span class="p">,</span>
+            <span class="n">only_use_database</span><span class="o">=</span><span class="n">only_use_database</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># If provided, apply the noise model.</span>
         <span class="k">if</span> <span class="n">noise_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
