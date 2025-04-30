@@ -9,4 +9,4 @@ DEFAULT_DETECTOR_DATABASE_PATH: Final[Path] = USER_DATA_PATH / "detector_databas
 _DIRECTORIES_TO_CREATE: Final[list[Path]] = [USER_DATA_PATH]
 for directory in _DIRECTORIES_TO_CREATE:
     if not directory.exists():
-        directory.mkdir(parents=False)
+        directory.mkdir(parents=True)
