@@ -307,7 +307,7 @@ class LayerTree:
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
                 not specified. If detector_database is not passed in, the code attempts to
                 retrieve the database from this location.
-            do_not_use_database: if True, even the default database will not be used.
+            do_not_use_database: if ``True``, even the default database will not be used.
             only_use_database: if ``True``, only detectors from the database
                 will be used. An error will be raised if a situation that is not
                 registered in the database is encountered.
