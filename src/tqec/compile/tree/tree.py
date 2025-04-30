@@ -304,7 +304,7 @@ class LayerTree:
                 the detectors are retrieved from/stored in the the provided
                 ``database_path``.
             database_path: specify where to save to after the calculation, when augmented.
-                This defaults to tqec.utils.paths.DEFAULT_DETECTOR_DATABASE_PATH if
+                This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
                 not specified. If detector_database is not passed in, the code attempts to
                 retrieve the database from this location.
             do_not_use_database: if True, even the default database will not be used.
