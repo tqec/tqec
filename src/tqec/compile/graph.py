@@ -464,7 +464,7 @@ class TopologicalComputationGraph:
 
         Args:
             k: scale factor of the templates.
-            noise_models: noise models to be applied to the circuit.
+            noise_model: noise model to be applied to the circuit.
             manhattan_radius: radius considered to compute detectors.
                 Detectors are not computed and added to the circuit if this
                 argument is negative.
@@ -472,8 +472,8 @@ class TopologicalComputationGraph:
                 that are computed as part of the circuit generation. If not given,
                 the detectors are retrieved from/stored in the provided
                 ``database_path``.
-            database_path: specify where to save to after the calculation, when
-                augmented. This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH`
+            database_path: specify where to save to after the calculation. This
+                defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH`
                 if not specified. If detector_database is not passed in, the code
                 attempts to retrieve the database from this location. The user
                 may pass in the path either in str format, or as a Path instance.
@@ -492,7 +492,7 @@ class TopologicalComputationGraph:
             database_path=database_path,
             do_not_use_database=do_not_use_database,
             only_use_database=only_use_database,
-        )  # pass through the variables
+        )
         # If provided, apply the noise model.
         if noise_model is not None:
             circuit = noise_model.noisy_circuit(circuit)

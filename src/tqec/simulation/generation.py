@@ -59,7 +59,7 @@ def generate_stim_circuits_with_detectors(
             that are computed as part of the circuit generation. If not given,
             the detectors are retrieved from/stored in the provided
             ``database_path``.
-        database_path: specify where to save to after the calculation, when augmented.
+        database_path: specify where to save to after the calculation.
             This defaults to :class:`.DEFAULT_DETECTOR_DATABASE_PATH` if
             not specified. If ``detector_database`` is not passed in, the code attempts to
             retrieve the database from this location. The user may pass in the path
@@ -83,7 +83,7 @@ def generate_stim_circuits_with_detectors(
             database_path=database_path,
             do_not_use_database=do_not_use_database,
             only_use_database=only_use_database,
-        )  # pass through the variables
+        )
         for k in ks
     }
     yield from (
@@ -130,7 +130,7 @@ def generate_sinter_tasks(
             that are computed as part of the circuit generation. If not given,
             the detectors are retrieved from/stored in the provided
             ``database_path``.
-        database_path: specify where to save to after the calculation, when augmented.
+        database_path: specify where to save to after the calculation.
             This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
             not specified. If ``detector_database`` is not passed in, the code attempts to
             retrieve the database from this location. The user may pass in the path
@@ -158,5 +158,5 @@ def generate_sinter_tasks(
             database_path=database_path,
             do_not_use_database=do_not_use_database,
             only_use_database=only_use_database,
-        )  # pass through the variables
+        )
     )

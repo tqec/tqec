@@ -156,15 +156,10 @@ class LayerTree:
                 k, manhattan_radius, detector_database, only_use_database, lookback
             )
         )
-        # The database will have been updated inside the above function, and here at the end of the computation we save it
-        # to file:
+        # The database will have been updated inside the above function, and here at
+        # the end of the computation we save it to file:
         if detector_database is not None:
             detector_database.to_file(database_path)
-
-        # NB if database is None when passed in to .walk(AnnotateDetectorsOnLayerNode), then no database will be created
-        # in this function, the database will still be None afterwards and so nothing will be saved to file.
-        # Therefore, the 'do not use database' code path (which was initialised by setting the database to None) will
-        # produce nothing at the end, as desired.
 
     def _annotate_polygons(
         self,
@@ -303,7 +298,7 @@ class LayerTree:
                 that are computed as part of the circuit generation. If not given,
                 the detectors are retrieved from/stored in the the provided
                 ``database_path``.
-            database_path: specify where to save to after the calculation, when augmented.
+            database_path: specify where to save to after the calculation.
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
                 not specified. If detector_database is not passed in, the code attempts to
                 retrieve the database from this location.
