@@ -184,9 +184,9 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 avoid computing detectors if the database already contains them.
                 Default to `None` which result in not using any kind of database
                 and unconditionally performing the detector computation.
-            only_use_database: if True, only detectors from the database will be
+            only_use_database: if ``True``, only detectors from the database will be
                 used. An error will be raised if a situation that is not registered
-                in the database is encountered. Default to False.
+                in the database is encountered. Default to ``False``.
             lookback_size: number of QEC rounds to consider to try to find
                 detectors. Including more rounds increases computation time.
         """
