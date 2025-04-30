@@ -219,7 +219,7 @@ class LayerTree:
             )
             return str(circuit.to_crumble_url())
         self._generate_annotations(
-            k, manhattan_radius, detector_database, lookback, add_polygons=True
+            k, manhattan_radius, detector_database, lookback=lookback, add_polygons=True
         )
         annotations = self._get_annotation(k)
         qubit_map = annotations.qubit_map
