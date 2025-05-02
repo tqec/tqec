@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "tqec"
 version = "0.0.1"
 authors = [
-    { name = "TQEC community", email = "tqec-design-automation@googlegroups.com" },
+  { name = "TQEC community", email = "tqec-design-automation@googlegroups.com" },
 ]
 description = "A design automation framework for Topological Quantum Error Correction."
 readme = "README.md"
@@ -14,25 +14,25 @@ license = { file = "LICENSE" }
 keywords = ["topological quantum error correction", "qec"]
 requires-python = ">= 3.10"
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
-    "Natural Language :: English",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: MacOS",
-    "Operating System :: POSIX :: Linux",
-    "Programming Language :: JavaScript",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Software Development :: Libraries",
-    "Topic :: Software Development :: User Interfaces",
-    "Topic :: Utilities",
-    "Typing :: Typed",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: JavaScript",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: User Interfaces",
+  "Topic :: Utilities",
+  "Typing :: Typed",
 ]
 dynamic = ["dependencies"]
 
@@ -72,6 +72,8 @@ exclude = ["*test.py"]
 
 [tool.setuptools.package-data]
 tqec = ["py.typed"]
+# See https://setuptools.pypa.io/en/latest/userguide/datafiles.html#subdirectory-for-data-files
+"tqec.gallery.dae" = ["*.dae"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = "requirements.txt" }
@@ -116,13 +118,13 @@ warn_return_any = true
 # See https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml
 [[tool.mypy.overrides]]
 module = [
-    "stim",
-    "sinter",
-    "pysat",
-    "pysat.solvers",
-    "collada",
-    "collada.source",
-    "mpl_toolkits.mplot3d.axes3d",
+  "stim",
+  "sinter",
+  "pysat",
+  "pysat.solvers",
+  "collada",
+  "collada.source",
+  "mpl_toolkits.mplot3d.axes3d",
 ]
 ignore_missing_imports = true
 
@@ -139,18 +141,18 @@ omit = ["*/*_test.py"]
 
 [tool.coverage.report]
 exclude_also = [
-    # Don't complain about missing debug-only code:
-    "def __repr__",
+  # Don't complain about missing debug-only code:
+  "def __repr__",
 
-    # Don't complain if tests don't hit defensive assertion code:
-    "raise AssertionError",
-    "raise NotImplementedError",
+  # Don't complain if tests don't hit defensive assertion code:
+  "raise AssertionError",
+  "raise NotImplementedError",
 
-    # Don't complain if non-runnable code isn't run:
-    "if __name__ == .__main__.:",
+  # Don't complain if non-runnable code isn't run:
+  "if __name__ == .__main__.:",
 
-    # Don't complain about abstract methods, they aren't run:
-    "@(abc\\.)?abstractmethod",
+  # Don't complain about abstract methods, they aren't run:
+  "@(abc\\.)?abstractmethod",
 ]
 
 
