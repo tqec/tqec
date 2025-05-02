@@ -85,7 +85,8 @@ The ``3D`` structures discussed in detail in :ref:`terminology` are defined in t
 
 Responsible for translations between internal representations.
 
-:class:`.BlockGraph` from the functionality in :ref:`interop_ref` is further translated into a compiled graph through :func:`.compile_block_graph`.
+:class:`.BlockGraph` obtained from the functionality in :ref:`interop_ref` is further translated into a :class:`.TopologicalComputationGraph` represented
+by :class:`.Block` instances.
 
 .. mermaid::
     :align: center
@@ -102,7 +103,7 @@ Responsible for translations between internal representations.
     }%%
 
     graph
-        A[BlockGraph] --> B[compiled graph] --> C[ScheduledCircuit]--> D[stim.Circuit]
+        A[BlockGraph] --> B[Topological <br> Computation Graph] --> C[ScheduledCircuit]--> D[stim.Circuit]
 
 Multiple block builder protocols defined in ``tqec.compile.spec.library`` will take the high-level structure of a block to
 templates and plaquettes, that can in turn be used to generate a fully annotated ``stim.Circuit``.
