@@ -157,6 +157,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         k: int,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        only_use_database: bool = False,
         lookback: int = 2,
     ):
         """Walker computing and annotating detectors on leaf nodes.
@@ -178,6 +179,9 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 avoid computing detectors if the database already contains them.
                 Default to `None` which result in not using any kind of database
                 and unconditionally performing the detector computation.
+            only_use_database: if ``True``, only detectors from the database will be
+                used. An error will be raised if a situation that is not registered
+                in the database is encountered. Default to ``False``.
             lookback_size: number of QEC rounds to consider to try to find
                 detectors. Including more rounds increases computation time.
         """
@@ -191,6 +195,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         self._database = (
             detector_database if detector_database is not None else DetectorDatabase()
         )
+        self._only_use_database = only_use_database
         self._lookback_size = lookback
         self._lookback_stack = LookbackStack()
 
@@ -212,8 +217,14 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         )
 
         detectors = compute_detectors_for_fixed_radius(
-            templates, self._k, plaquettes, self._manhattan_radius, self._database
+            templates,
+            self._k,
+            plaquettes,
+            self._manhattan_radius,
+            self._database,
+            self._only_use_database,
         )
+
         for detector in detectors:
             annotations.detectors.append(
                 DetectorAnnotation.from_detector(detector, measurement_records)
