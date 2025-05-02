@@ -1,15 +1,24 @@
+from itertools import zip_longest
+
 import numpy
 import stim
 
-from tqec.utils.exceptions import TQECException
 
-
-def shift_qubits(circuit: stim.Circuit, *shifts: float) -> stim.Circuit:
+def shift_qubits(
+    circuit: stim.Circuit,
+    *shifts: float,
+    also_shift_detectors: bool = True,
+) -> stim.Circuit:
     """Shift the qubit coordinates of the provided circuit by ``shifts``.
 
     Args:
         circuit: circuit containing qubits to shift.
         shifts: a list of shifts to apply to each dimension.
+        also_shift_detectors: if ``True``, coordinates of ``DETECTOR``
+            instructions are also shifted. Note that this might introduce
+            additional dimensions to the ``DETECTOR`` instructions if the
+            provided ``shifts`` is contains more elements than the original
+            number of dimensions in the arguments.
 
     Raises:
         TQECException: if any ``QUBIT_COORDS`` instruction in the provided
@@ -22,26 +31,36 @@ def shift_qubits(circuit: stim.Circuit, *shifts: float) -> stim.Circuit:
     """
     ret = stim.Circuit()
     for instr in circuit:
-        if instr.name != "QUBIT_COORDS":
-            ret.append(instr)
-            continue
-        assert not isinstance(instr, stim.CircuitRepeatBlock)
-        args = instr.gate_args_copy()
-        if len(args) != len(shifts):
-            raise TQECException(
-                f"Found a QUBIT_COORDS instruction with {len(args)} arguments "
-                f"but only {len(shifts)} shifts were provided."
+        if isinstance(instr, stim.CircuitRepeatBlock):
+            ret.append(
+                stim.CircuitRepeatBlock(
+                    instr.repeat_count,
+                    shift_qubits(
+                        instr.body_copy(),
+                        *shifts,
+                        also_shift_detectors=also_shift_detectors,
+                    ),
+                )
             )
-        ret.append(
-            "QUBIT_COORDS",
-            instr.targets_copy(),
-            [arg + s for arg, s in zip(args, shifts)],
-        )
+        elif instr.name == "QUBIT_COORDS" or (
+            also_shift_detectors and instr.name == "DETECTOR"
+        ):
+            print(f"Shifting {instr.name} with {shifts}")
+            args = instr.gate_args_copy()
+            ret.append(
+                instr.name,
+                instr.targets_copy(),
+                [arg + s for arg, s in zip_longest(args, shifts, fillvalue=0)],
+            )
+        else:
+            ret.append(instr)
     return ret
 
 
 def shift_to_only_positive(
-    circuit: stim.Circuit, stick_to_origin: bool = True
+    circuit: stim.Circuit,
+    stick_to_origin: bool = True,
+    also_shift_detectors: bool = True,
 ) -> stim.Circuit:
     """Shift the provided circuit so that it only operates on qubits with
     positive coordinates.
@@ -50,14 +69,18 @@ def shift_to_only_positive(
         circuit: quantum circuit to shift.
         stick_to_origin: if ``True``, coordinates that are already positive may
             still be shifted so that the minimum coordinate is ``0``.
-
+        also_shift_detectors: if ``True``, coordinates of ``DETECTOR``
+            instructions are also shifted. Note that this might introduce
+            additional dimensions to the ``DETECTOR`` instructions if the
+            provided ``shifts`` is contains more elements than the original
+            number of dimensions in the arguments.
     Returns:
         a copy of ``circuit`` with all the qubit coordinates shifted to positive
         values.
     """
     mins, _ = circuit_bounding_box(circuit)
     shifts = [-m if stick_to_origin or m < 0 else 0 for m in mins]
-    return shift_qubits(circuit, *shifts)
+    return shift_qubits(circuit, *shifts, also_shift_detectors=also_shift_detectors)
 
 
 def circuit_bounding_box(
