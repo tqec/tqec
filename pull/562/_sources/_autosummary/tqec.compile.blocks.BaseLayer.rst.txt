@@ -1,0 +1,47 @@
+BaseLayer
+=========
+
+.. currentmodule:: tqec.compile.blocks
+
+.. autoclass:: BaseLayer
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseLayer.__init__
+      ~BaseLayer.get_temporal_layer_on_border
+      ~BaseLayer.shape
+      ~BaseLayer.timesteps
+      ~BaseLayer.with_spatial_borders_trimmed
+      ~BaseLayer.with_temporal_borders_replaced
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseLayer.scalable_shape
+      ~BaseLayer.scalable_timesteps
+      ~BaseLayer.trimmed_spatial_borders
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: get_temporal_layer_on_border
+   .. automethod:: shape
+   .. automethod:: timesteps
+   .. automethod:: with_spatial_borders_trimmed
+   .. automethod:: with_temporal_borders_replaced
+   
+   

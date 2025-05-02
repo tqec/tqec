@@ -1,0 +1,54 @@
+﻿tqec.utils
+==========
+
+.. currentmodule:: tqec
+
+.. automodule:: tqec.utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      round_or_fail
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+   
+      Basis
+      BlockPosition2D
+      Direction3D
+      LinearFunction
+      NoiseModel
+      Orientation
+      PatchStyle
+      PhysicalQubitPosition2D
+      PlaquettePosition2D
+      Position3D
+      Shift2D
+      SignedDirection3D
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+   
+      TQECException
+   
+   

@@ -1,0 +1,47 @@
+PositionedZX
+============
+
+.. currentmodule:: tqec.interop
+
+.. autoclass:: PositionedZX
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PositionedZX.__init__
+      ~PositionedZX.check_preconditions
+      ~PositionedZX.draw
+      ~PositionedZX.from_block_graph
+      ~PositionedZX.get_direction
+      ~PositionedZX.to_block_graph
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PositionedZX.g
+      ~PositionedZX.p2v
+      ~PositionedZX.positions
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: check_preconditions
+   .. automethod:: draw
+   .. automethod:: from_block_graph
+   .. automethod:: get_direction
+   .. automethod:: to_block_graph
+   
+   
