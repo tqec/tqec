@@ -105,12 +105,12 @@ Responsible for translations between internal representations.
         A[BlockGraph] --> B[compiled graph] --> C[ScheduledCircuit]--> D[stim.Circuit]
 
 Multiple block builder protocols defined in ``tqec.compile.spec.library`` will take the high-level structure of a block to
-templates and plaquettes i.e. a fully annotated ``stim.Circuit``.
+templates and plaquettes, that can in turn be used to generate a fully annotated ``stim.Circuit``.
 
 :mod:`.templates`
 ^^^^^^^^^^^^^^^^^
 
-Generates an array of numbers in a representation of a 2-dimensional, scalable, arrangement of plaquettes. This allows us to describe a
+Generates an array of numbers representing a 2-dimensional, scalable, arrangement of plaquettes. This allows us to describe a
 circuit that can scale the desired code distance.
 
 
