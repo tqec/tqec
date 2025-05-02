@@ -98,11 +98,21 @@ def read_block_graph_from_json(
     # Get cubes data
     for cube in data["cubes"]:
         # Raise error if any cube has "PORT" as kind
-        # We export "PORTS" from blockgraph, but there is no 3D primitive for a PORT
-        # Instead, a 3D object in a 3D software would either have a cube of regular kind as port or an open end (no cube at all)
+        # (3D software represents a port as either a cube of regular kind or no cube at all)
         if cube["kind"] == "PORT":
             raise TQECException(
                 'Incorrect cube kind: PORT. To specify a given cube is a port, give it a standard cube kind and use "In" or "Out" as label.'
+            )
+
+        # Enforce integers for position and transformation
+        if not all([isinstance(i, int) for i in cube["position"]]):
+            raise TQECException(
+                f"Incorrect positioning for cube at {cube['position']}. All positional information must be composed of integer values."
+            )
+
+        if not all([isinstance(i, int) for row in cube["transform"] for i in row]):
+            raise TQECException(
+                f"Incorrect transformation matrix for cube at {cube['position']}. All elements in transformation matrix need to be integers."
             )
 
         # Get key spatial info
@@ -126,6 +136,18 @@ def read_block_graph_from_json(
 
     # Get pipes data
     for pipe in data["pipes"]:
+        # Enforce integers for position and transformation
+        for pos in [pipe["u"], pipe["v"]]:
+            if not all([isinstance(i, int) for i in pos]):
+                raise TQECException(
+                    f"Incorrect positioning for pipe at ({pipe['u']}). All positional information must be composed of integer values."
+                )
+
+        if not all([isinstance(i, int) for row in pipe["transform"] for i in row]):
+            raise TQECException(
+                f"Incorrect transformation for pipe at ({pipe['u']}). All elements in transformation matrix need to be integers."
+            )
+
         # Get key spatial info
         translation = FloatPosition3D(*pipe["u"])  # This is also the head_pos
         tail_pos = FloatPosition3D(*pipe["v"])
@@ -686,7 +708,7 @@ class _GraphItems:
 ## THE FOLLOWING IS TEMPORARY CODE FOR TESTING PURPOSES ONLY
 ## DELETE EVERYTHING BELOW BEFORE ANY DRAFT PR, PR, OR MERGE
 if __name__ == "__main__":
-    json_test_files = ["hadamard_line", "cnot"]
+    json_test_files = ["cnot"]
 
     for test_file in json_test_files:
         blockgraph_name = test_file
