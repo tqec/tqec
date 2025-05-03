@@ -5,9 +5,8 @@ from typing import Callable, Iterable, Sequence, TypeGuard
 import sinter
 
 from tqec.compile.compile import compile_block_graph
+from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.detectors.database import DetectorDatabase
-from tqec.compile.specs.base import BlockBuilder, SubstitutionBuilder
-from tqec.compile.specs.library.css import CSS_BLOCK_BUILDER, CSS_SUBSTITUTION_BUILDER
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.utils.exceptions import TQECException
@@ -71,8 +70,7 @@ def binary_search_threshold(
     atol: float = 1e-4,
     rtol: float = 1e-4,
     manhattan_radius: int = 2,
-    block_builder: BlockBuilder = CSS_BLOCK_BUILDER,
-    substitution_builder: SubstitutionBuilder = CSS_SUBSTITUTION_BUILDER,
+    convention: Convention = FIXED_BULK_CONVENTION,
     detector_database: DetectorDatabase | None = None,
     num_workers: int = multiprocessing.cpu_count(),
     max_shots: int = 10_000_000,
@@ -137,12 +135,7 @@ def binary_search_threshold(
             Default to 2, which is sufficient for regular surface code. If
             negative, detectors are not computed automatically and are not added
             to the generated circuits.
-        block_builder: A callable that specifies how to build the `CompiledBlock` from
-            the specified `CubeSpecs`. Defaults to the block builder for the css type
-            surface code.
-        substitution_builder: A callable that specifies how to build the substitution
-            plaquettes from the specified `PipeSpec`. Defaults to the substitution
-            builder for the css type surface code.
+        convention: convention used to generate the quantum circuits.
         detector_database: an instance to retrieve from / store in detectors
             that are computed as part of the circuit generation.
         num_workers: The number of worker processes to use.
@@ -161,9 +154,7 @@ def binary_search_threshold(
         A tuple containing an estimation of the threshold and a collection of all
         the logical error-rates computed while searching the threshold
     """
-    compiled_graph = compile_block_graph(
-        block_graph, block_builder, substitution_builder, observables=[observable]
-    )
+    compiled_graph = compile_block_graph(block_graph, convention, [observable])
     ks = tuple(sorted(ks))
     noiseless_circuits = [
         compiled_graph.generate_stim_circuit(

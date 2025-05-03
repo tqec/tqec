@@ -1,25 +1,20 @@
+from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import (
+    ObservableBuilder,
+    ObservableComponent,
     compute_observable_qubits,
-    get_observable_with_circuit,
+    get_observable_with_measurement_records,
 )
 from tqec.compile.tree.node import LayerNode
-from tqec.utils.exceptions import TQECException
 
 
-def _get_first_leaf(root: LayerNode) -> LayerNode:
-    """Returns the first leaf node in the tree."""
+def _get_ordered_leaves(root: LayerNode) -> list[LayerNode]:
+    """Returns the leaves of the tree in time order."""
     if root.is_leaf:
-        return root
-    return _get_first_leaf(root._children[0])
-
-
-def _get_last_leaf(root: LayerNode) -> LayerNode:
-    """Returns the last leaf node in the tree."""
-    if root.is_leaf:
-        return root
-    return _get_last_leaf(root._children[-1])
+        return [root]
+    return [n for child in root.children for n in _get_ordered_leaves(child)]
 
 
 def annotate_observable(
@@ -27,6 +22,7 @@ def annotate_observable(
     k: int,
     observable: AbstractObservable,
     observable_index: int,
+    observable_builder: ObservableBuilder,
 ) -> None:
     """Annotates the observables on the tree.
 
@@ -35,23 +31,62 @@ def annotate_observable(
         k: distance parameter.
         observable: observable to annotate.
         observable_index: index of the observable in the circuit.
+        observable_builder: builder that computes and constructs qubits whose
+            measurements will be included in the logical observable.
     """
     for z, subtree_root in enumerate(root.children):
-        first_leaf = _get_first_leaf(subtree_root)
-        last_leaf = _get_last_leaf(subtree_root)
-        for at_bottom, node in zip([True, False], [first_leaf, last_leaf]):
-            assert isinstance(node._layer, LayoutLayer)
-            annotations = node.get_annotations(k)
-            if annotations.circuit is None:
-                raise TQECException(
-                    "Cannot annotate observables without the circuit annotation."
-                )
-            template, _ = node._layer.to_template_and_plaquettes()
-            obs_qubits = compute_observable_qubits(
-                k, observable, template, z, at_bottom
+        leaves = _get_ordered_leaves(subtree_root)
+        obs_slice = observable.slice_at_z(z)
+        # Annotate the observable at the bottom of the blocks
+        _annotate_observable_at_node(
+            leaves[0],
+            obs_slice,
+            k,
+            observable_index,
+            observable_builder,
+            ObservableComponent.BOTTOM_STABILIZERS,
+        )
+        readout_layer = leaves[-1]
+        if obs_slice.temporal_hadamard_pipes:
+            readout_layer = leaves[-2]
+            # Annotate the observable at the realignment layer in temporal hadamard pipes
+            _annotate_observable_at_node(
+                leaves[-1],
+                obs_slice,
+                k,
+                observable_index,
+                observable_builder,
+                ObservableComponent.REALIGNMENT,
             )
-            if obs_qubits:
-                obs_annotation = get_observable_with_circuit(
-                    annotations.circuit, observable_index, obs_qubits
-                )
-                annotations.observables.append(obs_annotation)
+        # Annotate the observable at the top of the blocks
+        _annotate_observable_at_node(
+            readout_layer,
+            obs_slice,
+            k,
+            observable_index,
+            observable_builder,
+            ObservableComponent.TOP_READOUTS,
+        )
+
+
+def _annotate_observable_at_node(
+    node: LayerNode,
+    obs_slice: AbstractObservable,
+    k: int,
+    observable_index: int,
+    observable_builder: ObservableBuilder,
+    component: ObservableComponent,
+) -> None:
+    circuit = node.get_annotations(k).circuit
+    assert circuit is not None
+    measurement_record = MeasurementRecordsMap.from_scheduled_circuit(circuit)
+    assert isinstance(node._layer, LayoutLayer)
+    template, _ = node._layer.to_template_and_plaquettes()
+    obs_qubits = compute_observable_qubits(
+        k, obs_slice, template, observable_builder, component
+    )
+    if obs_qubits:
+        obs_annotation = get_observable_with_measurement_records(
+            obs_qubits, measurement_record, observable_index
+        )
+        node.get_annotations(k).observables.append(obs_annotation)

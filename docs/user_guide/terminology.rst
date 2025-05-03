@@ -1,3 +1,5 @@
+.. _terminology:
+
 Terminology
 ===========
 
@@ -303,7 +305,10 @@ Temporal locality means that the quantum circuit depth should be constant and sh
 Explicit gate scheduling requires each and every gate in the circuit to be explicitly
 scheduled at a precise time (or moment) in the quantum circuit.
 
-These condition make plaquettes easily representable as visual $2$-dimensional pictures.
+These condition make plaquettes easily representable as visual $2$-dimensional pictures. It is worth noting that the
+numbering of a plaquette represents the order in which the data qubits interact with the measure qubit. The interaction
+order resembles a ``Z`` or inverted ``N`` shape to ensure commutation relationships with the neighboring stabilizers :cite:`Fowler_2012, Tomita_2014`.
+The examples below utilize the ``Z`` shape.
 
 .. admonition:: Examples
 
@@ -360,3 +365,9 @@ Detector
 
 In the ``tqec`` library, a detector is a set of one or more measurements that are
 supposed to have a deterministic parity in the absence of errors.
+
+
+References
+-----------
+.. bibliography::
+   :filter: docname in docnames

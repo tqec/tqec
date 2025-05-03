@@ -1,20 +1,25 @@
 from typing import Callable, Iterable, Iterator
 
+from pathlib import Path
 import sinter
 import stim
 
-from tqec.compile.compile import CompiledGraph
 from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.graph import TopologicalComputationGraph
 from tqec.utils.noise_model import NoiseModel
+from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
 
 def generate_stim_circuits_with_detectors(
-    compiled_graph: CompiledGraph,
+    compiled_graph: TopologicalComputationGraph,
     ks: Iterable[int],
     ps: Iterable[float],
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
     detector_database: DetectorDatabase | None = None,
+    database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
+    do_not_use_database: bool = False,
+    only_use_database: bool = False,
 ) -> Iterator[tuple[stim.Circuit, int, float]]:
     """Generate stim circuits in parallel.
 
@@ -51,7 +56,18 @@ def generate_stim_circuits_with_detectors(
             negative, detectors are not computed automatically and are not added
             to the generated circuits.
         detector_database: an instance to retrieve from / store in detectors
-            that are computed as part of the circuit generation.
+            that are computed as part of the circuit generation. If not given,
+            the detectors are retrieved from/stored in the provided
+            ``database_path``.
+        database_path: specify where to save to after the calculation.
+            This defaults to :class:`.DEFAULT_DETECTOR_DATABASE_PATH` if
+            not specified. If ``detector_database`` is not passed in, the code attempts to
+            retrieve the database from this location. The user may pass in the path
+            either in str format, or as a Path instance.
+        do_not_use_database: if ``True``, even the default database will not be used.
+        only_use_database: if ``True``, only detectors from the database
+            will be used. An error will be raised if a situation that is not
+            registered in the database is encountered.
 
     Yields:
         a tuple containing the resulting circuit, the value of `k` that
@@ -64,6 +80,9 @@ def generate_stim_circuits_with_detectors(
             k,
             manhattan_radius=manhattan_radius,
             detector_database=detector_database,
+            database_path=database_path,
+            do_not_use_database=do_not_use_database,
+            only_use_database=only_use_database,
         )
         for k in ks
     }
@@ -75,12 +94,15 @@ def generate_stim_circuits_with_detectors(
 
 
 def generate_sinter_tasks(
-    compiled_graph: CompiledGraph,
+    compiled_graph: TopologicalComputationGraph,
     ks: Iterable[int],
     ps: Iterable[float],
     noise_model_factory: Callable[[float], NoiseModel],
     manhattan_radius: int,
     detector_database: DetectorDatabase | None = None,
+    database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
+    do_not_use_database: bool = False,
+    only_use_database: bool = False,
 ) -> Iterator[sinter.Task]:
     """Generate `sinter.Task` instances from the provided parameters.
 
@@ -105,7 +127,18 @@ def generate_sinter_tasks(
             negative, detectors are not computed automatically and are not added
             to the generated circuits.
         detector_database: an instance to retrieve from / store in detectors
-            that are computed as part of the circuit generation.
+            that are computed as part of the circuit generation. If not given,
+            the detectors are retrieved from/stored in the provided
+            ``database_path``.
+        database_path: specify where to save to after the calculation.
+            This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
+            not specified. If ``detector_database`` is not passed in, the code attempts to
+            retrieve the database from this location. The user may pass in the path
+            either in str format, or as a Path instance.
+        do_not_use_database: if ``True``, even the default database will not be used.
+        only_use_database: if ``True``, only detectors from the database
+            will be used. An error will be raised if a situation that is not
+            registered in the database is encountered.
 
     Yields:
         tasks to be collected by a call to `sinter.collect`.
@@ -122,5 +155,8 @@ def generate_sinter_tasks(
             noise_model_factory,
             manhattan_radius,
             detector_database,
+            database_path=database_path,
+            do_not_use_database=do_not_use_database,
+            only_use_database=only_use_database,
         )
     )

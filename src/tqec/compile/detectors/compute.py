@@ -27,7 +27,7 @@ from tqec.templates.subtemplates import (
 )
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import PhysicalQubitPosition2D, Shift2D
+from tqec.utils.position import PlaquettePosition2D, Shift2D
 
 
 def _get_measurement_offset_mapping(circuit: stim.Circuit) -> dict[int, Measurement]:
@@ -297,10 +297,10 @@ def compute_detectors_at_end_of_situation(
             encountered, an exception will be thrown when trying to mutate the
             database. Default to `None` which result in not using any kind of
             database and unconditionally performing the detector computation.
-        only_use_database: if True, only detectors from the database will be
+        only_use_database: if ``True``, only detectors from the database will be
             used. An error will be raised if a situation that is not registered
             in the database is encountered or if the database is not provided.
-            Default to False.
+            Default to ``False``.
 
     Returns:
         all the detectors that can be appended at the end of the circuit
@@ -356,7 +356,8 @@ def _get_or_default(
         array: `numpy` array to recover values from.
         slices: a sequence of tuples `(start, stop)` representing the slice that
             should be returned for the corresponding array axis. The first slice
-            indexes elements on `axis=0`, the second on `axis=1`, ...
+            indexes elements on `axis=0`, the second on `axis=1`, ... The start
+            is inclusive, the stop is exclusive.
         default: value to use when indices from the provided slices are
             out-of-bound for the provided `array`. Defaults to 0.
 
@@ -386,25 +387,50 @@ def _get_or_default(
     array_slices: list[slice] = []
     for (start_slice, stop_slice), array_bound in zip(slices, array.shape):
         start_array, stop_array = 0, array_bound
+        # There are 6 different cases:
+        #      start_array                                   stop_array
+        #           [--------------------------------------------[
+        #
+        # 1: [--[
+        # 2:                                                        [--[
+        # 3:    [------------------------------------------------------[
+        # 4:    [---------------------[
+        # 5:                                           [---------------[
+        # 6:                   [--------------------------[
+
+        # In cases 1 or 2, there is nothing to take from the array so append an
+        # empty slice.
         if stop_slice <= start_array or start_slice >= stop_array:
-            # Nothing to take from `array`, so append an empty slice for this
-            # dimension.
             ret_slices.append(slice(0, 0))
             array_slices.append(slice(0, 0))
-        elif start_array <= start_slice <= stop_slice <= stop_array:
-            # The slice only contains valid indices for the array.
-            ret_slices.append(slice(0, stop_slice - start_slice))
-            array_slices.append(slice(start_slice, stop_slice))
-        elif start_array < stop_slice <= stop_array:
-            # The slice start is out of bound, but not the end.
+        # In case 3, the slice covers the array, so take the whole dimension of
+        # the array.
+        elif start_slice <= start_array and stop_array <= stop_slice:
+            ret_slices.append(
+                slice(start_array - start_slice, stop_array - start_slice)
+            )
+            array_slices.append(slice(start_array, stop_array))
+        # In case 4, only a part of the slice covers the array.
+        elif start_slice <= start_array < stop_slice <= stop_array:
             ret_slices.append(
                 slice(start_array - start_slice, stop_slice - start_slice)
             )
             array_slices.append(slice(start_array, stop_slice))
-        else:
-            # The slice start is in bounds, but the end is not.
+        # In case 5, only a part of the slice covers the array.
+        elif start_array <= start_slice < stop_array <= stop_slice:
             ret_slices.append(slice(0, stop_array - start_slice))
             array_slices.append(slice(start_slice, stop_array))
+        # In case 6, the whole slice is within bounds, to use the whole slice.
+        elif start_array <= start_slice <= stop_slice <= stop_array:
+            ret_slices.append(slice(0, stop_slice - start_slice))
+            array_slices.append(slice(start_slice, stop_slice))
+        else:
+            raise NotImplementedError(
+                f"Trying to get the slice [{start_slice}, {stop_slice}[ from an "
+                f"array of size {stop_array}. The case should be covered, but "
+                "none of the conditions matched, which hints at a mistake "
+                "somewhere."
+            )
 
     ret[tuple(ret_slices)] = array[tuple(array_slices)]
     return ret
@@ -450,7 +476,7 @@ def _compute_superimposed_template_instantiations(
 
     top_left = origins[-1]
     n, m = instantiations[-1].shape
-    bottom_right = PhysicalQubitPosition2D(top_left.x + m, top_left.y + n)
+    bottom_right = PlaquettePosition2D(top_left.x + m, top_left.y + n)
 
     # Get the correct instantiations
     ret: list[npt.NDArray[numpy.int_]] = []
@@ -500,9 +526,9 @@ def compute_detectors_for_fixed_radius(
             situation or it has been updated **in-place** with the computed
             detectors). Default to `None` which result in not using any kind of
             database and unconditionally performing the detector computation.
-        only_use_database: if True, only detectors from the database will be
+        only_use_database: if ``True``, only detectors from the database will be
             used. An error will be raised if a situation that is not registered
-            in the database is encountered. Default to False.
+            in the database is encountered. Default to ``False``.
 
     Returns:
         a collection of detectors that should be added at the end of the circuit
