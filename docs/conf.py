@@ -51,9 +51,12 @@ extensions = [
     # Include Mermaid diagrams in the documentation
     # https://sphinxcontrib-mermaid-demo.readthedocs.io/en/latest/
     "sphinxcontrib.mermaid",
-    "sphinx_copybutton",
     # Adds a copy button to each code block in the documentation
     # https://sphinx-copybutton.readthedocs.io/en/latest/
+    "sphinx_copybutton",
+    # Allows us to add references to a page
+    # https://sphinxcontrib-bibtex.readthedocs.io/en/latest/
+    "sphinxcontrib.bibtex",
 ]
 
 templates_path = ["_templates"]
@@ -162,6 +165,9 @@ nbsphinx_prolog = """
 nbsphinx_thumbnails = {
     "gallery/cnot": "_static/media/gallery/cnot.png",
     "gallery/memory": "_static/media/gallery/memory.png",
+    "gallery/move_rotation": "_static/media/gallery/move_rotation.png",
+    "gallery/three_cnots": "_static/media/gallery/three_cnots.png",
+    "gallery/steane_encoding": "_static/media/gallery/steane_encoding.png",
 }
 
 # -- Options for autosummary extension ---------------------------------------
@@ -170,3 +176,9 @@ nbsphinx_thumbnails = {
 autosummary_generate = True
 autosummary_generate_overwrite = True
 autosummary_imported_members = True
+
+# options for sphinxcontrib.bibtex
+# https://sphinxcontrib-bibtex.readthedocs.io/en/latest/index.html
+bibtex_bibfiles = ["refs.bib"]
+bibtex_default_style = "unsrt"
+suppress_warnings = ["bibtex.duplicate_label", "bibtex.duplicate_citation"]
