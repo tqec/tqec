@@ -103,8 +103,7 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     # that we should NOT reset anything here. Nevertheless, the reset argument
     # is kept because the plaquette naming should be adapted.
     if measurement:
-        base_moments[-2].append(f"M{measurement.value.upper()}", [d1, d2], [])
-        # Also add ancilla measurements if data-qubits are measured.
+        # Add ancilla measurements if data-qubits are measured.
         base_moments[-1].append("M", [s2] if reversed else [s1, s2], [])
     # Finally, return the plaquette
     return Plaquette(
@@ -167,8 +166,7 @@ def _make_spatial_cube_arm_memory_plaquette_down(
     # that we should NOT reset anything here. Nevertheless, the reset argument
     # is kept because the plaquette naming should be adapted.
     if measurement:
-        base_moments[-2].append(f"M{measurement.value.upper()}", [d1, d2], [])
-        # Also add ancilla measurements if data-qubits are measured.
+        # Add ancilla measurements if data-qubits are measured.
         base_moments[-1].append("M", [s1, s2] if reversed else [s2], [])
     # Finally, return the plaquette
     return Plaquette(
@@ -467,10 +465,7 @@ class FixedParityConventionGenerator:
         return ret
 
     def get_extended_plaquettes(
-        self,
-        reset: Basis | None,
-        measurement: Basis | None,
-        is_reversed: bool,
+        self, reset: Basis | None, measurement: Basis | None, is_reversed: bool
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
         """Get plaquettes that are supposed to be used to implement ``UP`` or
         ``DOWN`` spatial pipes.
