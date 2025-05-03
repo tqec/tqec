@@ -1,0 +1,49 @@
+PlaquetteLayer
+==============
+
+.. currentmodule:: tqec.compile.blocks
+
+.. autoclass:: PlaquetteLayer
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PlaquetteLayer.__init__
+      ~PlaquetteLayer.get_temporal_layer_on_border
+      ~PlaquetteLayer.shape
+      ~PlaquetteLayer.timesteps
+      ~PlaquetteLayer.with_spatial_borders_trimmed
+      ~PlaquetteLayer.with_temporal_borders_replaced
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PlaquetteLayer.plaquettes
+      ~PlaquetteLayer.scalable_shape
+      ~PlaquetteLayer.scalable_timesteps
+      ~PlaquetteLayer.template
+      ~PlaquetteLayer.trimmed_spatial_borders
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: get_temporal_layer_on_border
+   .. automethod:: shape
+   .. automethod:: timesteps
+   .. automethod:: with_spatial_borders_trimmed
+   .. automethod:: with_temporal_borders_replaced
+   
+   
