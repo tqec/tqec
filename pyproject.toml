@@ -46,15 +46,16 @@ Issues = "https://github.com/tqec/tqec/issues"
 test = ["pytest", "mypy", "pytest-cov", "types-networkx", "scipy-stubs"]
 dev = ["pymatching", "jupyterlab", "tqec[test, doc, bench]", "pre-commit"]
 doc = [
-  "sphinx",
-  "myst-parser",
-  "pydata-sphinx-theme",
-  "nbsphinx",
-  "pandoc",
-  "sphinxcontrib-mermaid",
-  "docformatter",
-  "sphinx-autobuild",
-  "sphinx-copybutton",
+    "sphinx",
+    "myst-parser",
+    "pydata-sphinx-theme",
+    "nbsphinx",
+    "pandoc",
+    "sphinxcontrib-mermaid",
+    "docformatter",
+    "sphinx-autobuild",
+    "sphinx-copybutton",
+    "sphinxcontrib-bibtex",
 ]
 bench = ["pyinstrument"]
 all = ["tqec[test, dev, doc, bench]"]
