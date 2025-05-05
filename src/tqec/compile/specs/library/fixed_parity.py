@@ -1,4 +1,4 @@
-from typing import Callable, Final
+from typing import Callable, Final, Protocol
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -30,11 +30,17 @@ from tqec.utils.scale import LinearFunction
 _DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
 
 
+class _PlaquettesGenerator(Protocol):
+    def __call__(
+        self, reversed: bool, reset: Basis | None, measurement: Basis | None, /
+    ) -> Plaquettes: ...
+
+
 def _get_block(
     z_basis: Basis | None,
     has_spatial_junction_in_timeslice: bool,
     template: RectangularTemplate,
-    plaquettes_generator: Callable[[bool, Basis | None, Basis | None], Plaquettes],
+    plaquettes_generator: _PlaquettesGenerator,
     repetitions: LinearFunction,
 ) -> Block:
     """Get the block implemented with the provided ``template`` and
