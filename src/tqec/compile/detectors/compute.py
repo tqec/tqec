@@ -669,5 +669,7 @@ def compute_detectors_for_fixed_radius(
                         (i + last_template_origin.y) * increments.y,
                     )
                 )
-
+    # Suboptimal quick fix to avoid duplicated detectors. A more optimal fix would
+    # be to improve filtering in _filter_detectors to avoid duplicates by construction.
+    detectors = list(set(detectors))
     return detectors
