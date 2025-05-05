@@ -7,10 +7,10 @@ from tqecd.measurement import RelativeMeasurementLocation
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.compute import (
+    _best_effort_filter_detectors,  # pyright: ignore[reportPrivateUsage]
     _center_plaquette_syndrome_qubits,  # pyright: ignore[reportPrivateUsage]
     _compute_detectors_at_end_of_situation,  # pyright: ignore[reportPrivateUsage]
     _compute_superimposed_template_instantiations,  # pyright: ignore[reportPrivateUsage]
-    _filter_detectors,  # pyright: ignore[reportPrivateUsage]
     _get_measurement_offset_mapping,  # pyright: ignore[reportPrivateUsage]
     _get_or_default,  # pyright: ignore[reportPrivateUsage]
     _matched_detectors_to_detectors,  # pyright: ignore[reportPrivateUsage]
@@ -229,7 +229,7 @@ def test_filter_detectors(
         ),
     ]
     assert (
-        _filter_detectors(
+        _best_effort_filter_detectors(
             filtered_out_detectors,
             [alternating_subtemplate],
             [init_plaquettes],
@@ -237,13 +237,13 @@ def test_filter_detectors(
         )
         == frozenset()
     )
-    assert _filter_detectors(
+    assert _best_effort_filter_detectors(
         [*filtered_out_detectors, non_filtered_detectors[0]],
         [alternating_subtemplate],
         [init_plaquettes],
         increments,
     ) == frozenset([non_filtered_detectors[0]])
-    assert _filter_detectors(
+    assert _best_effort_filter_detectors(
         [filtered_out_detectors[0], *non_filtered_detectors],
         [alternating_subtemplate],
         [init_plaquettes],

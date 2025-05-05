@@ -187,7 +187,7 @@ def _center_plaquette_syndrome_qubits(
     ]
 
 
-def _filter_detectors(
+def _best_effort_filter_detectors(
     detectors: list[Detector],
     subtemplates: Sequence[SubTemplateType],
     plaquettes: Sequence[Plaquettes],
@@ -204,6 +204,16 @@ def _filter_detectors(
         For the moment, this assumption is verified for all the plaquettes we are
         using, but this restriction should be kept in mind in case a future
         plaquette does not check this condition.
+
+    Warning:
+        This function tries as much as possible to filter the maximum number of
+        detectors for the provided ``subtemplates`` and ``plaquettes``. For the
+        moment, this filtering is not perfect and detectors might end up
+        duplicated on several combos of ``subtemplates`` and ``plaquettes``.
+
+        That is not a problem as long as the number of duplicated detectors is
+        relatively low and a second more robust filter based on deduplication
+        via ``set`` is in place.
 
     Args:
         detectors: list of detectors to filter.
@@ -326,7 +336,9 @@ def _compute_detectors_at_end_of_situation(
     )
 
     # Filter out detectors and return the left ones.
-    return _filter_detectors(detectors, subtemplates, plaquettes, increments)
+    return _best_effort_filter_detectors(
+        detectors, subtemplates, plaquettes, increments
+    )
 
 
 def _get_database_access_exception(
@@ -669,7 +681,7 @@ def compute_detectors_for_fixed_radius(
                         (i + last_template_origin.y) * increments.y,
                     )
                 )
-    # Suboptimal quick fix to avoid duplicated detectors. A more optimal fix would
-    # be to improve filtering in _filter_detectors to avoid duplicates by construction.
+    # Second filter, here to catch the duplicated detectors that were not
+    # filtered by the _best_effort_filter_detectors function.
     detectors = list(set(detectors))
     return detectors
