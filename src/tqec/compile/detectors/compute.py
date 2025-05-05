@@ -128,7 +128,7 @@ def _center_plaquette_syndrome_qubits(
 
     # In the following, "X" is a qubit that "belongs" to the plaquette drawn
     # using "=" and "|", "O" is a qubit that does not, and plaquette(s) drawn
-    # using "-" and "'" are representing empty plaquettes. Numbers in the center
+    # using "~" and "'" are representing empty plaquettes. Numbers in the center
     # of empty plaquettes correspond to the case applied to justify the absence
     # of owner.
 
@@ -140,7 +140,7 @@ def _center_plaquette_syndrome_qubits(
     # O ===== O
     considered_syndrome_qubits = {GridQubit(0, 0), GridQubit(-1, -1)}
     # Case 2, when the top-right qubit should be added because no plaquette on
-    # the left.
+    # the left to own it.
     # X ===== X ~~~~~ O
     # |       |       '
     # |   X   |   1   '
@@ -149,7 +149,7 @@ def _center_plaquette_syndrome_qubits(
     if r != 0 and subtemplate[r, r + 1] == 0:
         considered_syndrome_qubits |= {GridQubit(1, -1)}
     # When the bottom-left qubit should be added because no plaquette on the
-    # bottom and bottom-left.
+    # bottom and bottom-left to own it.
     #         X ===== O
     #         |       |
     #         |   X   |
@@ -162,7 +162,7 @@ def _center_plaquette_syndrome_qubits(
     if r != 0 and (subtemplate[r + 1, r - 1] == subtemplate[r + 1, r] == 0):
         considered_syndrome_qubits |= {GridQubit(-1, 1)}
     # When the bottom-right qubit should be added because no plaquette on the
-    # bottom, bottom-right and right.
+    # bottom, bottom-right and right to own it.
     # X ===== O ~~~~~ O
     # |       |       '
     # |   X   |   3   '
