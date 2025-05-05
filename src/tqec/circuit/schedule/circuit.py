@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import bisect
 from copy import copy, deepcopy
-from itertools import chain
 from typing import Any, Callable, Iterable, Iterator, Sequence
 
 import stim
@@ -266,10 +265,7 @@ class ScheduledCircuit:
         return ret
 
     def map_qubit_indices(
-        self,
-        qubit_index_map: dict[int, int],
-        inplace: bool = False,
-        with_qubit_map: bool = True,
+        self, qubit_index_map: dict[int, int], inplace: bool = False
     ) -> ScheduledCircuit:
         """Map the qubits **indices** the :class:`ScheduledCircuit` instance is
         applied on.
@@ -289,20 +285,13 @@ class ScheduledCircuit:
                 ``self``. Else, perform the modification in a copy and return
                 the copy. Note that the runtime cost of this method should be
                 the same independently of the value provided here.
-            with_qubit_map: if ``True``, the qubit map is also changed and the
-                returned circuit is equivalent to ``self`` before calling this
-                method (this only changes internal representation). If ``False``,
-                the qubit map is left unchanged, meaning that this method
-                permutes the qubits on which operations are applied.
 
         Returns:
             a modified instance of :class:`ScheduledCircuit` (a copy if
             ``inplace`` is ``True``, else ``self``).
         """
-        mapped_final_qubits = (
-            QubitMap({qubit_index_map[qi]: q for qi, q in self._qubit_map.items()})
-            if with_qubit_map
-            else self._qubit_map
+        mapped_final_qubits = QubitMap(
+            {qubit_index_map[qi]: q for qi, q in self._qubit_map.items()}
         )
         mapped_moments: list[Moment] = []
         for moment in self._moments:
@@ -557,23 +546,6 @@ class ScheduledCircuit:
             and self._schedule == other._schedule
             and self._qubit_map == other._qubit_map
             and self._moments == other._moments
-        )
-
-    def without_unused_qubits(self) -> ScheduledCircuit:
-        """Removes from the internal qubit map all qubits that are not used by
-        the underlying moments.
-
-        Returns:
-            A copy of ``self`` with unused qubits removed.
-        """
-        used_qubit_indices = frozenset(
-            chain.from_iterable(m.qubits_indices for m in self.moments)
-        )
-        return ScheduledCircuit(
-            deepcopy(self._moments),
-            self._schedule,
-            self._qubit_map.filter_by_qubit_indices(used_qubit_indices),
-            _avoid_checks=True,
         )
 
     def is_empty(self) -> bool:
