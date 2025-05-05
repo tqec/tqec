@@ -475,11 +475,11 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">if</span> <span class="n">minz</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">)</span>
 
-    <span class="n">spatial_junction_slices</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="n">spatial_pipe_slices</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
         <span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span> <span class="k">if</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_spatial</span>
     <span class="p">)</span>
     <span class="n">cube_specs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">,</span> <span class="n">spatial_junction_slices</span><span class="p">)</span>
+        <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">,</span> <span class="n">spatial_pipe_slices</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span>
     <span class="p">}</span>
 
@@ -527,8 +527,8 @@ window.addEventListener("load", () => mermaid.run());
             <span class="p">(</span><span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="p">],</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="p">]),</span>
             <span class="p">(</span><span class="n">QubitTemplate</span><span class="p">(),</span> <span class="n">QubitTemplate</span><span class="p">()),</span>
             <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
-            <span class="n">has_spatial_junction_in_timeslice</span><span class="o">=</span><span class="p">(</span>
-                <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="n">pos2</span><span class="o">.</span><span class="n">z</span> <span class="ow">and</span> <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">spatial_junction_slices</span>
+            <span class="n">has_spatial_pipe_in_timeslice</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="n">pos2</span><span class="o">.</span><span class="n">z</span> <span class="ow">and</span> <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">spatial_pipe_slices</span>
             <span class="p">),</span>
             <span class="n">at_temporal_hadamard_layer</span><span class="o">=</span><span class="p">(</span>
                 <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_temporal</span> <span class="ow">and</span> <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">temporal_hadamard_z_positions</span>

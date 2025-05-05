@@ -834,10 +834,13 @@ provided map will be used.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>include_qubit_coords</strong> (<em>bool</em>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, <code class="docutils literal notranslate"><span class="pre">QUBIT_COORDS</span></code> annotations are
+added at the beginning of the returned circuit to declare the
+coordinates of used qubits. Else, no <code class="docutils literal notranslate"><span class="pre">QUBIT_COORDS</span></code> annotation
+is added.</p></li>
 <li><p><strong>shift_to_positive</strong> (<em>bool</em>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the qubit coordinates are shift such
 that they are all positive. Their relative positioning stays
 unchanged.</p></li>
-<li><p><strong>include_qubit_coords</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
