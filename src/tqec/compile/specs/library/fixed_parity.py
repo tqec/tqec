@@ -289,7 +289,7 @@ class FixedParityPipeBuilder(PipeBuilder):
 
         return _get_block(
             z,
-            spec.has_spatial_junction_in_timeslice,
+            spec.has_spatial_pipe_in_timeslice,
             pipe_template,
             plaquettes_generator,
             _DEFAULT_BLOCK_REPETITIONS,
@@ -376,7 +376,7 @@ class FixedParityPipeBuilder(PipeBuilder):
         assert z is not None, "Spatial pipe should have a basis in the Z direction."
         return _get_block(
             z,
-            spec.has_spatial_junction_in_timeslice,
+            spec.has_spatial_pipe_in_timeslice,
             template,
             plaquettes_factory,
             _DEFAULT_BLOCK_REPETITIONS,

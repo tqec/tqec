@@ -124,5 +124,5 @@ class PipeSpec:
     cube_specs: tuple[CubeSpec, CubeSpec]
     cube_templates: tuple[RectangularTemplate, RectangularTemplate]
     pipe_kind: PipeKind
-    has_spatial_junction_in_timeslice: bool = False
+    has_spatial_pipe_in_timeslice: bool = False
     at_temporal_hadamard_layer: bool = False

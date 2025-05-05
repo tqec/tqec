@@ -171,13 +171,13 @@ class LayerNode:
                 local_qubit_map[q]: global_qubit_map[q] for q in local_qubit_map.qubits
             }
             mapped_circuit = base_circuit.map_qubit_indices(qubit_indices_mapping)
+            for annotation in annotations.detectors + annotations.observables:
+                mapped_circuit.append_annotation(annotation.to_instruction())
             mapped_circuit.append_annotation(
                 stim.CircuitInstruction(
                     "SHIFT_COORDS", [], StimCoordinates(0, 0, 1).to_stim_coordinates()
                 )
             )
-            for annotation in annotations.detectors + annotations.observables:
-                mapped_circuit.append_annotation(annotation.to_instruction())
             ret: list[stim.Circuit | list[Polygon]] = [
                 mapped_circuit.get_circuit(include_qubit_coords=False)
             ]

@@ -183,6 +183,10 @@ class ScheduledCircuit:
         ``self``.
 
         Args:
+            include_qubit_coords: if ``True``, ``QUBIT_COORDS`` annotations are
+                added at the beginning of the returned circuit to declare the
+                coordinates of used qubits. Else, no ``QUBIT_COORDS`` annotation
+                is added.
             shift_to_positive: if ``True``, the qubit coordinates are shift such
                 that they are all positive. Their relative positioning stays
                 unchanged.
