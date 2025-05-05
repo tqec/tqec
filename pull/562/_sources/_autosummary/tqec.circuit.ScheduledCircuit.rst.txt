@@ -26,7 +26,6 @@ ScheduledCircuit
       ~ScheduledCircuit.map_qubit_indices
       ~ScheduledCircuit.map_to_qubits
       ~ScheduledCircuit.moment_at_schedule
-      ~ScheduledCircuit.without_unused_qubits
    
    
 
@@ -65,6 +64,5 @@ ScheduledCircuit
    .. automethod:: map_qubit_indices
    .. automethod:: map_to_qubits
    .. automethod:: moment_at_schedule
-   .. automethod:: without_unused_qubits
    
    

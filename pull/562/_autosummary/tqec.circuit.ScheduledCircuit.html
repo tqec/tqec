@@ -605,7 +605,7 @@ provided input.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.circuit.ScheduledCircuit.is_empty" title="tqec.circuit.ScheduledCircuit.is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.circuit.ScheduledCircuit.map_qubit_indices" title="tqec.circuit.ScheduledCircuit.map_qubit_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_qubit_indices</span></code></a>(qubit_index_map[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.circuit.ScheduledCircuit.map_qubit_indices" title="tqec.circuit.ScheduledCircuit.map_qubit_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_qubit_indices</span></code></a>(qubit_index_map[, inplace])</p></td>
 <td><p>Map the qubits <strong>indices</strong> the <a class="reference internal" href="#tqec.circuit.ScheduledCircuit" title="tqec.circuit.ScheduledCircuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code></a> instance is applied on.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.circuit.ScheduledCircuit.map_to_qubits" title="tqec.circuit.ScheduledCircuit.map_to_qubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_to_qubits</span></code></a>(qubit_map[, inplace_qubit_map])</p></td>
@@ -613,9 +613,6 @@ provided input.</p></li>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.circuit.ScheduledCircuit.moment_at_schedule" title="tqec.circuit.ScheduledCircuit.moment_at_schedule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moment_at_schedule</span></code></a>(schedule)</p></td>
 <td><p>Get the <code class="xref py py-class docutils literal notranslate"><span class="pre">Moment</span></code> instance scheduled at the provided schedule.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.circuit.ScheduledCircuit.without_unused_qubits" title="tqec.circuit.ScheduledCircuit.without_unused_qubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">without_unused_qubits</span></code></a>()</p></td>
-<td><p>Removes from the internal qubit map all qubits that are not used by the underlying moments.</p></td>
 </tr>
 </tbody>
 </table>
@@ -937,7 +934,7 @@ the <code class="docutils literal notranslate"><span class="pre">TICK</span></co
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.circuit.ScheduledCircuit.map_qubit_indices">
-<span class="sig-name descname"><span class="pre">map_qubit_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_index_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_qubit_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/schedule/circuit.html#ScheduledCircuit.map_qubit_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.ScheduledCircuit.map_qubit_indices" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">map_qubit_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_index_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/schedule/circuit.html#ScheduledCircuit.map_qubit_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.ScheduledCircuit.map_qubit_indices" title="Link to this definition">#</a></dt>
 <dd><p>Map the qubits <strong>indices</strong> the <a class="reference internal" href="#tqec.circuit.ScheduledCircuit" title="tqec.circuit.ScheduledCircuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code></a> instance is
 applied on.</p>
 <div class="admonition note">
@@ -957,11 +954,6 @@ other.</p>
 <code class="docutils literal notranslate"><span class="pre">self</span></code>. Else, perform the modification in a copy and return
 the copy. Note that the runtime cost of this method should be
 the same independently of the value provided here.</p></li>
-<li><p><strong>with_qubit_map</strong> (<em>bool</em>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the qubit map is also changed and the
-returned circuit is equivalent to <code class="docutils literal notranslate"><span class="pre">self</span></code> before calling this
-method (this only changes internal representation). If <code class="docutils literal notranslate"><span class="pre">False</span></code>,
-the qubit map is left unchanged, meaning that this method
-permutes the qubits on which operations are applied.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1033,21 +1025,6 @@ might not be the second to last schedule).</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.circuit.ScheduledCircuit.without_unused_qubits">
-<span class="sig-name descname"><span class="pre">without_unused_qubits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/circuit/schedule/circuit.html#ScheduledCircuit.without_unused_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.circuit.ScheduledCircuit.without_unused_qubits" title="Link to this definition">#</a></dt>
-<dd><p>Removes from the internal qubit map all qubits that are not used by
-the underlying moments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> with unused qubits removed.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#tqec.circuit.ScheduledCircuit" title="tqec.circuit.schedule.circuit.ScheduledCircuit"><em>ScheduledCircuit</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -1115,7 +1092,6 @@ the underlying moments.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.circuit.ScheduledCircuit.map_qubit_indices"><code class="docutils literal notranslate"><span class="pre">ScheduledCircuit.map_qubit_indices()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.circuit.ScheduledCircuit.map_to_qubits"><code class="docutils literal notranslate"><span class="pre">ScheduledCircuit.map_to_qubits()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.circuit.ScheduledCircuit.moment_at_schedule"><code class="docutils literal notranslate"><span class="pre">ScheduledCircuit.moment_at_schedule()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.circuit.ScheduledCircuit.without_unused_qubits"><code class="docutils literal notranslate"><span class="pre">ScheduledCircuit.without_unused_qubits()</span></code></a></li>
 </ul>
 </li>
 </ul>
