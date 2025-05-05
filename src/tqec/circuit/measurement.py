@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Mapping, cast
+from typing import Any, Mapping, cast
 
 import stim
 from typing_extensions import override
@@ -116,6 +116,16 @@ class Measurement(AbstractMeasurement):
     @override
     def map_qubit(self, qubit_map: Mapping[GridQubit, GridQubit]) -> Measurement:
         return Measurement(qubit_map[self.qubit], self.offset)
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, Measurement)
+            and self.offset == other.offset
+            and self.qubit == other.qubit
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.qubit, self.offset))
 
 
 def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
