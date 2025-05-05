@@ -47,7 +47,6 @@ def test_generate_circuit_multiple_plaquettes() -> None:
     circuit = generate_circuit(
         FixedTemplate([[0, 1], [1, 0]]), k=1, plaquettes=plaquettes
     )
-    print(circuit.get_circuit())
     assert circuit.get_circuit() == stim.Circuit("""
 QUBIT_COORDS(-1, -1) 0
 QUBIT_COORDS(-1, 1) 1
