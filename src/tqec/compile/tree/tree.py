@@ -260,6 +260,10 @@ class LayerTree:
         add_polygons: bool = False,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
+        # If already annotated, no need to re-annotate.
+        if k in self._annotations:
+            return
+        # Else, perform all the needed computations.
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
         # This method will also update the detector_database and save it to disk at database_path.
