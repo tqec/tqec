@@ -45,6 +45,12 @@ def _get_block(
 ) -> Block:
     """Get the block implemented with the provided ``template`` and
     ``plaquettes_generator``."""
+    # Naming convention: {f,b}{init,memory,meas}
+    # f: forward
+    # b: backward
+    # init: initialisation plaquette (with data-qubit resets)
+    # memory: memory plaquette (no data-qubit reset/measurement)
+    # meas: measurement plaquette (with data-qubit measurements)
     finit = plaquettes_generator(False, z_basis, None)
     fmemory = plaquettes_generator(False, None, None)
     fmeas = plaquettes_generator(False, None, z_basis)
