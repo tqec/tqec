@@ -122,16 +122,13 @@ class FixedParityCubeBuilder(CubeBuilder):
 
     def _get_template_and_plaquettes_generator(
         self, spec: CubeSpec
-    ) -> tuple[
-        RectangularTemplate, Callable[[bool, Basis | None, Basis | None], Plaquettes]
-    ]:
+    ) -> tuple[RectangularTemplate, _PlaquettesGenerator]:
         assert isinstance(spec.kind, ZXCube)
         x = spec.kind.x
         if not spec.is_spatial:
             orientation = (
                 Orientation.HORIZONTAL if x == Basis.Z else Orientation.VERTICAL
             )
-            template = self._generator.get_memory_qubit_raw_template()
 
             def _memory_plaquettes_generator(
                 is_reversed: bool, r: Basis | None, m: Basis | None
@@ -140,19 +137,23 @@ class FixedParityCubeBuilder(CubeBuilder):
                     is_reversed, orientation, r, m
                 )
 
-            return template, _memory_plaquettes_generator
-        # else
-        sa = spec.spatial_arms
-        template = self._generator.get_spatial_cube_qubit_raw_template()
+            return (
+                self._generator.get_memory_qubit_raw_template(),
+                _memory_plaquettes_generator,
+            )
 
+        # else
         def _spatial_plaquettes_generator(
             is_reversed: bool, r: Basis | None, m: Basis | None
         ) -> Plaquettes:
             return self._generator.get_spatial_cube_qubit_plaquettes(
-                x, sa, is_reversed, r, m
+                x, spec.spatial_arms, is_reversed, r, m
             )
 
-        return template, _spatial_plaquettes_generator
+        return (
+            self._generator.get_spatial_cube_qubit_raw_template(),
+            _spatial_plaquettes_generator,
+        )
 
     def __call__(self, spec: CubeSpec) -> Block:
         kind = spec.kind
@@ -162,11 +163,11 @@ class FixedParityCubeBuilder(CubeBuilder):
             raise NotImplementedError("Y cube is not implemented.")
         template, pgen = self._get_template_and_plaquettes_generator(spec)
         return _get_block(
-            kind.z,
-            spec.has_spatial_junction_in_timeslice,
-            template,
-            pgen,
-            _DEFAULT_BLOCK_REPETITIONS,
+            z_basis=kind.z,
+            has_spatial_junction_in_timeslice=spec.has_spatial_junction_in_timeslice,
+            template=template,
+            plaquettes_generator=pgen,
+            repetitions=_DEFAULT_BLOCK_REPETITIONS,
         )
 
 
