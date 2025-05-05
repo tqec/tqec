@@ -7,9 +7,7 @@ from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
 
 def _get_bottom_stabilizer_cube_qubits(
-    cube_shape: PlaquetteShape2D,
-    connect_to: SignedDirection3D,
-    stabilizer_basis: Basis,
+    cube_shape: PlaquetteShape2D, connect_to: SignedDirection3D, stabilizer_basis: Basis
 ) -> list[tuple[float, float]]:
     stabilizers: list[tuple[float, float]] = []
     xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
@@ -104,8 +102,7 @@ def _get_top_readout_spatial_cube_qubits(
 
 
 def _get_bottom_stabilizer_spatial_cube_qubits(
-    cube_shape: PlaquetteShape2D,
-    stabilizer_basis: Basis,
+    cube_shape: PlaquetteShape2D, stabilizer_basis: Basis
 ) -> list[tuple[float, float]]:
     xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
     return [
@@ -117,9 +114,7 @@ def _get_bottom_stabilizer_spatial_cube_qubits(
 
 
 def _get_temporal_hadamard_includes_qubits(
-    shape: PlaquetteShape2D,
-    observable_basis: Basis,
-    z_orientation: Orientation,
+    shape: PlaquetteShape2D, observable_basis: Basis, z_orientation: Orientation
 ) -> list[tuple[float, float]]:
     # observable is horizontal
     if (observable_basis == Basis.X) ^ (z_orientation == Orientation.HORIZONTAL):

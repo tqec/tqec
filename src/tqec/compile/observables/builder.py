@@ -80,10 +80,7 @@ class PipeTopReadoutsBuilder(Protocol):
     """
 
     def __call__(
-        self,
-        shape: PlaquetteShape2D,
-        pipe: Pipe,
-        /,
+        self, shape: PlaquetteShape2D, pipe: Pipe, /
     ) -> list[tuple[int, int]]: ...
 
 
