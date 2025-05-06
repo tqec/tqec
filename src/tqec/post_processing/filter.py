@@ -1,12 +1,24 @@
+import warnings
+
 import stim
 
 from tqec.circuit.qubit_map import QubitMap
+from tqec.utils.exceptions import TQECWarning
 
 
 def subcircuit_only_on_indices(
     circuit: stim.Circuit, qubit_indices: frozenset[int]
 ) -> stim.Circuit:
-    """Filter a given circuit based on qubit indices.
+    """Returns a new circuit with operations applied on qubit targets that are
+    not in ``qubit_indices`` removed.
+
+    Note:
+        Non-qubit targets are not considered for filtering. That means that an
+        operation only containing non-qubit targets (e.g., ``DETECTOR``) will
+        not be filtered out. That also means that an operation applied on a
+        qubit and a non-qubit target (e.g. ``CX rec[-1] 1``) will be in the
+        returned circuit only if the qubit target(s) it is applied to (in the
+        previous example, ``1``) is in ``qubit_indices``.
 
     Args:
         circuit: original circuit that should be filtered.
@@ -29,14 +41,22 @@ def subcircuit_only_on_indices(
             # Unconditionally append TICK annotations.
             ret.append(instruction)
         else:
-            targets: list[stim.GateTarget] = sum(
-                (
-                    tg
-                    for tg in instruction.target_groups()
-                    if all(t.qubit_value in qubit_indices for t in tg)
-                ),
-                start=[],
-            )
+            targets: list[stim.GateTarget] = []
+            for target_group in instruction.target_groups():
+                if all(
+                    t.qubit_value is None or t.qubit_value in qubit_indices
+                    for t in target_group
+                ):
+                    targets.extend(target_group)
+                if any(t.is_measurement_record_target for t in target_group):
+                    warnings.warn(
+                        "Found a measurement record target when filtering a "
+                        "circuit. Filtering *might* remove qubit targets from "
+                        "measurements instructions, and so *might* change the "
+                        "measurement record. Be aware that the resulting "
+                        "circuit might be invalid due to that behaviour.",
+                        TQECWarning,
+                    )
             if targets:
                 ret.append(
                     stim.CircuitInstruction(
