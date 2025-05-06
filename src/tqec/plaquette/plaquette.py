@@ -90,13 +90,7 @@ class Plaquette:
 
         Args:
             data_qubits: data-qubit indices that will be kept in the returned
-                plaquette. Follow the standard indexing::
-
-                    0 ----- 1
-                    |       |
-                    |   4   |
-                    |       |
-                    2 ----- 3
+                plaquette.
 
         Returns:
             A new plaquette with projected qubits and circuit. The qubits are
@@ -128,7 +122,7 @@ class Plaquette:
             corresponding schedules are removed.
         """
         removed_data_qubit_indices = [
-            i for i, q in self.qubits.data_qubits_with_indices if q in data_qubits
+            i for i, q in self.qubits.data_qubits_with_indices if q not in data_qubits
         ]
         new_plaquette_qubits = PlaquetteQubits(data_qubits, self.qubits.syndrome_qubits)
         new_scheduled_circuit = self.circuit.filter_by_qubits(

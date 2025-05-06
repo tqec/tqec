@@ -275,7 +275,28 @@ class ExtendedPlaquetteCollection:
         debug_info = ExtendedPlaquetteCollection._plaquette_debug_information(
             PauliBasis(basis.value.lower())
         )
+        # Work-around: debug information for the whole extended plaquette is
+        # embedded in the UP plaquette, so we do not need to include anything in
+        # the DOWN plaquette.
         up_plaquettes = [up.with_debug_information(info) for info in debug_info]
+        # In the calls to project_on_data_qubit_indices, it is important to remember
+        # that individual plaquettes composing the extended plaquette have slightly
+        # unconventional qubit layouts. In the below ASCII representation, "s" means
+        # "syndrome qubit", "d" means "data qubit", the numbers are the respective
+        # qubit indices. "s3" appears at two places because it swaps between the
+        # two locations depending on whether the plaquette is reversed or not.
+        # UP:
+        # d0 ---- d1
+        # |        |
+        # |   s2   |
+        # |        |
+        # s3 ---- s3
+        # DOWN:
+        # s3 ---- s3
+        # |        |
+        # |   s2   |
+        # |        |
+        # d0 ---- d1
         return ExtendedPlaquetteCollection(
             bulk=ExtendedPlaquette(up_plaquettes[0], down),
             left_with_arm=ExtendedPlaquette(
