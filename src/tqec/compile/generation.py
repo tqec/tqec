@@ -98,7 +98,7 @@ def generate_circuit_from_instantiation(
     invalid, in which case this function **might** raise an error.
 
     Args:
-        plaquette_array: an array of indices referencing
+        plaquette_array: a 2-dimensional array of indices referencing
             :class:`~tqec.plaquette.plaquette.Plaquette` instances in the
             ``plaquettes`` argument.
         plaquettes: description of the computation that should happen at
@@ -129,7 +129,11 @@ def generate_circuit_from_instantiation(
     # Generate the ScheduledCircuit instances for each plaquette instantiation
     all_scheduled_circuits: list[ScheduledCircuit] = []
     additional_mergeable_instructions: set[str] = set()
-    for row_index, line in enumerate(plaquette_array):
+    # The below line is not strictly needed, but makes type checkers happy with
+    # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
+    # for more information on why this should be done.
+    plaquette_array_list: list[list[int]] = plaquette_array.tolist()
+    for row_index, line in enumerate(plaquette_array_list):
         for column_index, plaquette_index in enumerate(line):
             if plaquette_index != 0:
                 # Computing the offset that should be applied to each qubits.
