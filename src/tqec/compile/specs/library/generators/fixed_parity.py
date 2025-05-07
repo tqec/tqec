@@ -378,22 +378,15 @@ class FixedParityConventionGenerator:
         vsched = FixedParityConventionGenerator.VSCHED[is_reversed]
         hsched = FixedParityConventionGenerator.HSCHED[is_reversed]
         return {
-            Basis.X: {
+            basis: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, vsched, ms))
+                    " ".join(f"{r}{basis.value.lower()}{s}{m}" for r, s, m in zip(rs, vsched, ms))
                 ),
                 Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}x{s}{m}" for r, s, m in zip(rs, hsched, ms))
+                    " ".join(f"{r}{basis.value.lower()}{s}{m}" for r, s, m in zip(rs, hsched, ms))
                 ),
-            },
-            Basis.Z: {
-                Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, vsched, ms))
-                ),
-                Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}z{s}{m}" for r, s, m in zip(rs, hsched, ms))
-                ),
-            },
+            }
+            for basis in Basis
         }
 
     def get_3_body_rpng_descriptions(
@@ -1159,7 +1152,7 @@ class FixedParityConventionGenerator:
         mapping[8] = mapping[15] = BPs[SBB][SBB_DOWN]
         mapping[14] = BPs[SBB][SBB_RIGHT]
         mapping[16] = BPs[SBB][SBB_LEFT]
-        # Setting the X plaquettes
+        # Setting the OTH plaquettes
         mapping[6] = mapping[17] = BPs[OTH][OTH_UP]
         mapping[7] = mapping[19] = BPs[OTH][OTH_DOWN]
         mapping[18] = BPs[OTH][OTH_RIGHT]
