@@ -128,7 +128,6 @@ def generate_circuit_from_instantiation(
 
     # Generate the ScheduledCircuit instances for each plaquette instantiation
     all_scheduled_circuits: list[ScheduledCircuit] = []
-    plaquette_index: int
     additional_mergeable_instructions: set[str] = set()
     for row_index, line in enumerate(plaquette_array):
         for column_index, plaquette_index in enumerate(line):
