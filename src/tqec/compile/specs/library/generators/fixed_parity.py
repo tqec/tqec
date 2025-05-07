@@ -380,10 +380,16 @@ class FixedParityConventionGenerator:
         return {
             basis: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"{r}{basis.value.lower()}{s}{m}" for r, s, m in zip(rs, vsched, ms))
+                    " ".join(
+                        f"{r}{basis.value.lower()}{s}{m}"
+                        for r, s, m in zip(rs, vsched, ms)
+                    )
                 ),
                 Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"{r}{basis.value.lower()}{s}{m}" for r, s, m in zip(rs, hsched, ms))
+                    " ".join(
+                        f"{r}{basis.value.lower()}{s}{m}"
+                        for r, s, m in zip(rs, hsched, ms)
+                    )
                 ),
             }
             for basis in Basis
