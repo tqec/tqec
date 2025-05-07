@@ -351,6 +351,10 @@ class FixedParityConventionGenerator:
         clash. These plaquettes are organised by basis and hook orientation.
 
         Args:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on data-qubits. Defaults
                 to ``None`` that translates to no reset being applied on data-qubits.
             measurement: basis of the measurement operation performed on data-qubits.
@@ -432,6 +436,10 @@ class FixedParityConventionGenerator:
         :meth:`get_bulk_plaquettes`.
 
         Args:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             hadamard: ``True`` if the plaquette should contain a Hadamard gate.
 
         Note:
@@ -538,6 +546,10 @@ class FixedParityConventionGenerator:
         Args:
             top_left_basis: basis of the stabilizer measured by the top-left
                 data-qubit.
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on data-qubits. Defaults
                 to ``None`` that translates to no reset being applied on data-qubits.
             measurement: basis of the measurement operation performed on data-qubits.
@@ -661,6 +673,10 @@ class FixedParityConventionGenerator:
             by this method.
 
         Arguments:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned logical qubit description.
@@ -715,6 +731,10 @@ class FixedParityConventionGenerator:
             by this method.
 
         Arguments:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned logical qubit description.
@@ -838,6 +858,10 @@ class FixedParityConventionGenerator:
             by this method.
 
         Arguments:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned memory description.
@@ -893,6 +917,10 @@ class FixedParityConventionGenerator:
             by this method.
 
         Arguments:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned memory description.
@@ -962,6 +990,10 @@ class FixedParityConventionGenerator:
             by this method.
 
         Arguments:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned memory description.
@@ -1032,6 +1064,10 @@ class FixedParityConventionGenerator:
             arms: flag-like enumeration listing the arms that are used around
                 the logical qubit. The returned template will be adapted to be
                 compatible with such a layout.
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on data-qubits.
                 Defaults to ``None`` that translates to no reset being applied
                 on data-qubits.
@@ -1187,6 +1223,10 @@ class FixedParityConventionGenerator:
             arms: flag-like enumeration listing the arms that are used around
                 the logical qubit. The returned template will be adapted to be
                 compatible with such a layout.
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on data-qubits.
                 Defaults to ``None`` that translates to no reset being applied
                 on data-qubits.
@@ -1219,6 +1259,14 @@ class FixedParityConventionGenerator:
             arms: specification of the spatial arm(s) we want a template for.
                 Needs to contain either one arm, or 2 arms that form a line
                 (e.g., ``SpatialArms.UP | SpatialArms.DOWN``).
+                If the arm that should be built has one spatial cube on top,
+                this should be ``SpatialArm.DOWN`` because it is the bottom arm
+                of a spatial cube.
+                If the arm links 2 spatial cubes, the ``arms`` parameter should
+                be the union of the arms (and so can only be
+                ``SpatialArms.UP | SpatialArms.DOWN`` or
+                ``SpatialArms.LEFT | SpatialArms.RIGHT`` because any other
+                ombination cannot be formed by a single arm).
 
         Raises:
             TQECException: if the provided ``arms`` value does not check the
@@ -1276,8 +1324,10 @@ class FixedParityConventionGenerator:
             linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
                 specifications of the two ends of the pipe to generate RPNG
                 descriptions for.
-            is_reversed: flag indicating if the extended stabilizer plaquettes
-                should be reversed or not.
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1479,13 +1529,17 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_temporal_hadamard_raw_template`
+            :meth:`FixedParityConventionGenerator.get_temporal_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.Template` instance returned by this
             method.
 
         Arguments:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             z_orientation: orientation of the ``Z`` observable at the beginning
                 of the generated circuit description. The ``Z`` observable
                 orientation will be flipped at the end of the returned circuit
@@ -1554,7 +1608,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_spatial_vertical_hadamard_raw_template`
+            :meth:`FixedParityConventionGenerator.get_spatial_vertical_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1562,6 +1616,10 @@ class FixedParityConventionGenerator:
 
         Arguments:
             top_left_basis: basis of the top-left-most stabilizer.
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1636,7 +1694,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`PlaquetteGenerator.get_spatial_horizontal_hadamard_raw_template`
+            :meth:`FixedParityConventionGenerator.get_spatial_horizontal_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1644,6 +1702,10 @@ class FixedParityConventionGenerator:
 
         Arguments:
             top_left_basis: basis of the top-left-most stabilizer.
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
