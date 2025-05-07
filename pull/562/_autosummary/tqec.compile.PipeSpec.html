@@ -530,7 +530,7 @@
 <h1>PipeSpec<a class="headerlink" href="#pipespec" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.PipeSpec">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">PipeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_templates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_spatial_pipe_in_timeslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">at_temporal_hadamard_layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#PipeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.PipeSpec" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">PipeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_templates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_spatial_up_or_down_pipe_in_timeslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">at_temporal_hadamard_layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#PipeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.PipeSpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Specification of a pipe in a block graph.</p>
 <p>The <cite>PipeSpec</cite> is used to determine the substitution rules between the two
@@ -543,7 +543,7 @@ update the layers of the `CompiledBlock`s based on the plaquettes in the
 <li><p><strong>cube_specs</strong> (<em>tuple</em><em>[</em><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a><em>, </em><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a><em>]</em>)</p></li>
 <li><p><strong>cube_templates</strong> (<em>tuple</em><em>[</em><em>RectangularTemplate</em><em>, </em><em>RectangularTemplate</em><em>]</em>)</p></li>
 <li><p><strong>pipe_kind</strong> (<a class="reference internal" href="tqec.computation.PipeKind.html#tqec.computation.PipeKind" title="tqec.computation.pipe.PipeKind"><em>PipeKind</em></a>)</p></li>
-<li><p><strong>has_spatial_pipe_in_timeslice</strong> (<em>bool</em>)</p></li>
+<li><p><strong>has_spatial_up_or_down_pipe_in_timeslice</strong> (<em>bool</em>)</p></li>
 <li><p><strong>at_temporal_hadamard_layer</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -580,11 +580,17 @@ than the cube corresponding to <code class="docutils literal notranslate"><span 
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tqec.compile.PipeSpec.has_spatial_junction_in_timeslice">
-<span class="sig-name descname"><span class="pre">has_spatial_junction_in_timeslice</span></span><a class="headerlink" href="#tqec.compile.PipeSpec.has_spatial_junction_in_timeslice" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.compile.PipeSpec.has_spatial_up_or_down_pipe_in_timeslice">
+<span class="sig-name descname"><span class="pre">has_spatial_up_or_down_pipe_in_timeslice</span></span><a class="headerlink" href="#tqec.compile.PipeSpec.has_spatial_up_or_down_pipe_in_timeslice" title="Link to this definition">#</a></dt>
 <dd><p>a flag indicating if a spatial
-junction is executed on the same timeslice as this pipe. This
-information is needed for the fixed parity convention.</p>
+pipe at the top or bottom of a spatial cube is executed on the same
+timeslice as this cube. This information is needed for the fixed
+parity convention.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -615,7 +621,7 @@ in the block graph.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.PipeSpec.at_temporal_hadamard_layer" title="tqec.compile.PipeSpec.at_temporal_hadamard_layer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">at_temporal_hadamard_layer</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_spatial_pipe_in_timeslice</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.PipeSpec.has_spatial_up_or_down_pipe_in_timeslice" title="tqec.compile.PipeSpec.has_spatial_up_or_down_pipe_in_timeslice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_spatial_up_or_down_pipe_in_timeslice</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.PipeSpec.cube_specs" title="tqec.compile.PipeSpec.cube_specs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cube_specs</span></code></a></p></td>
@@ -633,14 +639,14 @@ in the block graph.</p>
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.PipeSpec.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_templates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_spatial_pipe_in_timeslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">at_temporal_hadamard_layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.PipeSpec.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cube_templates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_spatial_up_or_down_pipe_in_timeslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">at_temporal_hadamard_layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.PipeSpec.__init__" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cube_specs</strong> (<em>tuple</em><em>[</em><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a><em>, </em><a class="reference internal" href="tqec.compile.CubeSpec.html#tqec.compile.CubeSpec" title="tqec.compile.specs.base.CubeSpec"><em>CubeSpec</em></a><em>]</em>)</p></li>
 <li><p><strong>cube_templates</strong> (<em>tuple</em><em>[</em><em>RectangularTemplate</em><em>, </em><em>RectangularTemplate</em><em>]</em>)</p></li>
 <li><p><strong>pipe_kind</strong> (<a class="reference internal" href="tqec.computation.PipeKind.html#tqec.computation.PipeKind" title="tqec.computation.pipe.PipeKind"><em>PipeKind</em></a>)</p></li>
-<li><p><strong>has_spatial_pipe_in_timeslice</strong> (<em>bool</em>)</p></li>
+<li><p><strong>has_spatial_up_or_down_pipe_in_timeslice</strong> (<em>bool</em>)</p></li>
 <li><p><strong>at_temporal_hadamard_layer</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -705,7 +711,7 @@ in the block graph.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.cube_specs"><code class="docutils literal notranslate"><span class="pre">PipeSpec.cube_specs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.cube_templates"><code class="docutils literal notranslate"><span class="pre">PipeSpec.cube_templates</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.pipe_type"><code class="docutils literal notranslate"><span class="pre">PipeSpec.pipe_type</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.has_spatial_junction_in_timeslice"><code class="docutils literal notranslate"><span class="pre">PipeSpec.has_spatial_junction_in_timeslice</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.has_spatial_up_or_down_pipe_in_timeslice"><code class="docutils literal notranslate"><span class="pre">PipeSpec.has_spatial_up_or_down_pipe_in_timeslice</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.at_temporal_hadamard_layer"><code class="docutils literal notranslate"><span class="pre">PipeSpec.at_temporal_hadamard_layer</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.PipeSpec.__init__"><code class="docutils literal notranslate"><span class="pre">PipeSpec.__init__()</span></code></a></li>
 </ul>

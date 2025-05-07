@@ -530,7 +530,7 @@
 <h1>CubeSpec<a class="headerlink" href="#cubespec" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tqec.compile.CubeSpec">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">CubeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SpatialArms.NONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_spatial_junction_in_timeslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.compile.</span></span><span class="sig-name descname"><span class="pre">CubeSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SpatialArms.NONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_spatial_up_or_down_pipe_in_timeslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Specification of a cube in a block graph.</p>
 <p>The template of the <cite>CompiledBlock</cite> will be determined based on the specification.
@@ -541,7 +541,7 @@ applying the substitution rules.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kind</strong> (<a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.cube.ZXCube"><em>ZXCube</em></a><em> | </em><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.cube.Port"><em>Port</em></a><em> | </em><a class="reference internal" href="tqec.computation.YHalfCube.html#tqec.computation.YHalfCube" title="tqec.computation.cube.YHalfCube"><em>YHalfCube</em></a>)</p></li>
 <li><p><strong>spatial_arms</strong> (<em>SpatialArms</em>)</p></li>
-<li><p><strong>has_spatial_junction_in_timeslice</strong> (<em>bool</em>)</p></li>
+<li><p><strong>has_spatial_up_or_down_pipe_in_timeslice</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -565,11 +565,12 @@ the arms can determine the template used to implement the cube.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tqec.compile.CubeSpec.has_spatial_junction_in_timeslice">
-<span class="sig-name descname"><span class="pre">has_spatial_junction_in_timeslice</span></span><a class="headerlink" href="#tqec.compile.CubeSpec.has_spatial_junction_in_timeslice" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="tqec.compile.CubeSpec.has_spatial_up_or_down_pipe_in_timeslice">
+<span class="sig-name descname"><span class="pre">has_spatial_up_or_down_pipe_in_timeslice</span></span><a class="headerlink" href="#tqec.compile.CubeSpec.has_spatial_up_or_down_pipe_in_timeslice" title="Link to this definition">#</a></dt>
 <dd><p>a flag indicating if a spatial
-junction is executed on the same timeslice as this cube. This
-information is needed for the fixed parity convention.</p>
+pipe at the top or bottom of a spatial cube is executed on the same
+timeslice as this cube. This information is needed for the fixed
+parity convention.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
@@ -583,7 +584,7 @@ information is needed for the fixed parity convention.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.__init__" title="tqec.compile.CubeSpec.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(kind[, spatial_arms, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.from_cube" title="tqec.compile.CubeSpec.from_cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_cube</span></code></a>(cube, graph[, spatial_junction_slices])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.from_cube" title="tqec.compile.CubeSpec.from_cube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_cube</span></code></a>(cube, graph[, ...])</p></td>
 <td><p>Returns the cube spec from a cube in a block graph.</p></td>
 </tr>
 </tbody>
@@ -592,7 +593,7 @@ information is needed for the fixed parity convention.</p>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.has_spatial_junction_in_timeslice" title="tqec.compile.CubeSpec.has_spatial_junction_in_timeslice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_spatial_junction_in_timeslice</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.compile.CubeSpec.has_spatial_up_or_down_pipe_in_timeslice" title="tqec.compile.CubeSpec.has_spatial_up_or_down_pipe_in_timeslice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_spatial_up_or_down_pipe_in_timeslice</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_spatial</span></code></p></td>
@@ -610,13 +611,13 @@ information is needed for the fixed parity convention.</p>
 <p class="rubric">Detailed methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.CubeSpec.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SpatialArms.NONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_spatial_junction_in_timeslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.CubeSpec.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_arms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SpatialArms.NONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_spatial_up_or_down_pipe_in_timeslice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.compile.CubeSpec.__init__" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kind</strong> (<a class="reference internal" href="tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.cube.ZXCube"><em>ZXCube</em></a><em> | </em><a class="reference internal" href="tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.cube.Port"><em>Port</em></a><em> | </em><a class="reference internal" href="tqec.computation.YHalfCube.html#tqec.computation.YHalfCube" title="tqec.computation.cube.YHalfCube"><em>YHalfCube</em></a>)</p></li>
 <li><p><strong>spatial_arms</strong> (<em>SpatialArms</em>)</p></li>
-<li><p><strong>has_spatial_junction_in_timeslice</strong> (<em>bool</em>)</p></li>
+<li><p><strong>has_spatial_up_or_down_pipe_in_timeslice</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -627,14 +628,14 @@ information is needed for the fixed parity convention.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.compile.CubeSpec.from_cube">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_junction_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec.from_cube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec.from_cube" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_up_or_down_pipes_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/compile/specs/base.html#CubeSpec.from_cube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.compile.CubeSpec.from_cube" title="Link to this definition">#</a></dt>
 <dd><p>Returns the cube spec from a cube in a block graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cube</strong> (<a class="reference internal" href="tqec.computation.Cube.html#tqec.computation.Cube" title="tqec.computation.cube.Cube"><em>Cube</em></a>)</p></li>
 <li><p><strong>graph</strong> (<a class="reference internal" href="tqec.computation.BlockGraph.html#tqec.computation.BlockGraph" title="tqec.computation.block_graph.BlockGraph"><em>BlockGraph</em></a>)</p></li>
-<li><p><strong>spatial_junction_slices</strong> (<em>frozenset</em><em>[</em><em>int</em><em>]</em>)</p></li>
+<li><p><strong>spatial_up_or_down_pipes_slices</strong> (<em>frozenset</em><em>[</em><em>int</em><em>]</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -697,7 +698,7 @@ information is needed for the fixed parity convention.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec"><code class="docutils literal notranslate"><span class="pre">CubeSpec</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.cube_kind"><code class="docutils literal notranslate"><span class="pre">CubeSpec.cube_kind</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.spatial_arms"><code class="docutils literal notranslate"><span class="pre">CubeSpec.spatial_arms</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.has_spatial_junction_in_timeslice"><code class="docutils literal notranslate"><span class="pre">CubeSpec.has_spatial_junction_in_timeslice</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.has_spatial_up_or_down_pipe_in_timeslice"><code class="docutils literal notranslate"><span class="pre">CubeSpec.has_spatial_up_or_down_pipe_in_timeslice</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.__init__"><code class="docutils literal notranslate"><span class="pre">CubeSpec.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.compile.CubeSpec.from_cube"><code class="docutils literal notranslate"><span class="pre">CubeSpec.from_cube()</span></code></a></li>
 </ul>

@@ -435,14 +435,15 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        spatial_arms: Flag indicating the spatial directions the cube connects to the</span>
 <span class="sd">            adjacent cubes. This is useful for spatial cubes (XXZ and ZZX) where</span>
 <span class="sd">            the arms can determine the template used to implement the cube.</span>
-<span class="sd">        has_spatial_junction_in_timeslice: a flag indicating if a spatial</span>
-<span class="sd">            junction is executed on the same timeslice as this cube. This</span>
-<span class="sd">            information is needed for the fixed parity convention.</span>
+<span class="sd">        has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial</span>
+<span class="sd">            pipe at the top or bottom of a spatial cube is executed on the same</span>
+<span class="sd">            timeslice as this cube. This information is needed for the fixed</span>
+<span class="sd">            parity convention.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">kind</span><span class="p">:</span> <span class="n">CubeKind</span>
     <span class="n">spatial_arms</span><span class="p">:</span> <span class="n">SpatialArms</span> <span class="o">=</span> <span class="n">SpatialArms</span><span class="o">.</span><span class="n">NONE</span>
-    <span class="n">has_spatial_junction_in_timeslice</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">has_spatial_up_or_down_pipe_in_timeslice</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_arms</span> <span class="o">!=</span> <span class="n">SpatialArms</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
@@ -461,21 +462,25 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">from_cube</span><span class="p">(</span>
         <span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">,</span>
         <span class="n">graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
-        <span class="n">spatial_junction_slices</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span>
+        <span class="n">spatial_up_or_down_pipes_slices</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CubeSpec</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the cube spec from a cube in a block graph.&quot;&quot;&quot;</span>
-        <span class="n">has_spatial_junction_in_timeslice</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">spatial_junction_slices</span>
+        <span class="n">has_spatial_up_or_down_pipe_in_timeslice</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">spatial_up_or_down_pipes_slices</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cube</span><span class="o">.</span><span class="n">is_spatial</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">CubeSpec</span><span class="p">(</span>
                 <span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
-                <span class="n">has_spatial_junction_in_timeslice</span><span class="o">=</span><span class="n">has_spatial_junction_in_timeslice</span><span class="p">,</span>
+                <span class="n">has_spatial_up_or_down_pipe_in_timeslice</span><span class="o">=</span><span class="n">has_spatial_up_or_down_pipe_in_timeslice</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span>
         <span class="n">spatial_arms</span> <span class="o">=</span> <span class="n">SpatialArms</span><span class="o">.</span><span class="n">NONE</span>
         <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">shift</span> <span class="ow">in</span> <span class="n">SpatialArms</span><span class="o">.</span><span class="n">get_map_from_arm_to_shift</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">graph</span><span class="o">.</span><span class="n">has_pipe_between</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="o">*</span><span class="n">shift</span><span class="p">)):</span>
                 <span class="n">spatial_arms</span> <span class="o">|=</span> <span class="n">flag</span>
-        <span class="k">return</span> <span class="n">CubeSpec</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">spatial_arms</span><span class="p">,</span> <span class="n">has_spatial_junction_in_timeslice</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">CubeSpec</span><span class="p">(</span>
+            <span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">spatial_arms</span><span class="p">,</span> <span class="n">has_spatial_up_or_down_pipe_in_timeslice</span>
+        <span class="p">)</span></div>
 </div>
 
 
@@ -529,9 +534,10 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        cube_templates: templates used to implement the respective entry in</span>
 <span class="sd">            ``cube_specs``.</span>
 <span class="sd">        pipe_type: the type of the pipe connecting the two cubes.</span>
-<span class="sd">        has_spatial_junction_in_timeslice: a flag indicating if a spatial</span>
-<span class="sd">            junction is executed on the same timeslice as this pipe. This</span>
-<span class="sd">            information is needed for the fixed parity convention.</span>
+<span class="sd">        has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial</span>
+<span class="sd">            pipe at the top or bottom of a spatial cube is executed on the same</span>
+<span class="sd">            timeslice as this cube. This information is needed for the fixed</span>
+<span class="sd">            parity convention.</span>
 <span class="sd">        at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal</span>
 <span class="sd">            pipe and there is a temporal Hadamard pipe at the same Z position</span>
 <span class="sd">            in the block graph.</span>
@@ -540,7 +546,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">cube_specs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">CubeSpec</span><span class="p">,</span> <span class="n">CubeSpec</span><span class="p">]</span>
     <span class="n">cube_templates</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RectangularTemplate</span><span class="p">,</span> <span class="n">RectangularTemplate</span><span class="p">]</span>
     <span class="n">pipe_kind</span><span class="p">:</span> <span class="n">PipeKind</span>
-    <span class="n">has_spatial_pipe_in_timeslice</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">has_spatial_up_or_down_pipe_in_timeslice</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">at_temporal_hadamard_layer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 </pre></div>

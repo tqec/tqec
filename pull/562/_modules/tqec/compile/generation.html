@@ -509,7 +509,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    invalid, in which case this function **might** raise an error.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        plaquette_array: an array of indices referencing</span>
+<span class="sd">        plaquette_array: a 2-dimensional array of indices referencing</span>
 <span class="sd">            :class:`~tqec.plaquette.plaquette.Plaquette` instances in the</span>
 <span class="sd">            ``plaquettes`` argument.</span>
 <span class="sd">        plaquettes: description of the computation that should happen at</span>
@@ -539,9 +539,12 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="c1"># Generate the ScheduledCircuit instances for each plaquette instantiation</span>
     <span class="n">all_scheduled_circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ScheduledCircuit</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">plaquette_index</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">additional_mergeable_instructions</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">row_index</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plaquette_array</span><span class="p">):</span>
+    <span class="c1"># The below line is not strictly needed, but makes type checkers happy with</span>
+    <span class="c1"># type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays</span>
+    <span class="c1"># for more information on why this should be done.</span>
+    <span class="n">plaquette_array_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">plaquette_array</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">row_index</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plaquette_array_list</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">column_index</span><span class="p">,</span> <span class="n">plaquette_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">plaquette_index</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># Computing the offset that should be applied to each qubits.</span>

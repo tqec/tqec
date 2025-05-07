@@ -22,7 +22,7 @@ CubeSpec
 
    .. autosummary::
    
-      ~CubeSpec.has_spatial_junction_in_timeslice
+      ~CubeSpec.has_spatial_up_or_down_pipe_in_timeslice
       ~CubeSpec.is_spatial
       ~CubeSpec.spatial_arms
       ~CubeSpec.kind
