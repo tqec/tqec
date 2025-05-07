@@ -670,9 +670,15 @@ def compute_detectors_for_fixed_radius(
     # to shift detectors accordingly.
     last_template_origin = templates[-1].instantiation_origin(k)
     detectors: list[Detector] = []
-    for i, row in enumerate(unique_3d_subtemplates.subtemplate_indices):
+    # The below line is not strictly needed, but makes type checkers happy with
+    # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
+    # for more information on why this should be done.
+    subtemplate_indices_list: list[list[list[int]]] = (
+        unique_3d_subtemplates.subtemplate_indices.tolist()
+    )
+    for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_indices in enumerate(row):
-            if numpy.all(subtemplate_indices == 0):
+            if all(i == 0 for i in subtemplate_indices):
                 continue
             for d in detectors_by_subtemplate[tuple(subtemplate_indices)]:
                 detectors.append(

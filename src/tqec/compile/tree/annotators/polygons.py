@@ -30,8 +30,11 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
     increments = template.get_increments()
 
     polygons: list[Polygon] = []
-
-    for row_index, line in enumerate(template_plaquettes):
+    # The below line is not strictly needed, but makes type checkers happy with
+    # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
+    # for more information on why this should be done.
+    template_plaquettes_list: list[list[int]] = template_plaquettes.tolist()
+    for row_index, line in enumerate(template_plaquettes_list):
         for column_index, plaquette_index in enumerate(line):
             if plaquette_index != 0:
                 # Computing the offset that should be applied to each qubits.
