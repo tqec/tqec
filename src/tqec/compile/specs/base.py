@@ -25,14 +25,15 @@ class CubeSpec:
         spatial_arms: Flag indicating the spatial directions the cube connects to the
             adjacent cubes. This is useful for spatial cubes (XXZ and ZZX) where
             the arms can determine the template used to implement the cube.
-        has_spatial_junction_in_timeslice: a flag indicating if a spatial
-            junction is executed on the same timeslice as this cube. This
-            information is needed for the fixed parity convention.
+        has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial
+            pipe at the top or bottom of a spatial cube is executed on the same
+            timeslice as this cube. This information is needed for the fixed
+            parity convention.
     """
 
     kind: CubeKind
     spatial_arms: SpatialArms = SpatialArms.NONE
-    has_spatial_junction_in_timeslice: bool = False
+    has_spatial_up_or_down_pipe_in_timeslice: bool = False
 
     def __post_init__(self) -> None:
         if self.spatial_arms != SpatialArms.NONE:
@@ -49,21 +50,25 @@ class CubeSpec:
     def from_cube(
         cube: Cube,
         graph: BlockGraph,
-        spatial_junction_slices: frozenset[int] = frozenset(),
+        spatial_up_or_down_pipes_slices: frozenset[int] = frozenset(),
     ) -> CubeSpec:
         """Returns the cube spec from a cube in a block graph."""
-        has_spatial_junction_in_timeslice = cube.position.z in spatial_junction_slices
+        has_spatial_up_or_down_pipe_in_timeslice = (
+            cube.position.z in spatial_up_or_down_pipes_slices
+        )
         if not cube.is_spatial:
             return CubeSpec(
                 cube.kind,
-                has_spatial_junction_in_timeslice=has_spatial_junction_in_timeslice,
+                has_spatial_up_or_down_pipe_in_timeslice=has_spatial_up_or_down_pipe_in_timeslice,
             )
         pos = cube.position
         spatial_arms = SpatialArms.NONE
         for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
             if graph.has_pipe_between(pos, pos.shift_by(*shift)):
                 spatial_arms |= flag
-        return CubeSpec(cube.kind, spatial_arms, has_spatial_junction_in_timeslice)
+        return CubeSpec(
+            cube.kind, spatial_arms, has_spatial_up_or_down_pipe_in_timeslice
+        )
 
 
 class CubeBuilder(Protocol):
@@ -113,9 +118,10 @@ class PipeSpec:
         cube_templates: templates used to implement the respective entry in
             ``cube_specs``.
         pipe_type: the type of the pipe connecting the two cubes.
-        has_spatial_junction_in_timeslice: a flag indicating if a spatial
-            junction is executed on the same timeslice as this pipe. This
-            information is needed for the fixed parity convention.
+        has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial
+            pipe at the top or bottom of a spatial cube is executed on the same
+            timeslice as this cube. This information is needed for the fixed
+            parity convention.
         at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal
             pipe and there is a temporal Hadamard pipe at the same Z position
             in the block graph.
@@ -124,5 +130,5 @@ class PipeSpec:
     cube_specs: tuple[CubeSpec, CubeSpec]
     cube_templates: tuple[RectangularTemplate, RectangularTemplate]
     pipe_kind: PipeKind
-    has_spatial_pipe_in_timeslice: bool = False
+    has_spatial_up_or_down_pipe_in_timeslice: bool = False
     at_temporal_hadamard_layer: bool = False

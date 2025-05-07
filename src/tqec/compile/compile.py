@@ -66,7 +66,15 @@ def compile_block_graph(
         block_graph = block_graph.shift_by(dz=-minz)
 
     spatial_pipe_slices: frozenset[int] = frozenset(
-        cube.position.z for cube in block_graph.cubes if cube.is_spatial
+        cube.position.z
+        for cube in block_graph.cubes
+        if (
+            cube.is_spatial
+            and any(
+                pipe.direction == Direction3D.Y
+                for pipe in block_graph.pipes_at(cube.position)
+            )
+        )
     )
     cube_specs = {
         cube: CubeSpec.from_cube(cube, block_graph, spatial_pipe_slices)
@@ -117,7 +125,7 @@ def compile_block_graph(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (QubitTemplate(), QubitTemplate()),
             pipe.kind,
-            has_spatial_pipe_in_timeslice=(
+            has_spatial_up_or_down_pipe_in_timeslice=(
                 pos1.z == pos2.z and pos1.z in spatial_pipe_slices
             ),
             at_temporal_hadamard_layer=(

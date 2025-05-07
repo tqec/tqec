@@ -164,7 +164,7 @@ class FixedParityCubeBuilder(CubeBuilder):
         template, pgen = self._get_template_and_plaquettes_generator(spec)
         return _get_block(
             z_basis=kind.z,
-            has_spatial_junction_in_timeslice=spec.has_spatial_junction_in_timeslice,
+            has_spatial_junction_in_timeslice=spec.has_spatial_up_or_down_pipe_in_timeslice,
             template=template,
             plaquettes_generator=pgen,
             repetitions=_DEFAULT_BLOCK_REPETITIONS,
@@ -289,7 +289,7 @@ class FixedParityPipeBuilder(PipeBuilder):
 
         return _get_block(
             z,
-            spec.has_spatial_pipe_in_timeslice,
+            spec.has_spatial_up_or_down_pipe_in_timeslice,
             pipe_template,
             plaquettes_generator,
             _DEFAULT_BLOCK_REPETITIONS,
@@ -376,7 +376,7 @@ class FixedParityPipeBuilder(PipeBuilder):
         assert z is not None, "Spatial pipe should have a basis in the Z direction."
         return _get_block(
             z,
-            spec.has_spatial_pipe_in_timeslice,
+            spec.has_spatial_up_or_down_pipe_in_timeslice,
             template,
             plaquettes_factory,
             _DEFAULT_BLOCK_REPETITIONS,
