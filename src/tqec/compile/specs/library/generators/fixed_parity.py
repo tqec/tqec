@@ -1116,7 +1116,7 @@ class FixedParityConventionGenerator:
         mapping[8] = mapping[15] = BPs[SBB][SBB_DOWN]
         mapping[14] = BPs[SBB][SBB_RIGHT]
         mapping[16] = BPs[SBB][SBB_LEFT]
-        # Setting the X plaquettes
+        # Setting the OTH plaquettes
         mapping[6] = mapping[17] = BPs[OTH][OTH_UP]
         mapping[7] = mapping[19] = BPs[OTH][OTH_DOWN]
         mapping[18] = BPs[OTH][OTH_RIGHT]
