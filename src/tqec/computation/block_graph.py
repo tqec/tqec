@@ -10,7 +10,8 @@ from copy import deepcopy
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, cast
 
-import networkx as nx
+from networkx import Graph, is_connected
+from networkx.utils import graphs_equal
 
 from tqec.computation.cube import (
     Cube,
@@ -62,7 +63,7 @@ class BlockGraph:
 
     def __init__(self, name: str = "") -> None:
         self._name = name
-        self._graph: nx.Graph[Position3D] = nx.Graph()
+        self._graph: Graph[Position3D] = Graph()
         self._ports: dict[str, Position3D] = {}
 
     @property
@@ -333,7 +334,7 @@ class BlockGraph:
         if not isinstance(other, BlockGraph):
             return False
         return (
-            nx.utils.graphs_equal(self._graph, other._graph)  # type: ignore
+            graphs_equal(self._graph, other._graph)  # type: ignore
             and self._ports == other._ports
         )
 
@@ -668,7 +669,7 @@ class BlockGraph:
     def is_single_connected(self) -> bool:
         """Check if the graph is single connected, i.e. there is only one connected
         component in the graph."""
-        return bool(nx.is_connected(self._graph))
+        return bool(is_connected(self._graph))
 
     def rotate(
         self,
