@@ -474,6 +474,23 @@
                   
   <section id="module-tqec.circuit">
 <span id="tqec-circuit"></span><h1>tqec.circuit<a class="headerlink" href="#module-tqec.circuit" title="Link to this heading">#</a></h1>
+<p>Defines core classes and functions to represent and manipulate quantum
+circuits.</p>
+<p>This package defines the core class <code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code>
+that is used to represent a quantum circuit in the <cite>tqec</cite> library. It also
+defines a few core functions:</p>
+<ul class="simple">
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_circuit()</span></code> that takes a <code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code>
+instance and a description of plaquettes via a
+<a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> instance and generates a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code> instance that corresponds to the
+circuit described.</p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">merge_scheduled_circuits()</span></code> that is a function that helps merging
+several <code class="xref py py-class docutils literal notranslate"><span class="pre">ScheduledCircuit</span></code> instances containing gates
+that are potentially scheduled at the same time (but not on the same qubits).</p></li>
+</ul>
+<p>Functions from this package are really the backbone of the <code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec</span></code>
+library and are re-used in higher-level packages (such as <a class="reference internal" href="tqec.compile.html#module-tqec.compile" title="tqec.compile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec.compile</span></code></a>).</p>
 </section>
 
 
