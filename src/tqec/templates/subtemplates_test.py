@@ -50,7 +50,13 @@ def test_get_spatially_distinct_subtemplates(
     instantiation_reconstruction: npt.NDArray[numpy.int_] = numpy.zeros(
         (n + 2 * r, m + 2 * r), dtype=numpy.int_
     )
-    for i, row in enumerate(unique_subtemplates.subtemplate_indices):
+    # The below line is not strictly needed, but makes type checkers happy with
+    # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
+    # for more information on why this should be done.
+    subtemplate_indices_list: list[list[int]] = (
+        unique_subtemplates.subtemplate_indices.tolist()
+    )
+    for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_index in enumerate(row):
             if subtemplate_index == 0:
                 continue
@@ -107,25 +113,19 @@ _TEMPLATE_PAIRS_TO_TEST = [
 
 @pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
-    "templates,k,r,avoid_zero_plaquettes",
+    "templates,k,r",
     itertools.product(
         _TEMPLATE_PAIRS_TO_TEST,
         _VALUES_OF_K_TO_TEST,
         _VALUES_OF_MANHATTAN_RADIUS_TO_TEST,
-        [True, False],
     ),
 )
 def test_get_spatially_distinct_3d_subtemplates(
-    templates: tuple[Template, ...],
-    k: int,
-    r: int,
-    avoid_zero_plaquettes: bool,
+    templates: tuple[Template, ...], k: int, r: int
 ) -> None:
     instantiations = tuple(t.instantiate(k) for t in templates)
     instantiation_3d = numpy.stack(instantiations, axis=2)
-    unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(
-        instantiations, r, avoid_zero_plaquettes
-    )
+    unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(instantiations, r)
     # Check that the radius is correctly recovered.
     assert unique_3d_subtemplates.manhattan_radius == r
 
@@ -134,7 +134,13 @@ def test_get_spatially_distinct_3d_subtemplates(
     instantiation_reconstruction: npt.NDArray[numpy.int_] = numpy.zeros(
         (n + 2 * r, m + 2 * r, t), dtype=numpy.int_
     )
-    for i, row in enumerate(unique_3d_subtemplates.subtemplate_indices):
+    # The below line is not strictly needed, but makes type checkers happy with
+    # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
+    # for more information on why this should be done.
+    subtemplate_indices_list: list[list[list[int]]] = (
+        unique_3d_subtemplates.subtemplate_indices.tolist()
+    )
+    for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_index_arr in enumerate(row):
             if all(subti == 0 for subti in subtemplate_index_arr):
                 continue

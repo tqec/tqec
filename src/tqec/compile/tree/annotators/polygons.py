@@ -1,8 +1,10 @@
 from typing_extensions import override
 
+from tqec.circuit.qubit import GridQubit
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.tree.annotations import Polygon
 from tqec.compile.tree.node import LayerNode, NodeWalker
+from tqec.plaquette.rpng.rpng import PauliBasis
 from tqec.utils.position import Shift2D
 
 
@@ -28,8 +30,11 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
     increments = template.get_increments()
 
     polygons: list[Polygon] = []
-
-    for row_index, line in enumerate(template_plaquettes):
+    # The below line is not strictly needed, but makes type checkers happy with
+    # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
+    # for more information on why this should be done.
+    template_plaquettes_list: list[list[int]] = template_plaquettes.tolist()
+    for row_index, line in enumerate(template_plaquettes_list):
         for column_index, plaquette_index in enumerate(line):
             if plaquette_index != 0:
                 # Computing the offset that should be applied to each qubits.
@@ -37,16 +42,23 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
                 if plaquette.is_empty():
                     continue
                 debug_info = plaquette.debug_information
-                basis = debug_info.get_basis()
+                polygons_info = debug_info.get_polygons()
+                if not polygons_info:
+                    continue
+                draw_polygons: dict[PauliBasis, list[GridQubit]]
+                if isinstance(polygons_info, PauliBasis):
+                    draw_polygons = {polygons_info: plaquette.qubits.data_qubits}
+                else:
+                    draw_polygons = polygons_info
 
-                qubit_offset = Shift2D(
-                    plaquette.origin.x + column_index * increments.x,
-                    plaquette.origin.y + row_index * increments.y,
-                )
-                qubits = frozenset(
-                    q + qubit_offset for q in plaquette.qubits.data_qubits
-                )
-                polygons.append(Polygon(basis, qubits))
+                for basis, qubits in draw_polygons.items():
+                    qubit_offset = Shift2D(
+                        plaquette.origin.x + column_index * increments.x,
+                        plaquette.origin.y + row_index * increments.y,
+                    )
+                    polygons.append(
+                        Polygon(basis, frozenset(q + qubit_offset for q in qubits))
+                    )
 
     # Shift the qubits of the returned scheduled circuit
     mincube, _ = layer.bounds

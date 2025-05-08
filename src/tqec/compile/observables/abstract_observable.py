@@ -80,6 +80,7 @@ class AbstractObservable:
 def compile_correlation_surface_to_abstract_observable(
     block_graph: BlockGraph,
     correlation_surface: CorrelationSurface,
+    include_temporal_hadamard_pipes: bool = False,
 ) -> AbstractObservable:
     """Compile a ``CorrelationSurface`` into an ``AbstractObservable`` in the
     block graph.
@@ -137,6 +138,9 @@ def compile_correlation_surface_to_abstract_observable(
             correlation surface.
         correlation_surface: The correlation surface to convert into an abstract
             observable.
+        include_temporal_hadamard_pipes: whether to include the temporal hadamard
+            pipes in the observable. This is only relevant for the fixed bulk
+            convention.
 
     Returns:
         The abstract observable corresponding to the correlation surface in the block graph.
@@ -235,7 +239,7 @@ def compile_correlation_surface_to_abstract_observable(
         if pipe.direction == Direction3D.Z:
             # Temporal Hadamard might have measurements that should be included
             # during realignment of plaquettes under fixed-bulk convention
-            if pipe.kind.has_hadamard:
+            if include_temporal_hadamard_pipes and pipe.kind.has_hadamard:
                 temporal_hadamard_pipes.add((pipe, edge.u.basis))
             if has_obs_include(pipe.v, edge.v.basis):
                 top_readout_cubes.add(pipe.v)

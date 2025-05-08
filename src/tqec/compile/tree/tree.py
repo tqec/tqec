@@ -20,6 +20,7 @@ from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.template import RPNGTemplate
 from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
+from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECException
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
@@ -174,6 +175,7 @@ class LayerTree:
         detector_database: DetectorDatabase | None = None,
         lookback: int = 2,
         add_polygons: bool = True,
+        shift_to_positive: bool = True,
     ) -> str:
         """Generate the Crumble URL of the quantum circuit representing ``self``.
 
@@ -200,6 +202,9 @@ class LayerTree:
                 ``True``, the polygons representing the stabilizers will be generated
                 based on the RPNG information of underlying plaquettes and add
                 to the Crumble URL.
+            shift_to_positive: if ``True``, the resulting circuit is shifted such
+                that only qubits with positive coordinates are used. Else, the
+                circuit is left as is.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
@@ -222,7 +227,10 @@ class LayerTree:
         circuits_with_polygons = self._root.generate_circuits_with_potential_polygons(
             k, qubit_map, add_polygons=True
         )
-        crumble_url: str = qubit_map.to_circuit().to_crumble_url() + ";"
+        qubit_map_circuit = qubit_map.to_circuit()
+        if shift_to_positive:
+            qubit_map_circuit = shift_to_only_positive(qubit_map_circuit)
+        crumble_url: str = qubit_map_circuit.to_crumble_url() + ";"
         last_polygons: set[Polygon] = set()
         for item in circuits_with_polygons:
             if isinstance(item, stim.Circuit):
@@ -252,6 +260,10 @@ class LayerTree:
         add_polygons: bool = False,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
+        # If already annotated, no need to re-annotate.
+        if k in self._annotations:
+            return
+        # Else, perform all the needed computations.
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
         # This method will also update the detector_database and save it to disk at database_path.

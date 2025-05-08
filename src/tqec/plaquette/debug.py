@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from tqec.circuit.qubit import GridQubit
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
 
@@ -9,16 +10,35 @@ from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
 @dataclass(frozen=True)
 class PlaquetteDebugInformation:
     rpng: RPNGDescription | None = None
-    basis: PauliBasis | None = None
+    draw_polygons: dict[PauliBasis, list[GridQubit]] | PauliBasis | None = None
 
-    def get_basis(self) -> PauliBasis | None:
-        if self.basis is not None:
-            return self.basis
+    def get_polygons(self) -> dict[PauliBasis, list[GridQubit]] | PauliBasis | None:
+        if self.draw_polygons is not None:
+            return self.draw_polygons
         if self.rpng is not None:
             bases = {rpng.p for rpng in self.rpng.corners if rpng.p is not None}
             if len(bases) == 1:
                 return bases.pop()
         return None
+
+    def with_data_qubits_removed(
+        self, removed_data_qubits: list[int]
+    ) -> PlaquetteDebugInformation:
+        if self.rpng is None:
+            return self
+        corners: list[RPNG] = list(self.rpng.corners)
+        empty_rpng = RPNG.from_string("----")
+        return PlaquetteDebugInformation(
+            RPNGDescription(
+                (
+                    corners[0] if 0 not in removed_data_qubits else empty_rpng,
+                    corners[1] if 1 not in removed_data_qubits else empty_rpng,
+                    corners[2] if 2 not in removed_data_qubits else empty_rpng,
+                    corners[3] if 3 not in removed_data_qubits else empty_rpng,
+                ),
+                self.rpng.ancilla,
+            )
+        )
 
     def project_on_boundary(
         self, projected_orientation: PlaquetteOrientation
@@ -40,5 +60,5 @@ class PlaquetteDebugInformation:
             RPNGDescription(
                 (corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla
             ),
-            self.basis,
+            self.draw_polygons,
         )

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import typing
 from dataclasses import dataclass
 from typing import Sequence
 
@@ -86,7 +87,9 @@ class UniqueSubTemplates:
 
     def __post_init__(self) -> None:
         # We do not need a valid subtemplate for the 0 index.
-        indices = frozenset(numpy.unique(self.subtemplate_indices)) - {0}
+        indices = frozenset(numpy.unique(self.subtemplate_indices)) - {
+            typing.cast(numpy.int_, 0)
+        }
         if not indices.issubset(self.subtemplates.keys()):
             raise TQECException(
                 "Found an index in subtemplate_indices that does "
@@ -230,8 +233,10 @@ def get_spatially_distinct_subtemplates(
     # Start by shifting by 1.
     inverse_indices += 1
     subtemplates_by_indices = {
-        i + 1: situation for i, situation in enumerate(unique_situations)
+        i + 1: typing.cast(npt.NDArray[numpy.int_], situation)
+        for i, situation in enumerate(unique_situations)
     }
+    final_indices: npt.NDArray[numpy.int_]
     if avoid_zero_plaquettes:
         final_indices = numpy.zeros((y * x,), dtype=numpy.int_)
         final_indices[ignored_flattened_indices] = 0
@@ -332,9 +337,7 @@ class Unique3DSubTemplates:
 
 
 def get_spatially_distinct_3d_subtemplates(
-    instantiations: Sequence[npt.NDArray[numpy.int_]],
-    manhattan_radius: int = 1,
-    avoid_zero_plaquettes: bool = True,
+    instantiations: Sequence[npt.NDArray[numpy.int_]], manhattan_radius: int = 1
 ) -> Unique3DSubTemplates:
     """Returns a representation of all the distinct 3-dimensional sub-templates
     of the provided manhattan radius.
@@ -371,20 +374,23 @@ def get_spatially_distinct_3d_subtemplates(
         manhattan_radius: radius of the considered ball using the Manhattan
             distance. Only squares with sides of ``2*manhattan_radius+1``
             plaquettes will be considered.
-        avoid_zero_plaquettes: ``True`` if sub-templates with an empty plaquette
-            (i.e., 0 value in the instantiation of the Template instance) at
-            its center should be ignored. Default to ``True``.
 
     Returns:
         a representation of all the sub-templates found.
     """
-    unique_2d_subtemplates = [
+    # Note: we explicitly do not avoid 0-indexed plaquette in the individual
+    # 2-dimensional sub-templates (except the last one) because that led to
+    # issues. The problem is that the computation is done independently for each
+    # timeslice here, but we cannot "ignore" (i.e., return a 0-filled array) one
+    # timeslice (again, except the last one) directly because the other
+    # timeslices might need the potentially non-0 plaquettes around the center.
+    # That issue arose when extending a qubit to perform a spatial junction with
+    # stretched stabilizers (i.e., in fixed-parity convention).
+    unique_2d_subtemplates: list[UniqueSubTemplates] = [
         get_spatially_distinct_subtemplates(
-            inst,
-            manhattan_radius=manhattan_radius,
-            avoid_zero_plaquettes=avoid_zero_plaquettes,
+            inst, manhattan_radius=manhattan_radius, avoid_zero_plaquettes=False
         )
-        for inst in instantiations
+        for i, inst in enumerate(instantiations)
     ]
 
     subtemplates_indices = numpy.stack(

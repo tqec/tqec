@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Iterable, Iterator
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
@@ -106,6 +106,17 @@ class PlaquetteQubits:
         return QubitMap(
             dict(self.data_qubits_with_indices)
             | dict(self.syndrome_qubits_with_indices)
+        )
+
+    def without_qubits(self, qubits: Iterable[int]) -> PlaquetteQubits:
+        removed_qubits = frozenset(qubits)
+        return PlaquetteQubits(
+            [q for i, q in self.data_qubits_with_indices if i not in removed_qubits],
+            [
+                q
+                for i, q in self.syndrome_qubits_with_indices
+                if i not in removed_qubits
+            ],
         )
 
 

@@ -7,8 +7,8 @@ from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
-from tqec.gallery.stability import stability
 from tqec.gallery.move_rotation import move_rotation
+from tqec.gallery.stability import stability
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
@@ -29,9 +29,9 @@ def test_compile_single_block_memory(convention_name: str, kind: str, k: int) ->
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
-
-    assert circuit.num_detectors == (d**2 - 1) * d
-    assert len(circuit.shortest_graphlike_error()) == d
+    dem = circuit.detector_error_model(decompose_errors=True)
+    assert dem.num_detectors == (d**2 - 1) * d
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
 
 
 @pytest.mark.parametrize(
@@ -62,11 +62,10 @@ def test_compile_two_same_blocks_connected_in_time(
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
-
-    dem = circuit.detector_error_model()
+    dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_detectors == (d**2 - 1) * 2 * d
     assert dem.num_observables == 1
-    assert len(dem.shortest_graphlike_error()) == d
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
 
 
 @pytest.mark.parametrize(
@@ -104,10 +103,10 @@ def test_compile_two_same_blocks_connected_in_space(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
 
-    dem = circuit.detector_error_model()
+    dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_detectors == 2 * (d**2 - 1) + (d + 1 + 2 * (d**2 - 1)) * (d - 1)
     assert dem.num_observables == 1
-    assert len(dem.shortest_graphlike_error()) == d
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
 
 
 @pytest.mark.parametrize(
@@ -149,13 +148,13 @@ def test_compile_L_shape_in_space_time(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
 
-    dem = circuit.detector_error_model()
+    dem = circuit.detector_error_model(decompose_errors=True)
     assert (
         dem.num_detectors
         == 2 * (d**2 - 1) + (d + 1 + 2 * (d**2 - 1)) * (d - 1) + (d**2 - 1) * d
     )
     assert dem.num_observables == 1
-    assert len(dem.shortest_graphlike_error()) == d
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
 
 
 @pytest.mark.parametrize(
@@ -178,9 +177,9 @@ def test_compile_logical_cnot(convention_name: str, obs_basis: Basis, k: int) ->
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
 
-    dem = circuit.detector_error_model()
+    dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_observables == 2
-    assert len(dem.shortest_graphlike_error()) == d
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
 
 
 @pytest.mark.parametrize(
@@ -201,7 +200,7 @@ def test_compile_stability(convention_name: str, obs_basis: Basis, k: int) -> No
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
-    dem = circuit.detector_error_model()
+    dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_observables == 1
     num_spatial_basis_stabilizers = (d - 1) // 2 * 4 + (d - 1) ** 2 // 2
     num_temporal_basis_stabilizers = (d - 1) ** 2 // 2
@@ -210,7 +209,7 @@ def test_compile_stability(convention_name: str, obs_basis: Basis, k: int) -> No
         == (d - 1) * num_spatial_basis_stabilizers
         + (d + 1) * num_temporal_basis_stabilizers
     )
-    assert len(dem.shortest_graphlike_error()) == d
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
 
 
 @pytest.mark.parametrize(
@@ -232,9 +231,13 @@ def test_compile_L_spatial_junction(convention_name: str, k: int) -> None:
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
-    dem = circuit.detector_error_model()
+    dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_observables == 1
-    assert len(dem.shortest_graphlike_error()) == d
+    expected_distance = d - 1 if convention_name == "fixed_parity" else d
+    assert (
+        len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False))
+        == expected_distance
+    )
 
 
 @pytest.mark.parametrize(
@@ -255,9 +258,48 @@ def test_compile_move_rotation(convention_name: str, obs_basis: Basis, k: int) -
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
-    dem = circuit.detector_error_model()
+    dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_observables == 1
-    assert len(dem.shortest_graphlike_error()) == d
+    if convention_name == "fixed_bulk":
+        expected_distance = d
+    else:
+        expected_distance = d - 1 if obs_basis == Basis.X else d
+    assert (
+        len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False))
+        == expected_distance
+    )
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "k", "in_future"),
+    itertools.product(ALL_CONVENTIONS.keys(), (1, 2), (False, True)),
+)
+def test_compile_L_spatial_junction_with_time_pipe(
+    convention_name: str, k: int, in_future: bool
+) -> None:
+    d = 2 * k + 1
+    g = BlockGraph("L Spatial Junction")
+    n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
+    n2 = g.add_cube(Position3D(0, 1, 0), "ZZX")
+    n3 = g.add_cube(Position3D(1, 1, 0), "XZX")
+    n4 = g.add_cube(Position3D(1, 1, 1 if in_future else -1), "XZX")
+    g.add_pipe(n1, n2)
+    g.add_pipe(n2, n3)
+    g.add_pipe(n3, n4)
+
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model(decompose_errors=True)
+    assert dem.num_observables == 1
+    expected_distance = d - 1 if convention_name == "fixed_parity" else d
+    assert (
+        len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False))
+        == expected_distance
+    )
 
 
 @pytest.mark.parametrize(
@@ -284,9 +326,9 @@ def test_compile_temporal_hadamard(
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
-    dem = circuit.detector_error_model()
+    dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_observables == 1
-    assert len(dem.shortest_graphlike_error()) == d
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
 
 
 @pytest.mark.parametrize(
@@ -317,6 +359,6 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     circuit = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
     )
-    dem = circuit.detector_error_model()
+    dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_observables == 1
-    assert len(dem.shortest_graphlike_error()) == d
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
