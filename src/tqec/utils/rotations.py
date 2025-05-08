@@ -194,5 +194,5 @@ def rotate_position_by_matrix(
     rotation = R.from_matrix(rotation_matrix)
     center_pos = [i + 0.5 for i in position.as_tuple()]
     rotated_center = rotation.apply(center_pos)
-    rotated_corner = [round_or_fail(i - 0.5) for i in rotated_center]
+    rotated_corner = [round_or_fail(float(i) - 0.5) for i in rotated_center]
     return Position3D(*rotated_corner)

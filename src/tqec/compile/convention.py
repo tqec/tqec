@@ -1,11 +1,12 @@
-from dataclasses import dataclass
+from __future__ import annotations
 
-from tqec.compile.observables.builder import ObservableBuilder
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
 from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
 from tqec.compile.observables.fixed_parity_builder import (
     FIXED_PARITY_OBSERVABLE_BUILDER,
 )
-from tqec.compile.specs.base import CubeBuilder, PipeBuilder
 from tqec.compile.specs.library.fixed_bulk import (
     FIXED_BULK_CUBE_BUILDER,
     FIXED_BULK_PIPE_BUILDER,
@@ -14,6 +15,10 @@ from tqec.compile.specs.library.fixed_parity import (
     FIXED_PARITY_CUBE_BUILDER,
     FIXED_PARITY_PIPE_BUILDER,
 )
+
+if TYPE_CHECKING:
+    from tqec.compile.observables.builder import ObservableBuilder
+    from tqec.compile.specs.base import CubeBuilder, PipeBuilder
 
 
 @dataclass(frozen=True)

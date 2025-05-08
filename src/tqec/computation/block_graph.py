@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import json
+import math
 import pathlib
+from collections.abc import Mapping
 from copy import deepcopy
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, cast
-import json
 
 import networkx as nx
-import numpy as np
 
 from tqec.computation.cube import (
     Cube,
@@ -26,10 +26,10 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D, SignedDirection3D
 
 if TYPE_CHECKING:
+    from tqec.computation.correlation import CorrelationSurface
     from tqec.computation.open_graph import FilledGraph
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
     from tqec.interop.pyzx.positioned import PositionedZX
-    from tqec.computation.correlation import CorrelationSurface
 
 
 BlockKind = CubeKind | PipeKind
@@ -689,14 +689,14 @@ class BlockGraph:
             with the original graph.
         """
         from tqec.utils.rotations import (
-            rotate_block_kind_by_matrix,
             get_rotation_matrix,
+            rotate_block_kind_by_matrix,
             rotate_position_by_matrix,
         )
 
         rotated = BlockGraph(self.name + "_rotated")
         rotation_matrix = get_rotation_matrix(
-            rotation_axis, counterclockwise, num_90_degree_rotation * np.pi / 2
+            rotation_axis, counterclockwise, num_90_degree_rotation * math.pi / 2
         )
         pos_map: dict[Position3D, Position3D] = {}
         for cube in self.cubes:
