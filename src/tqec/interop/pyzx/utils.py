@@ -2,9 +2,8 @@
 
 from fractions import Fraction
 
-import pyzx as zx
 from pyzx.graph.graph_s import GraphS
-from pyzx.utils import FractionLike, VertexType, vertex_is_zx
+from pyzx.utils import EdgeType, FractionLike, VertexType, vertex_is_zx
 
 from tqec.computation.cube import CubeKind, Port, ZXCube
 from tqec.utils.enums import Basis
@@ -27,20 +26,20 @@ def is_x_no_phase(g: GraphS, v: int) -> bool:
 
 def is_boundary(g: GraphS, v: int) -> bool:
     """Check if a vertex in a PyZX graph is a boundary type spider."""
-    return g.type(v) is zx.VertexType.BOUNDARY
+    return g.type(v) is VertexType.BOUNDARY
 
 
 def is_s(g: GraphS, v: int) -> bool:
     """Check if a vertex in a PyZX graph is a S node."""
-    return g.type(v) is zx.VertexType.Z and g.phase(v) == Fraction(1, 2)
+    return g.type(v) is VertexType.Z and g.phase(v) == Fraction(1, 2)
 
 
 def is_hardmard(g: GraphS, edge: tuple[int, int]) -> bool:
     """Check if an edge in a PyZX graph is a Hadamard edge."""
-    return g.edge_type(edge) is zx.EdgeType.HADAMARD
+    return g.edge_type(edge) is EdgeType.HADAMARD
 
 
-def cube_kind_to_zx(kind: CubeKind) -> tuple[zx.VertexType, FractionLike]:
+def cube_kind_to_zx(kind: CubeKind) -> tuple[VertexType, FractionLike]:
     """Convert the cube kind to the corresponding PyZX vertex type and phase.
 
     The conversion is as follows:
@@ -58,9 +57,9 @@ def cube_kind_to_zx(kind: CubeKind) -> tuple[zx.VertexType, FractionLike]:
     """
     if isinstance(kind, ZXCube):
         if sum(basis == Basis.Z for basis in kind.as_tuple()) == 1:
-            return zx.VertexType.Z, 0
-        return zx.VertexType.X, 0
+            return VertexType.Z, 0
+        return VertexType.X, 0
     if isinstance(kind, Port):
-        return zx.VertexType.BOUNDARY, 0
+        return VertexType.BOUNDARY, 0
     else:  # isinstance(kind, YHalfCube)
-        return zx.VertexType.Z, Fraction(1, 2)
+        return VertexType.Z, Fraction(1, 2)

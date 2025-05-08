@@ -147,11 +147,3 @@ human readable representation of a given template instantiation. These functions
 are used in the documentation about templates above, and so their output can be
 observed above.
 """
-
-from .base import Template as Template
-from .display import display_template as display_template
-from .display import (
-    display_template_from_instantiation as display_template_from_instantiation,
-)
-from .layout import LayoutTemplate as LayoutTemplate
-from .qubit import QubitTemplate as QubitTemplate
