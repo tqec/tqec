@@ -1,0 +1,38 @@
+PipeSpec
+========
+
+.. currentmodule:: tqec.compile
+
+.. autoclass:: PipeSpec
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PipeSpec.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PipeSpec.at_temporal_hadamard_layer
+      ~PipeSpec.cube_specs
+      ~PipeSpec.cube_templates
+      ~PipeSpec.pipe_kind
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   
+   
