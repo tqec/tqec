@@ -3,7 +3,7 @@ import pytest
 import stim
 
 from tqec.compile.generation import generate_circuit_from_instantiation
-from tqec.compile.specs.library.generators.fixed_parity import (
+from tqec.compile.specs.library.generators.extended_stabilizers import (
     make_spatial_cube_arm_plaquettes,
 )
 from tqec.plaquette.plaquette import Plaquettes
