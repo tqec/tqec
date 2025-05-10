@@ -49,3 +49,20 @@ def test_detector_offset_spatially_by(measurement: Measurement) -> None:
         [measurement.offset_spatially_by(45, -2)]
     )
     assert offset_detector.coordinates.to_stim_coordinates() == (46, -1, 0)
+
+
+def test_detector_serialization(measurement: Measurement) -> None:
+    detector = Detector(frozenset([measurement]), StimCoordinates(1, 1, 0))
+    serialized = detector.to_serializable()
+    deserialized = Detector.from_serializable(serialized)
+    assert deserialized == detector
+
+    # import pickle
+    #
+    # pickled = pickle.dumps(detector)
+    # with open("detector.pkl", "wb") as f:
+    #     f.write(pickled)
+    #
+    # pickled_opt = pickle.dumps(serialized)
+    # with open("detector_opt.pkl", "wb") as f:
+    #     f.write(pickled_opt)

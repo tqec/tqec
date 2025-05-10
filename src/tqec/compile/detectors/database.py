@@ -270,16 +270,35 @@ class DetectorDatabase:
     def __len__(self) -> int:
         return len(self.mapping)
 
+    def to_serializable(self):
+        compact_mapping = {}
+        for key, detectors in self.mapping.items():
+            compact_mapping[key] = [
+                detector.to_serializable() for detector in detectors
+            ]
+        return compact_mapping
+
+    @staticmethod
+    def from_serializable(serializable: dict) -> DetectorDatabase:
+        mapping = {}
+        for key, detectors in serializable.items():
+            mapping[key] = frozenset(
+                Detector.from_serializable(detector) for detector in detectors
+            )
+        return DetectorDatabase(mapping)
+
     def to_file(self, filepath: Path) -> None:
         if not filepath.parent.exists():
             filepath.parent.mkdir()
+        serializable = self.to_serializable()
         with open(filepath, "wb") as f:
-            pickle.dump(self, f)
+            pickle.dump(serializable, f)
 
     @staticmethod
     def from_file(filepath: Path) -> DetectorDatabase:
         with open(filepath, "rb") as f:
-            database = pickle.load(f)
+            serializable = pickle.load(f)
+            database = DetectorDatabase.from_serializable(serializable)
             if not isinstance(database, DetectorDatabase):
                 raise TQECException(
                     f"Found the Python type {type(database).__name__} in the "

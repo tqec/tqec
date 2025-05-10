@@ -59,3 +59,25 @@ class StimCoordinates:
 
     def __lt__(self, other: StimCoordinates) -> bool:
         return self.to_stim_coordinates() < other.to_stim_coordinates()
+
+    def to_serializable(self) -> list[float]:
+        return [self.x, self.y] + ([self.t] if self.t is not None else [])
+
+    @staticmethod
+    def from_serializable(
+        serialized: list[float], t: float | None = None
+    ) -> StimCoordinates:
+        """Return a ``StimCoordinates`` instance from a serializable
+        representation.
+
+        Args:
+            serialized: a list of floats representing the coordinates.
+            t: optional third coordinate, to be used if the provided
+                ``serialized`` list has only two elements.
+
+        Returns:
+            a ``StimCoordinates`` instance.
+        """
+        if len(serialized) == 2:
+            return StimCoordinates(serialized[0], serialized[1], t)
+        return StimCoordinates(serialized[0], serialized[1], serialized[2])
