@@ -93,3 +93,35 @@ class Detector:
             frozenset(m.offset_spatially_by(x, y) for m in self.measurements),
             self.coordinates.offset_spatially_by(x, y),
         )
+
+    def to_serializable(self) -> tuple[list[float], list[tuple[int, int, int]]]:
+        """Convert the detector to a serializable format.
+
+        Returns:
+            A tuple containing two lists:
+                - The first list contains the coordinates of the detector.
+                - The second list contains the measurements in the detector.
+        """
+        return (
+            self.coordinates.to_serializable(),
+            [m.to_serializable() for m in self.measurements],
+        )
+
+    @staticmethod
+    def from_serializable(
+        serialized: tuple[list[float], list[tuple[int, int, int]]],
+    ) -> Detector:
+        """Return a detector instance from a serializable representation.
+
+        Args:
+            serialized: a tuple containing two lists:
+                - The first list contains the coordinates of the detector.
+                - The second list contains the measurements in the detector.
+
+        Returns:
+            A Detector instance.
+        """
+        return Detector(
+            frozenset(Measurement.from_serializable(m) for m in serialized[1]),
+            StimCoordinates.from_serializable(serialized[0]),
+        )

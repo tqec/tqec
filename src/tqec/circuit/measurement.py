@@ -117,6 +117,28 @@ class Measurement(AbstractMeasurement):
     def map_qubit(self, qubit_map: Mapping[GridQubit, GridQubit]) -> Measurement:
         return Measurement(qubit_map[self.qubit], self.offset)
 
+    def to_serializable(self) -> tuple[int, int, int]:
+        """Returns a serializable representation of the measurement.
+
+        Returns:
+            a list of three integers representing the qubit coordinates and the
+            negative offset.
+        """
+        return (self.qubit.x, self.qubit.y, self.offset)
+
+    @staticmethod
+    def from_serializable(serialized: tuple[int, int, int]) -> Measurement:
+        """Returns a measurement instance from a serializable representation.
+
+        Args:
+            serialized: a tuple of three integers representing the qubit
+                coordinates and the negative offset.
+
+        Returns:
+            a Measurement instance.
+        """
+        return Measurement(GridQubit(serialized[0], serialized[1]), serialized[2])
+
 
 def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
     """Get all the measurements found in the provided circuit.
