@@ -353,7 +353,7 @@ class DetectorDatabase:
     def to_serializable(
         self,
     ) -> tuple[
-        Sequence[Plaquette], list[tuple[CompactKeyType, frozenset[CompactDetectorType]]]
+        Sequence[Plaquette], list[tuple[CompactKeyType, list[CompactDetectorType]]]
     ]:
         """Convert the database to a compact serializable format.
         Returns:
@@ -373,14 +373,14 @@ class DetectorDatabase:
             compact_mapping.append(
                 (
                     key.to_serializable(unique_plaquettes)[1],
-                    frozenset({detector.to_serializable() for detector in detectors}),
+                    [detector.to_serializable() for detector in detectors],
                 )
             )
         return unique_plaquettes, compact_mapping
 
     @staticmethod
     def from_serializable(
-        serializable: list[tuple[CompactKeyType, frozenset[CompactDetectorType]]],
+        serializable: list[tuple[CompactKeyType, list[CompactDetectorType]]],
         unique_plaquettes: Sequence[Plaquette],
     ) -> DetectorDatabase:
         mapping = {}
