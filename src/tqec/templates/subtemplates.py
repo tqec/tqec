@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import typing
 from dataclasses import dataclass
 from typing import Sequence
 
@@ -86,7 +87,9 @@ class UniqueSubTemplates:
 
     def __post_init__(self) -> None:
         # We do not need a valid subtemplate for the 0 index.
-        indices = frozenset(numpy.unique(self.subtemplate_indices)) - {0}
+        indices = frozenset(numpy.unique(self.subtemplate_indices)) - {
+            typing.cast(numpy.int_, 0)
+        }
         if not indices.issubset(self.subtemplates.keys()):
             raise TQECException(
                 "Found an index in subtemplate_indices that does "
@@ -230,8 +233,10 @@ def get_spatially_distinct_subtemplates(
     # Start by shifting by 1.
     inverse_indices += 1
     subtemplates_by_indices = {
-        i + 1: situation for i, situation in enumerate(unique_situations)
+        i + 1: typing.cast(npt.NDArray[numpy.int_], situation)
+        for i, situation in enumerate(unique_situations)
     }
+    final_indices: npt.NDArray[numpy.int_]
     if avoid_zero_plaquettes:
         final_indices = numpy.zeros((y * x,), dtype=numpy.int_)
         final_indices[ignored_flattened_indices] = 0
