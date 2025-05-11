@@ -204,3 +204,12 @@ def test_detector_database_translation_invariance() -> None:
     detectors = db.get_detectors((translated_subtemplate,), (translated_plaquettes,))
     assert detectors is not None
     assert detectors == DETECTORS[0]
+
+
+def test_detector_database_key_serialization() -> None:
+    dbkey = _DetectorDatabaseKey(SUBTEMPLATES[1:5], PLAQUETTE_COLLECTIONS[1:5])
+    unique_plaquettes, serialized_key = dbkey.to_serializable()
+    deserialized_key = _DetectorDatabaseKey.from_serializable(
+        serialized_key, unique_plaquettes
+    )
+    assert deserialized_key == dbkey

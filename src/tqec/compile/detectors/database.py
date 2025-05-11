@@ -16,9 +16,12 @@ from tqec.circuit.schedule import (
 )
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.generation import generate_circuit_from_instantiation
-from tqec.plaquette.plaquette import Plaquettes
+from tqec.compile.specs.library.generators.utils import PlaquetteMapper
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
+from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Shift2D
 
 
@@ -138,6 +141,81 @@ class _DetectorDatabaseKey:
             moments.extend(circuit.moments)
             schedule.append_schedule(circuit.schedule)
         return ScheduledCircuit(moments, schedule, qubit_map)
+
+    def to_serializable(
+        self,
+        unique_plaquettes: Sequence[Plaquette] | None = None,
+    ) -> tuple[
+        Sequence[Plaquette], tuple[Sequence[SubTemplateType], Sequence[dict[int, int]]]
+    ]:
+        """Convert the key to a compact serializable format.
+
+        Returns:
+            A tuple containing
+            1. A list of unique plaquettes.
+            2. Subtemplates
+            3. A list of mapping between integers and plaquette indices in the list of unique plaquettes.
+        """
+        if not unique_plaquettes:
+            # Get unique plaquettes from plaquettes_by_timestep
+            unique_plaquettes_set = {
+                plaquette
+                for plaquettes in self.plaquettes_by_timestep
+                for plaquette in plaquettes.collection.values()
+            }
+            unique_plaquettes = list(unique_plaquettes_set)
+
+        plaquette_to_indices = {
+            plaquette: i for i, plaquette in enumerate(unique_plaquettes)
+        }
+
+        # Create mappings between integers and plaquette indices
+        plaquette_indices_by_timestep = []
+        for plaquettes in self.plaquettes_by_timestep:
+            mapping = {}
+            for index, plaquette in plaquettes.collection.items():
+                mapping[index] = plaquette_to_indices[plaquette]
+            plaquette_indices_by_timestep.append(mapping)
+
+        return unique_plaquettes, (self.subtemplates, plaquette_indices_by_timestep)
+
+    @staticmethod
+    def from_serializable(
+        serializable: tuple[Sequence[SubTemplateType], Sequence[dict[int, int]]],
+        unique_plaquettes: Sequence[Plaquette],
+    ) -> _DetectorDatabaseKey:
+        """Convert the compact serializable format back to a key.
+
+        Args:
+            serializable: A tuple containing
+                1. A list of unique plaquettes.
+                2. Subtemplates
+                3. A list of mapping between integers and plaquette indices in the list of unique plaquettes.
+
+        Returns:
+            The reconstructed key.
+        """
+        subtemplates, plaquette_indices_by_timestep = serializable
+        plaquettes_by_timestep = []
+        for mapping in plaquette_indices_by_timestep:
+            plaquettes = {}
+            for index, plaquette_index in mapping.items():
+                if plaquette_index < 0 or plaquette_index >= len(unique_plaquettes):
+                    raise TQECException(
+                        f"Invalid plaquette index {plaquette_index} for index {index}."
+                    )
+                plaquettes[index] = unique_plaquettes[plaquette_index]
+            plaquettes_by_timestep.append(
+                Plaquettes(
+                    FrozenDefaultDict(
+                        plaquettes,
+                        default_value=PlaquetteMapper().get_plaquette(
+                            RPNGDescription.empty()
+                        ),
+                    )
+                )
+            )
+        return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
 
 
 @dataclass
@@ -270,21 +348,39 @@ class DetectorDatabase:
     def __len__(self) -> int:
         return len(self.mapping)
 
-    def to_serializable(self):
-        compact_mapping = {}
+    def to_serializable(self) -> tuple:
+        """Convert the database to a compact serializable format.
+        Returns:
+            A list of tuples, each containing:
+            1. The serialized key.
+            2. The serialized detectors.
+        """
+        compact_mapping = []
+        # Get unique plaquettes from all keys
+        unique_plaquettes = set()
+        for key in self.mapping.keys():
+            for plaquettes in key.plaquettes_by_timestep:
+                unique_plaquettes.update(plaquettes.collection.values())
+        unique_plaquettes = list(unique_plaquettes)
+
         for key, detectors in self.mapping.items():
-            compact_mapping[key] = [
-                detector.to_serializable() for detector in detectors
-            ]
-        return compact_mapping
+            compact_mapping.append(
+                (
+                    key.to_serializable(unique_plaquettes),
+                    [detector.to_serializable() for detector in detectors],
+                )
+            )
+        return unique_plaquettes, compact_mapping
 
     @staticmethod
-    def from_serializable(serializable: dict) -> DetectorDatabase:
+    def from_serializable(
+        serializable: list, unique_plaquettes: Sequence[Plaquette]
+    ) -> DetectorDatabase:
         mapping = {}
-        for key, detectors in serializable.items():
-            mapping[key] = frozenset(
-                Detector.from_serializable(detector) for detector in detectors
-            )
+        for item in serializable:
+            key = _DetectorDatabaseKey.from_serializable(item[0], unique_plaquettes)
+            detectors = frozenset(Detector.from_serializable(d) for d in item[1])
+            mapping[key] = detectors
         return DetectorDatabase(mapping)
 
     def to_file(self, filepath: Path) -> None:
@@ -297,8 +393,10 @@ class DetectorDatabase:
     @staticmethod
     def from_file(filepath: Path) -> DetectorDatabase:
         with open(filepath, "rb") as f:
-            serializable = pickle.load(f)
-            database = DetectorDatabase.from_serializable(serializable)
+            unique_plaquettes, serializable = pickle.load(f)
+            database = DetectorDatabase.from_serializable(
+                serializable, unique_plaquettes
+            )
             if not isinstance(database, DetectorDatabase):
                 raise TQECException(
                     f"Found the Python type {type(database).__name__} in the "
