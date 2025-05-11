@@ -11,34 +11,12 @@
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-   
-      merge_scheduled_circuits
-   
    
 
    
    
-   .. rubric:: Classes
-
-   .. autosummary::
-      :toctree:
-   
-      QubitMap
-      ScheduledCircuit
-   
    
 
    
-   
-   .. rubric:: Exceptions
-
-   .. autosummary::
-      :toctree:
-   
-      ScheduleException
    
    

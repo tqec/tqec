@@ -11,13 +11,6 @@
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-   
-      round_or_fail
-   
    
 
    
@@ -28,17 +21,8 @@
       :toctree:
    
       Basis
-      BlockPosition2D
-      Direction3D
-      LinearFunction
       NoiseModel
       Orientation
-      PatchStyle
-      PhysicalQubitPosition2D
-      PlaquettePosition2D
-      Position3D
-      Shift2D
-      SignedDirection3D
    
    
 

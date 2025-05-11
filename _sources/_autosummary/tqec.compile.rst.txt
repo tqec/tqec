@@ -17,20 +17,10 @@
       :toctree:
    
       compile_block_graph
-      generate_circuit
    
    
 
    
-   
-   .. rubric:: Classes
-
-   .. autosummary::
-      :toctree:
-   
-      CubeSpec
-      PipeSpec
-      TopologicalComputationGraph
    
    
 

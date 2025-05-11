@@ -491,7 +491,7 @@ quantum operations that are applied within the cube. Currently we have the follo
 </figcaption>
 </figure>
 <section id="zxcube">
-<span id="id4"></span><h3><a class="reference internal" href="../_autosummary/tqec.computation.ZXCube.html#tqec.computation.ZXCube" title="tqec.computation.ZXCube"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXCube</span></code></a><a class="headerlink" href="#zxcube" title="Link to this heading">#</a></h3>
+<span id="id4"></span><h3><code class="xref py py-class docutils literal notranslate"><span class="pre">ZXCube</span></code><a class="headerlink" href="#zxcube" title="Link to this heading">#</a></h3>
 <p>A cube whose faces are of <code class="docutils literal notranslate"><span class="pre">X</span></code> (red) or <code class="docutils literal notranslate"><span class="pre">Z</span></code> (blue) type. We assume each pair of opposite faces are of the same type.
 Then the kind can be specified by the type of the faces looking from the XYZ directions. For example, the <cite>ZXZ</cite> cube in the
 figure above has <code class="docutils literal notranslate"><span class="pre">Z</span></code> type faces along the X direction, <code class="docutils literal notranslate"><span class="pre">X</span></code> type faces along the Y direction, and <code class="docutils literal notranslate"><span class="pre">Z</span></code> type faces along the Z direction.</p>
@@ -515,13 +515,13 @@ the hook errors from decreasing the circuit-level code distance.</p>
 </section>
 </section>
 <section id="yhalfcube">
-<h3><a class="reference internal" href="../_autosummary/tqec.computation.YHalfCube.html#tqec.computation.YHalfCube" title="tqec.computation.YHalfCube"><code class="xref py py-class docutils literal notranslate"><span class="pre">YHalfCube</span></code></a><a class="headerlink" href="#yhalfcube" title="Link to this heading">#</a></h3>
+<h3><code class="xref py py-class docutils literal notranslate"><span class="pre">YHalfCube</span></code><a class="headerlink" href="#yhalfcube" title="Link to this heading">#</a></h3>
 <p>A green cube representing inplace Y-basis logical initialization or measurement as proposed in <a class="reference external" href="https://quantum-journal.org/papers/q-2024-04-08-1310/">this paper</a>.
 The cube’s function, whether for initialization or measurement, is determined by its connection to other cubes, either upwards or downwards.</p>
 <p>A <code class="docutils literal notranslate"><span class="pre">YHalfCube</span></code> occupies <span class="math notranslate nohighlight">\(\approx d^3 /2\)</span> spacetime volume, where <span class="math notranslate nohighlight">\(d\)</span> is the code distance.</p>
 </section>
 <section id="port">
-<h3><a class="reference internal" href="../_autosummary/tqec.computation.Port.html#tqec.computation.Port" title="tqec.computation.Port"><code class="xref py py-class docutils literal notranslate"><span class="pre">Port</span></code></a><a class="headerlink" href="#port" title="Link to this heading">#</a></h3>
+<h3><code class="xref py py-class docutils literal notranslate"><span class="pre">Port</span></code><a class="headerlink" href="#port" title="Link to this heading">#</a></h3>
 <p>A port is a special type of cube that represents the input or output of a logical computation.
 It functions as a virtual cube, serving only as a placeholder for other sources or sinks of logical information.
 Therefore, ports are not visualized in spacetime diagrams and occupy zero spacetime volume.</p>
