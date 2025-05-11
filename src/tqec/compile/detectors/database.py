@@ -14,7 +14,7 @@ from tqec.circuit.schedule import (
     ScheduledCircuit,
     relabel_circuits_qubit_indices,
 )
-from tqec.compile.detectors.detector import Detector
+from tqec.compile.detectors.detector import CompactDetectorType, Detector
 from tqec.compile.generation import generate_circuit_from_instantiation
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
@@ -23,6 +23,10 @@ from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Shift2D
+
+
+# Type alias for the compact `_DetectorDatabaseKey` representation.
+CompactKeyType = tuple[Sequence[SubTemplateType], Sequence[dict[int, int]]]
 
 
 @dataclass(frozen=True)
@@ -145,9 +149,7 @@ class _DetectorDatabaseKey:
     def to_serializable(
         self,
         unique_plaquettes: Sequence[Plaquette] | None = None,
-    ) -> tuple[
-        Sequence[Plaquette], tuple[Sequence[SubTemplateType], Sequence[dict[int, int]]]
-    ]:
+    ) -> tuple[Sequence[Plaquette], CompactKeyType]:
         """Convert the key to a compact serializable format.
 
         Returns:
@@ -181,7 +183,7 @@ class _DetectorDatabaseKey:
 
     @staticmethod
     def from_serializable(
-        serializable: tuple[Sequence[SubTemplateType], Sequence[dict[int, int]]],
+        serializable: CompactKeyType,
         unique_plaquettes: Sequence[Plaquette],
     ) -> _DetectorDatabaseKey:
         """Convert the compact serializable format back to a key.
@@ -348,7 +350,11 @@ class DetectorDatabase:
     def __len__(self) -> int:
         return len(self.mapping)
 
-    def to_serializable(self) -> tuple:
+    def to_serializable(
+        self,
+    ) -> tuple[
+        Sequence[Plaquette], list[tuple[CompactKeyType, frozenset[CompactDetectorType]]]
+    ]:
         """Convert the database to a compact serializable format.
         Returns:
             A list of tuples, each containing:
@@ -357,24 +363,25 @@ class DetectorDatabase:
         """
         compact_mapping = []
         # Get unique plaquettes from all keys
-        unique_plaquettes = set()
+        unique_plaquettes_set: set[Plaquette] = set()
         for key in self.mapping.keys():
             for plaquettes in key.plaquettes_by_timestep:
-                unique_plaquettes.update(plaquettes.collection.values())
-        unique_plaquettes = list(unique_plaquettes)
+                unique_plaquettes_set.update(plaquettes.collection.values())
+        unique_plaquettes = list(unique_plaquettes_set)
 
         for key, detectors in self.mapping.items():
             compact_mapping.append(
                 (
-                    key.to_serializable(unique_plaquettes),
-                    [detector.to_serializable() for detector in detectors],
+                    key.to_serializable(unique_plaquettes)[1],
+                    frozenset({detector.to_serializable() for detector in detectors}),
                 )
             )
         return unique_plaquettes, compact_mapping
 
     @staticmethod
     def from_serializable(
-        serializable: list, unique_plaquettes: Sequence[Plaquette]
+        serializable: list[tuple[CompactKeyType, frozenset[CompactDetectorType]]],
+        unique_plaquettes: Sequence[Plaquette],
     ) -> DetectorDatabase:
         mapping = {}
         for item in serializable:

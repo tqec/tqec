@@ -12,6 +12,9 @@ from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.utils.exceptions import TQECException
 
 
+CompactDetectorType = tuple[list[float], list[tuple[int, int, int]]]
+
+
 @dataclass(frozen=True)
 class Detector:
     """Represent a detector as a set of measurements and optional
@@ -94,7 +97,7 @@ class Detector:
             self.coordinates.offset_spatially_by(x, y),
         )
 
-    def to_serializable(self) -> tuple[list[float], list[tuple[int, int, int]]]:
+    def to_serializable(self) -> CompactDetectorType:
         """Convert the detector to a serializable format.
 
         Returns:
