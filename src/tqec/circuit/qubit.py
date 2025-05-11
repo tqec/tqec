@@ -8,8 +8,8 @@ qubit-related information from ``stim.Circuit`` instances.
 
 from __future__ import annotations
 
-import typing as ty
 from collections import defaultdict
+from typing import cast
 
 import stim
 
@@ -132,7 +132,7 @@ def count_qubit_accesses(circuit: stim.Circuit) -> dict[int, int]:
                 # Ignore targets that are not qubit targets.
                 if not target.is_qubit_target:
                     continue
-                qi = ty.cast(int, target.qubit_value)
+                qi = cast(int, target.qubit_value)
                 counter[qi] += 1
     return counter
 

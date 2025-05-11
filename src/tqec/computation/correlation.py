@@ -5,15 +5,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import reduce
-from typing import Iterator, TYPE_CHECKING
-
-from pyzx.graph.graph_s import GraphS
+from typing import TYPE_CHECKING, Iterator
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
 if TYPE_CHECKING:
+    from pyzx.graph.graph_s import GraphS
     from pyzx.pauliweb import PauliWeb
 
 

@@ -19,7 +19,6 @@ from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.template import RPNGTemplate
-from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
 from tqec.utils.exceptions import TQECException
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
@@ -58,6 +57,8 @@ class LayerVisualiser(NodeWalker):
 
     @override
     def visit_node(self, node: LayerNode) -> None:
+        from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
+
         if not node.is_leaf:
             return
         layer = node._layer
