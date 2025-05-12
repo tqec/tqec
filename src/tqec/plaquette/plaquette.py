@@ -7,6 +7,7 @@ from typing import Callable, Collection, Iterable, Literal, Mapping
 import stim
 from typing_extensions import override
 
+from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule import ScheduledCircuit
 from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
@@ -78,6 +79,67 @@ class Plaquette:
     def __str__(self) -> str:
         return self.name
 
+    def project_on_data_qubit_indices(
+        self, data_qubits_indices: list[int]
+    ) -> Plaquette:
+        """Project the plaquette on the provided qubits and return a new
+        plaquette with the remaining qubits and circuit.
+
+        This method is useful for deriving a boundary plaquette from a integral
+        plaquette.
+
+        Args:
+            data_qubits: data-qubit indices that will be kept in the returned
+                plaquette.
+
+        Returns:
+            A new plaquette with projected qubits and circuit. The qubits are
+            updated to only keep the provided ``data_qubits_indices``. The
+            circuit is also updated to only use the kept qubits and empty
+            moments with the corresponding schedules are removed.
+        """
+        kept_qubits = [
+            q
+            for i, q in self.qubits.data_qubits_with_indices
+            if i in data_qubits_indices
+        ]
+        return self.project_on_data_qubits(kept_qubits)
+
+    def project_on_data_qubits(self, data_qubits: list[GridQubit]) -> Plaquette:
+        """Project the plaquette on the provided qubits and return a new
+        plaquette with the remaining qubits and circuit.
+
+        This method is useful for deriving a boundary plaquette from a integral
+        plaquette.
+
+        Args:
+            data_qubits: qubits that will be kept in the returned plaquette.
+
+        Returns:
+            A new plaquette with projected qubits and circuit. The qubits are
+            updated to only keep the provided ``data_qubits``. The circuit is
+            also updated to only use the kept qubits and empty moments with the
+            corresponding schedules are removed.
+        """
+        removed_data_qubit_indices = [
+            i for i, q in self.qubits.data_qubits_with_indices if q not in data_qubits
+        ]
+        new_plaquette_qubits = PlaquetteQubits(data_qubits, self.qubits.syndrome_qubits)
+        new_scheduled_circuit = self.circuit.filter_by_qubits(
+            new_plaquette_qubits.all_qubits
+        )
+        debug_info = self.debug_information
+        if debug_info is not None:
+            debug_info = debug_info.with_data_qubits_removed(removed_data_qubit_indices)
+
+        return Plaquette(
+            f"{self.name}_" + "_".join(map(str, removed_data_qubit_indices)),
+            new_plaquette_qubits,
+            new_scheduled_circuit,
+            self.mergeable_instructions,
+            debug_info,
+        )
+
     def project_on_boundary(
         self, projected_orientation: PlaquetteOrientation
     ) -> Plaquette:
@@ -130,6 +192,17 @@ class Plaquette:
         """
         return bool(
             self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit()
+        )
+
+    def with_debug_information(
+        self, debug_information: PlaquetteDebugInformation
+    ) -> Plaquette:
+        return Plaquette(
+            self.name,
+            self.qubits,
+            self.circuit,
+            self.mergeable_instructions,
+            debug_information,
         )
 
 

@@ -133,7 +133,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
             qubits=new_plaquette_qubits,
             circuit=filtered_circuit,
             mergeable_instructions=(
-                RESET_INSTRUCTION_NAMES | MEASUREMENT_INSTRUCTION_NAMES
+                RESET_INSTRUCTION_NAMES | MEASUREMENT_INSTRUCTION_NAMES | {"H"}
             ),
             debug_information=PlaquetteDebugInformation(rpng_description),
         )

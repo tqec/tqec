@@ -94,11 +94,6 @@ class LookbackStack:
                 "means that we are not in a REPEAT block. Cannot call "
                 "close_repeat_block()."
             )
-        if repetitions < 1:
-            raise TQECException(
-                "Cannot have a REPEAT block with less than 1 repetitions. Got "
-                f"{repetitions} repetitions."
-            )
         self._stack[-2].extend(self._stack[-1], repetitions)
         self._stack.pop(-1)
 
@@ -197,7 +192,9 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             )
         self._k = k
         self._manhattan_radius = manhattan_radius
-        self._database = detector_database
+        self._database = (
+            detector_database if detector_database is not None else DetectorDatabase()
+        )
         self._only_use_database = only_use_database
         self._lookback_size = lookback
         self._lookback_stack = LookbackStack()
