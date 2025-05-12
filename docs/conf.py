@@ -53,6 +53,11 @@ extensions = [
     "sphinxcontrib.mermaid",
     # Adds a copy button to each code block in the documentation
     # https://sphinx-copybutton.readthedocs.io/en/latest/
+    "jupyter_sphinx",
+    # make code blocks in the documentation executable
+    # https://jupyter-sphinx.readthedocs.io/en/latest/
+    "sphinx.ext.duration",
+    # measure documentation build time
     "sphinx_copybutton",
     # Allows us to add references to a page
     # https://sphinxcontrib-bibtex.readthedocs.io/en/latest/
