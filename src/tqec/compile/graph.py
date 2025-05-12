@@ -69,8 +69,8 @@ from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
 from tqec.utils.noise_model import NoiseModel
-from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
+from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 from tqec.utils.scale import PhysicalQubitScalable2D
 
 
@@ -127,6 +127,21 @@ class TopologicalComputationGraph:
                 f"entry at {layout_position}."
             )
         self._blocks[layout_position] = block
+
+    def get_cube(self, position: BlockPosition3D) -> Block:
+        """Recover the :class:`.Block` instance at the provided ``position``.
+
+        Args:
+            position: position of the block to recover.
+
+        Raises:
+            KeyError: if the provided ``position`` has no block associated.
+
+        Returns:
+            the :class:`.Block` instance at the provided ``position``.
+        """
+        layout_position = LayoutPosition3D.from_block_position(position)
+        return self._blocks[layout_position]
 
     def _check_any_pipe(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
         """Check the validity of a pipe between ``source`` and ``sink``.

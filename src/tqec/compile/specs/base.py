@@ -110,7 +110,6 @@ class PipeSpec:
     update the layers of the `CompiledBlock`s based on the plaquettes in the
     `Substitution`.
 
-
     Attributes:
         cube_specs: the ordered cube specifications. By convention, the cube
             corresponding to ``cube_specs[0]`` should have a smaller position
