@@ -96,9 +96,7 @@ class GridQubit:
             a new instance of :class:`GridQubit` with the provided
             ``x`` and ``y``.
         """
-        x = cast(int, data["x"])
-        y = cast(int, data["y"])
-        return GridQubit(x, y)
+        return GridQubit(data["x"], data["y"])
 
 
 """Names of the `stim` instructions that are considered as annotations."""
