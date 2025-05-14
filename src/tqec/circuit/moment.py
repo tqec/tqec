@@ -389,7 +389,7 @@ class Moment:
         The dictionary is intended to be used as a JSON object.
         """
         return {
-            "circuit": dict(self._circuit.__dict__),
+            "circuit": str(self._circuit),
             "used_qubits": list(self._used_qubits),
         }
 
@@ -404,8 +404,7 @@ class Moment:
             a new instance of :class:`Moment` with the provided ``circuit`` and
             ``used_qubits``.
         """
-        circuit = stim.Circuit()
-        circuit.__dict__.update(data["circuit"])
+        circuit = stim.Circuit(data["circuit"])
         used_qubits = set(data["used_qubits"])
         return Moment(circuit, used_qubits=used_qubits, _avoid_checks=True)
 

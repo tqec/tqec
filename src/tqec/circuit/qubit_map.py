@@ -122,8 +122,8 @@ class QubitMap:
         The dictionary is intended to be used as a JSON object.
         """
         return {
-            "i2q": {qi: q.to_dict() for qi, q in self.i2q.items()},
-            "q2i": {q.to_dict(): qi for qi, q in self.i2q.items()},
+            "i2q": [[qi, q.to_dict()] for qi, q in self.i2q.items()],
+            "q2i": [[q.to_dict(), qi] for qi, q in self.i2q.items()],
         }
 
     @staticmethod
@@ -137,7 +137,7 @@ class QubitMap:
             a new instance of :class:`QubitMap` with the provided
             ``i2q`` and ``q2i``.
         """
-        i2q = {qi: GridQubit.from_dict(q) for qi, q in data["i2q"].items()}
+        i2q = {int(qi): GridQubit.from_dict(q) for qi, q in data["i2q"]}
         return QubitMap(i2q)
 
 
