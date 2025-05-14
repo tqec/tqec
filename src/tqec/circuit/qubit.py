@@ -96,8 +96,8 @@ class GridQubit:
             a new instance of :class:`GridQubit` with the provided
             ``x`` and ``y``.
         """
-        x = ty.cast(int, data["x"])
-        y = ty.cast(int, data["y"])
+        x = cast(int, data["x"])
+        y = cast(int, data["y"])
         return GridQubit(x, y)
 
 
