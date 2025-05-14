@@ -4,18 +4,19 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
-
-from pyzx.graph.graph_s import GraphS
+from typing import TYPE_CHECKING
 
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface, ZXEdge
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe
-from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
+
+if TYPE_CHECKING:
+    from pyzx.graph.graph_s import GraphS
 
 
 @dataclass(frozen=True)
@@ -268,6 +269,8 @@ def compile_correlation_surface_to_abstract_observable(
 def _check_correlation_surface_validity(
     correlation_surface: CorrelationSurface, g: GraphS
 ) -> None:
+    from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase
+
     """Check the ZX graph can support the correlation surface."""
     # 1. Check the vertices in the correlation surface are in the graph
     if missing_vertices := (correlation_surface.span_vertices() - g.vertex_set()):

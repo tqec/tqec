@@ -5,10 +5,10 @@ from __future__ import annotations
 from fractions import Fraction
 from typing import Mapping
 
-import pyzx as zx
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 from pyzx.graph.graph_s import GraphS
+from pyzx.utils import EdgeType, VertexType
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.interop.pyzx.utils import cube_kind_to_zx
@@ -63,17 +63,17 @@ class PositionedZX:
             vt = g.type(v)
             phase = g.phase(v)
             if (vt, phase) not in [
-                (zx.VertexType.Z, 0),
-                (zx.VertexType.X, 0),
-                (zx.VertexType.Z, Fraction(1, 2)),
-                (zx.VertexType.BOUNDARY, 0),
+                (VertexType.Z, 0),
+                (VertexType.X, 0),
+                (VertexType.Z, Fraction(1, 2)),
+                (VertexType.BOUNDARY, 0),
             ]:
                 raise TQECException(
                     f"Unsupported vertex type and phase: {vt} and {phase}."
                 )
             # 4. Check Boundary and Z(1/2) spiders are dangling, additionally
             # Z(1/2) connects to time direction
-            if vt == zx.VertexType.BOUNDARY or phase == Fraction(1, 2):
+            if vt == VertexType.BOUNDARY or phase == Fraction(1, 2):
                 if g.vertex_degree(v) != 1:
                     raise TQECException(
                         "Boundary or Z(1/2) spider must be dangling, but got "
@@ -144,7 +144,7 @@ class PositionedZX:
             p2v[cube.position] = v
 
         for edge in block_graph.pipes:
-            et = zx.EdgeType.HADAMARD if edge.kind.has_hadamard else zx.EdgeType.SIMPLE
+            et = EdgeType.HADAMARD if edge.kind.has_hadamard else EdgeType.SIMPLE
             g.add_edge((p2v[edge.u.position], p2v[edge.v.position]), et)
 
         return PositionedZX(g, v2p)
