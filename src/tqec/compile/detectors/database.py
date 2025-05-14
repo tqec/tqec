@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import pickle
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Literal, Sequence
+
+import numpy
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.moment import Moment
@@ -16,7 +19,7 @@ from tqec.circuit.schedule import (
 )
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.generation import generate_circuit_from_instantiation
-from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
@@ -138,6 +141,46 @@ class _DetectorDatabaseKey:
             moments.extend(circuit.moments)
             schedule.append_schedule(circuit.schedule)
         return ScheduledCircuit(moments, schedule, qubit_map)
+
+    def to_dict(
+        self, plaquettes_to_indices: dict[Plaquette, int] | None = None
+    ) -> dict[str, Any]:
+        """Return a dictionary representation of the key.
+
+        Returns:
+            a dictionary with the keys ``subtemplates`` and
+            ``plaquettes_by_timestep`` and their corresponding values.
+        """
+        return {
+            "subtemplates": [st.tolist() for st in self.subtemplates],
+            "plaquettes_by_timestep": [
+                p.to_dict(plaquettes_to_indices) for p in self.plaquettes_by_timestep
+            ],
+        }
+
+    @staticmethod
+    def from_dict(
+        data: dict[str, Any],
+        plaquettes: Sequence[Plaquette] | None = None,
+    ) -> _DetectorDatabaseKey:
+        """Return a key from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``subtemplates`` and
+                ``plaquettes_by_timestep``.
+            plaquettes: list of :class:`Plaquette` instances to use to build the
+                :class:`Plaquettes` instances. If `None`, the function will
+                create a new list of :class:`Plaquette` instances.
+
+        Returns:
+            a new instance of :class:`_DetectorDatabaseKey` with the provided
+            ``subtemplates`` and ``plaquettes_by_timestep``.
+        """
+        subtemplates = [numpy.array(st) for st in data["subtemplates"]]
+        plaquettes_by_timestep = [
+            Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]
+        ]
+        return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
 
 
 @dataclass
@@ -270,16 +313,69 @@ class DetectorDatabase:
     def __len__(self) -> int:
         return len(self.mapping)
 
-    def to_file(self, filepath: Path) -> None:
-        if not filepath.parent.exists():
-            filepath.parent.mkdir()
-        with open(filepath, "wb") as f:
-            pickle.dump(self, f)
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the database.
+
+        Returns:
+            a dictionary with the keys ``mapping`` and ``frozen`` and their
+            corresponding values.
+        """
+        return {
+            "mapping": [
+                [key.to_dict(), [d.to_dict() for d in detectors]]
+                for key, detectors in self.mapping.items()
+            ],
+            "frozen": self.frozen,
+        }
 
     @staticmethod
-    def from_file(filepath: Path) -> DetectorDatabase:
+    def from_dict(data: dict[str, Any]) -> DetectorDatabase:
+        """Return a database from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``mapping`` and ``frozen``.
+
+        Returns:
+            a new instance of :class:`DetectorDatabase` with the provided
+            ``mapping`` and ``frozen``.
+        """
+        mapping = {
+            _DetectorDatabaseKey.from_dict(key): frozenset(
+                Detector.from_dict(d) for d in detectors
+            )
+            for key, detectors in data["mapping"]
+        }
+        return DetectorDatabase(mapping, data["frozen"])
+
+    def to_file(
+        self, filepath: Path, format: Literal["pickle", "json"] = "pickle"
+    ) -> None:
+        """Save the database to a file.
+        Args:
+            filepath: path to the file where the database should be saved.
+            format: format to use to save the database. Currently only
+                "pickle" and "json" are supported.
+        """
+        if not filepath.parent.exists():
+            filepath.parent.mkdir()
+        if format == "pickle":
+            with open(filepath, "wb") as f:
+                pickle.dump(self, f)
+        else:
+            filepath = filepath.with_suffix(".json")
+            with open(filepath, "w") as f:
+                json.dump(self.to_dict(), f)
+
+    @staticmethod
+    def from_file(
+        filepath: Path, format: Literal["pickle", "json"] = "pickle"
+    ) -> DetectorDatabase:
         with open(filepath, "rb") as f:
-            database = pickle.load(f)
+            if format == "pickle":
+                database = pickle.load(f)
+            else:
+                data = json.load(f)
+                database = DetectorDatabase.from_dict(data)
             if not isinstance(database, DetectorDatabase):
                 raise TQECException(
                     f"Found the Python type {type(database).__name__} in the "

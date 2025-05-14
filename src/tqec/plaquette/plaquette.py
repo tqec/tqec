@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass, field
-from typing import Callable, Collection, Iterable, Literal, Mapping
+from typing import Any, Callable, Collection, Iterable, Literal, Mapping, Sequence
 
 import stim
 from typing_extensions import override
@@ -132,6 +132,47 @@ class Plaquette:
             self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit()
         )
 
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the plaquette.
+
+        The dictionary is intended to be used as a JSON object.
+        """
+        return {
+            "name": self.name,
+            "qubits": self.qubits.to_dict(),
+            "circuit": self.circuit.to_dict(),
+            "mergeable_instructions": list(self.mergeable_instructions),
+            "debug_information": self.debug_information.to_dict(),
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> Plaquette:
+        """Return a plaquette from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``name``, ``qubits``, ``circuit``,
+                ``mergeable_instructions`` and ``debug_information``.
+
+        Returns:
+            a new instance of :class:`Plaquette` with the provided
+            ``name``, ``qubits``, ``circuit``, ``mergeable_instructions`` and
+            ``debug_information``.
+        """
+        name = data["name"]
+        qubits = PlaquetteQubits.from_dict(data["qubits"])
+        circuit = ScheduledCircuit.from_dict(data["circuit"])
+        mergeable_instructions = frozenset(data["mergeable_instructions"])
+        debug_information = PlaquetteDebugInformation.from_dict(
+            data["debug_information"]
+        )
+        return Plaquette(
+            name,
+            qubits,
+            circuit,
+            mergeable_instructions,
+            debug_information,
+        )
+
 
 @dataclass(frozen=True)
 class Plaquettes:
@@ -207,6 +248,72 @@ class Plaquettes:
 
     def items(self) -> Iterable[tuple[int, Plaquette]]:
         return self.collection.items()
+
+    def to_dict(
+        self, plaquettes_to_indices: dict[Plaquette, int] | None = None
+    ) -> dict[str, Any]:
+        """Return a dictionary representation of the plaquettes.
+
+        The dictionary is intended to be used as a JSON object.
+        """
+        if not plaquettes_to_indices:
+            return {
+                "plaquettes": [
+                    {"index": index, "plaquette": plaquette.to_dict()}
+                    for index, plaquette in self.collection.items()
+                ],
+                "default": self.collection.default_value.to_dict()
+                if self.collection.default_value
+                else None,
+            }
+
+        return {
+            "plaquettes": [
+                {
+                    "index": index,
+                    "plaquette": plaquettes_to_indices[plaquette],
+                }
+                for index, plaquette in self.collection.items()
+            ],
+            "default": plaquettes_to_indices[self.collection.default_value]
+            if self.collection.default_value
+            else None,
+        }
+
+    @staticmethod
+    def from_dict(
+        data: dict[str, Any], plaquettes: Sequence[Plaquette] | None = None
+    ) -> Plaquettes:
+        """Return a collection of plaquettes from its dictionary
+        representation.
+
+        Args:
+            data: dictionary with the keys ``plaquettes`` and ``default``.
+
+        Returns:
+            a new instance of :class:`Plaquettes` with the provided
+            ``plaquettes`` and ``default``.
+        """
+        if plaquettes is None:
+            collection = FrozenDefaultDict(
+                {
+                    int(plaquette["index"]): Plaquette.from_dict(plaquette["plaquette"])
+                    for plaquette in data["plaquettes"]
+                },
+                default_value=Plaquette.from_dict(data["default"])
+                if data["default"]
+                else None,
+            )
+            return Plaquettes(collection)
+
+        collection = FrozenDefaultDict(
+            {
+                int(plaquette["index"]): plaquettes[plaquette["plaquette"]]
+                for plaquette in data["plaquettes"]
+            },
+            default_value=plaquettes[data["default"]] if data["default"] else None,
+        )
+        return Plaquettes(collection)
 
 
 @dataclass(frozen=True)

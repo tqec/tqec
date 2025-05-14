@@ -76,6 +76,30 @@ class GridQubit:
     def __str__(self) -> str:
         return f"Q[{self.x}, {self.y}]"
 
+    def to_dict(self) -> dict[str, int]:
+        """Return a dictionary representation of the qubit.
+
+        Returns:
+            a dictionary with the keys ``x`` and ``y`` and their
+            corresponding values.
+        """
+        return {"x": self.x, "y": self.y}
+
+    @staticmethod
+    def from_dict(data: dict[str, int]) -> GridQubit:
+        """Return a qubit from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``x`` and ``y``.
+
+        Returns:
+            a new instance of :class:`GridQubit` with the provided
+            ``x`` and ``y``.
+        """
+        x = ty.cast(int, data["x"])
+        y = ty.cast(int, data["y"])
+        return GridQubit(x, y)
+
 
 """Names of the `stim` instructions that are considered as annotations."""
 ANNOTATION_INSTRUCTIONS: frozenset[str] = frozenset(

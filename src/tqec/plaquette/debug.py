@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
@@ -41,4 +42,19 @@ class PlaquetteDebugInformation:
                 (corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla
             ),
             self.basis,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "rpng": self.rpng.to_dict() if self.rpng is not None else None,
+            "basis": self.basis.to_dict() if self.basis is not None else None,
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> PlaquetteDebugInformation:
+        return PlaquetteDebugInformation(
+            RPNGDescription.from_dict(data["rpng"])
+            if data["rpng"] is not None
+            else None,
+            PauliBasis.from_dict(data["basis"]) if data["basis"] is not None else None,
         )

@@ -49,3 +49,14 @@ def test_detector_offset_spatially_by(measurement: Measurement) -> None:
         [measurement.offset_spatially_by(45, -2)]
     )
     assert offset_detector.coordinates.to_stim_coordinates() == (46, -1, 0)
+
+
+def test_detector_dict(measurement: Measurement) -> None:
+    detector = Detector(frozenset([measurement]), StimCoordinates(1, 1, 0))
+    detector_dict = detector.to_dict()
+    assert detector_dict["measurements"] == [measurement.to_dict()]
+    assert detector_dict["coordinates"] == StimCoordinates(1, 1, 0).to_dict()
+
+    new_detector = Detector.from_dict(detector_dict)
+    assert new_detector.measurements == frozenset([measurement])
+    assert new_detector.coordinates == StimCoordinates(1, 1, 0)

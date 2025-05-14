@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 import stim
 
@@ -93,3 +94,30 @@ class Detector:
             frozenset(m.offset_spatially_by(x, y) for m in self.measurements),
             self.coordinates.offset_spatially_by(x, y),
         )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the detector.
+
+        Returns:
+            a dictionary with the keys ``measurements`` and ``coordinates`` and
+            their corresponding values.
+        """
+        return {
+            "measurements": [m.to_dict() for m in self.measurements],
+            "coordinates": self.coordinates.to_dict(),
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> Detector:
+        """Return a detector from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``measurements`` and ``coordinates``.
+
+        Returns:
+            a new instance of :class:`Detector` with the provided
+            ``measurements`` and ``coordinates``.
+        """
+        measurements = frozenset(Measurement.from_dict(m) for m in data["measurements"])
+        coordinates = StimCoordinates.from_dict(data["coordinates"])
+        return Detector(measurements, coordinates)
