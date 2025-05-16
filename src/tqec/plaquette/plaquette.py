@@ -137,6 +137,21 @@ class Plaquette:
 
         The dictionary is intended to be used as a JSON object.
         """
+        # TODO:
+        # # If the name is a rpng string, only need to save name
+        # try:
+        #     _ = RPNGDescription.from_string(self.name)
+        # except ValueError:
+        #     return {
+        #         "name": self.name,
+        #         "qubits": self.qubits.to_dict(),
+        #         "circuit": self.circuit.to_dict(),
+        #         "mergeable_instructions": list(self.mergeable_instructions),
+        #         "debug_information": self.debug_information.to_dict(),
+        #     }
+        # return {
+        #     "name": self.name,
+        # }
         return {
             "name": self.name,
             "qubits": self.qubits.to_dict(),
@@ -256,26 +271,20 @@ class Plaquettes:
 
         The dictionary is intended to be used as a JSON object.
         """
-        if not plaquettes_to_indices:
-            return {
-                "plaquettes": [
-                    {"index": index, "plaquette": plaquette.to_dict()}
-                    for index, plaquette in self.collection.items()
-                ],
-                "default": self.collection.default_value.to_dict()
-                if self.collection.default_value
-                else None,
-            }
+
+        def convert(value: Plaquette) -> Any:
+            return (
+                plaquettes_to_indices[value]
+                if plaquettes_to_indices
+                else value.to_dict()
+            )
 
         return {
             "plaquettes": [
-                {
-                    "index": index,
-                    "plaquette": plaquettes_to_indices[plaquette],
-                }
+                {"index": index, "plaquette": convert(plaquette)}
                 for index, plaquette in self.collection.items()
             ],
-            "default": plaquettes_to_indices[self.collection.default_value]
+            "default": convert(self.collection.default_value)
             if self.collection.default_value
             else None,
         }
@@ -284,8 +293,7 @@ class Plaquettes:
     def from_dict(
         data: dict[str, Any], plaquettes: Sequence[Plaquette] | None = None
     ) -> Plaquettes:
-        """Return a collection of plaquettes from its dictionary
-        representation.
+        """Return a collection of plaquettes from its dictionary representation.
 
         Args:
             data: dictionary with the keys ``plaquettes`` and ``default``.
@@ -294,24 +302,21 @@ class Plaquettes:
             a new instance of :class:`Plaquettes` with the provided
             ``plaquettes`` and ``default``.
         """
-        if plaquettes is None:
-            collection = FrozenDefaultDict(
-                {
-                    int(plaquette["index"]): Plaquette.from_dict(plaquette["plaquette"])
-                    for plaquette in data["plaquettes"]
-                },
-                default_value=Plaquette.from_dict(data["default"])
-                if data["default"]
-                else None,
+
+        def convert(item: dict[str, Any]) -> Plaquette:
+            return (
+                Plaquette.from_dict(item["plaquette"])
+                if plaquettes is None
+                else plaquettes[item["plaquette"]]
             )
-            return Plaquettes(collection)
 
         collection = FrozenDefaultDict(
-            {
-                int(plaquette["index"]): plaquettes[plaquette["plaquette"]]
-                for plaquette in data["plaquettes"]
-            },
-            default_value=plaquettes[data["default"]] if data["default"] else None,
+            {int(item["index"]): convert(item) for item in data["plaquettes"]},
+            default_value=(
+                (Plaquette.from_dict(data["default"]) if data["default"] else None)
+                if plaquettes is None
+                else (plaquettes[data["default"]] if data["default"] else None)
+            ),
         )
         return Plaquettes(collection)
 
