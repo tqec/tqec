@@ -17,6 +17,13 @@
 #    1. Toolbar: Plugins (or extensions) > Load TQEC BlockGraph.
 #    2. Select JSON file to import.
 
+# Required modules
+require "sketchup.rb"
+
+# Helper variables
+COMPONENT_FOLDER = "C:/Program Files (x86)/Google/Google SketchUp 8/Components/"
+GRID_SIZE = 3.0  # inches per grid unit
+
 
 module TQEC
   module BackupParser
@@ -166,13 +173,6 @@ module TQEC
   end # Ends module BackupParser
 
   module BlockGraphLoader
-
-    # Required modules
-    require "sketchup.rb"
-
-    # Helper variables
-    COMPONENT_FOLDER = "C:/Program Files (x86)/Google/Google SketchUp 8/Components/"
-    GRID_SIZE = 3.0  # inches per grid unit
 
     # Actions
     def self.load_from_json
