@@ -137,21 +137,8 @@ class Plaquette:
 
         The dictionary is intended to be used as a JSON object.
         """
-        # TODO:
-        # # If the name is a rpng string, only need to save name
-        # try:
-        #     _ = RPNGDescription.from_string(self.name)
-        # except ValueError:
-        #     return {
-        #         "name": self.name,
-        #         "qubits": self.qubits.to_dict(),
-        #         "circuit": self.circuit.to_dict(),
-        #         "mergeable_instructions": list(self.mergeable_instructions),
-        #         "debug_information": self.debug_information.to_dict(),
-        #     }
-        # return {
-        #     "name": self.name,
-        # }
+if self.debug_information.rpng is not None:
+    return {"rpng": str(self.debug_information.rpng)}
         return {
             "name": self.name,
             "qubits": self.qubits.to_dict(),
