@@ -38,7 +38,7 @@ from scipy.spatial.transform import Rotation as R
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import Direction3D, Position3D
+from tqec.utils.position import Direction3D, Position3D, FloatPosition3D
 from tqec.utils.scale import round_or_fail
 
 
@@ -196,3 +196,52 @@ def rotate_position_by_matrix(
     rotated_center = rotation.apply(center_pos)
     rotated_corner = [round_or_fail(float(i) - 0.5) for i in rotated_center]
     return Position3D(*rotated_corner)
+
+
+def rotate_on_import(
+    rotation_matrix: npt.NDArray[np.float32],
+    translation_matrix: npt.NDArray[np.float32],
+    scale_matrix: npt.NDArray[np.float32],
+    kind: BlockKind,
+) -> tuple[FloatPosition3D, BlockKind]:
+    # Calculate rotation
+    rotation_angles = calc_rotation_angles(rotation_matrix)
+
+    # Reject invalid rotations for all other cubes/pipes:
+    if (
+        # Any rotation with angle not an integer multiply of 90 degrees: partially rotated block/pipe
+        any([int(angle) not in [0, 90, 180] for angle in rotation_angles])
+        # At least 1 * 180-deg or 2 * 90-deg rotation to avoid dimensional collapse
+        # (A single 90-deg rotation would put the rotated vector on the plane made by the other two axes)
+        or sum([angle for angle in rotation_angles]) < 180
+    ):
+        raise TQECException(
+            f"There is an invalid rotation for {kind} block at position {FloatPosition3D(*translation_matrix)}."
+        )
+
+    # Rotate node name
+    # Calculate rotated kind and directions for all axes in case it is needed
+    kind = rotate_block_kind_by_matrix(kind, rotation_matrix)
+
+    # Shift nodes slightly according to rotation
+    translation = FloatPosition3D(
+        *translation_matrix + rotation_matrix.dot(scale_matrix)
+    )
+
+    # Return revised data
+    return translation, kind
+
+
+def adjust_hadamards_direction(kind: BlockKind) -> BlockKind:
+    # List of hadamard equivalences
+    hdm_equivalences = {"ZXOH": "XZOH", "XOZH": "ZOXH", "OXZH": "OZXH"}
+
+    # Match to equivalent block given direction
+    if str(kind) in hdm_equivalences.keys():
+        kind = block_kind_from_str(hdm_equivalences[str(kind)])
+    else:
+        inv_equivalences = {value: key for key, value in hdm_equivalences.items()}
+        kind = block_kind_from_str(inv_equivalences[str(kind)])
+
+    # Return revised kind
+    return kind

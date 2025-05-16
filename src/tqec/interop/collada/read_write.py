@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import pathlib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import BinaryIO, Iterable, cast
 
+import json
 import collada
 import collada.source
 import numpy as np
@@ -25,9 +26,9 @@ from tqec.interop.color import TQECColor
 from tqec.computation.correlation import CorrelationSurface
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.utils.rotations import (
-    calc_rotation_angles,
     get_axes_directions,
-    rotate_block_kind_by_matrix,
+    rotate_on_import,
+    adjust_hadamards_direction,
 )
 from tqec.utils.scale import round_or_fail
 
@@ -38,6 +39,166 @@ _ASSET_UNIT_METER = 0.02539999969303608
 
 _MATERIAL_SYMBOL = "MaterialSymbol"
 _CORRELATION_SUFFIX = "_CORRELATION"
+
+
+def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Position3D:
+    return Position3D(
+        x=round_or_fail(pos.x / (1 + pipe_length), atol=0.35),
+        y=round_or_fail(pos.y / (1 + pipe_length), atol=0.35),
+        z=round_or_fail(pos.z / (1 + pipe_length), atol=0.35),
+    )
+
+
+def offset_y_cube_position(pos: FloatPosition3D, pipe_length: float) -> FloatPosition3D:
+    if np.isclose(pos.z - 0.5, np.floor(pos.z), atol=1e-9):
+        pos = pos.shift_by(dz=-0.5)
+    return FloatPosition3D(pos.x, pos.y, pos.z / (1 + pipe_length))
+
+
+def read_block_graph_from_json(
+    filepath: str | pathlib.Path,
+    graph_name: str = "",
+) -> BlockGraph:
+    """Read a Collada JSON file and construct a
+    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.
+
+    Args:
+        filepath: The input dae file path.
+        graph_name: The name of the block graph. Default is an empty string.
+
+    Returns:
+        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
+
+    Raises:
+        TQECException: If the JSON file cannot be parsed and converted to a block graph.
+    """
+
+    # Read JSON file
+    try:
+        with open(filepath) as f:
+            data = json.load(f)
+    except Exception:
+        raise TQECException("JSON file not found.")
+
+    # Check JSON file has cubes and pipes
+    try:
+        cubes = data["cubes"]
+        pipes = data["pipes"]
+        if not len(cubes) > 0 or not len(pipes) > 0:
+            raise TQECException("No cubes or pipes found.")
+    except Exception:
+        raise TQECException("JSON file is not appropriately formatted.")
+
+    # Initialise list of cubes and pipes
+    parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
+    parsed_pipes: list[
+        tuple[FloatPosition3D, FloatPosition3D, PipeKind, dict[str, int]]
+    ] = []
+
+    # Get cubes data
+    for cube in data["cubes"]:
+        # Skip any "PORT" kind (cannot currently import them: error @ `block_kind_from_str` )
+        if cube["kind"] == "PORT":
+            continue
+
+        # Enforce integers for position and transformation
+        if not all([isinstance(i, int) for i in cube["position"]]):
+            raise TQECException(
+                f"Incorrect positioning for cube at {cube['position']}. All positional information must be composed of integer values."
+            )
+
+        if not all([isinstance(i, int) for row in cube["transform"] for i in row]):
+            raise TQECException(
+                f"Incorrect transformation matrix for cube at {cube['position']}. All elements in transformation matrix need to be integers."
+            )
+
+        # Get key spatial info
+        translation = FloatPosition3D(*cube["position"])
+        axes_directions = get_axes_directions(cube["transform"])
+        kind = block_kind_from_str(cube["kind"])
+        print("processing kind:", kind)
+
+        # Rotations step 1. Skip if node's matrix not rotated
+        # - If node's matrix YES rotated: check closer & make necessary adjustments
+        if not np.allclose(cube["transform"], np.eye(3), atol=1e-9):
+            translation, kind = rotate_on_import(
+                cube["transform"],
+                cube["position"],
+                np.array([1.0, 1.0, 1.0]),
+                kind,
+            )
+
+        # Append to parsed cubes
+        if isinstance(kind, CubeKind):
+            parsed_cubes.append((translation, kind, axes_directions))
+
+    # Get pipes data
+    for pipe in data["pipes"]:
+        # Enforce integers for position and transformation
+        for pos in [pipe["u"], pipe["v"]]:
+            if not all([isinstance(i, int) for i in pos]):
+                raise TQECException(
+                    f"Incorrect positioning for pipe at ({pipe['u']}). All positional information must be composed of integer values."
+                )
+
+        if not all([isinstance(i, int) for row in pipe["transform"] for i in row]):
+            raise TQECException(
+                f"Incorrect transformation for pipe at ({pipe['u']}). All elements in transformation matrix need to be integers."
+            )
+
+        # Get key spatial info
+        translation = FloatPosition3D(*pipe["u"])  # This is also the head_pos
+        tail_pos = FloatPosition3D(*pipe["v"])
+        axes_directions = get_axes_directions(pipe["transform"])
+        kind = block_kind_from_str(pipe["kind"])
+
+        # Rotations step 1. Skip if node's matrix not rotated
+        # - If node's matrix YES rotated: check closer & make necessary adjustments
+        if not np.allclose(pipe["transform"], np.eye(3), atol=1e-9):
+            translation, kind = rotate_on_import(
+                pipe["transform"],
+                pipe["position"],
+                np.array([1.0, 1.0, 1.0]),
+                kind,
+            )
+
+        # Rotations step 2. Skip if hadamard points in positive direction
+        # Check kind is pipe
+        if isinstance(kind, PipeKind):
+            if axes_directions[str(kind.direction)] == -1 and "H" in str(kind):
+                kind = adjust_hadamards_direction(kind)
+
+        # Recheck kind since it might have been regenerated
+        if isinstance(kind, PipeKind):
+            parsed_pipes.append((translation, tail_pos, kind, axes_directions))
+
+    # Construct graph
+    # Create graph
+    graph = BlockGraph(graph_name)
+
+    # Add cubes
+    for pos, cube_kind, axes_directions in parsed_cubes:
+        if isinstance(cube_kind, YHalfCube):
+            pos = offset_y_cube_position(pos, 0.0)
+        graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
+    port_index = 0
+
+    # Add pipes
+    for head_pos, tail_pos, pipe_kind, axes_directions in parsed_pipes:
+        # Write head_pos and tail_pos as Position3D
+        head_pos = int_position_before_scale(head_pos, 0)
+        tail_pos = int_position_before_scale(tail_pos, 0)
+
+        # Add pipe
+        if head_pos not in graph:
+            graph.add_cube(head_pos, Port(), label=f"Port{port_index}")
+            port_index += 1
+        if tail_pos not in graph:
+            graph.add_cube(tail_pos, Port(), label=f"Port{port_index}")
+            port_index += 1
+        graph.add_pipe(head_pos, tail_pos, pipe_kind)
+
+    return graph
 
 
 def read_block_graph_from_dae_file(
@@ -104,46 +265,20 @@ def read_block_graph_from_dae_file(
             axes_directions = get_axes_directions(transformation.rotation)
             kind = block_kind_from_str(name)
 
-            # Rotation health checks
-            # - If node's matrix NOT rotated: proceed automatically
+            # Rotations step 1. Skip if node's matrix not rotated
             # - If node's matrix YES rotated: check closer & make necessary adjustments
             if not np.allclose(transformation.rotation, np.eye(3), atol=1e-9):
-                # Calculate rotation
-                rotation_angles = calc_rotation_angles(transformation.rotation)
-
-                # Reject invalid rotations for all other cubes/pipes:
-                if (
-                    # Any rotation with angle not an integer multiply of 90 degrees: partially rotated block/pipe
-                    any([int(angle) not in [0, 90, 180] for angle in rotation_angles])
-                    # At least 1 * 180-deg or 2 * 90-deg rotation to avoid dimensional collapse
-                    # (A single 90-deg rotation would put the rotated vector on the plane made by the other two axes)
-                    or sum([angle for angle in rotation_angles]) < 180
-                ):
-                    raise TQECException(
-                        f"There is an invalid rotation for {kind} block at position {translation}."
-                    )
-
-                # Rotate node name
-                # Calculate rotated kind and directions for all axes in case it is needed
-                kind = rotate_block_kind_by_matrix(kind, transformation.rotation)
-
-                # Shift nodes slightly according to rotation
-                translation = FloatPosition3D(
-                    *transformation.translation
-                    + transformation.rotation.dot(transformation.scale)
+                translation, kind = rotate_on_import(
+                    transformation.rotation,
+                    transformation.translation,
+                    transformation.scale,
+                    kind,
                 )
 
-            # Adjust hadamards if pipe direction is negative
+            # Rotations step 2. Skip if hadamard points in positive direction
             if isinstance(kind, PipeKind):
                 if axes_directions[str(kind.direction)] == -1 and "H" in str(kind):
-                    hdm_equivalences = {"ZXOH": "XZOH", "XOZH": "ZOXH", "OXZH": "OZXH"}
-                    if str(kind) in hdm_equivalences.keys():
-                        kind = block_kind_from_str(hdm_equivalences[str(kind)])
-                    else:
-                        inv_equivalences = {
-                            value: key for key, value in hdm_equivalences.items()
-                        }
-                        kind = block_kind_from_str(inv_equivalences[str(kind)])
+                    kind = adjust_hadamards_direction(kind)
 
             # Direction, scaling and checks for pipes
             if isinstance(kind, PipeKind):
@@ -175,18 +310,6 @@ def read_block_graph_from_dae_file(
 
     pipe_length = 2.0 if pipe_length is None else pipe_length
 
-    def int_position_before_scale(pos: FloatPosition3D) -> Position3D:
-        return Position3D(
-            x=round_or_fail(pos.x / (1 + pipe_length), atol=0.35),
-            y=round_or_fail(pos.y / (1 + pipe_length), atol=0.35),
-            z=round_or_fail(pos.z / (1 + pipe_length), atol=0.35),
-        )
-
-    def offset_y_cube_position(pos: FloatPosition3D) -> FloatPosition3D:
-        if np.isclose(pos.z - 0.5, np.floor(pos.z), atol=1e-9):
-            pos = pos.shift_by(dz=-0.5)
-        return FloatPosition3D(pos.x, pos.y, pos.z / (1 + pipe_length))
-
     # Construct graph
     # Create graph
     graph = BlockGraph(graph_name)
@@ -194,8 +317,8 @@ def read_block_graph_from_dae_file(
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
-            pos = offset_y_cube_position(pos)
-        graph.add_cube(int_position_before_scale(pos), cube_kind)
+            pos = offset_y_cube_position(pos, pipe_length)
+        graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -203,7 +326,8 @@ def read_block_graph_from_dae_file(
         # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers from previous operations
         directional_multiplier = axes_directions[str(pipe_kind.direction)]
         head_pos = int_position_before_scale(
-            pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier)
+            pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier),
+            pipe_length,
         )
         tail_pos = head_pos.shift_in_direction(
             pipe_kind.direction, 1 * directional_multiplier
@@ -221,6 +345,71 @@ def read_block_graph_from_dae_file(
     return graph
 
 
+def core_export(
+    block_graph: BlockGraph, pipe_length: float = 2.0
+) -> tuple[_GraphItems, _GraphItems]:
+    def scale_position(pos: Position3D) -> FloatPosition3D:
+        return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
+
+    # Loop over all cubes in graph and add them to a cubes _GraphItems
+    cubes = _GraphItems()
+    for cube in block_graph.cubes:
+        # Ignore ports
+        if cube.is_port:
+            continue
+
+        # Get spatial information
+        scaled_position = scale_position(cube.position)
+        if cube.is_y_cube and block_graph.has_pipe_between(
+            cube.position, cube.position.shift_by(dz=1)
+        ):
+            scaled_position = scaled_position.shift_by(dz=0.5)
+
+        # Wrap item into a dataclass
+        cube_item = _GraphItem(
+            cube.position,
+            cube.kind,
+            _Transformation(
+                scaled_position.as_array(),
+                np.array([0.0, 0.0, 0.0]),
+                np.eye(3, dtype=np.float32),
+            ),
+        )
+
+        # Append item to cubes
+        cubes.items.append(cube_item)
+
+    # Loop over all pipes in graph and add them to a cubes _GraphItems
+    pipes = _GraphItems()
+    for pipe in block_graph.pipes:
+        # Get spatial information
+        head_pos = scale_position(pipe.u.position)
+        pipe_pos = head_pos.shift_in_direction(pipe.direction, 1.0)
+        matrix = np.eye(4, dtype=np.float32)
+        matrix[:3, 3] = pipe_pos.as_array()
+        scales = [1.0, 1.0, 1.0]
+
+        # Divide scaling by 2.0 because the pipe's default length is 2.0.
+        scales[pipe.direction.value] = pipe_length / 2.0
+        matrix[:3, :3] = np.diag(scales)
+
+        # Wrap item into a dataclass
+        pipe_item = _GraphItem(
+            pipe.u.position,
+            pipe.kind,
+            _Transformation(
+                pipe_pos.as_array(),
+                np.array([0.0, 0.0, 0.0]),
+                np.eye(3, dtype=np.float32),
+            ),
+        )
+
+        # Append item to pipes
+        pipes.items.append(pipe_item)
+
+    return cubes, pipes
+
+
 def write_block_graph_to_dae_file(
     block_graph: BlockGraph,
     file_like: str | pathlib.Path | BinaryIO,
@@ -232,48 +421,43 @@ def write_block_graph_to_dae_file(
     Collada DAE file.
 
     Args:
-        block_graph: The block graph to write to the DAE file.
+        cubes: An object containing spatial information for all cubes in blockgraph
+        pipes: An object containing spatial information for all pipes in blockgraph
         file: The output file path or file-like object that supports binary write.
-        pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.
         pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
             This is useful for visualizing the internal structure of the blocks. Default is None.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.
     """
+
     if isinstance(pop_faces_at_direction, str):
         pop_faces_at_direction = SignedDirection3D.from_string(pop_faces_at_direction)
     base = _BaseColladaData(pop_faces_at_direction)
 
-    def scale_position(pos: Position3D) -> FloatPosition3D:
-        return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
+    cubes, pipes = core_export(block_graph, pipe_length)
 
-    for cube in block_graph.cubes:
-        if cube.is_port:
-            continue
-        scaled_position = scale_position(cube.position)
-        if cube.is_y_cube and block_graph.has_pipe_between(
-            cube.position, cube.position.shift_by(dz=1)
-        ):
-            scaled_position = scaled_position.shift_by(dz=0.5)
+    for item in cubes.items:
         matrix = np.eye(4, dtype=np.float32)
-        matrix[:3, 3] = scaled_position.as_array()
+        matrix[:3, 3] = item.transformation_matrix.translation
+
         pop_faces_at_directions = []
-        for pipe in block_graph.pipes_at(cube.position):
+        for pipe in block_graph.pipes_at(item.position_in_blockgraph):
+            check_for_match = [item.kind, item.position_in_blockgraph] == [
+                pipe.u.kind,
+                pipe.u.position,
+            ]
             pop_faces_at_directions.append(
-                SignedDirection3D(pipe.direction, cube == pipe.u)
+                SignedDirection3D(pipe.direction, check_for_match)
             )
-        base.add_block_instance(matrix, cube.kind, pop_faces_at_directions)
-    for pipe in block_graph.pipes:
-        head_pos = scale_position(pipe.u.position)
-        pipe_pos = head_pos.shift_in_direction(pipe.direction, 1.0)
+        base.add_block_instance(matrix, item.kind, pop_faces_at_directions)
+
+    for pipe in pipes.items:
         matrix = np.eye(4, dtype=np.float32)
-        matrix[:3, 3] = pipe_pos.as_array()
-        scales = [1.0, 1.0, 1.0]
-        # We divide the scaling by 2.0 because the pipe's default length is 2.0.
-        scales[pipe.direction.value] = pipe_length / 2.0
-        matrix[:3, :3] = np.diag(scales)
+        matrix[:3, 3] = pipe.transformation_matrix.translation
         base.add_block_instance(matrix, pipe.kind)
+
     if show_correlation_surface is not None:
         base.add_correlation_surface(block_graph, show_correlation_surface, pipe_length)
+
     base.mesh.write(file_like)
 
 
@@ -503,3 +687,19 @@ class _Transformation:
         mat[:3, :3] = self.rotation * self.scale[None, :]
         mat[:3, 3] = self.translation
         return mat
+
+
+@dataclass(frozen=True)
+class _GraphItem:
+    """Data class to summary key spatial information for a specific cube or pipe."""
+
+    position_in_blockgraph: Position3D
+    kind: BlockKind
+    transformation_matrix: _Transformation
+
+
+@dataclass
+class _GraphItems:
+    """Data class to join _GraphItem into a single object that can be populated with cubes, pipes, or cubes and pipes."""
+
+    items: list[_GraphItem] = field(default_factory=list)
