@@ -453,23 +453,6 @@ class BlockGraph:
 
         return read_block_graph_from_dae_file(filename, graph_name)
 
-    @staticmethod
-    def from_json_file(
-        filename: str | pathlib.Path, graph_name: str = ""
-    ) -> BlockGraph:
-        """Construct a block graph from a JSON file.
-
-        Args:
-            filename: The input ``.json`` file path.
-            graph_name: The name of the block graph. Default is an empty string.
-
-        Returns:
-            The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.
-        """
-        from tqec.interop.collada.read_write import read_block_graph_from_json
-
-        return read_block_graph_from_json(filename, graph_name)
-
     def view_as_html(
         self,
         write_html_filepath: str | pathlib.Path | None = None,
@@ -891,43 +874,19 @@ class BlockGraph:
             return None
 
     @staticmethod
-    def from_json(
-        file_path: str | pathlib.Path | None = None,
-        json_text: str | None = None,
-    ) -> BlockGraph:
-        """Deserialize a block graph from a JSON string or read it from a file.
+    def from_json(filename: str | pathlib.Path, graph_name: str = "") -> BlockGraph:
+        """Construct a block graph from a JSON file.
 
         Args:
-            file_path: The input json file path to read from, or ``None`` to indicate
-                that the JSON string will be provided in `json_text`. Default is None.
-            json_text: The JSON string representation of the block graph, or ``None``
-                to indicate that the JSON file will be read from `file_path`.
-                Default is None.
+            filename: The input ``.json`` file path.
+            graph_name: The name of the block graph. Default is an empty string.
 
         Returns:
-            The :py:class:`~tqec.computation.block_graph.BlockGraph` object
-            constructed from the JSON string or file.
+            The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.
         """
+        from tqec.interop.collada.read_write import read_block_graph_from_json
 
-        # Assert file
-        if (file_path is None) == (json_text is None):
-            raise TQECException(
-                "Either file_path or json_text should be provided, but not both."
-            )
-        obj_dict: dict[str, Any]
-
-        # Get dictionary from JSON
-        if json_text is None:
-            assert file_path is not None
-            with open(file_path) as fp:
-                obj_dict = json.load(fp)
-        else:
-            obj_dict = json.loads(json_text)
-
-        # Handle any necessary rotations
-        # NEEDS IMPLEMENTATION
-
-        return BlockGraph.from_dict(obj_dict)
+        return read_block_graph_from_json(filename, graph_name)
 
 
 def block_kind_from_str(string: str) -> BlockKind:

@@ -97,12 +97,9 @@ def read_block_graph_from_json(
 
     # Get cubes data
     for cube in data["cubes"]:
-        # Raise error if any cube has "PORT" as kind
-        # (3D software represents a port as either a cube of regular kind or no cube at all)
+        # Skip any "PORT" kind (cannot currently import them: error @ `block_kind_from_str` )
         if cube["kind"] == "PORT":
-            raise TQECException(
-                'Incorrect cube kind: PORT. To specify a given cube is a port, give it a standard cube kind and use "In" or "Out" as label.'
-            )
+            continue
 
         # Enforce integers for position and transformation
         if not all([isinstance(i, int) for i in cube["position"]]):
@@ -119,6 +116,7 @@ def read_block_graph_from_json(
         translation = FloatPosition3D(*cube["position"])
         axes_directions = get_axes_directions(cube["transform"])
         kind = block_kind_from_str(cube["kind"])
+        print("processing kind:", kind)
 
         # Rotations step 1. Skip if node's matrix not rotated
         # - If node's matrix YES rotated: check closer & make necessary adjustments
@@ -347,7 +345,9 @@ def read_block_graph_from_dae_file(
     return graph
 
 
-def core_export(block_graph: BlockGraph, pipe_length: float = 2.0):
+def core_export(
+    block_graph: BlockGraph, pipe_length: float = 2.0
+) -> tuple[_GraphItems, _GraphItems]:
     def scale_position(pos: Position3D) -> FloatPosition3D:
         return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
 
@@ -703,41 +703,3 @@ class _GraphItems:
     """Data class to join _GraphItem into a single object that can be populated with cubes, pipes, or cubes and pipes."""
 
     items: list[_GraphItem] = field(default_factory=list)
-
-
-## THE FOLLOWING IS TEMPORARY CODE FOR TESTING PURPOSES ONLY
-## DELETE EVERYTHING BELOW BEFORE ANY DRAFT PR, PR, OR MERGE
-if __name__ == "__main__":
-    json_test_files = ["cnot"]
-
-    for test_file in json_test_files:
-        blockgraph_name = test_file
-        filepath = f"assets/{blockgraph_name}.json"
-        block_graph = BlockGraph.from_json_file(filepath, blockgraph_name)
-
-        # Write blockgraph to file
-        html = block_graph.view_as_html()
-        with open(f"from_json_{blockgraph_name}.html", "w") as f:
-            f.write(str(html))
-            f.close()
-
-    dae_test_files = [
-        "memory",
-        "memory_90",
-        "logical_cnot",
-        "logical_cnot_90",
-        "with_hadamards",
-        "with_hadamards_270",
-        "Y_rotated",
-    ]
-
-    for test_file in dae_test_files:
-        blockgraph_name = test_file
-        filepath = f"assets/{blockgraph_name}.dae"
-        block_graph = BlockGraph.from_dae_file(filepath, blockgraph_name)
-
-        # Write blockgraph to file
-        html = block_graph.view_as_html()
-        with open(f"from_dae_{blockgraph_name}.html", "w") as f:
-            f.write(str(html))
-            f.close()
