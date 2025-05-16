@@ -320,12 +320,26 @@ class DetectorDatabase:
             a dictionary with the keys ``mapping`` and ``frozen`` and their
             corresponding values.
         """
+        # First obtain the unique plaquettes
+        plaquettes_set: set[Plaquette] = set()
+        for key in self.mapping:
+            for p in key.plaquettes_by_timestep:
+                if p.collection.default_value is not None:
+                    plaquettes_set.add(p.collection.default_value)
+                plaquettes_set.update(p.collection.values())
+        uniq_plaquettes: Sequence[Plaquette] = list(plaquettes_set)
+        # Then create a mapping from each plaquette to its index
+        plaquettes_to_indices = {p: i for i, p in enumerate(uniq_plaquettes)}
         return {
             "mapping": [
-                [key.to_dict(), [d.to_dict() for d in detectors]]
+                [
+                    key.to_dict(plaquettes_to_indices=plaquettes_to_indices),
+                    [d.to_dict() for d in detectors],
+                ]
                 for key, detectors in self.mapping.items()
             ],
             "frozen": self.frozen,
+            "uniq_plaquettes": [p.to_dict() for p in uniq_plaquettes],
         }
 
     @staticmethod
@@ -339,8 +353,9 @@ class DetectorDatabase:
             a new instance of :class:`DetectorDatabase` with the provided
             ``mapping`` and ``frozen``.
         """
+        uniq_plaquettes = [Plaquette.from_dict(p) for p in data["uniq_plaquettes"]]
         mapping = {
-            _DetectorDatabaseKey.from_dict(key): frozenset(
+            _DetectorDatabaseKey.from_dict(key, plaquettes=uniq_plaquettes): frozenset(
                 Detector.from_dict(d) for d in detectors
             )
             for key, detectors in data["mapping"]
