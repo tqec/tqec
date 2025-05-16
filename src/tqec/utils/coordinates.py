@@ -4,6 +4,7 @@ base."""
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Mapping, cast
 
 
 @dataclass(frozen=True)
@@ -59,3 +60,31 @@ class StimCoordinates:
 
     def __lt__(self, other: StimCoordinates) -> bool:
         return self.to_stim_coordinates() < other.to_stim_coordinates()
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the coordinates.
+
+        The dictionary is intended to be used as a JSON object.
+        """
+        return {
+            "x": self.x,
+            "y": self.y,
+            "t": self.t,
+        }
+
+    @staticmethod
+    def from_dict(data: Mapping[str, Any]) -> StimCoordinates:
+        """Return a new instance of :class:`StimCoordinates` from its dictionary
+        representation.
+
+        Args:
+            data: dictionary with the keys ``x``, ``y`` and ``t``.
+
+        Returns:
+            a new instance of :class:`StimCoordinates` with the provided
+            ``x``, ``y`` and ``t``.
+        """
+        x = cast(float, data["x"])
+        y = cast(float, data["y"])
+        t = cast(float | None, data.get("t"))
+        return StimCoordinates(x, y, t)
