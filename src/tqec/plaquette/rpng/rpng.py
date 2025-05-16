@@ -17,22 +17,6 @@ class PauliBasis(Enum):
     def to_extended_basis(self) -> ExtendedBasis:
         return ExtendedBasis(self.value)
 
-    def to_dict(self) -> dict[str, Any]:
-        return {"value": self.value}
-
-    @staticmethod
-    def from_dict(data: dict[str, Any]) -> PauliBasis:
-        """Return a PauliBasis object from its dictionary representation.
-
-        Args:
-            data: dictionary with the key ``value``.
-
-        Returns:
-            a new instance of :class:`PauliBasis` with the provided
-            ``value``.
-        """
-        return PauliBasis(data["value"])
-
 
 class ExtendedBasis(Enum):
     X = PauliBasis.X.value
@@ -134,35 +118,6 @@ class RPNG:
     def __str__(self) -> str:
         return f"{'-' if self.r is None else self.r.value}{'-' if self.p is None else self.p.value}{'-' if self.n is None else self.n}{'-' if self.g is None else self.g.value}"
 
-    def to_dict(self) -> dict[str, Any]:
-        """Return a dictionary representation of the RPNG object.
-
-        The dictionary is intended to be used as a JSON object.
-        """
-        return {
-            "r": self.r.value if self.r else None,
-            "p": self.p.value if self.p else None,
-            "n": self.n,
-            "g": self.g.value if self.g else None,
-        }
-
-    @staticmethod
-    def from_dict(data: dict[str, Any]) -> RPNG:
-        """Return a RPNG object from its dictionary representation.
-
-        Args:
-            data: dictionary with the keys ``r``, ``p``, ``n`` and ``g``.
-
-        Returns:
-            a new instance of :class:`RPNG` with the provided
-            ``r``, ``p``, ``n`` and ``g``.
-        """
-        r = ExtendedBasis(data["r"]) if data["r"] else None
-        p = PauliBasis(data["p"]) if data["p"] else None
-        n = int(data["n"]) if data["n"] else None
-        g = ExtendedBasis(data["g"]) if data["g"] else None
-        return RPNG(r, p, n, g)
-
 
 @dataclass(frozen=True)
 class RG:
@@ -195,31 +150,6 @@ class RG:
 
     def __str__(self) -> str:
         return f"{'-' if self.r is None else self.r.value}{'-' if self.g is None else self.g.value}"
-
-    def to_dict(self) -> dict[str, Any]:
-        """Return a dictionary representation of the RG object.
-
-        The dictionary is intended to be used as a JSON object.
-        """
-        return {
-            "r": self.r.value if self.r else None,
-            "g": self.g.value if self.g else None,
-        }
-
-    @staticmethod
-    def from_dict(data: dict[str, Any]) -> RG:
-        """Return a RG object from its dictionary representation.
-
-        Args:
-            data: dictionary with the keys ``r`` and ``g``.
-
-        Returns:
-            a new instance of :class:`RG` with the provided
-            ``r`` and ``g``.
-        """
-        r = PauliBasis(data["r"]) if data["r"] else None
-        g = PauliBasis(data["g"]) if data["g"] else None
-        return RG(r, g)
 
 
 @dataclass
@@ -363,8 +293,8 @@ class RPNGDescription:
         The dictionary is intended to be used as a JSON object.
         """
         return {
-            "corners": [rpng.to_dict() for rpng in self.corners],
-            "ancilla": self.ancilla.to_dict(),
+            "corners": [str(rpng) for rpng in self.corners],
+            "ancilla": str(self.ancilla),
         }
 
     @staticmethod
@@ -383,10 +313,10 @@ class RPNGDescription:
         ), "There must be 4 corners in the RPNG description."
         corners = data["corners"]
         corners = (
-            RPNG.from_dict(corners[0]),
-            RPNG.from_dict(corners[1]),
-            RPNG.from_dict(corners[2]),
-            RPNG.from_dict(corners[3]),
+            RPNG.from_string(corners[0]),
+            RPNG.from_string(corners[1]),
+            RPNG.from_string(corners[2]),
+            RPNG.from_string(corners[3]),
         )
-        ancilla = RG.from_dict(data["ancilla"])
+        ancilla = RG.from_string(data["ancilla"])
         return RPNGDescription(corners, ancilla)

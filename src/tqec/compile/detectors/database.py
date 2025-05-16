@@ -385,16 +385,17 @@ class DetectorDatabase:
     def from_file(
         filepath: Path, format: Literal["pickle", "json"] = "pickle"
     ) -> DetectorDatabase:
-        with open(filepath, "rb") as f:
-            if format == "pickle":
+        if format == "pickle":
+            with open(filepath, "rb") as f:
                 database = pickle.load(f)
-            else:
+        else:
+            with open(filepath) as f:
                 data = json.load(f)
                 database = DetectorDatabase.from_dict(data)
-            if not isinstance(database, DetectorDatabase):
-                raise TQECException(
-                    f"Found the Python type {type(database).__name__} in the "
-                    f"provided file but {type(DetectorDatabase).__name__} was "
-                    "expected."
-                )
+        if not isinstance(database, DetectorDatabase):
+            raise TQECException(
+                f"Found the Python type {type(database).__name__} in the "
+                f"provided file but {type(DetectorDatabase).__name__} was "
+                "expected."
+            )
         return database
