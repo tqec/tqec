@@ -1,18 +1,13 @@
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.specs.enums import SpatialArms
-from tqec.computation.cube import ZXCube
+from tqec.utils.enums import Orientation
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
 
 def _get_top_readout_cube_qubits(
-    shape: PlaquetteShape2D, cube_kind: ZXCube
+    shape: PlaquetteShape2D, obs_orientation: Orientation
 ) -> list[tuple[int, int]]:
-    # Determine the middle line orientation based on the cube kind.
-    # Since the basis of the top face decides the measurement basis of the data
-    # qubits, i.e. the logical operator basis. We only need to find the spatial
-    # boundaries that the logical operator can be attached to.
-    obs_orientation = Direction3D(int(cube_kind.y == cube_kind.z))
-    if obs_orientation == Direction3D.X:
+    if obs_orientation == Orientation.HORIZONTAL:
         return [(x, shape.y // 2) for x in range(1, shape.x)]
     else:
         return [(shape.x // 2, y) for y in range(1, shape.y)]

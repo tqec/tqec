@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import json
+import math
 import pathlib
+from collections.abc import Mapping
 from copy import deepcopy
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, cast
-import json
 
-import networkx as nx
-import numpy as np
+from networkx import Graph, is_connected
+from networkx.utils import graphs_equal
 
 from tqec.computation.cube import (
     Cube,
@@ -26,10 +27,10 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D, SignedDirection3D
 
 if TYPE_CHECKING:
+    from tqec.computation.correlation import CorrelationSurface
     from tqec.computation.open_graph import FilledGraph
     from tqec.interop.collada.html_viewer import _ColladaHTMLViewer
     from tqec.interop.pyzx.positioned import PositionedZX
-    from tqec.computation.correlation import CorrelationSurface
 
 
 BlockKind = CubeKind | PipeKind
@@ -62,7 +63,7 @@ class BlockGraph:
 
     def __init__(self, name: str = "") -> None:
         self._name = name
-        self._graph: nx.Graph[Position3D] = nx.Graph()
+        self._graph: Graph[Position3D] = Graph()
         self._ports: dict[str, Position3D] = {}
 
     @property
@@ -333,7 +334,7 @@ class BlockGraph:
         if not isinstance(other, BlockGraph):
             return False
         return (
-            nx.utils.graphs_equal(self._graph, other._graph)  # type: ignore
+            graphs_equal(self._graph, other._graph)  # type: ignore
             and self._ports == other._ports
         )
 
@@ -668,7 +669,7 @@ class BlockGraph:
     def is_single_connected(self) -> bool:
         """Check if the graph is single connected, i.e. there is only one connected
         component in the graph."""
-        return bool(nx.is_connected(self._graph))
+        return bool(is_connected(self._graph))
 
     def rotate(
         self,
@@ -689,14 +690,14 @@ class BlockGraph:
             with the original graph.
         """
         from tqec.utils.rotations import (
-            rotate_block_kind_by_matrix,
             get_rotation_matrix,
+            rotate_block_kind_by_matrix,
             rotate_position_by_matrix,
         )
 
         rotated = BlockGraph(self.name + "_rotated")
         rotation_matrix = get_rotation_matrix(
-            rotation_axis, counterclockwise, num_90_degree_rotation * np.pi / 2
+            rotation_axis, counterclockwise, num_90_degree_rotation * math.pi / 2
         )
         pos_map: dict[Position3D, Position3D] = {}
         for cube in self.cubes:
@@ -887,6 +888,65 @@ class BlockGraph:
         from tqec.interop.collada.read_write import read_block_graph_from_json
 
         return read_block_graph_from_json(filename, graph_name)
+
+    def relabel_cubes(self, label_mapping: Mapping[Position3D | str, str]) -> None:
+        """Relabel cubes in the block graph.
+
+        This method updates the labels of cubes in the graph, based on a mapping
+        from either a cube position or its existing label to a new label.
+
+        Args:
+            label_mapping: A mapping from either Position3D or current cube label (str)
+                to the new label to assign.
+
+        Raises:
+            TQECException: If a cube is not found for the given key, if a port label
+                is reused, or if the new label conflicts with existing port labels.
+        """
+        port_labels = {cube.label for cube in self.cubes if cube.is_port}
+        assigned_new_labels: set[str] = set()
+
+        for key, new_label in label_mapping.items():
+            if not new_label:
+                raise TQECException("New label must be non-empty.")
+
+            if isinstance(key, Position3D):
+                matching_cubes = [cube for cube in self.cubes if cube.position == key]
+            elif isinstance(key, str):
+                matching_cubes = [cube for cube in self.cubes if cube.label == key]
+            else:
+                raise TQECException(
+                    f"Invalid identifier '{key}'. Must be Position3D or str."
+                )
+
+            if not matching_cubes:
+                raise TQECException(f"No cube found for identifier '{key}'.")
+
+            is_port_relabel = any(cube.is_port for cube in matching_cubes)
+
+            if is_port_relabel:
+                if new_label in port_labels:
+                    raise TQECException(
+                        f"Port label '{new_label}' is already assigned to another port."
+                    )
+                if new_label in assigned_new_labels:
+                    raise TQECException(
+                        f"Port label '{new_label}' is reused multiple times."
+                    )
+                assigned_new_labels.add(new_label)
+            else:
+                if new_label in port_labels:
+                    raise TQECException(
+                        f"The label '{new_label}' belongs to a port and cannot be reused by a non-port cube."
+                    )
+
+            for cube in matching_cubes:
+                updated_cube = Cube(
+                    position=cube.position, kind=cube.kind, label=new_label
+                )
+                self._graph.add_node(
+                    cube.position, **{self._NODE_DATA_KEY: updated_cube}
+                )
 
 
 def block_kind_from_str(string: str) -> BlockKind:

@@ -43,6 +43,7 @@ rather remove the cube boundary and implement its own layers.
 For temporal pipes, the layers are replaced in-place within block instances.
 """
 
+from pathlib import Path
 from typing import Final
 
 import stim
@@ -69,6 +70,7 @@ from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
+from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 from tqec.utils.scale import PhysicalQubitScalable2D
 
 
@@ -99,6 +101,12 @@ class TopologicalComputationGraph:
         """Represents a topological computation with
         :class:`~tqec.compile.blocks.block.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
+        # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
+        # extent. We need to keep track of the temporal pipes that are at the
+        # same layer of at least one temporal Hadamard pipe.
+        # We use the bottom cube position `z` to store the temporal pipe, s.t.
+        # the pipe is actually at the position `z+0.5`
+        self._temporal_pipes_at_hadamard_layer: dict[LayoutPosition3D, Block] = {}
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = (
             scalable_qubit_shape
         )
@@ -342,13 +350,13 @@ class TopologicalComputationGraph:
         self._replace_temporal_border(
             source,
             TemporalBlockBorder.Z_POSITIVE,
-            block.get_temporal_border(TemporalBlockBorder.Z_POSITIVE),
+            block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
         )
         # Sink
         self._replace_temporal_border(
             sink,
             TemporalBlockBorder.Z_NEGATIVE,
-            block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
+            block.get_temporal_border(TemporalBlockBorder.Z_POSITIVE),
         )
 
     def add_pipe(
@@ -374,6 +382,19 @@ class TopologicalComputationGraph:
         if block.is_temporal_pipe:
             self._check_block_spatial_shape(block)
             self._replace_temporal_borders(source, sink, block)
+            block_trimmed_temporal_borders = block.with_temporal_borders_replaced(
+                {
+                    TemporalBlockBorder.Z_NEGATIVE: None,
+                    TemporalBlockBorder.Z_POSITIVE: None,
+                }
+            )
+            if block_trimmed_temporal_borders:
+                u_pos = LayoutPosition3D.from_block_position(source)
+                # We use the bottom cube position `z` to store the temporal pipe, s.t.
+                # the pipe is actually at the position `z+0.5`
+                self._temporal_pipes_at_hadamard_layer[u_pos] = (
+                    block_trimmed_temporal_borders
+                )
         else:  # block is a spatial pipe
             self._trim_cube_spatial_borders(source, sink)
             key = LayoutPosition3D.from_pipe_position((source, sink))
@@ -406,15 +427,23 @@ class TopologicalComputationGraph:
         blocks_by_z: list[dict[LayoutPosition2D, Block]] = [
             {} for _ in range(min_z, max_z + 1)
         ]
+        temporal_pipes_by_z: list[dict[LayoutPosition2D, Block]] = [
+            {} for _ in range(min_z, max_z + 1)
+        ]
         for pos, block in self._blocks.items():
             blocks_by_z[pos.z - min_z][pos.as_2d()] = block
+        for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():
+            temporal_pipes_by_z[pos.z - min_z][pos.as_2d()] = pipe
         return LayerTree(
             SequencedLayers(
                 [
                     SequencedLayers(
                         merge_parallel_block_layers(blocks, self._scalable_qubit_shape)
+                        + merge_parallel_block_layers(
+                            pipes, self._scalable_qubit_shape
+                        ),
                     )
-                    for blocks in blocks_by_z
+                    for blocks, pipes in zip(blocks_by_z, temporal_pipes_by_z)
                 ]
             ),
             abstract_observables=self._observables,
@@ -427,23 +456,42 @@ class TopologicalComputationGraph:
         noise_model: NoiseModel | None = None,
         manhattan_radius: int = 2,
         detector_database: DetectorDatabase | None = None,
+        database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
+        do_not_use_database: bool = False,
+        only_use_database: bool = False,
     ) -> stim.Circuit:
         """Generate the ``stim.Circuit`` from the compiled graph.
 
         Args:
             k: scale factor of the templates.
-            noise_models: noise models to be applied to the circuit.
+            noise_model: noise model to be applied to the circuit.
             manhattan_radius: radius considered to compute detectors.
                 Detectors are not computed and added to the circuit if this
                 argument is negative.
             detector_database: an instance to retrieve from / store in detectors
-                that are computed as part of the circuit generation.
+                that are computed as part of the circuit generation. If not given,
+                the detectors are retrieved from/stored in the provided
+                ``database_path``.
+            database_path: specify where to save to after the calculation. This
+                defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH`
+                if not specified. If detector_database is not passed in, the code
+                attempts to retrieve the database from this location. The user
+                may pass in the path either in str format, or as a Path instance.
+            do_not_use_database: if ``True``, even the default database will not be used.
+            only_use_database: if ``True``, only detectors from the database
+                will be used. An error will be raised if a situation that is not
+                registered in the database is encountered.
 
         Returns:
             A compiled stim circuit.
         """
         circuit = self.to_layer_tree().generate_circuit(
-            k, manhattan_radius=manhattan_radius, detector_database=detector_database
+            k,
+            manhattan_radius=manhattan_radius,
+            detector_database=detector_database,
+            database_path=database_path,
+            do_not_use_database=do_not_use_database,
+            only_use_database=only_use_database,
         )
         # If provided, apply the noise model.
         if noise_model is not None:

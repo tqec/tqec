@@ -297,10 +297,10 @@ def compute_detectors_at_end_of_situation(
             encountered, an exception will be thrown when trying to mutate the
             database. Default to `None` which result in not using any kind of
             database and unconditionally performing the detector computation.
-        only_use_database: if True, only detectors from the database will be
+        only_use_database: if ``True``, only detectors from the database will be
             used. An error will be raised if a situation that is not registered
             in the database is encountered or if the database is not provided.
-            Default to False.
+            Default to ``False``.
 
     Returns:
         all the detectors that can be appended at the end of the circuit
@@ -526,9 +526,9 @@ def compute_detectors_for_fixed_radius(
             situation or it has been updated **in-place** with the computed
             detectors). Default to `None` which result in not using any kind of
             database and unconditionally performing the detector computation.
-        only_use_database: if True, only detectors from the database will be
+        only_use_database: if ``True``, only detectors from the database will be
             used. An error will be raised if a situation that is not registered
-            in the database is encountered. Default to False.
+            in the database is encountered. Default to ``False``.
 
     Returns:
         a collection of detectors that should be added at the end of the circuit
@@ -576,9 +576,15 @@ def compute_detectors_for_fixed_radius(
     # to shift detectors accordingly.
     last_template_origin = templates[-1].instantiation_origin(k)
     detectors: list[Detector] = []
-    for i, row in enumerate(unique_3d_subtemplates.subtemplate_indices):
+    # The below line is not strictly needed, but makes type checkers happy with
+    # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
+    # for more information on why this should be done.
+    subtemplate_indices_list: list[list[list[int]]] = (
+        unique_3d_subtemplates.subtemplate_indices.tolist()
+    )
+    for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_indices in enumerate(row):
-            if numpy.all(subtemplate_indices == 0):
+            if all(i == 0 for i in subtemplate_indices):
                 continue
             for d in detectors_by_subtemplate[tuple(subtemplate_indices)]:
                 detectors.append(

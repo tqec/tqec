@@ -88,7 +88,7 @@ def get_axes_directions(rotation_matrix: npt.NDArray[np.float32]) -> dict[str, i
 
     # Loop builds dict with plus/minus direction for each axis
     for i, row in enumerate(rotation_matrix):
-        axes_directions["XYZ"[i]] = -1 if sum(row) < 0 else 1
+        axes_directions["XYZ"[i]] = -1 if np.sum(row) < 0 else 1
 
     return axes_directions
 
@@ -120,7 +120,7 @@ def rotate_block_kind_by_matrix(
 
     # Loop:
     # - applies transformation encoded in rotate_matrix to vectorised kind
-    for _, row in enumerate(rotation_matrix):
+    for row in rotation_matrix:
         entry = ""
         for j, element in enumerate(row):
             entry += abs(int(element)) * original_name[j]
@@ -194,7 +194,7 @@ def rotate_position_by_matrix(
     rotation = R.from_matrix(rotation_matrix)
     center_pos = [i + 0.5 for i in position.as_tuple()]
     rotated_center = rotation.apply(center_pos)
-    rotated_corner = [round_or_fail(i - 0.5) for i in rotated_center]
+    rotated_corner = [round_or_fail(float(i) - 0.5) for i in rotated_center]
     return Position3D(*rotated_corner)
 
 
