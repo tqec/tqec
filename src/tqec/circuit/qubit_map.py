@@ -121,10 +121,7 @@ class QubitMap:
 
         The dictionary is intended to be used as a JSON object.
         """
-        return {
-            "i2q": [[qi, q.to_dict()] for qi, q in self.i2q.items()],
-            "q2i": [[q.to_dict(), qi] for qi, q in self.i2q.items()],
-        }
+        return {"i2q": [[qi, q.to_dict()] for qi, q in self.i2q.items()]}
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> QubitMap:
