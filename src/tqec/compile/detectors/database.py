@@ -366,7 +366,7 @@ class DetectorDatabase:
         self, filepath: Path, format: Literal["pickle", "json"] = "pickle"
     ) -> None:
         """Save the database to a file.
-        
+
         Args:
             filepath: path to the file where the database should be saved.
             format: format to use to save the database. Currently only
@@ -390,7 +390,7 @@ class DetectorDatabase:
             with open(filepath, "rb") as f:
                 database = pickle.load(f)
         else:
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 data = json.load(f)
                 database = DetectorDatabase.from_dict(data)
         if not isinstance(database, DetectorDatabase):
