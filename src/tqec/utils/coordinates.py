@@ -4,7 +4,7 @@ base."""
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Mapping, cast
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -73,7 +73,7 @@ class StimCoordinates:
         }
 
     @staticmethod
-    def from_dict(data: Mapping[str, Any]) -> StimCoordinates:
+    def from_dict(data: dict[str, Any]) -> StimCoordinates:
         """Return a new instance of :class:`StimCoordinates` from its dictionary
         representation.
 
@@ -84,7 +84,7 @@ class StimCoordinates:
             a new instance of :class:`StimCoordinates` with the provided
             ``x``, ``y`` and ``t``.
         """
-        x = cast(float, data["x"])
-        y = cast(float, data["y"])
-        t = cast(float | None, data.get("t"))
+        x = data["x"]
+        y = data["y"]
+        t = data.get("t")
         return StimCoordinates(x, y, t)

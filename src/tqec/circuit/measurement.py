@@ -127,7 +127,7 @@ class Measurement(AbstractMeasurement):
         return {"qubit": [self.qubit.x, self.qubit.y], "offset": self.offset}
 
     @staticmethod
-    def from_dict(data: Mapping[str, Any]) -> Measurement:
+    def from_dict(data: dict[str, Any]) -> Measurement:
         """Return a measurement from its dictionary representation.
 
         Args:
@@ -138,7 +138,7 @@ class Measurement(AbstractMeasurement):
             ``qubit`` and ``offset``.
         """
         qubit = GridQubit(data["qubit"][0], data["qubit"][1])
-        offset = cast(int, data["offset"])
+        offset = data["offset"]
         return Measurement(qubit, offset)
 
 
