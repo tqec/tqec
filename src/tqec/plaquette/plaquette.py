@@ -254,7 +254,9 @@ class Plaquettes:
     ) -> dict[str, Any]:
         """Return a dictionary representation of the plaquettes.
 
-        The dictionary is intended to be used as a JSON object.
+        Args:
+            plaquettes_to_indices: a dictionary mapping plaquettes to their
+                indices. If provided, a plaquette will be represented by its index
         """
 
         def convert(value: Plaquette) -> Any:
@@ -269,9 +271,11 @@ class Plaquettes:
                 {"index": index, "plaquette": convert(plaquette)}
                 for index, plaquette in self.collection.items()
             ],
-            "default": convert(self.collection.default_value)
-            if self.collection.default_value
-            else None,
+            "default": (
+                convert(self.collection.default_value)
+                if self.collection.default_value is not None
+                else None
+            ),
         }
 
     @staticmethod
@@ -300,9 +304,18 @@ class Plaquettes:
             default_value=(
                 (Plaquette.from_dict(data["default"]) if data["default"] else None)
                 if plaquettes is None
-                else (plaquettes[data["default"]] if data["default"] else None)
+                else (
+                    plaquettes[data["default"]] if data["default"] is not None else None
+                )
             ),
         )
+        # If the default value is None, print a WARNING
+        # (this should not happen in practice)
+        if collection.default_value is None:
+            print(
+                "WARNING: The default value of the plaquettes collection is None. "
+                "This should not happen in practice."
+            )
         return Plaquettes(collection)
 
 
