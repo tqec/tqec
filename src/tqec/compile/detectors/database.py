@@ -142,10 +142,14 @@ class _DetectorDatabaseKey:
             schedule.append_schedule(circuit.schedule)
         return ScheduledCircuit(moments, schedule, qubit_map)
 
-    def to_dict(
-        self, plaquettes_to_indices: dict[Plaquette, int] | None = None
-    ) -> dict[str, Any]:
-        """Return a dictionary representation of the key.
+    def to_dict(self, plaquettes_to_indices: dict[Plaquette, int]) -> dict[str, Any]:
+        """Return a dictionary representation of the key. Each plaquette is
+        represented by an integer, which is its index in the list of unique
+        plaquettes.
+
+        Args:
+            plaquettes_to_indices: mapping from each :class:`Plaquette` to its
+                index in the list of unique plaquettes.
 
         Returns:
             a dictionary with the keys ``subtemplates`` and
@@ -161,7 +165,7 @@ class _DetectorDatabaseKey:
     @staticmethod
     def from_dict(
         data: dict[str, Any],
-        plaquettes: Sequence[Plaquette] | None = None,
+        plaquettes: Sequence[Plaquette],
     ) -> _DetectorDatabaseKey:
         """Return a key from its dictionary representation.
 
@@ -169,8 +173,7 @@ class _DetectorDatabaseKey:
             data: dictionary with the keys ``subtemplates`` and
                 ``plaquettes_by_timestep``.
             plaquettes: list of :class:`Plaquette` instances to use to build the
-                :class:`Plaquettes` instances. If `None`, the function will
-                create a new list of :class:`Plaquette` instances.
+                :class:`Plaquettes` instances.
 
         Returns:
             a new instance of :class:`_DetectorDatabaseKey` with the provided
