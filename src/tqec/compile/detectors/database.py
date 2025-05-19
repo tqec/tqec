@@ -366,6 +366,7 @@ class DetectorDatabase:
         self, filepath: Path, format: Literal["pickle", "json"] = "pickle"
     ) -> None:
         """Save the database to a file.
+        
         Args:
             filepath: path to the file where the database should be saved.
             format: format to use to save the database. Currently only
