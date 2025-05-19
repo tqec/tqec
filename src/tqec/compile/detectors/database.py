@@ -390,7 +390,7 @@ class DetectorDatabase:
             with open(filepath, "rb") as f:
                 database = pickle.load(f)
         else:
-            with open(filepath) as f:
+            with open(filepath, "r") as f:
                 data = json.load(f)
                 database = DetectorDatabase.from_dict(data)
         if not isinstance(database, DetectorDatabase):
