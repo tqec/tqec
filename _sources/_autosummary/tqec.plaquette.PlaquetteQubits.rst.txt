@@ -12,8 +12,10 @@ PlaquetteQubits
    .. autosummary::
    
       ~PlaquetteQubits.__init__
+      ~PlaquetteQubits.from_dict
       ~PlaquetteQubits.get_edge_qubits
       ~PlaquetteQubits.get_qubits_on_side
+      ~PlaquetteQubits.to_dict
    
    
 
@@ -40,7 +42,9 @@ PlaquetteQubits
 
    
    .. automethod:: __init__
+   .. automethod:: from_dict
    .. automethod:: get_edge_qubits
    .. automethod:: get_qubits_on_side
+   .. automethod:: to_dict
    
    

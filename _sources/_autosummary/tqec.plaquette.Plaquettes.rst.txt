@@ -12,9 +12,11 @@ Plaquettes
    .. autosummary::
    
       ~Plaquettes.__init__
+      ~Plaquettes.from_dict
       ~Plaquettes.items
       ~Plaquettes.map_indices
       ~Plaquettes.repeat
+      ~Plaquettes.to_dict
       ~Plaquettes.to_name_dict
       ~Plaquettes.with_updated_plaquettes
       ~Plaquettes.without_plaquettes
@@ -37,9 +39,11 @@ Plaquettes
 
    
    .. automethod:: __init__
+   .. automethod:: from_dict
    .. automethod:: items
    .. automethod:: map_indices
    .. automethod:: repeat
+   .. automethod:: to_dict
    .. automethod:: to_name_dict
    .. automethod:: with_updated_plaquettes
    .. automethod:: without_plaquettes

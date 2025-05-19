@@ -13,11 +13,13 @@ RPNGDescription
    
       ~RPNGDescription.__init__
       ~RPNGDescription.empty
+      ~RPNGDescription.from_dict
       ~RPNGDescription.from_extended_string
       ~RPNGDescription.from_string
       ~RPNGDescription.get_g_op
       ~RPNGDescription.get_n
       ~RPNGDescription.get_r_op
+      ~RPNGDescription.to_dict
       ~RPNGDescription.view_as_svg
    
    
@@ -42,11 +44,13 @@ RPNGDescription
    
    .. automethod:: __init__
    .. automethod:: empty
+   .. automethod:: from_dict
    .. automethod:: from_extended_string
    .. automethod:: from_string
    .. automethod:: get_g_op
    .. automethod:: get_n
    .. automethod:: get_r_op
+   .. automethod:: to_dict
    .. automethod:: view_as_svg
    
    

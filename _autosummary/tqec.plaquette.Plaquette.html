@@ -560,14 +560,20 @@ circuits together to remove duplicate instructions.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.__init__" title="tqec.plaquette.Plaquette.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(name, qubits, circuit[, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.is_empty" title="tqec.plaquette.Plaquette.is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.from_dict" title="tqec.plaquette.Plaquette.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a>(data)</p></td>
+<td><p>Return a plaquette from its dictionary representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.is_empty" title="tqec.plaquette.Plaquette.is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code></a>()</p></td>
 <td><p>Check if the plaquette is empty.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.project_on_boundary" title="tqec.plaquette.Plaquette.project_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_on_boundary</span></code></a>(projected_orientation)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.project_on_boundary" title="tqec.plaquette.Plaquette.project_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_on_boundary</span></code></a>(projected_orientation)</p></td>
 <td><p>Project the plaquette on boundary and return a new plaquette with the remaining qubits and circuit.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.reliable_hash" title="tqec.plaquette.Plaquette.reliable_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reliable_hash</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.reliable_hash" title="tqec.plaquette.Plaquette.reliable_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reliable_hash</span></code></a>()</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.to_dict" title="tqec.plaquette.Plaquette.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
+<td><p>Return a dictionary representation of the plaquette.</p></td>
 </tr>
 </tbody>
 </table>
@@ -620,6 +626,26 @@ circuits together to remove duplicate instructions.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tqec.plaquette.Plaquette.from_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.from_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return a plaquette from its dictionary representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – dictionary with the keys <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">qubits</span></code>, <code class="docutils literal notranslate"><span class="pre">circuit</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mergeable_instructions</span></code> and <code class="docutils literal notranslate"><span class="pre">debug_information</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a new instance of <a class="reference internal" href="#tqec.plaquette.Plaquette" title="tqec.plaquette.Plaquette"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquette</span></code></a> with the provided
+<code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">qubits</span></code>, <code class="docutils literal notranslate"><span class="pre">circuit</span></code>, <code class="docutils literal notranslate"><span class="pre">mergeable_instructions</span></code> and
+<code class="docutils literal notranslate"><span class="pre">debug_information</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tqec.plaquette.Plaquette" title="tqec.plaquette.plaquette.Plaquette"><em>Plaquette</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquette.is_empty">
 <span class="sig-name descname"><span class="pre">is_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.is_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.is_empty" title="Link to this definition">#</a></dt>
 <dd><p>Check if the plaquette is empty.</p>
@@ -662,6 +688,18 @@ removed.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.plaquette.Plaquette.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return a dictionary representation of the plaquette.</p>
+<p>The dictionary is intended to be used as a JSON object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <em>Any</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -723,9 +761,11 @@ removed.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquette.circuit"><code class="docutils literal notranslate"><span class="pre">Plaquette.circuit</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquette.mergeable_instructions"><code class="docutils literal notranslate"><span class="pre">Plaquette.mergeable_instructions</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquette.__init__"><code class="docutils literal notranslate"><span class="pre">Plaquette.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquette.from_dict"><code class="docutils literal notranslate"><span class="pre">Plaquette.from_dict()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquette.is_empty"><code class="docutils literal notranslate"><span class="pre">Plaquette.is_empty()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquette.project_on_boundary"><code class="docutils literal notranslate"><span class="pre">Plaquette.project_on_boundary()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquette.reliable_hash"><code class="docutils literal notranslate"><span class="pre">Plaquette.reliable_hash()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquette.to_dict"><code class="docutils literal notranslate"><span class="pre">Plaquette.to_dict()</span></code></a></li>
 </ul>
 </li>
 </ul>

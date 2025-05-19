@@ -12,10 +12,12 @@ RepeatedPlaquettes
    .. autosummary::
    
       ~RepeatedPlaquettes.__init__
+      ~RepeatedPlaquettes.from_dict
       ~RepeatedPlaquettes.items
       ~RepeatedPlaquettes.map_indices
       ~RepeatedPlaquettes.num_rounds
       ~RepeatedPlaquettes.repeat
+      ~RepeatedPlaquettes.to_dict
       ~RepeatedPlaquettes.to_name_dict
       ~RepeatedPlaquettes.with_updated_plaquettes
       ~RepeatedPlaquettes.without_plaquettes
@@ -39,10 +41,12 @@ RepeatedPlaquettes
 
    
    .. automethod:: __init__
+   .. automethod:: from_dict
    .. automethod:: items
    .. automethod:: map_indices
    .. automethod:: num_rounds
    .. automethod:: repeat
+   .. automethod:: to_dict
    .. automethod:: to_name_dict
    .. automethod:: with_updated_plaquettes
    .. automethod:: without_plaquettes

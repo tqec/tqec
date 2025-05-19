@@ -487,11 +487,17 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.__init__" title="tqec.plaquette.SquarePlaquetteQubits.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits" title="tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_edge_qubits</span></code></a>([orientation])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.from_dict" title="tqec.plaquette.SquarePlaquetteQubits.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a>(data)</p></td>
+<td><p>Return a plaquette qubits from its dictionary representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits" title="tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_edge_qubits</span></code></a>([orientation])</p></td>
 <td><p>Return the data qubits on the edge of the plaquette.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side" title="tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_qubits_on_side</span></code></a>(side)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side" title="tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_qubits_on_side</span></code></a>(side)</p></td>
 <td><p>Return the qubits one the provided side of the instance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.SquarePlaquetteQubits.to_dict" title="tqec.plaquette.SquarePlaquetteQubits.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
+<td><p>Return a dictionary representation of the plaquette qubits.</p></td>
 </tr>
 </tbody>
 </table>
@@ -540,6 +546,25 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tqec.plaquette.SquarePlaquetteQubits.from_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.SquarePlaquetteQubits.from_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return a plaquette qubits from its dictionary representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – dictionary with the keys <code class="docutils literal notranslate"><span class="pre">data_qubits</span></code> and
+<code class="docutils literal notranslate"><span class="pre">syndrome_qubits</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a new instance of <a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits" title="tqec.plaquette.PlaquetteQubits"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlaquetteQubits</span></code></a> with the provided
+<code class="docutils literal notranslate"><span class="pre">data_qubits</span></code> and <code class="docutils literal notranslate"><span class="pre">syndrome_qubits</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits" title="tqec.plaquette.qubit.PlaquetteQubits"><em>PlaquetteQubits</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits">
 <span class="sig-name descname"><span class="pre">get_edge_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Orientation.HORIZONTAL</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits" title="Link to this definition">#</a></dt>
 <dd><p>Return the data qubits on the edge of the plaquette. By convention,
@@ -575,6 +600,21 @@ greater x-coordinate value. Up and down are about the y-coordinate.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list[<em>GridQubit</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.plaquette.SquarePlaquetteQubits.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tqec.plaquette.SquarePlaquetteQubits.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return a dictionary representation of the plaquette qubits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a dictionary with the keys <code class="docutils literal notranslate"><span class="pre">data_qubits</span></code> and <code class="docutils literal notranslate"><span class="pre">syndrome_qubits</span></code> and
+their corresponding values.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, <em>Any</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -632,8 +672,10 @@ greater x-coordinate value. Up and down are about the y-coordinate.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits.__init__"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits.from_dict"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits.from_dict()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits.get_edge_qubits"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits.get_edge_qubits()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits.get_qubits_on_side"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits.get_qubits_on_side()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.SquarePlaquetteQubits.to_dict"><code class="docutils literal notranslate"><span class="pre">SquarePlaquetteQubits.to_dict()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -411,6 +411,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">PauliBasis</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -733,6 +734,46 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_to_filepath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">svg_str</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">svg_str</span></div>
+
+
+<div class="viewcode-block" id="RPNGDescription.to_dict">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary representation of the RPNG description.</span>
+
+<span class="sd">        The dictionary is intended to be used as a JSON object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;corners&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">rpng</span><span class="p">)</span> <span class="k">for</span> <span class="n">rpng</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">],</span>
+            <span class="s2">&quot;ancilla&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ancilla</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="RPNGDescription.from_dict">
+<a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.from_dict">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">RPNGDescription</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a RPNGDescription object from its dictionary representation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: dictionary with the keys ``corners`` and ``ancilla``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a new instance of :class:`RPNGDescription` with the provided</span>
+<span class="sd">            ``corners`` and ``ancilla``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="p">),</span> <span class="s2">&quot;There must be 4 corners in the RPNG description.&quot;</span>
+        <span class="n">corners</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">]</span>
+        <span class="n">corners</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">RPNG</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">RPNG</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">RPNG</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="n">RPNG</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="n">ancilla</span> <span class="o">=</span> <span class="n">RG</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ancilla&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">RPNGDescription</span><span class="p">(</span><span class="n">corners</span><span class="p">,</span> <span class="n">ancilla</span><span class="p">)</span></div>
 </div>
 
 </pre></div>
