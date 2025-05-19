@@ -11,7 +11,6 @@ from tqec.circuit.schedule import ScheduledCircuit
 from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.qubit import PlaquetteQubits
-from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import PhysicalQubitPosition2D
@@ -138,8 +137,6 @@ class Plaquette:
 
         The dictionary is intended to be used as a JSON object.
         """
-        if self.debug_information.rpng is not None:
-            return {"rpng": str(self.debug_information.rpng)}
         return {
             "name": self.name,
             "qubits": self.qubits.to_dict(),
@@ -161,12 +158,6 @@ class Plaquette:
             ``name``, ``qubits``, ``circuit``, ``mergeable_instructions`` and
             ``debug_information``.
         """
-        if "rpng" in data:
-            from tqec.compile.specs.library.generators.utils import PlaquetteMapper
-
-            return PlaquetteMapper().get_plaquette(
-                RPNGDescription.from_string(data["rpng"])
-            )
         name = data["name"]
         qubits = PlaquetteQubits.from_dict(data["qubits"])
         circuit = ScheduledCircuit.from_dict(data["circuit"])
