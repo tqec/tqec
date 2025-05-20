@@ -116,7 +116,6 @@ def read_block_graph_from_json(
         translation = FloatPosition3D(*cube["position"])
         axes_directions = get_axes_directions(cube["transform"])
         kind = block_kind_from_str(cube["kind"])
-        print("processing kind:", kind)
 
         # Rotations step 1. Skip if node's matrix not rotated
         # - If node's matrix YES rotated: check closer & make necessary adjustments
@@ -147,15 +146,15 @@ def read_block_graph_from_json(
             )
 
         # Get key spatial info
-        translation = FloatPosition3D(*pipe["u"])  # This is also the head_pos
-        tail_pos = FloatPosition3D(*pipe["v"])
+        u_pos = FloatPosition3D(*pipe["u"])  # Equivalent to "translation" in cubes
+        v_pos = FloatPosition3D(*pipe["v"])
         axes_directions = get_axes_directions(pipe["transform"])
         kind = block_kind_from_str(pipe["kind"])
 
         # Rotations step 1. Skip if node's matrix not rotated
         # - If node's matrix YES rotated: check closer & make necessary adjustments
         if not np.allclose(pipe["transform"], np.eye(3), atol=1e-9):
-            translation, kind = rotate_on_import(
+            u_pos, kind = rotate_on_import(
                 pipe["transform"],
                 pipe["position"],
                 np.array([1.0, 1.0, 1.0]),
@@ -170,7 +169,7 @@ def read_block_graph_from_json(
 
         # Recheck kind since it might have been regenerated
         if isinstance(kind, PipeKind):
-            parsed_pipes.append((translation, tail_pos, kind, axes_directions))
+            parsed_pipes.append((u_pos, v_pos, kind, axes_directions))
 
     # Construct graph
     # Create graph
@@ -184,10 +183,10 @@ def read_block_graph_from_json(
     port_index = 0
 
     # Add pipes
-    for head_pos, tail_pos, pipe_kind, axes_directions in parsed_pipes:
+    for u_pos, v_pos, pipe_kind, axes_directions in parsed_pipes:
         # Write head_pos and tail_pos as Position3D
-        head_pos = int_position_before_scale(head_pos, 0)
-        tail_pos = int_position_before_scale(tail_pos, 0)
+        head_pos = int_position_before_scale(u_pos, 0)
+        tail_pos = int_position_before_scale(v_pos, 0)
 
         # Add pipe
         if head_pos not in graph:
@@ -450,10 +449,10 @@ def write_block_graph_to_dae_file(
             )
         base.add_block_instance(matrix, item.kind, pop_faces_at_directions)
 
-    for pipe in pipes.items:
+    for item in pipes.items:
         matrix = np.eye(4, dtype=np.float32)
-        matrix[:3, 3] = pipe.transformation_matrix.translation
-        base.add_block_instance(matrix, pipe.kind)
+        matrix[:3, 3] = item.transformation_matrix.translation
+        base.add_block_instance(matrix, item.kind)
 
     if show_correlation_surface is not None:
         base.add_correlation_surface(block_graph, show_correlation_surface, pipe_length)
