@@ -41,6 +41,7 @@ _MATERIAL_SYMBOL = "MaterialSymbol"
 _CORRELATION_SUFFIX = "_CORRELATION"
 
 
+# SHARED FUNCTIONS
 def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Position3D:
     return Position3D(
         x=round_or_fail(pos.x / (1 + pipe_length), atol=0.35),
@@ -55,6 +56,219 @@ def offset_y_cube_position(pos: FloatPosition3D, pipe_length: float) -> FloatPos
     return FloatPosition3D(pos.x, pos.y, pos.z / (1 + pipe_length))
 
 
+# DAE EXPORTER/IMPORTER
+def read_block_graph_from_dae_file(
+    filepath: str | pathlib.Path,
+    graph_name: str = "",
+) -> BlockGraph:
+    """Read a Collada DAE file and construct a
+    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.
+
+    Args:
+        filepath: The input dae file path.
+        graph_name: The name of the block graph. Default is an empty string.
+        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph.
+            See :py:meth:`~tqec.computation.block_graph.BlockGraph.fix_shadowed_faces`
+            for more details. Default is True.
+
+    Returns:
+        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
+
+    Raises:
+        TQECException: If the COLLADA model cannot be parsed and converted to a block graph.
+    """
+
+    # Bring the mesh in
+    mesh = collada.Collada(str(filepath))
+
+    # Check some invariants about the DAE file
+    if mesh.scene is None:
+        raise TQECException("No scene found in the DAE file.")
+    scene: collada.scene.Scene = mesh.scene
+
+    if not (len(scene.nodes) == 1 and scene.nodes[0].name == "SketchUp"):
+        raise TQECException(
+            "The <visual_scene> node must have a single child node with the name 'SketchUp'."
+        )
+
+    sketchup_node: collada.scene.Node = scene.nodes[0]
+    pipe_length: float | None = None
+    parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
+    parsed_pipes: list[tuple[FloatPosition3D, PipeKind, dict[str, int]]] = []
+
+    # Handle nodes in scene/sketchup_node
+    for node in sketchup_node.children:
+        # If everything needed is present
+        if (
+            isinstance(node, collada.scene.Node)
+            and node.matrix is not None
+            and node.children is not None
+            and len(node.children) == 1
+            and isinstance(node.children[0], collada.scene.NodeNode)
+        ):
+            # Extract key info from collada scene
+            instance = cast(collada.scene.NodeNode, node.children[0])
+            library_node: collada.scene.Node = instance.node
+            name: str = library_node.name
+
+            # Skip the correlation surface nodes
+            if name.endswith(_CORRELATION_SUFFIX):
+                continue
+
+            # Extract transformation and translation matrix
+            transformation = _Transformation.from_4d_affine_matrix(node.matrix)
+            translation = FloatPosition3D(*transformation.translation)
+            axes_directions = get_axes_directions(transformation.rotation)
+            kind = block_kind_from_str(name)
+
+            # Rotations step 1. Skip if node's matrix not rotated
+            # - If node's matrix YES rotated: check closer & make necessary adjustments
+            if not np.allclose(transformation.rotation, np.eye(3), atol=1e-9):
+                translation, kind = rotate_on_import(
+                    transformation.rotation,
+                    transformation.translation,
+                    transformation.scale,
+                    kind,
+                )
+
+            # Rotations step 2. Skip if hadamard points in positive direction
+            if isinstance(kind, PipeKind):
+                if axes_directions[str(kind.direction)] == -1 and "H" in str(kind):
+                    kind = adjust_hadamards_direction(kind)
+
+            # Direction, scaling and checks for pipes
+            if isinstance(kind, PipeKind):
+                # Get direction and scale of pipe
+                pipe_direction = kind.direction
+                scale = transformation.scale[pipe_direction.value]
+                # Checks
+                if pipe_length is None:
+                    pipe_length = scale * 2.0
+                elif not np.isclose(pipe_length, scale * 2.0, atol=1e-9):
+                    raise TQECException("All pipes must have the same length.")
+                expected_scale = np.ones(3)
+                expected_scale[pipe_direction.value] = scale
+                if not np.allclose(transformation.scale, expected_scale, atol=1e-9):
+                    raise TQECException(
+                        f"Only the dimension along the pipe can be scaled, which is not the case at {translation}."
+                    )
+                # Append
+                parsed_pipes.append((translation, kind, axes_directions))
+
+            else:
+                # Checks
+                if not np.allclose(transformation.scale, np.ones(3), atol=1e-9):
+                    raise TQECException(
+                        f"Cube at {translation} has a non-identity scale."
+                    )
+                # Append
+                parsed_cubes.append((translation, kind, axes_directions))
+
+    pipe_length = 2.0 if pipe_length is None else pipe_length
+
+    # Construct graph
+    # Create graph
+    graph = BlockGraph(graph_name)
+
+    # Add cubes
+    for pos, cube_kind, axes_directions in parsed_cubes:
+        if isinstance(cube_kind, YHalfCube):
+            pos = offset_y_cube_position(pos, pipe_length)
+        graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
+    port_index = 0
+
+    # Add pipes
+    for pos, pipe_kind, axes_directions in parsed_pipes:
+        # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers from previous operations
+        directional_multiplier = axes_directions[str(pipe_kind.direction)]
+        head_pos = int_position_before_scale(
+            pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier),
+            pipe_length,
+        )
+        tail_pos = head_pos.shift_in_direction(
+            pipe_kind.direction, 1 * directional_multiplier
+        )
+
+        # Add pipe
+        if head_pos not in graph:
+            graph.add_cube(head_pos, Port(), label=f"Port{port_index}")
+            port_index += 1
+        if tail_pos not in graph:
+            graph.add_cube(tail_pos, Port(), label=f"Port{port_index}")
+            port_index += 1
+        graph.add_pipe(head_pos, tail_pos, pipe_kind)
+
+    return graph
+
+
+def write_block_graph_to_dae_file(
+    block_graph: BlockGraph,
+    file_like: str | pathlib.Path | BinaryIO,
+    pipe_length: float = 2.0,
+    pop_faces_at_direction: SignedDirection3D | str | None = None,
+    show_correlation_surface: CorrelationSurface | None = None,
+) -> None:
+    """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
+    Collada DAE file.
+
+    Args:
+        block_graph: The block graph to write to the DAE file.
+        file: The output file path or file-like object that supports binary write.
+        pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.
+        pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
+            This is useful for visualizing the internal structure of the blocks. Default is None.
+        show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.
+    """
+    if isinstance(pop_faces_at_direction, str):
+        pop_faces_at_direction = SignedDirection3D.from_string(pop_faces_at_direction)
+    base = _BaseColladaData(pop_faces_at_direction)
+
+    def scale_position(pos: Position3D) -> FloatPosition3D:
+        return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
+
+    for cube in block_graph.cubes:
+        if cube.is_port:
+            continue
+
+        scaled_position = scale_position(cube.position)
+        if cube.is_y_cube and block_graph.has_pipe_between(
+            cube.position, cube.position.shift_by(dz=1)
+        ):
+            scaled_position = scaled_position.shift_by(dz=0.5)
+
+        matrix = np.eye(4, dtype=np.float32)
+        matrix[:3, 3] = scaled_position.as_array()
+        pop_faces_at_directions = []
+
+        for pipe in block_graph.pipes_at(cube.position):
+            pop_faces_at_directions.append(
+                SignedDirection3D(pipe.direction, cube == pipe.u)
+            )
+
+        base.add_block_instance(matrix, cube.kind, pop_faces_at_directions)
+
+    for pipe in block_graph.pipes:
+        head_pos = scale_position(pipe.u.position)
+        pipe_pos = head_pos.shift_in_direction(pipe.direction, 1.0)
+
+        matrix = np.eye(4, dtype=np.float32)
+        matrix[:3, 3] = pipe_pos.as_array()
+        scales = [1.0, 1.0, 1.0]
+
+        # We divide the scaling by 2.0 because the pipe's default length is 2.0.
+        scales[pipe.direction.value] = pipe_length / 2.0
+        matrix[:3, :3] = np.diag(scales)
+
+        base.add_block_instance(matrix, pipe.kind)
+
+    if show_correlation_surface is not None:
+        base.add_correlation_surface(block_graph, show_correlation_surface, pipe_length)
+
+    base.mesh.write(file_like)
+
+
+# JSON IMPORTER
+# Why no JSON exporter? No need. It can be done with blockgraph.to_dict
 def read_block_graph_from_json(
     filepath: str | pathlib.Path,
     graph_name: str = "",
@@ -200,266 +414,7 @@ def read_block_graph_from_json(
     return graph
 
 
-def read_block_graph_from_dae_file(
-    filepath: str | pathlib.Path,
-    graph_name: str = "",
-) -> BlockGraph:
-    """Read a Collada DAE file and construct a
-    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.
-
-    Args:
-        filepath: The input dae file path.
-        graph_name: The name of the block graph. Default is an empty string.
-        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph.
-            See :py:meth:`~tqec.computation.block_graph.BlockGraph.fix_shadowed_faces`
-            for more details. Default is True.
-
-    Returns:
-        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
-
-    Raises:
-        TQECException: If the COLLADA model cannot be parsed and converted to a block graph.
-    """
-
-    # Bring the mesh in
-    mesh = collada.Collada(str(filepath))
-
-    # Check some invariants about the DAE file
-    if mesh.scene is None:
-        raise TQECException("No scene found in the DAE file.")
-    scene: collada.scene.Scene = mesh.scene
-
-    if not (len(scene.nodes) == 1 and scene.nodes[0].name == "SketchUp"):
-        raise TQECException(
-            "The <visual_scene> node must have a single child node with the name 'SketchUp'."
-        )
-
-    sketchup_node: collada.scene.Node = scene.nodes[0]
-    pipe_length: float | None = None
-    parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
-    parsed_pipes: list[tuple[FloatPosition3D, PipeKind, dict[str, int]]] = []
-
-    # Handle nodes in scene/sketchup_node
-    for node in sketchup_node.children:
-        # If everything needed is present
-        if (
-            isinstance(node, collada.scene.Node)
-            and node.matrix is not None
-            and node.children is not None
-            and len(node.children) == 1
-            and isinstance(node.children[0], collada.scene.NodeNode)
-        ):
-            # Extract key info from collada scene
-            instance = cast(collada.scene.NodeNode, node.children[0])
-            library_node: collada.scene.Node = instance.node
-            name: str = library_node.name
-
-            # Skip the correlation surface nodes
-            if name.endswith(_CORRELATION_SUFFIX):
-                continue
-
-            # Extract transformation and translation matrix
-            transformation = _Transformation.from_4d_affine_matrix(node.matrix)
-            translation = FloatPosition3D(*transformation.translation)
-            axes_directions = get_axes_directions(transformation.rotation)
-            kind = block_kind_from_str(name)
-
-            # Rotations step 1. Skip if node's matrix not rotated
-            # - If node's matrix YES rotated: check closer & make necessary adjustments
-            if not np.allclose(transformation.rotation, np.eye(3), atol=1e-9):
-                translation, kind = rotate_on_import(
-                    transformation.rotation,
-                    transformation.translation,
-                    transformation.scale,
-                    kind,
-                )
-
-            # Rotations step 2. Skip if hadamard points in positive direction
-            if isinstance(kind, PipeKind):
-                if axes_directions[str(kind.direction)] == -1 and "H" in str(kind):
-                    kind = adjust_hadamards_direction(kind)
-
-            # Direction, scaling and checks for pipes
-            if isinstance(kind, PipeKind):
-                # Get direction and scale of pipe
-                pipe_direction = kind.direction
-                scale = transformation.scale[pipe_direction.value]
-                # Checks
-                if pipe_length is None:
-                    pipe_length = scale * 2.0
-                elif not np.isclose(pipe_length, scale * 2.0, atol=1e-9):
-                    raise TQECException("All pipes must have the same length.")
-                expected_scale = np.ones(3)
-                expected_scale[pipe_direction.value] = scale
-                if not np.allclose(transformation.scale, expected_scale, atol=1e-9):
-                    raise TQECException(
-                        f"Only the dimension along the pipe can be scaled, which is not the case at {translation}."
-                    )
-                # Append
-                parsed_pipes.append((translation, kind, axes_directions))
-
-            else:
-                # Checks
-                if not np.allclose(transformation.scale, np.ones(3), atol=1e-9):
-                    raise TQECException(
-                        f"Cube at {translation} has a non-identity scale."
-                    )
-                # Append
-                parsed_cubes.append((translation, kind, axes_directions))
-
-    pipe_length = 2.0 if pipe_length is None else pipe_length
-
-    # Construct graph
-    # Create graph
-    graph = BlockGraph(graph_name)
-
-    # Add cubes
-    for pos, cube_kind, axes_directions in parsed_cubes:
-        if isinstance(cube_kind, YHalfCube):
-            pos = offset_y_cube_position(pos, pipe_length)
-        graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
-    port_index = 0
-
-    # Add pipes
-    for pos, pipe_kind, axes_directions in parsed_pipes:
-        # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers from previous operations
-        directional_multiplier = axes_directions[str(pipe_kind.direction)]
-        head_pos = int_position_before_scale(
-            pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier),
-            pipe_length,
-        )
-        tail_pos = head_pos.shift_in_direction(
-            pipe_kind.direction, 1 * directional_multiplier
-        )
-
-        # Add pipe
-        if head_pos not in graph:
-            graph.add_cube(head_pos, Port(), label=f"Port{port_index}")
-            port_index += 1
-        if tail_pos not in graph:
-            graph.add_cube(tail_pos, Port(), label=f"Port{port_index}")
-            port_index += 1
-        graph.add_pipe(head_pos, tail_pos, pipe_kind)
-
-    return graph
-
-
-def core_export(
-    block_graph: BlockGraph, pipe_length: float = 2.0
-) -> tuple[_GraphItems, _GraphItems]:
-    def scale_position(pos: Position3D) -> FloatPosition3D:
-        return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
-
-    # Loop over all cubes in graph and add them to a cubes _GraphItems
-    cubes = _GraphItems()
-    for cube in block_graph.cubes:
-        # Ignore ports
-        if cube.is_port:
-            continue
-
-        # Get spatial information
-        scaled_position = scale_position(cube.position)
-        if cube.is_y_cube and block_graph.has_pipe_between(
-            cube.position, cube.position.shift_by(dz=1)
-        ):
-            scaled_position = scaled_position.shift_by(dz=0.5)
-
-        # Wrap item into a dataclass
-        cube_item = _GraphItem(
-            cube.position,
-            cube.kind,
-            _Transformation(
-                scaled_position.as_array(),
-                np.array([0.0, 0.0, 0.0]),
-                np.eye(3, dtype=np.float32),
-            ),
-        )
-
-        # Append item to cubes
-        cubes.items.append(cube_item)
-
-    # Loop over all pipes in graph and add them to a cubes _GraphItems
-    pipes = _GraphItems()
-    for pipe in block_graph.pipes:
-        # Get spatial information
-        head_pos = scale_position(pipe.u.position)
-        pipe_pos = head_pos.shift_in_direction(pipe.direction, 1.0)
-        matrix = np.eye(4, dtype=np.float32)
-        matrix[:3, 3] = pipe_pos.as_array()
-        scales = [1.0, 1.0, 1.0]
-
-        # Divide scaling by 2.0 because the pipe's default length is 2.0.
-        scales[pipe.direction.value] = pipe_length / 2.0
-        matrix[:3, :3] = np.diag(scales)
-
-        # Wrap item into a dataclass
-        pipe_item = _GraphItem(
-            pipe.u.position,
-            pipe.kind,
-            _Transformation(
-                pipe_pos.as_array(),
-                np.array([0.0, 0.0, 0.0]),
-                np.eye(3, dtype=np.float32),
-            ),
-        )
-
-        # Append item to pipes
-        pipes.items.append(pipe_item)
-
-    return cubes, pipes
-
-
-def write_block_graph_to_dae_file(
-    block_graph: BlockGraph,
-    file_like: str | pathlib.Path | BinaryIO,
-    pipe_length: float = 2.0,
-    pop_faces_at_direction: SignedDirection3D | str | None = None,
-    show_correlation_surface: CorrelationSurface | None = None,
-) -> None:
-    """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
-    Collada DAE file.
-
-    Args:
-        cubes: An object containing spatial information for all cubes in blockgraph
-        pipes: An object containing spatial information for all pipes in blockgraph
-        file: The output file path or file-like object that supports binary write.
-        pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
-            This is useful for visualizing the internal structure of the blocks. Default is None.
-        show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.
-    """
-
-    if isinstance(pop_faces_at_direction, str):
-        pop_faces_at_direction = SignedDirection3D.from_string(pop_faces_at_direction)
-    base = _BaseColladaData(pop_faces_at_direction)
-
-    cubes, pipes = core_export(block_graph, pipe_length)
-
-    for item in cubes.items:
-        matrix = np.eye(4, dtype=np.float32)
-        matrix[:3, 3] = item.transformation_matrix.translation
-
-        pop_faces_at_directions = []
-        for pipe in block_graph.pipes_at(item.position_in_blockgraph):
-            check_for_match = [item.kind, item.position_in_blockgraph] == [
-                pipe.u.kind,
-                pipe.u.position,
-            ]
-            pop_faces_at_directions.append(
-                SignedDirection3D(pipe.direction, check_for_match)
-            )
-        base.add_block_instance(matrix, item.kind, pop_faces_at_directions)
-
-    for item in pipes.items:
-        matrix = np.eye(4, dtype=np.float32)
-        matrix[:3, 3] = item.transformation_matrix.translation
-        base.add_block_instance(matrix, item.kind)
-
-    if show_correlation_surface is not None:
-        base.add_correlation_surface(block_graph, show_correlation_surface, pipe_length)
-
-    base.mesh.write(file_like)
-
-
+# CLASSES
 @dataclass(frozen=True)
 class _BlockLibraryKey:
     """The key to access the library node in the Collada DAE file."""
