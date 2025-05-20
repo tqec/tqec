@@ -485,15 +485,13 @@ Collada DAE file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cubes</strong> – An object containing spatial information for all cubes in blockgraph</p></li>
-<li><p><strong>pipes</strong> – An object containing spatial information for all pipes in blockgraph</p></li>
+<li><p><strong>block_graph</strong> (<em>BlockGraph</em>) – The block graph to write to the DAE file.</p></li>
 <li><p><strong>file</strong> – The output file path or file-like object that supports binary write.</p></li>
+<li><p><strong>pipe_length</strong> (<em>float</em>) – The length of the pipes in the COLLADA model. Default is 2.0.</p></li>
 <li><p><strong>pop_faces_at_direction</strong> (<em>SignedDirection3D</em><em> | </em><em>str</em><em> | </em><em>None</em>) – Remove the faces at the given direction for all the blocks.
 This is useful for visualizing the internal structure of the blocks. Default is None.</p></li>
 <li><p><strong>show_correlation_surface</strong> (<em>CorrelationSurface</em><em> | </em><em>None</em>) – The <code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelationSurface</span></code> to show in the block graph. Default is None.</p></li>
-<li><p><strong>block_graph</strong> (<em>BlockGraph</em>)</p></li>
 <li><p><strong>file_like</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>BinaryIO</em>)</p></li>
-<li><p><strong>pipe_length</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
