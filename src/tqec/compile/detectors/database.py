@@ -150,12 +150,24 @@ class DetectorDatabase:
     In this class, a "situation" is described by :class:`_DetectorDatabaseKey`
     and correspond to a spatially and temporally local piece of a larger
     computation.
+
+    The version number should be manually updated when code is pushed which makes old
+    instances of the database incompatible with newly generated instances. ``None``
+    is a special value which can be set in testing mode and translates into the
+    database not being used (it is equivalent to the 'do_not_use_database' parameter
+    in the functions which use the database). NB old databases generated prior to the
+    introduction of a version attribute will be loaded with the current version number.
+    If the version number has increased past 1.0 when this happens the database will need
+    to be force regenerated manually (by deleting and then rerunning - simply running
+    the default code will not add a version attribute to the saved database)
+    to avoid errors.
     """
 
     mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = field(
         default_factory=dict
     )
     frozen: bool = False
+    version: float | None = 1.0
 
     def add_situation(
         self,
