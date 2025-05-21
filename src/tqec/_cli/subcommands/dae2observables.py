@@ -29,9 +29,7 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
             "dae2observables",
             description="Takes a .dae file in and list all the observables that has been found.",
         )
-        parser.add_argument(
-            "dae_file", help="A valid .dae file representing a computation.", type=Path
-        )
+        parser.add_argument("dae_file", help="A valid .dae file representing a computation.", type=Path)
         parser.add_argument(
             "--out-dir",
             help="An optional argument providing the directory in which to export images representing the observables found.",
@@ -43,9 +41,7 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
     @override
     def execute(args: argparse.Namespace) -> None:
         dae_absolute_path: Path = args.dae_file.resolve()
-        block_graph = BlockGraph.from_dae_file(
-            dae_absolute_path, graph_name=str(dae_absolute_path)
-        )
+        block_graph = BlockGraph.from_dae_file(dae_absolute_path, graph_name=str(dae_absolute_path))
         zx_graph = block_graph.to_zx_graph()
         correlation_surfaces = block_graph.find_correlation_surfaces()
 

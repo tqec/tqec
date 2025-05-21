@@ -111,14 +111,13 @@ class TopologicalComputationGraph:
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         if not block.is_cube:
             raise TQECException(
-                "Cannot add the block as a cube. The provided block"
-                f"({block}) has at least one non-scalable dimension."
+                f"Cannot add the block as a cube. The provided block({block}) has at least one non-scalable dimension."
             )
         self._check_block_spatial_shape(block)
         layout_position = LayoutPosition3D.from_block_position(position)
         if layout_position in self._blocks:
             raise TQECException(
-                "Cannot override a block with ``add_cube``. There is already an " f"entry at {layout_position}."
+                f"Cannot override a block with ``add_cube``. There is already an entry at {layout_position}."
             )
         self._blocks[layout_position] = block
 
@@ -139,7 +138,7 @@ class TopologicalComputationGraph:
         """
         if not source.is_neighbour(sink):
             raise TQECException(
-                f"Trying to add a pipe between {source} and {sink} that are " "not neighbouring positions."
+                f"Trying to add a pipe between {source} and {sink} that are not neighbouring positions."
             )
         if not source < sink:
             raise TQECException(
@@ -149,12 +148,10 @@ class TopologicalComputationGraph:
             )
         source_layout_position = LayoutPosition3D.from_block_position(source)
         if source_layout_position not in self._blocks:
-            raise TQECException(
-                f"Cannot add a pipe between {source:=} and {sink:=}: the source " "is not in the graph."
-            )
+            raise TQECException(f"Cannot add a pipe between {source:=} and {sink:=}: the source is not in the graph.")
         sink_layout_position = LayoutPosition3D.from_block_position(sink)
         if sink_layout_position not in self._blocks:
-            raise TQECException(f"Cannot add a pipe between {source:=} and {sink:=}: the sink " "is not in the graph.")
+            raise TQECException(f"Cannot add a pipe between {source:=} and {sink:=}: the sink is not in the graph.")
 
     def _check_spatial_pipe(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
         """Check the validity of a spatial pipe between ``source`` and
@@ -178,7 +175,7 @@ class TopologicalComputationGraph:
         layout_position = LayoutPosition3D.from_pipe_position((source, sink))
         if layout_position in self._blocks:
             raise TQECException(
-                "Cannot override a pipe with ``add_pipe``. There is already " f"a pipe at {layout_position}."
+                f"Cannot override a pipe with ``add_pipe``. There is already a pipe at {layout_position}."
             )
 
     def _check_block_spatial_shape(self, block: Block) -> None:
@@ -300,8 +297,7 @@ class TopologicalComputationGraph:
         # implemented using template / plaquettes.
         if not isinstance(layer, PlaquetteLayer):
             raise NotImplementedError(
-                "Cannot substitute spatial pipe piece from a layer that "
-                f"is not a {PlaquetteLayer.__name__} instance."
+                f"Cannot substitute spatial pipe piece from a layer that is not a {PlaquetteLayer.__name__} instance."
             )
         for trimmed_spatial_border in block.trimmed_spatial_borders:
             pipe_pos = LayoutPosition3D.from_block_and_signed_direction(block_pos, trimmed_spatial_border.value)

@@ -19,14 +19,10 @@ class FixedTemplate(RectangularTemplate):
         default_increments: Shift2D | None = None,
     ) -> None:
         super().__init__(default_increments)
-        self._indices: npt.NDArray[numpy.int_] = numpy.array(
-            [list(line) for line in indices]
-        )
+        self._indices: npt.NDArray[numpy.int_] = numpy.array([list(line) for line in indices])
 
     @override
-    def instantiate(
-        self, k: int = 0, plaquette_indices: Sequence[int] | None = None
-    ) -> npt.NDArray[numpy.int_]:
+    def instantiate(self, k: int = 0, plaquette_indices: Sequence[int] | None = None) -> npt.NDArray[numpy.int_]:
         if plaquette_indices is None:
             plaquette_indices = list(range(1, self.expected_plaquettes_number + 1))
 

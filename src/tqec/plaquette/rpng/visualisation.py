@@ -220,7 +220,7 @@ def _draw_plaquette(
             )
     # stroke around the polygon
     stroke_layer.append(
-        f'<path d="{path_directions}" ' f'fill="none" stroke="black" stroke-width="{0.05 * scale_factor}"/>'
+        f'<path d="{path_directions}" fill="none" stroke="black" stroke-width="{0.05 * scale_factor}"/>'
     )
     # Add the hook error
     if hook_error is not None:

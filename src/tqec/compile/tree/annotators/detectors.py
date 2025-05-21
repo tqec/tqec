@@ -94,7 +94,7 @@ class LookbackStack:
             )
         if repetitions < 1:
             raise TQECException(
-                "Cannot have a REPEAT block with less than 1 repetitions. Got " f"{repetitions} repetitions."
+                f"Cannot have a REPEAT block with less than 1 repetitions. Got {repetitions} repetitions."
             )
         self._stack[-2].extend(self._stack[-1], repetitions)
         self._stack.pop(-1)
@@ -110,7 +110,7 @@ class LookbackStack:
 
     def _get_last_n(self, n: int) -> tuple[list[Template], list[Plaquettes], list[MeasurementRecordsMap]]:
         if n < 0:
-            raise TQECException("Cannot look back a negative number of rounds. Got a lookback " f"value of {n}.")
+            raise TQECException(f"Cannot look back a negative number of rounds. Got a lookback value of {n}.")
         if n == 0:
             return [], [], []
         templates: list[Template] = []
@@ -141,7 +141,7 @@ class LookbackStack:
 
     def __len__(self) -> int:
         if len(self._stack) > 1:
-            raise TQECException("Cannot get a meaningful stack length when a REPEAT block is " "in construction.")
+            raise TQECException("Cannot get a meaningful stack length when a REPEAT block is in construction.")
         return len(self._stack[0])
 
 

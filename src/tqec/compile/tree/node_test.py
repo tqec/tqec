@@ -17,31 +17,23 @@ from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 LOGICAL_QUBIT_SIDE: Final = LinearFunction(4, 5)
-LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
-    LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE
-)
+LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE)
 
 
 @pytest.fixture(name="plaquette_layer")
 def plaquette_layer_fixture() -> PlaquetteLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_value=empty_square_plaquette())
-    )
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
     return PlaquetteLayer(template, plaquettes)
 
 
 @pytest.fixture(name="layout_layer")
 def layout_layer_fixture() -> LayoutLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_value=empty_square_plaquette())
-    )
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
     return LayoutLayer(
         {
-            LayoutPosition2D.from_block_position(BlockPosition2D(x, y)): PlaquetteLayer(
-                template, plaquettes
-            )
+            LayoutPosition2D.from_block_position(BlockPosition2D(x, y)): PlaquetteLayer(template, plaquettes)
             for x, y in [(0, 0), (1, 0)]
         },
         LOGICAL_QUBIT_SHAPE,
@@ -94,19 +86,8 @@ def test_walk_see_all_leaf_nodes(layout_layer: LayoutLayer) -> None:
     assert (
         count_leaves(LayerNode(RepeatedLayer(layout_layer, LinearFunction(2, 0)))) == 1
     )  # Because RepeatedLayer has only its repeated node as child.
+    assert count_leaves(LayerNode(SequencedLayers([layout_layer for _ in range(3)]))) == 3
     assert (
-        count_leaves(LayerNode(SequencedLayers([layout_layer for _ in range(3)]))) == 3
-    )
-    assert (
-        count_leaves(
-            LayerNode(
-                SequencedLayers(
-                    [
-                        SequencedLayers([layout_layer for _ in range(3)])
-                        for _ in range(5)
-                    ]
-                )
-            )
-        )
+        count_leaves(LayerNode(SequencedLayers([SequencedLayers([layout_layer for _ in range(3)]) for _ in range(5)])))
         == 15
     )

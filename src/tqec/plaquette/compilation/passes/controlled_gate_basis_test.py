@@ -27,16 +27,10 @@ def test_compilation_pass_creation() -> None:
 
 
 def test_simple_controlled_gate_basis() -> None:
-    compilation_pass = ChangeControlledGateBasisPass(
-        Basis.X, ScheduleOffset(-1), ScheduleOffset(1)
-    )
+    compilation_pass = ChangeControlledGateBasisPass(Basis.X, ScheduleOffset(-1), ScheduleOffset(1))
     assert compilation_pass.run(_s("TICK\nCX 0 1\nTICK")) == _s("TICK\nCX 0 1\nTICK")
-    assert compilation_pass.run(_s("TICK\nCZ 0 1\nTICK")) == _s(
-        "H 1\nTICK\nCX 0 1\nTICK\nH 1"
-    )
-    assert compilation_pass.run(_s("TICK\nCZ 1 0\nTICK")) == _s(
-        "H 0\nTICK\nCX 1 0\nTICK\nH 0"
-    )
+    assert compilation_pass.run(_s("TICK\nCZ 0 1\nTICK")) == _s("H 1\nTICK\nCX 0 1\nTICK\nH 1")
+    assert compilation_pass.run(_s("TICK\nCZ 1 0\nTICK")) == _s("H 0\nTICK\nCX 1 0\nTICK\nH 0")
     assert (
         compilation_pass.run(_s("RX 0\nTICK\nCZ 0 1\nTICK\nMX 0")).get_circuit()
         == _s("RX 0\nH 1\nTICK\nCX 0 1\nTICK\nMX 0\nH 1").get_circuit()
@@ -44,9 +38,7 @@ def test_simple_controlled_gate_basis() -> None:
 
 
 def test_controlled_gate_basis_schedule_constant() -> None:
-    compilation_pass = ChangeControlledGateBasisPass(
-        Basis.X, ScheduleConstant(0), ScheduleConstant(6)
-    )
+    compilation_pass = ChangeControlledGateBasisPass(Basis.X, ScheduleConstant(0), ScheduleConstant(6))
     qubit_map = QubitMap({i: GridQubit(i, i) for i in [0, 1]})
     for sched in range(1, 6):
         circ = ScheduledCircuit([Moment(stim.Circuit("CZ 0 1"))], [sched], qubit_map)

@@ -154,9 +154,7 @@ class _DetectorDatabaseKey:
         """
         return {
             "subtemplates": [st.tolist() for st in self.subtemplates],
-            "plaquettes_by_timestep": [
-                p.to_dict(plaquettes_to_indices) for p in self.plaquettes_by_timestep
-            ],
+            "plaquettes_by_timestep": [p.to_dict(plaquettes_to_indices) for p in self.plaquettes_by_timestep],
         }
 
     @staticmethod
@@ -179,9 +177,7 @@ class _DetectorDatabaseKey:
 
         """
         subtemplates = [numpy.array(st) for st in data["subtemplates"]]
-        plaquettes_by_timestep = [
-            Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]
-        ]
+        plaquettes_by_timestep = [Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]]
         return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
 
 
@@ -364,9 +360,7 @@ class DetectorDatabase:
         }
         return DetectorDatabase(mapping, data["frozen"])
 
-    def to_file(
-        self, filepath: Path, format: Literal["pickle", "json"] = "pickle"
-    ) -> None:
+    def to_file(self, filepath: Path, format: Literal["pickle", "json"] = "pickle") -> None:
         """Save the database to a file.
 
         Args:
@@ -386,9 +380,7 @@ class DetectorDatabase:
                 json.dump(self.to_dict(), f)
 
     @staticmethod
-    def from_file(
-        filepath: Path, format: Literal["pickle", "json"] = "pickle"
-    ) -> DetectorDatabase:
+    def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
         if format == "pickle":
             with open(filepath, "rb") as f:
                 database = pickle.load(f)

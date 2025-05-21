@@ -116,9 +116,7 @@ OP_MEASURE_BASES = {
     "MZ": "Z",
     "MPP": "",
 }
-COLLAPSING_OPS = {
-    op for op, t in OP_TYPES.items() if t in (JUST_RESET_1Q, JUST_MEASURE_1Q, MPP, MEASURE_RESET_1Q)
-}
+COLLAPSING_OPS = {op for op, t in OP_TYPES.items() if t in (JUST_RESET_1Q, JUST_MEASURE_1Q, MPP, MEASURE_RESET_1Q)}
 
 
 class NoiseRule:

@@ -47,9 +47,7 @@ def raw_circuit_fixed_size_layer_fixture() -> RawCircuitLayer:
     )
 
 
-def test_creation(
-    plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer
-) -> None:
+def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer) -> None:
     # Invalid sequences due to duration < 1
     err_regex = ".*expected to have at least one layer.*"
     with pytest.raises(TQECException, match=err_regex):
@@ -91,9 +89,7 @@ def test_schedule(plaquette_layer: PlaquetteLayer) -> None:
 
 
 def test_scalable_timesteps(plaquette_layer: PlaquetteLayer) -> None:
-    assert SequencedLayers(
-        [plaquette_layer for _ in range(10)]
-    ).scalable_timesteps == LinearFunction(0, 10)
+    assert SequencedLayers([plaquette_layer for _ in range(10)]).scalable_timesteps == LinearFunction(0, 10)
     assert SequencedLayers(
         [
             plaquette_layer,
@@ -110,16 +106,11 @@ def test_scalable_timesteps(plaquette_layer: PlaquetteLayer) -> None:
 
 
 @pytest.mark.parametrize("borders", [(border,) for border in SpatialBlockBorder])
-def test_with_spatial_borders_trimmed(
-    borders: tuple[SpatialBlockBorder, ...], plaquette_layer: PlaquetteLayer
-) -> None:
+def test_with_spatial_borders_trimmed(borders: tuple[SpatialBlockBorder, ...], plaquette_layer: PlaquetteLayer) -> None:
     layer = SequencedLayers([plaquette_layer for _ in range(5)])
     trimmed_layer = layer.with_spatial_borders_trimmed(borders)
     trimmed_internal_layer = plaquette_layer.with_spatial_borders_trimmed(borders)
-    assert all(
-        internal_layer == trimmed_internal_layer
-        for internal_layer in trimmed_layer.layer_sequence
-    )
+    assert all(internal_layer == trimmed_internal_layer for internal_layer in trimmed_layer.layer_sequence)
 
 
 def test_with_temporal_borders_replaced_none(
@@ -129,12 +120,12 @@ def test_with_temporal_borders_replaced_none(
 ) -> None:
     layer = SequencedLayers([plaquette_layer, plaquette_layer2, raw_circuit_layer])
     assert layer.with_temporal_borders_replaced({}) == layer
-    assert layer.with_temporal_borders_replaced(
-        {TemporalBlockBorder.Z_NEGATIVE: None}
-    ) == SequencedLayers([plaquette_layer2, raw_circuit_layer])
-    assert layer.with_temporal_borders_replaced(
-        {TemporalBlockBorder.Z_POSITIVE: None}
-    ) == SequencedLayers([plaquette_layer, plaquette_layer2])
+    assert layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: None}) == SequencedLayers(
+        [plaquette_layer2, raw_circuit_layer]
+    )
+    assert layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: None}) == SequencedLayers(
+        [plaquette_layer, plaquette_layer2]
+    )
     assert (
         layer.with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
@@ -143,9 +134,7 @@ def test_with_temporal_borders_replaced_none(
     )
     # Shorter to cover one edge-case:
     assert (
-        SequencedLayers(
-            [plaquette_layer, raw_circuit_layer]
-        ).with_temporal_borders_replaced(
+        SequencedLayers([plaquette_layer, raw_circuit_layer]).with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
         )
         is None
@@ -161,12 +150,12 @@ def test_with_temporal_borders_replaced(
 
     assert layer.with_temporal_borders_replaced({}) == layer
     for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:
-        assert layer.with_temporal_borders_replaced(
-            {TemporalBlockBorder.Z_NEGATIVE: replacement}
-        ) == SequencedLayers([replacement, plaquette_layer2, raw_circuit_layer])
-        assert layer.with_temporal_borders_replaced(
-            {TemporalBlockBorder.Z_POSITIVE: replacement}
-        ) == SequencedLayers([plaquette_layer, plaquette_layer2, replacement])
+        assert layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: replacement}) == SequencedLayers(
+            [replacement, plaquette_layer2, raw_circuit_layer]
+        )
+        assert layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: replacement}) == SequencedLayers(
+            [plaquette_layer, plaquette_layer2, replacement]
+        )
         assert layer.with_temporal_borders_replaced(
             {
                 TemporalBlockBorder.Z_NEGATIVE: replacement,
@@ -182,24 +171,10 @@ def test_with_temporal_borders_replaced(
 
 
 def test_to_sequenced_layer_with_schedule(plaquette_layer: PlaquetteLayer) -> None:
-    layer = SequencedLayers(
-        [RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer]
-    )
-    assert (
-        layer.to_sequenced_layer_with_schedule(
-            (LinearFunction(2, 0), LinearFunction(0, 1))
-        )
-        == layer
-    )
-    err_regex = (
-        "^.*The provided schedule has a duration of .* but the instance "
-        "to transform has a duration of .*$"
-    )
+    layer = SequencedLayers([RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer])
+    assert layer.to_sequenced_layer_with_schedule((LinearFunction(2, 0), LinearFunction(0, 1))) == layer
+    err_regex = "^.*The provided schedule has a duration of .* but the instance to transform has a duration of .*$"
     with pytest.raises(TQECException, match=err_regex):
-        layer.to_sequenced_layer_with_schedule(
-            (LinearFunction(0, 1), LinearFunction(1, 0))
-        )
+        layer.to_sequenced_layer_with_schedule((LinearFunction(0, 1), LinearFunction(1, 0)))
     with pytest.raises(NotImplementedError):
-        layer.to_sequenced_layer_with_schedule(
-            (LinearFunction(0, 1), LinearFunction(2, 0))
-        )
+        layer.to_sequenced_layer_with_schedule((LinearFunction(0, 1), LinearFunction(2, 0)))

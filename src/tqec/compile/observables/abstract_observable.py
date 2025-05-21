@@ -283,8 +283,7 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
         v_basis = Basis.Z if is_z_no_phase(g, v) else Basis.X
         if counts[v_basis.flipped()] not in [0, len(edges)]:
             raise TQECException(
-                "X (Z) type vertex should have Pauli Z (X) Pauli supported on all"
-                f"or no edges, {v} violates the rule."
+                f"X (Z) type vertex should have Pauli Z (X) Pauli supported on allor no edges, {v} violates the rule."
             )
         if counts[v_basis] % 2 != 0:
             raise TQECException(

@@ -38,9 +38,7 @@ def XZO_fixture(XZZ: Block) -> Block:
     first_layer = XZZ.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
-    return FIXED_BULK_PIPE_BUILDER(
-        PipeSpec((spec, spec), (template, template), PipeKind.from_str("XZO"))
-    )
+    return FIXED_BULK_PIPE_BUILDER(PipeSpec((spec, spec), (template, template), PipeKind.from_str("XZO")))
 
 
 @pytest.fixture(name="OZZ")
@@ -49,9 +47,7 @@ def OZZ_fixture(XZZ: Block) -> Block:
     first_layer = XZZ.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
-    return FIXED_BULK_PIPE_BUILDER(
-        PipeSpec((spec, spec), (template, template), PipeKind.from_str("OZZ"))
-    )
+    return FIXED_BULK_PIPE_BUILDER(PipeSpec((spec, spec), (template, template), PipeKind.from_str("OZZ")))
 
 
 @pytest.fixture(name="XOZ")
@@ -60,9 +56,7 @@ def XOZ_fixture(XZZ: Block) -> Block:
     first_layer = XZZ.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
-    return FIXED_BULK_PIPE_BUILDER(
-        PipeSpec((spec, spec), (template, template), PipeKind.from_str("XOZ"))
-    )
+    return FIXED_BULK_PIPE_BUILDER(PipeSpec((spec, spec), (template, template), PipeKind.from_str("XOZ")))
 
 
 def test_add_temporal_pipe_with_spatial_pipe_existing(

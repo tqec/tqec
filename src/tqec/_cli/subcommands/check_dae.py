@@ -27,13 +27,9 @@ class CheckDaeTQECSubCommand(TQECSubCommand):
     def execute(args: argparse.Namespace) -> None:
         dae_absolute_path: Path = args.dae_file.resolve()
         try:
-            BlockGraph.from_dae_file(
-                dae_absolute_path, graph_name=str(dae_absolute_path)
-            )
+            BlockGraph.from_dae_file(dae_absolute_path, graph_name=str(dae_absolute_path))
         except Exception as e:
-            print(
-                "Failed to load the .dae file into a BlockGraph with the following error:"
-            )
+            print("Failed to load the .dae file into a BlockGraph with the following error:")
             print(e)
         else:
             print("No issue found, the provided .dae file seems valid.")

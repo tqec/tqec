@@ -296,8 +296,7 @@ def get_observable_with_measurement_records(
     """
     if not ignore_qubits_with_no_measurement and any(len(measurement_records.mapping.get(q, [])) == 0 for q in qubits):
         raise TQECException(
-            "Some qubits are not measured in the circuit. "
-            "Set ignore_qubits_with_no_measurement to True to ignore them."
+            "Some qubits are not measured in the circuit. Set ignore_qubits_with_no_measurement to True to ignore them."
         )
 
     measurement_offsets = [

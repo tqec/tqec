@@ -91,21 +91,20 @@ class UniqueSubTemplates:
         indices = frozenset(numpy.unique(self.subtemplate_indices)) - {typing.cast(numpy.int_, 0)}
         if not indices.issubset(self.subtemplates.keys()):
             raise TQECException(
-                "Found an index in subtemplate_indices that does " "not correspond to a valid subtemplate."
+                "Found an index in subtemplate_indices that does not correspond to a valid subtemplate."
             )
         shape = next(iter(self.subtemplates.values())).shape
         if shape[0] != shape[1]:
             raise TQECException(
-                "Subtemplate shapes are expected to be square. " f"Found the shape {shape} that is not a square."
+                f"Subtemplate shapes are expected to be square. Found the shape {shape} that is not a square."
             )
         if shape[0] % 2 == 0:
             raise TQECException(
-                "Subtemplate shapes are expected to be squares with an "
-                f"odd size length. Found size length {shape[0]}."
+                f"Subtemplate shapes are expected to be squares with an odd size length. Found size length {shape[0]}."
             )
         if not all(subtemplate.shape == shape for subtemplate in self.subtemplates.values()):
             raise TQECException(
-                "All the subtemplates should have the exact same shape. " "Found one with a differing shape."
+                "All the subtemplates should have the exact same shape. Found one with a differing shape."
             )
 
     @property
@@ -282,7 +281,7 @@ class Unique3DSubTemplates:
         ) - {zero}
         if not indices.issubset(self.subtemplates.keys()):
             raise TQECException(
-                "Found an index in subtemplate_indices that does " "not correspond to a valid subtemplate."
+                "Found an index in subtemplate_indices that does not correspond to a valid subtemplate."
             )
         # Check that the provided subtemplate shapes are valid:
         # - square with odd sides in the spatial dimensions,
@@ -291,20 +290,19 @@ class Unique3DSubTemplates:
         shape = next(iter(self.subtemplates.values())).shape
         if shape[0] != shape[1]:
             raise TQECException(
-                "Subtemplate shapes are expected to be square. " f"Found the shape {shape} that is not a square."
+                f"Subtemplate shapes are expected to be square. Found the shape {shape} that is not a square."
             )
         if shape[0] % 2 == 0:
             raise TQECException(
-                "Subtemplate shapes are expected to be squares with an "
-                f"odd size length. Found size length {shape[0]}."
+                f"Subtemplate shapes are expected to be squares with an odd size length. Found size length {shape[0]}."
             )
         if len(shape) != 3:
             raise TQECException(
-                "Expecting 3-dimensional subtemplates but got a template with " f"{len(shape)} dimensions."
+                f"Expecting 3-dimensional subtemplates but got a template with {len(shape)} dimensions."
             )
         if not all(subtemplate.shape == shape for subtemplate in self.subtemplates.values()):
             raise TQECException(
-                "All the subtemplates should have the exact same shape. " "Found one with a differing shape."
+                "All the subtemplates should have the exact same shape. Found one with a differing shape."
             )
 
     @property

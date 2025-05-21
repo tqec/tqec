@@ -31,27 +31,15 @@ def test_pipe_kind() -> None:
 
 
 def test_pipe_kind_from_cube_kind() -> None:
-    assert PipeKind._from_cube_kind(
-        ZXCube.from_str("XXZ"), Direction3D.X, True
-    ) == PipeKind.from_str("OXZ")
-    assert PipeKind._from_cube_kind(
-        ZXCube.from_str("XXZ"), Direction3D.Y, True
-    ) == PipeKind.from_str("XOZ")
-    assert PipeKind._from_cube_kind(
-        ZXCube.from_str("XXZ"), Direction3D.Y, False
-    ) == PipeKind.from_str("XOZ")
-    assert PipeKind._from_cube_kind(
-        ZXCube.from_str("ZXZ"), Direction3D.Z, True, True
-    ) == PipeKind.from_str("ZXOH")
-    assert PipeKind._from_cube_kind(
-        ZXCube.from_str("ZXZ"), Direction3D.Z, False, True
-    ) == PipeKind.from_str("XZOH")
+    assert PipeKind._from_cube_kind(ZXCube.from_str("XXZ"), Direction3D.X, True) == PipeKind.from_str("OXZ")
+    assert PipeKind._from_cube_kind(ZXCube.from_str("XXZ"), Direction3D.Y, True) == PipeKind.from_str("XOZ")
+    assert PipeKind._from_cube_kind(ZXCube.from_str("XXZ"), Direction3D.Y, False) == PipeKind.from_str("XOZ")
+    assert PipeKind._from_cube_kind(ZXCube.from_str("ZXZ"), Direction3D.Z, True, True) == PipeKind.from_str("ZXOH")
+    assert PipeKind._from_cube_kind(ZXCube.from_str("ZXZ"), Direction3D.Z, False, True) == PipeKind.from_str("XZOH")
 
 
 def test_pipe() -> None:
-    with pytest.raises(
-        Exception, match="The pipe must connect two nearby cubes in direction Y."
-    ):
+    with pytest.raises(Exception, match="The pipe must connect two nearby cubes in direction Y."):
         Pipe(
             Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
             Cube(Position3D(1, 0, 0), ZXCube.from_str("XXZ")),

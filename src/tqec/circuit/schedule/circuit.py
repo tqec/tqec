@@ -131,7 +131,7 @@ class ScheduledCircuit:
         # `stim.CircuitRepeatBlock` instance.
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
             raise ScheduleException(
-                "stim.CircuitRepeatBlock instances are not supported in " "a ScheduledCircuit instance."
+                "stim.CircuitRepeatBlock instances are not supported in a ScheduledCircuit instance."
             )
         moments: list[Moment] = list(iter_stim_circuit_without_repeat_by_moments(circuit, collected_before_use=True))
         if not moments:
@@ -372,7 +372,7 @@ class ScheduledCircuit:
 
         schedule = self._schedule[-1] + 1 + schedule if schedule < 0 else schedule
         if schedule < 0:
-            raise TQECException("Trying to get the index of a Moment instance with a negative " f"schedule {schedule}.")
+            raise TQECException(f"Trying to get the index of a Moment instance with a negative schedule {schedule}.")
         moment_index = next((i for i, sched in enumerate(self._schedule) if sched == schedule), None)
         return moment_index
 
@@ -462,7 +462,7 @@ class ScheduledCircuit:
         """
         if not is_annotation_instruction(instruction):
             raise TQECException(
-                "The provided instruction is not an annotation, which is " "disallowed by the append_annotation method."
+                "The provided instruction is not an annotation, which is disallowed by the append_annotation method."
             )
         self._moments[-1].append_annotation(instruction)
 

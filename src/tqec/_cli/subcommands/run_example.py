@@ -108,8 +108,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             obs_indices = list(range(len(correlation_surfaces)))
         if max(obs_indices) >= len(correlation_surfaces):
             raise ValueError(
-                f"Found {len(correlation_surfaces)} observables,"
-                + f"but requested indices up to {max(obs_indices)}."
+                f"Found {len(correlation_surfaces)} observables," + f"but requested indices up to {max(obs_indices)}."
             )
 
         convention = ALL_CONVENTIONS[convention_name]
@@ -134,8 +133,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
         logging.info("Write plots to %s.", plots_out_dir)
         for i, stat in enumerate(stats):
             with open(
-                simulations_out_dir
-                / f"{convention}_logical_cnot_result_{obs_basis.value}_observable_{i}.csv",
+                simulations_out_dir / f"{convention}_logical_cnot_result_{obs_basis.value}_observable_{i}.csv",
                 "w+",
                 encoding="utf-8",
             ) as stats_file:
@@ -155,7 +153,4 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             ax.legend()
             ax.loglog()
             ax.set_title(f"{convention} Logical CNOT Error Rate")
-            fig.savefig(
-                plots_out_dir
-                / f"{convention}_logical_cnot_result_{obs_basis.value}_observable_{i}.png"
-            )
+            fig.savefig(plots_out_dir / f"{convention}_logical_cnot_result_{obs_basis.value}_observable_{i}.png")

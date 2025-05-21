@@ -25,9 +25,7 @@ from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECException
 
-GENERATOR = FixedBulkConventionGenerator(
-    DefaultRPNGTranslator(), IdentityPlaquetteCompiler
-)
+GENERATOR = FixedBulkConventionGenerator(DefaultRPNGTranslator(), IdentityPlaquetteCompiler)
 # Pre-computing Plaquettes and SubTemplateType instances to be able to re-use them
 # in tests.
 # WARNING: the order in which values of the two constants below are defined is
@@ -60,13 +58,9 @@ SUBTEMPLATES: list[SubTemplateType] = list(
 DETECTORS: list[frozenset[Detector]] = [
     frozenset(
         [
+            Detector(frozenset([Measurement(GridQubit(0, 0), -1)]), StimCoordinates(0, 0)),
             Detector(
-                frozenset([Measurement(GridQubit(0, 0), -1)]), StimCoordinates(0, 0)
-            ),
-            Detector(
-                frozenset(
-                    [Measurement(GridQubit(0, 0), -1), Measurement(GridQubit(0, 0), -2)]
-                ),
+                frozenset([Measurement(GridQubit(0, 0), -1), Measurement(GridQubit(0, 0), -2)]),
                 StimCoordinates(0, 0, 1),
             ),
             Detector(
@@ -85,13 +79,9 @@ DETECTORS: list[frozenset[Detector]] = [
     ),
     frozenset(
         [
+            Detector(frozenset([Measurement(GridQubit(0, 0), -1)]), StimCoordinates(0, 0)),
             Detector(
-                frozenset([Measurement(GridQubit(0, 0), -1)]), StimCoordinates(0, 0)
-            ),
-            Detector(
-                frozenset(
-                    [Measurement(GridQubit(0, 0), -1), Measurement(GridQubit(0, 0), -2)]
-                ),
+                frozenset([Measurement(GridQubit(0, 0), -1), Measurement(GridQubit(0, 0), -2)]),
                 StimCoordinates(0, 0, 1),
             ),
         ]
@@ -112,12 +102,7 @@ def test_detector_database_key_creation() -> None:
 
 def test_detector_database_key_num_timeslices() -> None:
     for i in range(min(len(PLAQUETTE_COLLECTIONS), len(SUBTEMPLATES))):
-        assert (
-            _DetectorDatabaseKey(
-                SUBTEMPLATES[:i], PLAQUETTE_COLLECTIONS[:i]
-            ).num_timeslices
-            == i
-        )
+        assert _DetectorDatabaseKey(SUBTEMPLATES[:i], PLAQUETTE_COLLECTIONS[:i]).num_timeslices == i
 
 
 def test_detector_database_key_hash() -> None:
@@ -173,13 +158,9 @@ def test_detector_database_freeze() -> None:
     db.add_situation(SUBTEMPLATES[:2], PLAQUETTE_COLLECTIONS[:2], DETECTORS[1])
 
     db.freeze()
-    with pytest.raises(
-        TQECException, match="^Cannot remove a situation to a frozen database.$"
-    ):
+    with pytest.raises(TQECException, match="^Cannot remove a situation to a frozen database.$"):
         db.remove_situation(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])
-    with pytest.raises(
-        TQECException, match="^Cannot add a situation to a frozen database.$"
-    ):
+    with pytest.raises(TQECException, match="^Cannot add a situation to a frozen database.$"):
         db.add_situation(SUBTEMPLATES[:4], PLAQUETTE_COLLECTIONS[:4], DETECTORS[1])
 
     detectors = db.get_detectors(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])

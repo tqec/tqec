@@ -67,8 +67,7 @@ class SequencedLayers(BaseComposedLayer):
     def scalable_shape(self) -> PhysicalQubitScalable2D:
         if any(isinstance(layer, LayoutLayer) for layer in self._layer_sequence):
             raise NotImplementedError(
-                f"Computation of the scalable_shape for {LayoutLayer.__name__} "
-                "instances has not been implemented yet."
+                f"Computation of the scalable_shape for {LayoutLayer.__name__} instances has not been implemented yet."
             )
         scalable_shape = self._layer_sequence[0].scalable_shape
         for layer in self._layer_sequence[1:]:
@@ -140,7 +139,7 @@ class SequencedLayers(BaseComposedLayer):
         if self.schedule == schedule:
             return self
         raise NotImplementedError(
-            f"Adapting a {SequencedLayers.__name__} instance to another schedule " "is not yet implemented."
+            f"Adapting a {SequencedLayers.__name__} instance to another schedule is not yet implemented."
         )
 
     def __eq__(self, value: object) -> bool:

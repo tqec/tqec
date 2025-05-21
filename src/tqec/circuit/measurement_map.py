@@ -67,9 +67,7 @@ class MeasurementRecordsMap:
         # Check that a given measurement record offset only appears once.
         deduplicated_indices = numpy.unique(all_measurement_records_indices)
         if len(deduplicated_indices) != len(all_measurement_records_indices):
-            raise TQECException(
-                "At least one measurement record offset has been found twice " "in the provided offsets."
-            )
+            raise TQECException("At least one measurement record offset has been found twice in the provided offsets.")
 
     @staticmethod
     def from_scheduled_circuit(circuit: ScheduledCircuit) -> MeasurementRecordsMap:

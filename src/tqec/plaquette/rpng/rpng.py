@@ -312,9 +312,7 @@ class RPNGDescription:
             ``corners`` and ``ancilla``.
 
         """
-        assert (
-            len(data["corners"]) == 4
-        ), "There must be 4 corners in the RPNG description."
+        assert len(data["corners"]) == 4, "There must be 4 corners in the RPNG description."
         corners = data["corners"]
         corners = (
             RPNG.from_string(corners[0]),

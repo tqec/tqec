@@ -169,7 +169,7 @@ def _compute_detectors_at_end_of_situation(
     increments: Shift2D,
 ) -> frozenset[Detector]:
     if len(plaquettes) != len(subtemplates):
-        raise TQECException("Unsupported input: you should provide as many subtemplates as " "there are plaquettes.")
+        raise TQECException("Unsupported input: you should provide as many subtemplates as there are plaquettes.")
     # Note: if the center plaquette of the last entry of `subtemplates` does not
     #       contain any measurement, then we can be sure that there is no
     #       detectors here, so early return.

@@ -616,7 +616,7 @@ class BlockGraph:
                 if cube.is_port and shifted_g[pos].is_port:
                     ports_need_fill[cube.label] = pos
                     continue
-                raise TQECException(f"Cube at position {cube.position} is overlapping between " "the two graphs.")
+                raise TQECException(f"Cube at position {cube.position} is overlapping between the two graphs.")
         composed_g = self.clone()
         # Resolve the cube kinds at the ports
         for label, port in ports_need_fill.items():

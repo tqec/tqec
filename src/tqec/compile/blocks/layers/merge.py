@@ -87,7 +87,7 @@ def merge_composed_layers(
         }
         unknown_types_names = {t.__name__ for t in unknown_types}
         raise NotImplementedError(
-            f"Found instances of {unknown_types_names} that are not yet implemented " "in _merge_composed_layers."
+            f"Found instances of {unknown_types_names} that are not yet implemented in _merge_composed_layers."
         )
     return merge_repeated_and_sequenced_layers(layers, scalable_qubit_shape)
 
@@ -130,7 +130,7 @@ def merge_repeated_layers(
         # size in the time dimension is used later in the function.
         if not timesteps.is_constant():
             raise NotImplementedError(
-                "Found a RepeatedLayer with a scalable in time internal layer. " "This is currently not supported."
+                "Found a RepeatedLayer with a scalable in time internal layer. This is currently not supported."
             )
         timesteps_per_repetition[pos] = round_or_fail(timesteps.offset)
 

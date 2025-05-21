@@ -228,8 +228,7 @@ class QubitVerticalBorders(RectangularTemplate):
         match border:
             case TemplateBorder.TOP | TemplateBorder.BOTTOM:
                 raise TQECException(
-                    f"Template {self.__class__.__name__} does not have repeating "
-                    f"elements on the {border.name} border."
+                    f"Template {self.__class__.__name__} does not have repeating elements on the {border.name} border."
                 )
             case TemplateBorder.LEFT:
                 return BorderIndices(1, 5, 6, 3)
@@ -283,6 +282,5 @@ class QubitHorizontalBorders(RectangularTemplate):
                 return BorderIndices(3, 7, 8, 4)
             case TemplateBorder.LEFT | TemplateBorder.RIGHT:
                 raise TQECException(
-                    f"Template {self.__class__.__name__} does not have repeating "
-                    f"elements on the {border.name} border."
+                    f"Template {self.__class__.__name__} does not have repeating elements on the {border.name} border."
                 )

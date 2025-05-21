@@ -65,9 +65,7 @@ def _get_top_readout_spatial_cube_qubits(
     elif arms == SpatialArms.UP | SpatialArms.DOWN:
         return [(half_x, y) for y in range(1, cube_shape.y)]
     elif arms == SpatialArms.LEFT | SpatialArms.UP:
-        qubits = [(x, half_y) for x in range(1, half_x)] + [
-            (half_x, y) for y in range(1, half_y)
-        ]
+        qubits = [(x, half_y) for x in range(1, half_x)] + [(half_x, y) for y in range(1, half_y)]
         if observable_basis == Basis.Z:
             qubits.append((half_x, half_y))
         return qubits
@@ -79,16 +77,12 @@ def _get_top_readout_spatial_cube_qubits(
             qubits.append((half_x, half_y))
         return qubits
     elif arms == SpatialArms.UP | SpatialArms.RIGHT:
-        qubits = [(x, half_y) for x in range(cube_shape.x - 1, half_x, -1)] + [
-            (half_x, y) for y in range(1, half_y)
-        ]
+        qubits = [(x, half_y) for x in range(cube_shape.x - 1, half_x, -1)] + [(half_x, y) for y in range(1, half_y)]
         if observable_basis == Basis.X:
             qubits.append((half_x, half_y))
         return qubits
     else:  # arms == SpatialArms.LEFT | SpatialArms.DOWN:
-        qubits = [(x, half_y) for x in range(1, half_x)] + [
-            (half_x, y) for y in range(cube_shape.y - 1, half_y, -1)
-        ]
+        qubits = [(x, half_y) for x in range(1, half_x)] + [(half_x, y) for y in range(cube_shape.y - 1, half_y, -1)]
         if observable_basis == Basis.X:
             qubits.append((half_x, half_y))
         return qubits
@@ -100,10 +94,7 @@ def _get_bottom_stabilizer_spatial_cube_qubits(
 ) -> list[tuple[float, float]]:
     xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
     return [
-        (i + 0.5, j + 0.5)
-        for i in range(cube_shape.x)
-        for j in range(cube_shape.y)
-        if (i + j) % 2 == xy_sum_parity
+        (i + 0.5, j + 0.5) for i in range(cube_shape.x) for j in range(cube_shape.y) if (i + j) % 2 == xy_sum_parity
     ]
 
 

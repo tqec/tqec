@@ -42,8 +42,7 @@ class ScheduleMap:
         for moment_index, moment in circuit.scheduled_moments:
             if moment_index not in self.map:
                 raise TQECException(
-                    f"Found a moment scheduled at {moment_index} but this "
-                    "schedule is not included in the schedule map."
+                    f"Found a moment scheduled at {moment_index} but this schedule is not included in the schedule map."
                 )
             new_schedule = self.map[moment_index]
             ret.add_to_schedule_index(new_schedule, moment)

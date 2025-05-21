@@ -23,9 +23,7 @@ from tqec.utils.position import (
         (Orientation.VERTICAL, [(3, 1), (3, 2), (3, 3), (3, 4), (3, 5)]),
     ],
 )
-def test_get_top_readout_cube_qubits(
-    orientation: Orientation, expected: list[tuple[int, int]]
-) -> None:
+def test_get_top_readout_cube_qubits(orientation: Orientation, expected: list[tuple[int, int]]) -> None:
     shape = PlaquetteShape2D(6, 6)
     coords = _get_top_readout_cube_qubits(shape, orientation)
     assert coords == expected

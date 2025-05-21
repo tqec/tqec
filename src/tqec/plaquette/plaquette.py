@@ -153,9 +153,7 @@ class Plaquette:
         qubits = PlaquetteQubits.from_dict(data["qubits"])
         circuit = ScheduledCircuit.from_dict(data["circuit"])
         mergeable_instructions = frozenset(data["mergeable_instructions"])
-        debug_information = PlaquetteDebugInformation.from_dict(
-            data["debug_information"]
-        )
+        debug_information = PlaquetteDebugInformation.from_dict(data["debug_information"])
         return Plaquette(
             name,
             qubits,
@@ -229,9 +227,7 @@ class Plaquettes:
     def items(self) -> Iterable[tuple[int, Plaquette]]:
         return self.collection.items()
 
-    def to_dict(
-        self, plaquettes_to_indices: dict[Plaquette, int] | None = None
-    ) -> dict[str, Any]:
+    def to_dict(self, plaquettes_to_indices: dict[Plaquette, int] | None = None) -> dict[str, Any]:
         """Return a dictionary representation of the plaquettes.
 
         Args:
@@ -241,28 +237,17 @@ class Plaquettes:
         """
 
         def convert(value: Plaquette) -> Any:
-            return (
-                plaquettes_to_indices[value]
-                if plaquettes_to_indices
-                else value.to_dict()
-            )
+            return plaquettes_to_indices[value] if plaquettes_to_indices else value.to_dict()
 
         return {
             "plaquettes": [
-                {"index": index, "plaquette": convert(plaquette)}
-                for index, plaquette in self.collection.items()
+                {"index": index, "plaquette": convert(plaquette)} for index, plaquette in self.collection.items()
             ],
-            "default": (
-                convert(self.collection.default_value)
-                if self.collection.default_value is not None
-                else None
-            ),
+            "default": (convert(self.collection.default_value) if self.collection.default_value is not None else None),
         }
 
     @staticmethod
-    def from_dict(
-        data: dict[str, Any], plaquettes: Sequence[Plaquette] | None = None
-    ) -> Plaquettes:
+    def from_dict(data: dict[str, Any], plaquettes: Sequence[Plaquette] | None = None) -> Plaquettes:
         """Return a collection of plaquettes from its dictionary representation.
 
         Args:
@@ -275,28 +260,21 @@ class Plaquettes:
         """
 
         def convert(item: dict[str, Any]) -> Plaquette:
-            return (
-                Plaquette.from_dict(item["plaquette"])
-                if plaquettes is None
-                else plaquettes[item["plaquette"]]
-            )
+            return Plaquette.from_dict(item["plaquette"]) if plaquettes is None else plaquettes[item["plaquette"]]
 
         collection = FrozenDefaultDict(
             {int(item["index"]): convert(item) for item in data["plaquettes"]},
             default_value=(
                 (Plaquette.from_dict(data["default"]) if data["default"] else None)
                 if plaquettes is None
-                else (
-                    plaquettes[data["default"]] if data["default"] is not None else None
-                )
+                else (plaquettes[data["default"]] if data["default"] is not None else None)
             ),
         )
         # If the default value is None, print a WARNING
         # (this should not happen in practice)
         if collection.default_value is None:
             print(
-                "WARNING: The default value of the plaquettes collection is None. "
-                "This should not happen in practice."
+                "WARNING: The default value of the plaquettes collection is None. This should not happen in practice."
             )
         return Plaquettes(collection)
 
