@@ -23,15 +23,12 @@ def _with_targets_sorted(moments: Iterator[Moment]) -> list[Moment]:
 
 class SortTargetsPass(CompilationPass):
     """Compilation pass sorting the targets of the provided quantum circuit
-    instructions."""
+    instructions.
+    """
 
     @override
-    def run(
-        self, circuit: ScheduledCircuit, check_all_flows: bool = False
-    ) -> ScheduledCircuit:
-        modified_circuit = ScheduledCircuit(
-            _with_targets_sorted(circuit.moments), circuit.schedule, circuit.qubit_map
-        )
+    def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
+        modified_circuit = ScheduledCircuit(_with_targets_sorted(circuit.moments), circuit.schedule, circuit.qubit_map)
         if check_all_flows:
             self.check_flows(circuit, modified_circuit)
         return modified_circuit

@@ -26,9 +26,7 @@ class QubitTemplate(RectangularTemplate):
     """
 
     @override
-    def instantiate(
-        self, k: int, plaquette_indices: Sequence[int] | None = None
-    ) -> npt.NDArray[numpy.int_]:
+    def instantiate(self, k: int, plaquette_indices: Sequence[int] | None = None) -> npt.NDArray[numpy.int_]:
         if plaquette_indices is None:
             plaquette_indices = list(range(1, self.expected_plaquettes_number + 1))
 
@@ -102,12 +100,11 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
         For ``k == 1``, this template does not include any of the plaquette
         that have an index in ``[13, 17]`` and so its instantiation has a "hole"
         in the plaquette indices.
+
     """
 
     @override
-    def instantiate(
-        self, k: int, plaquette_indices: Sequence[int] | None = None
-    ) -> npt.NDArray[numpy.int_]:
+    def instantiate(self, k: int, plaquette_indices: Sequence[int] | None = None) -> npt.NDArray[numpy.int_]:
         if plaquette_indices is None:
             plaquette_indices = list(range(1, self.expected_plaquettes_number + 1))
 
@@ -198,9 +195,7 @@ class QubitVerticalBorders(RectangularTemplate):
     """
 
     @override
-    def instantiate(
-        self, k: int, plaquette_indices: Sequence[int] | None = None
-    ) -> npt.NDArray[numpy.int_]:
+    def instantiate(self, k: int, plaquette_indices: Sequence[int] | None = None) -> npt.NDArray[numpy.int_]:
         if plaquette_indices is None:
             plaquette_indices = list(range(1, self.expected_plaquettes_number + 1))
         ret = numpy.zeros(self.shape(k).to_numpy_shape(), dtype=numpy.int_)
@@ -252,9 +247,7 @@ class QubitHorizontalBorders(RectangularTemplate):
     """
 
     @override
-    def instantiate(
-        self, k: int, plaquette_indices: Sequence[int] | None = None
-    ) -> npt.NDArray[numpy.int_]:
+    def instantiate(self, k: int, plaquette_indices: Sequence[int] | None = None) -> npt.NDArray[numpy.int_]:
         if plaquette_indices is None:
             plaquette_indices = list(range(1, self.expected_plaquettes_number + 1))
         ret = numpy.zeros(self.shape(k).to_numpy_shape(), dtype=numpy.int_)

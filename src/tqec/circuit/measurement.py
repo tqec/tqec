@@ -37,6 +37,7 @@ class AbstractMeasurement(ABC):
 
         Returns:
             a new instance with the specified offset from ``self``.
+
         """
 
     @abstractmethod
@@ -48,6 +49,7 @@ class AbstractMeasurement(ABC):
 
         Returns:
             a new instance with the specified offset from ``self``.
+
         """
 
     @abstractmethod
@@ -55,9 +57,7 @@ class AbstractMeasurement(ABC):
         """Python magic method to represent an instance as a string."""
 
     @abstractmethod
-    def map_qubit(
-        self, qubit_map: Mapping[GridQubit, GridQubit]
-    ) -> AbstractMeasurement:
+    def map_qubit(self, qubit_map: Mapping[GridQubit, GridQubit]) -> AbstractMeasurement:
         """Returns a new instance representing a measurement on the qubit
         obtained from ``self.qubit`` and the provided ``qubit_map``.
 
@@ -66,6 +66,7 @@ class AbstractMeasurement(ABC):
 
         Returns:
             a new measurement instance with the mapped qubit.
+
         """
 
 
@@ -89,6 +90,7 @@ class Measurement(AbstractMeasurement):
 
     Raises:
         TQECException: if the provided ``offset`` is not strictly negative.
+
     """
 
     qubit: GridQubit
@@ -134,16 +136,14 @@ def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
     Returns:
         all the measurements present in the provided ``circuit``, in their order
         of appearance (so in increasing order of measurement record offsets).
+
     """
     qubit_map = QubitMap.from_circuit(circuit)
     num_measurements: dict[GridQubit, int] = {}
     measurements_reverse_order: list[Measurement] = []
     for instruction in reversed(circuit):
         if isinstance(instruction, stim.CircuitRepeatBlock):
-            raise TQECException(
-                "Found a REPEAT block in get_measurements_from_circuit. This "
-                "is not supported."
-            )
+            raise TQECException("Found a REPEAT block in get_measurements_from_circuit. This " "is not supported.")
         if is_multi_qubit_measurement_instruction(instruction):
             raise TQECException(
                 f"Got a multi-qubit measurement instruction ({instruction.name}) "
@@ -153,14 +153,11 @@ def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
             for (target,) in reversed(instruction.target_groups()):
                 if not target.is_qubit_target:
                     raise TQECException(
-                        "Found a measurement instruction with a target that is "
-                        f"not a qubit target: {instruction}."
+                        "Found a measurement instruction with a target that is " f"not a qubit target: {instruction}."
                     )
                 qi: int = cast(int, target.qubit_value)
                 qubit = qubit_map.i2q[qi]
                 meas_index_on_qubit = num_measurements.get(qubit, 0) + 1
                 num_measurements[qubit] = meas_index_on_qubit
-                measurements_reverse_order.append(
-                    Measurement(qubit, -meas_index_on_qubit)
-                )
+                measurements_reverse_order.append(Measurement(qubit, -meas_index_on_qubit))
     return measurements_reverse_order[::-1]

@@ -1,9 +1,9 @@
 import stim
 
-from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.library.zxxz import make_zxxz_surface_code_plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
+from tqec.utils.enums import Basis
 
 
 def test_zxxz_surface_code_memory_plaquette() -> None:
@@ -74,9 +74,7 @@ TICK
 M 0
 """)
 
-    plaquette = make_zxxz_surface_code_plaquette(
-        "X", x_boundary_orientation="HORIZONTAL"
-    )
+    plaquette = make_zxxz_surface_code_plaquette("X", x_boundary_orientation="HORIZONTAL")
     assert plaquette.name == "ZXXZ_basis(X)_HORIZONTAL"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("_XZZX -> Z____"))
@@ -113,9 +111,7 @@ def test_zxxz_surface_code_init_meas_plaquette() -> None:
     plaquette = make_zxxz_surface_code_plaquette("Z", Basis.Z, Basis.Z)
     assert plaquette.name == "ZXXZ_basis(Z)_VERTICAL_datainit(Z)_datameas(Z)"
     circuit = plaquette.circuit.get_circuit()
-    assert circuit.has_flow(
-        stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]")
-    )
+    assert circuit.has_flow(stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]"))
     assert circuit == stim.Circuit("""
 QUBIT_COORDS(0, 0) 0
 QUBIT_COORDS(-1, -1) 1
@@ -145,9 +141,7 @@ M 0 1 2 3 4
     plaquette = make_zxxz_surface_code_plaquette("X", Basis.X, Basis.X)
     assert plaquette.name == "ZXXZ_basis(X)_VERTICAL_datainit(X)_datameas(X)"
     circuit = plaquette.circuit.get_circuit()
-    assert circuit.has_flow(
-        stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]")
-    )
+    assert circuit.has_flow(stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]"))
     assert circuit == stim.Circuit("""
 QUBIT_COORDS(0, 0) 0
 QUBIT_COORDS(-1, -1) 1
@@ -181,9 +175,7 @@ M 0 1 2 3 4
         x_boundary_orientation="HORIZONTAL",
         init_meas_only_on_side=PlaquetteSide.RIGHT,
     )
-    assert (
-        plaquette.name == "ZXXZ_basis(Z)_HORIZONTAL_datainit(Z,RIGHT)_datameas(Z,RIGHT)"
-    )
+    assert plaquette.name == "ZXXZ_basis(Z)_HORIZONTAL_datainit(Z,RIGHT)_datameas(Z,RIGHT)"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("1 -> _Z_X_ xor rec[-1] xor rec[-2] xor rec[-3]"))
     assert circuit == stim.Circuit("""
@@ -309,9 +301,7 @@ TICK
 M 0 1 2
 """)
     plaquette_right = plaquette.project_on_boundary(PlaquetteOrientation.RIGHT)
-    assert (
-        plaquette_right.name == "ZXXZ_basis(X)_VERTICAL_datainit(X)_datameas(X)_RIGHT"
-    )
+    assert plaquette_right.name == "ZXXZ_basis(X)_VERTICAL_datainit(X)_datameas(X)_RIGHT"
     assert plaquette_right.qubits == PlaquetteQubits(
         data_qubits=qubits.get_qubits_on_side(PlaquetteSide.LEFT),
         syndrome_qubits=qubits.syndrome_qubits,
@@ -343,9 +333,7 @@ M 0 1 2
 
 
 def test_zxxz_surface_code_init_meas_only_on_side() -> None:
-    plaquette = make_zxxz_surface_code_plaquette(
-        "X", Basis.X, init_meas_only_on_side=PlaquetteSide.RIGHT
-    )
+    plaquette = make_zxxz_surface_code_plaquette("X", Basis.X, init_meas_only_on_side=PlaquetteSide.RIGHT)
     assert plaquette.name == "ZXXZ_basis(X)_VERTICAL_datainit(X,RIGHT)"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("1 -> _ZXXZ xor rec[-1]"))
@@ -375,9 +363,7 @@ H 0
 TICK
 M 0
 """)
-    plaquette = make_zxxz_surface_code_plaquette(
-        "Z", data_measurement=Basis.Z, init_meas_only_on_side=PlaquetteSide.UP
-    )
+    plaquette = make_zxxz_surface_code_plaquette("Z", data_measurement=Basis.Z, init_meas_only_on_side=PlaquetteSide.UP)
     assert plaquette.name == "ZXXZ_basis(Z)_VERTICAL_datameas(Z,UP)"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("1 -> ___XZ xor rec[-1] xor rec[-2] xor rec[-3]"))

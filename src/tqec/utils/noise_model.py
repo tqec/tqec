@@ -117,9 +117,7 @@ OP_MEASURE_BASES = {
     "MPP": "",
 }
 COLLAPSING_OPS = {
-    op
-    for op, t in OP_TYPES.items()
-    if t == JUST_RESET_1Q or t == JUST_MEASURE_1Q or t == MPP or t == MEASURE_RESET_1Q
+    op for op, t in OP_TYPES.items() if t == JUST_RESET_1Q or t == JUST_MEASURE_1Q or t == MPP or t == MEASURE_RESET_1Q
 }
 
 
@@ -127,15 +125,15 @@ class NoiseRule:
     """Describes how to add noise to an operation."""
 
     def __init__(self, *, after: dict[str, float], flip_result: float = 0):
-        """
-        Args:
-            after: A dictionary mapping noise rule names to their probability argument.
-                For example, {"DEPOLARIZE2": 0.01, "X_ERROR": 0.02} will add two qubit
-                depolarization with parameter 0.01 and also add 2% bit flip noise. These
-                noise channels occur after all other operations in the moment and are applied
-                to the same targets as the relevant operation.
-            flip_result: The probability that a measurement result should be reported incorrectly.
-                Only valid when applied to operations that produce measurement results.
+        """Args:
+        after: A dictionary mapping noise rule names to their probability argument.
+            For example, {"DEPOLARIZE2": 0.01, "X_ERROR": 0.02} will add two qubit
+            depolarization with parameter 0.01 and also add 2% bit flip noise. These
+            noise channels occur after all other operations in the moment and are applied
+            to the same targets as the relevant operation.
+        flip_result: The probability that a measurement result should be reported incorrectly.
+            Only valid when applied to operations that produce measurement results.
+
         """
         if not (0 <= flip_result <= 1):
             raise ValueError(f"not (0 <= {flip_result=} <= 1)")
@@ -157,8 +155,7 @@ class NoiseRule:
     ) -> None:
         targets = split_op.targets_copy()
         if immune_qubits and any(
-            (t.is_qubit_target or t.is_x_target or t.is_y_target or t.is_z_target)
-            and t.value in immune_qubits
+            (t.is_qubit_target or t.is_x_target or t.is_y_target or t.is_z_target) and t.value in immune_qubits
             for t in targets
         ):
             out_during_moment.append(split_op)
@@ -188,9 +185,7 @@ class NoiseModel:
         any_clifford_2q_rule: NoiseRule | None = None,
     ):
         self.idle_depolarization = idle_depolarization
-        self.additional_depolarization_waiting_for_m_or_r = (
-            additional_depolarization_waiting_for_m_or_r
-        )
+        self.additional_depolarization_waiting_for_m_or_r = additional_depolarization_waiting_for_m_or_r
         self.gate_rules = gate_rules
         self.measure_rules = measure_rules
         self.any_clifford_1q_rule = any_clifford_1q_rule
@@ -249,9 +244,7 @@ class NoiseModel:
             },
         )
 
-    def _noise_rule_for_split_operation(
-        self, *, split_op: stim.CircuitInstruction
-    ) -> NoiseRule | None:
+    def _noise_rule_for_split_operation(self, *, split_op: stim.CircuitInstruction) -> NoiseRule | None:
         if occurs_in_classical_control_system(split_op):
             return None
 
@@ -312,21 +305,13 @@ class NoiseModel:
 
         collapse_qubits_set = set(collapse_qubits)
         clifford_qubits_set = set(clifford_qubits)
-        idle = sorted(
-            system_qubits - collapse_qubits_set - clifford_qubits_set - immune_qubits
-        )
+        idle = sorted(system_qubits - collapse_qubits_set - clifford_qubits_set - immune_qubits)
         if idle and self.idle_depolarization:
             out.append("DEPOLARIZE1", idle, self.idle_depolarization)
 
         waiting_for_mr = sorted(system_qubits - collapse_qubits_set - immune_qubits)
-        if (
-            collapse_qubits_set
-            and waiting_for_mr
-            and self.additional_depolarization_waiting_for_m_or_r
-        ):
-            out.append(
-                "DEPOLARIZE1", idle, self.additional_depolarization_waiting_for_m_or_r
-            )
+        if collapse_qubits_set and waiting_for_mr and self.additional_depolarization_waiting_for_m_or_r:
+            out.append("DEPOLARIZE1", idle, self.additional_depolarization_waiting_for_m_or_r)
 
     def _append_noisy_moment(
         self,
@@ -375,6 +360,7 @@ class NoiseModel:
 
         Returns:
             The noisy version of the circuit.
+
         """
         if system_qubits is None:
             system_qubits = set(range(circuit.num_qubits))
@@ -384,9 +370,7 @@ class NoiseModel:
         result = stim.Circuit()
 
         first = True
-        for moment_split_ops in _iter_split_op_moments(
-            circuit, immune_qubits=immune_qubits
-        ):
+        for moment_split_ops in _iter_split_op_moments(circuit, immune_qubits=immune_qubits):
             if first:
                 first = False
             elif result and isinstance(result[-1], stim.CircuitRepeatBlock):
@@ -400,11 +384,7 @@ class NoiseModel:
                     immune_qubits=immune_qubits,
                 )
                 noisy_body.append("TICK")
-                result.append(
-                    stim.CircuitRepeatBlock(
-                        repeat_count=moment_split_ops.repeat_count, body=noisy_body
-                    )
-                )
+                result.append(stim.CircuitRepeatBlock(repeat_count=moment_split_ops.repeat_count, body=noisy_body))
             else:
                 self._append_noisy_moment(
                     moment_split_ops=moment_split_ops,
@@ -418,7 +398,8 @@ class NoiseModel:
 
 def occurs_in_classical_control_system(op: stim.CircuitInstruction) -> bool:
     """Determines if an operation is an annotation or a classical control
-    system update."""
+    system update.
+    """
     t = OP_TYPES[op.name]
     if t == ANNOTATION:
         return True
@@ -439,7 +420,8 @@ def _split_targets_if_needed(
     op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
 ) -> Iterator[stim.CircuitInstruction]:
     """Splits operations into pieces as needed (e.g. MPP into each product,
-    classical control away from quantum ops)."""
+    classical control away from quantum ops).
+    """
     t = OP_TYPES[op.name]
     if t == CLIFFORD_2Q:
         yield from _split_targets_if_needed_clifford_2q(op, immune_qubits)
@@ -466,7 +448,8 @@ def _split_targets_if_needed_clifford_2q(
     op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
 ) -> Iterator[stim.CircuitInstruction]:
     """Splits classical control system operations away from things actually
-    happening on the quantum computer."""
+    happening on the quantum computer.
+    """
     assert OP_TYPES[op.name] == CLIFFORD_2Q
     targets = op.targets_copy()
     if immune_qubits or any(t.is_measurement_record_target for t in targets):
@@ -481,7 +464,8 @@ def _split_targets_if_needed_m_basis(
     op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
 ) -> Iterator[stim.CircuitInstruction]:
     """Splits an MPP operation into one operation for each Pauli product it
-    measures."""
+    measures.
+    """
     targets = op.targets_copy()
     args = op.gate_args_copy()
     k = 0
@@ -510,6 +494,7 @@ def _iter_split_op_moments(
         like MPPs split into pieces.
 
         (A moment is the time between two TICKs.)
+
     """
     cur_moment: list[stim.CircuitInstruction] = []
 
@@ -519,14 +504,11 @@ def _iter_split_op_moments(
                 yield cur_moment
                 cur_moment = []
             yield op
-        else:  # if isinstance(op, stim.CircuitInstruction):
-            if op.name == "TICK":
-                yield cur_moment
-                cur_moment = []
-            else:
-                cur_moment.extend(
-                    _split_targets_if_needed(op, immune_qubits=immune_qubits)
-                )
+        elif op.name == "TICK":
+            yield cur_moment
+            cur_moment = []
+        else:
+            cur_moment.extend(_split_targets_if_needed(op, immune_qubits=immune_qubits))
     if cur_moment:
         yield cur_moment
 
@@ -538,6 +520,7 @@ def _measure_basis(*, split_op: stim.CircuitInstruction) -> str | None:
     Returns:
         None: This is not a measurement (or not *just* a measurement).
         str: Pauli product string that the operation measures (e.g. "XX" or "Y").
+
     """
     result = OP_MEASURE_BASES.get(split_op.name)
     targets = split_op.targets_copy()

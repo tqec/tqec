@@ -14,6 +14,7 @@ def stability(observable_basis: Basis = Basis.Z) -> BlockGraph:
 
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance.
+
     """
     g = BlockGraph(f"{observable_basis} Basis Stability Experiment")
     node_kind = "ZZX" if observable_basis == Basis.Z else "XXZ"

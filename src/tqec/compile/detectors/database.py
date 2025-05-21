@@ -54,6 +54,7 @@ class _DetectorDatabaseKey:
     it has the advantage of being easy to construct, trivially invariant to
     plaquette re-indexing and easy to hash (with some care to NOT use Python's
     default `hash` due to its absence of stability across different runs).
+
     """
 
     subtemplates: Sequence[SubTemplateType]
@@ -96,7 +97,8 @@ class _DetectorDatabaseKey:
     @cached_property
     def reliable_hash(self) -> int:
         """Returns a hash of `self` that is guaranteed to be constant across
-        Python versions, OSes and executions."""
+        Python versions, OSes and executions.
+        """
         hasher = hashlib.md5()
         for timeslice in self.plaquette_names:
             for row in timeslice:
@@ -108,10 +110,7 @@ class _DetectorDatabaseKey:
         return self.reliable_hash
 
     def __eq__(self, rhs: object) -> bool:
-        return (
-            isinstance(rhs, _DetectorDatabaseKey)
-            and self.plaquette_names == rhs.plaquette_names
-        )
+        return isinstance(rhs, _DetectorDatabaseKey) and self.plaquette_names == rhs.plaquette_names
 
     def circuit(self, plaquette_increments: Shift2D) -> ScheduledCircuit:
         """Get the `stim.Circuit` instance represented by `self`.
@@ -121,15 +120,12 @@ class _DetectorDatabaseKey:
 
         Returns:
             `stim.Circuit` instance represented by `self`.
+
         """
         circuits, qubit_map = relabel_circuits_qubit_indices(
             [
-                generate_circuit_from_instantiation(
-                    subtemplate, plaquettes, plaquette_increments
-                )
-                for subtemplate, plaquettes in zip(
-                    self.subtemplates, self.plaquettes_by_timestep
-                )
+                generate_circuit_from_instantiation(subtemplate, plaquettes, plaquette_increments)
+                for subtemplate, plaquettes in zip(self.subtemplates, self.plaquettes_by_timestep)
             ]
         )
         moments: list[Moment] = list(circuits[0].moments)
@@ -152,9 +148,7 @@ class DetectorDatabase:
     computation.
     """
 
-    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = field(
-        default_factory=dict
-    )
+    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = field(default_factory=dict)
     frozen: bool = False
 
     def add_situation(
@@ -180,13 +174,12 @@ class DetectorDatabase:
 
         Raises:
             TQECException: if this method is called and `self.frozen`.
+
         """
         if self.frozen:
             raise TQECException("Cannot add a situation to a frozen database.")
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
-        self.mapping[key] = (
-            frozenset([detectors]) if isinstance(detectors, Detector) else detectors
-        )
+        self.mapping[key] = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
 
     def remove_situation(
         self,
@@ -206,6 +199,7 @@ class DetectorDatabase:
 
         Raises:
             TQECException: if this method is called and `self.frozen`.
+
         """
         if self.frozen:
             raise TQECException("Cannot remove a situation to a frozen database.")
@@ -233,6 +227,7 @@ class DetectorDatabase:
         Returns:
             detectors associated with the provided situation or `None` if the
             situation is not in the database.
+
         """
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
         return self.mapping.get(key)
@@ -243,9 +238,7 @@ class DetectorDatabase:
     def unfreeze(self) -> None:
         self.frozen = False
 
-    def to_crumble_urls(
-        self, plaquette_increments: Shift2D = Shift2D(2, 2)
-    ) -> list[str]:
+    def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
         """Returns one URL pointing to https://algassert.com/crumble for each of
         the registered situations.
 
@@ -257,6 +250,7 @@ class DetectorDatabase:
         Returns:
             a list of Crumble URLs, each one representing a situation stored in
             `self`.
+
         """
         urls: list[str] = []
         for key, detectors in self.mapping.items():

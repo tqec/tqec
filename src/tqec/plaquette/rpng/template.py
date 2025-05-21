@@ -35,6 +35,7 @@ class RPNGTemplate(Generic[T]):
 
         Returns:
             a displacement of the default increments in the x and y directions.
+
         """
         return self.template.get_increments()
 
@@ -60,6 +61,7 @@ class RPNGTemplate(Generic[T]):
             (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
             to the top-left entry of the array returned by
             :meth:`~tqec.templates.base.Template.instantiate`.
+
         """
         return self.template.instantiation_origin(k)
 
@@ -94,6 +96,7 @@ class RPNGTemplate(Generic[T]):
 
         Returns:
             The SVG string of the visualization.
+
         """
         from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
 

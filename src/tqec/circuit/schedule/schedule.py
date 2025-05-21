@@ -1,5 +1,6 @@
 """Defines the :class:`~.schedule.Schedule` class, a thin wrapper around
-``list[int]`` to represent a schedule."""
+``list[int]`` to represent a schedule.
+"""
 
 from __future__ import annotations
 
@@ -72,6 +73,7 @@ class Schedule:
         Raises:
             ScheduleException: if the inserted integer makes the schedule
                 invalid.
+
         """
         self.schedule.insert(i, value)
         try:
@@ -93,6 +95,7 @@ class Schedule:
         Raises:
             ScheduleException: if the inserted integer makes the schedule
                 invalid.
+
         """
         self.schedule.append(value)
         try:
@@ -102,9 +105,7 @@ class Schedule:
             raise e
 
     def append_schedule(self, schedule: Schedule) -> None:
-        starting_index = (
-            self.schedule[-1] + 1 if self.schedule else Schedule._INITIAL_SCHEDULE
-        )
+        starting_index = self.schedule[-1] + 1 if self.schedule else Schedule._INITIAL_SCHEDULE
         # Not using a generator here but explicitly constructing a list because
         # if `schedule == self` a generator would induce an infinite loop.
         self.schedule.extend([starting_index + s for s in schedule.schedule])

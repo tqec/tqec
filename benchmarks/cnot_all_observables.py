@@ -5,11 +5,11 @@ import stim
 from tqecd.construction import annotate_detectors_automatically
 
 from tqec.compile.compile import compile_block_graph
-from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.convention import FIXED_BULK_CONVENTION
+from tqec.compile.graph import TopologicalComputationGraph
+from tqec.gallery import cnot
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
-from tqec.gallery import cnot
 
 BENCHMARK_FOLDER = Path(__file__).resolve().parent
 TQEC_FOLDER = BENCHMARK_FOLDER.parent
@@ -17,12 +17,8 @@ ASSETS_FOLDER = TQEC_FOLDER / "assets"
 CNOT_DAE_FILE = ASSETS_FOLDER / "logical_cnot.dae"
 
 
-def generate_stim_circuit(
-    compiled_graph: TopologicalComputationGraph, k: int, p: float
-) -> stim.Circuit:
-    circuit_without_detectors = compiled_graph.generate_stim_circuit(
-        k, noise_model=NoiseModel.uniform_depolarizing(p)
-    )
+def generate_stim_circuit(compiled_graph: TopologicalComputationGraph, k: int, p: float) -> stim.Circuit:
+    circuit_without_detectors = compiled_graph.generate_stim_circuit(k, noise_model=NoiseModel.uniform_depolarizing(p))
     # For now, we annotate the detectors as post-processing step
     return annotate_detectors_automatically(circuit_without_detectors)
 

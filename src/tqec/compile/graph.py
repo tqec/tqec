@@ -69,8 +69,8 @@ from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
 from tqec.utils.noise_model import NoiseModel
-from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
+from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 from tqec.utils.scale import PhysicalQubitScalable2D
 
 
@@ -81,14 +81,10 @@ def substitute_plaquettes(
     target_border_indices = target.template.get_border_indices(source_border.opposite())
     indices_mapping = source_border_indices.to(target_border_indices)
     plaquettes_mapping = {
-        ti: target.plaquettes.collection[si]
-        for si, ti in indices_mapping.items()
-        if si in target.plaquettes.collection
+        ti: target.plaquettes.collection[si] for si, ti in indices_mapping.items() if si in target.plaquettes.collection
     }
     new_plaquettes = target.plaquettes.with_updated_plaquettes(plaquettes_mapping)
-    return PlaquetteLayer(
-        target.template, new_plaquettes, target.trimmed_spatial_borders
-    )
+    return PlaquetteLayer(target.template, new_plaquettes, target.trimmed_spatial_borders)
 
 
 class TopologicalComputationGraph:
@@ -99,7 +95,8 @@ class TopologicalComputationGraph:
         observables: list[AbstractObservable] | None = None,
     ) -> None:
         """Represents a topological computation with
-        :class:`~tqec.compile.blocks.block.Block` instances."""
+        :class:`~tqec.compile.blocks.block.Block` instances.
+        """
         self._blocks: dict[LayoutPosition3D, Block] = {}
         # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
         # extent. We need to keep track of the temporal pipes that are at the
@@ -107,9 +104,7 @@ class TopologicalComputationGraph:
         # We use the bottom cube position `z` to store the temporal pipe, s.t.
         # the pipe is actually at the position `z+0.5`
         self._temporal_pipes_at_hadamard_layer: dict[LayoutPosition3D, Block] = {}
-        self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = (
-            scalable_qubit_shape
-        )
+        self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = scalable_qubit_shape
         self._observables: list[AbstractObservable] | None = observables
         self._observable_builder = observable_builder
 
@@ -123,8 +118,7 @@ class TopologicalComputationGraph:
         layout_position = LayoutPosition3D.from_block_position(position)
         if layout_position in self._blocks:
             raise TQECException(
-                "Cannot override a block with ``add_cube``. There is already an "
-                f"entry at {layout_position}."
+                "Cannot override a block with ``add_cube``. There is already an " f"entry at {layout_position}."
             )
         self._blocks[layout_position] = block
 
@@ -141,11 +135,11 @@ class TopologicalComputationGraph:
             TQECException: if ``not source < sink``.
             TQECException: if either ``source`` or ``sink`` has not been added
                 to the graph.
+
         """
         if not source.is_neighbour(sink):
             raise TQECException(
-                f"Trying to add a pipe between {source} and {sink} that are "
-                "not neighbouring positions."
+                f"Trying to add a pipe between {source} and {sink} that are " "not neighbouring positions."
             )
         if not source < sink:
             raise TQECException(
@@ -156,19 +150,13 @@ class TopologicalComputationGraph:
         source_layout_position = LayoutPosition3D.from_block_position(source)
         if source_layout_position not in self._blocks:
             raise TQECException(
-                f"Cannot add a pipe between {source:=} and {sink:=}: the source "
-                "is not in the graph."
+                f"Cannot add a pipe between {source:=} and {sink:=}: the source " "is not in the graph."
             )
         sink_layout_position = LayoutPosition3D.from_block_position(sink)
         if sink_layout_position not in self._blocks:
-            raise TQECException(
-                f"Cannot add a pipe between {source:=} and {sink:=}: the sink "
-                "is not in the graph."
-            )
+            raise TQECException(f"Cannot add a pipe between {source:=} and {sink:=}: the sink " "is not in the graph.")
 
-    def _check_spatial_pipe(
-        self, source: BlockPosition3D, sink: BlockPosition3D
-    ) -> None:
+    def _check_spatial_pipe(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
         """Check the validity of a spatial pipe between ``source`` and
         ``sink``.
 
@@ -184,13 +172,13 @@ class TopologicalComputationGraph:
                 to the graph.
             TQECException: if there is already a pipe between ``source`` and
                 ``sink``.
+
         """
         self._check_any_pipe(source, sink)
         layout_position = LayoutPosition3D.from_pipe_position((source, sink))
         if layout_position in self._blocks:
             raise TQECException(
-                "Cannot override a pipe with ``add_pipe``. There is already "
-                f"a pipe at {layout_position}."
+                "Cannot override a pipe with ``add_pipe``. There is already " f"a pipe at {layout_position}."
             )
 
     def _check_block_spatial_shape(self, block: Block) -> None:
@@ -200,9 +188,7 @@ class TopologicalComputationGraph:
                 f"({self._scalable_qubit_shape}) but got {block.scalable_shape}."
             )
 
-    def _trim_cube_spatial_borders(
-        self, source: BlockPosition3D, sink: BlockPosition3D
-    ) -> None:
+    def _trim_cube_spatial_borders(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
         """Trim the correct border from the cubes in ``source`` and ``sink``.
 
         This method trims 1 border on each of the cubes at the provided
@@ -220,6 +206,7 @@ class TopologicalComputationGraph:
                 to the graph.
             TQECException: if there is already a pipe between ``source`` and
                 ``sink``.
+
         """
         self._check_spatial_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
@@ -237,12 +224,8 @@ class TopologicalComputationGraph:
         sink_border = border_from_signed_direction(SignedDirection3D(juncdir, False))
         assert isinstance(source_border, SpatialBlockBorder)
         assert isinstance(sink_border, SpatialBlockBorder)
-        self._blocks[psource] = self._blocks[psource].with_spatial_borders_trimmed(
-            [source_border]
-        )
-        self._blocks[psink] = self._blocks[psink].with_spatial_borders_trimmed(
-            [sink_border]
-        )
+        self._blocks[psource] = self._blocks[psource].with_spatial_borders_trimmed([source_border])
+        self._blocks[psink] = self._blocks[psink].with_spatial_borders_trimmed([sink_border])
 
     def _substitute_part_of_spatial_pipe(
         self,
@@ -269,11 +252,10 @@ class TopologicalComputationGraph:
             KeyError: if ``pipe_pos not in self._blocks``.
             NotImplementError: if the pipe layer that should be partially
                 substituted is not an instance of ``PlaquetteLayer``.
+
         """
         pipe_block = self._blocks[pipe_pos]
-        pipe_layer_to_replace = pipe_block.get_temporal_layer_on_border(
-            temporal_pipe_border
-        )
+        pipe_layer_to_replace = pipe_block.get_temporal_layer_on_border(temporal_pipe_border)
         if not isinstance(pipe_layer_to_replace, PlaquetteLayer):
             raise NotImplementedError(
                 "Due to the insertion of a temporal pipe, we need to replace "
@@ -289,9 +271,7 @@ class TopologicalComputationGraph:
             neighbouring_block_layer,
             spatial_block_border.to_template_border(),
         )
-        replaced_block = pipe_block.with_temporal_borders_replaced(
-            {temporal_pipe_border: replaced_pipe_layer}
-        )
+        replaced_block = pipe_block.with_temporal_borders_replaced({temporal_pipe_border: replaced_pipe_layer})
         assert replaced_block is not None, "No layer was removed"
         self._blocks[pipe_pos] = replaced_block
 
@@ -307,12 +287,8 @@ class TopologicalComputationGraph:
         # First replace the layer on the temporal border of the block.
         layer_on_top_of_block = layer
         if block.trimmed_spatial_borders:
-            layer_on_top_of_block = layer.with_spatial_borders_trimmed(
-                block.trimmed_spatial_borders
-            )
-        new_block = block.with_temporal_borders_replaced(
-            {block_border: layer_on_top_of_block}
-        )
+            layer_on_top_of_block = layer.with_spatial_borders_trimmed(block.trimmed_spatial_borders)
+        new_block = block.with_temporal_borders_replaced({block_border: layer_on_top_of_block})
         assert new_block is not None, "No layer removal happened, only replacement"
         self._blocks[pblock] = new_block
         # Then, if the block has no trimmed spatial border (i.e., no spatial
@@ -328,16 +304,10 @@ class TopologicalComputationGraph:
                 f"is not a {PlaquetteLayer.__name__} instance."
             )
         for trimmed_spatial_border in block.trimmed_spatial_borders:
-            pipe_pos = LayoutPosition3D.from_block_and_signed_direction(
-                block_pos, trimmed_spatial_border.value
-            )
-            self._substitute_part_of_spatial_pipe(
-                pipe_pos, layer, trimmed_spatial_border, block_border
-            )
+            pipe_pos = LayoutPosition3D.from_block_and_signed_direction(block_pos, trimmed_spatial_border.value)
+            self._substitute_part_of_spatial_pipe(pipe_pos, layer, trimmed_spatial_border, block_border)
 
-    def _replace_temporal_borders(
-        self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
-    ) -> None:
+    def _replace_temporal_borders(self, source: BlockPosition3D, sink: BlockPosition3D, block: Block) -> None:
         self._check_any_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
         if juncdir not in Direction3D.temporal_directions():
@@ -359,9 +329,7 @@ class TopologicalComputationGraph:
             block.get_temporal_border(TemporalBlockBorder.Z_POSITIVE),
         )
 
-    def add_pipe(
-        self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
-    ) -> None:
+    def add_pipe(self, source: BlockPosition3D, sink: BlockPosition3D, block: Block) -> None:
         """Add the provided block as a pipe between ``source`` and ``sink``.
 
         Raises:
@@ -372,6 +340,7 @@ class TopologicalComputationGraph:
                 ``sink``.
             TQECException: if ``block`` is not a valid pipe (i.e., has not
                 exactly 2 scalable dimensions).
+
         """
         if not block.is_pipe:
             raise TQECException(
@@ -392,9 +361,7 @@ class TopologicalComputationGraph:
                 u_pos = LayoutPosition3D.from_block_position(source)
                 # We use the bottom cube position `z` to store the temporal pipe, s.t.
                 # the pipe is actually at the position `z+0.5`
-                self._temporal_pipes_at_hadamard_layer[u_pos] = (
-                    block_trimmed_temporal_borders
-                )
+                self._temporal_pipes_at_hadamard_layer[u_pos] = block_trimmed_temporal_borders
         else:  # block is a spatial pipe
             self._trim_cube_spatial_borders(source, sink)
             key = LayoutPosition3D.from_pipe_position((source, sink))
@@ -420,16 +387,12 @@ class TopologicalComputationGraph:
 
             Each child of the root node is also an instance of
             :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
-        """
 
+        """
         zs = [pos.z for pos in self._blocks.keys()]
         min_z, max_z = min(zs), max(zs)
-        blocks_by_z: list[dict[LayoutPosition2D, Block]] = [
-            {} for _ in range(min_z, max_z + 1)
-        ]
-        temporal_pipes_by_z: list[dict[LayoutPosition2D, Block]] = [
-            {} for _ in range(min_z, max_z + 1)
-        ]
+        blocks_by_z: list[dict[LayoutPosition2D, Block]] = [{} for _ in range(min_z, max_z + 1)]
+        temporal_pipes_by_z: list[dict[LayoutPosition2D, Block]] = [{} for _ in range(min_z, max_z + 1)]
         for pos, block in self._blocks.items():
             blocks_by_z[pos.z - min_z][pos.as_2d()] = block
         for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():
@@ -439,9 +402,7 @@ class TopologicalComputationGraph:
                 [
                     SequencedLayers(
                         merge_parallel_block_layers(blocks, self._scalable_qubit_shape)
-                        + merge_parallel_block_layers(
-                            pipes, self._scalable_qubit_shape
-                        ),
+                        + merge_parallel_block_layers(pipes, self._scalable_qubit_shape),
                     )
                     for blocks, pipes in zip(blocks_by_z, temporal_pipes_by_z)
                 ]
@@ -484,6 +445,7 @@ class TopologicalComputationGraph:
 
         Returns:
             A compiled stim circuit.
+
         """
         circuit = self.to_layer_tree().generate_circuit(
             k,
@@ -527,6 +489,7 @@ class TopologicalComputationGraph:
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
+
         """
         return self.to_layer_tree().generate_crumble_url(
             k, manhattan_radius, detector_database, add_polygons=add_polygons

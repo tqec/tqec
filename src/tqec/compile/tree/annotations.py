@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import math
+from dataclasses import dataclass, field
 from typing import Any
 
 import stim
@@ -20,7 +20,8 @@ from tqec.utils.exceptions import TQECException
 @dataclass(frozen=True)
 class DetectorAnnotation:
     """An annotation that should include all the necessary information to build a
-    ``DETECTOR`` instruction."""
+    ``DETECTOR`` instruction.
+    """
 
     coordinates: StimCoordinates
     measurement_offsets: list[int]
@@ -37,11 +38,10 @@ class DetectorAnnotation:
         )
 
     @staticmethod
-    def from_detector(
-        detector: Detector, measurement_records: MeasurementRecordsMap
-    ) -> DetectorAnnotation:
+    def from_detector(detector: Detector, measurement_records: MeasurementRecordsMap) -> DetectorAnnotation:
         """Create a :class:`DetectorAnnotation` from a detector and a list of
-        measurement records."""
+        measurement records.
+        """
         return DetectorAnnotation(
             detector.coordinates,
             [measurement_records[m.qubit][m.offset] for m in detector.measurements],
@@ -57,7 +57,8 @@ class Polygon:
 
     def _sorted_qubits(self) -> list[GridQubit]:
         """Return the qubits in a sorted order that can be used to draw the
-        polygon."""
+        polygon.
+        """
         cx = sum(q.x for q in self.qubits) / len(self.qubits)
         cy = sum(q.y for q in self.qubits) / len(self.qubits)
         return sorted(self.qubits, key=lambda q: math.atan2(q.y - cy, q.x - cx))
@@ -85,9 +86,7 @@ class LayerNodeAnnotations:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "circuit_str": (
-                str(self.circuit.get_circuit()) if self.circuit is not None else None
-            ),
+            "circuit_str": (str(self.circuit.get_circuit()) if self.circuit is not None else None),
             "detectors": self.detectors,
             "observables": self.observables,
             "polygons": self.polygons,

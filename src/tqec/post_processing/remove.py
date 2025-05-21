@@ -45,6 +45,7 @@ def remove_empty_moments(
     Returns:
         A quantum circuit without any empty moment and with ``REPEAT`` blocks
         adhering to the conventions detailed in the note above.
+
     """
     ret = stim.Circuit()
     # Start with a virtual TICK if the user wants to remove empty moments at the
@@ -52,9 +53,7 @@ def remove_empty_moments(
     # a TICK would work and avoid the removal of the first instruction if it is
     # a TICK.
     previous_instruction = (
-        stim.CircuitInstruction("TICK")
-        if remove_leading_tick
-        else stim.CircuitInstruction("SHIFT_COORDS", [], [0])
+        stim.CircuitInstruction("TICK") if remove_leading_tick else stim.CircuitInstruction("SHIFT_COORDS", [], [0])
     )
     for inst in circuit:
         # If we have two (or more) consecutive TICK instructions, do not append

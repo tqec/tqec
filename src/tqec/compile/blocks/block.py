@@ -34,9 +34,7 @@ class Block(SequencedLayers):
     """
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> Block:
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> Block:
         return Block(
             self._layers_with_spatial_borders_trimmed(borders),
             self.trimmed_spatial_borders | frozenset(borders),
@@ -74,6 +72,7 @@ class Block(SequencedLayers):
         Returns:
             a 3-dimensional tuple containing the width for each of the
             ``(x, y, z)`` dimensions.
+
         """
         spatial_shape = self.scalable_shape
         return spatial_shape.x, spatial_shape.y, self.scalable_timesteps
@@ -118,12 +117,12 @@ def merge_parallel_block_layers(
         NotImplementedError: if the provided blocks cannot be merged due to a
             code branch not being implemented yet (and not due to a logical
             error making the blocks unmergeable).
+
     """
     if not blocks_in_parallel:
         return []
     internal_layers_schedules = frozenset(
-        tuple(layer.scalable_timesteps for layer in block.layer_sequence)
-        for block in blocks_in_parallel.values()
+        tuple(layer.scalable_timesteps for layer in block.layer_sequence) for block in blocks_in_parallel.values()
     )
     if len(internal_layers_schedules) != 1:
         raise NotImplementedError(
@@ -135,9 +134,7 @@ def merge_parallel_block_layers(
     schedule: Final = next(iter(internal_layers_schedules))
     merged_layers: list[LayoutLayer | BaseComposedLayer] = []
     for i in range(len(schedule)):
-        layers = {
-            pos: block.layer_sequence[i] for pos, block in blocks_in_parallel.items()
-        }
+        layers = {pos: block.layer_sequence[i] for pos, block in blocks_in_parallel.items()}
         if contains_only_base_layers(layers):
             merged_layers.append(merge_base_layers(layers, scalable_qubit_shape))
         elif contains_only_composed_layers(layers):

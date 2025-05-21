@@ -1,4 +1,3 @@
-from tqec.utils.enums import Basis
 from tqec.plaquette.compilation.passes.transformer import (
     InstructionCreator,
     ScheduledCircuitTransformation,
@@ -9,12 +8,11 @@ from tqec.plaquette.compilation.passes.transformer import (
 from tqec.plaquette.compilation.passes.transformer.simplifiers import (
     SelfInverseGateSimplification,
 )
+from tqec.utils.enums import Basis
 
 
 class ChangeControlledGateBasisPass(ScheduledCircuitTransformationPass):
-    def __init__(
-        self, basis: Basis, bcsched1: ScheduleFunction, bcsched2: ScheduleFunction
-    ) -> None:
+    def __init__(self, basis: Basis, bcsched1: ScheduleFunction, bcsched2: ScheduleFunction) -> None:
         """Change ``CX`` or ``CZ`` gates to the provided basis.
 
         Args:
@@ -26,6 +24,7 @@ class ChangeControlledGateBasisPass(ScheduledCircuitTransformationPass):
             bcsched2: basis change schedule 2, a description of the schedule at
                 which the potential second basis change (``H`` gate applied
                 **after** the controlled gate) should be inserted.
+
         """
         ibasis = Basis.X if basis == Basis.Z else Basis.Z
         transformations = [

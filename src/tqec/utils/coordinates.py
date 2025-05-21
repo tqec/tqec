@@ -1,5 +1,6 @@
 """Implements a wrapper to standardise stim coordinate system across the code
-base."""
+base.
+"""
 
 from __future__ import annotations
 
@@ -49,11 +50,7 @@ class StimCoordinates:
             and abs(self.y - value.y) < StimCoordinates._ABS_TOL
             and (
                 (self.t is None and value.t is None)
-                or (
-                    self.t is not None
-                    and value.t is not None
-                    and abs(self.t - value.t) < StimCoordinates._ABS_TOL
-                )
+                or (self.t is not None and value.t is not None and abs(self.t - value.t) < StimCoordinates._ABS_TOL)
             )
         )
 

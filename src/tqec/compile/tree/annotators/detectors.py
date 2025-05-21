@@ -33,6 +33,7 @@ class LookbackInformation:
             circuit and then extracting the measurement records from it, but it
             turns out that we already have access to these records when creating
             such a structure, so we store them to avoid re-computing.
+
     """
 
     template: Template
@@ -53,10 +54,9 @@ class LookbackInformationList:
         measurement_records: MeasurementRecordsMap,
     ) -> None:
         """Add the provided parameters to the lookback window, potentially removing
-        older items that should not be considered anymore."""
-        self.infos.append(
-            LookbackInformation(template, plaquettes, measurement_records)
-        )
+        older items that should not be considered anymore.
+        """
+        self.infos.append(LookbackInformation(template, plaquettes, measurement_records))
 
     def extend(self, other: LookbackInformationList, repetitions: int = 1) -> None:
         self.infos.extend(other.infos * repetitions)
@@ -64,9 +64,7 @@ class LookbackInformationList:
     def __len__(self) -> int:
         return len(self.infos)
 
-    def __getitem__(
-        self, index: int | slice
-    ) -> LookbackInformation | list[LookbackInformation]:
+    def __getitem__(self, index: int | slice) -> LookbackInformation | list[LookbackInformation]:
         return self.infos[index]
 
 
@@ -96,8 +94,7 @@ class LookbackStack:
             )
         if repetitions < 1:
             raise TQECException(
-                "Cannot have a REPEAT block with less than 1 repetitions. Got "
-                f"{repetitions} repetitions."
+                "Cannot have a REPEAT block with less than 1 repetitions. Got " f"{repetitions} repetitions."
             )
         self._stack[-2].extend(self._stack[-1], repetitions)
         self._stack.pop(-1)
@@ -111,14 +108,9 @@ class LookbackStack:
         """Append a new QEC round in the data-structure."""
         self._stack[-1].append(template, plaquettes, measurement_records)
 
-    def _get_last_n(
-        self, n: int
-    ) -> tuple[list[Template], list[Plaquettes], list[MeasurementRecordsMap]]:
+    def _get_last_n(self, n: int) -> tuple[list[Template], list[Plaquettes], list[MeasurementRecordsMap]]:
         if n < 0:
-            raise TQECException(
-                "Cannot look back a negative number of rounds. Got a lookback "
-                f"value of {n}."
-            )
+            raise TQECException("Cannot look back a negative number of rounds. Got a lookback " f"value of {n}.")
         if n == 0:
             return [], [], []
         templates: list[Template] = []
@@ -149,10 +141,7 @@ class LookbackStack:
 
     def __len__(self) -> int:
         if len(self._stack) > 1:
-            raise TQECException(
-                "Cannot get a meaningful stack length when a REPEAT block is "
-                "in construction."
-            )
+            raise TQECException("Cannot get a meaningful stack length when a REPEAT block is " "in construction.")
         return len(self._stack[0])
 
 
@@ -189,6 +178,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 in the database is encountered. Default to ``False``.
             lookback_size: number of QEC rounds to consider to try to find
                 detectors. Including more rounds increases computation time.
+
         """
         if lookback < 1:
             raise TQECException(
@@ -208,16 +198,12 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             return
         annotations = node.get_annotations(self._k)
         if annotations.circuit is None:
-            raise TQECException(
-                "Cannot compute detectors without the circuit annotation."
-            )
+            raise TQECException("Cannot compute detectors without the circuit annotation.")
         self._lookback_stack.append(
             *node._layer.to_template_and_plaquettes(),
             MeasurementRecordsMap.from_scheduled_circuit(annotations.circuit),
         )
-        templates, plaquettes, measurement_records = self._lookback_stack.lookback(
-            self._lookback_size
-        )
+        templates, plaquettes, measurement_records = self._lookback_stack.lookback(self._lookback_size)
 
         detectors = compute_detectors_for_fixed_radius(
             templates,
@@ -229,9 +215,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         )
 
         for detector in detectors:
-            annotations.detectors.append(
-                DetectorAnnotation.from_detector(detector, measurement_records)
-            )
+            annotations.detectors.append(DetectorAnnotation.from_detector(detector, measurement_records))
 
     @override
     def enter_node(self, node: LayerNode) -> None:

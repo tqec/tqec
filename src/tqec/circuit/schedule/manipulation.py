@@ -32,9 +32,7 @@ from tqec.utils.exceptions import TQECException, TQECWarning
 
 
 class _ScheduledCircuits:
-    def __init__(
-        self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap
-    ) -> None:
+    def __init__(self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap) -> None:
         """Represents a collection of
         :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instances.
 
@@ -51,6 +49,7 @@ class _ScheduledCircuits:
                 other.
             global_qubit_map: a unique qubit map that can be used to map qubits
                 to indices for all the provided ``circuits``.
+
         """
         # We might need to remap qubits to avoid index collision on several
         # circuits.
@@ -69,12 +68,14 @@ class _ScheduledCircuits:
 
     def _has_pending_moment(self, index: int) -> bool:
         """Check if the managed instance at the given index has a pending
-        operation."""
+        operation.
+        """
         return self._current_moments[index] is not None
 
     def _peek_scheduled_moment(self, index: int) -> tuple[int, Moment]:
         """Recover **without collecting** the pending operation for the
-        instance at the given index."""
+        instance at the given index.
+        """
         ret = self._current_moments[index]
         assert ret is not None
         return ret
@@ -85,12 +86,12 @@ class _ScheduledCircuits:
 
         Raises:
             AssertionError: ``if not self.has_pending_operation(index)``.
+
         """
         ret = self._current_moments[index]
         if ret is None:
             raise TQECException(
-                "Trying to pop a Moment instance from a ScheduledCircuit with "
-                "all its moments already collected."
+                "Trying to pop a Moment instance from a ScheduledCircuit with " "all its moments already collected."
             )
         self._current_moments[index] = next(self._iterators[index], None)
         return ret
@@ -108,6 +109,7 @@ class _ScheduledCircuits:
         Returns:
             a list of :class:`~tqec.circuit.moment.Moment` instances that should
             be added next to the QEC circuit.
+
         """
         assert self.has_pending_moment()
         circuit_indices_organised_by_schedule: dict[int, list[int]] = dict()
@@ -115,9 +117,7 @@ class _ScheduledCircuits:
             if not self._has_pending_moment(circuit_index):
                 continue
             schedule, _ = self._peek_scheduled_moment(circuit_index)
-            circuit_indices_organised_by_schedule.setdefault(schedule, list()).append(
-                circuit_index
-            )
+            circuit_indices_organised_by_schedule.setdefault(schedule, list()).append(circuit_index)
 
         minimum_schedule = min(circuit_indices_organised_by_schedule.keys())
         moments_to_return: list[Moment] = list()
@@ -174,19 +174,18 @@ def remove_duplicate_instructions(
     Returns:
         a list containing a copy of the ``stim.CircuitInstruction`` instances
         from the given instructions but without any duplicate.
+
     """
     # Separate mergeable operations from non-mergeable ones.
-    mergeable_operations: dict[
-        tuple[str, tuple[float, ...]], set[tuple[stim.GateTarget, ...]]
-    ] = {}
+    mergeable_operations: dict[tuple[str, tuple[float, ...]], set[tuple[stim.GateTarget, ...]]] = {}
     final_operations: list[stim.CircuitInstruction] = list()
     for inst in instructions:
         if inst.name in mergeable_instruction_names:
             # Mergeable operations are automatically merged thanks to
             # the use of a set here.
-            mergeable_operations.setdefault(
-                (inst.name, tuple(inst.gate_args_copy())), set()
-            ).update(tuple(group) for group in inst.target_groups())
+            mergeable_operations.setdefault((inst.name, tuple(inst.gate_args_copy())), set()).update(
+                tuple(group) for group in inst.target_groups()
+            )
         else:
             final_operations.append(inst)
     # Add the merged operations into the final ones
@@ -225,15 +224,12 @@ def merge_instructions(
     Returns:
         a list containing a copy of the ``stim.CircuitInstruction`` instances
         from the given instructions but merged.
+
     """
-    instructions_merger: dict[
-        tuple[str, tuple[float, ...]], list[list[stim.GateTarget]]
-    ] = {}
+    instructions_merger: dict[tuple[str, tuple[float, ...]], list[list[stim.GateTarget]]] = {}
     for instruction in instructions:
         args = tuple(instruction.gate_args_copy())
-        instructions_merger.setdefault((instruction.name, args), []).extend(
-            instruction.target_groups()
-        )
+        instructions_merger.setdefault((instruction.name, args), []).extend(instruction.target_groups())
     return [
         stim.CircuitInstruction(name, sum(targets, start=[]), args)
         for (name, args), targets in instructions_merger.items()
@@ -269,6 +265,7 @@ def merge_scheduled_circuits(
 
     Returns:
         a circuit representing the merged scheduled circuits given as input.
+
     """
     scheduled_circuits = _ScheduledCircuits(circuits, global_qubit_map)
 
@@ -279,9 +276,7 @@ def merge_scheduled_circuits(
     while scheduled_circuits.has_pending_moment():
         schedule, moments = scheduled_circuits.collect_moments_at_minimum_schedule()
         # Flatten the moments into a list of operations to perform some modifications
-        instructions: list[stim.CircuitInstruction] = sum(
-            (list(moment.instructions) for moment in moments), start=[]
-        )
+        instructions: list[stim.CircuitInstruction] = sum((list(moment.instructions) for moment in moments), start=[])
         # Avoid duplicated operations. Any operation that have the Plaquette.get_mergeable_tag() tag
         # is considered mergeable, and can be removed if another operation in the list
         # is considered equal (and has the mergeable tag).
@@ -337,12 +332,11 @@ def relabel_circuits_qubit_indices(
 
         1. the sequence of indices is ``range(0, len(qubit_map))``.
         2. qubits are assigned indices in sorted order.
+
     """
     # First, get a global qubit index map.
     # Using itertools to avoid the edge case `len(circuits) == 0`
-    needed_qubits = frozenset(
-        itertools.chain.from_iterable([c.qubits for c in circuits])
-    )
+    needed_qubits = frozenset(itertools.chain.from_iterable([c.qubits for c in circuits]))
     global_qubit_map = QubitMap.from_qubits(sorted(needed_qubits))
     global_q2i = global_qubit_map.q2i
     # Then, get the remapped circuits. Note that map_qubit_indices should
@@ -351,10 +345,6 @@ def relabel_circuits_qubit_indices(
     # circuits.
     relabeled_circuits: list[ScheduledCircuit] = []
     for circuit in circuits:
-        local_indices_to_global_indices = {
-            local_index: global_q2i[q] for local_index, q in circuit.qubit_map.items()
-        }
-        relabeled_circuits.append(
-            circuit.map_qubit_indices(local_indices_to_global_indices, inplace=False)
-        )
+        local_indices_to_global_indices = {local_index: global_q2i[q] for local_index, q in circuit.qubit_map.items()}
+        relabeled_circuits.append(circuit.map_qubit_indices(local_indices_to_global_indices, inplace=False))
     return relabeled_circuits, global_qubit_map

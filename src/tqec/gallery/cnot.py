@@ -18,8 +18,8 @@ def cnot(observable_basis: Basis | None = None) -> BlockGraph:
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing
         the logical CNOT gate.
-    """
 
+    """
     g = BlockGraph("Logical CNOT")
     nodes = [
         (Position3D(0, 0, 0), "P", "In_Control"),

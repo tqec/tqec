@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from dataclasses import astuple, dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.cube import YHalfCube, ZXCube
 from tqec.computation.pipe import PipeKind
+from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, FloatPosition3D, SignedDirection3D
-from tqec.interop.color import TQECColor
 
 if TYPE_CHECKING:
     from tqec.computation.block_graph import BlockKind
@@ -32,6 +32,7 @@ class Face:
         normal_direction: The normal direction of the face, which is the direction
             of the axis that the face is perpendicular to.
         position: The position of the face in the 3D space.
+
     """
 
     color: TQECColor
@@ -102,13 +103,10 @@ class BlockGeometries:
         pop_faces_at_directions: frozenset[SignedDirection3D] = frozenset(),
     ) -> list[Face]:
         """Get the geometry of a block kind, possibly with some faces popped
-        out."""
+        out.
+        """
         faces = self.geometries[kind]
-        return [
-            face
-            for face in faces
-            if face.normal_direction not in pop_faces_at_directions
-        ]
+        return [face for face in faces if face.normal_direction not in pop_faces_at_directions]
 
     def _load_zx_cube_geometries(self) -> None:
         """Geometries for zxx, xzx, xxz, xzz, zxz, zzx cubes."""
@@ -126,9 +124,7 @@ class BlockGeometries:
                 faces.append(face)
                 translation = [0.0, 0.0, 0.0]
                 translation[direction.value] = 1.0
-                faces.append(
-                    face.shift_by(*translation).with_negated_normal_direction()
-                )
+                faces.append(face.shift_by(*translation).with_negated_normal_direction())
             self.geometries[kind] = faces
 
     def _load_y_cube_geometry(self) -> None:
@@ -170,17 +166,13 @@ class BlockGeometries:
                 faces.append(face)
                 translation = [0.0, 0.0, 0.0]
                 translation[direction.value] = 1.0
-                faces.append(
-                    face.shift_by(*translation).with_negated_normal_direction()
-                )
+                faces.append(face.shift_by(*translation).with_negated_normal_direction())
             self.geometries[kind] = faces
 
     def _load_pipe_with_hadamard_geometries(self) -> None:
         """Geometries for ozxh, oxzh, zoxh, xozh, zxoh, xzoh pipes."""
 
-        def _get_face_position(
-            shift_direction: Direction3D, shift: float
-        ) -> FloatPosition3D:
+        def _get_face_position(shift_direction: Direction3D, shift: float) -> FloatPosition3D:
             tmp: list[float] = [0, 0, 0]
             tmp[shift_direction.value] = shift
             return FloatPosition3D(*tmp)
@@ -220,8 +212,7 @@ class BlockGeometries:
                 translation = [0, 0, 0]
                 translation[direction.value] = 1
                 faces.extend(
-                    face.shift_by(*translation).with_negated_normal_direction()
-                    for face in [face1, face2, face3]
+                    face.shift_by(*translation).with_negated_normal_direction() for face in [face1, face2, face3]
                 )
             self.geometries[kind] = faces
 

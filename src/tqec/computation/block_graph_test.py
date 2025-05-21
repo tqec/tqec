@@ -1,11 +1,12 @@
 import os
 import tempfile
+
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.gallery import cz, memory, cnot
+from tqec.gallery import cnot, cz, memory
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
@@ -229,8 +230,8 @@ def test_graph_rotation() -> None:
 
 @pytest.mark.parametrize("obs_basis", [Basis.Z, Basis.X, None])
 def test_cnot_graph_rotation(obs_basis: Basis | None) -> None:
-    from tqec.interop.collada.read_write_test import rotated_cnot
     from tqec.gallery.cnot import cnot
+    from tqec.interop.collada.read_write_test import rotated_cnot
 
     g = cnot(obs_basis)
     rg = g.rotate(Direction3D.X, False)

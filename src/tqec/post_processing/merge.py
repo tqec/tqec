@@ -28,6 +28,7 @@ def merge_adjacent_moments(circuit: stim.Circuit) -> stim.Circuit:
         a new quantum circuit that contains strictly the same instructions as
         the provided ``circuit`` but that might re-order some of these operations
         to reduce the number of moments.
+
     """
     merged_moments: list[Moment | RepeatedMoments] = list(
         iter_stim_circuit_by_moments(circuit, collected_before_use=True)
@@ -36,9 +37,7 @@ def merge_adjacent_moments(circuit: stim.Circuit) -> stim.Circuit:
     modification_performed: bool = True
     while modification_performed:
         modification_performed = False
-        modification_performed |= _merge_internal_adjacent_moments_inline(
-            merged_moments
-        )
+        modification_performed |= _merge_internal_adjacent_moments_inline(merged_moments)
         modification_performed |= _merge_repeat_block_boundaries_inline(merged_moments)
     return collect_moments(merged_moments)
 
@@ -54,6 +53,7 @@ def _merge_internal_adjacent_moments_inline(
 
     Returns:
         ``True`` if the provided ``moments`` have been modified, else ``False``.
+
     """
     i: int = 1
     modification_performed: bool = False
@@ -65,9 +65,7 @@ def _merge_internal_adjacent_moments_inline(
         if isinstance(current_moment, RepeatedMoments):
             # Just recurse in the REPEAT block but do not perform any specific
             # computation for its boundaries.
-            modification_performed |= _merge_internal_adjacent_moments_inline(
-                current_moment.moments
-            )
+            modification_performed |= _merge_internal_adjacent_moments_inline(current_moment.moments)
             # We do not have to look at the moment just after the REPEAT block
             # because it will not be merged with the REPEAT block, so just skip
             # it (that also allows to respect the loop invariant).
@@ -97,9 +95,7 @@ def _merge_repeat_block_boundaries_inline(
             i += 1
             continue
         # First recursively merge the potentially nested REPEAT blocks boundaries.
-        modification_performed |= _merge_repeat_block_boundaries_inline(
-            current_moment.moments
-        )
+        modification_performed |= _merge_repeat_block_boundaries_inline(current_moment.moments)
         # Then merge the boundaries of the current REPEAT block if possible.
         start, *bulk, end = current_moment.moments
         if isinstance(start, RepeatedMoments) or isinstance(end, RepeatedMoments):
@@ -130,9 +126,7 @@ def _merge_repeat_block_boundaries_inline(
         # END
         # Note: modifying moments in-place.
         moments.pop(i)
-        new_repeat_block = RepeatedMoments(
-            current_moment.repetitions - 1, [merge_moments(end, start), *bulk]
-        )
+        new_repeat_block = RepeatedMoments(current_moment.repetitions - 1, [merge_moments(end, start), *bulk])
         inserted_moments = [start, *bulk, new_repeat_block, end]
         for m in range(len(inserted_moments)):
             moments.insert(i + m, inserted_moments[m])

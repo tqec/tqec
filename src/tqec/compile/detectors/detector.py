@@ -6,16 +6,17 @@ from dataclasses import dataclass
 
 import stim
 
-from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.measurement_map import MeasurementRecordsMap
+from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 
 
 @dataclass(frozen=True)
 class Detector:
     """Represent a detector as a set of measurements and optional
-    coordinates."""
+    coordinates.
+    """
 
     measurements: frozenset[Measurement]
     coordinates: StimCoordinates
@@ -29,18 +30,14 @@ class Detector:
 
     def __eq__(self, rhs: object) -> bool:
         return (
-            isinstance(rhs, Detector)
-            and self.measurements == rhs.measurements
-            and self.coordinates == rhs.coordinates
+            isinstance(rhs, Detector) and self.measurements == rhs.measurements and self.coordinates == rhs.coordinates
         )
 
     def __str__(self) -> str:
         measurements_str = "{" + ",".join(map(str, self.measurements)) + "}"
         return f"D{self.coordinates}{measurements_str}"
 
-    def to_instruction(
-        self, measurement_records_map: MeasurementRecordsMap
-    ) -> stim.CircuitInstruction:
+    def to_instruction(self, measurement_records_map: MeasurementRecordsMap) -> stim.CircuitInstruction:
         """Return the `stim.CircuitInstruction` instance representing the
         detector stored in `self`.
 
@@ -59,6 +56,7 @@ class Detector:
             the `DETECTOR` instruction representing `self`. Note that the
             instruction has the same validity region as the provided
             `measurement_records_map`.
+
         """
         measurement_records: list[stim.GateTarget] = []
         for measurement in self.measurements:
@@ -67,15 +65,9 @@ class Detector:
                     f"Trying to get measurement record for {measurement.qubit} "
                     "but qubit is not in the measurement record map."
                 )
-            measurement_records.append(
-                stim.target_rec(
-                    measurement_records_map[measurement.qubit][measurement.offset]
-                )
-            )
+            measurement_records.append(stim.target_rec(measurement_records_map[measurement.qubit][measurement.offset]))
         measurement_records.sort(key=lambda mr: mr.value, reverse=True)
-        return stim.CircuitInstruction(
-            "DETECTOR", measurement_records, self.coordinates.to_stim_coordinates()
-        )
+        return stim.CircuitInstruction("DETECTOR", measurement_records, self.coordinates.to_stim_coordinates())
 
     def offset_spatially_by(self, x: int, y: int) -> Detector:
         """Offset the coordinates and all the qubits involved in `self`.
@@ -87,8 +79,8 @@ class Detector:
         Returns:
             a new detector that has been spatially offset by the provided `x`
             and `y` offsets.
-        """
 
+        """
         return Detector(
             frozenset(m.offset_spatially_by(x, y) for m in self.measurements),
             self.coordinates.offset_spatially_by(x, y),

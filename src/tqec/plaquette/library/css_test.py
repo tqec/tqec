@@ -1,9 +1,9 @@
 import stim
 
-from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
+from tqec.utils.enums import Basis
 
 
 def test_css_surface_code_memory_plaquette() -> None:
@@ -54,9 +54,7 @@ CX 4 0
 TICK
 M 0
 """)
-    plaquette = make_css_surface_code_plaquette(
-        "X", x_boundary_orientation="HORIZONTAL"
-    )
+    plaquette = make_css_surface_code_plaquette("X", x_boundary_orientation="HORIZONTAL")
     assert plaquette.name == "CSS_basis(X)_HORIZONTAL"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("1 -> _XXXX xor rec[-1]"))
@@ -79,9 +77,7 @@ CX 0 4
 TICK
 MX 0
 """)
-    plaquette = make_css_surface_code_plaquette(
-        "Z", x_boundary_orientation="HORIZONTAL"
-    )
+    plaquette = make_css_surface_code_plaquette("Z", x_boundary_orientation="HORIZONTAL")
     assert plaquette.name == "CSS_basis(Z)_HORIZONTAL"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("1 -> _ZZZZ xor rec[-1]"))
@@ -110,9 +106,7 @@ def test_css_surface_code_init_meas_plaquette() -> None:
     plaquette = make_css_surface_code_plaquette("Z", Basis.Z, Basis.Z)
     assert plaquette.name == "CSS_basis(Z)_VERTICAL_datainit(Z)_datameas(Z)"
     circuit = plaquette.circuit.get_circuit()
-    assert circuit.has_flow(
-        stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]")
-    )
+    assert circuit.has_flow(stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]"))
     assert circuit == stim.Circuit("""
 QUBIT_COORDS(0, 0) 0
 QUBIT_COORDS(-1, -1) 1
@@ -134,9 +128,7 @@ M 0 1 2 3 4
     plaquette = make_css_surface_code_plaquette("X", Basis.X, Basis.X)
     assert plaquette.name == "CSS_basis(X)_VERTICAL_datainit(X)_datameas(X)"
     circuit = plaquette.circuit.get_circuit()
-    assert circuit.has_flow(
-        stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]")
-    )
+    assert circuit.has_flow(stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]"))
     assert circuit == stim.Circuit("""
 QUBIT_COORDS(0, 0) 0
 QUBIT_COORDS(-1, -1) 1
@@ -275,9 +267,7 @@ CX 0 4
 TICK
 MX 0
 """)
-    plaquette = make_css_surface_code_plaquette(
-        "Z", data_measurement=Basis.Z, init_meas_only_on_side=PlaquetteSide.UP
-    )
+    plaquette = make_css_surface_code_plaquette("Z", data_measurement=Basis.Z, init_meas_only_on_side=PlaquetteSide.UP)
     assert plaquette.name == "CSS_basis(Z)_VERTICAL_datameas(Z,UP)"
     circuit = plaquette.circuit.get_circuit()
     assert circuit == stim.Circuit("""

@@ -1,10 +1,10 @@
 from fractions import Fraction
-import pytest
 
+import pytest
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, VertexType
 
-from tqec.computation.correlation import CorrelationSurface, ZXNode, ZXEdge
+from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.correlation import (
     find_correlation_surfaces,
 )
@@ -158,7 +158,6 @@ def test_correlation_four_node_circle() -> None:
     ---o---o
        |
     """
-
     g = GraphS()
     g.add_vertices(5)
     for i in range(1, 5):

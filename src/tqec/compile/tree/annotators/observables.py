@@ -33,6 +33,7 @@ def annotate_observable(
         observable_index: index of the observable in the circuit.
         observable_builder: builder that computes and constructs qubits whose
             measurements will be included in the logical observable.
+
     """
     for z, subtree_root in enumerate(root.children):
         leaves = _get_ordered_leaves(subtree_root)
@@ -82,11 +83,7 @@ def _annotate_observable_at_node(
     measurement_record = MeasurementRecordsMap.from_scheduled_circuit(circuit)
     assert isinstance(node._layer, LayoutLayer)
     template, _ = node._layer.to_template_and_plaquettes()
-    obs_qubits = compute_observable_qubits(
-        k, obs_slice, template, observable_builder, component
-    )
+    obs_qubits = compute_observable_qubits(k, obs_slice, template, observable_builder, component)
     if obs_qubits:
-        obs_annotation = get_observable_with_measurement_records(
-            obs_qubits, measurement_record, observable_index
-        )
+        obs_annotation = get_observable_with_measurement_records(obs_qubits, measurement_record, observable_index)
         node.get_annotations(k).observables.append(obs_annotation)

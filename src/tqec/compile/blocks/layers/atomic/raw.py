@@ -27,6 +27,7 @@ class RawCircuitLayer(BaseLayer):
                 by the provided ``circuit_factory``.
             trimmed_spatial_borders: all the spatial borders that have been
                 removed from the layer.
+
         """
         super().__init__(trimmed_spatial_borders)
         self._circuit_factory = circuit_factory
@@ -46,12 +47,8 @@ class RawCircuitLayer(BaseLayer):
         return self.scalable_raw_shape
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> RawCircuitLayer:
-        raise NotImplementedError(
-            f"Cannot trim spatial borders of a {RawCircuitLayer.__name__} instance."
-        )
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> RawCircuitLayer:
+        raise NotImplementedError(f"Cannot trim spatial borders of a {RawCircuitLayer.__name__} instance.")
 
     @override
     def __eq__(self, value: object) -> bool:

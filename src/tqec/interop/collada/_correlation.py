@@ -5,10 +5,10 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.correlation import CorrelationSurface, ZXEdge
-from tqec.utils.enums import Basis
+from tqec.computation.cube import Cube, ZXCube
 from tqec.interop.collada.read_write import _Transformation
+from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 
 TransformationResult = tuple[Basis, _Transformation]
@@ -35,7 +35,8 @@ class CorrelationSurfaceTransformationHelper:
     ) -> list[TransformationResult]:
         """Compute the list of transformations (with corresponding bases) that
         represent each piece of the given correlation surface in the COLLADA
-        model."""
+        model.
+        """
         transformations: list[TransformationResult] = []
 
         # Surfaces in the pipes
@@ -84,9 +85,7 @@ class CorrelationSurfaceTransformationHelper:
         pipe = self.block_graph.get_pipe(up, vp)
         correlation_basis = u.basis
         return next(
-            d
-            for d in Direction3D.all_directions()
-            if pipe.kind.get_basis_along(d) == correlation_basis.flipped()
+            d for d in Direction3D.all_directions() if pipe.kind.get_basis_along(d) == correlation_basis.flipped()
         )
 
     def _scale_position(self, pos: Position3D) -> FloatPosition3D:
@@ -94,7 +93,8 @@ class CorrelationSurfaceTransformationHelper:
 
     def _compute_pipe_transformations(self, edge: ZXEdge) -> list[TransformationResult]:
         """Compute the surface transformations within a pipe. If the edge is a
-        Hadamard edge, two surfaces with different basis are created."""
+        Hadamard edge, two surfaces with different basis are created.
+        """
         transformations: list[TransformationResult] = []
         normal_direction = self._surface_normal_direction(edge)
         edge_direction = self._edge_direction(edge)
@@ -102,14 +102,12 @@ class CorrelationSurfaceTransformationHelper:
         # Compute the translation for the surface.
         base_position = self._get_position(edge.u.id)
         scaled_position = self._scale_position(base_position)
-        surface_position = scaled_position.shift_in_direction(
-            edge_direction, 1
-        ).shift_in_direction(normal_direction, 0.5)
+        surface_position = scaled_position.shift_in_direction(edge_direction, 1).shift_in_direction(
+            normal_direction, 0.5
+        )
         rotation = _rotation_to_plane(normal_direction)
         scale_factor = self.pipe_length / 2 if edge.has_hadamard else self.pipe_length
-        scale_direction = (
-            edge_direction if edge_direction != Direction3D.Z else normal_direction
-        )
+        scale_direction = edge_direction if edge_direction != Direction3D.Z else normal_direction
         scale = _get_scale(scale_direction, scale_factor)
 
         transformations.append(
@@ -171,17 +169,11 @@ class CorrelationSurfaceTransformationHelper:
                     )
                 # turn at corner
                 else:
-                    transformations.extend(
-                        self._compute_turn_transformation(scaled_pos, v, (e1, e2))
-                    )
+                    transformations.extend(self._compute_turn_transformation(scaled_pos, v, (e1, e2)))
             else:
                 e1, e2, e3, e4 = sorted(correlation_edges)
-                transformations.extend(
-                    self._compute_turn_transformation(scaled_pos, v, (e1, e2))
-                )
-                transformations.extend(
-                    self._compute_turn_transformation(scaled_pos, v, (e3, e4))
-                )
+                transformations.extend(self._compute_turn_transformation(scaled_pos, v, (e1, e2)))
+                transformations.extend(self._compute_turn_transformation(scaled_pos, v, (e3, e4)))
 
         # Surfaces that can broadcast to all the neighbors
         if len(surface_bases) == 2 or kind.normal_basis not in surface_bases:
@@ -263,9 +255,7 @@ def _rotation_matrix(
     )
 
 
-def _get_scale(
-    scale_direction: Direction3D, scale_factor: float
-) -> npt.NDArray[np.float32]:
+def _get_scale(scale_direction: Direction3D, scale_factor: float) -> npt.NDArray[np.float32]:
     scale = np.ones(3, dtype=np.float32)
     scale[scale_direction.value] = scale_factor
     return scale

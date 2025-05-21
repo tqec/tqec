@@ -36,21 +36,18 @@ class GridQubit:
 
     def to_qubit_coords_instruction(self, index: int) -> stim.CircuitInstruction:
         """Return the ``QUBIT_COORDS`` ``stim.CircuitInstruction`` needed to
-        define ``self`` in a ``stim.Circuit``."""
+        define ``self`` in a ``stim.Circuit``.
+        """
         return stim.CircuitInstruction(
             "QUBIT_COORDS",
             [index],
             StimCoordinates(self.x, self.y).to_stim_coordinates(),
         )
 
-    def __add__(
-        self, other: GridQubit | PhysicalQubitPosition2D | Shift2D
-    ) -> GridQubit:
+    def __add__(self, other: GridQubit | PhysicalQubitPosition2D | Shift2D) -> GridQubit:
         return GridQubit(self.x + other.x, self.y + other.y)
 
-    def __sub__(
-        self, other: GridQubit | PhysicalQubitPosition2D | Shift2D
-    ) -> GridQubit:
+    def __sub__(self, other: GridQubit | PhysicalQubitPosition2D | Shift2D) -> GridQubit:
         return GridQubit(self.x - other.x, self.y - other.y)
 
     def __mul__(self, other: int) -> GridQubit:
@@ -63,9 +60,7 @@ class GridQubit:
         return hash((self._x, self._y))
 
     def __eq__(self, value: object) -> bool:
-        return (
-            isinstance(value, GridQubit) and self._x == value._x and self._y == value._y
-        )
+        return isinstance(value, GridQubit) and self._x == value._x and self._y == value._y
 
     def __lt__(self, other: GridQubit) -> bool:
         return (self._x, self._y) < (other._x, other._y)
@@ -119,6 +114,7 @@ def count_qubit_accesses(circuit: stim.Circuit) -> dict[int, int]:
     Returns:
         a mapping from qubit indices (as keys) to the number of non-annotation
         instructions that have this qubit index as target (as values).
+
     """
     counter: defaultdict[int, int] = defaultdict(int)
     for instruction in circuit:
@@ -147,5 +143,6 @@ def get_used_qubit_indices(circuit: stim.Circuit) -> set[int]:
     Returns:
         the set of qubit indices that are used by at least one non-annotation
         instruction.
+
     """
     return set(count_qubit_accesses(circuit).keys())

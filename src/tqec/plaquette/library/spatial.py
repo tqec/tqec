@@ -6,7 +6,6 @@ from typing import Literal
 
 import stim
 
-
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
@@ -67,6 +66,7 @@ def make_spatial_cube_arm_plaquette(
         Trimmed DOWN-plaquettes:
         7. Qubits (d, e, f)
         8. Qubits (d, e, f) with controlled-A gates reversed
+
     """
     builder = _SpatialCubeArmPlaquetteBuilder(
         basis,
@@ -108,8 +108,7 @@ class _SpatialCubeArmPlaquetteBuilder:
                 self._moments = self._build_memory_moments_down()
 
         self._qubit_map = QubitMap(
-            {0: self._qubits.syndrome_qubits[0]}
-            | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
+            {0: self._qubits.syndrome_qubits[0]} | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
         )
 
         self._data_init: Basis | None = None
@@ -153,14 +152,13 @@ class _SpatialCubeArmPlaquetteBuilder:
             circuit.append(f"C{self._basis.name}", [0, target], [])
 
     def _build_memory_moments_up(self) -> list[Moment]:
-        """
-        Implement circuit for the following plaquette::
+        """Implement circuit for the following plaquette::
 
-            1 ----- 2
-            |       |
-            |   0   |
-            |       |
-            3 -----
+        1 ----- 2
+        |       |
+        |   0   |
+        |       |
+        3 -----
         """
         circuit = stim.Circuit()
         circuit.append("RX", [0], [])
@@ -178,14 +176,13 @@ class _SpatialCubeArmPlaquetteBuilder:
         return list(iter_stim_circuit_without_repeat_by_moments(circuit))
 
     def _build_memory_moments_down(self) -> list[Moment]:
-        """
-        Implement circuit for the following plaquette::
+        """Implement circuit for the following plaquette::
 
-            1 -----
-            |       |
-            |   0   |
-            |       |
-            3 ----- 4
+        1 -----
+        |       |
+        |   0   |
+        |       |
+        3 ----- 4
         """
         circuit = stim.Circuit()
         circuit.append("RZ", [1], [])
@@ -213,6 +210,4 @@ class _SpatialCubeArmPlaquetteBuilder:
             moment_index = 0
             self._data_init = basis
         op = "M" if is_measurement else "R"
-        self._moments[moment_index].append(
-            f"{op}{basis.value}", self._get_data_qubits_for_init_or_meas(), []
-        )
+        self._moments[moment_index].append(f"{op}{basis.value}", self._get_data_qubits_for_init_or_meas(), [])

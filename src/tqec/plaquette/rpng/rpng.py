@@ -56,6 +56,7 @@ class RPNG:
             be applied. Should be a 1-digit positive integer, typically in
             ``[1, 5]``.
         g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
+
     """
 
     r: ExtendedBasis | None
@@ -69,6 +70,7 @@ class RPNG:
 
         Raises:
             ValueError: if an invalid ``rpng_string`` is provided.
+
         """
         if len(rpng_string) != 4:
             raise ValueError("The rpng string must be exactly 4-character long.")
@@ -128,6 +130,7 @@ class RG:
     Attributes:
         r: reset basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
         g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
+
     """
 
     r: PauliBasis | None
@@ -175,6 +178,7 @@ class RPNGDescription:
         corners: one ``RPNG`` description for each of the four corners of the
             plaquette.
         ancilla: ``RG`` description of the syndrome qubit.
+
     """
 
     corners: tuple[RPNG, RPNG, RPNG, RPNG]
@@ -205,9 +209,7 @@ class RPNGDescription:
         return cls(rpng_objs)
 
     @classmethod
-    def from_extended_string(
-        cls, ancilla_and_corners_rpng_string: str
-    ) -> RPNGDescription:
+    def from_extended_string(cls, ancilla_and_corners_rpng_string: str) -> RPNGDescription:
         """Initialize the RPNGDescription object from a (16+3)-character string"""
         values = ancilla_and_corners_rpng_string.split(" ")
         ancilla_rg = RG.from_string(values[0])
@@ -270,6 +272,7 @@ class RPNGDescription:
 
         Returns:
             The SVG string representing the visualization.
+
         """
         from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
 

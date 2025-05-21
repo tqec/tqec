@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from typing_extensions import override
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.utils.exceptions import TQECException
 from tqec.plaquette.compilation.passes.base import CompilationPass
+from tqec.utils.exceptions import TQECException
 
 
 @dataclass
@@ -36,6 +36,7 @@ class ScheduleMap:
                 circuit (i.e., at least one moment with overlapping operations).
                 That can only happen if ``self.map.values()`` contains duplicate
                 integers.
+
         """
         ret = ScheduledCircuit([], [], circuit.qubit_map)
         for moment_index, moment in circuit.scheduled_moments:
@@ -57,9 +58,7 @@ class ChangeSchedulePass(CompilationPass):
         self._map = ScheduleMap(schedule_map)
 
     @override
-    def run(
-        self, circuit: ScheduledCircuit, check_all_flows: bool = False
-    ) -> ScheduledCircuit:
+    def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
         modified_circuit = self._map.apply(circuit)
         if check_all_flows:
             self.check_flows(circuit, modified_circuit)

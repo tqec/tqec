@@ -35,8 +35,8 @@ class PositionedZX:
 
         Raises:
             TQECException: If the constraints are not satisfied.
-        """
 
+        """
         self.check_preconditions(g, positions)
 
         self._g = g
@@ -47,9 +47,7 @@ class PositionedZX:
         """Check the preconditions for the ZX graph with 3D positions."""
         # 1. Check the vertex IDs in the graph match the positions
         if g.vertex_set() != set(positions.keys()):
-            raise TQECException(
-                "The vertex IDs in the ZX graph and the positions do not match."
-            )
+            raise TQECException("The vertex IDs in the ZX graph and the positions do not match.")
         # 2. Check the neighbors are all shifted by 1 in the 3D positions
         for s, t in g.edge_set():
             ps, pt = positions[s], positions[t]
@@ -68,16 +66,13 @@ class PositionedZX:
                 (VertexType.Z, Fraction(1, 2)),
                 (VertexType.BOUNDARY, 0),
             ]:
-                raise TQECException(
-                    f"Unsupported vertex type and phase: {vt} and {phase}."
-                )
+                raise TQECException(f"Unsupported vertex type and phase: {vt} and {phase}.")
             # 4. Check Boundary and Z(1/2) spiders are dangling, additionally
             # Z(1/2) connects to time direction
             if vt == VertexType.BOUNDARY or phase == Fraction(1, 2):
                 if g.vertex_degree(v) != 1:
                     raise TQECException(
-                        "Boundary or Z(1/2) spider must be dangling, but got "
-                        f"{len(g.neighbors(v))} neighbors."
+                        "Boundary or Z(1/2) spider must be dangling, but got " f"{len(g.neighbors(v))} neighbors."
                     )
                 if phase == Fraction(1, 2):
                     nb = next(iter(g.neighbors(v)))
@@ -132,6 +127,7 @@ class PositionedZX:
         Returns:
             The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from the block
             graph.
+
         """
         v2p: dict[int, Position3D] = {}
         p2v: dict[Position3D, int] = {}
@@ -178,6 +174,7 @@ class PositionedZX:
 
         Returns:
             A tuple of the figure and the axes.
+
         """
         from tqec.interop.pyzx.plot import plot_positioned_zx_graph
 

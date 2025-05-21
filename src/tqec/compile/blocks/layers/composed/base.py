@@ -28,13 +28,12 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
         Returns:
             All the base layers represented by the instance. The returned
             iterable should have as many entries as ``self.timesteps(k)``.
+
         """
         pass
 
     @abstractmethod
-    def to_sequenced_layer_with_schedule(
-        self, schedule: tuple[LinearFunction, ...]
-    ) -> SequencedLayers:
+    def to_sequenced_layer_with_schedule(self, schedule: tuple[LinearFunction, ...]) -> SequencedLayers:
         """Splits ``self`` into a :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
         instance with the provided schedule.
 
@@ -47,5 +46,6 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
             an instance of :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
             that is equivalent to ``self`` (same duration, same layers applied,
             ...) and that has the provided ``schedule``.
+
         """
         pass
