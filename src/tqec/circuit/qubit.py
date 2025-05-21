@@ -8,8 +8,8 @@ qubit-related information from ``stim.Circuit`` instances.
 
 from __future__ import annotations
 
-import typing as ty
 from collections import defaultdict
+from typing import cast
 
 import stim
 
@@ -76,6 +76,28 @@ class GridQubit:
     def __str__(self) -> str:
         return f"Q[{self.x}, {self.y}]"
 
+    def to_dict(self) -> dict[str, int]:
+        """Return a dictionary representation of the qubit.
+
+        Returns:
+            a dictionary with the keys ``x`` and ``y`` and their
+            corresponding values.
+        """
+        return {"x": self.x, "y": self.y}
+
+    @staticmethod
+    def from_dict(data: dict[str, int]) -> GridQubit:
+        """Return a qubit from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``x`` and ``y``.
+
+        Returns:
+            a new instance of :class:`GridQubit` with the provided
+            ``x`` and ``y``.
+        """
+        return GridQubit(data["x"], data["y"])
+
 
 """Names of the `stim` instructions that are considered as annotations."""
 ANNOTATION_INSTRUCTIONS: frozenset[str] = frozenset(
@@ -132,7 +154,7 @@ def count_qubit_accesses(circuit: stim.Circuit) -> dict[int, int]:
                 # Ignore targets that are not qubit targets.
                 if not target.is_qubit_target:
                     continue
-                qi = ty.cast(int, target.qubit_value)
+                qi = cast(int, target.qubit_value)
                 counter[qi] += 1
     return counter
 

@@ -17,8 +17,3 @@ defines a few core functions:
 Functions from this package are really the backbone of the :mod:`tqec`
 library and are re-used in higher-level packages (such as :mod:`tqec.compile`).
 """
-
-from .qubit_map import QubitMap as QubitMap
-from .schedule import ScheduledCircuit as ScheduledCircuit
-from .schedule import ScheduleException as ScheduleException
-from .schedule import merge_scheduled_circuits as merge_scheduled_circuits
