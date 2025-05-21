@@ -1,1 +1,1 @@
-from .tree import LayerTree as LayerTree
+from .tree import LayerTree

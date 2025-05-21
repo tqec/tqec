@@ -149,7 +149,7 @@ def test_correlation_four_node_circle() -> None:
     """Test against the following graph:
        o---o
        |   |
-    ---o---o
+    ---o---o.
 
     and
 

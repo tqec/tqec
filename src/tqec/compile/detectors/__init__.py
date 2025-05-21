@@ -28,7 +28,7 @@ documentation.
 """
 
 from .compute import (
-    compute_detectors_for_fixed_radius as compute_detectors_for_fixed_radius,
+    compute_detectors_for_fixed_radius,
 )
-from .database import DetectorDatabase as DetectorDatabase
-from .detector import Detector as Detector
+from .database import DetectorDatabase
+from .detector import Detector

@@ -1,4 +1,4 @@
-"""Defines several scalable arrays of numbers used to tile plaquettes.
+r"""Defines several scalable arrays of numbers used to tile plaquettes.
 
 This module defines the :py:class:`~tqec.templates.base.Template` interface that
 should be implemented by subclasses implementing different templates.

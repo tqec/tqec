@@ -1,4 +1,4 @@
-"""Defines a high-level template composing several sub-templates:
+r"""Defines a high-level template composing several sub-templates:
 :class:`LayoutTemplate`.
 
 This module defines a :class:`~tqec.templates.base.Template` child class that

@@ -122,7 +122,7 @@ def get_spatially_distinct_subtemplates(
     manhattan_radius: int = 1,
     avoid_zero_plaquettes: bool = True,
 ) -> UniqueSubTemplates:
-    """Returns a representation of all the distinct sub-templates of the
+    r"""Returns a representation of all the distinct sub-templates of the
     provided manhattan radius.
 
     Note:
@@ -321,7 +321,7 @@ def get_spatially_distinct_3d_subtemplates(
     manhattan_radius: int = 1,
     avoid_zero_plaquettes: bool = True,
 ) -> Unique3DSubTemplates:
-    """Returns a representation of all the distinct 3-dimensional sub-templates
+    r"""Returns a representation of all the distinct 3-dimensional sub-templates
     of the provided manhattan radius.
 
     Note:

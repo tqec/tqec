@@ -3,14 +3,14 @@
 a generic compilation pass to replace one instruction by several others.
 """
 
-from .schedule import ScheduleConstant as ScheduleConstant
-from .schedule import ScheduleFunction as ScheduleFunction
-from .schedule import ScheduleOffset as ScheduleOffset
-from .transformer import InstructionCreator as InstructionCreator
+from .schedule import ScheduleConstant
+from .schedule import ScheduleFunction
+from .schedule import ScheduleOffset
+from .transformer import InstructionCreator
 from .transformer import (
-    ScheduledCircuitTransformation as ScheduledCircuitTransformation,
+    ScheduledCircuitTransformation,
 )
 from .transformer import (
-    ScheduledCircuitTransformationPass as ScheduledCircuitTransformationPass,
+    ScheduledCircuitTransformationPass,
 )
-from .transformer import ScheduledCircuitTransformer as ScheduledCircuitTransformer
+from .transformer import ScheduledCircuitTransformer

@@ -5,7 +5,7 @@ another existing ``tqec`` sub-module and that also do not import any code from
 the other ``tqec`` sub-modules.
 """
 
-from .enums import Basis as Basis
-from .enums import Orientation as Orientation
-from .exceptions import TQECException as TQECException
-from .noise_model import NoiseModel as NoiseModel
+from .enums import Basis
+from .enums import Orientation
+from .exceptions import TQECException
+from .noise_model import NoiseModel

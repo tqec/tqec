@@ -1,5 +1,5 @@
-from .rpng import RG as RG
-from .rpng import RPNG as RPNG
-from .rpng import PauliBasis as PauliBasis
-from .rpng import ExtendedBasis as ExtendedBasis
-from .rpng import RPNGDescription as RPNGDescription
+from .rpng import RG
+from .rpng import RPNG
+from .rpng import PauliBasis
+from .rpng import ExtendedBasis
+from .rpng import RPNGDescription

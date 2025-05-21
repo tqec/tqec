@@ -8,4 +8,4 @@ This module defines the needed classes and functions to transform a
 on available hardware.
 """
 
-from .compile import compile_block_graph as compile_block_graph
+from .compile import compile_block_graph
