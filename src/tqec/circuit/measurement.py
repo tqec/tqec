@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Mapping, cast
+from typing import Any, Mapping, cast
 
 import stim
 from typing_extensions import override
@@ -118,6 +118,30 @@ class Measurement(AbstractMeasurement):
     @override
     def map_qubit(self, qubit_map: Mapping[GridQubit, GridQubit]) -> Measurement:
         return Measurement(qubit_map[self.qubit], self.offset)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the measurement.
+
+        Returns:
+            a dictionary with the keys ``qubit`` and ``offset`` and their
+            corresponding values.
+        """
+        return {"qubit": [self.qubit.x, self.qubit.y], "offset": self.offset}
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> Measurement:
+        """Return a measurement from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``qubit`` and ``offset``.
+
+        Returns:
+            a new instance of :class:`Measurement` with the provided
+            ``qubit`` and ``offset``.
+        """
+        qubit = GridQubit(data["qubit"][0], data["qubit"][1])
+        offset = data["offset"]
+        return Measurement(qubit, offset)
 
 
 def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:

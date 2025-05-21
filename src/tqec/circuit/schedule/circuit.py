@@ -516,3 +516,29 @@ class ScheduledCircuit:
             and self._qubit_map == other._qubit_map
             and self._moments == other._moments
         )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the circuit.
+
+        Returns:
+            a dictionary with the keys ``moments``, ``schedule`` and
+            ``qubit_map`` and their corresponding values.
+        """
+        return {
+            "moments": [m.to_dict() for m in self._moments],
+            "schedule": self._schedule.schedule,
+            "qubit_map": self._qubit_map.to_dict(),
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> ScheduledCircuit:
+        """Return a circuit from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``moments``, ``schedule`` and
+                ``qubit_map``.
+        """
+        moments = [Moment.from_dict(m) for m in data["moments"]]
+        schedule = Schedule(data["schedule"])
+        qubit_map = QubitMap.from_dict(data["qubit_map"])
+        return ScheduledCircuit(moments, schedule, qubit_map, _avoid_checks=True)

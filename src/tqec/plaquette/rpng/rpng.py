@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from typing import Any
 
 
 class PauliBasis(Enum):
@@ -288,3 +289,37 @@ class RPNGDescription:
             with open(write_to_filepath, "w") as f:
                 f.write(svg_str)
         return svg_str
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the RPNG description.
+
+        The dictionary is intended to be used as a JSON object.
+        """
+        return {
+            "corners": [str(rpng) for rpng in self.corners],
+            "ancilla": str(self.ancilla),
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> RPNGDescription:
+        """Return a RPNGDescription object from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``corners`` and ``ancilla``.
+
+        Returns:
+            a new instance of :class:`RPNGDescription` with the provided
+            ``corners`` and ``ancilla``.
+        """
+        assert (
+            len(data["corners"]) == 4
+        ), "There must be 4 corners in the RPNG description."
+        corners = data["corners"]
+        corners = (
+            RPNG.from_string(corners[0]),
+            RPNG.from_string(corners[1]),
+            RPNG.from_string(corners[2]),
+            RPNG.from_string(corners[3]),
+        )
+        ancilla = RG.from_string(data["ancilla"])
+        return RPNGDescription(corners, ancilla)

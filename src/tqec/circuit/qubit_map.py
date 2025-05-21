@@ -13,7 +13,7 @@ from __future__ import annotations
 import functools
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Callable, Iterable
+from typing import Any, Callable, Iterable
 
 import stim
 
@@ -114,6 +114,27 @@ class QubitMap:
 
     def __getitem__(self, index: GridQubit) -> int:
         return self.q2i[index]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the qubit map.
+
+        The dictionary is intended to be used as a JSON object.
+        """
+        return {"i2q": [[qi, q.to_dict()] for qi, q in self.i2q.items()]}
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> QubitMap:
+        """Return a qubit map from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``i2q`` and ``q2i``.
+
+        Returns:
+            a new instance of :class:`QubitMap` with the provided
+            ``i2q`` and ``q2i``.
+        """
+        i2q = {int(qi): GridQubit.from_dict(q) for qi, q in data["i2q"]}
+        return QubitMap(i2q)
 
 
 def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
