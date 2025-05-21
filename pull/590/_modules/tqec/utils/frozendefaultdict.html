@@ -489,9 +489,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">FrozenDefaultDict</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="n">other</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">],</span> <span class="n">other</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_default_value</span>
-        <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_dict</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_default_value</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_dict</span>
 
 <div class="viewcode-block" id="FrozenDefaultDict.has_default_value">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.has_default_value">[docs]</a>
@@ -518,9 +516,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">default_value</span><span class="p">:</span> <span class="n">Vp</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">default_value</span> <span class="o">=</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_value</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">FrozenDefaultDict</span><span class="p">(</span>
-            <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">callable</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span> <span class="n">default_value</span><span class="o">=</span><span class="n">default_value</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">FrozenDefaultDict</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="nb">callable</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span> <span class="n">default_value</span><span class="o">=</span><span class="n">default_value</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FrozenDefaultDict.map_keys_if_present">

@@ -524,9 +524,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="s2">&quot;MZ&quot;</span><span class="p">:</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MPP&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">}</span>
-<span class="n">COLLAPSING_OPS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">op</span> <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">OP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="n">JUST_RESET_1Q</span><span class="p">,</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span> <span class="n">MPP</span><span class="p">,</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="n">COLLAPSING_OPS</span> <span class="o">=</span> <span class="p">{</span><span class="n">op</span> <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">OP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="n">JUST_RESET_1Q</span><span class="p">,</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span> <span class="n">MPP</span><span class="p">,</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">)}</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">NoiseRule</span><span class="p">:</span>

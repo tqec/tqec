@@ -766,9 +766,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            ``corners`` and ``ancilla``.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">4</span>
-        <span class="p">),</span> <span class="s2">&quot;There must be 4 corners in the RPNG description.&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;There must be 4 corners in the RPNG description.&quot;</span>
         <span class="n">corners</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">]</span>
         <span class="n">corners</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">RPNG</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>

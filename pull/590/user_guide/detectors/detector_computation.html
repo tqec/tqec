@@ -813,9 +813,7 @@ total_number_of_measurements = 3
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.detectors.match</span><span class="w"> </span><span class="kn">import</span> <span class="n">match_detectors_from_flows_shallow</span>
 
-<span class="n">qubit_coordinates</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">q</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">get_final_qubit_coordinates</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-<span class="p">}</span>
+<span class="n">qubit_coordinates</span> <span class="o">=</span> <span class="p">{</span><span class="n">q</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">get_final_qubit_coordinates</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 <span class="n">matched_detectors</span> <span class="o">=</span> <span class="n">match_detectors_from_flows_shallow</span><span class="p">(</span><span class="n">flows</span><span class="p">,</span> <span class="n">qubit_coordinates</span><span class="p">)</span>
 </pre></div>
 </div>
