@@ -80,6 +80,7 @@ class StimCoordinates:
         Returns:
             a new instance of :class:`StimCoordinates` with the provided
             ``x``, ``y`` and ``t``.
+
         """
         x = data["x"]
         y = data["y"]

@@ -77,6 +77,7 @@ class GridQubit:
         Returns:
             a dictionary with the keys ``x`` and ``y`` and their
             corresponding values.
+
         """
         return {"x": self.x, "y": self.y}
 
@@ -90,6 +91,7 @@ class GridQubit:
         Returns:
             a new instance of :class:`GridQubit` with the provided
             ``x`` and ``y``.
+
         """
         return GridQubit(data["x"], data["y"])
 

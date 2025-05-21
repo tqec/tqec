@@ -93,6 +93,7 @@ class Detector:
         Returns:
             a dictionary with the keys ``measurements`` and ``coordinates`` and
             their corresponding values.
+
         """
         return {
             "measurements": [m.to_dict() for m in self.measurements],
@@ -109,6 +110,7 @@ class Detector:
         Returns:
             a new instance of :class:`Detector` with the provided
             ``measurements`` and ``coordinates``.
+
         """
         measurements = frozenset(Measurement.from_dict(m) for m in data["measurements"])
         coordinates = StimCoordinates.from_dict(data["coordinates"])

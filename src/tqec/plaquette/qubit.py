@@ -108,6 +108,7 @@ class PlaquetteQubits:
         Returns:
             a dictionary with the keys ``data_qubits`` and ``syndrome_qubits`` and
             their corresponding values.
+
         """
         return {
             "data_qubits": [q.to_dict() for q in self.data_qubits],
@@ -125,6 +126,7 @@ class PlaquetteQubits:
         Returns:
             a new instance of :class:`PlaquetteQubits` with the provided
             ``data_qubits`` and ``syndrome_qubits``.
+
         """
         data_qubits = [GridQubit.from_dict(q) for q in data["data_qubits"]]
         syndrome_qubits = [GridQubit.from_dict(q) for q in data["syndrome_qubits"]]

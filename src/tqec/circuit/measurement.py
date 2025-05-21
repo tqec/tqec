@@ -125,6 +125,7 @@ class Measurement(AbstractMeasurement):
         Returns:
             a dictionary with the keys ``qubit`` and ``offset`` and their
             corresponding values.
+
         """
         return {"qubit": [self.qubit.x, self.qubit.y], "offset": self.offset}
 
@@ -138,6 +139,7 @@ class Measurement(AbstractMeasurement):
         Returns:
             a new instance of :class:`Measurement` with the provided
             ``qubit`` and ``offset``.
+
         """
         qubit = GridQubit(data["qubit"][0], data["qubit"][1])
         offset = data["offset"]

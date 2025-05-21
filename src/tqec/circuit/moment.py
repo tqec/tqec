@@ -394,6 +394,7 @@ class Moment:
         Returns:
             a new instance of :class:`Moment` with the provided ``circuit`` and
             ``used_qubits``.
+
         """
         circuit = stim.Circuit(data["circuit"])
         used_qubits = set(data["used_qubits"])

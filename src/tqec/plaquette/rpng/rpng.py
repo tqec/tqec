@@ -310,6 +310,7 @@ class RPNGDescription:
         Returns:
             a new instance of :class:`RPNGDescription` with the provided
             ``corners`` and ``ancilla``.
+
         """
         assert (
             len(data["corners"]) == 4

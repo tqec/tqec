@@ -523,6 +523,7 @@ class ScheduledCircuit:
         Returns:
             a dictionary with the keys ``moments``, ``schedule`` and
             ``qubit_map`` and their corresponding values.
+
         """
         return {
             "moments": [m.to_dict() for m in self._moments],
@@ -537,6 +538,7 @@ class ScheduledCircuit:
         Args:
             data: dictionary with the keys ``moments``, ``schedule`` and
                 ``qubit_map``.
+
         """
         moments = [Moment.from_dict(m) for m in data["moments"]]
         schedule = Schedule(data["schedule"])

@@ -150,6 +150,7 @@ class _DetectorDatabaseKey:
         Returns:
             a dictionary with the keys ``subtemplates`` and
             ``plaquettes_by_timestep`` and their corresponding values.
+
         """
         return {
             "subtemplates": [st.tolist() for st in self.subtemplates],
@@ -175,6 +176,7 @@ class _DetectorDatabaseKey:
         Returns:
             a new instance of :class:`_DetectorDatabaseKey` with the provided
             ``subtemplates`` and ``plaquettes_by_timestep``.
+
         """
         subtemplates = [numpy.array(st) for st in data["subtemplates"]]
         plaquettes_by_timestep = [
@@ -317,6 +319,7 @@ class DetectorDatabase:
         Returns:
             a dictionary with the keys ``mapping`` and ``frozen`` and their
             corresponding values.
+
         """
         # First obtain the unique plaquettes
         plaquettes_set: set[Plaquette] = set()
@@ -350,6 +353,7 @@ class DetectorDatabase:
         Returns:
             a new instance of :class:`DetectorDatabase` with the provided
             ``mapping`` and ``frozen``.
+
         """
         uniq_plaquettes = [Plaquette.from_dict(p) for p in data["uniq_plaquettes"]]
         mapping = {
@@ -369,6 +373,7 @@ class DetectorDatabase:
             filepath: path to the file where the database should be saved.
             format: format to use to save the database. Currently only
                 "pickle" and "json" are supported.
+
         """
         if not filepath.parent.exists():
             filepath.parent.mkdir()

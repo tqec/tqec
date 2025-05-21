@@ -147,6 +147,7 @@ class Plaquette:
             a new instance of :class:`Plaquette` with the provided
             ``name``, ``qubits``, ``circuit``, ``mergeable_instructions`` and
             ``debug_information``.
+
         """
         name = data["name"]
         qubits = PlaquetteQubits.from_dict(data["qubits"])
@@ -236,6 +237,7 @@ class Plaquettes:
         Args:
             plaquettes_to_indices: a dictionary mapping plaquettes to their
                 indices. If provided, a plaquette will be represented by its index
+
         """
 
         def convert(value: Plaquette) -> Any:
@@ -269,6 +271,7 @@ class Plaquettes:
         Returns:
             a new instance of :class:`Plaquettes` with the provided
             ``plaquettes`` and ``default``.
+
         """
 
         def convert(item: dict[str, Any]) -> Plaquette:

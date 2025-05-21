@@ -132,6 +132,7 @@ class QubitMap:
         Returns:
             a new instance of :class:`QubitMap` with the provided
             ``i2q`` and ``q2i``.
+
         """
         i2q = {int(qi): GridQubit.from_dict(q) for qi, q in data["i2q"]}
         return QubitMap(i2q)
