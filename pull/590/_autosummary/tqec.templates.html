@@ -517,7 +517,7 @@ arrangement of plaquettes needed to make a logical qubit.</p>
 3   13  14  13  14  4
 </pre></div>
 </div>
-<p>The template instantiation is an array of size <span class="math notranslate nohighlight">\(6 \times 6\)</span>, filled with
+<p>The template instantiation is an array of size <span class="math notranslate nohighlight">\(6 \\times 6\)</span>, filled with
 integers. Each unique integer will eventually either be linked to a plaquette or
 be left empty. Let’s try to clean up a little bit the array by setting the
 values <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">4</span></code>, <code class="docutils literal notranslate"><span class="pre">5</span></code>, <code class="docutils literal notranslate"><span class="pre">8</span></code>, <code class="docutils literal notranslate"><span class="pre">12</span></code> and <code class="docutils literal notranslate"><span class="pre">14</span></code> to the value
@@ -543,7 +543,7 @@ by <code class="docutils literal notranslate"><span class="pre">.</span></code> 
 most of the papers using the surface code and below!</p>
 <img alt="../_images/logical_qubit.png" src="../_images/logical_qubit.png" />
 <p>But that is only a distance
-<span class="math notranslate nohighlight">\(5 = 2 \times 2 + 1 = 2 k + 1\)</span> code. Let’s try to scale that up:</p>
+<span class="math notranslate nohighlight">\(5 = 2 \\times 2 + 1 = 2 k + 1\)</span> code. Let’s try to scale that up:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">k</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">display_template</span><span class="p">(</span>
     <span class="n">template</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">removed_plaquettes</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)]</span>
@@ -551,7 +551,7 @@ most of the papers using the surface code and below!</p>
 </pre></div>
 </div>
 <p>outputs what we would expect: the “template” of plaquettes for a logical qubit
-using a distance <span class="math notranslate nohighlight">\(d = 2 k + 1 = 2 \times 5 + 1 = 11\)</span> code:</p>
+using a distance <span class="math notranslate nohighlight">\(d = 2 k + 1 = 2 \\times 5 + 1 = 11\)</span> code:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.   .   6   .   6   .   6   .   6   .   6   .
 7   9   10  9   10  9   10  9   10  9   10  11
 .   10  9   10  9   10  9   10  9   10  9   .

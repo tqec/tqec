@@ -481,7 +481,7 @@
 <dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">RPNGDescription</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corners</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ancilla=RG(r=&lt;PauliBasis.X:</span> <span class="pre">'x'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g=&lt;PauliBasis.X:</span> <span class="pre">'x'&gt;)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNGDescription"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Organize the description of a plaquette in RPNG format</p>
+<p>Organize the description of a plaquette in RPNG format.</p>
 <p>The corners of the square plaquette are listed following the order:
 top-left, top-right, bottom-left, bottom-right.
 This forms a Z-shaped path on the plaquette corners:</p>
@@ -539,19 +539,19 @@ plaquette.</p>
 <td><p>Return a RPNGDescription object from its dictionary representation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_extended_string" title="tqec.plaquette.RPNGDescription.from_extended_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_extended_string</span></code></a>(...)</p></td>
-<td><p>Initialize the RPNGDescription object from a (16+3)-character string</p></td>
+<td><p>Initialize the RPNGDescription object from a (16+3)-character string.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_string" title="tqec.plaquette.RPNGDescription.from_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_string</span></code></a>(corners_rpng_string)</p></td>
-<td><p>Initialize the RPNGDescription object from a (16+3)-character string</p></td>
+<td><p>Initialize the RPNGDescription object from a (16+3)-character string.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_g_op" title="tqec.plaquette.RPNGDescription.get_g_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_g_op</span></code></a>(data_idx)</p></td>
-<td><p>Get the measurement operation or Hadamard for the specific data qubit</p></td>
+<td><p>Get the measurement operation or Hadamard for the specific data qubit.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_n" title="tqec.plaquette.RPNGDescription.get_n"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_n</span></code></a>(data_idx)</p></td>
-<td><p>Get the time of the 2Q gate involving the specific data qubit</p></td>
+<td><p>Get the time of the 2Q gate involving the specific data qubit.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_r_op" title="tqec.plaquette.RPNGDescription.get_r_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_r_op</span></code></a>(data_idx)</p></td>
-<td><p>Get the reset operation or Hadamard for the specific data qubit</p></td>
+<td><p>Get the reset operation or Hadamard for the specific data qubit.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.to_dict" title="tqec.plaquette.RPNGDescription.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
 <td><p>Return a dictionary representation of the RPNG description.</p></td>
@@ -628,7 +628,7 @@ plaquette.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.from_extended_string">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_extended_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ancilla_and_corners_rpng_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNGDescription.from_extended_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription.from_extended_string" title="Link to this definition">#</a></dt>
-<dd><p>Initialize the RPNGDescription object from a (16+3)-character string</p>
+<dd><p>Initialize the RPNGDescription object from a (16+3)-character string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ancilla_and_corners_rpng_string</strong> (<em>str</em>)</p>
@@ -642,7 +642,7 @@ plaquette.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.from_string">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corners_rpng_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNGDescription.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription.from_string" title="Link to this definition">#</a></dt>
-<dd><p>Initialize the RPNGDescription object from a (16+3)-character string</p>
+<dd><p>Initialize the RPNGDescription object from a (16+3)-character string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>corners_rpng_string</strong> (<em>str</em>)</p>
@@ -656,7 +656,7 @@ plaquette.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.get_g_op">
 <span class="sig-name descname"><span class="pre">get_g_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNGDescription.get_g_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription.get_g_op" title="Link to this definition">#</a></dt>
-<dd><p>Get the measurement operation or Hadamard for the specific data qubit</p>
+<dd><p>Get the measurement operation or Hadamard for the specific data qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data_idx</strong> (<em>int</em>)</p>
@@ -670,7 +670,7 @@ plaquette.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.get_n">
 <span class="sig-name descname"><span class="pre">get_n</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNGDescription.get_n"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription.get_n" title="Link to this definition">#</a></dt>
-<dd><p>Get the time of the 2Q gate involving the specific data qubit</p>
+<dd><p>Get the time of the 2Q gate involving the specific data qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data_idx</strong> (<em>int</em>)</p>
@@ -684,7 +684,7 @@ plaquette.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.get_r_op">
 <span class="sig-name descname"><span class="pre">get_r_op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNGDescription.get_r_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription.get_r_op" title="Link to this definition">#</a></dt>
-<dd><p>Get the reset operation or Hadamard for the specific data qubit</p>
+<dd><p>Get the reset operation or Hadamard for the specific data qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data_idx</strong> (<em>int</em>)</p>

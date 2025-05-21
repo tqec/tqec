@@ -479,7 +479,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.from_string">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rpng_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RPNG</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RPNG object from a 4-character string</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RPNG object from a 4-character string.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: if an invalid ``rpng_string`` is provided.</span>
@@ -508,7 +508,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="RPNG.get_r_op">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.get_r_op">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_r_op</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the reset operation or Hadamard&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the reset operation or Hadamard.&quot;&quot;&quot;</span>
         <span class="n">op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span>
         <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -521,7 +521,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="RPNG.get_g_op">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.get_g_op">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_g_op</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the measurement operation or Hadamard&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the measurement operation or Hadamard.&quot;&quot;&quot;</span>
         <span class="n">op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span>
         <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -533,7 +533,7 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_null</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the RPNG object is null, i.e. all fields are None&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the RPNG object is null, i.e. all fields are None.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;----&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -563,7 +563,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RG.html#tqec.plaquette.RG.from_string">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rg_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RG</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the ``RG`` object from a 2-character string&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the ``RG`` object from a 2-character string.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rg_string</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The RG string must be exactly 2-character long.&quot;</span><span class="p">)</span>
         <span class="n">r_str</span><span class="p">,</span> <span class="n">g_str</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">rg_string</span><span class="p">)</span>
@@ -585,7 +585,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RPNGDescription</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize the description of a plaquette in RPNG format</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize the description of a plaquette in RPNG format.</span>
 
 <span class="sd">    The corners of the square plaquette are listed following the order:</span>
 <span class="sd">    top-left, top-right, bottom-left, bottom-right.</span>
@@ -614,7 +614,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">ancilla</span><span class="p">:</span> <span class="n">RG</span> <span class="o">=</span> <span class="n">RG</span><span class="p">(</span><span class="n">PauliBasis</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validation of the initialization arguments</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validation of the initialization arguments.</span>
 
 <span class="sd">        Constraints:</span>
 <span class="sd">        - the n values for the corners must be unique</span>
@@ -633,7 +633,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.from_string">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">corners_rpng_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RPNGDescription</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RPNGDescription object from a (16+3)-character string&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RPNGDescription object from a (16+3)-character string.&quot;&quot;&quot;</span>
         <span class="n">rpng_objs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">RPNG</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">corners_rpng_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)])</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rpng_objs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;There must be 4 corners in the RPNG description.&quot;</span><span class="p">)</span>
@@ -644,7 +644,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.from_extended_string">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_extended_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ancilla_and_corners_rpng_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RPNGDescription</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RPNGDescription object from a (16+3)-character string&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RPNGDescription object from a (16+3)-character string.&quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">ancilla_and_corners_rpng_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
         <span class="n">ancilla_rg</span> <span class="o">=</span> <span class="n">RG</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">rpng_objs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">RPNG</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
@@ -663,21 +663,21 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="RPNGDescription.get_r_op">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_r_op">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_r_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the reset operation or Hadamard for the specific data qubit&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the reset operation or Hadamard for the specific data qubit.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="n">data_idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_r_op</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="RPNGDescription.get_n">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_n">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_n</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the time of the 2Q gate involving the specific data qubit&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the time of the 2Q gate involving the specific data qubit.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="n">data_idx</span><span class="p">]</span><span class="o">.</span><span class="n">n</span></div>
 
 
 <div class="viewcode-block" id="RPNGDescription.get_g_op">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_g_op">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_g_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the measurement operation or Hadamard for the specific data qubit&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the measurement operation or Hadamard for the specific data qubit.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="n">data_idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_g_op</span><span class="p">()</span></div>
 
 

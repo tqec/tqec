@@ -525,7 +525,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="s2">&quot;MPP&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 <span class="n">COLLAPSING_OPS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">op</span> <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">OP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_RESET_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_MEASURE_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MPP</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MEASURE_RESET_1Q</span>
+    <span class="n">op</span> <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">OP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="n">JUST_RESET_1Q</span><span class="p">,</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span> <span class="n">MPP</span><span class="p">,</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">)</span>
 <span class="p">}</span>
 
 
@@ -572,7 +572,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">args</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flip_result</span><span class="p">:</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">split_op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-            <span class="k">assert</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MPP</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_MEASURE_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MEASURE_RESET_1Q</span>
+            <span class="k">assert</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="n">MPP</span><span class="p">,</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">,</span> <span class="n">MEASURE_RESET_1Q</span><span class="p">)</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
             <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">flip_result</span><span class="p">]</span>
 
