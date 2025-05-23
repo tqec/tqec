@@ -9,7 +9,7 @@ from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
-from tqec.plaquette.debug import PlaquetteDebugInformation
+from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.plaquette.qubit import SquarePlaquetteQubits
@@ -54,10 +54,10 @@ def make_fixed_bulk_realignment_plaquette(
             cx_schedule = [1, 2, 3, 5]
     circuit = stim.Circuit()
     circuit.append(f"R{mq_reset.value}", qubits.syndrome_qubits_indices, [])
-    circuit.append("TICK")
+    circuit.append("TICK", [], [])
     for targets in cx_targets:
         circuit.append("CX", targets, [])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
     circuit.append(f"M{mq_measurement.value}", qubits.syndrome_qubits_indices, [])
     circuit.append("H", qubits.data_qubits_indices, [])
     schedule = [0, *cx_schedule, 6]
@@ -69,7 +69,11 @@ def make_fixed_bulk_realignment_plaquette(
         qubits,
         scheduled_circuit,
         mergeable_instructions=frozenset({"H"}),
-        debug_information=PlaquetteDebugInformation(draw_polygons=debug_basis),
+        debug_information=PlaquetteDebugInformation(
+            draw_polygons=(
+                DrawPolygon(debug_basis) if debug_basis is not None else None
+            )
+        ),
     )
 
 

@@ -8,7 +8,7 @@ import stim
 from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.plaquette.debug import PlaquetteDebugInformation
+from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits
 from tqec.plaquette.rpng.rpng import PauliBasis
@@ -233,7 +233,9 @@ class ExtendedPlaquetteCollection:
         ]
         return [
             PlaquetteDebugInformation(
-                draw_polygons={basis: [extended_corners[i] for i in indices]}
+                draw_polygons=DrawPolygon(
+                    {basis: [extended_corners[i] for i in indices]}
+                )
             )
             for indices in [
                 # bulk
