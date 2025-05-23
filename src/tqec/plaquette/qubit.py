@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Any
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
@@ -118,6 +118,34 @@ class PlaquetteQubits:
                 if i not in removed_qubits
             ],
         )
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the plaquette qubits.
+
+        Returns:
+            a dictionary with the keys ``data_qubits`` and ``syndrome_qubits`` and
+            their corresponding values.
+        """
+        return {
+            "data_qubits": [q.to_dict() for q in self.data_qubits],
+            "syndrome_qubits": [q.to_dict() for q in self.syndrome_qubits],
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> PlaquetteQubits:
+        """Return a plaquette qubits from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``data_qubits`` and
+                ``syndrome_qubits``.
+
+        Returns:
+            a new instance of :class:`PlaquetteQubits` with the provided
+            ``data_qubits`` and ``syndrome_qubits``.
+        """
+        data_qubits = [GridQubit.from_dict(q) for q in data["data_qubits"]]
+        syndrome_qubits = [GridQubit.from_dict(q) for q in data["syndrome_qubits"]]
+        return PlaquetteQubits(data_qubits, syndrome_qubits)
 
 
 class SquarePlaquetteQubits(PlaquetteQubits):

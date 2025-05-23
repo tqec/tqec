@@ -393,6 +393,31 @@ class Moment:
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Moment) and self._circuit == other._circuit
 
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the :class:`Moment` instance.
+
+        The dictionary is intended to be used as a JSON object.
+        """
+        return {
+            "circuit": str(self._circuit),
+            "used_qubits": list(self._used_qubits),
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> Moment:
+        """Return a :class:`Moment` instance from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``circuit`` and ``used_qubits``.
+
+        Returns:
+            a new instance of :class:`Moment` with the provided ``circuit`` and
+            ``used_qubits``.
+        """
+        circuit = stim.Circuit(data["circuit"])
+        used_qubits = set(data["used_qubits"])
+        return Moment(circuit, used_qubits=used_qubits, _avoid_checks=True)
+
 
 def iter_stim_circuit_without_repeat_by_moments(
     circuit: stim.Circuit, collected_before_use: bool = True

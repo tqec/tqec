@@ -204,3 +204,21 @@ def test_detector_database_translation_invariance() -> None:
     detectors = db.get_detectors((translated_subtemplate,), (translated_plaquettes,))
     assert detectors is not None
     assert detectors == DETECTORS[0]
+
+
+def test_detector_database_dict() -> None:
+    db = DetectorDatabase()
+    db.add_situation(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1], DETECTORS[0])
+    db.add_situation(SUBTEMPLATES[:2], PLAQUETTE_COLLECTIONS[:2], DETECTORS[1])
+
+    # Check that the database can be converted to a dict and back
+    db_dict = db.to_dict()
+    new_db = DetectorDatabase.from_dict(db_dict)
+
+    # Check that the new database has the same situations as the original
+    detectors0 = new_db.get_detectors(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])
+    assert detectors0 is not None
+    assert detectors0 == DETECTORS[0]
+    detectors1 = new_db.get_detectors(SUBTEMPLATES[:2], PLAQUETTE_COLLECTIONS[:2])
+    assert detectors1 is not None
+    assert detectors1 == DETECTORS[1]
