@@ -1,8 +1,9 @@
 from pathlib import Path
 from typing import Any, Mapping
+from typing_extensions import override
+import warnings
 
 import stim
-from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
@@ -19,7 +20,7 @@ from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.template import RPNGTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
 
@@ -158,7 +159,7 @@ class LayerTree:
             )
         )
         # The database will have been updated inside the above function, and here at
-        # the end of the computation we save it to file:
+        # the end of the computation we save it to file.
         if detector_database is not None:
             detector_database.to_file(database_path)
 
@@ -297,7 +298,7 @@ class LayerTree:
                 produce invalid detectors.
             detector_database: an instance to retrieve from / store in detectors
                 that are computed as part of the circuit generation. If not given,
-                the detectors are retrieved from/stored in the the provided
+                the detectors are retrieved from/stored in the provided
                 ``database_path``.
             database_path: specify where to save to after the calculation.
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
@@ -317,15 +318,40 @@ class LayerTree:
         # First, before we start any computations, decide which detector database to use.
         if isinstance(database_path, str):
             database_path = Path(database_path)
+        # Start user_defined from False, override with True later if certain conditions are met:
+        user_defined = False
         # If the user has passed a database in, use that, otherwise:
         if detector_database is None:  # Nothing passed in,
             if database_path.exists():  # look for an existing database at the path.
                 detector_database = DetectorDatabase.from_file(database_path)
             else:  # if there is no existing database, create one.
                 detector_database = DetectorDatabase()
+        else:
+            user_defined = True
+        if database_path != DEFAULT_DETECTOR_DATABASE_PATH:
+            user_defined = True
         # If do_not_use_database is True, override the above code and reset the database to None
-        if do_not_use_database:
+        # Also do this if the database version is set to None in the TQEC code (ie in testing mode)
+        current_version = DetectorDatabase.version
+        if do_not_use_database or (current_version is None):
             detector_database = None
+        if detector_database is not None:
+            loaded_version = detector_database.version
+            if loaded_version != current_version:
+                if user_defined:
+                    raise TQECException(
+                        f"The detector database on disk you have specified is incompatible with the version"
+                        f"in the TQEC code you are running. The version of the disk database is {loaded_version}"
+                        f", while the version in the TQEC code is {current_version}"
+                    )
+                else:  # ie using the default
+                    warnings.warn(
+                        f"The default detector database that you have saved on your system is out of date"
+                        f"(version {loaded_version}). The version in the TQEC code you are running is newer"
+                        f"(version {current_version}). The database will be regenerated.",
+                        TQECWarning,
+                    )
+                    detector_database = DetectorDatabase()
 
         self._generate_annotations(
             k,
