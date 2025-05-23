@@ -424,6 +424,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">CubeSpec</span><span class="p">,</span> <span class="n">PipeSpec</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangularTemplate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="n">Direction3D</span>
@@ -509,19 +510,26 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">if</span> <span class="n">minz</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">)</span>
 
-    <span class="n">spatial_pipe_slices</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-        <span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span>
-        <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_pipes_in_both_spatial_dimensions</span><span class="p">(</span><span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span>
+            <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span>
+            <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes_at</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial</span>
+        <span class="p">)</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">([</span><span class="n">Direction3D</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span><span class="p">])</span>
+
+    <span class="n">extended_stabilizers_pipe_slices</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span>
+        <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="n">cube</span><span class="o">.</span><span class="n">is_spatial</span>
-            <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
-                <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span>
-                <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes_at</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+            <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Y</span>
+            <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">has_pipes_in_both_spatial_dimensions</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+                <span class="o">^</span> <span class="n">has_pipes_in_both_spatial_dimensions</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="n">cube_specs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">,</span> <span class="n">spatial_pipe_slices</span><span class="p">)</span>
+        <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">,</span> <span class="n">extended_stabilizers_pipe_slices</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span>
     <span class="p">}</span>
 
@@ -567,13 +575,12 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">pos2</span> <span class="o">=</span> <span class="n">BlockPosition3D</span><span class="p">(</span><span class="n">pos2</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">pos2</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">pos2</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
         <span class="n">template1</span> <span class="o">=</span> <span class="n">_get_template_from_layer</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">get_cube</span><span class="p">(</span><span class="n">pos1</span><span class="p">))</span>
         <span class="n">template2</span> <span class="o">=</span> <span class="n">_get_template_from_layer</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">get_cube</span><span class="p">(</span><span class="n">pos2</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">template1</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">template2</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">PipeSpec</span><span class="p">(</span>
             <span class="p">(</span><span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="p">],</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="p">]),</span>
             <span class="p">(</span><span class="n">template1</span><span class="p">,</span> <span class="n">template2</span><span class="p">),</span>
             <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
             <span class="n">has_spatial_up_or_down_pipe_in_timeslice</span><span class="o">=</span><span class="p">(</span>
-                <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="n">pos2</span><span class="o">.</span><span class="n">z</span> <span class="ow">and</span> <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">spatial_pipe_slices</span>
+                <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="n">pos2</span><span class="o">.</span><span class="n">z</span> <span class="ow">and</span> <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">extended_stabilizers_pipe_slices</span>
             <span class="p">),</span>
             <span class="n">at_temporal_hadamard_layer</span><span class="o">=</span><span class="p">(</span>
                 <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_temporal</span> <span class="ow">and</span> <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">temporal_hadamard_z_positions</span>
