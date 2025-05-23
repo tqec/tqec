@@ -1112,6 +1112,45 @@ class FixedParityConventionGenerator:
             regular_memory = regular_memory.without_plaquettes([3])
         return regular_memory
 
+    @staticmethod
+    def pipe_needs_extended_stablizers(linked_cubes: tuple[CubeSpec, CubeSpec]) -> bool:
+        """Check if the pipe represented by the given ``arms`` and
+        ``linked_cubes`` requires extended stablizers.
+
+        There is a special case to handle here.
+
+        In fixed parity convention, spatial cubes change the parity. That is
+        why we need stretched stabilizers. By convention, TQEC inserts stretched
+        stabilizers only in the UP/DOWN pipes (i.e., in the Y spatial dimension).
+
+        But if 2 spatial cubes are linked by a pipe in the Y dimension, we
+        *might* not need to fix the parity with extended stabilizers. We only
+        need to use stretched stabilizers when the parity would be wrong, and
+        that is only when exactly 1 of the 2 cubes linked by the pipe has pipes
+        in both spatial dimensions
+
+        Args:
+            arms: arm(s) of the spatial cube(s) linked by the pipe.
+            linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
+                specifications of the two ends of the pipe.
+
+        Returns:
+            ``True`` if extended stablizers should be used, ``False`` otherwise.
+        """
+
+        def has_pipes_in_both_spatial_dimensions(cube_spec: CubeSpec) -> bool:
+            return (
+                SpatialArms.DOWN in cube_spec.spatial_arms
+                or SpatialArms.UP in cube_spec.spatial_arms
+            ) and (
+                SpatialArms.LEFT in cube_spec.spatial_arms
+                or SpatialArms.RIGHT in cube_spec.spatial_arms
+            )
+
+        return has_pipes_in_both_spatial_dimensions(
+            linked_cubes[0]
+        ) ^ has_pipes_in_both_spatial_dimensions(linked_cubes[1])
+
     def _get_up_down_spatial_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
@@ -1121,7 +1160,7 @@ class FixedParityConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        if arms == SpatialArms.UP | SpatialArms.DOWN:
+        if FixedParityConventionGenerator.pipe_needs_extended_stablizers(linked_cubes):
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
                 spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement

@@ -16,6 +16,7 @@ from tqec.compile.observables.abstract_observable import (
 from tqec.compile.specs.base import CubeSpec, PipeSpec
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
+from tqec.computation.cube import Cube
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D
@@ -99,19 +100,26 @@ def compile_block_graph(
     if minz != 0:
         block_graph = block_graph.shift_by(dz=-minz)
 
-    spatial_pipe_slices: frozenset[int] = frozenset(
-        cube.position.z
-        for cube in block_graph.cubes
+    def has_pipes_in_both_spatial_dimensions(cube: Cube) -> bool:
+        return frozenset(
+            pipe.direction
+            for pipe in block_graph.pipes_at(cube.position)
+            if pipe.kind.is_spatial
+        ) == frozenset([Direction3D.X, Direction3D.Y])
+
+    extended_stabilizers_pipe_slices: frozenset[int] = frozenset(
+        pipe.u.position.z
+        for pipe in block_graph.pipes
         if (
-            cube.is_spatial
-            and any(
-                pipe.direction == Direction3D.Y
-                for pipe in block_graph.pipes_at(cube.position)
+            pipe.direction == Direction3D.Y
+            and (
+                has_pipes_in_both_spatial_dimensions(pipe.u)
+                ^ has_pipes_in_both_spatial_dimensions(pipe.v)
             )
         )
     )
     cube_specs = {
-        cube: CubeSpec.from_cube(cube, block_graph, spatial_pipe_slices)
+        cube: CubeSpec.from_cube(cube, block_graph, extended_stabilizers_pipe_slices)
         for cube in block_graph.cubes
     }
 
@@ -157,13 +165,12 @@ def compile_block_graph(
         pos2 = BlockPosition3D(pos2.x, pos2.y, pos2.z)
         template1 = _get_template_from_layer(graph.get_cube(pos1))
         template2 = _get_template_from_layer(graph.get_cube(pos2))
-        print(type(template1).__name__, type(template2).__name__)
         key = PipeSpec(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (template1, template2),
             pipe.kind,
             has_spatial_up_or_down_pipe_in_timeslice=(
-                pos1.z == pos2.z and pos1.z in spatial_pipe_slices
+                pos1.z == pos2.z and pos1.z in extended_stabilizers_pipe_slices
             ),
             at_temporal_hadamard_layer=(
                 pipe.kind.is_temporal and pos1.z in temporal_hadamard_z_positions
