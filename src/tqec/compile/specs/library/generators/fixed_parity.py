@@ -1160,7 +1160,9 @@ class FixedParityConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        if FixedParityConventionGenerator.pipe_needs_extended_stablizers(linked_cubes):
+        if not FixedParityConventionGenerator.pipe_needs_extended_stablizers(
+            linked_cubes
+        ):
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
                 spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
