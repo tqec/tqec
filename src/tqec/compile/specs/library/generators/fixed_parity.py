@@ -111,7 +111,7 @@ class FixedParityConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> tuple[RPNGDescription, RPNGDescription]:
+    ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
         b = basis.value.lower()
         # r/m: reset/measurement basis applied to each data-qubit
         r = reset.value.lower() if reset is not None else "-"
@@ -129,6 +129,12 @@ class FixedParityConventionGenerator:
         return (
             RPNGDescription.from_string(
                 f"---- {r}{b}{s[1]}{m} {r}{b}{s[2]}{m} {r}{b}{s[3]}{m}"
+            ),
+            RPNGDescription.from_string(
+                f"{r}{b}{s[0]}{m} ---- {r}{b}{s[2]}{m} {r}{b}{s[3]}{m}"
+            ),
+            RPNGDescription.from_string(
+                f"{r}{b}{s[0]}{m} {r}{b}{s[1]}{m} ---- {r}{b}{s[3]}{m}"
             ),
             RPNGDescription.from_string(
                 f"{r}{b}{s[0]}{m} {r}{b}{s[1]}{m} {r}{b}{s[2]}{m} ----"
@@ -886,7 +892,7 @@ class FixedParityConventionGenerator:
         if SA.LEFT not in arms and SA.UP not in arms:
             mapping[5] = CSs[0]
         if SA.RIGHT not in arms and SA.DOWN not in arms:
-            mapping[8] = CSs[1]
+            mapping[8] = CSs[3]
 
         ####################
         #  Sanity checks   #
@@ -1237,7 +1243,7 @@ class FixedParityConventionGenerator:
         TBPs = self.get_2_body_rpng_descriptions(is_reversed)
         u, v = linked_cubes
         top_right = (
-            CSs[1]
+            CSs[3]
             if SpatialArms.RIGHT in u.spatial_arms
             else TBPs[SBB][PlaquetteOrientation.RIGHT]
         )
