@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import inspect
-from typing import ClassVar, Literal
+from typing import ClassVar, Final, Literal
+
 
 from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
@@ -24,6 +25,7 @@ from tqec.templates.qubit import (
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+from tqec.utils.position import Direction3D
 
 
 class FixedParityConventionGenerator:
@@ -791,9 +793,10 @@ class FixedParityConventionGenerator:
                 measurement being applied on data-qubits.
 
         Raises:
-            TQECException: if ``arms`` only contains 0 or 1 flag.
             TQECException: if ``arms`` describes an I-shaped junction (TOP/DOWN
                 or LEFT/RIGHT).
+            TQECException: if ``arms == SpatialArms.NONE`` because that case is
+                not the focus of TQEC and so is not handled.
 
         Returns:
             a description of the plaquettes needed to implement a spatial cube.
@@ -812,6 +815,13 @@ class FixedParityConventionGenerator:
         #     11  16  19  15  19  15  19  15  18  21
         #     12   7  15  19  15  19  15  19   8  22
         #      3  23  24  23  24  23  24  23  24   4
+        if arms == SpatialArms.NONE:
+            raise TQECException(
+                "Trying to generate a spatial cube without any spatial arms "
+                "(stability experiment?). This scenario has not been tested and "
+                "is likely at least partially false. Please double-check "
+                "attentively the generated circuits."
+            )
         if arms in SpatialArms.I_shaped_arms():
             raise TQECException(
                 "I-shaped spatial junctions (i.e., spatial junctions with only two "
@@ -826,6 +836,26 @@ class FixedParityConventionGenerator:
         CSs = self.get_3_body_rpng_descriptions(SBB, is_reversed, reset, measurement)
         # BPs: Bulk Plaquettes.
         BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
+        # Note about the fixed parity convention: in order to work as expected,
+        # spatial cubes need to have one dimension that does not respect the
+        # parity convention. By convention, we only use stretched stabilizers in
+        # the vertical (Y) dimension (i.e., between two cubes that are aligned
+        # on the Y axis), and so only the boundaries on the X axis (left and
+        # right) need to not follow the fixed parity convention.
+        # For spatial cubes, the only exception to the above rule is when the
+        # cube is a "dead-end" (i.e., only one spatial arm: ``len(arms) == 1``).
+        # In that case, the dimension that should not follow the fixed parity
+        # convention is the one "closing" the pipe, i.e., the dimension in which
+        # the only arm is positioned.
+        # For dead-end cubes, a dead-end in the X dimension still follows the
+        # general rule (the boundaries in the X axis do not follow the
+        # convention), so we only have to test if we have a dead-end in the Y
+        # dimension.
+        ODD_BOUNDARY_DIMENSION: Final[Literal[Direction3D.X, Direction3D.Y]] = (
+            Direction3D.Y
+            if arms in [SpatialArms.UP, SpatialArms.DOWN]
+            else Direction3D.X
+        )
 
         mapping: dict[int, RPNGDescription] = {}
 
@@ -834,21 +864,31 @@ class FixedParityConventionGenerator:
         ####################
         # Fill the boundaries that should be filled in the returned template
         # because they have no arms, and so will not be filled later.
-        # Note that resets and measurements are included on all data-qubits here.
-        # TBPs: Two Body Plaquettes.
         TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+
+        TOP, BOTTOM, LEFT, RIGHT = (
+            (10, 23, 12, 21)
+            if ODD_BOUNDARY_DIMENSION == Direction3D.X
+            else (9, 24, 11, 22)
+        )
         if SpatialArms.UP not in arms:
-            mapping[10] = TBPs[SBB][PlaquetteOrientation.UP]
+            mapping[TOP] = TBPs[SBB][PlaquetteOrientation.UP]
         if SpatialArms.RIGHT not in arms:
-            mapping[21] = TBPs[SBB][PlaquetteOrientation.RIGHT]
+            mapping[RIGHT] = TBPs[SBB][PlaquetteOrientation.RIGHT]
         if SpatialArms.DOWN not in arms:
-            mapping[23] = TBPs[SBB][PlaquetteOrientation.DOWN]
+            mapping[BOTTOM] = TBPs[SBB][PlaquetteOrientation.DOWN]
         if SpatialArms.LEFT not in arms:
-            mapping[12] = TBPs[SBB][PlaquetteOrientation.LEFT]
+            mapping[LEFT] = TBPs[SBB][PlaquetteOrientation.LEFT]
 
         ####################
         #       Bulk       #
         ####################
+        # Bulk plaquettes basis might change according to the odd boundary
+        # dimension to avoid having 2 plaquettes measuring the same basis side
+        # by side.
+        # TLB, OTB: Top-Left (plaquette) Basis, Other Basis (for the bulk)
+        TLB = SBB if ODD_BOUNDARY_DIMENSION == Direction3D.X else SBB.flipped()
+        OTB = TLB.flipped()
         # Assigning plaquette description to the bulk, considering that the bulk
         # corners (i.e. indices {5, 6, 7, 8}) should be assigned "regular" plaquettes
         # (i.e. 6 is assigned the same plaquette as 17, 7 -> 19, 5 -> 13, 8 -> 15).
@@ -865,33 +905,37 @@ class FixedParityConventionGenerator:
         SBB_LEFT = SBB_LEFT if SpatialArms.LEFT in arms else SBB_LEFT.flip()
         # The OTH (other basis) orientations are the opposite of the SBB
         # orientation.
-        OTH = SBB.flipped()
         OTH_UP, OTH_DOWN = SBB_UP.flip(), SBB_DOWN.flip()
         OTH_RIGHT, OTH_LEFT = SBB_RIGHT.flip(), SBB_LEFT.flip()
 
         # Setting the SBB plaquettes
-        mapping[5] = mapping[13] = BPs[SBB][SBB_UP]
-        mapping[8] = mapping[15] = BPs[SBB][SBB_DOWN]
-        mapping[14] = BPs[SBB][SBB_RIGHT]
-        mapping[16] = BPs[SBB][SBB_LEFT]
+        mapping[5] = mapping[13] = BPs[TLB][SBB_UP]
+        mapping[8] = mapping[15] = BPs[TLB][SBB_DOWN]
+        mapping[14] = BPs[TLB][SBB_RIGHT]
+        mapping[16] = BPs[TLB][SBB_LEFT]
         # Setting the OTH plaquettes
-        mapping[6] = mapping[17] = BPs[OTH][OTH_UP]
-        mapping[7] = mapping[19] = BPs[OTH][OTH_DOWN]
-        mapping[18] = BPs[OTH][OTH_RIGHT]
-        mapping[20] = BPs[OTH][OTH_LEFT]
+        mapping[6] = mapping[17] = BPs[OTB][OTH_UP]
+        mapping[7] = mapping[19] = BPs[OTB][OTH_DOWN]
+        mapping[18] = BPs[OTB][OTH_RIGHT]
+        mapping[20] = BPs[OTB][OTH_LEFT]
 
-        # For the top-left and bottom-right corners, if the two arms around the
-        # corner are not present, the corner plaquette has been removed from the
-        # mapping. The corner **within the bulk** should be overwritten to
-        # become a 3-body stabilizer measurement.
-        # Note that this is not done when deleting the external corners before
-        # because the bulk plaquettes are set just above, and so we should
-        # override the plaquettes after.
-        # Alias to reduce clutter in the implementation for corners
-        SA = SpatialArms
-        if SA.LEFT not in arms and SA.UP not in arms:
+        # For the in-bulk corners, if the two arms around the corner are not
+        # present, the corner plaquette has been removed from the mapping. The
+        # corner **within the bulk** should be overwritten to become a 3-body
+        # stabilizer measurement.
+        if arms == SpatialArms.RIGHT:
             mapping[5] = CSs[0]
-        if SA.RIGHT not in arms and SA.DOWN not in arms:
+        elif arms == SpatialArms.DOWN:
+            mapping[6] = CSs[1]
+        elif arms == SpatialArms.UP:
+            mapping[7] = CSs[2]
+        elif arms == SpatialArms.LEFT:
+            mapping[8] = CSs[3]
+        # At this point, we are sure that len(arms) >= 2. The only cases left
+        # where a 3-body stabilizer is needed are the following:
+        if arms == SpatialArms.RIGHT | SpatialArms.DOWN:
+            mapping[5] = CSs[0]
+        if arms == SpatialArms.LEFT | SpatialArms.UP:
             mapping[8] = CSs[3]
 
         ####################
