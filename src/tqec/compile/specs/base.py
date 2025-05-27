@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Literal, Protocol
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.specs.enums import SpatialArms
@@ -10,6 +10,7 @@ from tqec.computation.cube import Cube, CubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.exceptions import TQECException
+from tqec.utils.position import Direction3D
 
 
 @dataclass(frozen=True)
@@ -68,6 +69,27 @@ class CubeSpec:
                 spatial_arms |= flag
         return CubeSpec(
             cube.kind, spatial_arms, has_spatial_up_or_down_pipe_in_timeslice
+        )
+
+    @property
+    def pipe_dimensions(self) -> frozenset[Literal[Direction3D.X, Direction3D.Y]]:
+        dimensions: list[Literal[Direction3D.X, Direction3D.Y]] = []
+        if (
+            SpatialArms.LEFT in self.spatial_arms
+            or SpatialArms.RIGHT in self.spatial_arms
+        ):
+            dimensions.append(Direction3D.X)
+        if SpatialArms.UP in self.spatial_arms or SpatialArms.DOWN in self.spatial_arms:
+            dimensions.append(Direction3D.Y)
+        return frozenset(dimensions)
+
+    @property
+    def has_spatial_pipe_in_both_dimensions(self) -> bool:
+        return (
+            SpatialArms.DOWN in self.spatial_arms or SpatialArms.UP in self.spatial_arms
+        ) and (
+            SpatialArms.LEFT in self.spatial_arms
+            or SpatialArms.RIGHT in self.spatial_arms
         )
 
 

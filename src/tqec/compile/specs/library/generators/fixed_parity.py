@@ -1167,8 +1167,6 @@ class FixedParityConventionGenerator:
         """Check if the pipe represented by the given ``arms`` and
         ``linked_cubes`` requires extended stablizers.
 
-        There is a special case to handle here.
-
         In fixed parity convention, spatial cubes change the parity. That is
         why we need stretched stabilizers. By convention, TQEC inserts stretched
         stabilizers only in the UP/DOWN pipes (i.e., in the Y spatial dimension).
@@ -1188,18 +1186,10 @@ class FixedParityConventionGenerator:
             ``True`` if extended stablizers should be used, ``False`` otherwise.
         """
 
-        def has_pipes_in_both_spatial_dimensions(cube_spec: CubeSpec) -> bool:
-            return (
-                SpatialArms.DOWN in cube_spec.spatial_arms
-                or SpatialArms.UP in cube_spec.spatial_arms
-            ) and (
-                SpatialArms.LEFT in cube_spec.spatial_arms
-                or SpatialArms.RIGHT in cube_spec.spatial_arms
-            )
-
-        return has_pipes_in_both_spatial_dimensions(
-            linked_cubes[0]
-        ) ^ has_pipes_in_both_spatial_dimensions(linked_cubes[1])
+        return (
+            linked_cubes[0].has_spatial_pipe_in_both_dimensions
+            ^ linked_cubes[1].has_spatial_pipe_in_both_dimensions
+        )
 
     def _get_up_down_spatial_cube_arm_plaquettes(
         self,
@@ -1272,38 +1262,69 @@ class FixedParityConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
+        """Return the RPNG descriptions to implement a pipe connecting at least
+        one spatial cube.
+
+        The pipe implemented by this method links two cubes such as:
+
+        - at least one of the two cube is a spatial cube (both can be),
+        - either none of both of the two linked cubes have pipes in both spatial
+          dimensions.
+
+        In particular, the following situations can be encountered (list is not
+        exhaustive):
+
+        - a straight line ending on a spatial cube, meaning that the pipe links
+          a spatial cube with a single arm and a regular cube (case where none
+          of the 2 linked cubes have pipes in both spatial dimensions),
+        - a "rotated-H" shape (case where both of the 2 linked cubes have pipes
+          in both spatial dimensions),
+        - ...
+
+        These pipes have in common the fact that they do not require extended
+        stabilizers to be implemented.
+        """
+        # Aliases to shorten line length.
+        r, m = reset, measurement
         SBB = spatial_boundary_basis
-        OTB = spatial_boundary_basis.flipped()
         # BPs: Bulk Plaquettes.
-        BPs_UP = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (2, 3)
-        )
-        BPs_DOWN = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (0, 1)
-        )
+        BPs_UP = self.get_bulk_rpng_descriptions(is_reversed, r, m, (2, 3))
+        BPs_DOWN = self.get_bulk_rpng_descriptions(is_reversed, r, m, (0, 1))
         # CSs: Corner Stabilizers (3-body stabilizers).
-        CSs = self.get_3_body_rpng_descriptions(SBB, is_reversed, reset, measurement)
+        CSs = self.get_3_body_rpng_descriptions(SBB, is_reversed, r, m)
         # TBPs: Two Body Plaquettes.
         TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+        # Here, depending on the linked cubes, we might insert regular two-body
+        # plaquettes or three-body plaquettes.
         u, v = linked_cubes
-        top_right = (
+        both_cubes_have_spatial_pipes_in_both_dimensions = (
+            u.has_spatial_pipe_in_both_dimensions
+            and v.has_spatial_pipe_in_both_dimensions
+        )
+        right_plaquette = (
             CSs[3]
             if SpatialArms.RIGHT in u.spatial_arms
             else TBPs[SBB][PlaquetteOrientation.RIGHT]
         )
-        bottom_left = (
+        left_plaquette = (
             CSs[0]
             if SpatialArms.LEFT in v.spatial_arms
             else TBPs[SBB][PlaquetteOrientation.LEFT]
         )
+        # TLB, OTB: Top-Left Basis, Other Basis
+        TLB = SBB if both_cubes_have_spatial_pipes_in_both_dimensions else SBB.flipped()
+        OTB = TLB.flipped()
+        LEFT, RIGHT = (
+            (3, 2) if both_cubes_have_spatial_pipes_in_both_dimensions else (1, 4)
+        )
         return FrozenDefaultDict(
             {
-                2: top_right,
-                3: bottom_left,
-                5: BPs_UP[SBB][Orientation.VERTICAL],
+                RIGHT: right_plaquette,
+                LEFT: left_plaquette,
+                5: BPs_UP[TLB][Orientation.VERTICAL],
                 6: BPs_UP[OTB][Orientation.HORIZONTAL],
                 7: BPs_DOWN[OTB][Orientation.HORIZONTAL],
-                8: BPs_DOWN[SBB][Orientation.VERTICAL],
+                8: BPs_DOWN[TLB][Orientation.VERTICAL],
             },
             default_value=RPNGDescription.empty(),
         )
