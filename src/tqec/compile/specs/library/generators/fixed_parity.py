@@ -795,8 +795,6 @@ class FixedParityConventionGenerator:
         Raises:
             TQECException: if ``arms`` describes an I-shaped junction (TOP/DOWN
                 or LEFT/RIGHT).
-            TQECException: if ``arms == SpatialArms.NONE`` because that case is
-                not the focus of TQEC and so is not handled.
 
         Returns:
             a description of the plaquettes needed to implement a spatial cube.
@@ -815,13 +813,6 @@ class FixedParityConventionGenerator:
         #     11  16  19  15  19  15  19  15  18  21
         #     12   7  15  19  15  19  15  19   8  22
         #      3  23  24  23  24  23  24  23  24   4
-        if arms == SpatialArms.NONE:
-            raise TQECException(
-                "Trying to generate a spatial cube without any spatial arms "
-                "(stability experiment?). This scenario has not been tested and "
-                "is likely at least partially false. Please double-check "
-                "attentively the generated circuits."
-            )
         if arms in SpatialArms.I_shaped_arms():
             raise TQECException(
                 "I-shaped spatial junctions (i.e., spatial junctions with only two "
@@ -836,6 +827,32 @@ class FixedParityConventionGenerator:
         CSs = self.get_3_body_rpng_descriptions(SBB, is_reversed, reset, measurement)
         # BPs: Bulk Plaquettes.
         BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
+        # TBPs: Two-Body Plaquettes.
+        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+
+        if arms == SpatialArms.NONE:
+            # Stability experiment
+            return FrozenDefaultDict(
+                {
+                    5: CSs[0],
+                    6: BPs[SBB.flipped()][Orientation.VERTICAL],
+                    7: BPs[SBB.flipped()][Orientation.VERTICAL],
+                    8: CSs[3],
+                    10: TBPs[SBB][PlaquetteOrientation.UP],
+                    12: TBPs[SBB][PlaquetteOrientation.LEFT],
+                    13: BPs[SBB][Orientation.HORIZONTAL],
+                    14: BPs[SBB][Orientation.VERTICAL],
+                    15: BPs[SBB][Orientation.HORIZONTAL],
+                    16: BPs[SBB][Orientation.VERTICAL],
+                    17: BPs[SBB.flipped()][Orientation.VERTICAL],
+                    18: BPs[SBB.flipped()][Orientation.HORIZONTAL],
+                    19: BPs[SBB.flipped()][Orientation.VERTICAL],
+                    20: BPs[SBB.flipped()][Orientation.HORIZONTAL],
+                    21: TBPs[SBB][PlaquetteOrientation.RIGHT],
+                    23: TBPs[SBB][PlaquetteOrientation.DOWN],
+                },
+                default_value=RPNGDescription.empty(),
+            )
         # Note about the fixed parity convention: in order to work as expected,
         # spatial cubes need to have one dimension that does not respect the
         # parity convention. By convention, we only use stretched stabilizers in
@@ -864,8 +881,6 @@ class FixedParityConventionGenerator:
         ####################
         # Fill the boundaries that should be filled in the returned template
         # because they have no arms, and so will not be filled later.
-        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
-
         TOP, BOTTOM, LEFT, RIGHT = (
             (10, 23, 12, 21)
             if ODD_BOUNDARY_DIMENSION == Direction3D.X
