@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import math
 import pathlib
+import numpy as np
+
 from collections.abc import Mapping
 from copy import deepcopy
 from io import BytesIO
@@ -857,7 +859,17 @@ class BlockGraph:
             The JSON string representation of the block graph if `file_path` is None,
             otherwise None.
         """
+        # Get dictionary from blockgraph
         obj_dict = self.to_dict()
+
+        # Add transform matrix to keep schema symmetric
+        for cube in obj_dict["cubes"]:
+            cube["transform"] = np.eye(3, dtype=int).tolist()
+
+        for pipe in obj_dict["pipes"]:
+            pipe["transform"] = np.eye(3, dtype=int).tolist()
+
+        # Return or write
         if file_path is None:
             return json.dumps(obj_dict, indent=indent)
         with open(file_path, "w") as fp:
@@ -865,35 +877,19 @@ class BlockGraph:
             return None
 
     @staticmethod
-    def from_json(
-        file_path: str | pathlib.Path | None = None,
-        json_text: str | None = None,
-    ) -> BlockGraph:
-        """Deserialize a block graph from a JSON string or read it from a file.
+    def from_json(filename: str | pathlib.Path, graph_name: str = "") -> BlockGraph:
+        """Construct a block graph from a JSON file.
 
         Args:
-            file_path: The input json file path to read from, or ``None`` to indicate
-                that the JSON string will be provided in `json_text`. Default is None.
-            json_text: The JSON string representation of the block graph, or ``None``
-                to indicate that the JSON file will be read from `file_path`.
-                Default is None.
+            filename: The input ``.json`` file path.
+            graph_name: The name of the block graph. Default is an empty string.
 
         Returns:
-            The :py:class:`~tqec.computation.block_graph.BlockGraph` object
-            constructed from the JSON string or file.
+            The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.
         """
-        if (file_path is None) == (json_text is None):
-            raise TQECException(
-                "Either file_path or json_text should be provided, but not both."
-            )
-        obj_dict: dict[str, Any]
-        if json_text is None:
-            assert file_path is not None
-            with open(file_path) as fp:
-                obj_dict = json.load(fp)
-        else:
-            obj_dict = json.loads(json_text)
-        return BlockGraph.from_dict(obj_dict)
+        from tqec.interop.collada.read_write import read_block_graph_from_json
+
+        return read_block_graph_from_json(filename, graph_name)
 
     def relabel_cubes(self, label_mapping: Mapping[Position3D | str, str]) -> None:
         """Relabel cubes in the block graph.

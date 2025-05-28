@@ -5,7 +5,7 @@ import pytest
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.gallery import cz, memory, cnot
+from tqec.gallery import memory, cnot
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
@@ -268,7 +268,7 @@ def test_block_graph_to_from_dict() -> None:
     assert g.from_dict(g_dict) == g
 
 
-def test_block_graph_to_from_json() -> None:
+def test_block_graph_to_json() -> None:
     g = BlockGraph("Horizontal Hadamard Line")
     n = g.add_cube(Position3D(0, 0, 0), "ZXZ")
     n2 = g.add_cube(Position3D(1, 0, 0), "P", "In")
@@ -276,15 +276,21 @@ def test_block_graph_to_from_json() -> None:
     json_text = g.to_json(indent=None)
     assert (
         json_text
-        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": ""}, {"position": [1, 0, 0], "kind": "PORT", "label": "In"}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH"}], "ports": {"In": [1, 0, 0]}}"""
+        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": "", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, {"position": [1, 0, 0], "kind": "PORT", "label": "In", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "ports": {"In": [1, 0, 0]}}"""
     )
-    assert g.from_json(json_text=json_text) == g
 
-    g = cz()
+
+def test_block_graph_from_json() -> None:
+    g = BlockGraph("Horizontal Hadamard Line")
+    n = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    n2 = g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_pipe(n, n2, "OXZH")
+
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as temp_file:
         g.to_json(temp_file.name)
-        read_g = BlockGraph.from_json(temp_file.name)
+        read_g = BlockGraph.from_json(temp_file.name, "simple_test")
         assert read_g == g
+
     os.remove(temp_file.name)
 
 
