@@ -57,6 +57,8 @@ extensions = [
     # Allows us to add references to a page
     # https://sphinxcontrib-bibtex.readthedocs.io/en/latest/
     "sphinxcontrib.bibtex",
+    # measure documentation build time
+    "sphinx.ext.duration",
 ]
 
 templates_path = ["_templates"]
