@@ -32,6 +32,8 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -44,6 +46,9 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/quick_start';</script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -444,10 +449,16 @@ height=500
 <h2>2. Import your computation<a class="headerlink" href="#import-your-computation" title="Link to this heading">#</a></h2>
 <p>In order to use the computation with the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> library you need to import it
 using <code class="docutils literal notranslate"><span class="pre">tqec.BlockGraph</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 
-<span class="n">block_graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dae_file</span><span class="p">(</span><span class="s2">&quot;logical_cnot.dae&quot;</span><span class="p">)</span>
+<span class="n">block_graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dae_file</span><span class="p">(</span><span class="s2">&quot;../assets/logical_cnot.dae&quot;</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -468,8 +479,14 @@ pre-defined computation, you can use to following code:</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> library can automatically search for valid observables in the
 imported computation. To get a list of all the valid observables, you can
 use the following code</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
 </pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
 </div>
 <p>Any observable can be plotted using the <code class="docutils literal notranslate"><span class="pre">tqec</span> <span class="pre">dae2observables</span></code> command line. For our
 specific example, the command line</p>
@@ -482,23 +499,36 @@ two independent logical observables.</p>
 <section id="compile-and-export-the-computation">
 <h2>4. Compile and export the computation<a class="headerlink" href="#compile-and-export-the-computation" title="Link to this heading">#</a></h2>
 <p>In order to get a <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> instance, the computation first need to be compiled.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_block_graph</span>
 
 <span class="c1"># You can pick any number of observables from the output of</span>
 <span class="c1"># block_graph.find_correlation_surfaces() and provide them here.</span>
 <span class="c1"># In this example, picking only the second observable for demonstration</span>
 <span class="c1"># purposes.</span>
+
 <span class="n">compiled_computation</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">correlation_surfaces</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
 <p>From this compiled computation, the final <code class="docutils literal notranslate"><span class="pre">stim.Circuit</span></code> instance can be generated.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 
 <span class="n">circuit</span> <span class="o">=</span> <span class="n">compiled_computation</span><span class="o">.</span><span class="n">generate_stim_circuit</span><span class="p">(</span>
     <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
     <span class="n">noise_model</span><span class="o">=</span><span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">(</span><span class="mf">0.001</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -521,12 +551,14 @@ for multiple observables.
 Multiple runs can be done in parallel using the <code class="docutils literal notranslate"><span class="pre">sinter</span></code> library using the
 <code class="docutils literal notranslate"><span class="pre">start_simulation_using_sinter</span></code>.
 The compilation of the block graph is done automatically based on the inputs.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cpu_count</span>
-
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cpu_count</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
+
 
 <span class="c1"># returns a iterator</span>
 <span class="n">stats</span> <span class="o">=</span> <span class="n">start_simulation_using_sinter</span><span class="p">(</span>
@@ -539,10 +571,13 @@ The compilation of the block graph is done automatically based on the inputs.</p
     <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pymatching&quot;</span><span class="p">],</span>
     <span class="n">num_workers</span><span class="o">=</span><span class="n">cpu_count</span><span class="p">(),</span>
     <span class="n">max_shots</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
-    <span class="n">max_errors</span><span class="o">=</span><span class="mi">5_000</span><span class="p">,</span>
-    <span class="n">print_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">max_errors</span><span class="o">=</span><span class="mi">5_00</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -566,7 +601,9 @@ the <a class="reference external" href="https://docs.python.org/3/library/multip
 <h2>7. Plot the results<a class="headerlink" href="#plot-the-results" title="Link to this heading">#</a></h2>
 <p>Simulation results can be plotted with <code class="docutils literal notranslate"><span class="pre">matplolib</span></code> using the
 <code class="docutils literal notranslate"><span class="pre">plot_simulation_results</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.plotting.inset</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_observable_as_inset</span>
@@ -577,7 +614,7 @@ the <a class="reference external" href="https://docs.python.org/3/library/multip
 <span class="c1"># len(stats) = 1 if we have multiple we can iterate over the results</span>
 <span class="n">sinter</span><span class="o">.</span><span class="n">plot_error_rate</span><span class="p">(</span>
     <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
-    <span class="n">stats</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="n">stats</span><span class="p">),</span>
+    <span class="n">stats</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">stats</span><span class="p">)),</span>
     <span class="n">x_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">],</span>
     <span class="n">group_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">],</span>
 <span class="p">)</span>
@@ -586,8 +623,14 @@ the <a class="reference external" href="https://docs.python.org/3/library/multip
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Logical CNOT Error Rate&quot;</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;logical_cnot_result_x_observable_</span><span class="si">{</span><span class="mi">1</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># fig.savefig(f&quot;logical_cnot_result_x_observable_{1}.png&quot;)</span>
 </pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/quick_start_5_0.svg" src="../_images/quick_start_5_0.svg" />
+</div>
 </div>
 </section>
 <section id="conclusion">
