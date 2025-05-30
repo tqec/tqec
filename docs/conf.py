@@ -59,6 +59,9 @@ extensions = [
     "sphinxcontrib.bibtex",
     # measure documentation build time
     "sphinx.ext.duration",
+    # make code blocks in the documentation executable
+    # https://jupyter-sphinx.readthedocs.io/en/latest/
+    "jupyter_sphinx",
 ]
 
 templates_path = ["_templates"]

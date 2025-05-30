@@ -55,6 +55,7 @@ doc = [
     "docformatter",
     "sphinx-autobuild",
     "sphinx-copybutton",
+    "jupyter-sphinx",
     "sphinxcontrib-bibtex",
 ]
 bench = ["pyinstrument"]
