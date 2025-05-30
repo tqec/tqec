@@ -137,7 +137,7 @@ module = ["tqec.interop.pyzx.*"]
 disallow_untyped_calls = false
 
 [tool.coverage.run]
-omit = ["*/*_test.py"]
+omit = ["*/*_test.py", "*/simulation/plotting/*"]
 
 [tool.coverage.report]
 exclude_also = [
