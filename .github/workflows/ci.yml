@@ -73,7 +73,7 @@ jobs:
           python -m pip install -e '.[test]'
       - name: Compute code coverage
         run: |
-          python -m pytest --cov=tqec --cov-report=xml:coverage.xml ./
+          python -m pytest --cov=tqec --cov-report=xml:coverage.xml --cov-report term-missing:skip-covered ./
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
