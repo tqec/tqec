@@ -1657,78 +1657,7 @@
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Simulation">
-<h2>Simulation<a class="headerlink" href="#Simulation" title="Link to this heading">#</a></h2>
-<p>Here we show the simulation results for all the four observables under <strong>uniform depolarizing</strong> noise model.</p>
-<details><summary><p>Click to show the full code used for simulation</p>
-</summary><div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery.cnot</span><span class="w"> </span><span class="kn">import</span> <span class="n">cnot</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.plotting.inset</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_observable_as_inset</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
-
-<span class="n">SAVE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;results&quot;</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_graphs</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">:</span> <span class="n">Basis</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">block_graph</span> <span class="o">=</span> <span class="n">cnot</span><span class="p">(</span><span class="n">support_observable_basis</span><span class="p">)</span>
-    <span class="n">zx_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">to_zx_graph</span><span class="p">()</span>
-
-    <span class="n">correlation_surfaces</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
-
-    <span class="n">stats</span> <span class="o">=</span> <span class="n">start_simulation_using_sinter</span><span class="p">(</span>
-        <span class="n">block_graph</span><span class="p">,</span>
-        <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
-        <span class="nb">list</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span>
-        <span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">,</span>
-        <span class="n">manhattan_radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">observables</span><span class="o">=</span><span class="n">correlation_surfaces</span><span class="p">,</span>
-        <span class="n">num_workers</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-        <span class="n">max_shots</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
-        <span class="n">max_errors</span><span class="o">=</span><span class="mi">5_000</span><span class="p">,</span>
-        <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pymatching&quot;</span><span class="p">],</span>
-        <span class="n">print_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">stat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stats</span><span class="p">):</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-        <span class="n">sinter</span><span class="o">.</span><span class="n">plot_error_rate</span><span class="p">(</span>
-            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
-            <span class="n">stats</span><span class="o">=</span><span class="n">stat</span><span class="p">,</span>
-            <span class="n">x_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">],</span>
-            <span class="n">group_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">stat</span><span class="p">:</span> <span class="n">stat</span><span class="o">.</span><span class="n">json_metadata</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">],</span>
-        <span class="p">)</span>
-        <span class="n">plot_observable_as_inset</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">zx_graph</span><span class="p">,</span> <span class="n">correlation_surfaces</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">()</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Logical CNOT Error Rate&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Physical Error Rate&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Logical Error Rate&quot;</span><span class="p">)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
-            <span class="n">SAVE_DIR</span>
-            <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;logical_cnot_result_</span><span class="si">{</span><span class="n">support_observable_basis</span><span class="si">}</span><span class="s2">_observable_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.png&quot;</span>
-        <span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-    <span class="n">SAVE_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">generate_graphs</span><span class="p">(</span><span class="n">Basis</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
-    <span class="n">generate_graphs</span><span class="p">(</span><span class="n">Basis</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">main</span><span class="p">()</span>
-</pre></div>
-</div>
-</details><div class="nbinput nblast docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
@@ -1866,7 +1795,6 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Example-Circuit">Example Circuit</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Simulation">Simulation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#References">References</a></li>
 </ul>
   </nav></div>
