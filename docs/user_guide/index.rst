@@ -14,6 +14,7 @@ User Guide
    :maxdepth: 1
    :caption: Tutorials
 
+   CNOT Test <cnot_test>
    build_computations.ipynb
    collada_interop.ipynb
    Detectors Computation <detectors/detector_computation.ipynb>
