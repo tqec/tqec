@@ -46,7 +46,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html/
           destination_dir: ./pull/${{github.event.number}}/
-        # continue-on-error: true
+        continue-on-error: true
       - name: Add comment if PR
         uses: marocchino/sticky-pull-request-comment@v2
         if: github.event_name == 'pull_request'
