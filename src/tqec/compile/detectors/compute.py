@@ -495,7 +495,9 @@ def _compute_superimposed_template_instantiations(
     return ret
 
 
-def _extract_subtemplates_from_s3d(s3d):
+def _extract_subtemplates_from_s3d(
+    s3d: npt.NDArray[numpy.int_],
+) -> list[npt.NDArray[numpy.int_]]:
     """Extract 2D subtemplates from a 3D array.
 
     Args:
@@ -507,8 +509,30 @@ def _extract_subtemplates_from_s3d(s3d):
     return [s3d[:, :, i] for i in range(s3d.shape[2])]
 
 
-# Helper function for parallel processing
-def _compute_detector_for_subtemplate(args):
+def _compute_detector_for_subtemplate(
+    args: tuple[
+        tuple[int, ...],
+        npt.NDArray[numpy.int_],
+        Sequence[Plaquettes],
+        Shift2D,
+        DetectorDatabase | None,
+        bool,
+    ],
+) -> tuple[tuple[int, ...], frozenset[Detector]]:
+    """Helper function for parallel processing of detector computation.
+
+    Args:
+        args: A tuple containing:
+            - indices: Tuple of indices identifying the subtemplate
+            - s3d: 3D numpy array representing the subtemplate
+            - plaquettes: Sequence of plaquettes for each time slice
+            - increments: Spatial increments between plaquette origins
+            - database: Detector database (optional)
+            - only_use_database: Whether to only use the database
+
+    Returns:
+        A tuple containing the indices and the computed detectors
+    """
     indices, s3d, plaquettes, increments, database, only_use_database = args
     return (
         indices,
@@ -589,6 +613,8 @@ def compute_detectors_for_fixed_radius(
 
     # Each detector in detectors_by_subtemplate is using a coordinate system
     # centered on the central plaquette origin.
+    detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]]
+
     if parallel and database is None:
         # Prepare arguments for parallel processing
         args_list = [
@@ -603,9 +629,9 @@ def compute_detectors_for_fixed_radius(
         # Convert results to dictionary
         detectors_by_subtemplate = dict(results)
     else:
-        detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]] = {
+        detectors_by_subtemplate = {
             indices: compute_detectors_at_end_of_situation(
-                [s3d[:, :, i] for i in range(s3d.shape[2])],
+                _extract_subtemplates_from_s3d(s3d),
                 plaquettes,
                 increments,
                 database,

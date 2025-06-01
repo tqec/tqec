@@ -428,3 +428,10 @@ def test_compute_detectors_for_fixed_radius(
         [template, template], k, [init_plaquettes, memory_plaquettes]
     )
     assert len(detectors) == d**2
+
+    # Test the parallel parameter
+    # Should get the same results with parallelization as without
+    parallel_detectors = compute_detectors_for_fixed_radius(
+        [template, template], k, [init_plaquettes, memory_plaquettes], parallel=True
+    )
+    assert len(parallel_detectors) == len(detectors)
