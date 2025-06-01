@@ -149,12 +149,18 @@ class LayerTree:
         database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
+        parallel: bool = False,
     ) -> None:
         if manhattan_radius <= 0:
             return
         self._root.walk(
             AnnotateDetectorsOnLayerNode(
-                k, manhattan_radius, detector_database, only_use_database, lookback
+                k,
+                manhattan_radius,
+                detector_database,
+                only_use_database,
+                lookback,
+                parallel,
             )
         )
         # The database will have been updated inside the above function, and here at
@@ -251,6 +257,7 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
         add_polygons: bool = False,
+        parallel: bool = False,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         self._annotate_circuits(k)
@@ -263,6 +270,7 @@ class LayerTree:
             database_path,
             only_use_database,
             lookback,
+            parallel,
         )
         self._annotate_observables(k)
         if add_polygons:
@@ -278,6 +286,7 @@ class LayerTree:
         do_not_use_database: bool = False,
         only_use_database: bool = False,
         lookback: int = 2,
+        parallel: bool = False,
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -309,6 +318,7 @@ class LayerTree:
                 registered in the database is encountered.
             lookback: number of QEC rounds to consider to try to find detectors.
                 Including more rounds increases computation time.
+            parallel: if ``True``, the detector computation will be done in parallel.
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
@@ -334,6 +344,7 @@ class LayerTree:
             database_path=database_path,
             only_use_database=only_use_database,
             lookback=lookback,
+            parallel=parallel,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None

@@ -629,24 +629,31 @@ def compute_detectors_for_fixed_radius(
                 # Create a proxy for the database that can be safely shared between processes
                 shared_db = manager.Namespace()
                 shared_db.db = database
-                
+
                 # Update args list to use the shared database
                 args_list = [
-                    (indices, s3d, plaquettes, increments, shared_db.db, only_use_database)
+                    (
+                        indices,
+                        s3d,
+                        plaquettes,
+                        increments,
+                        shared_db.db,
+                        only_use_database,
+                    )  # type: ignore
                     for indices, s3d in unique_3d_subtemplates.subtemplates.items()
                 ]
-                
+
                 # Use multiprocessing to compute detectors in parallel
                 with Pool(processes=cpu_count()) as pool:
                     results = pool.map(_compute_detector_for_subtemplate, args_list)
-                
+
                 # Convert results to dictionary
                 detectors_by_subtemplate = dict(results)
         else:
             # Process without database
             with Pool(processes=cpu_count()) as pool:
                 results = pool.map(_compute_detector_for_subtemplate, args_list)
-            
+
             # Convert results to dictionary
             detectors_by_subtemplate = dict(results)
     else:

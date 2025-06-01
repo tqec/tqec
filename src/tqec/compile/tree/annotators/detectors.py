@@ -164,6 +164,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         detector_database: DetectorDatabase | None = None,
         only_use_database: bool = False,
         lookback: int = 2,
+        parallel: bool = False,
     ):
         """Walker computing and annotating detectors on leaf nodes.
 
@@ -201,6 +202,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         self._only_use_database = only_use_database
         self._lookback_size = lookback
         self._lookback_stack = LookbackStack()
+        self._parallel = parallel
 
     @override
     def visit_node(self, node: LayerNode) -> None:
@@ -226,6 +228,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             self._manhattan_radius,
             self._database,
             self._only_use_database,
+            self._parallel,
         )
 
         for detector in detectors:
