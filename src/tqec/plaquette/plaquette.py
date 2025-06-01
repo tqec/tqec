@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Collection, Iterable, Literal, Mapping, Sequence
 
 import stim
-from typing_extensions import override
 
 from tqec.circuit.schedule import ScheduledCircuit
 from tqec.plaquette.debug import PlaquetteDebugInformation
@@ -14,7 +13,6 @@ from tqec.plaquette.qubit import PlaquetteQubits
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import PhysicalQubitPosition2D
-from tqec.utils.scale import LinearFunction, round_or_fail
 
 
 @dataclass(frozen=True)
@@ -201,9 +199,6 @@ class Plaquettes:
     def __getitem__(self, index: int) -> Plaquette:
         return self.collection[index]
 
-    def repeat(self, repetitions: LinearFunction) -> RepeatedPlaquettes:
-        return RepeatedPlaquettes(self.collection, repetitions)
-
     def with_updated_plaquettes(
         self, plaquettes_to_update: Mapping[int, Plaquette]
     ) -> Plaquettes:
@@ -317,32 +312,3 @@ class Plaquettes:
                 "This should not happen in practice."
             )
         return Plaquettes(collection)
-
-
-@dataclass(frozen=True)
-class RepeatedPlaquettes(Plaquettes):
-    """Represent plaquettes that should be repeated for several rounds."""
-
-    repetitions: LinearFunction
-
-    def num_rounds(self, k: int) -> int:
-        return round_or_fail(self.repetitions(k))
-
-    @override
-    def with_updated_plaquettes(
-        self, plaquettes_to_update: Mapping[int, Plaquette]
-    ) -> RepeatedPlaquettes:
-        return RepeatedPlaquettes(
-            self.collection | plaquettes_to_update,
-            repetitions=self.repetitions,
-        )
-
-    def __eq__(self, rhs: object) -> bool:
-        return (
-            isinstance(rhs, RepeatedPlaquettes)
-            and self.repetitions == rhs.repetitions
-            and self.collection == rhs.collection
-        )
-
-    def __hash__(self) -> int:
-        return hash((self.repetitions, super().__hash__()))
