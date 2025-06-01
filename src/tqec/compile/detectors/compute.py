@@ -1,6 +1,7 @@
 import json
 from typing import Sequence
 from multiprocessing import Pool, cpu_count
+from multiprocessing.managers import SyncManager
 
 import numpy
 import numpy.typing as npt
@@ -583,7 +584,7 @@ def compute_detectors_for_fixed_radius(
             used. An error will be raised if a situation that is not registered
             in the database is encountered. Default to ``False``.
         parallel: if ``True``, use multiprocessing to speed up detector
-            computation. Only works when database is None. Default to ``False``.
+            computation. Default to ``False``.
 
     Returns:
         a collection of detectors that should be added at the end of the circuit
@@ -615,19 +616,39 @@ def compute_detectors_for_fixed_radius(
     # centered on the central plaquette origin.
     detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]]
 
-    if parallel and database is None:
+    if parallel:
         # Prepare arguments for parallel processing
         args_list = [
             (indices, s3d, plaquettes, increments, None, False)
             for indices, s3d in unique_3d_subtemplates.subtemplates.items()
         ]
 
-        # Use multiprocessing to compute detectors in parallel
-        with Pool(processes=cpu_count()) as pool:
-            results = pool.map(_compute_detector_for_subtemplate, args_list)
-
-        # Convert results to dictionary
-        detectors_by_subtemplate = dict(results)
+        if database is not None:
+            # Create a manager to handle the shared database
+            with SyncManager() as manager:
+                # Create a proxy for the database that can be safely shared between processes
+                shared_db = manager.Namespace()
+                shared_db.db = database
+                
+                # Update args list to use the shared database
+                args_list = [
+                    (indices, s3d, plaquettes, increments, shared_db.db, only_use_database)
+                    for indices, s3d in unique_3d_subtemplates.subtemplates.items()
+                ]
+                
+                # Use multiprocessing to compute detectors in parallel
+                with Pool(processes=cpu_count()) as pool:
+                    results = pool.map(_compute_detector_for_subtemplate, args_list)
+                
+                # Convert results to dictionary
+                detectors_by_subtemplate = dict(results)
+        else:
+            # Process without database
+            with Pool(processes=cpu_count()) as pool:
+                results = pool.map(_compute_detector_for_subtemplate, args_list)
+            
+            # Convert results to dictionary
+            detectors_by_subtemplate = dict(results)
     else:
         detectors_by_subtemplate = {
             indices: compute_detectors_at_end_of_situation(
