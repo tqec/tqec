@@ -1,0 +1,38 @@
+﻿tqec.utils
+==========
+
+.. currentmodule:: tqec
+
+.. automodule:: tqec.utils
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+   
+      Basis
+      NoiseModel
+      Orientation
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+   
+      TQECException
+   
+   
