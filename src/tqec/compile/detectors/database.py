@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Literal, Sequence
-from typing_extensions import ClassVar, Final
+from typing_extensions import Final
 
 import numpy
 
@@ -25,6 +25,8 @@ from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
+
+CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 0, 0)
 
 
 @dataclass(frozen=True)
@@ -223,7 +225,6 @@ class DetectorDatabase:
         default_factory=dict
     )
     frozen: bool = False
-    CURRENT_DATABASE_VERSION: ClassVar[Final[semver.Version]] = semver.Version(1, 0, 0)
     version: semver.Version | None = CURRENT_DATABASE_VERSION
 
     def add_situation(
