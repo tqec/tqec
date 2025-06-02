@@ -3,10 +3,12 @@ from __future__ import annotations
 import hashlib
 import json
 import pickle
+import semver
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Literal, Sequence
+from typing_extensions import ClassVar, Final
 
 import numpy
 
@@ -199,21 +201,21 @@ class DetectorDatabase:
     computation.
 
     The version number should be manually updated when code is pushed which makes old
-    instances of the database incompatible with newly generated instances. 
-    Guidance on when to change `a` (major) or `b` (minor) in the `a.b` version number: 
-    - MAJOR when the format of the file changes (i.e. when the attributes of 
+    instances of the database incompatible with newly generated instances.
+    Guidance on when to change `a` (major) or `b` (minor) in the `a.b` version number:
+    - MAJOR when the format of the file changes (i.e. when the attributes of
       ``DetectorDatabase`` change),
     - MINOR when the content of the database is invalidated (e.g. by changing a plaquette
       implementation without changing its name).
-      
-    ``None`` is a special value which can be set in testing mode and translates into the 
-    database not being used (it is equivalent to the 'do_not_use_database' parameter 
-    in the functions which use the database). 
-    
-    Old databases generated prior to the introduction of a version attribute will be 
-    loaded with the current version number. If the version number has increased past 
-    1.0 when this happens the database will need to be force regenerated manually 
-    (by deleting and then rerunning - simply running the default code will not add a 
+
+    ``None`` is a special value which can be set in testing mode and translates into the
+    database not being used (it is equivalent to the 'do_not_use_database' parameter
+    in the functions which use the database).
+
+    Old databases generated prior to the introduction of a version attribute will be
+    loaded with the current version number. If the version number has increased past
+    1.0 when this happens the database will need to be force regenerated manually
+    (by deleting and then rerunning - simply running the default code will not add a
     version attribute to the saved database) to avoid errors.
     """
 
@@ -221,7 +223,8 @@ class DetectorDatabase:
         default_factory=dict
     )
     frozen: bool = False
-    version: float | None = 1.0
+    CURRENT_DATABASE_VERSION: ClassVar[Final[semver.Version]] = semver.Version(1, 0, 0)
+    version: semver.Version | None = CURRENT_DATABASE_VERSION
 
     def add_situation(
         self,
