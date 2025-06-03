@@ -1,5 +1,5 @@
 import json
-from typing import Sequence
+from typing import Any, List, Sequence
 from multiprocessing import Pool, cpu_count
 from multiprocessing.managers import SyncManager
 
@@ -617,12 +617,6 @@ def compute_detectors_for_fixed_radius(
     detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]]
 
     if parallel:
-        # Prepare arguments for parallel processing
-        args_list = [
-            (indices, s3d, plaquettes, increments, None, False)
-            for indices, s3d in unique_3d_subtemplates.subtemplates.items()
-        ]
-
         if database is not None:
             # Create a manager to handle the shared database
             with SyncManager() as manager:
@@ -631,7 +625,7 @@ def compute_detectors_for_fixed_radius(
                 shared_db.db = database
 
                 # Update args list to use the shared database
-                args_list = [
+                args_list: List[Any] = [
                     (
                         indices,
                         s3d,
@@ -649,8 +643,14 @@ def compute_detectors_for_fixed_radius(
 
                 # Convert results to dictionary
                 detectors_by_subtemplate = dict(results)
+
+        # Else, not using a database
         else:
-            # Process without database
+            args_list = [
+                (indices, s3d, plaquettes, increments, None, False)
+                for indices, s3d in unique_3d_subtemplates.subtemplates.items()
+            ]
+
             with Pool(processes=cpu_count()) as pool:
                 results = pool.map(_compute_detector_for_subtemplate, args_list)
 
