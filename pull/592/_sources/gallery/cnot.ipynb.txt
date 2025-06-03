@@ -3,6 +3,11 @@
   {
    "cell_type": "markdown",
    "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
    "source": [
     "# CNOT\n",
     "\n",
@@ -268,7 +273,6 @@
     "        max_shots=10_000_000,\n",
     "        max_errors=5_000,\n",
     "        decoders=[\"pymatching\"],\n",
-    "        print_progress=True,\n",
     "    )\n",
     "\n",
     "    for i, stat in enumerate(stats):\n",
