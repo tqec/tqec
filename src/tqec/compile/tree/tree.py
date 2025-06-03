@@ -286,7 +286,6 @@ class LayerTree:
         do_not_use_database: bool = False,
         only_use_database: bool = False,
         lookback: int = 2,
-        parallel: bool = False,
     ) -> stim.Circuit:
         """Generate the quantum circuit representing ``self``.
 
@@ -318,7 +317,6 @@ class LayerTree:
                 registered in the database is encountered.
             lookback: number of QEC rounds to consider to try to find detectors.
                 Including more rounds increases computation time.
-            parallel: if ``True``, the detector computation will be done in parallel.
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
@@ -336,6 +334,16 @@ class LayerTree:
         # If do_not_use_database is True, override the above code and reset the database to None
         if do_not_use_database:
             detector_database = None
+
+        # Decide whether to enable parallel processing when computing detectors
+        # If not using a database, or if the database is empty, we can use parallel processing.
+        # to accelerate the computation.
+        if detector_database is None or len(detector_database.mapping) == 0:
+            parallel = True
+        # Otherwise we disable parallel processing to avoid overhead of copying
+        # the database to multiple processes.
+        else:
+            parallel = False
 
         self._generate_annotations(
             k,

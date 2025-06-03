@@ -459,7 +459,6 @@ class TopologicalComputationGraph:
         database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
         do_not_use_database: bool = False,
         only_use_database: bool = False,
-        parallel: bool = False,
     ) -> stim.Circuit:
         """Generate the ``stim.Circuit`` from the compiled graph.
 
@@ -482,7 +481,6 @@ class TopologicalComputationGraph:
             only_use_database: if ``True``, only detectors from the database
                 will be used. An error will be raised if a situation that is not
                 registered in the database is encountered.
-            parallel: if ``True``, the detector computation will be done in parallel.
 
         Returns:
             A compiled stim circuit.
@@ -494,7 +492,6 @@ class TopologicalComputationGraph:
             database_path=database_path,
             do_not_use_database=do_not_use_database,
             only_use_database=only_use_database,
-            parallel=parallel,
         )
         # If provided, apply the noise model.
         if noise_model is not None:
