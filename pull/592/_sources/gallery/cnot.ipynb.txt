@@ -293,14 +293,10 @@
    ]
   },
   {
-   "cell_type": "code",
-   "execution_count": null,
+   "cell_type": "markdown",
    "metadata": {},
-   "outputs": [],
    "source": [
-    "### Z Basis\n",
-    "\n",
-    "generate_graphs(Basis.Z)"
+    "## Z Basis"
    ]
   },
   {
@@ -309,8 +305,22 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "### X Basis\n",
-    "\n",
+    "generate_graphs(Basis.Z)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## X Basis"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
     "generate_graphs(Basis.X)"
    ]
   },
