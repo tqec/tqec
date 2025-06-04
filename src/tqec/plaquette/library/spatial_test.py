@@ -210,9 +210,7 @@ TICK
 MX 0
 """
     )
-    plaquette = make_spatial_cube_arm_plaquette(
-        Basis.X, "UP", is_reverse=False, is_corner_trimmed=True
-    )
+    plaquette = make_spatial_cube_arm_plaquette(Basis.X, "UP", is_reverse=False, is_corner_trimmed=True)
     assert plaquette.qubits == SquarePlaquetteQubits()
     assert plaquette.name == "SPATIAL_CUBE_ARM_X_UP_CORNER_TRIMMED"
     circuit = plaquette.circuit.get_circuit()
@@ -236,9 +234,7 @@ TICK
 CX 3 0
 """
     )
-    plaquette = make_spatial_cube_arm_plaquette(
-        Basis.X, "UP", reset=Basis.Z, is_reverse=False, is_corner_trimmed=True
-    )
+    plaquette = make_spatial_cube_arm_plaquette(Basis.X, "UP", reset=Basis.Z, is_reverse=False, is_corner_trimmed=True)
     assert plaquette.qubits == SquarePlaquetteQubits()
     assert plaquette.name == "SPATIAL_CUBE_ARM_X_UP_CORNER_TRIMMED_datainit(Z)"
     circuit = plaquette.circuit.get_circuit()

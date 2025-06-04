@@ -8,9 +8,7 @@ class CompilationPass(ABC):
     """Base interface that should be implemented by all compilation passes."""
 
     @abstractmethod
-    def run(
-        self, circuit: ScheduledCircuit, check_all_flows: bool = False
-    ) -> ScheduledCircuit:
+    def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
         """Run the compilation pass.
 
         Args:
@@ -26,9 +24,7 @@ class CompilationPass(ABC):
         """
         pass
 
-    def check_flows(
-        self, original_circuit: ScheduledCircuit, modified_circuit: ScheduledCircuit
-    ) -> None:
+    def check_flows(self, original_circuit: ScheduledCircuit, modified_circuit: ScheduledCircuit) -> None:
         """Check that the two provided circuits have the exact same flows.
 
         This method can be used to check if two quantum circuits are functionally

@@ -37,15 +37,11 @@ class FilledGraph:
         if self.graph.num_ports != 0:
             raise TQECException("The filled graph should not have open ports.")
         if len(self.stabilizers) != len(self.observables):
-            raise TQECException(
-                "The number of stabilizers and observables should match."
-            )
+            raise TQECException("The number of stabilizers and observables should match.")
 
     def get_external_stabilizers(self) -> list[str]:
         """Return the external stabilizers of the correlation surfaces."""
-        return [
-            obs.external_stabilizer_on_graph(self.graph) for obs in self.observables
-        ]
+        return [obs.external_stabilizer_on_graph(self.graph) for obs in self.observables]
 
 
 def fill_ports_for_minimal_simulation(
@@ -92,9 +88,7 @@ def fill_ports_for_minimal_simulation(
             TQECWarning,
         )
 
-    correlation_surfaces = graph.find_correlation_surfaces(
-        reduce_to_minimal_generators=True
-    )
+    correlation_surfaces = graph.find_correlation_surfaces(reduce_to_minimal_generators=True)
     stab_to_surface: dict[str, CorrelationSurface] = {
         s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces
     }
@@ -111,9 +105,7 @@ def fill_ports_for_minimal_simulation(
                     [stab_to_surface[s] for s in comb],
                 )
                 stab_to_surface[stabilizer] = correlation_surface
-        generators = list(
-            reduce_observables_to_minimal_generators(stab_to_surface, num_ports).keys()
-        )
+        generators = list(reduce_observables_to_minimal_generators(stab_to_surface, num_ports).keys())
 
     # Two stabilizers are compatible if they can agree on the supported observable
     # basis on the common ports. We can construct a graph that assigns a node to
@@ -164,10 +156,7 @@ def fill_ports_for_minimal_simulation(
             pipe_kind = pipe_at_port.kind
             at_head = pipe_at_port.u == graph[port_pos]
             fill_kind = ZXCube(
-                *[
-                    pipe_kind.get_basis_along(dir, at_head) or Basis(basis)
-                    for dir in Direction3D.all_directions()
-                ]
+                *[pipe_kind.get_basis_along(dir, at_head) or Basis(basis) for dir in Direction3D.all_directions()]
             )
             fg.fill_ports({port: fill_kind})
         assert fg.num_ports == 0

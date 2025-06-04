@@ -108,8 +108,7 @@ class _SpatialCubeArmPlaquetteBuilder:
                 self._moments = self._build_memory_moments_down()
 
         self._qubit_map = QubitMap(
-            {0: self._qubits.syndrome_qubits[0]}
-            | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
+            {0: self._qubits.syndrome_qubits[0]} | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
         )
 
         self._data_init: Basis | None = None
@@ -213,6 +212,4 @@ class _SpatialCubeArmPlaquetteBuilder:
             moment_index = 0
             self._data_init = basis
         op = "M" if is_measurement else "R"
-        self._moments[moment_index].append(
-            f"{op}{basis.value}", self._get_data_qubits_for_init_or_meas(), []
-        )
+        self._moments[moment_index].append(f"{op}{basis.value}", self._get_data_qubits_for_init_or_meas(), [])

@@ -40,11 +40,7 @@ class PlaquetteQubits:
             return qubit.y if orientation == Orientation.HORIZONTAL else qubit.x
 
         max_index = max(_get_relevant_value(q) for q in self.data_qubits)
-        return [
-            qubit
-            for qubit in self.data_qubits
-            if (_get_relevant_value(qubit) == max_index)
-        ]
+        return [qubit for qubit in self.data_qubits if (_get_relevant_value(qubit) == max_index)]
 
     def get_qubits_on_side(self, side: PlaquetteSide) -> list[GridQubit]:
         """Return the qubits one the provided side of the instance.
@@ -97,16 +93,11 @@ class PlaquetteQubits:
 
     @property
     def syndrome_qubits_with_indices(self) -> Iterator[tuple[int, GridQubit]]:
-        yield from (
-            (i, q) for i, q in zip(self.syndrome_qubits_indices, self.syndrome_qubits)
-        )
+        yield from ((i, q) for i, q in zip(self.syndrome_qubits_indices, self.syndrome_qubits))
 
     @property
     def qubit_map(self) -> QubitMap:
-        return QubitMap(
-            dict(self.data_qubits_with_indices)
-            | dict(self.syndrome_qubits_with_indices)
-        )
+        return QubitMap(dict(self.data_qubits_with_indices) | dict(self.syndrome_qubits_with_indices))
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the plaquette qubits.

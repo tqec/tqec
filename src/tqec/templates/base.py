@@ -43,9 +43,7 @@ class Template(ABC):
         self._default_shift = default_increments or Shift2D(2, 2)
 
     @abstractmethod
-    def instantiate(
-        self, k: int, plaquette_indices: Sequence[int] | None = None
-    ) -> npt.NDArray[numpy.int_]:
+    def instantiate(self, k: int, plaquette_indices: Sequence[int] | None = None) -> npt.NDArray[numpy.int_]:
         """Generate the numpy array representing the template.
 
         Args:
@@ -113,9 +111,7 @@ class Template(ABC):
         Returns:
             a representation of all the sub-templates found.
         """
-        return get_spatially_distinct_subtemplates(
-            self.instantiate(k), manhattan_radius, avoid_zero_plaquettes
-        )
+        return get_spatially_distinct_subtemplates(self.instantiate(k), manhattan_radius, avoid_zero_plaquettes)
 
     def instantiation_origin(self, k: int) -> PlaquettePosition2D:
         """Coordinates of the top-left entry origin.

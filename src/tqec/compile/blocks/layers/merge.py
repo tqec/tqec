@@ -53,9 +53,7 @@ def contains_only_sequenced_layers(
 def contains_only_repeated_or_sequenced_layers(
     layers: dict[LayoutPosition2D, BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, SequencedLayers | RepeatedLayer]]:
-    return all(
-        isinstance(layer, (SequencedLayers, RepeatedLayer)) for layer in layers.values()
-    )
+    return all(isinstance(layer, (SequencedLayers, RepeatedLayer)) for layer in layers.values())
 
 
 def merge_base_layers(
@@ -70,9 +68,7 @@ def merge_composed_layers(
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> BaseComposedLayer:
     # First, check that all the provided layers have the same scalable timesteps.
-    different_timesteps = frozenset(
-        layer.scalable_timesteps for layer in layers.values()
-    )
+    different_timesteps = frozenset(layer.scalable_timesteps for layer in layers.values())
     if len(different_timesteps) > 1:
         raise TQECException(
             "Cannot merged BaseComposedLayer instances that have different lengths. "
@@ -91,8 +87,7 @@ def merge_composed_layers(
         }
         unknown_types_names = {t.__name__ for t in unknown_types}
         raise NotImplementedError(
-            f"Found instances of {unknown_types_names} that are not yet implemented "
-            "in _merge_composed_layers."
+            f"Found instances of {unknown_types_names} that are not yet implemented in _merge_composed_layers."
         )
     return merge_repeated_and_sequenced_layers(layers, scalable_qubit_shape)
 
@@ -120,9 +115,7 @@ def merge_repeated_layers(
         the provided repeated layers.
     """
     # First, check that all the provided layers have the same scalable timesteps.
-    different_timesteps = frozenset(
-        layer.scalable_timesteps for layer in layers.values()
-    )
+    different_timesteps = frozenset(layer.scalable_timesteps for layer in layers.values())
     if len(different_timesteps) > 1:
         raise TQECException(
             "Cannot merge RepeatedLayer instances that have different lengths. "
@@ -136,8 +129,7 @@ def merge_repeated_layers(
         # size in the time dimension is used later in the function.
         if not timesteps.is_constant():
             raise NotImplementedError(
-                "Found a RepeatedLayer with a scalable in time internal layer. "
-                "This is currently not supported."
+                "Found a RepeatedLayer with a scalable in time internal layer. This is currently not supported."
             )
         timesteps_per_repetition[pos] = round_or_fail(timesteps.offset)
 
@@ -147,15 +139,11 @@ def merge_repeated_layers(
     # multiple".
     # Also, `1`s do not have to be accounted for because they are trivially a
     # divisor of any integer.
-    considered_timesteps = [
-        timesteps for timesteps in timesteps_per_repetition.values() if timesteps > 1
-    ]
+    considered_timesteps = [timesteps for timesteps in timesteps_per_repetition.values() if timesteps > 1]
     # If we only have `1`s (and so considered_timesteps is empty), that's trivial:
     if not considered_timesteps:
         # Sanity check on repetitions
-        different_repetitions = frozenset(
-            layer.scalable_timesteps for layer in layers.values()
-        )
+        different_repetitions = frozenset(layer.scalable_timesteps for layer in layers.values())
         assert len(different_repetitions) == 1
         # Sanity check on types: SequencedLayer guarantees that it contains at
         # least 2 base layers, so we cannot have any SequencedLayer instance here,
@@ -180,14 +168,9 @@ def merge_repeated_layers(
             layer_sequence = list(internal_layer.all_layers(0))
             base_len = len(layer_sequence)
             internal_repetitions = num_internal_layers // base_len
-            base_sequences[pos] = list(
-                chain.from_iterable(repeat(layer_sequence, internal_repetitions))
-            )
+            base_sequences[pos] = list(chain.from_iterable(repeat(layer_sequence, internal_repetitions)))
     # Checking post-condition of the above loop.
-    assert all(
-        len(layer_sequence) == num_internal_layers
-        for layer_sequence in base_sequences.values()
-    )
+    assert all(len(layer_sequence) == num_internal_layers for layer_sequence in base_sequences.values())
     # Computing the new scalable repetitions number.
     # Note that the following should in theory never fail, because all the
     # repeated layers given in input have the SAME scalable shapes, and so in
@@ -198,10 +181,7 @@ def merge_repeated_layers(
         SequencedLayers(
             [
                 merge_base_layers(
-                    {
-                        pos: layer_sequence[i]
-                        for pos, layer_sequence in base_sequences.items()
-                    },
+                    {pos: layer_sequence[i] for pos, layer_sequence in base_sequences.items()},
                     scalable_qubit_shape,
                 )
                 for i in range(num_internal_layers)
@@ -215,9 +195,7 @@ def merge_sequenced_layers(
     layers: dict[LayoutPosition2D, SequencedLayers],
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> SequencedLayers:
-    internal_layers_schedules = frozenset(
-        sequenced_layer.schedule for sequenced_layer in layers.values()
-    )
+    internal_layers_schedules = frozenset(sequenced_layer.schedule for sequenced_layer in layers.values())
     if len(internal_layers_schedules) != 1:
         raise NotImplementedError(
             "_merge_sequenced_layers only supports merging sequences that have "
@@ -228,26 +206,18 @@ def merge_sequenced_layers(
     internal_layers_schedule = next(iter(internal_layers_schedules))
     merged_layers: list[LayoutLayer | BaseComposedLayer] = []
     for i in range(len(internal_layers_schedule)):
-        layers_at_timestep = {
-            pos: sequenced_layers.layer_sequence[i]
-            for pos, sequenced_layers in layers.items()
-        }
+        layers_at_timestep = {pos: sequenced_layers.layer_sequence[i] for pos, sequenced_layers in layers.items()}
         if contains_only_base_layers(layers_at_timestep):
-            merged_layers.append(
-                merge_base_layers(layers_at_timestep, scalable_qubit_shape)
-            )
+            merged_layers.append(merge_base_layers(layers_at_timestep, scalable_qubit_shape))
         elif contains_only_composed_layers(layers_at_timestep):
-            merged_layers.append(
-                merge_composed_layers(layers_at_timestep, scalable_qubit_shape)
-            )
+            merged_layers.append(merge_composed_layers(layers_at_timestep, scalable_qubit_shape))
         else:
             raise RuntimeError(
                 f"Found a mix of {BaseLayer.__name__} instances and "
                 f"{BaseComposedLayer.__name__} instances in a single temporal "
                 f"layer. This should be already checked before. This is a "
                 "logical error in the code, please open an issue. Found layers:"
-                "\n - "
-                + "\n - ".join(repr(layer) for layer in layers_at_timestep.values())
+                "\n - " + "\n - ".join(repr(layer) for layer in layers_at_timestep.values())
             )
     return SequencedLayers(merged_layers)
 
@@ -272,20 +242,14 @@ def merge_repeated_and_sequenced_layers(
             f"expected types ({RepeatedLayer.__name__} and {SequencedLayers.__name__}) "
             "but got the following types: " + ",".join(t.__name__ for t in layer_types)
         )
-    different_timesteps = frozenset(
-        layer.scalable_timesteps for layer in layers.values()
-    )
+    different_timesteps = frozenset(layer.scalable_timesteps for layer in layers.values())
     if len(different_timesteps) > 1:
         raise TQECException(
             f"Cannot merge {RepeatedLayer.__name__} and {SequencedLayers.__name__} "
             "instances that have different durations. Found the following "
             f"different durations: {different_timesteps}."
         )
-    sequenced_schedules = frozenset(
-        layer.schedule
-        for layer in layers.values()
-        if isinstance(layer, SequencedLayers)
-    )
+    sequenced_schedules = frozenset(layer.schedule for layer in layers.values() if isinstance(layer, SequencedLayers))
     if len(sequenced_schedules) != 1:
         raise NotImplementedError(
             f"Merging different {SequencedLayers.__name__} instances with different "
@@ -294,9 +258,6 @@ def merge_repeated_and_sequenced_layers(
         )
     schedule = next(iter(sequenced_schedules))
     return merge_sequenced_layers(
-        {
-            pos: layer.to_sequenced_layer_with_schedule(schedule)
-            for pos, layer in layers.items()
-        },
+        {pos: layer.to_sequenced_layer_with_schedule(schedule) for pos, layer in layers.items()},
         scalable_qubit_shape,
     )

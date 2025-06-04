@@ -16,9 +16,7 @@ from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition3D, Direction3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
-_DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
-    LinearFunction(4, 5), LinearFunction(4, 5)
-)
+_DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5))
 
 
 def compile_block_graph(
@@ -65,9 +63,7 @@ def compile_block_graph(
     if minz != 0:
         block_graph = block_graph.shift_by(dz=-minz)
 
-    cube_specs = {
-        cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
-    }
+    cube_specs = {cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes}
 
     # 0. Get the abstract observables to be included in the compiled circuit.
     obs_included: list[AbstractObservable] = []
@@ -75,8 +71,7 @@ def compile_block_graph(
         if observables == "auto":
             observables = block_graph.find_correlation_surfaces()
         obs_included = [
-            compile_correlation_surface_to_abstract_observable(block_graph, surface)
-            for surface in observables
+            compile_correlation_surface_to_abstract_observable(block_graph, surface) for surface in observables
         ]
 
     # 1. Create topological computation graph
@@ -98,9 +93,7 @@ def compile_block_graph(
     # added by the space-direction pipes, we first add the time-direction pipes
     pipes = block_graph.pipes
     time_pipes = [pipe for pipe in pipes if pipe.direction == Direction3D.Z]
-    temporal_hadamard_z_positions: set[int] = {
-        pipe.u.position.z for pipe in time_pipes if pipe.kind.has_hadamard
-    }
+    temporal_hadamard_z_positions: set[int] = {pipe.u.position.z for pipe in time_pipes if pipe.kind.has_hadamard}
     space_pipes = [pipe for pipe in pipes if pipe.direction != Direction3D.Z]
     for pipe in time_pipes + space_pipes:
         pos1, pos2 = pipe.u.position, pipe.v.position
@@ -110,9 +103,7 @@ def compile_block_graph(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (QubitTemplate(), QubitTemplate()),
             pipe.kind,
-            at_temporal_hadamard_layer=(
-                pipe.kind.is_temporal and pos1.z in temporal_hadamard_z_positions
-            ),
+            at_temporal_hadamard_layer=(pipe.kind.is_temporal and pos1.z in temporal_hadamard_z_positions),
         )
         graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key))
 

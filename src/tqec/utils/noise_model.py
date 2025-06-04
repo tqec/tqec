@@ -117,9 +117,7 @@ OP_MEASURE_BASES = {
     "MPP": "",
 }
 COLLAPSING_OPS = {
-    op
-    for op, t in OP_TYPES.items()
-    if t == JUST_RESET_1Q or t == JUST_MEASURE_1Q or t == MPP or t == MEASURE_RESET_1Q
+    op for op, t in OP_TYPES.items() if t == JUST_RESET_1Q or t == JUST_MEASURE_1Q or t == MPP or t == MEASURE_RESET_1Q
 }
 
 
@@ -157,8 +155,7 @@ class NoiseRule:
     ) -> None:
         targets = split_op.targets_copy()
         if immune_qubits and any(
-            (t.is_qubit_target or t.is_x_target or t.is_y_target or t.is_z_target)
-            and t.value in immune_qubits
+            (t.is_qubit_target or t.is_x_target or t.is_y_target or t.is_z_target) and t.value in immune_qubits
             for t in targets
         ):
             out_during_moment.append(split_op)
@@ -188,9 +185,7 @@ class NoiseModel:
         any_clifford_2q_rule: NoiseRule | None = None,
     ):
         self.idle_depolarization = idle_depolarization
-        self.additional_depolarization_waiting_for_m_or_r = (
-            additional_depolarization_waiting_for_m_or_r
-        )
+        self.additional_depolarization_waiting_for_m_or_r = additional_depolarization_waiting_for_m_or_r
         self.gate_rules = gate_rules
         self.measure_rules = measure_rules
         self.any_clifford_1q_rule = any_clifford_1q_rule
@@ -249,9 +244,7 @@ class NoiseModel:
             },
         )
 
-    def _noise_rule_for_split_operation(
-        self, *, split_op: stim.CircuitInstruction
-    ) -> NoiseRule | None:
+    def _noise_rule_for_split_operation(self, *, split_op: stim.CircuitInstruction) -> NoiseRule | None:
         if occurs_in_classical_control_system(split_op):
             return None
 
@@ -312,21 +305,13 @@ class NoiseModel:
 
         collapse_qubits_set = set(collapse_qubits)
         clifford_qubits_set = set(clifford_qubits)
-        idle = sorted(
-            system_qubits - collapse_qubits_set - clifford_qubits_set - immune_qubits
-        )
+        idle = sorted(system_qubits - collapse_qubits_set - clifford_qubits_set - immune_qubits)
         if idle and self.idle_depolarization:
             out.append("DEPOLARIZE1", idle, self.idle_depolarization)
 
         waiting_for_mr = sorted(system_qubits - collapse_qubits_set - immune_qubits)
-        if (
-            collapse_qubits_set
-            and waiting_for_mr
-            and self.additional_depolarization_waiting_for_m_or_r
-        ):
-            out.append(
-                "DEPOLARIZE1", idle, self.additional_depolarization_waiting_for_m_or_r
-            )
+        if collapse_qubits_set and waiting_for_mr and self.additional_depolarization_waiting_for_m_or_r:
+            out.append("DEPOLARIZE1", idle, self.additional_depolarization_waiting_for_m_or_r)
 
     def _append_noisy_moment(
         self,
@@ -384,9 +369,7 @@ class NoiseModel:
         result = stim.Circuit()
 
         first = True
-        for moment_split_ops in _iter_split_op_moments(
-            circuit, immune_qubits=immune_qubits
-        ):
+        for moment_split_ops in _iter_split_op_moments(circuit, immune_qubits=immune_qubits):
             if first:
                 first = False
             elif result and isinstance(result[-1], stim.CircuitRepeatBlock):
@@ -400,11 +383,7 @@ class NoiseModel:
                     immune_qubits=immune_qubits,
                 )
                 noisy_body.append("TICK")
-                result.append(
-                    stim.CircuitRepeatBlock(
-                        repeat_count=moment_split_ops.repeat_count, body=noisy_body
-                    )
-                )
+                result.append(stim.CircuitRepeatBlock(repeat_count=moment_split_ops.repeat_count, body=noisy_body))
             else:
                 self._append_noisy_moment(
                     moment_split_ops=moment_split_ops,
@@ -524,9 +503,7 @@ def _iter_split_op_moments(
                 yield cur_moment
                 cur_moment = []
             else:
-                cur_moment.extend(
-                    _split_targets_if_needed(op, immune_qubits=immune_qubits)
-                )
+                cur_moment.extend(_split_targets_if_needed(op, immune_qubits=immune_qubits))
     if cur_moment:
         yield cur_moment
 

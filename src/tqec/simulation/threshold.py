@@ -28,9 +28,7 @@ def _is_sorted(seq: Sequence[int | float]) -> bool:
     return True
 
 
-def get_logical_error_rate_per_shot(
-    stat: sinter.TaskStats, max_likelihood_factor: float = 1e3
-) -> sinter.Fit:
+def get_logical_error_rate_per_shot(stat: sinter.TaskStats, max_likelihood_factor: float = 1e3) -> sinter.Fit:
     """Estimates the logical error rate per shot for the given ``stat``.
 
     Note:
@@ -157,14 +155,10 @@ def binary_search_threshold(
     compiled_graph = compile_block_graph(block_graph, convention, [observable])
     ks = tuple(sorted(ks))
     noiseless_circuits = [
-        compiled_graph.generate_stim_circuit(
-            k, manhattan_radius=manhattan_radius, detector_database=detector_database
-        )
+        compiled_graph.generate_stim_circuit(k, manhattan_radius=manhattan_radius, detector_database=detector_database)
         for k in ks
     ]
-    computed_logical_errors: dict[int, list[tuple[float, sinter.Fit]]] = {
-        k: [] for k in ks
-    }
+    computed_logical_errors: dict[int, list[tuple[float, sinter.Fit]]] = {k: [] for k in ks}
     while not isclose(minp, maxp, rel_tol=rtol, abs_tol=atol):
         midp = (minp + maxp) / 2
         noise_model = noise_model_factory(midp)
@@ -183,15 +177,12 @@ def binary_search_threshold(
             hint_num_tasks=len(ks),
         )
         logical_errors_fits: list[sinter.Fit] = [
-            get_logical_error_rate_per_shot(stat)
-            for stat in sorted(stats, key=lambda s: s.json_metadata["d"])
+            get_logical_error_rate_per_shot(stat) for stat in sorted(stats, key=lambda s: s.json_metadata["d"])
         ]
         # Update computed_logical_errors
         for i, k in enumerate(ks):
             computed_logical_errors[k].append((midp, logical_errors_fits[i]))
-        logical_errors: list[float | None] = [
-            lerr_fit.best for lerr_fit in logical_errors_fits
-        ]
+        logical_errors: list[float | None] = [lerr_fit.best for lerr_fit in logical_errors_fits]
         if not _is_only_floats(logical_errors):
             raise TQECException(
                 "One of the computed logical errors is None. That likely means "

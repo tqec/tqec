@@ -86,11 +86,7 @@ def generate_stim_circuits_with_detectors(
         )
         for k in ks
     }
-    yield from (
-        (nm.noisy_circuit(circuit), k, p)
-        for k, circuit in circuits.items()
-        for p, nm in noise_models.items()
-    )
+    yield from ((nm.noisy_circuit(circuit), k, p) for k, circuit in circuits.items() for p, nm in noise_models.items())
 
 
 def generate_sinter_tasks(

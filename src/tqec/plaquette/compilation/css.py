@@ -29,9 +29,7 @@ CSSPlaquetteCompiler: Final[PlaquetteCompiler] = PlaquetteCompiler(
         # Change measurement basis when needed
         ChangeMeasurementBasisPass(Basis.Z),
         # Change controlled gate basis when needed (CZ -> CX)
-        ChangeControlledGateBasisPass(
-            Basis.X, ScheduleConstant(1), ScheduleConstant(7)
-        ),
+        ChangeControlledGateBasisPass(Basis.X, ScheduleConstant(1), ScheduleConstant(7)),
         # Sort the instruction targets to normalize the circuits.
         SortTargetsPass(),
     ],

@@ -75,9 +75,7 @@ class ScheduledCircuit:
                 "ScheduledCircuit expects all the provided moments to be scheduled. "
                 f"Got {len(moments)} moments but {len(schedule)} schedules."
             )
-        if not _avoid_checks and any(
-            m.contains_instruction("QUBIT_COORDS") for m in moments
-        ):
+        if not _avoid_checks and any(m.contains_instruction("QUBIT_COORDS") for m in moments):
             raise ScheduleException(
                 "ScheduledCircuit instance expects the input `stim.Circuit` to "
                 "not contain any QUBIT_COORDS instruction. Found at least one "
@@ -133,14 +131,9 @@ class ScheduledCircuit:
         # `stim.CircuitRepeatBlock` instance.
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
             raise ScheduleException(
-                "stim.CircuitRepeatBlock instances are not supported in "
-                "a ScheduledCircuit instance."
+                "stim.CircuitRepeatBlock instances are not supported in a ScheduledCircuit instance."
             )
-        moments: list[Moment] = list(
-            iter_stim_circuit_without_repeat_by_moments(
-                circuit, collected_before_use=True
-            )
-        )
+        moments: list[Moment] = list(iter_stim_circuit_without_repeat_by_moments(circuit, collected_before_use=True))
         if not moments:
             return ScheduledCircuit.empty()
 
@@ -249,9 +242,7 @@ class ScheduledCircuit:
         ret.append(repeated_instruction)
         return ret
 
-    def map_qubit_indices(
-        self, qubit_index_map: dict[int, int], inplace: bool = False
-    ) -> ScheduledCircuit:
+    def map_qubit_indices(self, qubit_index_map: dict[int, int], inplace: bool = False) -> ScheduledCircuit:
         """Map the qubits **indices** the :class:`ScheduledCircuit` instance is
         applied on.
 
@@ -275,9 +266,7 @@ class ScheduledCircuit:
             a modified instance of :class:`ScheduledCircuit` (a copy if
             ``inplace`` is ``True``, else ``self``).
         """
-        mapped_final_qubits = QubitMap(
-            {qubit_index_map[qi]: q for qi, q in self._qubit_map.items()}
-        )
+        mapped_final_qubits = QubitMap({qubit_index_map[qi]: q for qi, q in self._qubit_map.items()})
         mapped_moments: list[Moment] = []
         for moment in self._moments:
             mapped_moments.append(moment.with_mapped_qubit_indices(qubit_index_map))
@@ -287,9 +276,7 @@ class ScheduledCircuit:
             self._moments = mapped_moments
             return self
         else:
-            return ScheduledCircuit(
-                mapped_moments, self._schedule, mapped_final_qubits, _avoid_checks=True
-            )
+            return ScheduledCircuit(mapped_moments, self._schedule, mapped_final_qubits, _avoid_checks=True)
 
     def map_to_qubits(
         self,
@@ -325,9 +312,7 @@ class ScheduledCircuit:
         return operand
 
     def __copy__(self) -> ScheduledCircuit:
-        return ScheduledCircuit(
-            self._moments, self._schedule, self._qubit_map, _avoid_checks=True
-        )
+        return ScheduledCircuit(self._moments, self._schedule, self._qubit_map, _avoid_checks=True)
 
     def __deepcopy__(self, _: dict[Any, Any]) -> ScheduledCircuit:
         return ScheduledCircuit(
@@ -382,13 +367,8 @@ class ScheduledCircuit:
 
         schedule = self._schedule[-1] + 1 + schedule if schedule < 0 else schedule
         if schedule < 0:
-            raise TQECException(
-                "Trying to get the index of a Moment instance with a negative "
-                f"schedule {schedule}."
-            )
-        moment_index = next(
-            (i for i, sched in enumerate(self._schedule) if sched == schedule), None
-        )
+            raise TQECException(f"Trying to get the index of a Moment instance with a negative schedule {schedule}.")
+        moment_index = next((i for i, sched in enumerate(self._schedule) if sched == schedule), None)
         return moment_index
 
     def moment_at_schedule(self, schedule: int) -> Moment:
@@ -407,9 +387,7 @@ class ScheduledCircuit:
         """
         moment_index = self._get_moment_index_by_schedule(schedule)
         if moment_index is None:
-            raise TQECException(
-                f"No Moment instance scheduled at the provided schedule {schedule}."
-            )
+            raise TQECException(f"No Moment instance scheduled at the provided schedule {schedule}.")
         return self._moments[moment_index]
 
     def append_new_moment(self, moment: Moment) -> None:
@@ -460,9 +438,7 @@ class ScheduledCircuit:
             index: index of the observable to append measurement records to.
             targets: measurement records forming (part of) the observable.
         """
-        self.append_annotation(
-            stim.CircuitInstruction("OBSERVABLE_INCLUDE", targets, [index])
-        )
+        self.append_annotation(stim.CircuitInstruction("OBSERVABLE_INCLUDE", targets, [index]))
 
     def append_annotation(self, instruction: stim.CircuitInstruction) -> None:
         """Append an annotation to the last moment.
@@ -476,8 +452,7 @@ class ScheduledCircuit:
         """
         if not is_annotation_instruction(instruction):
             raise TQECException(
-                "The provided instruction is not an annotation, which is "
-                "disallowed by the append_annotation method."
+                "The provided instruction is not an annotation, which is disallowed by the append_annotation method."
             )
         self._moments[-1].append_annotation(instruction)
 
@@ -501,9 +476,7 @@ class ScheduledCircuit:
             a new instance of :class:`ScheduledCircuit` with the filtered
             circuit and schedules.
         """
-        qubits_indices_to_keep = frozenset(
-            self._qubit_map.q2i[q] for q in qubits_to_keep if q in self.qubits
-        )
+        qubits_indices_to_keep = frozenset(self._qubit_map.q2i[q] for q in qubits_to_keep if q in self.qubits)
         filtered_moments: list[Moment] = []
         filtered_schedule: list[int] = []
         for schedule, moment in self.scheduled_moments:

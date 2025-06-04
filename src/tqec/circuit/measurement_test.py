@@ -24,12 +24,8 @@ def test_measurement_construction(qubit: GridQubit) -> None:
 @pytest.mark.parametrize("qubit", _grid_qubits)
 def test_measurement_offset(qubit: GridQubit) -> None:
     assert Measurement(qubit, -1).offset_spatially_by(0, 0) == Measurement(qubit, -1)
-    assert Measurement(qubit, -1).offset_spatially_by(1, 0) == Measurement(
-        qubit + Shift2D(1, 0), -1
-    )
-    assert Measurement(qubit, -1).offset_spatially_by(-3, 12) == Measurement(
-        qubit + Shift2D(-3, 12), -1
-    )
+    assert Measurement(qubit, -1).offset_spatially_by(1, 0) == Measurement(qubit + Shift2D(1, 0), -1)
+    assert Measurement(qubit, -1).offset_spatially_by(-3, 12) == Measurement(qubit + Shift2D(-3, 12), -1)
     assert Measurement(qubit, -2).offset_spatially_by(0, 0) == Measurement(qubit, -2)
 
     assert Measurement(qubit, -1).offset_temporally_by(-12) == Measurement(qubit, -13)
@@ -42,9 +38,7 @@ def test_measurement_map_qubit() -> None:
     qubit_map = {q: q + Shift2D(3, 8) for q in _grid_qubits}
 
     for qubit in _grid_qubits:
-        assert Measurement(qubit, -1).map_qubit(qubit_map) == Measurement(
-            qubit_map[qubit], -1
-        )
+        assert Measurement(qubit, -1).map_qubit(qubit_map) == Measurement(qubit_map[qubit], -1)
 
 
 def test_get_measurements_from_circuit() -> None:
@@ -52,9 +46,7 @@ def test_get_measurements_from_circuit() -> None:
         stim.Circuit("H 0\nM 1 2\nTICK\nMX 2 3"),
         qubit_map=QubitMap({i: GridQubit(i, i) for i in range(4)}),
     )
-    measurements = get_measurements_from_circuit(
-        circuit.get_circuit(include_qubit_coords=True)
-    )
+    measurements = get_measurements_from_circuit(circuit.get_circuit(include_qubit_coords=True))
     assert measurements == [
         Measurement(GridQubit(1, 1), -1),
         Measurement(GridQubit(2, 2), -2),

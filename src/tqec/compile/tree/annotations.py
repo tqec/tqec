@@ -37,9 +37,7 @@ class DetectorAnnotation:
         )
 
     @staticmethod
-    def from_detector(
-        detector: Detector, measurement_records: MeasurementRecordsMap
-    ) -> DetectorAnnotation:
+    def from_detector(detector: Detector, measurement_records: MeasurementRecordsMap) -> DetectorAnnotation:
         """Create a :class:`DetectorAnnotation` from a detector and a list of
         measurement records."""
         return DetectorAnnotation(
@@ -85,9 +83,7 @@ class LayerNodeAnnotations:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "circuit_str": (
-                str(self.circuit.get_circuit()) if self.circuit is not None else None
-            ),
+            "circuit_str": (str(self.circuit.get_circuit()) if self.circuit is not None else None),
             "detectors": self.detectors,
             "observables": self.observables,
             "polygons": self.polygons,

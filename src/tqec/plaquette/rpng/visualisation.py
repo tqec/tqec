@@ -46,20 +46,13 @@ def rpng_svg_viewer(
     """
     if show_plaquette_indices:
         if isinstance(rpng_object, RPNGDescription):
-            raise TQECException(
-                "``rpng_object`` must be a 2D list when ``show_plaquette_indices`` is True."
-            )
+            raise TQECException("``rpng_object`` must be a 2D list when ``show_plaquette_indices`` is True.")
         if plaquette_indices is None:
-            raise TQECException(
-                "Plaquette indices must be provided when ``show_plaquette_indices`` is True."
-            )
+            raise TQECException("Plaquette indices must be provided when ``show_plaquette_indices`` is True.")
         if not len(rpng_object) == len(plaquette_indices) and all(
-            len(row) == len(indices)
-            for row, indices in zip(rpng_object, plaquette_indices)
+            len(row) == len(indices) for row, indices in zip(rpng_object, plaquette_indices)
         ):
-            raise TQECException(
-                "The dimensions of ``rpng_object`` and ``plaquette_indices`` must match."
-            )
+            raise TQECException("The dimensions of ``rpng_object`` and ``plaquette_indices`` must match.")
 
     data_qubits: set[complex] = set()
     plaquettes: dict[complex, dict[complex, RPNG]] = {}
@@ -75,9 +68,7 @@ def rpng_svg_viewer(
         for c, description in enumerate(row):
             center = complex(2 * c + 1, 2 * r + 1)
             plaquette: dict[complex, RPNG] = {}
-            for delta, rpng in zip(
-                [-1 - 1j, 1 - 1j, -1 + 1j, 1 + 1j], description.corners
-            ):
+            for delta, rpng in zip([-1 - 1j, 1 - 1j, -1 + 1j, 1 + 1j], description.corners):
                 # filter out the "----" null plaquettes
                 if rpng.is_null:
                     continue
@@ -114,9 +105,7 @@ def rpng_svg_viewer(
         return scale_factor * (q - min_c)
 
     # Collect the SVG lines
-    lines = [
-        f"""<svg viewBox="0 0 {canvas_width} {canvas_height}" xmlns="http://www.w3.org/2000/svg">"""
-    ]
+    lines = [f"""<svg viewBox="0 0 {canvas_width} {canvas_height}" xmlns="http://www.w3.org/2000/svg">"""]
     fill_layer: list[str] = []
     stroke_layer: list[str] = []
     rg_layer: list[str] = []
@@ -141,9 +130,7 @@ def rpng_svg_viewer(
         clip_path_id += 1
         if show_plaquette_indices:
             index = indices[center]
-            _draw_plaquette_index(
-                stroke_layer, text_layer, center, index, q2p, scale_factor
-            )
+            _draw_plaquette_index(stroke_layer, text_layer, center, index, q2p, scale_factor)
 
     # Draw the R/G fields on the data qubits
     if show_rg_fields:
@@ -157,9 +144,7 @@ def rpng_svg_viewer(
     return "\n".join(lines)
 
 
-def _merge_rg_field(
-    value1: ExtendedBasis | None, value2: ExtendedBasis | None
-) -> ExtendedBasis | None:
+def _merge_rg_field(value1: ExtendedBasis | None, value2: ExtendedBasis | None) -> ExtendedBasis | None:
     if value1 is None:
         return value2
     if value2 is None:
@@ -234,8 +219,7 @@ def _draw_plaquette(
             )
     # stroke around the polygon
     stroke_layer.append(
-        f'<path d="{path_directions}" '
-        f'fill="none" stroke="black" stroke-width="{0.05 * scale_factor}"/>'
+        f'<path d="{path_directions}" fill="none" stroke="black" stroke-width="{0.05 * scale_factor}"/>'
     )
     # Add the hook error
     if hook_error is not None:

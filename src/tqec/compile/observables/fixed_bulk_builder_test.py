@@ -101,9 +101,7 @@ def test_get_bottom_stabilizer_cube_qubits(
     expected: list[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
-    coords = sorted(
-        _get_bottom_stabilizer_cube_qubits(shape, connect_to, stabilizer_basis)
-    )
+    coords = sorted(_get_bottom_stabilizer_cube_qubits(shape, connect_to, stabilizer_basis))
     assert coords == expected
 
 
@@ -183,7 +181,5 @@ def test_get_temporal_hadamard_includes(
     expected: set[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(2 * k + 2, 2 * k + 2)
-    coords = set(
-        _get_temporal_hadamard_includes_qubits(shape, obs_basis, z_orientation)
-    )
+    coords = set(_get_temporal_hadamard_includes_qubits(shape, obs_basis, z_orientation))
     assert coords == expected

@@ -49,11 +49,7 @@ def cz(support_flows: str | list[str] | None = None) -> BlockGraph:
         g.add_pipe(nodes[p0][0], nodes[p1][0])
 
     if support_flows is not None:
-        flows = (
-            [f.upper() for f in support_flows]
-            if isinstance(support_flows, list)
-            else [support_flows.upper()]
-        )
+        flows = [f.upper() for f in support_flows] if isinstance(support_flows, list) else [support_flows.upper()]
         resolved_ports = _resolve_ports(flows)
         g.fill_ports(dict(zip(["In_1", "In_2", "Out_1", "Out_2"], resolved_ports)))
     return g
@@ -61,9 +57,7 @@ def cz(support_flows: str | list[str] | None = None) -> BlockGraph:
 
 def _resolve_ports(flows: list[str]) -> list[ZXCube]:
     if any("Y" in f for f in flows):
-        raise TQECException(
-            "Y basis initialization/measurements are not supported yet."
-        )
+        raise TQECException("Y basis initialization/measurements are not supported yet.")
 
     stim_flows = [stim.Flow(f) for f in flows]
     cz = stim.Circuit("CZ 0 1")
@@ -77,9 +71,7 @@ def _resolve_ports(flows: list[str]) -> list[ZXCube]:
             if ports[i] == "_":
                 ports[i] = p
             elif p != "_" and p != ports[i]:
-                raise TQECException(
-                    f"Port {i} fails to support both {ports[i]} and {p} observable."
-                )
+                raise TQECException(f"Port {i} fails to support both {ports[i]} and {p} observable.")
     # If there are left "I" in the ports, we choose fill them with "Z" ("X" should also work).
     for i in range(4):
         if ports[i] == "_":

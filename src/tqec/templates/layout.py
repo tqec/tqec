@@ -112,13 +112,9 @@ class LayoutTemplate(Template):
         if not element_layout:
             raise TQECException("Cannot create a layout with an empty template map.")
 
-        scalable_shapes = {
-            template.scalable_shape for template in element_layout.values()
-        }
+        scalable_shapes = {template.scalable_shape for template in element_layout.values()}
         if len(scalable_shapes) != 1:
-            raise TQECException(
-                "All templates in the layout should have the same scalable shape."
-            )
+            raise TQECException("All templates in the layout should have the same scalable shape.")
         self._element_scalable_shape = scalable_shapes.pop()
 
         all_positions = list(element_layout.keys())
@@ -165,15 +161,12 @@ class LayoutTemplate(Template):
         indices_map: dict[BlockPosition2D, dict[int, int]] = {}
         for position, template in self._layout.items():
             indices_map[position] = {
-                i + 1: instantiate_indices[i + index_count]
-                for i in range(template.expected_plaquettes_number)
+                i + 1: instantiate_indices[i + index_count] for i in range(template.expected_plaquettes_number)
             }
             index_count += template.expected_plaquettes_number
         return indices_map
 
-    def get_global_plaquettes(
-        self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]
-    ) -> Plaquettes:
+    def get_global_plaquettes(self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]) -> Plaquettes:
         """Merge the provided ``individual_plaquettes`` into a single
         :class:`~tqec.plaquette.plaquette.Plaquettes` instance that can be used
         to instantiate ``self``.
@@ -195,9 +188,7 @@ class LayoutTemplate(Template):
             can be used with ``self`` to generate a quantum circuit with
             :meth:`~tqec.compile.generation.generate_circuit`.
         """
-        missing_positions = frozenset(self._layout.keys()) - frozenset(
-            individual_plaquettes.keys()
-        )
+        missing_positions = frozenset(self._layout.keys()) - frozenset(individual_plaquettes.keys())
         if missing_positions:
             raise TQECException(
                 "The following expected positions were not found in the "
@@ -209,13 +200,9 @@ class LayoutTemplate(Template):
         for position, index_map in index_maps.items():
             global_plaquettes |= {
                 index_map[local_index]: plaquette
-                for local_index, plaquette in individual_plaquettes[
-                    position
-                ].collection.items()
+                for local_index, plaquette in individual_plaquettes[position].collection.items()
             }
-            default_values.append(
-                individual_plaquettes[position].collection.default_value
-            )
+            default_values.append(individual_plaquettes[position].collection.default_value)
         unique_default_values = frozenset(default_values)
         if len(unique_default_values) != 1:
             raise TQECException(
@@ -223,11 +210,7 @@ class LayoutTemplate(Template):
                 f"{unique_default_values}. Cannot pick one for the merged "
                 f"{Plaquettes.__name__} instance."
             )
-        return Plaquettes(
-            FrozenDefaultDict(
-                global_plaquettes, default_value=next(iter(unique_default_values))
-            )
-        )
+        return Plaquettes(FrozenDefaultDict(global_plaquettes, default_value=next(iter(unique_default_values))))
 
     @property
     @override
@@ -251,14 +234,10 @@ class LayoutTemplate(Template):
         Returns:
             the number of plaquettes expected from the `instantiate` method.
         """
-        return sum(
-            template.expected_plaquettes_number for template in self._layout.values()
-        )
+        return sum(template.expected_plaquettes_number for template in self._layout.values())
 
     @override
-    def instantiate(
-        self, k: int, plaquette_indices: Sequence[int] | None = None
-    ) -> npt.NDArray[numpy.int_]:
+    def instantiate(self, k: int, plaquette_indices: Sequence[int] | None = None) -> npt.NDArray[numpy.int_]:
         """Generate the numpy array representing the template.
 
         Args:
@@ -277,18 +256,12 @@ class LayoutTemplate(Template):
         ret = numpy.zeros(self.shape(k).to_numpy_shape(), dtype=numpy.int_)
         for pos, element in self._layout.items():
             imap = indices_map[pos]
-            indices = [
-                imap[i] for i in range(1, element.expected_plaquettes_number + 1)
-            ]
+            indices = [imap[i] for i in range(1, element.expected_plaquettes_number + 1)]
             element_instantiation = element.instantiate(k, indices)
-            shifted_pos = BlockPosition2D(
-                pos.x - self._block_origin.x, pos.y - self._block_origin.y
-            )
+            shifted_pos = BlockPosition2D(pos.x - self._block_origin.x, pos.y - self._block_origin.y)
             ret[
-                shifted_pos.y * element_shape[0] : (shifted_pos.y + 1)
-                * element_shape[0],
-                shifted_pos.x * element_shape[1] : (shifted_pos.x + 1)
-                * element_shape[1],
+                shifted_pos.y * element_shape[0] : (shifted_pos.y + 1) * element_shape[0],
+                shifted_pos.x * element_shape[1] : (shifted_pos.x + 1) * element_shape[1],
             ] = element_instantiation
         return ret
 

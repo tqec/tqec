@@ -87,9 +87,7 @@ def read_block_graph_from_dae_file(
     scene: collada.scene.Scene = mesh.scene
 
     if not (len(scene.nodes) == 1 and scene.nodes[0].name == "SketchUp"):
-        raise TQECException(
-            "The <visual_scene> node must have a single child node with the name 'SketchUp'."
-        )
+        raise TQECException("The <visual_scene> node must have a single child node with the name 'SketchUp'.")
 
     sketchup_node: collada.scene.Node = scene.nodes[0]
     pipe_length: float | None = None
@@ -158,9 +156,7 @@ def read_block_graph_from_dae_file(
             else:
                 # Checks
                 if not np.allclose(transformation.scale, np.ones(3), atol=1e-9):
-                    raise TQECException(
-                        f"Cube at {translation} has a non-identity scale."
-                    )
+                    raise TQECException(f"Cube at {translation} has a non-identity scale.")
                 # Append
                 parsed_cubes.append((translation, kind, axes_directions))
 
@@ -185,9 +181,7 @@ def read_block_graph_from_dae_file(
             pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier),
             pipe_length,
         )
-        tail_pos = head_pos.shift_in_direction(
-            pipe_kind.direction, 1 * directional_multiplier
-        )
+        tail_pos = head_pos.shift_in_direction(pipe_kind.direction, 1 * directional_multiplier)
 
         # Add pipe
         if head_pos not in graph:
@@ -231,9 +225,7 @@ def write_block_graph_to_dae_file(
             continue
 
         scaled_position = scale_position(cube.position)
-        if cube.is_y_cube and block_graph.has_pipe_between(
-            cube.position, cube.position.shift_by(dz=1)
-        ):
+        if cube.is_y_cube and block_graph.has_pipe_between(cube.position, cube.position.shift_by(dz=1)):
             scaled_position = scaled_position.shift_by(dz=0.5)
 
         matrix = np.eye(4, dtype=np.float32)
@@ -241,9 +233,7 @@ def write_block_graph_to_dae_file(
         pop_faces_at_directions = []
 
         for pipe in block_graph.pipes_at(cube.position):
-            pop_faces_at_directions.append(
-                SignedDirection3D(pipe.direction, cube == pipe.u)
-            )
+            pop_faces_at_directions.append(SignedDirection3D(pipe.direction, cube == pipe.u))
 
         base.add_block_instance(matrix, cube.kind, pop_faces_at_directions)
 
@@ -305,9 +295,7 @@ def read_block_graph_from_json(
 
     # Initialise list of cubes and pipes
     parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
-    parsed_pipes: list[
-        tuple[FloatPosition3D, FloatPosition3D, PipeKind, dict[str, int]]
-    ] = []
+    parsed_pipes: list[tuple[FloatPosition3D, FloatPosition3D, PipeKind, dict[str, int]]] = []
 
     # Get cubes data
     for cube in data["cubes"]:
@@ -446,9 +434,7 @@ class _BaseColladaData:
         self.block_library: dict[_BlockLibraryKey, collada.scene.Node] = {}
         self.surface_library: dict[Basis, collada.scene.Node] = {}
         self._pop_faces_at_direction: frozenset[SignedDirection3D] = (
-            frozenset({pop_faces_at_direction})
-            if pop_faces_at_direction
-            else frozenset()
+            frozenset({pop_faces_at_direction}) if pop_faces_at_direction else frozenset()
         )
         self._num_instances: int = 0
 
@@ -465,9 +451,7 @@ class _BaseColladaData:
         if self.mesh.assetInfo is None:
             return
         self.mesh.assetInfo.contributors.append(
-            collada.asset.Contributor(
-                author=_ASSET_AUTHOR, authoring_tool=_ASSET_AUTHORING_TOOL_TQEC
-            ),
+            collada.asset.Contributor(author=_ASSET_AUTHOR, authoring_tool=_ASSET_AUTHORING_TOOL_TQEC),
         )
         self.mesh.assetInfo.unitmeter = _ASSET_UNIT_METER
         self.mesh.assetInfo.unitname = _ASSET_UNIT_NAME
@@ -492,9 +476,7 @@ class _BaseColladaData:
             )
             self.mesh.effects.append(effect)
 
-            material = collada.material.Material(
-                f"{face_color.value}_material", f"{face_color.value}_material", effect
-            )
+            material = collada.material.Material(f"{face_color.value}_material", f"{face_color.value}_material", effect)
             self.mesh.materials.append(material)
             self.materials[face_color] = material
 
@@ -503,30 +485,20 @@ class _BaseColladaData:
             return self.geometry_nodes[face]
         # Create geometry
         id_str = f"FaceID{len(self.geometry_nodes)}"
-        positions = collada.source.FloatSource(
-            id_str + "_positions", face.get_vertices(), ("X", "Y", "Z")
-        )
-        normals = collada.source.FloatSource(
-            id_str + "_normals", face.get_normal_vectors(), ("X", "Y", "Z")
-        )
+        positions = collada.source.FloatSource(id_str + "_positions", face.get_vertices(), ("X", "Y", "Z"))
+        normals = collada.source.FloatSource(id_str + "_normals", face.get_normal_vectors(), ("X", "Y", "Z"))
 
-        geom = collada.geometry.Geometry(
-            self.mesh, id_str, id_str, [positions, normals]
-        )
+        geom = collada.geometry.Geometry(self.mesh, id_str, id_str, [positions, normals])
         input_list = collada.source.InputList()
         input_list.addInput(0, "VERTEX", "#" + positions.id)
         input_list.addInput(1, "NORMAL", "#" + normals.id)
-        triset = geom.createTriangleSet(
-            Face.get_triangle_indices(), input_list, _MATERIAL_SYMBOL
-        )
+        triset = geom.createTriangleSet(Face.get_triangle_indices(), input_list, _MATERIAL_SYMBOL)
         geom.primitives.append(triset)
         self.mesh.geometries.append(geom)
         # Create geometry node
         inputs = [("UVSET0", "TEXCOORD", "0")]
         material = self.materials[face.color]
-        geom_node = collada.scene.GeometryNode(
-            geom, [collada.scene.MaterialNode(_MATERIAL_SYMBOL, material, inputs)]
-        )
+        geom_node = collada.scene.GeometryNode(geom, [collada.scene.MaterialNode(_MATERIAL_SYMBOL, material, inputs)])
         self.geometry_nodes[face] = geom_node
         return geom_node
 
@@ -535,9 +507,7 @@ class _BaseColladaData:
         block_kind: BlockKind,
         pop_faces_at_directions: Iterable[SignedDirection3D] = (),
     ) -> _BlockLibraryKey:
-        pop_faces_at_directions = (
-            frozenset(pop_faces_at_directions) | self._pop_faces_at_direction
-        )
+        pop_faces_at_directions = frozenset(pop_faces_at_directions) | self._pop_faces_at_direction
         key = _BlockLibraryKey(block_kind, pop_faces_at_directions)
         if key in self.block_library:
             return key
@@ -573,9 +543,7 @@ class _BaseColladaData:
             return
         surface = get_correlation_surface_geometry(basis)
         geometry_node = self._add_face_geometry_node(surface)
-        node = collada.scene.Node(
-            surface.color.value, [geometry_node], name=surface.color.value
-        )
+        node = collada.scene.Node(surface.color.value, [geometry_node], name=surface.color.value)
         self.mesh.nodes.append(node)
         self.surface_library[basis] = node
 
@@ -599,11 +567,7 @@ class _BaseColladaData:
             child_node = collada.scene.Node(
                 f"ID{self._num_instances}",
                 name=f"instance_{self._num_instances}_correlation_surface",
-                transforms=[
-                    collada.scene.MatrixTransform(
-                        transformation.to_4d_affine_matrix().flatten()
-                    )
-                ],
+                transforms=[collada.scene.MatrixTransform(transformation.to_4d_affine_matrix().flatten())],
             )
             point_to_node = self.surface_library[basis]
             instance_node = collada.scene.NodeNode(point_to_node)

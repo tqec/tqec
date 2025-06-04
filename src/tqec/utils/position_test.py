@@ -55,9 +55,7 @@ def test_signed_direction() -> None:
         ((1, 0), (0, 1), False),
     ],
 )
-def test_is_neighbour(
-    source: tuple[int, int], sink: tuple[int, int], is_neighbour: bool
-) -> None:
+def test_is_neighbour(source: tuple[int, int], sink: tuple[int, int], is_neighbour: bool) -> None:
     assert Position2D(*source).is_neighbour(Position2D(*sink)) == is_neighbour
 
 
@@ -72,7 +70,5 @@ def test_is_neighbour(
         (Position3D(0, 0, -1), Position3D(0, 0, 0), Direction3D.Z),
     ],
 )
-def test_from_neighbouring_positions(
-    source: Position3D, sink: Position3D, expected_direction: Direction3D
-) -> None:
+def test_from_neighbouring_positions(source: Position3D, sink: Position3D, expected_direction: Direction3D) -> None:
     assert Direction3D.from_neighbouring_positions(source, sink) == expected_direction

@@ -112,9 +112,7 @@ def test_stack_lookback(
     measurement_records: MeasurementRecordsMap,
 ) -> None:
     stack = LookbackStack()
-    with pytest.raises(
-        TQECException, match="Cannot look back a negative number of rounds..*"
-    ):
+    with pytest.raises(TQECException, match="Cannot look back a negative number of rounds..*"):
         stack.lookback(-1)
     # Valid query on empty stack.
     ts, ps, _ = stack.lookback(0)

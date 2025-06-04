@@ -26,9 +26,7 @@ class ZXCube:
 
     def __post_init__(self) -> None:
         if self.x == self.y == self.z:
-            raise TQECException(
-                "The cube with the same basis along all axes is not allowed."
-            )
+            raise TQECException("The cube with the same basis along all axes is not allowed.")
 
     def as_tuple(self) -> tuple[Basis, Basis, Basis]:
         """Return a tuple of ``(self.x, self.y, self.z)``.
@@ -123,12 +121,7 @@ class ZXCube:
             The new :py:class:`~tqec.computation.cube.ZXCube` instance with the basis
             set along the given direction axis.
         """
-        return ZXCube(
-            *[
-                basis if i == direction.value else b
-                for i, b in enumerate(self.as_tuple())
-            ]
-        )
+        return ZXCube(*[basis if i == direction.value else b for i, b in enumerate(self.as_tuple())])
 
 
 class Port:

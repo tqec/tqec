@@ -35,9 +35,7 @@ def generate_graphs(style: Literal["css", "zxxz"], observable_basis: Basis) -> N
     # correlation_surfaces = [correlation_surfaces[0]]
 
     block_builder = CSS_BLOCK_BUILDER if style == "css" else ZXXZ_BLOCK_BUILDER
-    substitution_builder = (
-        CSS_SUBSTITUTION_BUILDER if style == "css" else ZXXZ_SUBSTITUTION_BUILDER
-    )
+    substitution_builder = CSS_SUBSTITUTION_BUILDER if style == "css" else ZXXZ_SUBSTITUTION_BUILDER
     stats = start_simulation_using_sinter(
         block_graph,
         range(1, 4),
@@ -67,10 +65,7 @@ def generate_graphs(style: Literal["css", "zxxz"], observable_basis: Basis) -> N
         ax.legend()
         ax.loglog()
         ax.set_title(f"{style.upper()} Logical CNOT Error Rate")
-        fig.savefig(
-            ASSETS_FOLDER
-            / f"{style}_logical_cnot_result_{observable_basis}_observable_{i}.png"
-        )
+        fig.savefig(ASSETS_FOLDER / f"{style}_logical_cnot_result_{observable_basis}_observable_{i}.png")
 
 
 def main():

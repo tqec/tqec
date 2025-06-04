@@ -106,13 +106,10 @@ class Moment:
         """
         if circuit.num_ticks > 0:
             raise TQECException(
-                "Cannot initialize a Moment with a stim.Circuit instance "
-                "containing at least one TICK instruction."
+                "Cannot initialize a Moment with a stim.Circuit instance containing at least one TICK instruction."
             )
         qubit_usage = count_qubit_accesses(circuit)
-        multi_used_qubits = [
-            qi for qi, usage_count in qubit_usage.items() if usage_count > 1
-        ]
+        multi_used_qubits = [qi for qi, usage_count in qubit_usage.items() if usage_count > 1]
         if multi_used_qubits:
             raise TQECException(
                 "Moment instances cannot be initialized with a stim.Circuit "
@@ -121,10 +118,7 @@ class Moment:
                 f"{multi_used_qubits}."
             )
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
-            raise TQECException(
-                "Moment instances should no contain any instance "
-                "of stim.CircuitRepeatBlock."
-            )
+            raise TQECException("Moment instances should no contain any instance of stim.CircuitRepeatBlock.")
 
     @staticmethod
     def from_instructions(instructions: Iterable[stim.CircuitInstruction]) -> Moment:
@@ -153,9 +147,7 @@ class Moment:
         provided name."""
         return any(instr.name == instruction_name for instr in self._circuit)
 
-    def remove_all_instructions_inplace(
-        self, instructions_to_remove: frozenset[str]
-    ) -> None:
+    def remove_all_instructions_inplace(self, instructions_to_remove: frozenset[str]) -> None:
         """Remove in-place all the instructions that have their name in the
         provided ``instructions_to_remove``."""
         new_circuit = stim.Circuit()
@@ -169,9 +161,7 @@ class Moment:
         """Add instructions in-place in ``self``."""
         both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
         if both_sides_used_qubits:
-            raise TQECException(
-                "Trying to add an overlapping quantum circuit to a Moment instance."
-            )
+            raise TQECException("Trying to add an overlapping quantum circuit to a Moment instance.")
         self._circuit += other._circuit
         return self
 
@@ -179,9 +169,7 @@ class Moment:
         """Add instructions of ``self`` and ``other`` in a new instance."""
         both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
         if both_sides_used_qubits:
-            raise TQECException(
-                "Trying to add an overlapping quantum circuit to a Moment instance."
-            )
+            raise TQECException("Trying to add an overlapping quantum circuit to a Moment instance.")
         cpy = deepcopy(self)
         cpy += other
         return cpy
@@ -247,15 +235,12 @@ class Moment:
         overlapping_qubits = self._used_qubits.intersection(instruction_qubits)
         if overlapping_qubits:
             raise TQECException(
-                f"Cannot add {instruction} to the Moment due to qubit(s) "
-                f"{overlapping_qubits} being already in use."
+                f"Cannot add {instruction} to the Moment due to qubit(s) {overlapping_qubits} being already in use."
             )
         self._used_qubits.update(instruction_qubits)
         self._circuit.append(instruction)
 
-    def append_annotation(
-        self, annotation_instruction: stim.CircuitInstruction
-    ) -> None:
+    def append_annotation(self, annotation_instruction: stim.CircuitInstruction) -> None:
         """Append an annotation instruction to ``self``.
 
         This method is way more efficient than :meth:`append` to append an
@@ -311,17 +296,13 @@ class Moment:
         for instruction in self.instructions:
             targets: list[stim.GateTarget] = []
             for target_group in instruction.target_groups():
-                qubit_targets = [
-                    cast(int, t.qubit_value) for t in target_group if t.is_qubit_target
-                ]
+                qubit_targets = [cast(int, t.qubit_value) for t in target_group if t.is_qubit_target]
                 if any(q not in qubits for q in qubit_targets):
                     continue
                 targets.extend(target_group)
                 used_qubits.update(qubit_targets)
             if targets:
-                new_circuit.append(
-                    instruction.name, targets, instruction.gate_args_copy()
-                )
+                new_circuit.append(instruction.name, targets, instruction.gate_args_copy())
         return Moment(new_circuit, used_qubits=used_qubits, _avoid_checks=True)
 
     @property
@@ -437,15 +418,12 @@ def iter_stim_circuit_without_repeat_by_moments(
             inserted such that instructions between two ``TICK`` instructions
             are always applied on disjoint sets of qubits.
     """
-    copy_func: Callable[[stim.Circuit], stim.Circuit] = (
-        (lambda c: c.copy()) if collected_before_use else (lambda c: c)
-    )
+    copy_func: Callable[[stim.Circuit], stim.Circuit] = (lambda c: c.copy()) if collected_before_use else (lambda c: c)
     cur_moment = stim.Circuit()
     for inst in circuit:
         if isinstance(inst, stim.CircuitRepeatBlock):
             raise TQECException(
-                "Found an instance of stim.CircuitRepeatBlock which is "
-                "explicitly not supported by this method."
+                "Found an instance of stim.CircuitRepeatBlock which is explicitly not supported by this method."
             )
         elif inst.name == "TICK":
             yield Moment(copy_func(cur_moment))

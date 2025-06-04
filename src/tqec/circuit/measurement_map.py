@@ -49,9 +49,7 @@ class MeasurementRecordsMap:
         all_measurement_records_indices: list[int] = []
         for qubit, measurement_record_offsets in self.mapping.items():
             # Check that the provided measurement record offsets are negative.
-            nonnegative_offsets = [
-                offset for offset in measurement_record_offsets if offset >= 0
-            ]
+            nonnegative_offsets = [offset for offset in measurement_record_offsets if offset >= 0]
             if nonnegative_offsets:
                 raise TQECException(
                     "Invalid mapping from qubit offsets to measurement record "
@@ -68,10 +66,7 @@ class MeasurementRecordsMap:
         # Check that a given measurement record offset only appears once.
         deduplicated_indices = numpy.unique(all_measurement_records_indices)
         if len(deduplicated_indices) != len(all_measurement_records_indices):
-            raise TQECException(
-                "At least one measurement record offset has been found twice "
-                "in the provided offsets."
-            )
+            raise TQECException("At least one measurement record offset has been found twice in the provided offsets.")
 
     @staticmethod
     def from_scheduled_circuit(circuit: ScheduledCircuit) -> MeasurementRecordsMap:
@@ -95,14 +90,10 @@ class MeasurementRecordsMap:
             a :class:`MeasurementRecordsMap` linking measurements in the provided
             ``circuit`` to their offset.
         """
-        return MeasurementRecordsMap.from_circuit(
-            circuit.get_circuit(include_qubit_coords=False), circuit.qubit_map
-        )
+        return MeasurementRecordsMap.from_circuit(circuit.get_circuit(include_qubit_coords=False), circuit.qubit_map)
 
     @staticmethod
-    def from_circuit(
-        circuit: stim.Circuit, qubit_map: QubitMap | None = None
-    ) -> MeasurementRecordsMap:
+    def from_circuit(circuit: stim.Circuit, qubit_map: QubitMap | None = None) -> MeasurementRecordsMap:
         """Build a :class:`MeasurementRecordsMap` from a circuit.
 
         Args:
@@ -136,19 +127,13 @@ class MeasurementRecordsMap:
         measurement_records: dict[GridQubit, list[int]] = {}
         for instruction in circuit:
             if isinstance(instruction, stim.CircuitRepeatBlock):
-                raise TQECException(
-                    "Found a REPEAT instruction. This is not supported for the moment."
-                )
+                raise TQECException("Found a REPEAT instruction. This is not supported for the moment.")
             if is_multi_qubit_measurement_instruction(instruction):
-                raise TQECException(
-                    f"Found a non-supported measurement instruction: {instruction}"
-                )
+                raise TQECException(f"Found a non-supported measurement instruction: {instruction}")
             if is_single_qubit_measurement_instruction(instruction):
                 for (qi,) in instruction.target_groups():
                     qubit = qubit_map.i2q[qi.value]
-                    measurement_records.setdefault(qubit, []).append(
-                        current_measurement_record
-                    )
+                    measurement_records.setdefault(qubit, []).append(current_measurement_record)
                     current_measurement_record += 1
         if current_measurement_record != 0:
             raise TQECException(
@@ -182,18 +167,11 @@ class MeasurementRecordsMap:
             a new instance containing valid offsets for each measurement in ``self``
             and ``mrecords_map``.
         """
-        num_measurements_without_repetition = sum(
-            len(offsets) for offsets in mrecords_map.mapping.values()
-        )
+        num_measurements_without_repetition = sum(len(offsets) for offsets in mrecords_map.mapping.values())
         num_added_measurements = repetitions * num_measurements_without_repetition
-        records = {
-            q: [o - num_added_measurements for o in offsets]
-            for q, offsets in self.mapping.items()
-        }
+        records = {q: [o - num_added_measurements for o in offsets] for q, offsets in self.mapping.items()}
         for q, offsets in mrecords_map.mapping.items():
             record = records.setdefault(q, [])
             for i in range(repetitions - 1, -1, -1):
-                record.extend(
-                    [o - i * num_measurements_without_repetition for o in offsets]
-                )
+                record.extend([o - i * num_measurements_without_repetition for o in offsets])
         return MeasurementRecordsMap(records)

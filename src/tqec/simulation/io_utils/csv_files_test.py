@@ -97,18 +97,14 @@ def test_overwrite_if_file_exists(
     assert stats_from_csv == stats_b
 
 
-def test_merge_if_file_exists(
-    tmp_path: Path, stats_a: list[sinter.TaskStats], stats_b: list[sinter.TaskStats]
-) -> None:
+def test_merge_if_file_exists(tmp_path: Path, stats_a: list[sinter.TaskStats], stats_b: list[sinter.TaskStats]) -> None:
     filepath = tmp_path / "data.csv"
     write_sinter_stats_to_csv(filepath, stats_a)
     write_sinter_stats_to_csv(filepath, stats_b, if_file_exists="merge")
     stats_from_csv = sinter.read_stats_from_csv_files(filepath)
 
     assert len(stats_from_csv) == 4
-    assert next(
-        s for s in stats_from_csv if s.strong_id == "id_a0"
-    ) == sinter.TaskStats(
+    assert next(s for s in stats_from_csv if s.strong_id == "id_a0") == sinter.TaskStats(
         strong_id="id_a0",
         decoder="pymatching",
         shots=11_000_000,

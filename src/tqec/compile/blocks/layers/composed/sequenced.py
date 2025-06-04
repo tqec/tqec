@@ -66,8 +66,7 @@ class SequencedLayers(BaseComposedLayer):
     def scalable_shape(self) -> PhysicalQubitScalable2D:
         if any(isinstance(layer, LayoutLayer) for layer in self._layer_sequence):
             raise NotImplementedError(
-                f"Computation of the scalable_shape for {LayoutLayer.__name__} "
-                "instances has not been implemented yet."
+                f"Computation of the scalable_shape for {LayoutLayer.__name__} instances has not been implemented yet."
             )
         scalable_shape = self._layer_sequence[0].scalable_shape
         for layer in self._layer_sequence[1:]:
@@ -78,14 +77,10 @@ class SequencedLayers(BaseComposedLayer):
     def _layers_with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> list[BaseLayer | BaseComposedLayer]:
-        return [
-            layer.with_spatial_borders_trimmed(borders) for layer in self.layer_sequence
-        ]
+        return [layer.with_spatial_borders_trimmed(borders) for layer in self.layer_sequence]
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> SequencedLayers:
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> SequencedLayers:
         return SequencedLayers(
             self._layers_with_spatial_borders_trimmed(borders),
             self.trimmed_spatial_borders | frozenset(borders),
@@ -96,17 +91,13 @@ class SequencedLayers(BaseComposedLayer):
     ) -> list[BaseLayer | BaseComposedLayer]:
         layers = list(self.layer_sequence)
         if (border := TemporalBlockBorder.Z_NEGATIVE) in border_replacements:
-            first_layer = layers[0].with_temporal_borders_replaced(
-                {border: border_replacements[border]}
-            )
+            first_layer = layers[0].with_temporal_borders_replaced({border: border_replacements[border]})
             if first_layer is not None:
                 layers[0] = first_layer
             else:
                 layers.pop(0)
         if (border := TemporalBlockBorder.Z_POSITIVE) in border_replacements:
-            last_layer = layers[-1].with_temporal_borders_replaced(
-                {border: border_replacements[border]}
-            )
+            last_layer = layers[-1].with_temporal_borders_replaced({border: border_replacements[border]})
             if last_layer is not None:
                 layers[-1] = last_layer
             else:
@@ -131,14 +122,11 @@ class SequencedLayers(BaseComposedLayer):
     @override
     def all_layers(self, k: int) -> Iterable[BaseLayer]:
         yield from chain.from_iterable(
-            ((layer,) if isinstance(layer, BaseLayer) else layer.all_layers(k))
-            for layer in self.layer_sequence
+            ((layer,) if isinstance(layer, BaseLayer) else layer.all_layers(k)) for layer in self.layer_sequence
         )
 
     @override
-    def to_sequenced_layer_with_schedule(
-        self, schedule: tuple[LinearFunction, ...]
-    ) -> SequencedLayers:
+    def to_sequenced_layer_with_schedule(self, schedule: tuple[LinearFunction, ...]) -> SequencedLayers:
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
             raise TQECException(
@@ -150,18 +138,14 @@ class SequencedLayers(BaseComposedLayer):
         if self.schedule == schedule:
             return self
         raise NotImplementedError(
-            f"Adapting a {SequencedLayers.__name__} instance to another schedule "
-            "is not yet implemented."
+            f"Adapting a {SequencedLayers.__name__} instance to another schedule is not yet implemented."
         )
 
     def __eq__(self, value: object) -> bool:
-        return (
-            isinstance(value, SequencedLayers)
-            and self.layer_sequence == value.layer_sequence
-        )
+        return isinstance(value, SequencedLayers) and self.layer_sequence == value.layer_sequence
 
     @override
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
-        return self._layer_sequence[
-            0 if border == TemporalBlockBorder.Z_NEGATIVE else -1
-        ].get_temporal_layer_on_border(border)
+        return self._layer_sequence[0 if border == TemporalBlockBorder.Z_NEGATIVE else -1].get_temporal_layer_on_border(
+            border
+        )

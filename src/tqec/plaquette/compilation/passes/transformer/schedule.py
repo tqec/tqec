@@ -33,10 +33,7 @@ class ScheduleConstant(ScheduleFunction):
 
     def __post_init__(self) -> None:
         if self.constant < 0:
-            raise TQECException(
-                "Cannot have a negative schedule. The provided constant is "
-                f"negative: {self.constant}."
-            )
+            raise TQECException(f"Cannot have a negative schedule. The provided constant is negative: {self.constant}.")
 
     @override
     def __call__(self, input_schedule: int) -> int:

@@ -47,16 +47,13 @@ class PositionedZX:
         """Check the preconditions for the ZX graph with 3D positions."""
         # 1. Check the vertex IDs in the graph match the positions
         if g.vertex_set() != set(positions.keys()):
-            raise TQECException(
-                "The vertex IDs in the ZX graph and the positions do not match."
-            )
+            raise TQECException("The vertex IDs in the ZX graph and the positions do not match.")
         # 2. Check the neighbors are all shifted by 1 in the 3D positions
         for s, t in g.edge_set():
             ps, pt = positions[s], positions[t]
             if not ps.is_neighbour(pt):
                 raise TQECException(
-                    f"The 3D positions of the endpoints of the edge {s}--{t} "
-                    f"must be neighbors, but got {ps} and {pt}."
+                    f"The 3D positions of the endpoints of the edge {s}--{t} must be neighbors, but got {ps} and {pt}."
                 )
         # 3. Check all the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders
         for v in g.vertices():
@@ -68,24 +65,20 @@ class PositionedZX:
                 (VertexType.Z, Fraction(1, 2)),
                 (VertexType.BOUNDARY, 0),
             ]:
-                raise TQECException(
-                    f"Unsupported vertex type and phase: {vt} and {phase}."
-                )
+                raise TQECException(f"Unsupported vertex type and phase: {vt} and {phase}.")
             # 4. Check Boundary and Z(1/2) spiders are dangling, additionally
             # Z(1/2) connects to time direction
             if vt == VertexType.BOUNDARY or phase == Fraction(1, 2):
                 if g.vertex_degree(v) != 1:
                     raise TQECException(
-                        "Boundary or Z(1/2) spider must be dangling, but got "
-                        f"{len(g.neighbors(v))} neighbors."
+                        f"Boundary or Z(1/2) spider must be dangling, but got {len(g.neighbors(v))} neighbors."
                     )
                 if phase == Fraction(1, 2):
                     nb = next(iter(g.neighbors(v)))
                     vp, nbp = positions[v], positions[nb]
                     if abs(nbp.z - vp.z) != 1:
                         raise TQECException(
-                            f"Z(1/2) spider must connect to the time direction, "
-                            f"but Z(1/2) at {vp} connects to {nbp}."
+                            f"Z(1/2) spider must connect to the time direction, but Z(1/2) at {vp} connects to {nbp}."
                         )
         # 5. Check there are no 3D corners
         for v in g.vertices():

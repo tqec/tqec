@@ -40,12 +40,8 @@ class QubitMap:
     def __post_init__(self) -> None:
         qubit_counter = Counter(self.i2q.values())
         if len(qubit_counter) != len(self.i2q):
-            duplicated_qubits = frozenset(
-                q for q in qubit_counter if qubit_counter[q] > 1
-            )
-            raise TQECException(
-                f"Found qubit(s) with more than one index: {duplicated_qubits}."
-            )
+            duplicated_qubits = frozenset(q for q in qubit_counter if qubit_counter[q] > 1)
+            raise TQECException(f"Found qubit(s) with more than one index: {duplicated_qubits}.")
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
@@ -69,9 +65,7 @@ class QubitMap:
     def qubits(self) -> Iterable[GridQubit]:
         return self.i2q.values()
 
-    def with_mapped_qubits(
-        self, qubit_map: Callable[[GridQubit], GridQubit]
-    ) -> QubitMap:
+    def with_mapped_qubits(self, qubit_map: Callable[[GridQubit], GridQubit]) -> QubitMap:
         """Change the qubits involved in ``self`` without changing the
         associated indices.
 

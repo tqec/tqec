@@ -66,9 +66,7 @@ valid_rotations: list[RotDict] = [
         "rotated_kind": "ZOX",
     },
     {
-        "rotate_matrix": np.array(
-            [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]]
-        ),
+        "rotate_matrix": np.array([[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]]),
         "kind": "ZOX",
         "rotated_kind": "ZOX",
     },
@@ -93,9 +91,7 @@ valid_rotations: list[RotDict] = [
         "rotated_kind": "Y",
     },
     {
-        "rotate_matrix": np.array(
-            [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0]]
-        ),
+        "rotate_matrix": np.array([[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0]]),
         "kind": "Y",
         "rotated_kind": "Y",
     },
@@ -118,9 +114,7 @@ invalid_y_rotations: list[RotDict] = [
         "rotated_kind": "Y",
     },
     {
-        "rotate_matrix": np.array(
-            [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]
-        ),
+        "rotate_matrix": np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]),
         "kind": "Y",
         "rotated_kind": "Y",
     },
@@ -147,9 +141,7 @@ def test_get_axes_directions() -> None:
 def test_rotate_block_kind() -> None:
     for transformation in valid_rotations:
         kind = block_kind_from_str(transformation["kind"])
-        rotated_kind = rotate_block_kind_by_matrix(
-            kind, transformation["rotate_matrix"]
-        )
+        rotated_kind = rotate_block_kind_by_matrix(kind, transformation["rotate_matrix"])
         assert str(rotated_kind) == transformation["rotated_kind"]
 
 

@@ -50,9 +50,7 @@ class CubeTopReadoutsBuilder(Protocol):
     system.
     """
 
-    def __call__(
-        self, shape: PlaquetteShape2D, obs_orientation: Orientation, /
-    ) -> list[tuple[int, int]]: ...
+    def __call__(self, shape: PlaquetteShape2D, obs_orientation: Orientation, /) -> list[tuple[int, int]]: ...
 
 
 class SpatialCubeTopReadoutsBuilder(Protocol):
@@ -112,9 +110,7 @@ class SpatialCubeBottomStabilizersBuilder(Protocol):
     """The stabilizer measurements at the spatial cubes will be included in the
     logical observable."""
 
-    def __call__(
-        self, shape: PlaquetteShape2D, stabilizer_basis: Basis, /
-    ) -> list[tuple[float, float]]: ...
+    def __call__(self, shape: PlaquetteShape2D, stabilizer_basis: Basis, /) -> list[tuple[float, float]]: ...
 
 
 class TemporalHadamardIncludesBuilder(Protocol):
@@ -145,9 +141,7 @@ class ObservableBuilder:
     pipe_top_readouts_builder: PipeTopReadoutsBuilder
     cube_bottom_stabilizers_builder: CubeBottomStabilizersBuilder
     spatial_cube_bottom_stabilizers_builder: SpatialCubeBottomStabilizersBuilder
-    temporal_hadamard_includes_builder: TemporalHadamardIncludesBuilder = (
-        lambda *args: []
-    )
+    temporal_hadamard_includes_builder: TemporalHadamardIncludesBuilder = lambda *args: []
 
 
 def _transform_coords_into_grid(
@@ -174,12 +168,8 @@ def _transform_coords_into_grid(
     template_increments = template.get_increments()
     width = block_shape.x * template_increments.x
     height = block_shape.y * template_increments.y
-    x = block_position.x * width + round_or_fail(
-        (local_coords[0] - 0.5) * template_increments.x
-    )
-    y = block_position.y * height + round_or_fail(
-        (local_coords[1] - 0.5) * template_increments.y
-    )
+    x = block_position.x * width + round_or_fail((local_coords[0] - 0.5) * template_increments.x)
+    y = block_position.y * height + round_or_fail((local_coords[1] - 0.5) * template_increments.y)
     return GridQubit(x, y)
 
 
@@ -214,9 +204,7 @@ def compute_observable_qubits(
         pos: Position3D,
         qubits: Iterable[tuple[float, float] | tuple[int, int]],
     ) -> None:
-        obs_qubits.update(
-            _transform_coords_into_grid(template, q, pos, k) for q in qubits
-        )
+        obs_qubits.update(_transform_coords_into_grid(template, q, pos, k) for q in qubits)
 
     # The stabilizer measurements that will be added to the end of the first layer of circuits at z.
     if component == ObservableComponent.BOTTOM_STABILIZERS:
@@ -227,9 +215,7 @@ def compute_observable_qubits(
                 if cube.is_spatial:
                     continue
                 assert isinstance(cube.kind, ZXCube)
-                stabilizer_basis = cube.kind.get_basis_along(
-                    Direction3D(1 - pipe.direction.value)
-                )
+                stabilizer_basis = cube.kind.get_basis_along(Direction3D(1 - pipe.direction.value))
                 collect(
                     cube.position,
                     obs_builder.cube_bottom_stabilizers_builder(
@@ -259,11 +245,7 @@ def compute_observable_qubits(
             # Since the basis of the top face decides the measurement basis of the data
             # qubits, i.e. the logical operator basis. We only need to find the spatial
             # boundaries that the logical operator can be attached to.
-            obs_orientation = (
-                Orientation.VERTICAL
-                if cube.kind.y == cube.kind.z
-                else Orientation.HORIZONTAL
-            )
+            obs_orientation = Orientation.VERTICAL if cube.kind.y == cube.kind.z else Orientation.HORIZONTAL
             collect(
                 cube.position,
                 obs_builder.cube_top_readouts_builder(shape, obs_orientation),
@@ -279,15 +261,11 @@ def compute_observable_qubits(
     else:  # component == ObservableComponent.REALIGNMENT
         for pipe, obs_basis in obs_slice.temporal_hadamard_pipes:
             z_orientation = (
-                Orientation.VERTICAL
-                if pipe.kind.get_basis_along(Direction3D.Y) == Basis.Z
-                else Orientation.HORIZONTAL
+                Orientation.VERTICAL if pipe.kind.get_basis_along(Direction3D.Y) == Basis.Z else Orientation.HORIZONTAL
             )
             collect(
                 pipe.u.position,
-                obs_builder.temporal_hadamard_includes_builder(
-                    shape, obs_basis, z_orientation
-                ),
+                obs_builder.temporal_hadamard_includes_builder(shape, obs_basis, z_orientation),
             )
         return obs_qubits
 
@@ -312,12 +290,9 @@ def get_observable_with_measurement_records(
     Returns:
         The logical observable.
     """
-    if not ignore_qubits_with_no_measurement and any(
-        len(measurement_records.mapping.get(q, [])) == 0 for q in qubits
-    ):
+    if not ignore_qubits_with_no_measurement and any(len(measurement_records.mapping.get(q, [])) == 0 for q in qubits):
         raise TQECException(
-            "Some qubits are not measured in the circuit. "
-            "Set ignore_qubits_with_no_measurement to True to ignore them."
+            "Some qubits are not measured in the circuit. Set ignore_qubits_with_no_measurement to True to ignore them."
         )
 
     measurement_offsets = [

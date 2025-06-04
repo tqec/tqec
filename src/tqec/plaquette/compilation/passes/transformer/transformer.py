@@ -19,17 +19,11 @@ class InstructionCreator:
     """Create an instruction from targets and arguments."""
 
     name: str
-    targets: Callable[[list[stim.GateTarget]], list[stim.GateTarget]] = (
-        lambda trgts: trgts
-    )
+    targets: Callable[[list[stim.GateTarget]], list[stim.GateTarget]] = lambda trgts: trgts
     arguments: Callable[[list[float]], list[float]] = lambda args: args
 
-    def __call__(
-        self, targets: list[stim.GateTarget], arguments: list[float]
-    ) -> stim.CircuitInstruction:
-        return stim.CircuitInstruction(
-            self.name, self.targets(targets), self.arguments(arguments)
-        )
+    def __call__(self, targets: list[stim.GateTarget], arguments: list[float]) -> stim.CircuitInstruction:
+        return stim.CircuitInstruction(self.name, self.targets(targets), self.arguments(arguments))
 
 
 @dataclass
@@ -101,9 +95,7 @@ class ScheduledCircuitTransformer:
         impact at the moment.
     """
 
-    def __init__(
-        self, transformations: Sequence[ScheduledCircuitTransformation]
-    ) -> None:
+    def __init__(self, transformations: Sequence[ScheduledCircuitTransformation]) -> None:
         self._transformations = transformations
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
@@ -123,9 +115,7 @@ class ScheduledCircuitTransformationPass(CompilationPass):
         self._transformations = ScheduledCircuitTransformer(transformations)
 
     @override
-    def run(
-        self, circuit: ScheduledCircuit, check_all_flows: bool = False
-    ) -> ScheduledCircuit:
+    def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
         modified_circuit = self._transformations.apply(circuit)
         if check_all_flows:
             self.check_flows(circuit, modified_circuit)

@@ -46,12 +46,8 @@ class RawCircuitLayer(BaseLayer):
         return self.scalable_raw_shape
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> RawCircuitLayer:
-        raise NotImplementedError(
-            f"Cannot trim spatial borders of a {RawCircuitLayer.__name__} instance."
-        )
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> RawCircuitLayer:
+        raise NotImplementedError(f"Cannot trim spatial borders of a {RawCircuitLayer.__name__} instance.")
 
     @override
     def __eq__(self, value: object) -> bool:

@@ -41,8 +41,7 @@ class ScheduleMap:
         for moment_index, moment in circuit.scheduled_moments:
             if moment_index not in self.map:
                 raise TQECException(
-                    f"Found a moment scheduled at {moment_index} but this "
-                    "schedule is not included in the schedule map."
+                    f"Found a moment scheduled at {moment_index} but this schedule is not included in the schedule map."
                 )
             new_schedule = self.map[moment_index]
             ret.add_to_schedule_index(new_schedule, moment)
@@ -57,9 +56,7 @@ class ChangeSchedulePass(CompilationPass):
         self._map = ScheduleMap(schedule_map)
 
     @override
-    def run(
-        self, circuit: ScheduledCircuit, check_all_flows: bool = False
-    ) -> ScheduledCircuit:
+    def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
         modified_circuit = self._map.apply(circuit)
         if check_all_flows:
             self.check_flows(circuit, modified_circuit)

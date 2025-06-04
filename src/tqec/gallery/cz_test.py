@@ -61,14 +61,10 @@ def test_cz_resolve_ports() -> None:
     ):
         cz("YI -> XZ")
 
-    with pytest.raises(
-        TQECException, match="X_ -> XX is not a valid flow for the CZ gate."
-    ):
+    with pytest.raises(TQECException, match="X_ -> XX is not a valid flow for the CZ gate."):
         cz("XI -> XX")
 
-    with pytest.raises(
-        TQECException, match="Port 0 fails to support both X and Z observable."
-    ):
+    with pytest.raises(TQECException, match="Port 0 fails to support both X and Z observable."):
         cz(["XI -> XZ", "ZI -> ZI"])
 
 
@@ -80,17 +76,13 @@ def test_cz_resolve_ports() -> None:
         (None, 4, {"IXZX", "ZIZI", "IZIZ", "XIXZ"}),
     ],
 )
-def test_cz_correlation_surface(
-    flows: list[str] | None, num_surfaces: int, external_stabilizers: set[str]
-) -> None:
+def test_cz_correlation_surface(flows: list[str] | None, num_surfaces: int, external_stabilizers: set[str]) -> None:
     io_ports = [0, 3, 2, 5]
 
     g = cz(flows)
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert {
-        s.external_stabilizer(io_ports) for s in correlation_surfaces
-    } == external_stabilizers
+    assert {s.external_stabilizer(io_ports) for s in correlation_surfaces} == external_stabilizers
 
 
 def test_cz_ports_filling() -> None:

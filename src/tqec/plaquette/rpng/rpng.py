@@ -206,9 +206,7 @@ class RPNGDescription:
         return cls(rpng_objs)
 
     @classmethod
-    def from_extended_string(
-        cls, ancilla_and_corners_rpng_string: str
-    ) -> RPNGDescription:
+    def from_extended_string(cls, ancilla_and_corners_rpng_string: str) -> RPNGDescription:
         """Initialize the RPNGDescription object from a (16+3)-character string"""
         values = ancilla_and_corners_rpng_string.split(" ")
         ancilla_rg = RG.from_string(values[0])
@@ -308,9 +306,7 @@ class RPNGDescription:
             a new instance of :class:`RPNGDescription` with the provided
             ``corners`` and ``ancilla``.
         """
-        assert (
-            len(data["corners"]) == 4
-        ), "There must be 4 corners in the RPNG description."
+        assert len(data["corners"]) == 4, "There must be 4 corners in the RPNG description."
         corners = data["corners"]
         corners = (
             RPNG.from_string(corners[0]),

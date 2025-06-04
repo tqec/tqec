@@ -111,10 +111,7 @@ class _DetectorDatabaseKey:
         return self.reliable_hash
 
     def __eq__(self, rhs: object) -> bool:
-        return (
-            isinstance(rhs, _DetectorDatabaseKey)
-            and self.plaquette_names == rhs.plaquette_names
-        )
+        return isinstance(rhs, _DetectorDatabaseKey) and self.plaquette_names == rhs.plaquette_names
 
     def circuit(self, plaquette_increments: Shift2D) -> ScheduledCircuit:
         """Get the `stim.Circuit` instance represented by `self`.
@@ -127,12 +124,8 @@ class _DetectorDatabaseKey:
         """
         circuits, qubit_map = relabel_circuits_qubit_indices(
             [
-                generate_circuit_from_instantiation(
-                    subtemplate, plaquettes, plaquette_increments
-                )
-                for subtemplate, plaquettes in zip(
-                    self.subtemplates, self.plaquettes_by_timestep
-                )
+                generate_circuit_from_instantiation(subtemplate, plaquettes, plaquette_increments)
+                for subtemplate, plaquettes in zip(self.subtemplates, self.plaquettes_by_timestep)
             ]
         )
         moments: list[Moment] = list(circuits[0].moments)
@@ -157,9 +150,7 @@ class _DetectorDatabaseKey:
         """
         return {
             "subtemplates": [st.tolist() for st in self.subtemplates],
-            "plaquettes_by_timestep": [
-                p.to_dict(plaquettes_to_indices) for p in self.plaquettes_by_timestep
-            ],
+            "plaquettes_by_timestep": [p.to_dict(plaquettes_to_indices) for p in self.plaquettes_by_timestep],
         }
 
     @staticmethod
@@ -181,9 +172,7 @@ class _DetectorDatabaseKey:
             ``subtemplates`` and ``plaquettes_by_timestep``.
         """
         subtemplates = [numpy.array(st) for st in data["subtemplates"]]
-        plaquettes_by_timestep = [
-            Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]
-        ]
+        plaquettes_by_timestep = [Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]]
         return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
 
 
@@ -199,9 +188,7 @@ class DetectorDatabase:
     computation.
     """
 
-    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = field(
-        default_factory=dict
-    )
+    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = field(default_factory=dict)
     frozen: bool = False
 
     def add_situation(
@@ -231,9 +218,7 @@ class DetectorDatabase:
         if self.frozen:
             raise TQECException("Cannot add a situation to a frozen database.")
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
-        self.mapping[key] = (
-            frozenset([detectors]) if isinstance(detectors, Detector) else detectors
-        )
+        self.mapping[key] = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
 
     def remove_situation(
         self,
@@ -290,9 +275,7 @@ class DetectorDatabase:
     def unfreeze(self) -> None:
         self.frozen = False
 
-    def to_crumble_urls(
-        self, plaquette_increments: Shift2D = Shift2D(2, 2)
-    ) -> list[str]:
+    def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
         """Returns one URL pointing to https://algassert.com/crumble for each of
         the registered situations.
 
@@ -366,9 +349,7 @@ class DetectorDatabase:
         }
         return DetectorDatabase(mapping, data["frozen"])
 
-    def to_file(
-        self, filepath: Path, format: Literal["pickle", "json"] = "pickle"
-    ) -> None:
+    def to_file(self, filepath: Path, format: Literal["pickle", "json"] = "pickle") -> None:
         """Save the database to a file.
 
         Args:
@@ -387,9 +368,7 @@ class DetectorDatabase:
                 json.dump(self.to_dict(), f)
 
     @staticmethod
-    def from_file(
-        filepath: Path, format: Literal["pickle", "json"] = "pickle"
-    ) -> DetectorDatabase:
+    def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
         if format == "pickle":
             with open(filepath, "rb") as f:
                 database = pickle.load(f)

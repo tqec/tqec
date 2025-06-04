@@ -85,19 +85,11 @@ def draw_positioned_zx_graph_on(
         dim.set_ticks([])
     x_limits, y_limits, z_limits = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()  # type: ignore
 
-    plot_radius = 0.5 * max(
-        abs(limits[1] - limits[0]) for limits in [x_limits, y_limits, z_limits]
-    )
+    plot_radius = 0.5 * max(abs(limits[1] - limits[0]) for limits in [x_limits, y_limits, z_limits])
 
-    ax.set_xlim3d(
-        [numpy.mean(x_limits) - plot_radius, numpy.mean(x_limits) + plot_radius]
-    )
-    ax.set_ylim3d(
-        [numpy.mean(y_limits) - plot_radius, numpy.mean(y_limits) + plot_radius]
-    )
-    ax.set_zlim3d(
-        [numpy.mean(z_limits) - plot_radius, numpy.mean(z_limits) + plot_radius]
-    )
+    ax.set_xlim3d([numpy.mean(x_limits) - plot_radius, numpy.mean(x_limits) + plot_radius])
+    ax.set_ylim3d([numpy.mean(y_limits) - plot_radius, numpy.mean(y_limits) + plot_radius])
+    ax.set_zlim3d([numpy.mean(z_limits) - plot_radius, numpy.mean(z_limits) + plot_radius])
 
 
 def draw_correlation_surface_on(

@@ -102,9 +102,7 @@ class Schedule:
             raise e
 
     def append_schedule(self, schedule: Schedule) -> None:
-        starting_index = (
-            self.schedule[-1] + 1 if self.schedule else Schedule._INITIAL_SCHEDULE
-        )
+        starting_index = self.schedule[-1] + 1 if self.schedule else Schedule._INITIAL_SCHEDULE
         # Not using a generator here but explicitly constructing a list because
         # if `schedule == self` a generator would induce an infinite loop.
         self.schedule.extend([starting_index + s for s in schedule.schedule])

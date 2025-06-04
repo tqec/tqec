@@ -118,9 +118,7 @@ def test_iter_split_op_moments() -> None:
             stim.CircuitInstruction("CX", [stim.target_rec(-1), 0]),
             stim.CircuitInstruction("CX", [1, 2]),
             stim.CircuitInstruction("CX", [3, 4]),
-            stim.CircuitInstruction(
-                "MPP", [stim.target_x(5), stim.target_combiner(), stim.target_x(6)]
-            ),
+            stim.CircuitInstruction("MPP", [stim.target_x(5), stim.target_combiner(), stim.target_x(6)]),
             stim.CircuitInstruction("MPP", [stim.target_y(5)]),
             stim.CircuitInstruction("CX", [8, 9, 10, 11]),
         ],
@@ -132,23 +130,13 @@ def test_iter_split_op_moments() -> None:
 
 def test_occurs_in_classical_control_system() -> None:
     assert not occurs_in_classical_control_system(op=stim.CircuitInstruction("H", [0]))
-    assert not occurs_in_classical_control_system(
-        op=stim.CircuitInstruction("CX", [0, 1, 2, 3])
-    )
-    assert not occurs_in_classical_control_system(
-        op=stim.CircuitInstruction("M", [0, 1, 2, 3])
-    )
+    assert not occurs_in_classical_control_system(op=stim.CircuitInstruction("CX", [0, 1, 2, 3]))
+    assert not occurs_in_classical_control_system(op=stim.CircuitInstruction("M", [0, 1, 2, 3]))
 
-    assert occurs_in_classical_control_system(
-        op=stim.CircuitInstruction("CX", [stim.target_rec(-1), 0])
-    )
-    assert occurs_in_classical_control_system(
-        op=stim.CircuitInstruction("DETECTOR", [stim.target_rec(-1)])
-    )
+    assert occurs_in_classical_control_system(op=stim.CircuitInstruction("CX", [stim.target_rec(-1), 0]))
+    assert occurs_in_classical_control_system(op=stim.CircuitInstruction("DETECTOR", [stim.target_rec(-1)]))
     assert occurs_in_classical_control_system(op=stim.CircuitInstruction("TICK", []))
-    assert occurs_in_classical_control_system(
-        op=stim.CircuitInstruction("SHIFT_COORDS", [])
-    )
+    assert occurs_in_classical_control_system(op=stim.CircuitInstruction("SHIFT_COORDS", []))
 
 
 def test_si_1000() -> None:

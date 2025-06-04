@@ -21,10 +21,7 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
     ) -> None:
         parser: argparse.ArgumentParser = main_parser.add_parser(
             "dae2circuits",
-            description=(
-                "Convert a .dae file representing a logical "
-                "computation into concrete stim circuits."
-            ),
+            description=("Convert a .dae file representing a logical computation into concrete stim circuits."),
         )
         parser.add_argument(
             "dae_file",
@@ -70,9 +67,7 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             out_dir.mkdir(parents=True)
 
         # Construct the block graph from the given .dae file
-        block_graph = BlockGraph.from_dae_file(
-            dae_absolute_path, graph_name=str(dae_absolute_path.name)
-        )
+        block_graph = BlockGraph.from_dae_file(dae_absolute_path, graph_name=str(dae_absolute_path.name))
 
         # Convert to ZX graph and find observables
         zx_graph = block_graph.to_zx_graph()

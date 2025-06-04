@@ -87,9 +87,7 @@ class PlaquettePosition2D(Position2D):
 class BlockPosition2D(Position2D):
     """Represents the position of a block on a 2-dimensional plane."""
 
-    def get_top_left_plaquette_position(
-        self, block_shape: PlaquetteShape2D
-    ) -> PlaquettePosition2D:
+    def get_top_left_plaquette_position(self, block_shape: PlaquetteShape2D) -> PlaquettePosition2D:
         """Returns the position of the top-left plaquette of the block."""
         return PlaquettePosition2D(block_shape.x * self.x, block_shape.y * self.y)
 
@@ -145,9 +143,7 @@ class Position3D(Vec3D):
     def is_neighbour(self, other: Position3D) -> bool:
         """Check if the other position is near to this position, i.e. Manhattan
         distance is 1."""
-        return (
-            abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z) == 1
-        )
+        return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z) == 1
 
     def as_tuple(self) -> tuple[int, int, int]:
         """Return the position as a tuple."""
@@ -192,19 +188,14 @@ class Direction3D(Enum):
         return self.name
 
     @staticmethod
-    def from_neighbouring_positions(
-        source: Position3D, sink: Position3D
-    ) -> Direction3D:
+    def from_neighbouring_positions(source: Position3D, sink: Position3D) -> Direction3D:
         assert source.is_neighbour(sink)
         for direction, (source_coord, sink_coord) in zip(
             Direction3D.all_directions(), zip(source.as_tuple(), sink.as_tuple())
         ):
             if source_coord != sink_coord:
                 return direction
-        raise TQECException(
-            "Could not find the direction from two neighbouring positions "
-            f"{source:=} and {sink:=}."
-        )
+        raise TQECException(f"Could not find the direction from two neighbouring positions {source:=} and {sink:=}.")
 
     @property
     def orthogonal_directions(self) -> tuple[Direction3D, Direction3D]:
@@ -242,9 +233,7 @@ class SignedDirection3D:
         """
         match = re.match(r"([+-])([XYZ])", s)
         if match is None:
-            raise TQECException(
-                f"Invalid signed direction: {s}, expected format: [+/-][XYZ]"
-            )
+            raise TQECException(f"Invalid signed direction: {s}, expected format: [+/-][XYZ]")
         sign, direction = match.groups()
         return SignedDirection3D(Direction3D("XYZ".index(direction)), sign == "+")
 
@@ -261,9 +250,7 @@ class FloatPosition3D:
         """Shift the position by the given offset."""
         return FloatPosition3D(self.x + dx, self.y + dy, self.z + dz)
 
-    def shift_in_direction(
-        self, direction: Direction3D, shift: float
-    ) -> FloatPosition3D:
+    def shift_in_direction(self, direction: Direction3D, shift: float) -> FloatPosition3D:
         """Shift the position in the given direction by the given shift."""
         if direction == Direction3D.X:
             return self.shift_by(dx=shift)

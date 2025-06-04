@@ -36,9 +36,7 @@ def make_css_surface_code_plaquette(
     """
     builder = _CSSPlaquetteBuilder(basis, x_boundary_orientation)
     if data_initialization is not None:
-        builder.add_data_init_or_meas(
-            data_initialization, False, init_meas_only_on_side
-        )
+        builder.add_data_init_or_meas(data_initialization, False, init_meas_only_on_side)
     if data_measurement is not None:
         builder.add_data_init_or_meas(data_measurement, True, init_meas_only_on_side)
     return builder.build()
@@ -58,8 +56,7 @@ class _CSSPlaquetteBuilder:
         self._moments: list[Moment] = self._build_memory_moments()
         self._qubits = SquarePlaquetteQubits()
         self._qubit_map = QubitMap(
-            {0: self._qubits.syndrome_qubits[0]}
-            | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
+            {0: self._qubits.syndrome_qubits[0]} | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
         )
         self._data_init: tuple[Basis, PlaquetteSide | None] | None = None
         self._data_meas: tuple[Basis, PlaquetteSide | None] | None = None
@@ -71,14 +68,10 @@ class _CSSPlaquetteBuilder:
             self._x_boundary_orientation,
         ]
         if self._data_init is not None:
-            side_part = (
-                f",{self._data_init[1].name}" if self._data_init[1] is not None else ""
-            )
+            side_part = f",{self._data_init[1].name}" if self._data_init[1] is not None else ""
             parts.append(f"datainit({self._data_init[0].name}{side_part})")
         if self._data_meas is not None:
-            side_part = (
-                f",{self._data_meas[1].name}" if self._data_meas[1] is not None else ""
-            )
+            side_part = f",{self._data_meas[1].name}" if self._data_meas[1] is not None else ""
             parts.append(f"datameas({self._data_meas[0].name}{side_part})")
         return "_".join(parts)
 
@@ -107,9 +100,7 @@ class _CSSPlaquetteBuilder:
             moment_index = -1
             self._data_meas = basis, only_on_side
         op = "M" if is_measurement else "R"
-        self._moments[moment_index].append(
-            f"{op}{basis.value}", self._get_data_qubits(only_on_side), []
-        )
+        self._moments[moment_index].append(f"{op}{basis.value}", self._get_data_qubits(only_on_side), [])
 
     def _build_memory_moments(self) -> list[Moment]:
         circuit = stim.Circuit()

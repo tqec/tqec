@@ -47,9 +47,7 @@ class SpatialArms(Flag):
 
     @staticmethod
     def X_shaped_arms() -> list[SpatialArms]:
-        return [
-            SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT
-        ]
+        return [SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT]
 
     @staticmethod
     def single_arms() -> list[SpatialArms]:

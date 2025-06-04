@@ -36,9 +36,7 @@ def make_zxxz_surface_code_plaquette(
     """
     builder = _ZXXZPlaquetteBuilder(basis, x_boundary_orientation)
     if data_initialization is not None:
-        builder.add_data_init_or_meas(
-            data_initialization, False, init_meas_only_on_side
-        )
+        builder.add_data_init_or_meas(data_initialization, False, init_meas_only_on_side)
     if data_measurement is not None:
         builder.add_data_init_or_meas(data_measurement, True, init_meas_only_on_side)
     return builder.build()
@@ -58,8 +56,7 @@ class _ZXXZPlaquetteBuilder:
         self._moments: list[Moment] = self._build_memory_moments()
         self._qubits = SquarePlaquetteQubits()
         self._qubit_map = QubitMap(
-            {0: self._qubits.syndrome_qubits[0]}
-            | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
+            {0: self._qubits.syndrome_qubits[0]} | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
         )
         self._data_init: tuple[Basis, PlaquetteSide | None] | None = None
         self._data_meas: tuple[Basis, PlaquetteSide | None] | None = None
@@ -71,14 +68,10 @@ class _ZXXZPlaquetteBuilder:
             self._x_boundary_orientation,
         ]
         if self._data_init is not None:
-            side_part = (
-                f",{self._data_init[1].name}" if self._data_init[1] is not None else ""
-            )
+            side_part = f",{self._data_init[1].name}" if self._data_init[1] is not None else ""
             parts.append(f"datainit({self._data_init[0].name}{side_part})")
         if self._data_meas is not None:
-            side_part = (
-                f",{self._data_meas[1].name}" if self._data_meas[1] is not None else ""
-            )
+            side_part = f",{self._data_meas[1].name}" if self._data_meas[1] is not None else ""
             parts.append(f"datameas({self._data_meas[0].name}{side_part})")
         return "_".join(parts)
 
@@ -110,18 +103,12 @@ class _ZXXZPlaquetteBuilder:
             h_moment_idx = -2
             self._data_meas = basis, only_on_side
 
-        basis_change_dqs = self._get_init_meas_basis_change_dqs(
-            basis.value, dqs_considered
-        )
+        basis_change_dqs = self._get_init_meas_basis_change_dqs(basis.value, dqs_considered)
         # It's important to ignore the H gates on the data qubits that are not
         # considered for initialization/measurement to avoid adding unneeded H.
-        h_cancel_out = self._moments[h_moment_idx].qubits_indices.intersection(
-            dqs_considered
-        )
+        h_cancel_out = self._moments[h_moment_idx].qubits_indices.intersection(dqs_considered)
         h_targets = {0} | basis_change_dqs ^ h_cancel_out
-        self._moments[h_moment_idx] = Moment(
-            stim.Circuit(f"H {' '.join(map(str, h_targets))}")
-        )
+        self._moments[h_moment_idx] = Moment(stim.Circuit(f"H {' '.join(map(str, h_targets))}"))
 
     def _build_memory_moments(self) -> list[Moment]:
         basis_changes: list[int] = [0]

@@ -54,10 +54,7 @@ class RepeatedLayer(BaseComposedLayer):
 
     def _post_init_check(self) -> None:
         # Check that the number of timesteps of self is a linear function.
-        if (
-            self.internal_layer.scalable_timesteps.slope != 0
-            and self.repetitions.slope != 0
-        ):
+        if self.internal_layer.scalable_timesteps.slope != 0 and self.repetitions.slope != 0:
             raise TQECException(
                 "Layers with a non-constant number of timesteps cannot be "
                 "repeated a non-constant number of times as that would lead to "
@@ -66,10 +63,7 @@ class RepeatedLayer(BaseComposedLayer):
                 f"and tried to repeat it {self.repetitions} times."
             )
         # Check that the number of timesteps of ``self`` is not strictly decreasing.
-        if (
-            self.repetitions.slope < 0
-            or self.internal_layer.scalable_timesteps.slope < 0
-        ):
+        if self.repetitions.slope < 0 or self.internal_layer.scalable_timesteps.slope < 0:
             raise TQECException(
                 f"Cannot create a {RepeatedLayer.__name__} instance with a decreasing "
                 f"number of timesteps. Got repeated layer with "
@@ -92,9 +86,7 @@ class RepeatedLayer(BaseComposedLayer):
         return self.internal_layer.scalable_shape
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> RepeatedLayer:
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> RepeatedLayer:
         return RepeatedLayer(
             self.internal_layer.with_spatial_borders_trimmed(borders),
             self.repetitions,
@@ -109,9 +101,7 @@ class RepeatedLayer(BaseComposedLayer):
     ) -> BaseLayer | BaseComposedLayer | None:
         ret: BaseLayer | BaseComposedLayer | None = initial_layer
         if border in border_replacements:
-            ret = initial_layer.with_temporal_borders_replaced(
-                {border: border_replacements[border]}
-            )
+            ret = initial_layer.with_temporal_borders_replaced({border: border_replacements[border]})
         return ret
 
     @override
@@ -135,9 +125,7 @@ class RepeatedLayer(BaseComposedLayer):
         initial_layer = self._get_replaced_layer(
             self.internal_layer, TemporalBlockBorder.Z_NEGATIVE, border_replacements
         )
-        final_layer = self._get_replaced_layer(
-            self.internal_layer, TemporalBlockBorder.Z_POSITIVE, border_replacements
-        )
+        final_layer = self._get_replaced_layer(self.internal_layer, TemporalBlockBorder.Z_POSITIVE, border_replacements)
         # Build the resulting layer sequence
         layer_sequence = []
         if (
@@ -176,9 +164,7 @@ class RepeatedLayer(BaseComposedLayer):
         )
 
     @override
-    def to_sequenced_layer_with_schedule(
-        self, schedule: tuple[LinearFunction, ...]
-    ) -> SequencedLayers:
+    def to_sequenced_layer_with_schedule(self, schedule: tuple[LinearFunction, ...]) -> SequencedLayers:
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
             raise TQECException(

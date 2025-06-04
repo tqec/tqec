@@ -52,9 +52,7 @@ def remove_empty_moments(
     # a TICK would work and avoid the removal of the first instruction if it is
     # a TICK.
     previous_instruction = (
-        stim.CircuitInstruction("TICK")
-        if remove_leading_tick
-        else stim.CircuitInstruction("SHIFT_COORDS", [], [0])
+        stim.CircuitInstruction("TICK") if remove_leading_tick else stim.CircuitInstruction("SHIFT_COORDS", [], [0])
     )
     for inst in circuit:
         # If we have two (or more) consecutive TICK instructions, do not append

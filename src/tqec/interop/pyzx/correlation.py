@@ -124,26 +124,19 @@ def find_correlation_surfaces(
     leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
     if roots is not None:
         if not roots.issubset(leaves):
-            raise TQECException(
-                "The roots must all be leaf nodes, i.e. degree 1 nodes."
-            )
+            raise TQECException("The roots must all be leaf nodes, i.e. degree 1 nodes.")
         leaves = roots
     if not leaves:
-        raise TQECException(
-            "The graph must contain at least one leaf node to find correlation surfaces."
-        )
+        raise TQECException("The graph must contain at least one leaf node to find correlation surfaces.")
     correlation_surfaces: set[CorrelationSurface] = set()
     for leaf in leaves:
         correlation_surfaces.update(_find_correlation_surfaces_from_leaf(g, leaf))
 
     if reduce_to_minimal_generators:
         stabilizers_to_surfaces = {
-            surface.external_stabilizer(sorted(leaves)): surface
-            for surface in correlation_surfaces
+            surface.external_stabilizer(sorted(leaves)): surface for surface in correlation_surfaces
         }
-        correlation_surfaces = set(
-            reduce_observables_to_minimal_generators(stabilizers_to_surfaces).values()
-        )
+        correlation_surfaces = set(reduce_observables_to_minimal_generators(stabilizers_to_surfaces).values())
 
     # sort the correlation surfaces to make the result deterministic
     return sorted(correlation_surfaces, key=lambda x: sorted(x.span))
@@ -169,11 +162,7 @@ def _find_correlation_surfaces_from_leaf(
             # For the Y type node, the correlation surface must be the product of the x and z type.
             assert is_s(g, leaf)
             spans = [sx | sz for sx, sz in itertools.product(x_spans, z_spans)]
-    return [
-        CorrelationSurface(span)
-        for span in spans
-        if span and _leaf_nodes_can_support_span(g, span)
-    ]
+    return [CorrelationSurface(span) for span in spans if span and _leaf_nodes_can_support_span(g, span)]
 
 
 def _leaf_nodes_can_support_span(g: GraphS, span: frozenset[ZXEdge]) -> bool:
@@ -186,9 +175,7 @@ def _leaf_nodes_can_support_span(g: GraphS, span: frozenset[ZXEdge]) -> bool:
     - The Y observable can only be supported on the Y type node.
     - The BOUNDARY node can support any type of logical observable.
     """
-    no_boundary_leaves = {
-        v for v in g.vertices() if g.vertex_degree(v) == 1 and not is_boundary(g, v)
-    }
+    no_boundary_leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1 and not is_boundary(g, v)}
     bases_at_leaves: dict[int, set[Basis]] = {}
     for edge in span:
         u, ub = edge.u.id, edge.u.basis
@@ -323,13 +310,9 @@ def _check_spiders_are_supported(g: GraphS) -> None:
     for v in g.vertices():
         degree = g.vertex_degree(v)
         if is_boundary(g, v) and degree != 1:
-            raise TQECException(
-                f"Boundary spider must be dangling, but got {degree} neighbors."
-            )
+            raise TQECException(f"Boundary spider must be dangling, but got {degree} neighbors.")
         if is_s(g, v) and degree != 1:
-            raise TQECException(
-                f"S spider must be dangling, but got {degree} neighbors."
-            )
+            raise TQECException(f"S spider must be dangling, but got {degree} neighbors.")
 
 
 def reduce_observables_to_minimal_generators(

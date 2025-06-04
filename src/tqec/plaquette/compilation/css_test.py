@@ -9,9 +9,7 @@ from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 
 def test_zzzz() -> None:
     translator = DefaultRPNGTranslator()
-    zzzz_standard = translator.translate(
-        RPNGDescription.from_string("-z1- -z3- -z2- -z4-")
-    )
+    zzzz_standard = translator.translate(RPNGDescription.from_string("-z1- -z3- -z2- -z4-"))
     pprint(zzzz_standard.circuit.get_circuit())
     zzzz_css = CSSPlaquetteCompiler.compile(zzzz_standard)
     assert zzzz_css.circuit.get_circuit() == stim.Circuit("""\
@@ -40,9 +38,7 @@ M 4""")
 
 def test_xxxx() -> None:
     translator = DefaultRPNGTranslator()
-    xxxx_standard = translator.translate(
-        RPNGDescription.from_string("-x1- -x2- -x3- -x4-")
-    )
+    xxxx_standard = translator.translate(RPNGDescription.from_string("-x1- -x2- -x3- -x4-"))
     pprint(xxxx_standard.circuit.get_circuit())
     xxxx_css = CSSPlaquetteCompiler.compile(xxxx_standard)
     assert xxxx_css.circuit.get_circuit() == stim.Circuit("""\
@@ -71,9 +67,7 @@ M 4""")
 
 def test_zzzz_initialisation() -> None:
     translator = DefaultRPNGTranslator()
-    zzzz_standard = translator.translate(
-        RPNGDescription.from_string("zz1- zz3- zz2- zz4-")
-    )
+    zzzz_standard = translator.translate(RPNGDescription.from_string("zz1- zz3- zz2- zz4-"))
     pprint(zzzz_standard.circuit.get_circuit())
     zzzz_css = CSSPlaquetteCompiler.compile(zzzz_standard)
     assert zzzz_css.circuit.get_circuit() == stim.Circuit("""\
@@ -102,9 +96,7 @@ M 4""")
 
 def test_zzzz_measurement() -> None:
     translator = DefaultRPNGTranslator()
-    zzzz_standard = translator.translate(
-        RPNGDescription.from_string("-z1z -z3z -z2z -z4z")
-    )
+    zzzz_standard = translator.translate(RPNGDescription.from_string("-z1z -z3z -z2z -z4z"))
     pprint(zzzz_standard.circuit.get_circuit())
     zzzz_css = CSSPlaquetteCompiler.compile(zzzz_standard)
     assert zzzz_css.circuit.get_circuit() == stim.Circuit("""\
@@ -133,9 +125,7 @@ M 0 1 2 3 4""")
 
 def test_zzzz_x_initialisation() -> None:
     translator = DefaultRPNGTranslator()
-    zzzz_standard = translator.translate(
-        RPNGDescription.from_string("xz1- xz3- xz2- xz4-")
-    )
+    zzzz_standard = translator.translate(RPNGDescription.from_string("xz1- xz3- xz2- xz4-"))
     pprint(zzzz_standard.circuit.get_circuit())
     zzzz_css = CSSPlaquetteCompiler.compile(zzzz_standard)
     assert zzzz_css.circuit.get_circuit() == stim.Circuit("""\

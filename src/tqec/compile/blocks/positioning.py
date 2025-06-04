@@ -35,11 +35,7 @@ class LayoutPosition2D(ABC):
         return hash((self._x, self._y))
 
     def __eq__(self, other: object) -> bool:
-        return (
-            isinstance(other, LayoutPosition2D)
-            and self._x == other._x
-            and self._y == other._y
-        )
+        return isinstance(other, LayoutPosition2D) and self._x == other._x and self._y == other._y
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(x={self._x},y={self._y})"
@@ -82,19 +78,13 @@ class LayoutPipePosition2D(LayoutPosition2D):
     def __init__(self, x: int, y: int) -> None:
         if not ((x % 2 == 1) ^ (y % 2 == 1)):
             clsname = self.__class__.__name__
-            raise TQECException(
-                f"{clsname} should contain one odd and one even coordinate."
-            )
+            raise TQECException(f"{clsname} should contain one odd and one even coordinate.")
         super().__init__(x, y)
 
     def to_pipe(self) -> tuple[BlockPosition2D, BlockPosition2D]:
         if self._x % 2 == 1:
-            return BlockPosition2D((self._x - 1) // 2, self._y // 2), BlockPosition2D(
-                (self._x + 1) // 2, self._y // 2
-            )
-        return BlockPosition2D(self._x // 2, (self._y - 1) // 2), BlockPosition2D(
-            self._x // 2, (self._y + 1) // 2
-        )
+            return BlockPosition2D((self._x - 1) // 2, self._y // 2), BlockPosition2D((self._x + 1) // 2, self._y // 2)
+        return BlockPosition2D(self._x // 2, (self._y - 1) // 2), BlockPosition2D(self._x // 2, (self._y + 1) // 2)
 
 
 T = TypeVar("T", bound=LayoutPosition2D, covariant=True, default=LayoutPosition2D)
@@ -121,9 +111,7 @@ class LayoutPosition3D(ABC, Generic[T]):
     def from_block_position(
         pos: BlockPosition3D,
     ) -> LayoutPosition3D[LayoutCubePosition2D]:
-        return LayoutPosition3D(
-            LayoutCubePosition2D.from_block_position(pos.as_2d()), pos.z
-        )
+        return LayoutPosition3D(LayoutCubePosition2D.from_block_position(pos.as_2d()), pos.z)
 
     @staticmethod
     def from_pipe_position(
@@ -132,22 +120,16 @@ class LayoutPosition3D(ABC, Generic[T]):
         u, v = sorted(pipe_position)
         assert u.is_neighbour(v)
         assert u < v
-        return LayoutPosition3D(
-            LayoutPosition2D.from_pipe_position((u.as_2d(), v.as_2d())), u.z
-        )
+        return LayoutPosition3D(LayoutPosition2D.from_pipe_position((u.as_2d(), v.as_2d())), u.z)
 
     @staticmethod
     def from_block_and_signed_direction(
         pos: BlockPosition3D, dir: SignedDirection3D
     ) -> LayoutPosition3D[LayoutPipePosition2D]:
-        neighbour = pos.shift_in_direction(
-            dir.direction, 1 if dir.towards_positive else -1
-        )
+        neighbour = pos.shift_in_direction(dir.direction, 1 if dir.towards_positive else -1)
         u, v = sorted((pos, neighbour))
         assert u.is_neighbour(v)
-        return LayoutPosition3D(
-            LayoutPosition2D.from_pipe_position((u.as_2d(), v.as_2d())), u.z
-        )
+        return LayoutPosition3D(LayoutPosition2D.from_pipe_position((u.as_2d(), v.as_2d())), u.z)
 
     def __hash__(self) -> int:
         return hash((self._spatial_position, self._z))

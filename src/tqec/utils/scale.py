@@ -153,10 +153,7 @@ class LinearFunction:
         return not self.is_constant(atol)
 
     def is_close_to(self, other: LinearFunction, atol: float = 1e-8) -> bool:
-        return (
-            abs(self.slope - other.slope) < atol
-            and abs(self.offset - other.offset) < atol
-        )
+        return abs(self.slope - other.slope) < atol and abs(self.offset - other.offset) < atol
 
 
 def round_or_fail(f: float, atol: float = 1e-8) -> int:

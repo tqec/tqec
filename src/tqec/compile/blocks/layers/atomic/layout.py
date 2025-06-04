@@ -59,13 +59,9 @@ class LayoutLayer(BaseLayer):
 
     def _post_init_check(self) -> None:
         if not self.layers:
-            raise TQECException(
-                f"An instance of {type(self).__name__} should have at least one layer."
-            )
+            raise TQECException(f"An instance of {type(self).__name__} should have at least one layer.")
         if self.trimmed_spatial_borders:
-            raise TQECException(
-                f"{LayoutLayer.__name__} cannot have trimmed spatial borders."
-            )
+            raise TQECException(f"{LayoutLayer.__name__} cannot have trimmed spatial borders.")
 
     @property
     def layers(self) -> dict[LayoutPosition2D, BaseLayer]:
@@ -109,18 +105,12 @@ class LayoutLayer(BaseLayer):
         )
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> LayoutLayer:
-        raise TQECException(
-            f"Cannot trim spatial borders of a {type(self).__name__} instance."
-        )
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> LayoutLayer:
+        raise TQECException(f"Cannot trim spatial borders of a {type(self).__name__} instance.")
 
     def __eq__(self, value: object) -> bool:
         return (
-            isinstance(value, LayoutLayer)
-            and self.element_shape == value.element_shape
-            and self.layers == value.layers
+            isinstance(value, LayoutLayer) and self.element_shape == value.element_shape and self.layers == value.layers
         )
 
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
@@ -151,14 +141,10 @@ class LayoutLayer(BaseLayer):
 
         # Add plaquettes from each pipe to the plaquette_dict.
         pipes: dict[tuple[BlockPosition2D, BlockPosition2D], PlaquetteLayer] = {
-            pos.to_pipe(): layer
-            for pos, layer in self.layers.items()
-            if isinstance(pos, LayoutPipePosition2D)
+            pos.to_pipe(): layer for pos, layer in self.layers.items() if isinstance(pos, LayoutPipePosition2D)
         }
         for (u, v), pipe_layer in pipes.items():
-            pipe_direction = Direction3D.from_neighbouring_positions(
-                u.to_3d(), v.to_3d()
-            )
+            pipe_direction = Direction3D.from_neighbouring_positions(u.to_3d(), v.to_3d())
             # {u,v}_border: border of the respective node that is touched by the
             # the pipe.
             u_border: TemplateBorder
@@ -176,9 +162,9 @@ class LayoutLayer(BaseLayer):
                 (u, (u_border, v_border)),
                 (v, (v_border, u_border)),
             ]:
-                plaquette_indices_mapping = pipe_layer.template.get_border_indices(
-                    pipe_border
-                ).to(template_dict[pos].get_border_indices(cube_border))
+                plaquette_indices_mapping = pipe_layer.template.get_border_indices(pipe_border).to(
+                    template_dict[pos].get_border_indices(cube_border)
+                )
                 plaquettes_dict[pos] = plaquettes_dict[pos].with_updated_plaquettes(
                     {
                         plaquette_indices_mapping[pipe_plaquette_index]: plaquette

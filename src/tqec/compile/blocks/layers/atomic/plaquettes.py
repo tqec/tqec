@@ -63,9 +63,7 @@ class PlaquetteLayer(BaseLayer):
             )
         # We require the template shape to be strictly positive for any value of
         # k > 0.
-        shape = PlaquetteLayer._get_template_shape(
-            self._template, self.trimmed_spatial_borders
-        )
+        shape = PlaquetteLayer._get_template_shape(self._template, self.trimmed_spatial_borders)
         shape1 = shape.to_numpy_shape(1)
         # Check that the shape is valid (i.e., strictly positive) for k == 1.
         if not all(coord > 0 for coord in shape1):
@@ -139,26 +137,18 @@ class PlaquetteLayer(BaseLayer):
     @property
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        tshape = PlaquetteLayer._get_template_shape(
-            self.template, self.trimmed_spatial_borders
-        )
-        initial_qubit_offset = PhysicalQubitScalable2D(
-            LinearFunction(0, 1), LinearFunction(0, 1)
-        )
+        tshape = PlaquetteLayer._get_template_shape(self.template, self.trimmed_spatial_borders)
+        initial_qubit_offset = PhysicalQubitScalable2D(LinearFunction(0, 1), LinearFunction(0, 1))
         return tshape * self.template.get_increments() + initial_qubit_offset
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> PlaquetteLayer:
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> PlaquetteLayer:
         # Warning: depends on the fact that plaquette indices on the border of
         # a template are ONLY on this border.
         borders = frozenset(borders)
         border_indices: set[int] = set()
         for border in borders:
-            border_indices.update(
-                self.template.get_border_indices(border.to_template_border())
-            )
+            border_indices.update(self.template.get_border_indices(border.to_template_border()))
         return PlaquetteLayer(
             self.template,
             self.plaquettes.without_plaquettes(border_indices),

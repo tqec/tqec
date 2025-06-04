@@ -110,9 +110,7 @@ class BlockGraph:
     @property
     def pipes(self) -> list[Pipe]:
         """The list of pipes (edges) in the graph."""
-        return [
-            data[self._EDGE_DATA_KEY] for _, _, data in self._graph.edges(data=True)
-        ]
+        return [data[self._EDGE_DATA_KEY] for _, _, data in self._graph.edges(data=True)]
 
     @property
     def occupied_positions(self) -> list[Position3D]:
@@ -182,9 +180,7 @@ class BlockGraph:
         if not self.has_pipe_between(pos1, pos2):
             raise TQECException(f"No pipe between {pos1} and {pos2}.")
 
-    def add_cube(
-        self, position: Position3D, kind: CubeKind | str, label: str = ""
-    ) -> Position3D:
+    def add_cube(self, position: Position3D, kind: CubeKind | str, label: str = "") -> Position3D:
         """Add a cube to the graph.
 
         Args:
@@ -206,20 +202,14 @@ class BlockGraph:
         if isinstance(kind, str):
             kind = cube_kind_from_string(kind)
         if kind == Port() and label in self._ports:
-            raise TQECException(
-                f"There is already a port with the same label {label} in the graph."
-            )
+            raise TQECException(f"There is already a port with the same label {label} in the graph.")
 
-        self._graph.add_node(
-            position, **{self._NODE_DATA_KEY: Cube(position, kind, label)}
-        )
+        self._graph.add_node(position, **{self._NODE_DATA_KEY: Cube(position, kind, label)})
         if kind == Port():
             self._ports[label] = position
         return position
 
-    def add_pipe(
-        self, pos1: Position3D, pos2: Position3D, kind: PipeKind | str | None = None
-    ) -> None:
+    def add_pipe(self, pos1: Position3D, pos2: Position3D, kind: PipeKind | str | None = None) -> None:
         """Add a pipe to the graph.
 
         .. note::
@@ -242,9 +232,7 @@ class BlockGraph:
         """
         u, v = self[pos1], self[pos2]
         if self.has_pipe_between(pos1, pos2):
-            raise TQECException(
-                "There is already a pipe between the given positions in the graph."
-            )
+            raise TQECException("There is already a pipe between the given positions in the graph.")
         if kind is None:
             pipe = Pipe.from_cubes(u, v)
         else:
@@ -313,10 +301,7 @@ class BlockGraph:
         """Get the pipes incident to a position."""
         if position not in self:
             raise TQECException(f"No cube at position {position}.")
-        return [
-            cast(Pipe, data[self._EDGE_DATA_KEY])
-            for _, _, data in self._graph.edges(position, data=True)
-        ]
+        return [cast(Pipe, data[self._EDGE_DATA_KEY]) for _, _, data in self._graph.edges(position, data=True)]
 
     def clone(self) -> BlockGraph:
         """Create a data-independent copy of the graph."""
@@ -367,20 +352,14 @@ class BlockGraph:
         # no fanout at ports
         if cube.is_port:
             if len(pipes) != 1:
-                raise TQECException(
-                    f"Port at {cube.position} does not have exactly one pipe connected."
-                )
+                raise TQECException(f"Port at {cube.position} does not have exactly one pipe connected.")
             return
         # time-like Y
         if cube.is_y_cube:
             if len(pipes) != 1:
-                raise TQECException(
-                    f"Y Half Cube at {cube.position} does not have exactly one pipe connected."
-                )
+                raise TQECException(f"Y Half Cube at {cube.position} does not have exactly one pipe connected.")
             if not pipes[0].direction == Direction3D.Z:
-                raise TQECException(
-                    f"Y Half Cube at {cube.position} has non-timelike pipes connected."
-                )
+                raise TQECException(f"Y Half Cube at {cube.position} has non-timelike pipes connected.")
             return
 
         assert isinstance(cube.kind, ZXCube)
@@ -397,13 +376,9 @@ class BlockGraph:
             cube_color = cube.kind.get_basis_along(direction)
             for ortho_dir in direction.orthogonal_directions:
                 for pipe in pipes_by_direction.get(ortho_dir, []):
-                    pipe_color = pipe.kind.get_basis_along(
-                        direction, pipe.at_head(cube.position)
-                    )
+                    pipe_color = pipe.kind.get_basis_along(direction, pipe.at_head(cube.position))
                     if pipe_color != cube_color:
-                        raise TQECException(
-                            f"Cube {cube} has mismatched colors with pipe {pipe}."
-                        )
+                        raise TQECException(f"Cube {cube} has mismatched colors with pipe {pipe}.")
 
     def to_zx_graph(self) -> PositionedZX:
         """Convert the block graph to a positioned PyZX graph.
@@ -510,9 +485,7 @@ class BlockGraph:
         """
         new_graph = BlockGraph()
         for cube in self.cubes:
-            new_graph.add_cube(
-                cube.position.shift_by(dx=dx, dy=dy, dz=dz), cube.kind, cube.label
-            )
+            new_graph.add_cube(cube.position.shift_by(dx=dx, dy=dy, dz=dz), cube.kind, cube.label)
         for pipe in self.pipes:
             u, v = pipe.u, pipe.v
             new_graph.add_pipe(
@@ -522,9 +495,7 @@ class BlockGraph:
             )
         return new_graph
 
-    def find_correlation_surfaces(
-        self, reduce_to_minimal_generators: bool = True
-    ) -> list[CorrelationSurface]:
+    def find_correlation_surfaces(self, reduce_to_minimal_generators: bool = True) -> list[CorrelationSurface]:
         """Find the correlation surfaces in the block graph.
 
         Args:
@@ -541,9 +512,7 @@ class BlockGraph:
 
         zx_graph = self.to_zx_graph()
 
-        return find_correlation_surfaces(
-            zx_graph.g, reduce_to_minimal_generators=reduce_to_minimal_generators
-        )
+        return find_correlation_surfaces(zx_graph.g, reduce_to_minimal_generators=reduce_to_minimal_generators)
 
     def fill_ports(self, fill: Mapping[str, CubeKind] | CubeKind) -> None:
         """Fill the ports at specified positions with cubes of the given kind.
@@ -631,10 +600,7 @@ class BlockGraph:
                 if cube.is_port and shifted_g[pos].is_port:
                     ports_need_fill[cube.label] = pos
                     continue
-                raise TQECException(
-                    f"Cube at position {cube.position} is overlapping between "
-                    "the two graphs."
-                )
+                raise TQECException(f"Cube at position {cube.position} is overlapping between the two graphs.")
         composed_g = self.clone()
         # Resolve the cube kinds at the ports
         for label, port in ports_need_fill.items():
@@ -662,9 +628,7 @@ class BlockGraph:
         for pipe in shifted_g.pipes:
             u, v = pipe.u.position, pipe.v.position
             composed_g.add_pipe(u, v, pipe.kind)
-        composed_g.ports.update(
-            {s: p for s, p in shifted_g.ports.items() if composed_g[p].is_port}
-        )
+        composed_g.ports.update({s: p for s, p in shifted_g.ports.items() if composed_g[p].is_port})
         composed_g.name = f"{self.name}_composed_with_{other.name}"
         return composed_g
 
@@ -698,9 +662,7 @@ class BlockGraph:
         )
 
         rotated = BlockGraph(self.name + "_rotated")
-        rotation_matrix = get_rotation_matrix(
-            rotation_axis, counterclockwise, num_90_degree_rotation * math.pi / 2
-        )
+        rotation_matrix = get_rotation_matrix(rotation_axis, counterclockwise, num_90_degree_rotation * math.pi / 2)
         pos_map: dict[Position3D, Position3D] = {}
         for cube in self.cubes:
             rotated_kind = rotate_block_kind_by_matrix(cube.kind, rotation_matrix)
@@ -757,34 +719,24 @@ class BlockGraph:
             # Spatial pass-through, ensure that the cube is not a spatial cube
             if len(pipes_by_direction) in [0, 3]:
                 continue
-            shadowed_directions = {
-                d for d, ps in pipes_by_direction.items() if len(ps) == 2
-            }
+            shadowed_directions = {d for d, ps in pipes_by_direction.items() if len(ps) == 2}
             if not shadowed_directions:
                 continue
             new_kind = cube.kind
             for shadowed_direction in shadowed_directions:
                 # Spatial pass-through, ensure that the cube is not a spatial cube
-                if (
-                    len(pipes_by_direction) == 1
-                    and shadowed_direction != Direction3D.Z
-                    and cube.is_spatial
-                ):
+                if len(pipes_by_direction) == 1 and shadowed_direction != Direction3D.Z and cube.is_spatial:
                     kind = cube.kind
                     assert isinstance(kind, ZXCube)
                     basis = kind.get_basis_along(shadowed_direction)
-                    new_kind = kind.with_basis_along(
-                        shadowed_direction, basis.flipped()
-                    )
+                    new_kind = kind.with_basis_along(shadowed_direction, basis.flipped())
                     new_cube = Cube(cube.position, new_kind, cube.label)
                     fixed_cubes[cube] = new_cube
                 # T-shape or X-shape connections, can be either in space or time
                 # Ensure the shadowed faces match the pipe faces that are in the
                 # same plane.
                 elif len(pipes_by_direction) == 2:
-                    other_direction = next(
-                        d for d in pipes_by_direction if d != shadowed_direction
-                    )
+                    other_direction = next(d for d in pipes_by_direction if d != shadowed_direction)
                     need_match_pipe = next(iter(pipes_by_direction[other_direction]))
                     pipe_basis = need_match_pipe.kind.get_basis_along(
                         shadowed_direction, need_match_pipe.at_head(cube.position)
@@ -917,9 +869,7 @@ class BlockGraph:
             elif isinstance(key, str):
                 matching_cubes = [cube for cube in self.cubes if cube.label == key]
             else:
-                raise TQECException(
-                    f"Invalid identifier '{key}'. Must be Position3D or str."
-                )
+                raise TQECException(f"Invalid identifier '{key}'. Must be Position3D or str.")
 
             if not matching_cubes:
                 raise TQECException(f"No cube found for identifier '{key}'.")
@@ -928,13 +878,9 @@ class BlockGraph:
 
             if is_port_relabel:
                 if new_label in port_labels:
-                    raise TQECException(
-                        f"Port label '{new_label}' is already assigned to another port."
-                    )
+                    raise TQECException(f"Port label '{new_label}' is already assigned to another port.")
                 if new_label in assigned_new_labels:
-                    raise TQECException(
-                        f"Port label '{new_label}' is reused multiple times."
-                    )
+                    raise TQECException(f"Port label '{new_label}' is reused multiple times.")
                 assigned_new_labels.add(new_label)
             else:
                 if new_label in port_labels:
@@ -943,12 +889,8 @@ class BlockGraph:
                     )
 
             for cube in matching_cubes:
-                updated_cube = Cube(
-                    position=cube.position, kind=cube.kind, label=new_label
-                )
-                self._graph.add_node(
-                    cube.position, **{self._NODE_DATA_KEY: updated_cube}
-                )
+                updated_cube = Cube(position=cube.position, kind=cube.kind, label=new_label)
+                self._graph.add_node(cube.position, **{self._NODE_DATA_KEY: updated_cube})
 
 
 def block_kind_from_str(string: str) -> BlockKind:
