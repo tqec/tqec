@@ -33,8 +33,8 @@ jobs:
         with:
           path: docs/_build
           key: ${{ runner.os }}-sphinx
-      - if: ${{ steps.cache-docs.outputs.cache-hit != 'true' }}
-        name: Generate the documentation
+      - name: Generate the documentation
+        if: steps.cache-docs.outputs.cache-hit != 'true'
         run: |
           cd docs/
           make html
