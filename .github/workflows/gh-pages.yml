@@ -28,6 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt -r requirements-dev.txt
           python -m pip install '.[all]'
+      - uses: actions/cache@v4
       - name: Generate the documentation
         run: |
           cd docs/
