@@ -198,3 +198,41 @@ typeCheckingMode = "standard"
 # that is not meant to be exported from that module. The default value for this
 # setting is "error".
 reportPrivateImportUsage = false
+
+[tool.ruff]
+# exclude = ["__init__.py"]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["I", "E", "W", "D", "PL"]
+# ruff configuration
+# E, W -- pycodestyle
+# D -- pydocstyle
+# I -- isort
+# PL -- pylint
+
+# Rules considered over other incompatible ones
+exclude = ["docs/conf.py", "setup.py"]
+
+ignore = ["D407", "D203", "D213", "D416", "PLR0912", "PLR0911", "PLR0915", "PLR2004", "PLR0913"]
+# Rules Ignored
+
+# D407 - Ignored because ==== under a section heading is considered as a missing underline.
+# pydocstyle considers ----- an underline.
+
+# D212 and D211 specially selected due to following incompatibilities
+# warning: `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible. Ignoring `one-blank-line-before-class`.
+# warning: `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible. Ignoring `multi-line-summary-second-line`.
+
+# D416 was adding a semicolon after some section headings when ruff's automated --fix was was used
+# As this was not added evenly after all section headings, we ignore this.
+
+# PLR0912 -- Checks for functions or methods with too many branches. The default number is 12.
+# PLR0911 -- Checks for functions or methods with too many return statements. The default number is 6.
+# PLR0915 -- Checks for functions or methods with too many statements. The default number is 50.
+# PLR2004 -- Checks if an equality or an inequality is compared to a variable or a num (prefers variable pre)
+# PLR0913 Too many arguments in function definition
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["I001"]
+# I001 - skip checking Import block is un-sorted or un-formatted
