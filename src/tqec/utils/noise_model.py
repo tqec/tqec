@@ -392,14 +392,14 @@ class NoiseModel:
             elif result and isinstance(result[-1], stim.CircuitRepeatBlock):
                 pass
             else:
-                result.append("TICK")
+                result.append("TICK", [], [])
             if isinstance(moment_split_ops, stim.CircuitRepeatBlock):
                 noisy_body = self.noisy_circuit(
                     moment_split_ops.body_copy(),
                     system_qubits=system_qubits,
                     immune_qubits=immune_qubits,
                 )
-                noisy_body.append("TICK")
+                noisy_body.append("TICK", [], [])
                 result.append(
                     stim.CircuitRepeatBlock(
                         repeat_count=moment_split_ops.repeat_count, body=noisy_body
