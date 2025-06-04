@@ -31,7 +31,7 @@ jobs:
       - uses: actions/cache@v4
         id: cache-docs
         with:
-          path: docs/_build
+          path: docs/
           key: ${{ runner.os }}-sphinx
       - name: Generate the documentation
         if: steps.${{ runner.os }}-sphinx.outputs.cache-hit != 'true'
