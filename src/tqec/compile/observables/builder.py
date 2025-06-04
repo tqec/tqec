@@ -108,14 +108,16 @@ class CubeBottomStabilizersBuilder(Protocol):
 
 class SpatialCubeBottomStabilizersBuilder(Protocol):
     """The stabilizer measurements at the spatial cubes will be included in the
-    logical observable."""
+    logical observable.
+    """
 
     def __call__(self, shape: PlaquetteShape2D, stabilizer_basis: Basis, /) -> list[tuple[float, float]]: ...
 
 
 class TemporalHadamardIncludesBuilder(Protocol):
     """Measurements at the temporal logical Hadamard layer that might be included
-    in the logical Z observable."""
+    in the logical Z observable.
+    """
 
     def __call__(
         self,
@@ -196,6 +198,7 @@ def compute_observable_qubits(
         obs_slice: The slice of an abstract observable at the time step.
         template: The layout template of the block at the time step.
         at_bottom: Whether the observable is at the bottom of the block.
+
     """
     shape = template.element_shape(k)
     obs_qubits: set[GridQubit] = set()
@@ -289,6 +292,7 @@ def get_observable_with_measurement_records(
 
     Returns:
         The logical observable.
+
     """
     if not ignore_qubits_with_no_measurement and any(len(measurement_records.mapping.get(q, [])) == 0 for q in qubits):
         raise TQECException(

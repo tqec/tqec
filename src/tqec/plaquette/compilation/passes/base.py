@@ -21,6 +21,7 @@ class CompilationPass(ABC):
 
         Returns:
             the compiled quantum circuit.
+
         """
         pass
 
@@ -41,6 +42,7 @@ class CompilationPass(ABC):
             TQECException: if the two provided circuits are not functionally
                 equivalent (i.e. ``modified_circuit`` does not have at least
                 one of flow of ``original_circuit``).
+
         """
         original_flows = original_circuit.get_circuit().flow_generators()
         if not modified_circuit.get_circuit().has_all_flows(original_flows):

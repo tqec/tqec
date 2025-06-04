@@ -2,33 +2,33 @@
 
 from __future__ import annotations
 
+import json
 import pathlib
 from dataclasses import dataclass, field
 from typing import BinaryIO, Iterable, cast
 
-import json
 import collada
 import collada.source
 import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_str
+from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import CubeKind, Port, YHalfCube
 from tqec.computation.pipe import PipeKind
-from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
 from tqec.interop.collada._geometry import (
     BlockGeometries,
     Face,
     get_correlation_surface_geometry,
 )
 from tqec.interop.color import TQECColor
-from tqec.computation.correlation import CorrelationSurface
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.utils.rotations import (
+    adjust_hadamards_direction,
     get_axes_directions,
     rotate_on_import,
-    adjust_hadamards_direction,
 )
 from tqec.utils.scale import round_or_fail
 
@@ -76,8 +76,8 @@ def read_block_graph_from_dae_file(
 
     Raises:
         TQECException: If the COLLADA model cannot be parsed and converted to a block graph.
-    """
 
+    """
     # Bring the mesh in
     mesh = collada.Collada(str(filepath))
 
@@ -212,6 +212,7 @@ def write_block_graph_to_dae_file(
         pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
             This is useful for visualizing the internal structure of the blocks. Default is None.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.
+
     """
     if isinstance(pop_faces_at_direction, str):
         pop_faces_at_direction = SignedDirection3D.from_string(pop_faces_at_direction)
@@ -275,8 +276,8 @@ def read_block_graph_from_json(
 
     Raises:
         TQECException: If the JSON file cannot be parsed and converted to a block graph.
-    """
 
+    """
     # Read JSON file
     try:
         with open(filepath) as f:
@@ -424,7 +425,8 @@ class _BaseColladaData:
         pop_faces_at_direction: SignedDirection3D | None = None,
     ) -> None:
         """The base model template including the definition of all the library
-        nodes and the necessary material, geometry definitions."""
+        nodes and the necessary material, geometry definitions.
+        """
         self.mesh = collada.Collada()
         self.geometries = BlockGeometries()
 
@@ -587,6 +589,7 @@ class _Transformation:
         translation: The length-3 translation vector.
         scale: The length-3 scaling vector, which is the scaling factor along each axis.
         rotation: The 3x3 rotation matrix.
+
     """
 
     translation: npt.NDArray[np.float32]

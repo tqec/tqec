@@ -25,6 +25,7 @@ class CubeSpec:
         spatial_arms: Flag indicating the spatial directions the cube connects to the
             adjacent cubes. This is useful for spatial cubes (XXZ and ZZX) where
             the arms can determine the template used to implement the cube.
+
     """
 
     kind: CubeKind
@@ -63,6 +64,7 @@ class CubeBuilder(Protocol):
 
         Returns:
             a ``Block`` based on the provided ``CubeSpec``.
+
         """
         ...
 
@@ -78,6 +80,7 @@ class PipeBuilder(Protocol):
 
         Returns:
             a `CompiledBlock` based on the provided `PipeSpec`.
+
         """
         ...
 
@@ -102,6 +105,7 @@ class PipeSpec:
         at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal
             pipe and there is a temporal Hadamard pipe at the same Z position
             in the block graph.
+
     """
 
     cube_specs: tuple[CubeSpec, CubeSpec]

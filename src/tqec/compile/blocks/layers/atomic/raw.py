@@ -27,6 +27,7 @@ class RawCircuitLayer(BaseLayer):
                 by the provided ``circuit_factory``.
             trimmed_spatial_borders: all the spatial borders that have been
                 removed from the layer.
+
         """
         super().__init__(trimmed_spatial_borders)
         self._circuit_factory = circuit_factory

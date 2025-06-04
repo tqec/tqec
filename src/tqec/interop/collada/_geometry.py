@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from dataclasses import astuple, dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.cube import YHalfCube, ZXCube
 from tqec.computation.pipe import PipeKind
+from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, FloatPosition3D, SignedDirection3D
-from tqec.interop.color import TQECColor
 
 if TYPE_CHECKING:
     from tqec.computation.block_graph import BlockKind
@@ -32,6 +32,7 @@ class Face:
         normal_direction: The normal direction of the face, which is the direction
             of the axis that the face is perpendicular to.
         position: The position of the face in the 3D space.
+
     """
 
     color: TQECColor
@@ -102,7 +103,8 @@ class BlockGeometries:
         pop_faces_at_directions: frozenset[SignedDirection3D] = frozenset(),
     ) -> list[Face]:
         """Get the geometry of a block kind, possibly with some faces popped
-        out."""
+        out.
+        """
         faces = self.geometries[kind]
         return [face for face in faces if face.normal_direction not in pop_faces_at_directions]
 

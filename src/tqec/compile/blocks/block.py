@@ -72,6 +72,7 @@ class Block(SequencedLayers):
         Returns:
             a 3-dimensional tuple containing the width for each of the
             ``(x, y, z)`` dimensions.
+
         """
         spatial_shape = self.scalable_shape
         return spatial_shape.x, spatial_shape.y, self.scalable_timesteps
@@ -116,6 +117,7 @@ def merge_parallel_block_layers(
         NotImplementedError: if the provided blocks cannot be merged due to a
             code branch not being implemented yet (and not due to a logical
             error making the blocks unmergeable).
+
     """
     if not blocks_in_parallel:
         return []

@@ -7,16 +7,17 @@ from typing import Any
 
 import stim
 
-from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.measurement_map import MeasurementRecordsMap
+from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 
 
 @dataclass(frozen=True)
 class Detector:
     """Represent a detector as a set of measurements and optional
-    coordinates."""
+    coordinates.
+    """
 
     measurements: frozenset[Measurement]
     coordinates: StimCoordinates
@@ -56,6 +57,7 @@ class Detector:
             the `DETECTOR` instruction representing `self`. Note that the
             instruction has the same validity region as the provided
             `measurement_records_map`.
+
         """
         measurement_records: list[stim.GateTarget] = []
         for measurement in self.measurements:
@@ -78,8 +80,8 @@ class Detector:
         Returns:
             a new detector that has been spatially offset by the provided `x`
             and `y` offsets.
-        """
 
+        """
         return Detector(
             frozenset(m.offset_spatially_by(x, y) for m in self.measurements),
             self.coordinates.offset_spatially_by(x, y),
@@ -91,6 +93,7 @@ class Detector:
         Returns:
             a dictionary with the keys ``measurements`` and ``coordinates`` and
             their corresponding values.
+
         """
         return {
             "measurements": [m.to_dict() for m in self.measurements],
@@ -107,6 +110,7 @@ class Detector:
         Returns:
             a new instance of :class:`Detector` with the provided
             ``measurements`` and ``coordinates``.
+
         """
         measurements = frozenset(Measurement.from_dict(m) for m in data["measurements"])
         coordinates = StimCoordinates.from_dict(data["coordinates"])

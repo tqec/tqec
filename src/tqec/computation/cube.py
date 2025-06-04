@@ -18,6 +18,7 @@ class ZXCube:
         x: Looking at the cube along the x-axis, the basis of the walls observed.
         y: Looking at the cube along the y-axis, the basis of the walls observed.
         z: Looking at the cube along the z-axis, the basis of the walls observed.
+
     """
 
     x: Basis
@@ -33,6 +34,7 @@ class ZXCube:
 
         Returns:
             A tuple of ``(self.x, self.y, self.z)``.
+
         """
         return astuple(self)
 
@@ -45,6 +47,7 @@ class ZXCube:
 
         Returns:
             The list of all the allowed ``ZXCube`` instances.
+
         """
         return [ZXCube.from_str(s) for s in ["ZXZ", "XZZ", "ZXX", "XZX", "XXZ", "ZZX"]]
 
@@ -64,6 +67,7 @@ class ZXCube:
         Returns:
             The :py:class:`~tqec.computation.cube.ZXCube` instance constructed from
             the string representation.
+
         """
         return ZXCube(*map(Basis, string.upper()))
 
@@ -106,6 +110,7 @@ class ZXCube:
 
         Returns:
             The basis of the walls along the given direction axis.
+
         """
         return self.as_tuple()[direction.value]
 
@@ -120,6 +125,7 @@ class ZXCube:
         Returns:
             The new :py:class:`~tqec.computation.cube.ZXCube` instance with the basis
             set along the given direction axis.
+
         """
         return ZXCube(*[basis if i == direction.value else b for i, b in enumerate(self.as_tuple())])
 
@@ -196,6 +202,7 @@ class Cube:
             ports of the block graph. If the cube is a port, the label must be non-empty
             and unique within the block graph. The label can be any string, but duplicate
             labels are not allowed. Default is an empty string.
+
     """
 
     position: Position3D
@@ -212,19 +219,22 @@ class Cube:
     @property
     def is_zx_cube(self) -> bool:
         """Return whether the cube is of kind
-        :py:class:`~tqec.computation.cube.ZXCube`."""
+        :py:class:`~tqec.computation.cube.ZXCube`.
+        """
         return isinstance(self.kind, ZXCube)
 
     @property
     def is_port(self) -> bool:
         """Return whether the cube is of kind
-        :py:class:`~tqec.computation.cube.Port`."""
+        :py:class:`~tqec.computation.cube.Port`.
+        """
         return isinstance(self.kind, Port)
 
     @property
     def is_y_cube(self) -> bool:
         """Return whether the cube is of kind
-        :py:class:`~tqec.computation.cube.YHalfCube`."""
+        :py:class:`~tqec.computation.cube.YHalfCube`.
+        """
         return isinstance(self.kind, YHalfCube)
 
     @property
@@ -254,6 +264,7 @@ class Cube:
         Returns:
             The :py:class:`~tqec.computation.cube.Cube` instance created from the
             dictionary representation.
+
         """
         return Cube(
             position=Position3D(*data["position"]),

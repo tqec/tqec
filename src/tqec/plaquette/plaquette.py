@@ -45,6 +45,7 @@ class Plaquette:
     Raises:
         TQECException: if the provided `circuit` uses qubits not listed in
             `qubits`.
+
     """
 
     name: str
@@ -93,6 +94,7 @@ class Plaquette:
             provided orientation. The circuit is also updated to only use the
             kept qubits and empty moments with the corresponding schedules are
             removed.
+
         """
         kept_data_qubits = self.qubits.get_qubits_on_side(projected_orientation.to_plaquette_side())
         new_plaquette_qubits = PlaquetteQubits(kept_data_qubits, self.qubits.syndrome_qubits)
@@ -145,6 +147,7 @@ class Plaquette:
             a new instance of :class:`Plaquette` with the provided
             ``name``, ``qubits``, ``circuit``, ``mergeable_instructions`` and
             ``debug_information``.
+
         """
         name = data["name"]
         qubits = PlaquetteQubits.from_dict(data["qubits"])
@@ -230,6 +233,7 @@ class Plaquettes:
         Args:
             plaquettes_to_indices: a dictionary mapping plaquettes to their
                 indices. If provided, a plaquette will be represented by its index
+
         """
 
         def convert(value: Plaquette) -> Any:
@@ -252,6 +256,7 @@ class Plaquettes:
         Returns:
             a new instance of :class:`Plaquettes` with the provided
             ``plaquettes`` and ``default``.
+
         """
 
         def convert(item: dict[str, Any]) -> Plaquette:

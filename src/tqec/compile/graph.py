@@ -69,8 +69,8 @@ from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECException
 from tqec.utils.noise_model import NoiseModel
-from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
+from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
 from tqec.utils.scale import PhysicalQubitScalable2D
 
 
@@ -95,7 +95,8 @@ class TopologicalComputationGraph:
         observables: list[AbstractObservable] | None = None,
     ) -> None:
         """Represents a topological computation with
-        :class:`~tqec.compile.blocks.block.Block` instances."""
+        :class:`~tqec.compile.blocks.block.Block` instances.
+        """
         self._blocks: dict[LayoutPosition3D, Block] = {}
         # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
         # extent. We need to keep track of the temporal pipes that are at the
@@ -133,6 +134,7 @@ class TopologicalComputationGraph:
             TQECException: if ``not source < sink``.
             TQECException: if either ``source`` or ``sink`` has not been added
                 to the graph.
+
         """
         if not source.is_neighbour(sink):
             raise TQECException(
@@ -167,6 +169,7 @@ class TopologicalComputationGraph:
                 to the graph.
             TQECException: if there is already a pipe between ``source`` and
                 ``sink``.
+
         """
         self._check_any_pipe(source, sink)
         layout_position = LayoutPosition3D.from_pipe_position((source, sink))
@@ -200,6 +203,7 @@ class TopologicalComputationGraph:
                 to the graph.
             TQECException: if there is already a pipe between ``source`` and
                 ``sink``.
+
         """
         self._check_spatial_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
@@ -245,6 +249,7 @@ class TopologicalComputationGraph:
             KeyError: if ``pipe_pos not in self._blocks``.
             NotImplementError: if the pipe layer that should be partially
                 substituted is not an instance of ``PlaquetteLayer``.
+
         """
         pipe_block = self._blocks[pipe_pos]
         pipe_layer_to_replace = pipe_block.get_temporal_layer_on_border(temporal_pipe_border)
@@ -331,6 +336,7 @@ class TopologicalComputationGraph:
                 ``sink``.
             TQECException: if ``block`` is not a valid pipe (i.e., has not
                 exactly 2 scalable dimensions).
+
         """
         if not block.is_pipe:
             raise TQECException(
@@ -377,8 +383,8 @@ class TopologicalComputationGraph:
 
             Each child of the root node is also an instance of
             :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
-        """
 
+        """
         zs = [pos.z for pos in self._blocks.keys()]
         min_z, max_z = min(zs), max(zs)
         blocks_by_z: list[dict[LayoutPosition2D, Block]] = [{} for _ in range(min_z, max_z + 1)]
@@ -435,6 +441,7 @@ class TopologicalComputationGraph:
 
         Returns:
             A compiled stim circuit.
+
         """
         circuit = self.to_layer_tree().generate_circuit(
             k,
@@ -478,6 +485,7 @@ class TopologicalComputationGraph:
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
+
         """
         return self.to_layer_tree().generate_crumble_url(
             k, manhattan_radius, detector_database, add_polygons=add_polygons

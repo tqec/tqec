@@ -16,7 +16,8 @@ from tqec.interop.pyzx.positioned import PositionedZX
 
 def add_inset_axes3d(ax_target: Axes, bounds: tuple[float, float, float, float]) -> Axes3D:
     """Wrapper around `fig.add_axes` to achieve `ax.inset_axes` functionality
-    that works also for insetting 3D plot on 2D ax/figures."""
+    that works also for insetting 3D plot on 2D ax/figures.
+    """
     ax = ax_target.inset_axes(bounds, projection="3d")
     assert isinstance(ax, Axes3D)
     return ax
@@ -39,6 +40,7 @@ def plot_observable_as_inset(
         zx_graph: ZX graph used.
         observable: correlation surface over the provided `zx_graph` to
             draw.
+
     """
     inset_ax = add_inset_axes3d(ax_target, bounds)
     inset_ax.set_axis_off()
@@ -72,6 +74,7 @@ def plot_threshold_as_inset(
             default value tries to place the inset such that it does not overlap
             with the logical error-rate curves on the main plot while still
             leaving room to plot the observable in another inset.
+
     """
     # Creating the inset
     inset_ax = ax_target.inset_axes(

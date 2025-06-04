@@ -2,11 +2,11 @@ from typing import TypedDict
 
 import numpy as np
 import numpy.typing as npt
-from pytest import raises
 import pytest
+from pytest import raises
 
-from tqec.utils.exceptions import TQECException
 from tqec.computation.block_graph import block_kind_from_str
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.rotations import (
     calc_rotation_angles,

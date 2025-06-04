@@ -33,6 +33,7 @@ def annotate_observable(
         observable_index: index of the observable in the circuit.
         observable_builder: builder that computes and constructs qubits whose
             measurements will be included in the logical observable.
+
     """
     for z, subtree_root in enumerate(root.children):
         leaves = _get_ordered_leaves(subtree_root)

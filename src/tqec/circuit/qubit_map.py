@@ -33,6 +33,7 @@ class QubitMap:
     Raises:
         TQECException: if the provided mapping from indices to qubits is not a
             bijection (i.e., if at least to values represent the same qubit).
+
     """
 
     i2q: dict[int, GridQubit] = field(default_factory=dict)
@@ -46,7 +47,8 @@ class QubitMap:
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
         """Creates a qubit map from the provided ``qubits``, associating
-        indices using the order in which qubits are provided."""
+        indices using the order in which qubits are provided.
+        """
         return QubitMap(dict(enumerate(qubits)))
 
     @staticmethod
@@ -79,6 +81,7 @@ class QubitMap:
 
         Returns:
             a new instance representing the updated mapping.
+
         """
         return QubitMap({i: qubit_map(q) for i, q in self.i2q.items()})
 
@@ -95,13 +98,15 @@ class QubitMap:
         Returns:
             a copy of ``self`` for which the assertion
             ``set(return_value.qubits).issubset(qubits_to_keep)`` is ``True``.
+
         """
         kept_qubits = frozenset(qubits_to_keep)
         return QubitMap({i: q for i, q in self.i2q.items() if q in kept_qubits})
 
     def to_circuit(self) -> stim.Circuit:
         """Get a circuit with only ``QUBIT_COORDS`` instructions representing
-        ``self``."""
+        ``self``.
+        """
         ret = stim.Circuit()
         for qi, qubit in sorted(self.i2q.items(), key=lambda t: t[0]):
             ret.append("QUBIT_COORDS", qi, (float(qubit.x), float(qubit.y)))
@@ -127,6 +132,7 @@ class QubitMap:
         Returns:
             a new instance of :class:`QubitMap` with the provided
             ``i2q`` and ``q2i``.
+
         """
         i2q = {int(qi): GridQubit.from_dict(q) for qi, q in data["i2q"]}
         return QubitMap(i2q)
@@ -150,6 +156,7 @@ def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
 
     Returns:
         a mapping from qubit indices (keys) to qubit coordinates (values).
+
     """
     qubit_coordinates = circuit.get_final_qubit_coordinates()
     qubits: dict[int, GridQubit] = {}

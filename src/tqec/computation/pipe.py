@@ -31,6 +31,7 @@ class PipeKind:
            of the walls observed. Can be None if the pipe connects two cubes along
            the z-axis.
         has_hadamard: Whether the pipe has a hadamard transition.
+
     """
 
     x: Basis | None
@@ -65,6 +66,7 @@ class PipeKind:
 
         Returns:
             The pipe kind represented by the string.
+
         """
         string = string.upper()
         has_hadamard = len(string) == 4 and string[3] == "H"
@@ -90,6 +92,7 @@ class PipeKind:
         Returns:
             None if the direction is the same as the pipe direction. Otherwise, the
             basis of the wall in the specified direction.
+
         """
         if direction == self.direction:
             return None
@@ -101,13 +104,15 @@ class PipeKind:
     @property
     def is_temporal(self) -> bool:
         """Whether the pipe is temporal, i.e. connects two cubes along the Z
-        axis."""
+        axis.
+        """
         return self.z is None
 
     @property
     def is_spatial(self) -> bool:
         """Whether the pipe is spatial, i.e. connects two cubes along the X or
-        Y axis."""
+        Y axis.
+        """
         return not self.is_temporal
 
     @staticmethod
@@ -129,6 +134,7 @@ class PipeKind:
 
         Returns:
             The inferred pipe kind.
+
         """
         bases: list[Basis]
         if not cube_at_head and has_hadamard:
@@ -159,6 +165,7 @@ class Pipe:
         u: The cube at the head of the pipe. The position of u will be guaranteed to be less than v.
         v: The cube at the tail of the pipe. The position of v will be guaranteed to be greater than u.
         kind: The kind of the pipe.
+
     """
 
     u: Cube
@@ -192,6 +199,7 @@ class Pipe:
         Raises:
             TQECException: If the cubes are not neighbours or both of them are not ZX cubes.
             TQECException: If kind of the pipe cannot be inferred from the cubes.
+
         """
         if not u.is_zx_cube and not v.is_zx_cube:
             raise TQECException("At least one cube must be a ZX cube to infer the pipe kind.")

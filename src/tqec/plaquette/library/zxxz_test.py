@@ -1,9 +1,9 @@
 import stim
 
-from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.library.zxxz import make_zxxz_surface_code_plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
+from tqec.utils.enums import Basis
 
 
 def test_zxxz_surface_code_memory_plaquette() -> None:

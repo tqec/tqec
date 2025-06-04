@@ -33,6 +33,7 @@ class LookbackInformation:
             circuit and then extracting the measurement records from it, but it
             turns out that we already have access to these records when creating
             such a structure, so we store them to avoid re-computing.
+
     """
 
     template: Template
@@ -53,7 +54,8 @@ class LookbackInformationList:
         measurement_records: MeasurementRecordsMap,
     ) -> None:
         """Add the provided parameters to the lookback window, potentially removing
-        older items that should not be considered anymore."""
+        older items that should not be considered anymore.
+        """
         self.infos.append(LookbackInformation(template, plaquettes, measurement_records))
 
     def extend(self, other: LookbackInformationList, repetitions: int = 1) -> None:
@@ -176,6 +178,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 in the database is encountered. Default to ``False``.
             lookback_size: number of QEC rounds to consider to try to find
                 detectors. Including more rounds increases computation time.
+
         """
         if lookback < 1:
             raise TQECException(

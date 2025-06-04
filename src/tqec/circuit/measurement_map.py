@@ -41,6 +41,7 @@ class MeasurementRecordsMap:
         TQECException: if, for any of the provided qubits, the provided offsets
             are not sorted.
         TQECException: if any measurement offset is duplicated.
+
     """
 
     mapping: dict[GridQubit, list[int]] = field(default_factory=dict)
@@ -89,6 +90,7 @@ class MeasurementRecordsMap:
         Returns:
             a :class:`MeasurementRecordsMap` linking measurements in the provided
             ``circuit`` to their offset.
+
         """
         return MeasurementRecordsMap.from_circuit(circuit.get_circuit(include_qubit_coords=False), circuit.qubit_map)
 
@@ -101,6 +103,7 @@ class MeasurementRecordsMap:
             qubit_map: qubit map of the provided circuit. If ``None``, the
                 qubit map is computed from the provided circuit. Default to
                 ``None``.
+
         Raises:
             TQECException: if the provided ``circuit`` contains a ``REPEAT`` block.
             TQECException: if the provided ``circuit`` contains an unsupported
@@ -115,6 +118,7 @@ class MeasurementRecordsMap:
         Returns:
             a :class:`MeasurementRecordsMap` linking measurements in the provided
             ``circuit`` to their offset.
+
         """
         # We iterate the circuit in forward order, which means that the first
         # measurement we will encounter will have a record offset of
@@ -166,6 +170,7 @@ class MeasurementRecordsMap:
         Returns:
             a new instance containing valid offsets for each measurement in ``self``
             and ``mrecords_map``.
+
         """
         num_measurements_without_repetition = sum(len(offsets) for offsets in mrecords_map.mapping.values())
         num_added_measurements = repetitions * num_measurements_without_repetition

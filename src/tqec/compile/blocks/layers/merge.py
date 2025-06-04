@@ -113,6 +113,7 @@ def merge_repeated_layers(
     Returns:
         a unique repeated layer implementing the same piece of computation as
         the provided repeated layers.
+
     """
     # First, check that all the provided layers have the same scalable timesteps.
     different_timesteps = frozenset(layer.scalable_timesteps for layer in layers.values())
@@ -234,6 +235,7 @@ def merge_repeated_and_sequenced_layers(
         TQECException: if the provided layers have different durations.
         NotImplementedError: if the ScheduledLayers instances in ``layers`` have
             different schedules.
+
     """
     layer_types = frozenset(type(layer) for layer in layers.values())
     if layer_types != frozenset((RepeatedLayer, SequencedLayers)):

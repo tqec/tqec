@@ -1,11 +1,11 @@
 import pytest
 import stim
 
-from tqec.utils.coordinates import StimCoordinates
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.detector import Detector
+from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 
 

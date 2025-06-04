@@ -44,6 +44,7 @@ class PlaquetteLayer(BaseLayer):
             TQECException: if the provided ``template`` and
                 ``trimmed_spatial_borders`` can lead to empty instantiations for
                 ``k >= 1``.
+
         """
         super().__init__(trimmed_spatial_borders)
         self._template = template
@@ -109,6 +110,7 @@ class PlaquetteLayer(BaseLayer):
 
         Returns:
             the shape of the provided template with the provided borders removed.
+
         """
         base_shape = template.scalable_shape
         # We return a shape in plaquette-coordinates. In order to know exactly the

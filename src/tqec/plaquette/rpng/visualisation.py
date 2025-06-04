@@ -1,12 +1,12 @@
 """Visualize the RPNG plaquettes as SVG."""
 
-from collections.abc import Callable, Iterable
 import math
+from collections.abc import Callable, Iterable
 from typing import Literal, cast
 
-from tqec.utils.exceptions import TQECException
 from tqec.interop.color import RGBA, TQECColor
 from tqec.plaquette.rpng import RPNG, ExtendedBasis, RPNGDescription
+from tqec.utils.exceptions import TQECException
 
 
 def rpng_svg_viewer(
@@ -43,6 +43,7 @@ def rpng_svg_viewer(
 
     Returns:
         The SVG string representing the RPNG object.
+
     """
     if show_plaquette_indices:
         if isinstance(rpng_object, RPNGDescription):

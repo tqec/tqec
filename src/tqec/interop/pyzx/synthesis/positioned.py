@@ -42,6 +42,7 @@ def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
 
     Raises:
         TQECException: A valid block graph cannot be constructed.
+
     """
     nodes_to_handle = set(g.g.vertices())
     edges_to_handle = set(g.g.edges())

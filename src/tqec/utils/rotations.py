@@ -38,7 +38,7 @@ from scipy.spatial.transform import Rotation as R
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import Direction3D, Position3D, FloatPosition3D
+from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
 
 
@@ -52,8 +52,8 @@ def calc_rotation_angles(
 
     Returns:
         rotations: the rotation angle for each of the three vectors in M (see notes: !)
-    """
 
+    """
     # Placeholder for results
     rotations = np.array([])
 
@@ -81,8 +81,8 @@ def get_axes_directions(rotation_matrix: npt.NDArray[np.float32]) -> dict[str, i
 
     Returns:
         axes_directions: up/down multipliers for each axis
-    """
 
+    """
     # Placeholder for results
     axes_directions = {"X": 1, "Y": 1, "Z": 1}
 
@@ -104,6 +104,7 @@ def rotate_block_kind_by_matrix(block_kind: BlockKind, rotation_matrix: npt.NDAr
 
     Returns:
         rotated_kind: rotated kind for the node.
+
     """
     if str(block_kind) == "PORT":
         return block_kind
@@ -159,6 +160,7 @@ def get_rotation_matrix(
 
     Returns:
         The rotation matrix.
+
     """
     rot_vec = np.array([0, 0, 0])
     rot_vec[rotation_axis.value] = 1 if counterclockwise else -1
@@ -184,6 +186,7 @@ def rotate_position_by_matrix(
 
     Raises:
         TQECException: if the rotated position is not integer.
+
     """
     rotation = R.from_matrix(rotation_matrix)
     center_pos = [i + 0.5 for i in position.as_tuple()]

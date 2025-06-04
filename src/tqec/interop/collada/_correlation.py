@@ -5,10 +5,10 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.correlation import CorrelationSurface, ZXEdge
-from tqec.utils.enums import Basis
+from tqec.computation.cube import Cube, ZXCube
 from tqec.interop.collada.read_write import _Transformation
+from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 
 TransformationResult = tuple[Basis, _Transformation]
@@ -35,7 +35,8 @@ class CorrelationSurfaceTransformationHelper:
     ) -> list[TransformationResult]:
         """Compute the list of transformations (with corresponding bases) that
         represent each piece of the given correlation surface in the COLLADA
-        model."""
+        model.
+        """
         transformations: list[TransformationResult] = []
 
         # Surfaces in the pipes
@@ -92,7 +93,8 @@ class CorrelationSurfaceTransformationHelper:
 
     def _compute_pipe_transformations(self, edge: ZXEdge) -> list[TransformationResult]:
         """Compute the surface transformations within a pipe. If the edge is a
-        Hadamard edge, two surfaces with different basis are created."""
+        Hadamard edge, two surfaces with different basis are created.
+        """
         transformations: list[TransformationResult] = []
         normal_direction = self._surface_normal_direction(edge)
         edge_direction = self._edge_direction(edge)

@@ -37,6 +37,7 @@ class AbstractMeasurement(ABC):
 
         Returns:
             a new instance with the specified offset from ``self``.
+
         """
 
     @abstractmethod
@@ -48,6 +49,7 @@ class AbstractMeasurement(ABC):
 
         Returns:
             a new instance with the specified offset from ``self``.
+
         """
 
     @abstractmethod
@@ -64,6 +66,7 @@ class AbstractMeasurement(ABC):
 
         Returns:
             a new measurement instance with the mapped qubit.
+
         """
 
 
@@ -87,6 +90,7 @@ class Measurement(AbstractMeasurement):
 
     Raises:
         TQECException: if the provided ``offset`` is not strictly negative.
+
     """
 
     qubit: GridQubit
@@ -121,6 +125,7 @@ class Measurement(AbstractMeasurement):
         Returns:
             a dictionary with the keys ``qubit`` and ``offset`` and their
             corresponding values.
+
         """
         return {"qubit": [self.qubit.x, self.qubit.y], "offset": self.offset}
 
@@ -134,6 +139,7 @@ class Measurement(AbstractMeasurement):
         Returns:
             a new instance of :class:`Measurement` with the provided
             ``qubit`` and ``offset``.
+
         """
         qubit = GridQubit(data["qubit"][0], data["qubit"][1])
         offset = data["offset"]
@@ -156,6 +162,7 @@ def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
     Returns:
         all the measurements present in the provided ``circuit``, in their order
         of appearance (so in increasing order of measurement record offsets).
+
     """
     qubit_map = QubitMap.from_circuit(circuit)
     num_measurements: dict[GridQubit, int] = {}

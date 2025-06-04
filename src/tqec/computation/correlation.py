@@ -1,5 +1,6 @@
 """Defines the ``CorrelationSurface`` class and the functions to find the
-correlation surfaces in the ZX graph."""
+correlation surfaces in the ZX graph.
+"""
 
 from __future__ import annotations
 
@@ -27,6 +28,7 @@ class ZXNode:
     Attributes:
         id: The index of the vertex in the graph.
         basis: The Pauli operator on the half edge incident to the node.
+
     """
 
     id: int
@@ -100,6 +102,7 @@ class CorrelationSurface:
 
     Attributes:
         span: A set of ``ZXEdge`` representing the span of the correlation surface.
+
     """
 
     span: frozenset[ZXEdge]
@@ -123,6 +126,7 @@ class CorrelationSurface:
 
         Returns:
             A `PauliWeb` representation of the correlation surface.
+
         """
         from tqec.interop.pyzx.correlation import correlation_surface_to_pauli_web
 
@@ -151,7 +155,8 @@ class CorrelationSurface:
 
     def edges_at(self, v: int) -> set[ZXEdge]:
         """Return the set of edges incident to the vertex in the correlation
-        surface."""
+        surface.
+        """
         return {edge for edge in self.span if any(n.id == v for n in edge)}
 
     def external_stabilizer(self, io_ports: list[int]) -> str:
@@ -162,6 +167,7 @@ class CorrelationSurface:
 
         Returns:
             The Pauli operator supported on the given ports.
+
         """
         from pyzx.pauliweb import multiply_paulis
 
@@ -181,6 +187,7 @@ class CorrelationSurface:
 
         Returns:
             The Pauli operator that is the external stabilizer of the correlation surface.
+
         """
         supports: list[Position3D]
         if graph.is_open:

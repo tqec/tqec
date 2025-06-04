@@ -7,8 +7,8 @@ from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
-from tqec.gallery.stability import stability
 from tqec.gallery.move_rotation import move_rotation
+from tqec.gallery.stability import stability
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D

@@ -74,6 +74,7 @@ class Moment:
                 target.
             TQECException: if the provided ``circuit`` contains a ``REPEAT``
                 block instruction.
+
         """
         if not _avoid_checks:
             Moment.check_is_valid_moment(circuit)
@@ -103,6 +104,7 @@ class Moment:
                 target.
             TQECException: if the provided ``circuit`` contains a ``REPEAT``
                 block instruction.
+
         """
         if circuit.num_ticks > 0:
             raise TQECException(
@@ -139,17 +141,20 @@ class Moment:
             meaning that the qubits they operate on will only be returned by
             this property iff another non-annotation instruction is applied on
             said qubits.
+
         """
         return self._used_qubits
 
     def contains_instruction(self, instruction_name: str) -> bool:
         """Return ``True`` if ``self`` contains at least one operation with the
-        provided name."""
+        provided name.
+        """
         return any(instr.name == instruction_name for instr in self._circuit)
 
     def remove_all_instructions_inplace(self, instructions_to_remove: frozenset[str]) -> None:
         """Remove in-place all the instructions that have their name in the
-        provided ``instructions_to_remove``."""
+        provided ``instructions_to_remove``.
+        """
         new_circuit = stim.Circuit()
         for inst in self._circuit:
             if inst.name in instructions_to_remove:
@@ -212,6 +217,7 @@ class Moment:
             args: if ``name_or_instr`` is a string representing the instruction
                 name, this argument represent the arguments the instruction
                 should be applied with. Else, it is not used.
+
         """
         if targets is None:
             targets = tuple()
@@ -254,6 +260,7 @@ class Moment:
 
         Raises:
             TQECException: if ``not is_annotation_instruction(annotation_instruction)``.
+
         """
         if not is_annotation_instruction(annotation_instruction):
             raise TQECException(
@@ -280,7 +287,8 @@ class Moment:
     @property
     def num_measurements(self) -> int:
         """Return the number of measurements in the :class:`Moment`
-        instance."""
+        instance.
+        """
         # Mypy is showing an error here:
         # error: Returning Any from function declared to return "int"
         # I do not understand why, but it probably has to do with Stim typing
@@ -289,7 +297,8 @@ class Moment:
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[int]) -> Moment:
         """Return a new :class:`Moment` instance containing only the
-        instructions that are applied on the provided qubits."""
+        instructions that are applied on the provided qubits.
+        """
         qubits = frozenset(qubits_to_keep)
         used_qubits: set[int] = set()
         new_circuit = stim.Circuit()
@@ -338,6 +347,7 @@ class Moment:
         Returns:
             a modified copy of ``self`` with the qubit gate targets mapped according
             to the provided ``qubit_index_map``.
+
         """
         circuit = stim.Circuit()
         for instr in self.instructions:
@@ -384,6 +394,7 @@ class Moment:
         Returns:
             a new instance of :class:`Moment` with the provided ``circuit`` and
             ``used_qubits``.
+
         """
         circuit = stim.Circuit(data["circuit"])
         used_qubits = set(data["used_qubits"])
@@ -417,6 +428,7 @@ def iter_stim_circuit_without_repeat_by_moments(
         TQECException: if the provided ``circuit`` ``TICK`` instructions are not
             inserted such that instructions between two ``TICK`` instructions
             are always applied on disjoint sets of qubits.
+
     """
     copy_func: Callable[[stim.Circuit], stim.Circuit] = (lambda c: c.copy()) if collected_before_use else (lambda c: c)
     cur_moment = stim.Circuit()

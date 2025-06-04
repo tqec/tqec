@@ -35,8 +35,8 @@ class PositionedZX:
 
         Raises:
             TQECException: If the constraints are not satisfied.
-        """
 
+        """
         self.check_preconditions(g, positions)
 
         self._g = g
@@ -125,6 +125,7 @@ class PositionedZX:
         Returns:
             The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from the block
             graph.
+
         """
         v2p: dict[int, Position3D] = {}
         p2v: dict[Position3D, int] = {}
@@ -171,6 +172,7 @@ class PositionedZX:
 
         Returns:
             A tuple of the figure and the axes.
+
         """
         from tqec.interop.pyzx.plot import plot_positioned_zx_graph
 

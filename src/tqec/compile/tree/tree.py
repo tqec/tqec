@@ -29,6 +29,7 @@ class QubitLister(NodeWalker):
 
         Args:
             k: scaling factor used to explore the quantum circuits.
+
         """
         super().__init__()
         self._k = k
@@ -195,6 +196,7 @@ class LayerTree:
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
+
         """
         if not add_polygons:
             circuit = self.generate_circuit(
@@ -296,6 +298,7 @@ class LayerTree:
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
             by ``self``.
+
         """
         # First, before we start any computations, decide which detector database to use.
         if isinstance(database_path, str):

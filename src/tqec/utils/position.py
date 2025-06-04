@@ -58,6 +58,7 @@ class Position2D(Vec2D):
         system being used. As such, it should only be used when the coordinate
         system is meaningless or in localised places where the coordinate system
         is obvious. In particular, this class should be avoided in interfaces.
+
     """
 
     def with_block_coordinate_system(self) -> BlockPosition2D:
@@ -65,7 +66,8 @@ class Position2D(Vec2D):
 
     def is_neighbour(self, other: Position2D) -> bool:
         """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1."""
+        distance is 1.
+        """
         return abs(self.x - other.x) + abs(self.y - other.y) == 1
 
     def to_3d(self, z: int = 0) -> Position3D:
@@ -142,7 +144,8 @@ class Position3D(Vec3D):
 
     def is_neighbour(self, other: Position3D) -> bool:
         """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1."""
+        distance is 1.
+        """
         return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z) == 1
 
     def as_tuple(self) -> tuple[int, int, int]:
@@ -230,6 +233,7 @@ class SignedDirection3D:
 
         Raises:
             TQECException: If the string does not match the expected format.
+
         """
         match = re.match(r"([+-])([XYZ])", s)
         if match is None:

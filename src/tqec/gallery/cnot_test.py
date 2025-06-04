@@ -1,5 +1,4 @@
 import pytest
-
 import pyzx as zx
 
 from tqec.gallery.cnot import cnot

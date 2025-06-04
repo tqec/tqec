@@ -1,5 +1,6 @@
 """Synthesis of :py:class:`~tqec.computation.BlockGraph` instance from PyZX
-graph."""
+graph.
+"""
 
 from tqec.interop.pyzx.synthesis.positioned import (
     positioned_block_synthesis as positioned_block_synthesis,

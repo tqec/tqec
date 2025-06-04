@@ -46,6 +46,7 @@ def get_logical_error_rate_per_shot(stat: sinter.TaskStats, max_likelihood_facto
     Returns:
         The estimation of the logical error rate per shot with appropriate error
         bars.
+
     """
     result = sinter.fit_binomial(
         num_shots=stat.shots - stat.discards,
@@ -151,6 +152,7 @@ def binary_search_threshold(
     Returns:
         A tuple containing an estimation of the threshold and a collection of all
         the logical error-rates computed while searching the threshold
+
     """
     compiled_graph = compile_block_graph(block_graph, convention, [observable])
     ks = tuple(sorted(ks))

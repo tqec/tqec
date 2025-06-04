@@ -18,6 +18,7 @@ def split_counts_for_observables(counts: Mapping[str, int], num_observables: int
 
     Returns:
         A list of error counts for each individual observable.
+
     """
     split_counts: list[int] = [0] * num_observables
     for key, count in counts.items():
@@ -43,6 +44,7 @@ def split_stats_for_observables(
 
     Returns:
         A list of statistics for each individual observable.
+
     """
     from sinter._data import ExistingData  # type: ignore
 
@@ -110,6 +112,7 @@ def heuristic_custom_error_key(observables: list[CorrelationSurface]) -> str:
 
     Returns:
         The heuristic custom error key.
+
     """
     # observable with minimal correlation surface area
     minimal_area_obs = min(observables, key=lambda x: x.area())

@@ -267,6 +267,7 @@ def display_collada_model(
     Returns:
         A helper class to display the 3D model, which implements the ``_repr_html_`` method and
         can be directly displayed in IPython compatible environments.
+
     """
     helper = _ColladaHTMLViewer(filepath_or_bytes)
 

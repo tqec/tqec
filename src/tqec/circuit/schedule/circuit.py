@@ -63,8 +63,8 @@ class ScheduledCircuit:
                 ``stim.CircuitRepeatBlock`` instance.
             TQECException: if the provided ``circuit`` contains at least one
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
-        """
 
+        """
         if isinstance(schedule, int):
             schedule = list(range(schedule, schedule + len(moments)))
         if isinstance(schedule, list):
@@ -120,8 +120,8 @@ class ScheduledCircuit:
                 ``stim.CircuitRepeatBlock`` instance.
             TQECException: if the provided ``circuit`` contains at least one
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
-        """
 
+        """
         if isinstance(schedule, int):
             schedule = list(range(schedule, schedule + circuit.num_ticks + 1))
         if isinstance(schedule, list):
@@ -170,6 +170,7 @@ class ScheduledCircuit:
 
         Returns:
             ``stim.Circuit`` instance represented by ``self``.
+
         """
         ret = stim.Circuit()
         if not self._moments:
@@ -226,6 +227,7 @@ class ScheduledCircuit:
         Returns:
             ``stim.Circuit`` instance represented by self encapsulated in a
             ``REPEAT`` block.
+
         """
         ret = stim.Circuit()
         # Appending the QUBIT_COORDS instructions first.
@@ -265,6 +267,7 @@ class ScheduledCircuit:
         Returns:
             a modified instance of :class:`ScheduledCircuit` (a copy if
             ``inplace`` is ``True``, else ``self``).
+
         """
         mapped_final_qubits = QubitMap({qubit_index_map[qi]: q for qi, q in self._qubit_map.items()})
         mapped_moments: list[Moment] = []
@@ -306,6 +309,7 @@ class ScheduledCircuit:
 
         Returns:
             an instance of :class:`ScheduledCircuit` with a new qubit map.
+
         """
         operand = self if inplace_qubit_map else copy(self)
         operand._qubit_map = operand._qubit_map.with_mapped_qubits(qubit_map)
@@ -361,6 +365,7 @@ class ScheduledCircuit:
 
         Raises:
             TQECException: if the provided calculated ``schedule`` is negative.
+
         """
         if not self._schedule:
             return None
@@ -384,6 +389,7 @@ class ScheduledCircuit:
 
         Raises:
             TQECException: if no moment exist at the provided ``schedule``.
+
         """
         moment_index = self._get_moment_index_by_schedule(schedule)
         if moment_index is None:
@@ -397,6 +403,7 @@ class ScheduledCircuit:
 
         Args:
             moment: the moment to schedule.
+
         """
         # By default, we cannot assume that self._schedule contains an entry, so
         # we insert at the first moment.
@@ -418,6 +425,7 @@ class ScheduledCircuit:
                 ``last schedule - 1`` (which might not be the second to last
                 schedule).
             moment: operations that should be added.
+
         """
         moment_index = self._get_moment_index_by_schedule(schedule)
         if moment_index is None:
@@ -437,6 +445,7 @@ class ScheduledCircuit:
         Args:
             index: index of the observable to append measurement records to.
             targets: measurement records forming (part of) the observable.
+
         """
         self.append_annotation(stim.CircuitInstruction("OBSERVABLE_INCLUDE", targets, [index]))
 
@@ -449,6 +458,7 @@ class ScheduledCircuit:
 
         Raises:
             TQECException: if the provided instruction is not an annotation.
+
         """
         if not is_annotation_instruction(instruction):
             raise TQECException(
@@ -475,6 +485,7 @@ class ScheduledCircuit:
         Returns:
             a new instance of :class:`ScheduledCircuit` with the filtered
             circuit and schedules.
+
         """
         qubits_indices_to_keep = frozenset(self._qubit_map.q2i[q] for q in qubits_to_keep if q in self.qubits)
         filtered_moments: list[Moment] = []
@@ -512,6 +523,7 @@ class ScheduledCircuit:
         Returns:
             a dictionary with the keys ``moments``, ``schedule`` and
             ``qubit_map`` and their corresponding values.
+
         """
         return {
             "moments": [m.to_dict() for m in self._moments],
@@ -526,6 +538,7 @@ class ScheduledCircuit:
         Args:
             data: dictionary with the keys ``moments``, ``schedule`` and
                 ``qubit_map``.
+
         """
         moments = [Moment.from_dict(m) for m in data["moments"]]
         schedule = Schedule(data["schedule"])

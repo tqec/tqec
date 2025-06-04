@@ -51,6 +51,7 @@ class AbstractObservable:
             supported at the bottom of the pipe. A single stabilizer measurements
             at the realignment layer represented by the pipe might be included in
             the logical observable.
+
     """
 
     top_readout_cubes: frozenset[Cube] = frozenset()
@@ -139,6 +140,7 @@ def compile_correlation_surface_to_abstract_observable(
     Raises:
         TQECException: If the block graph has open ports or the block graph cannot
             support the correlation surface.
+
     """
     # 0. Handle single node edge case
     if correlation_surface.is_single_node:
@@ -203,7 +205,8 @@ def compile_correlation_surface_to_abstract_observable(
     # 2. Handle all the pipes
     def has_obs_include(cube: Cube, correlation: Basis) -> bool:
         """Check if the top data qubit readout should be included in the
-        observable."""
+        observable.
+        """
         if cube.is_y_cube:
             return True
         assert isinstance(cube.kind, ZXCube)

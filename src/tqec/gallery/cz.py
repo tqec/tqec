@@ -4,8 +4,8 @@ import stim
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
-from tqec.utils.position import Position3D
 from tqec.utils.exceptions import TQECException
+from tqec.utils.position import Position3D
 
 
 def cz(support_flows: str | list[str] | None = None) -> BlockGraph:
@@ -31,6 +31,7 @@ def cz(support_flows: str | list[str] | None = None) -> BlockGraph:
         TQECException: If there is Y Pauli operator in the stabilizer flows, or
             if provided stabilizer flows are not valid for the CZ gate, or
             if no valid graph can be found for the given stabilizer flows.
+
     """
     g = BlockGraph("Logical CZ")
     nodes = [

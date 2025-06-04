@@ -9,10 +9,10 @@ import stim
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteSide
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import SquarePlaquetteQubits
+from tqec.utils.enums import Basis
 
 
 def make_zxxz_surface_code_plaquette(
@@ -33,6 +33,7 @@ def make_zxxz_surface_code_plaquette(
         data_measurement: the logical basis for data measurement.
         x_boundary_orientation: the orientation of the X boundary.
         init_meas_only_on_side: the side for data initialization and measurement.
+
     """
     builder = _ZXXZPlaquetteBuilder(basis, x_boundary_orientation)
     if data_initialization is not None:

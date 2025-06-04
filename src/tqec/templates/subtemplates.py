@@ -80,6 +80,7 @@ class UniqueSubTemplates:
             or of even width or length.
         TQECException: if not all the sub-template shapes in
             ``self.subtemplates.values()`` are equal.
+
     """
 
     subtemplate_indices: npt.NDArray[numpy.int_]
@@ -182,6 +183,7 @@ def get_spatially_distinct_subtemplates(
 
     Returns:
         a representation of all the sub-templates found.
+
     """
     y, x = instantiation.shape
     extended_instantiation = numpy.pad(instantiation, manhattan_radius, "constant", constant_values=0)
@@ -249,6 +251,7 @@ class Unique3DSubTemplates:
         subtemplates: a store of sub-template (values) indexed by `t`-tuples of
             integers (keys) that link the sub-template center to the original
             template instantiation thanks to `subtemplate_indices`.
+
     """
 
     subtemplate_indices: npt.NDArray[numpy.int_]
@@ -357,6 +360,7 @@ def get_spatially_distinct_3d_subtemplates(
 
     Returns:
         a representation of all the sub-templates found.
+
     """
     unique_2d_subtemplates = [
         get_spatially_distinct_subtemplates(

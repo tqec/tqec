@@ -9,10 +9,10 @@ import stim
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteSide
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import SquarePlaquetteQubits
+from tqec.utils.enums import Basis
 
 
 def make_css_surface_code_plaquette(
@@ -33,6 +33,7 @@ def make_css_surface_code_plaquette(
 
     Returns:
         A CSS-type surface code plaquette.
+
     """
     builder = _CSSPlaquetteBuilder(basis, x_boundary_orientation)
     if data_initialization is not None:

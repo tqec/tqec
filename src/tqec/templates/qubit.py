@@ -100,6 +100,7 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
         For ``k == 1``, this template does not include any of the plaquette
         that have an index in ``[13, 17]`` and so its instantiation has a "hole"
         in the plaquette indices.
+
     """
 
     @override

@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 
 class WithTemporalFootprint(ABC):
     """Base class providing the interface that should be implemented by objects
-    that have a temporal footprint."""
+    that have a temporal footprint.
+    """
 
     @property
     @abstractmethod
@@ -27,6 +28,7 @@ class WithTemporalFootprint(ABC):
             the number of timesteps needed to implement the object as an
             exact expression that can then be used to compute the number of
             timesteps for any value of ``k``.
+
         """
         pass
 
@@ -40,6 +42,7 @@ class WithTemporalFootprint(ABC):
         Returns:
             the number of timesteps needed to implement the object for
             the provided scaling parameter ``k``.
+
         """
         return self.scalable_timesteps.integer_eval(k)
 
@@ -58,6 +61,7 @@ class WithTemporalFootprint(ABC):
             a copy of ``self`` with the provided ``borders`` replaced, or ``None``
             if replacing the provided ``borders`` from ``self`` result in an
             empty temporal footprint.
+
         """
         pass
 

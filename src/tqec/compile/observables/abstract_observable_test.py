@@ -6,9 +6,9 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe
 from tqec.gallery.cnot import cnot
-from tqec.gallery.three_cnots import three_cnots
 from tqec.gallery.memory import memory
 from tqec.gallery.stability import stability
+from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 

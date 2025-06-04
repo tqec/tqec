@@ -57,6 +57,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
             the template and list of 3 mappings from plaquette indices to RPNG
             descriptions that are needed to implement the cube corresponding to
             the provided ``spec``.
+
         """
         assert isinstance(spec.kind, ZXCube)
         x, _, z = spec.kind.as_tuple()
@@ -129,6 +130,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         Returns:
             the block to implement a temporal pipe based on the
         provided ``spec``..
+
         """
         assert spec.pipe_kind.is_temporal
         if spec.pipe_kind.has_hadamard:
@@ -151,6 +153,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         Returns:
             the block to implement the provided
             ``spec``.
+
         """
         assert spec.pipe_kind.is_temporal
         assert not spec.pipe_kind.has_hadamard
@@ -180,6 +183,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
         Returns:
             the block to implement the provided ``spec``.
+
         """
         assert spec.pipe_kind.is_temporal
         assert spec.pipe_kind.has_hadamard
@@ -218,6 +222,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
             either one or two flags. If two flags are returned, they should be
             on the same line (e.g., it cannot be ``SpatialArms.RIGHT | SpatialArms.UP``
             but can be ``SpatialArms.RIGHT | SpatialArms.LEFT``).
+
         """
         assert spec.pipe_kind.is_spatial
         # Check that we do have a spatial junction.
@@ -260,7 +265,8 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
     def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
         """Returns the ``Template`` instance needed to implement the pipe
-        representing the provided ``spec``."""
+        representing the provided ``spec``.
+        """
         assert spec.pipe_kind.is_spatial
         match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
             case Direction3D.X, False:

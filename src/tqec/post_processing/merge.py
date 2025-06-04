@@ -28,6 +28,7 @@ def merge_adjacent_moments(circuit: stim.Circuit) -> stim.Circuit:
         a new quantum circuit that contains strictly the same instructions as
         the provided ``circuit`` but that might re-order some of these operations
         to reduce the number of moments.
+
     """
     merged_moments: list[Moment | RepeatedMoments] = list(
         iter_stim_circuit_by_moments(circuit, collected_before_use=True)
@@ -52,6 +53,7 @@ def _merge_internal_adjacent_moments_inline(
 
     Returns:
         ``True`` if the provided ``moments`` have been modified, else ``False``.
+
     """
     i: int = 1
     modification_performed: bool = False

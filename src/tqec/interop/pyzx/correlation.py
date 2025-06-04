@@ -1,17 +1,18 @@
 """Defines the ``CorrelationSurface`` class and the functions to find the
-correlation surfaces in the ZX graph."""
+correlation surfaces in the ZX graph.
+"""
 
 from __future__ import annotations
 
+import itertools
 from fractions import Fraction
 from functools import reduce
-import itertools
 from typing import Iterator
 
+import stim
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb, multiply_paulis
 from pyzx.utils import FractionLike, VertexType
-import stim
 
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.utils import (
@@ -37,6 +38,7 @@ def correlation_surface_to_pauli_web(
 
     Returns:
         A `PauliWeb` representation of the correlation surface.
+
     """
     half_edge_bases: dict[tuple[int, int], set[str]] = {}
     for edge in correlation_surface.span:
@@ -112,6 +114,7 @@ def find_correlation_surfaces(
 
     Returns:
         A list of `CorrelationSurface` in the graph.
+
     """
     _check_spiders_are_supported(g)
     # Edge case: single node graph
@@ -203,7 +206,8 @@ def _find_spans_with_flood_fill(
     current_span: set[ZXEdge],
 ) -> list[frozenset[ZXEdge]] | None:
     """Find the correlation spans in the ZX graph using the flood fill like
-    algorithm."""
+    algorithm.
+    """
     # The node type mismatches the logical observable basis, then we can flood
     # through(broadcast) all the edges connected to the current node.
     # Greedily flood through the edges until encountering the passthrough node.
@@ -299,7 +303,8 @@ _SUPPORTED_SPIDERS: set[tuple[VertexType, FractionLike]] = {
 
 def _check_spiders_are_supported(g: GraphS) -> None:
     """Check the preconditions for the correlation surface finding
-    algorithm."""
+    algorithm.
+    """
     # 1. Check the spider types and phases are supported
     for v in g.vertices():
         vt = g.type(v)
@@ -330,6 +335,7 @@ def reduce_observables_to_minimal_generators(
 
     Returns:
         A mapping from the generators' stabilizers to the correlation surfaces.
+
     """
     if not stabilizers_to_surfaces:
         return {}

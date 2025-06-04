@@ -9,7 +9,6 @@ instances with the same scalable shape. Each of the managed
 
 Example
 -------
-
 A grid of :math:`2 \\times 2` logical qubits can be represented with
 
 .. code-block:: python
@@ -62,6 +61,7 @@ which outputs
     21  23  24  23  24  25  49  51  52  51  52  53
     22  24  23  24  23  26  50  52  51  52  51  54
     17  27  28  27  28  18  45  55  56  55  56  46
+
 """
 
 from copy import deepcopy
@@ -107,6 +107,7 @@ class LayoutTemplate(Template):
                 templates in the layout as keys and the templates as values.
             default_increments: default increments between two plaquettes. Defaults
                 to ``Displacement(2, 2)`` when ``None``.
+
         """
         super().__init__(default_increments)
         if not element_layout:
@@ -154,6 +155,7 @@ class LayoutTemplate(Template):
             from ``N`` to ``N + template.expected_plaquettes_number - 1`` where
             ``N`` depends on the other :class:`~tqec.templates.base.Template`
             instances managed by ``self``).
+
         """
         if instantiate_indices is None:
             instantiate_indices = list(range(1, self.expected_plaquettes_number + 1))
@@ -187,6 +189,7 @@ class LayoutTemplate(Template):
             a unique :class:`~tqec.plaquette.plaquette.Plaquettes` instance that
             can be used with ``self`` to generate a quantum circuit with
             :meth:`~tqec.compile.generation.generate_circuit`.
+
         """
         missing_positions = frozenset(self._layout.keys()) - frozenset(individual_plaquettes.keys())
         if missing_positions:
@@ -233,6 +236,7 @@ class LayoutTemplate(Template):
 
         Returns:
             the number of plaquettes expected from the `instantiate` method.
+
         """
         return sum(template.expected_plaquettes_number for template in self._layout.values())
 
@@ -249,6 +253,7 @@ class LayoutTemplate(Template):
         Returns:
             a numpy array with the given plaquette indices arranged according to
             the underlying shape of the template.
+
         """
         indices_map = self.get_indices_map_for_instantiation(plaquette_indices)
 

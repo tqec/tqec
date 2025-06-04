@@ -1,9 +1,8 @@
 import pytest
-
 import pyzx as zx
 
-from tqec.utils.exceptions import TQECException
 from tqec.gallery.cz import cz
+from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Position3D
 
 

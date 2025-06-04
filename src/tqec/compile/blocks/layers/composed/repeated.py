@@ -37,8 +37,8 @@ class RepeatedLayer(BaseComposedLayer):
                 and ``repetitions.slope != 0``).
             TQECException: if the total number of timesteps is strictly
                 decreasing.
-        """
 
+        """
         super().__init__(trimmed_spatial_borders)
         self._internal_layer = internal_layer
         self._repetitions = repetitions

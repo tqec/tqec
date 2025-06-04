@@ -50,6 +50,7 @@ def _get_measurement_offset_mapping(circuit: stim.Circuit) -> dict[int, Measurem
     Returns:
         a mapping from record offset to :class:`Measurement` for all the
         measurements appearing in the provided `circuit`.
+
     """
     return {-i - 1: m for i, m in enumerate(reversed(get_measurements_from_circuit(circuit)))}
 
@@ -69,6 +70,7 @@ def _matched_detectors_to_detectors(
     Returns:
         :class:`Detector` instances representing the same detectors as the
         provided `detectors`.
+
     """
     ret: list[Detector] = []
     for d in detectors:
@@ -100,6 +102,7 @@ def _center_plaquette_syndrome_qubits(
         a collection of qubits that are used as syndrome qubits by the central
         plaquette. Returns an empty collection if the central plaquette has the
         index `0`.
+
     """
     # Subtemplates are expected to have a shape of (2*r+1, 2*r+1), so `r` can
     # be recovered by computing `(2*r+1) // 2 == r`.
@@ -145,6 +148,7 @@ def _filter_detectors(
         a filtered sequence of detectors. All the returned detectors are from
         the provided `detectors` (i.e., this function does not create or combine
         detectors).
+
     """
     # First, we want the detectors to be composed of at least one measurement
     # involving one of the syndrome qubits of the central plaquette in the last
@@ -288,8 +292,8 @@ def compute_detectors_at_end_of_situation(
 
     Raises:
         TQECException: if `len(subtemplates) != len(plaquettes_at_timestep)`.
-    """
 
+    """
     # Try to recover the result from the database.
     if database is not None:
         detectors = database.get_detectors(subtemplates, plaquettes_by_timestep)
@@ -345,6 +349,7 @@ def _get_or_default(
     Returns:
         `array[slices[0][0]:slices[0][1], ..., slices[-1][0]:slices[-1][1]]`,
         with any out-of-bounds index associated to the provided `default` value.
+
     """
     if any(start > stop for start, stop in slices):
         raise TQECException("The provided slices should be non-empty.")
@@ -442,6 +447,7 @@ def _compute_superimposed_template_instantiations(
         same origin, meaning that in the final circuit `ret[i][x, y]` represent
         indices of plaquettes that will be stacked up (in time) for all `i` and
         any `x` and `y`.
+
     """
     origins = [t.instantiation_origin(k) for t in templates]
     instantiations = [t.instantiate(k) for t in templates]
@@ -505,6 +511,7 @@ def compute_detectors_for_fixed_radius(
     Returns:
         a collection of detectors that should be added at the end of the circuit
         that would be obtained from the provided `templates` and `plaquettes`.
+
     """
     all_increments = frozenset(t.get_increments() for t in templates)
     if len(all_increments) != 1:

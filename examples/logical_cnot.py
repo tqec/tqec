@@ -1,5 +1,6 @@
 """This is an example of compiling a logical CNOT `.dae` model to
-`stim.Circuit`."""
+`stim.Circuit`.
+"""
 
 from pathlib import Path
 from typing import Literal
@@ -14,10 +15,10 @@ from tqec.compile.specs.library.zxxz import (
     ZXXZ_SUBSTITUTION_BUILDER,
 )
 from tqec.gallery.cnot import cnot
-from tqec.utils.enums import Basis
-from tqec.utils.noise_model import NoiseModel
 from tqec.simulation.plotting.inset import plot_observable_as_inset
 from tqec.simulation.simulation import start_simulation_using_sinter
+from tqec.utils.enums import Basis
+from tqec.utils.noise_model import NoiseModel
 
 EXAMPLE_FOLDER = Path(__file__).parent
 TQEC_FOLDER = EXAMPLE_FOLDER.parent

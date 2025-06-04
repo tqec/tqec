@@ -3,8 +3,8 @@ import pytest
 from tqec.compile.observables.fixed_bulk_builder import (
     _get_bottom_stabilizer_cube_qubits,
     _get_bottom_stabilizer_spatial_cube_qubits,
-    _get_top_readout_spatial_cube_qubits,
     _get_temporal_hadamard_includes_qubits,
+    _get_top_readout_spatial_cube_qubits,
 )
 from tqec.compile.specs.enums import SpatialArms
 from tqec.utils.enums import Basis, Orientation

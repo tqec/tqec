@@ -37,7 +37,7 @@ def generate_animation(
         "libx264 -vf format=yuv420p -vf pad=ceil(iw/2)*2:ceil(ih/2)*2 -filter_complex "
         "[0]split=2[bg][fg];[bg]drawbox=c=white@1:t=fill[bg];[bg][fg]overlay=format=auto"
     )
-    result = subprocess.run(command.split(), capture_output=True)
+    result = subprocess.run(command.split(), capture_output=True, check=False)
     # Print the path of the generated video on success.
     if result.returncode == 0:
         print(f"Video successfully generated at '{out_file}'.")

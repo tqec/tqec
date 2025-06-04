@@ -57,6 +57,7 @@ class _DetectorDatabaseKey:
     it has the advantage of being easy to construct, trivially invariant to
     plaquette re-indexing and easy to hash (with some care to NOT use Python's
     default `hash` due to its absence of stability across different runs).
+
     """
 
     subtemplates: Sequence[SubTemplateType]
@@ -99,7 +100,8 @@ class _DetectorDatabaseKey:
     @cached_property
     def reliable_hash(self) -> int:
         """Returns a hash of `self` that is guaranteed to be constant across
-        Python versions, OSes and executions."""
+        Python versions, OSes and executions.
+        """
         hasher = hashlib.md5()
         for timeslice in self.plaquette_names:
             for row in timeslice:
@@ -121,6 +123,7 @@ class _DetectorDatabaseKey:
 
         Returns:
             `stim.Circuit` instance represented by `self`.
+
         """
         circuits, qubit_map = relabel_circuits_qubit_indices(
             [
@@ -147,6 +150,7 @@ class _DetectorDatabaseKey:
         Returns:
             a dictionary with the keys ``subtemplates`` and
             ``plaquettes_by_timestep`` and their corresponding values.
+
         """
         return {
             "subtemplates": [st.tolist() for st in self.subtemplates],
@@ -170,6 +174,7 @@ class _DetectorDatabaseKey:
         Returns:
             a new instance of :class:`_DetectorDatabaseKey` with the provided
             ``subtemplates`` and ``plaquettes_by_timestep``.
+
         """
         subtemplates = [numpy.array(st) for st in data["subtemplates"]]
         plaquettes_by_timestep = [Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]]
@@ -214,6 +219,7 @@ class DetectorDatabase:
 
         Raises:
             TQECException: if this method is called and `self.frozen`.
+
         """
         if self.frozen:
             raise TQECException("Cannot add a situation to a frozen database.")
@@ -238,6 +244,7 @@ class DetectorDatabase:
 
         Raises:
             TQECException: if this method is called and `self.frozen`.
+
         """
         if self.frozen:
             raise TQECException("Cannot remove a situation to a frozen database.")
@@ -265,6 +272,7 @@ class DetectorDatabase:
         Returns:
             detectors associated with the provided situation or `None` if the
             situation is not in the database.
+
         """
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
         return self.mapping.get(key)
@@ -287,6 +295,7 @@ class DetectorDatabase:
         Returns:
             a list of Crumble URLs, each one representing a situation stored in
             `self`.
+
         """
         urls: list[str] = []
         for key, detectors in self.mapping.items():
@@ -306,6 +315,7 @@ class DetectorDatabase:
         Returns:
             a dictionary with the keys ``mapping`` and ``frozen`` and their
             corresponding values.
+
         """
         # First obtain the unique plaquettes
         plaquettes_set: set[Plaquette] = set()
@@ -339,6 +349,7 @@ class DetectorDatabase:
         Returns:
             a new instance of :class:`DetectorDatabase` with the provided
             ``mapping`` and ``frozen``.
+
         """
         uniq_plaquettes = [Plaquette.from_dict(p) for p in data["uniq_plaquettes"]]
         mapping = {
@@ -356,6 +367,7 @@ class DetectorDatabase:
             filepath: path to the file where the database should be saved.
             format: format to use to save the database. Currently only
                 "pickle" and "json" are supported.
+
         """
         if not filepath.parent.exists():
             filepath.parent.mkdir()

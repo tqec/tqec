@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 import sinter
 
-from tqec.utils.exceptions import TQECException
 from tqec.simulation.io_utils.csv_files import write_sinter_stats_to_csv
+from tqec.utils.exceptions import TQECException
 
 
 @pytest.fixture

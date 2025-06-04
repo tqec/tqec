@@ -1,5 +1,6 @@
 """Defines the :class:`~.schedule.Schedule` class, a thin wrapper around
-``list[int]`` to represent a schedule."""
+``list[int]`` to represent a schedule.
+"""
 
 from __future__ import annotations
 
@@ -72,6 +73,7 @@ class Schedule:
         Raises:
             ScheduleException: if the inserted integer makes the schedule
                 invalid.
+
         """
         self.schedule.insert(i, value)
         try:
@@ -93,6 +95,7 @@ class Schedule:
         Raises:
             ScheduleException: if the inserted integer makes the schedule
                 invalid.
+
         """
         self.schedule.append(value)
         try:

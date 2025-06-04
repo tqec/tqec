@@ -5,13 +5,12 @@ from __future__ import annotations
 import json
 import math
 import pathlib
-import numpy as np
-
 from collections.abc import Mapping
 from copy import deepcopy
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, cast
 
+import numpy as np
 from networkx import Graph, is_connected
 from networkx.utils import graphs_equal
 
@@ -133,6 +132,7 @@ class BlockGraph:
 
         Returns:
             The spacetime volume of the computation.
+
         """
         return self.num_cubes - self.num_ports - self.num_half_y_cubes * 0.5
 
@@ -142,6 +142,7 @@ class BlockGraph:
         Returns:
             A tuple of three integers representing the width along the X, Y, and Z
             directions, respectively.
+
         """
         positions = self.occupied_positions
         return (
@@ -162,7 +163,8 @@ class BlockGraph:
 
     def get_degree(self, position: Position3D) -> int:
         """Get the degree of a node in the graph, i.e. the number of edges
-        incident to it."""
+        incident to it.
+        """
         return self._graph.degree(position)  # type: ignore
 
     @property
@@ -196,6 +198,7 @@ class BlockGraph:
             TQECException: If there is already a cube at the same position, or
                 if the cube kind is not recognized, or if the cube is a port and
                 there is already a port with the same label in the graph.
+
         """
         if position in self:
             raise TQECException(f"Cube already exists at position {position}.")
@@ -229,6 +232,7 @@ class BlockGraph:
             TQECException: If any of the positions do not have a cube in the graph, or
                 if there is already an pipe between the given positions, or
                 if the pipe is not compatible with the cubes it connects.
+
         """
         u, v = self[pos1], self[pos2]
         if self.has_pipe_between(pos1, pos2):
@@ -248,6 +252,7 @@ class BlockGraph:
             position: The position of the cube to be removed.
 
         Raises: TQECException: If there is no cube at the given position.
+
         """
         self._check_cube_exists(position)
         cube = self[position]
@@ -264,6 +269,7 @@ class BlockGraph:
 
         Raises:
             TQECException: If there is no pipe between the given positions.
+
         """
         self._check_pipe_exists(pos1, pos2)
         self._graph.remove_edge(pos1, pos2)
@@ -277,6 +283,7 @@ class BlockGraph:
 
         Returns:
             True if there is an pipe between the two positions, False otherwise.
+
         """
         return self._graph.has_edge(pos1, pos2)
 
@@ -293,6 +300,7 @@ class BlockGraph:
 
         Raises:
             TQECException: If there is no pipe between the given positions.
+
         """
         self._check_pipe_exists(pos1, pos2)
         return cast(Pipe, self._graph.edges[pos1, pos2][self._EDGE_DATA_KEY])
@@ -342,6 +350,7 @@ class BlockGraph:
 
         Raises:
             TQECException: If the above conditions are not satisfied.
+
         """
         for cube in self.cubes:
             self._validate_locally_at_cube(cube)
@@ -385,6 +394,7 @@ class BlockGraph:
 
         Returns:
             A :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` object converted from the block graph.
+
         """
         from tqec.interop.pyzx.positioned import PositionedZX
 
@@ -405,6 +415,7 @@ class BlockGraph:
             pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
                 This is useful for visualizing the internal structure of the blocks. Default is None.
             show_correlation_surface: The correlation surface to show in the block graph. Default is None.
+
         """
         from tqec.interop.collada.read_write import write_block_graph_to_dae_file
 
@@ -426,6 +437,7 @@ class BlockGraph:
 
         Returns:
             The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.
+
         """
         from tqec.interop.collada.read_write import read_block_graph_from_dae_file
 
@@ -453,6 +465,7 @@ class BlockGraph:
         Returns:
             A helper class to display the 3D model, which implements the ``_repr_html_`` method and
             can be directly displayed in IPython compatible environments.
+
         """
         from tqec.interop.collada.html_viewer import display_collada_model
         from tqec.interop.collada.read_write import write_block_graph_to_dae_file
@@ -482,6 +495,7 @@ class BlockGraph:
         Returns:
             A new graph with the shifted positions. The new graph will share no data
             with the original graph.
+
         """
         new_graph = BlockGraph()
         for cube in self.cubes:
@@ -507,6 +521,7 @@ class BlockGraph:
 
         Returns:
             The list of correlation surfaces.
+
         """
         from tqec.interop.pyzx.correlation import find_correlation_surfaces
 
@@ -524,6 +539,7 @@ class BlockGraph:
 
         Raises:
             TQECException: if there is no port with the given label.
+
         """
         if isinstance(fill, CubeKind):
             fill = {label: fill for label in self._ports}
@@ -555,6 +571,7 @@ class BlockGraph:
             containing a block graph with all ports filled and a set of correlation
             surfaces that can be used as logical observables for the simulation on that
             block graph.
+
         """
         from tqec.computation.open_graph import fill_ports_for_minimal_simulation
 
@@ -634,7 +651,8 @@ class BlockGraph:
 
     def is_single_connected(self) -> bool:
         """Check if the graph is single connected, i.e. there is only one connected
-        component in the graph."""
+        component in the graph.
+        """
         return bool(is_connected(self._graph))
 
     def rotate(
@@ -654,6 +672,7 @@ class BlockGraph:
         Returns:
             A new graph with the rotated positions. The new graph will share no data
             with the original graph.
+
         """
         from tqec.utils.rotations import (
             get_rotation_matrix,
@@ -703,6 +722,7 @@ class BlockGraph:
 
         Returns:
             A new graph with the shadowed faces fixed.
+
         """
         fixed_cubes: dict[Cube, Cube] = {}
         for cube in self.cubes:
@@ -756,14 +776,14 @@ class BlockGraph:
         return new_graph
 
     def get_cubes_by_label(self, label: str) -> list[Cube]:
-        """
-        Find cubes with the specified label in the BlockGraph.
+        """Find cubes with the specified label in the BlockGraph.
 
         Args:
             label: The label of the cubes.
 
         Returns:
             The cube instances that have the specified label.
+
         """
         return [cube for cube in self.cubes if cube.label == label]
 
@@ -810,6 +830,7 @@ class BlockGraph:
         Returns:
             The JSON string representation of the block graph if `file_path` is None,
             otherwise None.
+
         """
         # Get dictionary from blockgraph
         obj_dict = self.to_dict()
@@ -838,6 +859,7 @@ class BlockGraph:
 
         Returns:
             The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.
+
         """
         from tqec.interop.collada.read_write import read_block_graph_from_json
 
@@ -856,6 +878,7 @@ class BlockGraph:
         Raises:
             TQECException: If a cube is not found for the given key, if a port label
                 is reused, or if the new label conflicts with existing port labels.
+
         """
         port_labels = {cube.label for cube in self.cubes if cube.is_port}
         assigned_new_labels: set[str] = set()
@@ -882,11 +905,10 @@ class BlockGraph:
                 if new_label in assigned_new_labels:
                     raise TQECException(f"Port label '{new_label}' is reused multiple times.")
                 assigned_new_labels.add(new_label)
-            else:
-                if new_label in port_labels:
-                    raise TQECException(
-                        f"The label '{new_label}' belongs to a port and cannot be reused by a non-port cube."
-                    )
+            elif new_label in port_labels:
+                raise TQECException(
+                    f"The label '{new_label}' belongs to a port and cannot be reused by a non-port cube."
+                )
 
             for cube in matching_cubes:
                 updated_cube = Cube(position=cube.position, kind=cube.kind, label=new_label)

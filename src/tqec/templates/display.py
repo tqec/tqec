@@ -1,5 +1,6 @@
 """Provides functions to pretty-print :class:`~tqec.templates.base.Template`
-instances."""
+instances.
+"""
 
 from __future__ import annotations
 
@@ -19,6 +20,7 @@ def display_template(template: Template, k: int, plaquette_indices: ty.Sequence[
         plaquette_indices: the plaquette indices that are forwarded to the call
             to `template.instantiate` to get the actual template representation.
             If None, default to ``range(1, template.expected_plaquettes_number + 1)``.
+
     """
     if plaquette_indices is None:
         plaquette_indices = tuple(range(1, template.expected_plaquettes_number + 1))
@@ -32,6 +34,7 @@ def display_template_from_instantiation(instantiation: npt.NDArray[numpy.int_]) 
     Args:
         instantiation: the integer array obtained from the `Template.instantiate`
             method.
+
     """
     print(get_template_representation_from_instantiation(instantiation))
 

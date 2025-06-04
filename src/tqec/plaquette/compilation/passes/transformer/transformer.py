@@ -42,6 +42,7 @@ class ScheduledCircuitTransformation:
         instruction_simplifier: a simplifier applied before trying to create a
             :class:`~tqec.circuit.moment.Moment` instance with the instructions
             resulting from the application of ``self``.
+
     """
 
     source_name: str
@@ -93,6 +94,7 @@ class ScheduledCircuitTransformer:
         Due to the very limited size of the circuits given to the compilation
         pipeline, this performance issue does not seem to have a measurable
         impact at the moment.
+
     """
 
     def __init__(self, transformations: Sequence[ScheduledCircuitTransformation]) -> None:

@@ -51,6 +51,7 @@ class LayoutLayer(BaseLayer):
         Raises:
             TQECException: if ``layers`` is empty.
             TQECException: if ``trimmed_spatial_borders`` is not empty.
+
         """
         super().__init__(frozenset())
         self._layers = layers
@@ -125,6 +126,7 @@ class LayoutLayer(BaseLayer):
             a tuple ``(template, plaquettes)`` that is ready to be used with
             :meth:`~tqec.compile.generation.generate_circuit` to obtain the quantum
             circuit representing ``self``.
+
         """
         if not contains_only_plaquette_layers(self.layers):
             raise NotImplementedError(
@@ -186,6 +188,7 @@ class LayoutLayer(BaseLayer):
 
         Returns:
             quantum circuit representing the layer.
+
         """
         template, plaquettes = self.to_template_and_plaquettes()
         scheduled_circuit = generate_circuit(template, k, plaquettes)

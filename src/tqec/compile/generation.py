@@ -61,6 +61,7 @@ def generate_circuit(template: Template, k: int, plaquettes: Plaquettes) -> Sche
         a :class:`~.schedule.circuit.ScheduledCircuit` instance implementing the
         (part of) quantum error correction experiment represented by the
         provided inputs.
+
     """
     # instantiate the template with the appropriate plaquette indices.
     # Index 0 is "no plaquette" by convention and should not be included here.
@@ -110,6 +111,7 @@ def generate_circuit_from_instantiation(
     Raises:
         TQECException: if any index in ``plaquette_array`` is not correctly
             associated to a plaquette in ``plaquettes``.
+
     """
     # Collect all the used plaquette indices, removing 0 if present.
     indices = numpy.unique(plaquette_array)

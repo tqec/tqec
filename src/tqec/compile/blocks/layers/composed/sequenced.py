@@ -32,6 +32,7 @@ class SequencedLayers(BaseComposedLayer):
 
         Raises:
             TQECException: if the provided ``layer_sequence`` is empty.
+
         """
         super().__init__(trimmed_spatial_borders)
         self._layer_sequence = layer_sequence

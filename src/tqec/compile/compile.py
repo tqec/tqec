@@ -40,6 +40,7 @@ def compile_block_graph(
     Returns:
         A :class:`TopologicalComputationGraph` object that can be used to generate a
         ``stim.Circuit`` and scale easily.
+
     """
     # All the ports should be filled before compiling the block graph.
     if block_graph.num_ports != 0:

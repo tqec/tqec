@@ -32,8 +32,10 @@ class PlaquetteQubits:
         Args:
             orientation (TemplateOrientation, optional): Whether to use horizontal or
                 vertical orientation as the axis. Defaults to horizontal.
+
         Returns:
             The qubits on the edge of the plaquette.
+
         """
 
         def _get_relevant_value(qubit: GridQubit) -> int:
@@ -55,6 +57,7 @@ class PlaquetteQubits:
 
         Returns:
             The qubits on the edge of the plaquette.
+
         """
         if side == PlaquetteSide.LEFT:
             min_x = min(q.x for q in self)
@@ -105,6 +108,7 @@ class PlaquetteQubits:
         Returns:
             a dictionary with the keys ``data_qubits`` and ``syndrome_qubits`` and
             their corresponding values.
+
         """
         return {
             "data_qubits": [q.to_dict() for q in self.data_qubits],
@@ -122,6 +126,7 @@ class PlaquetteQubits:
         Returns:
             a new instance of :class:`PlaquetteQubits` with the provided
             ``data_qubits`` and ``syndrome_qubits``.
+
         """
         data_qubits = [GridQubit.from_dict(q) for q in data["data_qubits"]]
         syndrome_qubits = [GridQubit.from_dict(q) for q in data["syndrome_qubits"]]
