@@ -499,13 +499,17 @@ def _compute_superimposed_template_instantiations(
 def _extract_subtemplates_from_s3d(
     s3d: npt.NDArray[numpy.int_],
 ) -> list[npt.NDArray[numpy.int_]]:
-    """Extract 2D subtemplates from a 3D array.
+    """Extract 2D spatial subtemplates from a 3D array.
+
+    This function takes a 3D array where the first two dimensions
+    represent spatial coordinates and the third dimension represents time steps.
+    It extracts a list of 2D spatial arrays, one for each time step.
 
     Args:
-        s3d: 3D numpy array with shape (height, width, depth)
+        s3d: 3D numpy array representation of sub-templates.
 
     Returns:
-        List of 2D numpy arrays, one for each depth slice
+        List of 2D numpy arrays, one for each time step.
     """
     return [s3d[:, :, i] for i in range(s3d.shape[2])]
 

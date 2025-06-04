@@ -340,8 +340,7 @@ class LayerTree:
         # to accelerate the computation.
         if detector_database is None or len(detector_database) == 0:
             parallel = True
-        # Otherwise we disable parallel processing to avoid overhead of copying
-        # the database to multiple processes.
+        # Otherwise we disable parallel processing
         else:
             parallel = False
 
