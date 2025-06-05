@@ -232,6 +232,11 @@ ignore = [
 # D416 was adding a semicolon after some section headings when ruff's automated --fix was was used
 # As this was not added evenly after all section headings, we ignore this.
 
+# D400 - Checks for docstrings in which the first line does not end in a period.
+# D401 - Checks for docstring first lines that are not in an imperative mood.
+# D404 - Checks for docstrings that start with `This`.
+# D415 - Checks for docstrings in which the first line does not end in a punctuation mark, such as a period, question mark, or exclamation point.
+
 # PLR0912 -- Checks for functions or methods with too many branches. The default number is 12.
 # PLR0911 -- Checks for functions or methods with too many return statements. The default number is 6.
 # PLR0915 -- Checks for functions or methods with too many statements. The default number is 50.
