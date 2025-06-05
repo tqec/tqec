@@ -558,7 +558,7 @@ def compute_detectors_for_fixed_radius(
     fixed_subtemplate_radius: int = 2,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
-    parallel: bool = False,
+    parallel_process_count: int = 1,
 ) -> list[Detector]:
     """Returns detectors that should be added at the end of the circuit that
     would be obtained from the provided `template_at_timestep` and
@@ -587,8 +587,10 @@ def compute_detectors_for_fixed_radius(
         only_use_database: if ``True``, only detectors from the database will be
             used. An error will be raised if a situation that is not registered
             in the database is encountered. Default to ``False``.
-        parallel: if ``True``, use multiprocessing to speed up detector
-            computation. Default to ``False``.
+        parallel_process_count: number of processes to use for parallel processing.
+            1 for sequential processing, >1 for parallel processing using
+            ``parallel_process_count`` processes, and -1 for using all available
+            CPU cores. Default to 1.
 
     Returns:
         a collection of detectors that should be added at the end of the circuit
@@ -620,7 +622,13 @@ def compute_detectors_for_fixed_radius(
     # centered on the central plaquette origin.
     detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]]
 
-    if parallel:
+    # If parallel_process_count > 1 or parallel_process_count == -1, we will
+    # enable parallel processing to compute detectors in parallel.
+    if parallel_process_count > 1 or parallel_process_count == -1:
+        parallel_process_count = (
+            cpu_count() if parallel_process_count == -1 else parallel_process_count
+        )
+        # If database is not None, using a shared database via SyncManager
         if database is not None:
             # Create a manager to handle the shared database
             with SyncManager() as manager:
@@ -642,7 +650,7 @@ def compute_detectors_for_fixed_radius(
                 ]
 
                 # Use multiprocessing to compute detectors in parallel
-                with Pool(processes=cpu_count()) as pool:
+                with Pool(processes=parallel_process_count) as pool:
                     results = pool.map(_compute_detector_for_subtemplate, args_list)
 
                 # Convert results to dictionary
@@ -655,12 +663,13 @@ def compute_detectors_for_fixed_radius(
                 for indices, s3d in unique_3d_subtemplates.subtemplates.items()
             ]
 
-            with Pool(processes=cpu_count()) as pool:
+            with Pool(processes=parallel_process_count) as pool:
                 results = pool.map(_compute_detector_for_subtemplate, args_list)
 
             # Convert results to dictionary
             detectors_by_subtemplate = dict(results)
-    else:
+    # If parallel_process_count == 1, computing detectors sequentially
+    elif parallel_process_count == 1:
         detectors_by_subtemplate = {
             indices: compute_detectors_at_end_of_situation(
                 _extract_subtemplates_from_s3d(s3d),
@@ -671,6 +680,12 @@ def compute_detectors_for_fixed_radius(
             )
             for indices, s3d in unique_3d_subtemplates.subtemplates.items()
         }
+    # Elase, invalid parallel_process_count
+    else:
+        raise TQECException(
+            f"Invalid parallel_process_count: {parallel_process_count}. "
+            "Expected a positive integer or -1 for using all available CPU cores."
+        )
 
     # We know for sure that detectors in each subtemplate all involve a measurement
     # on at least one syndrome qubit of the central plaquette. That means that
