@@ -198,7 +198,9 @@ class Direction3D(Enum):
         ):
             if source_coord != sink_coord:
                 return direction
-        raise TQECException(f"Could not find the direction from two neighbouring positions {source:=} and {sink:=}.")
+        raise TQECException(
+            f"Could not find the direction from two neighbouring positions {source:=} and {sink:=}."
+        )
 
     @property
     def orthogonal_directions(self) -> tuple[Direction3D, Direction3D]:

@@ -107,7 +107,9 @@ def fill_ports_for_minimal_simulation(
                     [stab_to_surface[s] for s in comb],
                 )
                 stab_to_surface[stabilizer] = correlation_surface
-        generators = list(reduce_observables_to_minimal_generators(stab_to_surface, num_ports).keys())
+        generators = list(
+            reduce_observables_to_minimal_generators(stab_to_surface, num_ports).keys()
+        )
 
     # Two stabilizers are compatible if they can agree on the supported observable
     # basis on the common ports. We can construct a graph that assigns a node to
@@ -158,7 +160,10 @@ def fill_ports_for_minimal_simulation(
             pipe_kind = pipe_at_port.kind
             at_head = pipe_at_port.u == graph[port_pos]
             fill_kind = ZXCube(
-                *[pipe_kind.get_basis_along(dir, at_head) or Basis(basis) for dir in Direction3D.all_directions()]
+                *[
+                    pipe_kind.get_basis_along(dir, at_head) or Basis(basis)
+                    for dir in Direction3D.all_directions()
+                ]
             )
             fg.fill_ports({port: fill_kind})
         assert fg.num_ports == 0

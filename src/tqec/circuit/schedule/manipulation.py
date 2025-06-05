@@ -183,9 +183,9 @@ def remove_duplicate_instructions(
         if inst.name in mergeable_instruction_names:
             # Mergeable operations are automatically merged thanks to
             # the use of a set here.
-            mergeable_operations.setdefault((inst.name, tuple(inst.gate_args_copy())), set()).update(
-                tuple(group) for group in inst.target_groups()
-            )
+            mergeable_operations.setdefault(
+                (inst.name, tuple(inst.gate_args_copy())), set()
+            ).update(tuple(group) for group in inst.target_groups())
         else:
             final_operations.append(inst)
     # Add the merged operations into the final ones
@@ -229,7 +229,9 @@ def merge_instructions(
     instructions_merger: dict[tuple[str, tuple[float, ...]], list[list[stim.GateTarget]]] = {}
     for instruction in instructions:
         args = tuple(instruction.gate_args_copy())
-        instructions_merger.setdefault((instruction.name, args), []).extend(instruction.target_groups())
+        instructions_merger.setdefault((instruction.name, args), []).extend(
+            instruction.target_groups()
+        )
     return [
         stim.CircuitInstruction(name, sum(targets, start=[]), args)
         for (name, args), targets in instructions_merger.items()
@@ -276,7 +278,9 @@ def merge_scheduled_circuits(
     while scheduled_circuits.has_pending_moment():
         schedule, moments = scheduled_circuits.collect_moments_at_minimum_schedule()
         # Flatten the moments into a list of operations to perform some modifications
-        instructions: list[stim.CircuitInstruction] = sum((list(moment.instructions) for moment in moments), start=[])
+        instructions: list[stim.CircuitInstruction] = sum(
+            (list(moment.instructions) for moment in moments), start=[]
+        )
         # Avoid duplicated operations. Any operation that have the Plaquette.get_mergeable_tag() tag
         # is considered mergeable, and can be removed if another operation in the list
         # is considered equal (and has the mergeable tag).
@@ -345,6 +349,10 @@ def relabel_circuits_qubit_indices(
     # circuits.
     relabeled_circuits: list[ScheduledCircuit] = []
     for circuit in circuits:
-        local_indices_to_global_indices = {local_index: global_q2i[q] for local_index, q in circuit.qubit_map.items()}
-        relabeled_circuits.append(circuit.map_qubit_indices(local_indices_to_global_indices, inplace=False))
+        local_indices_to_global_indices = {
+            local_index: global_q2i[q] for local_index, q in circuit.qubit_map.items()
+        }
+        relabeled_circuits.append(
+            circuit.map_qubit_indices(local_indices_to_global_indices, inplace=False)
+        )
     return relabeled_circuits, global_qubit_map

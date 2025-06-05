@@ -147,7 +147,9 @@ class LayerTree:
         if manhattan_radius <= 0:
             return
         self._root.walk(
-            AnnotateDetectorsOnLayerNode(k, manhattan_radius, detector_database, only_use_database, lookback)
+            AnnotateDetectorsOnLayerNode(
+                k, manhattan_radius, detector_database, only_use_database, lookback
+            )
         )
         # The database will have been updated inside the above function, and here at
         # the end of the computation we save it to file:
@@ -207,16 +209,22 @@ class LayerTree:
                 lookback=lookback,
             )
             return str(circuit.to_crumble_url())
-        self._generate_annotations(k, manhattan_radius, detector_database, lookback=lookback, add_polygons=True)
+        self._generate_annotations(
+            k, manhattan_radius, detector_database, lookback=lookback, add_polygons=True
+        )
         annotations = self._get_annotation(k)
         qubit_map = annotations.qubit_map
         assert qubit_map is not None
-        circuits_with_polygons = self._root.generate_circuits_with_potential_polygons(k, qubit_map, add_polygons=True)
+        circuits_with_polygons = self._root.generate_circuits_with_potential_polygons(
+            k, qubit_map, add_polygons=True
+        )
         crumble_url: str = qubit_map.to_circuit().to_crumble_url() + ";"
         last_polygons: set[Polygon] = set()
         for item in circuits_with_polygons:
             if isinstance(item, stim.Circuit):
-                circuit_crumble_url = item.to_crumble_url().replace("https://algassert.com/crumble#circuit=", "")
+                circuit_crumble_url = item.to_crumble_url().replace(
+                    "https://algassert.com/crumble#circuit=", ""
+                )
                 crumble_url += circuit_crumble_url
                 crumble_url += ";"
             else:

@@ -22,7 +22,9 @@ class InstructionCreator:
     targets: Callable[[list[stim.GateTarget]], list[stim.GateTarget]] = lambda trgts: trgts
     arguments: Callable[[list[float]], list[float]] = lambda args: args
 
-    def __call__(self, targets: list[stim.GateTarget], arguments: list[float]) -> stim.CircuitInstruction:
+    def __call__(
+        self, targets: list[stim.GateTarget], arguments: list[float]
+    ) -> stim.CircuitInstruction:
         return stim.CircuitInstruction(self.name, self.targets(targets), self.arguments(arguments))
 
 

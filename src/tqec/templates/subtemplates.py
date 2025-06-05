@@ -186,7 +186,9 @@ def get_spatially_distinct_subtemplates(
 
     """
     y, x = instantiation.shape
-    extended_instantiation = numpy.pad(instantiation, manhattan_radius, "constant", constant_values=0)
+    extended_instantiation = numpy.pad(
+        instantiation, manhattan_radius, "constant", constant_values=0
+    )
 
     all_possible_subarrays: list[SubTemplateType] = []
     ignored_flattened_indices: list[int] = []
@@ -196,7 +198,9 @@ def get_spatially_distinct_subtemplates(
             # Do not generate anything if the center plaquette is 0 in the
             # original instantiation.
             if avoid_zero_plaquettes and extended_instantiation[i, j] == 0:
-                ignored_flattened_indices.append((i - manhattan_radius) * x + (j - manhattan_radius))
+                ignored_flattened_indices.append(
+                    (i - manhattan_radius) * x + (j - manhattan_radius)
+                )
                 continue
             considered_flattened_indices.append((i - manhattan_radius) * x + (j - manhattan_radius))
             all_possible_subarrays.append(
@@ -208,7 +212,9 @@ def get_spatially_distinct_subtemplates(
     # Shape of the array provided to numpy.unique:
     #    (x * y, 2 * manhattan_radius + 1, 2 * manhattan_radius + 1)
     # Calling numpy.unique
-    unique_situations, inverse_indices = numpy.unique(all_possible_subarrays, axis=0, return_inverse=True)
+    unique_situations, inverse_indices = numpy.unique(
+        all_possible_subarrays, axis=0, return_inverse=True
+    )
 
     # Note that the `inverse_indices` DO NOT include the ignored sub-templates because
     # their center was a 0 plaquette if `avoid_zero_plaquettes` is `True` so we
@@ -219,7 +225,8 @@ def get_spatially_distinct_subtemplates(
     # Start by shifting by 1.
     inverse_indices += 1
     subtemplates_by_indices = {
-        i + 1: typing.cast(npt.NDArray[numpy.int_], situation) for i, situation in enumerate(unique_situations)
+        i + 1: typing.cast(npt.NDArray[numpy.int_], situation)
+        for i, situation in enumerate(unique_situations)
     }
     final_indices: npt.NDArray[numpy.int_]
     if avoid_zero_plaquettes:
@@ -371,7 +378,9 @@ def get_spatially_distinct_3d_subtemplates(
         for inst in instantiations
     ]
 
-    subtemplates_indices = numpy.stack([u2ds.subtemplate_indices for u2ds in unique_2d_subtemplates], axis=2)
+    subtemplates_indices = numpy.stack(
+        [u2ds.subtemplate_indices for u2ds in unique_2d_subtemplates], axis=2
+    )
     n, m, t = subtemplates_indices.shape
     subtemplates: dict[tuple[int, ...], npt.NDArray[numpy.int_]] = {}
 

@@ -187,8 +187,12 @@ def compile_correlation_surface_to_abstract_observable(
             # check correlation edges in the cube arms
             arms = SpatialArms.NONE
             for arm, shift in SpatialArms.get_map_from_arm_to_shift().items():
-                edges = endpoints_to_edge.get(frozenset({cube.position, cube.position.shift_by(*shift)}))
-                if edges is not None and any(n.basis == normal_basis for edge in edges for n in edge):
+                edges = endpoints_to_edge.get(
+                    frozenset({cube.position, cube.position.shift_by(*shift)})
+                )
+                if edges is not None and any(
+                    n.basis == normal_basis for edge in edges for n in edge
+                ):
                     arms |= arm
             assert len(arms) in {
                 2,
@@ -278,7 +282,9 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
         # Y vertex should have Y pauli
         if is_s(g, v):
             if counts[Basis.X] != 1 or counts[Basis.Z] != 1:
-                raise TQECException(f"Y type vertex should have Pauli Y supported on it, {v} violates the rule.")
+                raise TQECException(
+                    f"Y type vertex should have Pauli Y supported on it, {v} violates the rule."
+                )
             continue
         v_basis = Basis.Z if is_z_no_phase(g, v) else Basis.X
         if counts[v_basis.flipped()] not in [0, len(edges)]:

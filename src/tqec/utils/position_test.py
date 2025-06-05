@@ -70,5 +70,7 @@ def test_is_neighbour(source: tuple[int, int], sink: tuple[int, int], is_neighbo
         (Position3D(0, 0, -1), Position3D(0, 0, 0), Direction3D.Z),
     ],
 )
-def test_from_neighbouring_positions(source: Position3D, sink: Position3D, expected_direction: Direction3D) -> None:
+def test_from_neighbouring_positions(
+    source: Position3D, sink: Position3D, expected_direction: Direction3D
+) -> None:
     assert Direction3D.from_neighbouring_positions(source, sink) == expected_direction

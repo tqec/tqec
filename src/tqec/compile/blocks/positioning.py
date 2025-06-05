@@ -84,8 +84,12 @@ class LayoutPipePosition2D(LayoutPosition2D):
 
     def to_pipe(self) -> tuple[BlockPosition2D, BlockPosition2D]:
         if self._x % 2 == 1:
-            return BlockPosition2D((self._x - 1) // 2, self._y // 2), BlockPosition2D((self._x + 1) // 2, self._y // 2)
-        return BlockPosition2D(self._x // 2, (self._y - 1) // 2), BlockPosition2D(self._x // 2, (self._y + 1) // 2)
+            return BlockPosition2D((self._x - 1) // 2, self._y // 2), BlockPosition2D(
+                (self._x + 1) // 2, self._y // 2
+            )
+        return BlockPosition2D(self._x // 2, (self._y - 1) // 2), BlockPosition2D(
+            self._x // 2, (self._y + 1) // 2
+        )
 
 
 T = TypeVar("T", bound=LayoutPosition2D, covariant=True, default=LayoutPosition2D)

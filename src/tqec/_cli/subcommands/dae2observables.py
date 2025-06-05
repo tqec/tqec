@@ -29,7 +29,9 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
             "dae2observables",
             description="Takes a .dae file in and list all the observables that has been found.",
         )
-        parser.add_argument("dae_file", help="A valid .dae file representing a computation.", type=Path)
+        parser.add_argument(
+            "dae_file", help="A valid .dae file representing a computation.", type=Path
+        )
         parser.add_argument(
             "--out-dir",
             help="An optional argument providing the directory in which to export images representing the observables found.",

@@ -21,7 +21,9 @@ class PlaquetteDebugInformation:
                 return bases.pop()
         return None
 
-    def project_on_boundary(self, projected_orientation: PlaquetteOrientation) -> PlaquetteDebugInformation:
+    def project_on_boundary(
+        self, projected_orientation: PlaquetteOrientation
+    ) -> PlaquetteDebugInformation:
         if self.rpng is None:
             return self
         corners: list[RPNG] = list(self.rpng.corners)

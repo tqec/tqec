@@ -93,7 +93,9 @@ def get_axes_directions(rotation_matrix: npt.NDArray[np.float32]) -> dict[str, i
     return axes_directions
 
 
-def rotate_block_kind_by_matrix(block_kind: BlockKind, rotation_matrix: npt.NDArray[np.float32]) -> BlockKind:
+def rotate_block_kind_by_matrix(
+    block_kind: BlockKind, rotation_matrix: npt.NDArray[np.float32]
+) -> BlockKind:
     """Multiplies rotation matrix (rotate_matrix) with a symbolic vector made from the block_kind.
         - rotate_matrix is NOT rotated: block_kind untouched
         - rotate_matrix is rotated: block_kind rotated accordingly

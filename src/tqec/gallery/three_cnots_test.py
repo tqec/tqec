@@ -53,7 +53,9 @@ def test_three_cnots_filled(obs_basis: Basis) -> None:
         (Basis.Z, 3, {"IZZIIZ", "ZIIZII", "ZZIIZI"}),
     ],
 )
-def test_three_cnots_correlation_surface(obs_basis: Basis, num_surfaces: int, external_stabilizers: set[str]) -> None:
+def test_three_cnots_correlation_surface(
+    obs_basis: Basis, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
     g = three_cnots(obs_basis)
     io_ports = [1, 4, 8, 0, 7, 11]
     correlation_surfaces = g.find_correlation_surfaces()

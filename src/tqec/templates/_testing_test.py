@@ -15,7 +15,9 @@ def test_construction() -> None:
 def test_instantiation() -> None:
     numpy.testing.assert_array_equal(FixedTemplate([[0]]).instantiate(plaquette_indices=[1]), [[1]])
     numpy.testing.assert_array_equal(FixedTemplate([[0]]).instantiate(), [[1]])
-    numpy.testing.assert_array_equal(FixedTemplate([[1]]).instantiate(plaquette_indices=[1, 2]), [[2]])
+    numpy.testing.assert_array_equal(
+        FixedTemplate([[1]]).instantiate(plaquette_indices=[1, 2]), [[2]]
+    )
     numpy.testing.assert_array_equal(
         FixedTemplate([[0, 1], [1, 2]]).instantiate(plaquette_indices=[1, 2, 3]),
         [[1, 2], [2, 3]],
@@ -23,7 +25,9 @@ def test_instantiation() -> None:
 
 
 def test_shape() -> None:
-    assert FixedTemplate([[0]]).scalable_shape == PlaquetteScalable2D(LinearFunction(0, 1), LinearFunction(0, 1))
+    assert FixedTemplate([[0]]).scalable_shape == PlaquetteScalable2D(
+        LinearFunction(0, 1), LinearFunction(0, 1)
+    )
     assert FixedTemplate([[0]]).shape(1) == PlaquetteShape2D(1, 1)
 
 

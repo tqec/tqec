@@ -68,7 +68,8 @@ def test_with_spatial_borders_trimmed(borders: tuple[SpatialBlockBorder, ...]) -
     all_indices = frozenset(plaquettes.collection.keys())
     expected_plaquette_indices = all_indices - frozenset(
         itertools.chain.from_iterable(
-            frozenset(template.get_border_indices(border.to_template_border())) for border in borders
+            frozenset(template.get_border_indices(border.to_template_border()))
+            for border in borders
         )
     )
     assert (
@@ -97,12 +98,17 @@ def test_with_temporal_borders_replaced() -> None:
     plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
     layer = PlaquetteLayer(template, plaquettes)
     replacement_template = FixedTemplate([[2]])
-    replacement_plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
+    replacement_plaquettes = Plaquettes(
+        FrozenDefaultDict({}, default_value=empty_square_plaquette())
+    )
     replacement_layer = PlaquetteLayer(replacement_template, replacement_plaquettes)
 
     assert layer.with_temporal_borders_replaced({}) == layer
     for replacement in [None, layer, replacement_layer]:
-        assert layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: replacement}) == replacement
+        assert (
+            layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: replacement})
+            == replacement
+        )
     with pytest.raises(TQECException):
         layer.with_temporal_borders_replaced(
             {

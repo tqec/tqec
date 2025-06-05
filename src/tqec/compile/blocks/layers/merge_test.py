@@ -53,9 +53,12 @@ def logical_qubit_shape_fixture() -> PhysicalQubitScalable2D:
     return PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5))
 
 
-def test_merge_base_layers(base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D) -> None:
+def test_merge_base_layers(
+    base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D
+) -> None:
     layout: dict[LayoutPosition2D, BaseLayer] = {
-        LayoutPosition2D.from_block_position(BlockPosition2D(i, i)): layer for i, layer in enumerate(base_layers)
+        LayoutPosition2D.from_block_position(BlockPosition2D(i, i)): layer
+        for i, layer in enumerate(base_layers)
     }
     merged_layer = merge_base_layers(layout, logical_qubit_shape)
     assert isinstance(merged_layer, LayoutLayer)
@@ -63,7 +66,9 @@ def test_merge_base_layers(base_layers: list[BaseLayer], logical_qubit_shape: Ph
     assert merged_layer.element_shape == logical_qubit_shape
 
 
-def test_merge_repeated_layers(base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D) -> None:
+def test_merge_repeated_layers(
+    base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D
+) -> None:
     plaquette_layer, plaquette_layer2, raw_layer = base_layers
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
@@ -100,7 +105,9 @@ def test_merge_repeated_layers_different_inner_durations(
     merged_layer = merge_repeated_layers(
         {
             b00: RepeatedLayer(plaquette_layer, LinearFunction(2, 2)),
-            b01: RepeatedLayer(SequencedLayers([plaquette_layer2, raw_layer]), LinearFunction(1, 1)),
+            b01: RepeatedLayer(
+                SequencedLayers([plaquette_layer2, raw_layer]), LinearFunction(1, 1)
+            ),
         },
         logical_qubit_shape,
     )
@@ -134,7 +141,9 @@ def test_merge_repeated_layers_wrong_duration(
         )
 
 
-def test_merge_sequenced_layers(base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D) -> None:
+def test_merge_sequenced_layers(
+    base_layers: list[BaseLayer], logical_qubit_shape: PhysicalQubitScalable2D
+) -> None:
     plaquette_layer, plaquette_layer2, raw_layer = base_layers
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
@@ -210,8 +219,12 @@ def test_merge_sequenced_layers_composed_different_schedules(
     ):
         merge_sequenced_layers(
             {
-                b00: SequencedLayers([plaquette_layer2, SequencedLayers([plaquette_layer, raw_layer])]),
-                b01: SequencedLayers([SequencedLayers([plaquette_layer2, plaquette_layer]), raw_layer]),
+                b00: SequencedLayers(
+                    [plaquette_layer2, SequencedLayers([plaquette_layer, raw_layer])]
+                ),
+                b01: SequencedLayers(
+                    [SequencedLayers([plaquette_layer2, plaquette_layer]), raw_layer]
+                ),
             },
             logical_qubit_shape,
         )
@@ -290,7 +303,9 @@ def test_merge_composed_layers_unknown_layer_type(
         ) -> BaseLayer | BaseComposedLayer | None:
             raise NotImplementedError()
 
-        def to_sequenced_layer_with_schedule(self, schedule: tuple[LinearFunction, ...]) -> SequencedLayers:
+        def to_sequenced_layer_with_schedule(
+            self, schedule: tuple[LinearFunction, ...]
+        ) -> SequencedLayers:
             raise NotImplementedError()
 
         def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:

@@ -57,7 +57,8 @@ class _ZXXZPlaquetteBuilder:
         self._moments: list[Moment] = self._build_memory_moments()
         self._qubits = SquarePlaquetteQubits()
         self._qubit_map = QubitMap(
-            {0: self._qubits.syndrome_qubits[0]} | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
+            {0: self._qubits.syndrome_qubits[0]}
+            | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
         )
         self._data_init: tuple[Basis, PlaquetteSide | None] | None = None
         self._data_meas: tuple[Basis, PlaquetteSide | None] | None = None

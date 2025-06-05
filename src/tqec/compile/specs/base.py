@@ -34,7 +34,9 @@ class CubeSpec:
     def __post_init__(self) -> None:
         if self.spatial_arms != SpatialArms.NONE:
             if not self.is_spatial:
-                raise TQECException("The `spatial_arms` attribute should be `SpatialArms.NONE` for non-spatial cubes.")
+                raise TQECException(
+                    "The `spatial_arms` attribute should be `SpatialArms.NONE` for non-spatial cubes."
+                )
 
     @property
     def is_spatial(self) -> bool:

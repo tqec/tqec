@@ -263,7 +263,9 @@ class FixedBulkConventionGenerator:
 
         """
         # Border plaquette indices
-        UP, DOWN, LEFT, RIGHT = (6, 13, 7, 12) if z_orientation == Orientation.VERTICAL else (5, 14, 8, 11)
+        UP, DOWN, LEFT, RIGHT = (
+            (6, 13, 7, 12) if z_orientation == Orientation.VERTICAL else (5, 14, 8, 11)
+        )
         # Basis for top/bottom and left/right boundary plaquettes
         HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
         VBASIS = HBASIS.flipped()
@@ -321,7 +323,9 @@ class FixedBulkConventionGenerator:
             measurements on the data-qubits too.
 
         """
-        return self._mapper(self.get_memory_qubit_rpng_descriptions)(z_orientation, reset, measurement)
+        return self._mapper(self.get_memory_qubit_rpng_descriptions)(
+            z_orientation, reset, measurement
+        )
 
     ########################################
     #                X pipe                #
@@ -444,7 +448,9 @@ class FixedBulkConventionGenerator:
             data-qubits too.
 
         """
-        return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(z_orientation, reset, measurement)
+        return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
+            z_orientation, reset, measurement
+        )
 
     ########################################
     #                Y pipe                #
@@ -567,7 +573,9 @@ class FixedBulkConventionGenerator:
             data-qubits too.
 
         """
-        return self._mapper(self.get_memory_horizontal_boundary_rpng_descriptions)(z_orientation, reset, measurement)
+        return self._mapper(self.get_memory_horizontal_boundary_rpng_descriptions)(
+            z_orientation, reset, measurement
+        )
 
     ############################################################
     #                          Spatial                         #
@@ -834,7 +842,11 @@ class FixedBulkConventionGenerator:
                 (e.g., ``SpatialArms.UP | SpatialArms.DOWN``).
 
         """
-        if len(arms) == 0 or len(arms) > 2 or (len(arms) == 2 and arms not in SpatialArms.I_shaped_arms()):
+        if (
+            len(arms) == 0
+            or len(arms) > 2
+            or (len(arms) == 2 and arms not in SpatialArms.I_shaped_arms())
+        ):
             raise TQECException(
                 f"The two provided arms cannot form a spatial pipe. Got {arms} but "
                 f"expected either a single {SpatialArms.__name__} or two but in a "
@@ -994,7 +1006,9 @@ class FixedBulkConventionGenerator:
         # TBPs: Two Body Plaquettes.
         TBPs = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
-        ZHOOK = Orientation.HORIZONTAL if spatial_boundary_basis == Basis.Z else Orientation.VERTICAL
+        ZHOOK = (
+            Orientation.HORIZONTAL if spatial_boundary_basis == Basis.Z else Orientation.VERTICAL
+        )
         XHOOK = ZHOOK.flip()
         # List the plaquettes used. This mapping might be corrected afterwards to
         # avoid overwriting 3-body stabilizers introduced by the spatial cube.
@@ -1051,7 +1065,9 @@ class FixedBulkConventionGenerator:
         # TBPs: Two Body Plaquettes.
         TBPs = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
-        ZHOOK = Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
+        ZHOOK = (
+            Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
+        )
         XHOOK = ZHOOK.flip()
         # List the plaquettes used. This mapping might be corrected afterwards to
         # avoid overwriting 3-body stabilizers introduced by the spatial cube.

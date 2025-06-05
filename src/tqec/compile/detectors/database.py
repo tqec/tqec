@@ -154,7 +154,9 @@ class _DetectorDatabaseKey:
         """
         return {
             "subtemplates": [st.tolist() for st in self.subtemplates],
-            "plaquettes_by_timestep": [p.to_dict(plaquettes_to_indices) for p in self.plaquettes_by_timestep],
+            "plaquettes_by_timestep": [
+                p.to_dict(plaquettes_to_indices) for p in self.plaquettes_by_timestep
+            ],
         }
 
     @staticmethod
@@ -177,7 +179,9 @@ class _DetectorDatabaseKey:
 
         """
         subtemplates = [numpy.array(st) for st in data["subtemplates"]]
-        plaquettes_by_timestep = [Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]]
+        plaquettes_by_timestep = [
+            Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]
+        ]
         return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
 
 

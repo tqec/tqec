@@ -82,7 +82,9 @@ def test_compile_two_same_blocks_connected_in_time(
         (1,),
     ),
 )
-def test_compile_two_same_blocks_connected_in_space(convention_name: str, kinds: tuple[str, str], k: int) -> None:
+def test_compile_two_same_blocks_connected_in_space(
+    convention_name: str, kinds: tuple[str, str], k: int
+) -> None:
     d = 2 * k + 1
     g = BlockGraph("Two Same Blocks in Space Experiment")
     cube_kind, pipe_kind = kinds[0], kinds[1]
@@ -121,7 +123,9 @@ def test_compile_two_same_blocks_connected_in_space(convention_name: str, kinds:
         (1,),
     ),
 )
-def test_compile_L_shape_in_space_time(convention_name: str, kinds: tuple[str, str], k: int) -> None:
+def test_compile_L_shape_in_space_time(
+    convention_name: str, kinds: tuple[str, str], k: int
+) -> None:
     d = 2 * k + 1
     g = BlockGraph("L-shape Blocks Experiment")
     cube_kind, space_pipe_kind = kinds[0], kinds[1]
@@ -198,7 +202,10 @@ def test_compile_stability(convention_name: str, obs_basis: Basis, k: int) -> No
     assert dem.num_observables == 1
     num_spatial_basis_stabilizers = (d - 1) // 2 * 4 + (d - 1) ** 2 // 2
     num_temporal_basis_stabilizers = (d - 1) ** 2 // 2
-    assert dem.num_detectors == (d - 1) * num_spatial_basis_stabilizers + (d + 1) * num_temporal_basis_stabilizers
+    assert (
+        dem.num_detectors
+        == (d - 1) * num_spatial_basis_stabilizers + (d + 1) * num_temporal_basis_stabilizers
+    )
     assert len(dem.shortest_graphlike_error()) == d
 
 
@@ -284,7 +291,9 @@ def test_compile_temporal_hadamard(convention_name: str, in_obs_basis: Basis, k:
         (1, 2),
     ),
 )
-def test_compile_bell_state_with_single_temporal_hadamard(convention_name: str, h_top_obs_basis: Basis, k: int) -> None:
+def test_compile_bell_state_with_single_temporal_hadamard(
+    convention_name: str, h_top_obs_basis: Basis, k: int
+) -> None:
     d = 2 * k + 1
 
     g = BlockGraph("Test Bell State with a Temporal Hadamard")

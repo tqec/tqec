@@ -63,7 +63,11 @@ def split_stats_for_observables(
                 task_stats.with_edits(
                     errors=count,
                     custom_counts=collections.Counter(
-                        {k: v for k, v in task_stats.custom_counts.items() if not k.startswith("obs_mistake_mask=")}
+                        {
+                            k: v
+                            for k, v in task_stats.custom_counts.items()
+                            if not k.startswith("obs_mistake_mask=")
+                        }
                     ),
                 )
             )

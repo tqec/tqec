@@ -163,12 +163,15 @@ class LayoutTemplate(Template):
         indices_map: dict[BlockPosition2D, dict[int, int]] = {}
         for position, template in self._layout.items():
             indices_map[position] = {
-                i + 1: instantiate_indices[i + index_count] for i in range(template.expected_plaquettes_number)
+                i + 1: instantiate_indices[i + index_count]
+                for i in range(template.expected_plaquettes_number)
             }
             index_count += template.expected_plaquettes_number
         return indices_map
 
-    def get_global_plaquettes(self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]) -> Plaquettes:
+    def get_global_plaquettes(
+        self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]
+    ) -> Plaquettes:
         """Merge the provided ``individual_plaquettes`` into a single
         :class:`~tqec.plaquette.plaquette.Plaquettes` instance that can be used
         to instantiate ``self``.
@@ -213,7 +216,9 @@ class LayoutTemplate(Template):
                 f"{unique_default_values}. Cannot pick one for the merged "
                 f"{Plaquettes.__name__} instance."
             )
-        return Plaquettes(FrozenDefaultDict(global_plaquettes, default_value=next(iter(unique_default_values))))
+        return Plaquettes(
+            FrozenDefaultDict(global_plaquettes, default_value=next(iter(unique_default_values)))
+        )
 
     @property
     @override
@@ -241,7 +246,9 @@ class LayoutTemplate(Template):
         return sum(template.expected_plaquettes_number for template in self._layout.values())
 
     @override
-    def instantiate(self, k: int, plaquette_indices: Sequence[int] | None = None) -> npt.NDArray[numpy.int_]:
+    def instantiate(
+        self, k: int, plaquette_indices: Sequence[int] | None = None
+    ) -> npt.NDArray[numpy.int_]:
         """Generate the numpy array representing the template.
 
         Args:
@@ -263,7 +270,9 @@ class LayoutTemplate(Template):
             imap = indices_map[pos]
             indices = [imap[i] for i in range(1, element.expected_plaquettes_number + 1)]
             element_instantiation = element.instantiate(k, indices)
-            shifted_pos = BlockPosition2D(pos.x - self._block_origin.x, pos.y - self._block_origin.y)
+            shifted_pos = BlockPosition2D(
+                pos.x - self._block_origin.x, pos.y - self._block_origin.y
+            )
             ret[
                 shifted_pos.y * element_shape[0] : (shifted_pos.y + 1) * element_shape[0],
                 shifted_pos.x * element_shape[1] : (shifted_pos.x + 1) * element_shape[1],

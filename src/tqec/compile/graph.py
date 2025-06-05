@@ -81,7 +81,9 @@ def substitute_plaquettes(
     target_border_indices = target.template.get_border_indices(source_border.opposite())
     indices_mapping = source_border_indices.to(target_border_indices)
     plaquettes_mapping = {
-        ti: target.plaquettes.collection[si] for si, ti in indices_mapping.items() if si in target.plaquettes.collection
+        ti: target.plaquettes.collection[si]
+        for si, ti in indices_mapping.items()
+        if si in target.plaquettes.collection
     }
     new_plaquettes = target.plaquettes.with_updated_plaquettes(plaquettes_mapping)
     return PlaquetteLayer(target.template, new_plaquettes, target.trimmed_spatial_borders)
@@ -148,10 +150,14 @@ class TopologicalComputationGraph:
             )
         source_layout_position = LayoutPosition3D.from_block_position(source)
         if source_layout_position not in self._blocks:
-            raise TQECException(f"Cannot add a pipe between {source:=} and {sink:=}: the source is not in the graph.")
+            raise TQECException(
+                f"Cannot add a pipe between {source:=} and {sink:=}: the source is not in the graph."
+            )
         sink_layout_position = LayoutPosition3D.from_block_position(sink)
         if sink_layout_position not in self._blocks:
-            raise TQECException(f"Cannot add a pipe between {source:=} and {sink:=}: the sink is not in the graph.")
+            raise TQECException(
+                f"Cannot add a pipe between {source:=} and {sink:=}: the sink is not in the graph."
+            )
 
     def _check_spatial_pipe(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
         """Check the validity of a spatial pipe between ``source`` and
@@ -268,7 +274,9 @@ class TopologicalComputationGraph:
             neighbouring_block_layer,
             spatial_block_border.to_template_border(),
         )
-        replaced_block = pipe_block.with_temporal_borders_replaced({temporal_pipe_border: replaced_pipe_layer})
+        replaced_block = pipe_block.with_temporal_borders_replaced(
+            {temporal_pipe_border: replaced_pipe_layer}
+        )
         assert replaced_block is not None, "No layer was removed"
         self._blocks[pipe_pos] = replaced_block
 
@@ -284,7 +292,9 @@ class TopologicalComputationGraph:
         # First replace the layer on the temporal border of the block.
         layer_on_top_of_block = layer
         if block.trimmed_spatial_borders:
-            layer_on_top_of_block = layer.with_spatial_borders_trimmed(block.trimmed_spatial_borders)
+            layer_on_top_of_block = layer.with_spatial_borders_trimmed(
+                block.trimmed_spatial_borders
+            )
         new_block = block.with_temporal_borders_replaced({block_border: layer_on_top_of_block})
         assert new_block is not None, "No layer removal happened, only replacement"
         self._blocks[pblock] = new_block
@@ -300,10 +310,16 @@ class TopologicalComputationGraph:
                 f"Cannot substitute spatial pipe piece from a layer that is not a {PlaquetteLayer.__name__} instance."
             )
         for trimmed_spatial_border in block.trimmed_spatial_borders:
-            pipe_pos = LayoutPosition3D.from_block_and_signed_direction(block_pos, trimmed_spatial_border.value)
-            self._substitute_part_of_spatial_pipe(pipe_pos, layer, trimmed_spatial_border, block_border)
+            pipe_pos = LayoutPosition3D.from_block_and_signed_direction(
+                block_pos, trimmed_spatial_border.value
+            )
+            self._substitute_part_of_spatial_pipe(
+                pipe_pos, layer, trimmed_spatial_border, block_border
+            )
 
-    def _replace_temporal_borders(self, source: BlockPosition3D, sink: BlockPosition3D, block: Block) -> None:
+    def _replace_temporal_borders(
+        self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
+    ) -> None:
         self._check_any_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
         if juncdir not in Direction3D.temporal_directions():
@@ -388,7 +404,9 @@ class TopologicalComputationGraph:
         zs = [pos.z for pos in self._blocks.keys()]
         min_z, max_z = min(zs), max(zs)
         blocks_by_z: list[dict[LayoutPosition2D, Block]] = [{} for _ in range(min_z, max_z + 1)]
-        temporal_pipes_by_z: list[dict[LayoutPosition2D, Block]] = [{} for _ in range(min_z, max_z + 1)]
+        temporal_pipes_by_z: list[dict[LayoutPosition2D, Block]] = [
+            {} for _ in range(min_z, max_z + 1)
+        ]
         for pos, block in self._blocks.items():
             blocks_by_z[pos.z - min_z][pos.as_2d()] = block
         for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():

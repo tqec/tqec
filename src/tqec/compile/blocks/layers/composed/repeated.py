@@ -101,7 +101,9 @@ class RepeatedLayer(BaseComposedLayer):
     ) -> BaseLayer | BaseComposedLayer | None:
         ret: BaseLayer | BaseComposedLayer | None = initial_layer
         if border in border_replacements:
-            ret = initial_layer.with_temporal_borders_replaced({border: border_replacements[border]})
+            ret = initial_layer.with_temporal_borders_replaced(
+                {border: border_replacements[border]}
+            )
         return ret
 
     @override
@@ -125,7 +127,9 @@ class RepeatedLayer(BaseComposedLayer):
         initial_layer = self._get_replaced_layer(
             self.internal_layer, TemporalBlockBorder.Z_NEGATIVE, border_replacements
         )
-        final_layer = self._get_replaced_layer(self.internal_layer, TemporalBlockBorder.Z_POSITIVE, border_replacements)
+        final_layer = self._get_replaced_layer(
+            self.internal_layer, TemporalBlockBorder.Z_POSITIVE, border_replacements
+        )
         # Build the resulting layer sequence
         layer_sequence = []
         if (
@@ -164,7 +168,9 @@ class RepeatedLayer(BaseComposedLayer):
         )
 
     @override
-    def to_sequenced_layer_with_schedule(self, schedule: tuple[LinearFunction, ...]) -> SequencedLayers:
+    def to_sequenced_layer_with_schedule(
+        self, schedule: tuple[LinearFunction, ...]
+    ) -> SequencedLayers:
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
             raise TQECException(

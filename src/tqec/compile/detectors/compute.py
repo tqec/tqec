@@ -159,7 +159,9 @@ def _filter_detectors(
         Measurement(q, -1)
         for q in _center_plaquette_syndrome_qubits(subtemplates[-1], plaquettes[-1], increments)
     )
-    filtered_detectors = [d for d in detectors if d.measurements.intersection(central_syndrome_qubits_measurements)]
+    filtered_detectors = [
+        d for d in detectors if d.measurements.intersection(central_syndrome_qubits_measurements)
+    ]
     return frozenset(filtered_detectors)
 
 
@@ -169,7 +171,9 @@ def _compute_detectors_at_end_of_situation(
     increments: Shift2D,
 ) -> frozenset[Detector]:
     if len(plaquettes) != len(subtemplates):
-        raise TQECException("Unsupported input: you should provide as many subtemplates as there are plaquettes.")
+        raise TQECException(
+            "Unsupported input: you should provide as many subtemplates as there are plaquettes."
+        )
     # Note: if the center plaquette of the last entry of `subtemplates` does not
     #       contain any measurement, then we can be sure that there is no
     #       detectors here, so early return.
@@ -214,7 +218,9 @@ def _compute_detectors_at_end_of_situation(
     flows = build_flows_from_fragments(fragments)
     matched_detectors = match_detectors_within_fragment(flows[-1], coordinates_by_index)
     if len(flows) == 2:
-        matched_detectors.extend(match_boundary_stabilizers(flows[-2], flows[-1], coordinates_by_index))
+        matched_detectors.extend(
+            match_boundary_stabilizers(flows[-2], flows[-1], coordinates_by_index)
+        )
     # Note that the matched detectors do not have a time coordinate yet. Because
     # all the matched detectors belong to the last flow, the time coordinate can
     # just be "0". Simply add that to all detectors.
@@ -304,13 +310,17 @@ def compute_detectors_at_end_of_situation(
         # Else, if not found but we are allowed to compute detectors, compute
         # and store in database.
         elif detectors is None:
-            detectors = _compute_detectors_at_end_of_situation(subtemplates, plaquettes_by_timestep, increments)
+            detectors = _compute_detectors_at_end_of_situation(
+                subtemplates, plaquettes_by_timestep, increments
+            )
             database.add_situation(subtemplates, plaquettes_by_timestep, detectors)
     # If database is None
     else:
         if only_use_database:
             raise _get_database_access_exception(subtemplates, plaquettes_by_timestep)
-        detectors = _compute_detectors_at_end_of_situation(subtemplates, plaquettes_by_timestep, increments)
+        detectors = _compute_detectors_at_end_of_situation(
+            subtemplates, plaquettes_by_timestep, increments
+        )
 
     # `subtemplate.shape` should be `(2 * radius + 1, 2 * radius + 1)` so we can
     # recover the radius with the below expression.
@@ -554,7 +564,9 @@ def compute_detectors_for_fixed_radius(
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    subtemplate_indices_list: list[list[list[int]]] = unique_3d_subtemplates.subtemplate_indices.tolist()
+    subtemplate_indices_list: list[list[list[int]]] = (
+        unique_3d_subtemplates.subtemplate_indices.tolist()
+    )
     for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_indices in enumerate(row):
             if all(i == 0 for i in subtemplate_indices):

@@ -24,8 +24,12 @@ def test_measurement_construction(qubit: GridQubit) -> None:
 @pytest.mark.parametrize("qubit", _grid_qubits)
 def test_measurement_offset(qubit: GridQubit) -> None:
     assert Measurement(qubit, -1).offset_spatially_by(0, 0) == Measurement(qubit, -1)
-    assert Measurement(qubit, -1).offset_spatially_by(1, 0) == Measurement(qubit + Shift2D(1, 0), -1)
-    assert Measurement(qubit, -1).offset_spatially_by(-3, 12) == Measurement(qubit + Shift2D(-3, 12), -1)
+    assert Measurement(qubit, -1).offset_spatially_by(1, 0) == Measurement(
+        qubit + Shift2D(1, 0), -1
+    )
+    assert Measurement(qubit, -1).offset_spatially_by(-3, 12) == Measurement(
+        qubit + Shift2D(-3, 12), -1
+    )
     assert Measurement(qubit, -2).offset_spatially_by(0, 0) == Measurement(qubit, -2)
 
     assert Measurement(qubit, -1).offset_temporally_by(-12) == Measurement(qubit, -13)

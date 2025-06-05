@@ -95,7 +95,9 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         default_value: Vp | None = None
         if self.default_value is not None:
             default_value = callable(self.default_value)
-        return FrozenDefaultDict({k: callable(v) for k, v in self.items()}, default_value=default_value)
+        return FrozenDefaultDict(
+            {k: callable(v) for k, v in self.items()}, default_value=default_value
+        )
 
     def map_keys_if_present(self, mapping: Mapping[K, K]) -> FrozenDefaultDict[K, V]:
         return FrozenDefaultDict(

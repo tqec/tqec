@@ -100,7 +100,9 @@ class PlaquetteQubits:
 
     @property
     def qubit_map(self) -> QubitMap:
-        return QubitMap(dict(self.data_qubits_with_indices) | dict(self.syndrome_qubits_with_indices))
+        return QubitMap(
+            dict(self.data_qubits_with_indices) | dict(self.syndrome_qubits_with_indices)
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the plaquette qubits.

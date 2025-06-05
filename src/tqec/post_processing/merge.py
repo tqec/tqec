@@ -65,7 +65,9 @@ def _merge_internal_adjacent_moments_inline(
         if isinstance(current_moment, RepeatedMoments):
             # Just recurse in the REPEAT block but do not perform any specific
             # computation for its boundaries.
-            modification_performed |= _merge_internal_adjacent_moments_inline(current_moment.moments)
+            modification_performed |= _merge_internal_adjacent_moments_inline(
+                current_moment.moments
+            )
             # We do not have to look at the moment just after the REPEAT block
             # because it will not be merged with the REPEAT block, so just skip
             # it (that also allows to respect the loop invariant).
@@ -126,7 +128,9 @@ def _merge_repeat_block_boundaries_inline(
         # END
         # Note: modifying moments in-place.
         moments.pop(i)
-        new_repeat_block = RepeatedMoments(current_moment.repetitions - 1, [merge_moments(end, start), *bulk])
+        new_repeat_block = RepeatedMoments(
+            current_moment.repetitions - 1, [merge_moments(end, start), *bulk]
+        )
         inserted_moments = [start, *bulk, new_repeat_block, end]
         for m in range(len(inserted_moments)):
             moments.insert(i + m, inserted_moments[m])

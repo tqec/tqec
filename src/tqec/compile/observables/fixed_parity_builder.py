@@ -4,14 +4,18 @@ from tqec.utils.enums import Orientation
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
 
-def _get_top_readout_cube_qubits(shape: PlaquetteShape2D, obs_orientation: Orientation) -> list[tuple[int, int]]:
+def _get_top_readout_cube_qubits(
+    shape: PlaquetteShape2D, obs_orientation: Orientation
+) -> list[tuple[int, int]]:
     if obs_orientation == Orientation.HORIZONTAL:
         return [(x, shape.y // 2) for x in range(1, shape.x)]
     else:
         return [(shape.x // 2, y) for y in range(1, shape.y)]
 
 
-def _get_top_readout_pipe_qubits(u_shape: PlaquetteShape2D, connect_to: Direction3D) -> list[tuple[int, int]]:
+def _get_top_readout_pipe_qubits(
+    u_shape: PlaquetteShape2D, connect_to: Direction3D
+) -> list[tuple[int, int]]:
     assert connect_to != Direction3D.Z
     if connect_to == Direction3D.X:
         return [(u_shape.x, u_shape.y // 2)]
@@ -55,7 +59,9 @@ def _get_bottom_stabilizer_cube_qubits(
     ]
 
 
-def _get_top_readout_spatial_cube_qubits(cube_shape: PlaquetteShape2D, arms: SpatialArms) -> list[tuple[int, int]]:
+def _get_top_readout_spatial_cube_qubits(
+    cube_shape: PlaquetteShape2D, arms: SpatialArms
+) -> list[tuple[int, int]]:
     assert len(arms) == 2
     half_x, half_y = cube_shape.x // 2, cube_shape.y // 2
 
@@ -70,15 +76,24 @@ def _get_top_readout_spatial_cube_qubits(cube_shape: PlaquetteShape2D, arms: Spa
             (half_x, y) for y in range(cube_shape.y - 1, half_y, -1)
         ]
     elif arms == SpatialArms.UP | SpatialArms.RIGHT:
-        return [(x, half_y) for x in range(cube_shape.x - 1, half_x, -1)] + [(half_x, y) for y in range(1, half_y + 1)]
+        return [(x, half_y) for x in range(cube_shape.x - 1, half_x, -1)] + [
+            (half_x, y) for y in range(1, half_y + 1)
+        ]
     else:  # arms == SpatialArms.LEFT | SpatialArms.DOWN:
-        return [(x, half_y) for x in range(1, half_x + 1)] + [(half_x, y) for y in range(cube_shape.y - 1, half_y, -1)]
+        return [(x, half_y) for x in range(1, half_x + 1)] + [
+            (half_x, y) for y in range(cube_shape.y - 1, half_y, -1)
+        ]
 
 
 def _get_bottom_stabilizer_spatial_cube_qubits(
     cube_shape: PlaquetteShape2D,
 ) -> list[tuple[float, float]]:
-    return [(i + 0.5, j + 0.5) for i in range(cube_shape.x) for j in range(cube_shape.y) if (i + j) % 2 == 0]
+    return [
+        (i + 0.5, j + 0.5)
+        for i in range(cube_shape.x)
+        for j in range(cube_shape.y)
+        if (i + j) % 2 == 0
+    ]
 
 
 FIXED_PARITY_OBSERVABLE_BUILDER = ObservableBuilder(

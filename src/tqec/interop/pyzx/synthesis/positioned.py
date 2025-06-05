@@ -173,7 +173,9 @@ def _fix_kind_for_one_node(
     fix_type = g.type(fix_node)
     # Special case: single node ZXGraph
     if g.vertex_degree(fix_node) == 0:
-        specified_kind = ZXCube.from_str("ZXZ") if fix_type == zx.VertexType.X else ZXCube.from_str("ZXX")
+        specified_kind = (
+            ZXCube.from_str("ZXZ") if fix_type == zx.VertexType.X else ZXCube.from_str("ZXX")
+        )
     else:
         # the basis along the edge direction must be the opposite of the node kind
         basis = ["X", "Z"]
@@ -213,7 +215,10 @@ def _infer_cube_kind_from_pipe(
     vertex_type: zx.VertexType,
 ) -> ZXCube:
     """Infer the cube kinds from the pipe kind."""
-    bases = [pipe_kind.get_basis_along(direction, at_pipe_head) for direction in Direction3D.all_directions()]
+    bases = [
+        pipe_kind.get_basis_along(direction, at_pipe_head)
+        for direction in Direction3D.all_directions()
+    ]
     assert vertex_is_zx(vertex_type)
     bases[pipe_kind.direction.value] = Basis.Z if vertex_type == zx.VertexType.X else Basis.X
     return ZXCube(*cast(list[Basis], bases))

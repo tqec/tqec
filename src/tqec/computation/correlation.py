@@ -171,7 +171,10 @@ class CorrelationSurface:
         """
         from pyzx.pauliweb import multiply_paulis
 
-        paulis = [reduce(multiply_paulis, {b.value for b in self.bases_at(port)}, "I") for port in io_ports]
+        paulis = [
+            reduce(multiply_paulis, {b.value for b in self.bases_at(port)}, "I")
+            for port in io_ports
+        ]
         return "".join(paulis)
 
     def external_stabilizer_on_graph(self, graph: BlockGraph) -> str:

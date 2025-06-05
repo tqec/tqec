@@ -98,11 +98,15 @@ def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuit
 
 
 @pytest.mark.parametrize("borders", [(border,) for border in SpatialBlockBorder])
-def test_with_spatial_borders_trimmed(borders: tuple[SpatialBlockBorder, ...], plaquette_layer: PlaquetteLayer) -> None:
+def test_with_spatial_borders_trimmed(
+    borders: tuple[SpatialBlockBorder, ...], plaquette_layer: PlaquetteLayer
+) -> None:
     block = Block([plaquette_layer for _ in range(5)])
     trimmed_block = block.with_spatial_borders_trimmed(borders)
     trimmed_internal_layer = plaquette_layer.with_spatial_borders_trimmed(borders)
-    assert all(internal_layer == trimmed_internal_layer for internal_layer in trimmed_block.layer_sequence)
+    assert all(
+        internal_layer == trimmed_internal_layer for internal_layer in trimmed_block.layer_sequence
+    )
 
 
 def test_with_temporal_borders_replaced_none(
@@ -139,12 +143,12 @@ def test_with_temporal_borders_replaced(
 
     assert block.with_temporal_borders_replaced({}) == block
     for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:
-        assert block.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: replacement}) == Block(
-            [replacement, plaquette_layer2, raw_circuit_layer]
-        )
-        assert block.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: replacement}) == Block(
-            [plaquette_layer, plaquette_layer2, replacement]
-        )
+        assert block.with_temporal_borders_replaced(
+            {TemporalBlockBorder.Z_NEGATIVE: replacement}
+        ) == Block([replacement, plaquette_layer2, raw_circuit_layer])
+        assert block.with_temporal_borders_replaced(
+            {TemporalBlockBorder.Z_POSITIVE: replacement}
+        ) == Block([plaquette_layer, plaquette_layer2, replacement])
         assert block.with_temporal_borders_replaced(
             {
                 TemporalBlockBorder.Z_NEGATIVE: replacement,

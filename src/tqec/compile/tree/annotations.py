@@ -38,7 +38,9 @@ class DetectorAnnotation:
         )
 
     @staticmethod
-    def from_detector(detector: Detector, measurement_records: MeasurementRecordsMap) -> DetectorAnnotation:
+    def from_detector(
+        detector: Detector, measurement_records: MeasurementRecordsMap
+    ) -> DetectorAnnotation:
         """Create a :class:`DetectorAnnotation` from a detector and a list of
         measurement records.
         """

@@ -201,7 +201,7 @@ reportPrivateImportUsage = false
 
 [tool.ruff]
 # exclude = ["__init__.py"]
-line-length = 120
+line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]

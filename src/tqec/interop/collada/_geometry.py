@@ -212,7 +212,8 @@ class BlockGeometries:
                 translation = [0, 0, 0]
                 translation[direction.value] = 1
                 faces.extend(
-                    face.shift_by(*translation).with_negated_normal_direction() for face in [face1, face2, face3]
+                    face.shift_by(*translation).with_negated_normal_direction()
+                    for face in [face1, face2, face3]
                 )
             self.geometries[kind] = faces
 

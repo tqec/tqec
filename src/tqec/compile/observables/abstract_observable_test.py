@@ -16,7 +16,9 @@ from tqec.utils.position import Position3D
 def test_abstract_observable_for_single_memory_cube() -> None:
     g = memory(Basis.Z)
     correlation_surfaces = g.find_correlation_surfaces()
-    abstract_observable = compile_correlation_surface_to_abstract_observable(g, correlation_surfaces[0])
+    abstract_observable = compile_correlation_surface_to_abstract_observable(
+        g, correlation_surfaces[0]
+    )
     assert abstract_observable == AbstractObservable(
         top_readout_cubes=frozenset({Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))}),
     )
@@ -25,9 +27,13 @@ def test_abstract_observable_for_single_memory_cube() -> None:
 def test_abstract_observable_for_single_stability_cube() -> None:
     g = stability(Basis.Z)
     correlation_surfaces = g.find_correlation_surfaces()
-    abstract_observable = compile_correlation_surface_to_abstract_observable(g, correlation_surfaces[0])
+    abstract_observable = compile_correlation_surface_to_abstract_observable(
+        g, correlation_surfaces[0]
+    )
     assert abstract_observable == AbstractObservable(
-        bottom_stabilizer_spatial_cubes=frozenset({Cube(Position3D(0, 0, 0), ZXCube.from_str("ZZX"))}),
+        bottom_stabilizer_spatial_cubes=frozenset(
+            {Cube(Position3D(0, 0, 0), ZXCube.from_str("ZZX"))}
+        ),
     )
 
 
@@ -38,7 +44,9 @@ def test_abstract_observable_for_single_vertical_pipe() -> None:
     g.add_cube(p1, "ZXZ")
     g.add_pipe(p0, p1)
     correlation_surfaces = g.find_correlation_surfaces()
-    abstract_observable = compile_correlation_surface_to_abstract_observable(g, correlation_surfaces[0])
+    abstract_observable = compile_correlation_surface_to_abstract_observable(
+        g, correlation_surfaces[0]
+    )
     assert abstract_observable == AbstractObservable(
         top_readout_cubes=frozenset({Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXZ"))}),
     )
@@ -51,7 +59,9 @@ def test_abstract_observable_for_single_horizontal_pipe() -> None:
     g.add_cube(p1, "ZXZ")
     g.add_pipe(p0, p1)
     correlation_surfaces = g.find_correlation_surfaces()
-    abstract_observable = compile_correlation_surface_to_abstract_observable(g, correlation_surfaces[0])
+    abstract_observable = compile_correlation_surface_to_abstract_observable(
+        g, correlation_surfaces[0]
+    )
     assert abstract_observable == AbstractObservable(
         top_readout_cubes=frozenset(g.cubes),
         top_readout_pipes=frozenset(g.pipes),

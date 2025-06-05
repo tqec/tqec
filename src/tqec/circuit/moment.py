@@ -120,7 +120,9 @@ class Moment:
                 f"{multi_used_qubits}."
             )
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
-            raise TQECException("Moment instances should no contain any instance of stim.CircuitRepeatBlock.")
+            raise TQECException(
+                "Moment instances should no contain any instance of stim.CircuitRepeatBlock."
+            )
 
     @staticmethod
     def from_instructions(instructions: Iterable[stim.CircuitInstruction]) -> Moment:
@@ -166,7 +168,9 @@ class Moment:
         """Add instructions in-place in ``self``."""
         both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
         if both_sides_used_qubits:
-            raise TQECException("Trying to add an overlapping quantum circuit to a Moment instance.")
+            raise TQECException(
+                "Trying to add an overlapping quantum circuit to a Moment instance."
+            )
         self._circuit += other._circuit
         return self
 
@@ -174,7 +178,9 @@ class Moment:
         """Add instructions of ``self`` and ``other`` in a new instance."""
         both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
         if both_sides_used_qubits:
-            raise TQECException("Trying to add an overlapping quantum circuit to a Moment instance.")
+            raise TQECException(
+                "Trying to add an overlapping quantum circuit to a Moment instance."
+            )
         cpy = deepcopy(self)
         cpy += other
         return cpy
@@ -305,7 +311,9 @@ class Moment:
         for instruction in self.instructions:
             targets: list[stim.GateTarget] = []
             for target_group in instruction.target_groups():
-                qubit_targets = [cast(int, t.qubit_value) for t in target_group if t.is_qubit_target]
+                qubit_targets = [
+                    cast(int, t.qubit_value) for t in target_group if t.is_qubit_target
+                ]
                 if any(q not in qubits for q in qubit_targets):
                     continue
                 targets.extend(target_group)
@@ -430,7 +438,9 @@ def iter_stim_circuit_without_repeat_by_moments(
             are always applied on disjoint sets of qubits.
 
     """
-    copy_func: Callable[[stim.Circuit], stim.Circuit] = (lambda c: c.copy()) if collected_before_use else (lambda c: c)
+    copy_func: Callable[[stim.Circuit], stim.Circuit] = (
+        (lambda c: c.copy()) if collected_before_use else (lambda c: c)
+    )
     cur_moment = stim.Circuit()
     for inst in circuit:
         if isinstance(inst, stim.CircuitRepeatBlock):

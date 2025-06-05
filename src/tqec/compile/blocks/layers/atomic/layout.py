@@ -60,7 +60,9 @@ class LayoutLayer(BaseLayer):
 
     def _post_init_check(self) -> None:
         if not self.layers:
-            raise TQECException(f"An instance of {type(self).__name__} should have at least one layer.")
+            raise TQECException(
+                f"An instance of {type(self).__name__} should have at least one layer."
+            )
         if self.trimmed_spatial_borders:
             raise TQECException(f"{LayoutLayer.__name__} cannot have trimmed spatial borders.")
 
@@ -111,7 +113,9 @@ class LayoutLayer(BaseLayer):
 
     def __eq__(self, value: object) -> bool:
         return (
-            isinstance(value, LayoutLayer) and self.element_shape == value.element_shape and self.layers == value.layers
+            isinstance(value, LayoutLayer)
+            and self.element_shape == value.element_shape
+            and self.layers == value.layers
         )
 
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
@@ -143,7 +147,9 @@ class LayoutLayer(BaseLayer):
 
         # Add plaquettes from each pipe to the plaquette_dict.
         pipes: dict[tuple[BlockPosition2D, BlockPosition2D], PlaquetteLayer] = {
-            pos.to_pipe(): layer for pos, layer in self.layers.items() if isinstance(pos, LayoutPipePosition2D)
+            pos.to_pipe(): layer
+            for pos, layer in self.layers.items()
+            if isinstance(pos, LayoutPipePosition2D)
         }
         for (u, v), pipe_layer in pipes.items():
             pipe_direction = Direction3D.from_neighbouring_positions(u.to_3d(), v.to_3d())

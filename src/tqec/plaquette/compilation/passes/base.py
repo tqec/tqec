@@ -25,7 +25,9 @@ class CompilationPass(ABC):
         """
         pass
 
-    def check_flows(self, original_circuit: ScheduledCircuit, modified_circuit: ScheduledCircuit) -> None:
+    def check_flows(
+        self, original_circuit: ScheduledCircuit, modified_circuit: ScheduledCircuit
+    ) -> None:
         """Check that the two provided circuits have the exact same flows.
 
         This method can be used to check if two quantum circuits are functionally

@@ -57,7 +57,8 @@ class _CSSPlaquetteBuilder:
         self._moments: list[Moment] = self._build_memory_moments()
         self._qubits = SquarePlaquetteQubits()
         self._qubit_map = QubitMap(
-            {0: self._qubits.syndrome_qubits[0]} | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
+            {0: self._qubits.syndrome_qubits[0]}
+            | {i + 1: q for i, q in enumerate(self._qubits.data_qubits)}
         )
         self._data_init: tuple[Basis, PlaquetteSide | None] | None = None
         self._data_meas: tuple[Basis, PlaquetteSide | None] | None = None
@@ -101,7 +102,9 @@ class _CSSPlaquetteBuilder:
             moment_index = -1
             self._data_meas = basis, only_on_side
         op = "M" if is_measurement else "R"
-        self._moments[moment_index].append(f"{op}{basis.value}", self._get_data_qubits(only_on_side), [])
+        self._moments[moment_index].append(
+            f"{op}{basis.value}", self._get_data_qubits(only_on_side), []
+        )
 
     def _build_memory_moments(self) -> list[Moment]:
         circuit = stim.Circuit()

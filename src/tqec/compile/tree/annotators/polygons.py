@@ -15,7 +15,9 @@ class AnnotatePolygonOnLayerNode(NodeWalker):
         if not node.is_leaf:
             return
         assert isinstance(node._layer, LayoutLayer)
-        node.get_annotations(self._k).polygons = generate_polygons_for_layout_layer(node._layer, self._k)
+        node.get_annotations(self._k).polygons = generate_polygons_for_layout_layer(
+            node._layer, self._k
+        )
 
 
 def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polygon]:

@@ -157,4 +157,6 @@ def generate_circuit_from_instantiation(
     # that the input circuits are not mutated but rather copied. This allows us
     # to not deepcopy the circuits earlier in the function.
     all_scheduled_circuits, qubit_map = relabel_circuits_qubit_indices(all_scheduled_circuits)
-    return merge_scheduled_circuits(all_scheduled_circuits, qubit_map, additional_mergeable_instructions)
+    return merge_scheduled_circuits(
+        all_scheduled_circuits, qubit_map, additional_mergeable_instructions
+    )

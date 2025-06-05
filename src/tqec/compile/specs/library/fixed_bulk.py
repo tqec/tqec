@@ -158,11 +158,18 @@ class FixedBulkPipeBuilder(PipeBuilder):
         assert spec.pipe_kind.is_temporal
         assert not spec.pipe_kind.has_hadamard
 
-        z_observable_orientation = Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
-        memory_plaquettes = self._generator.get_memory_qubit_plaquettes(z_observable_orientation, None, None)
+        z_observable_orientation = (
+            Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
+        )
+        memory_plaquettes = self._generator.get_memory_qubit_plaquettes(
+            z_observable_orientation, None, None
+        )
         template = self._generator.get_memory_qubit_raw_template()
         return Block(
-            [PlaquetteLayer(template, memory_plaquettes) for _ in range(3 if spec.at_temporal_hadamard_layer else 2)]
+            [
+                PlaquetteLayer(template, memory_plaquettes)
+                for _ in range(3 if spec.at_temporal_hadamard_layer else 2)
+            ]
         )
 
     def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
@@ -188,9 +195,15 @@ class FixedBulkPipeBuilder(PipeBuilder):
         assert spec.pipe_kind.is_temporal
         assert spec.pipe_kind.has_hadamard
 
-        z_observable_orientation = Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
-        memory_plaquettes_before = self._generator.get_memory_qubit_plaquettes(z_observable_orientation, None, None)
-        realignment_plaquettes = self._generator.get_temporal_hadamard_realignment_plaquettes(z_observable_orientation)
+        z_observable_orientation = (
+            Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
+        )
+        memory_plaquettes_before = self._generator.get_memory_qubit_plaquettes(
+            z_observable_orientation, None, None
+        )
+        realignment_plaquettes = self._generator.get_temporal_hadamard_realignment_plaquettes(
+            z_observable_orientation
+        )
         memory_plaquettes_after = self._generator.get_memory_qubit_plaquettes(
             z_observable_orientation.flip(), None, None
         )

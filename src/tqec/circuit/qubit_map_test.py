@@ -60,7 +60,9 @@ def test_qubit_map_with_mapped_qubits() -> None:
     assert QubitMap().with_mapped_qubits(lambda q: qubit_map[q]) == QubitMap()
 
     qmap = QubitMap({i: GridQubit(i, -i) for i in range(4)})
-    assert qmap.with_mapped_qubits(lambda q: qubit_map[q]) == QubitMap({i: GridQubit(-i, i) for i in range(4)})
+    assert qmap.with_mapped_qubits(lambda q: qubit_map[q]) == QubitMap(
+        {i: GridQubit(-i, i) for i in range(4)}
+    )
 
 
 def test_qubit_map_filter_by_qubits() -> None:
@@ -92,10 +94,12 @@ def test_get_final_qubits() -> None:
 
 
 def test_qubit_map_to_circuit() -> None:
-    assert QubitMap.from_qubits([GridQubit(0, 0)]).to_circuit() == stim.Circuit("QUBIT_COORDS(0, 0) 0")
-    assert QubitMap.from_circuit(stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")).to_circuit() == stim.Circuit(
+    assert QubitMap.from_qubits([GridQubit(0, 0)]).to_circuit() == stim.Circuit(
         "QUBIT_COORDS(0, 0) 0"
     )
+    assert QubitMap.from_circuit(
+        stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")
+    ).to_circuit() == stim.Circuit("QUBIT_COORDS(0, 0) 0")
 
 
 def test_qubit_map_getitem() -> None:

@@ -38,7 +38,9 @@ def test_simple_controlled_gate_basis() -> None:
 
 
 def test_controlled_gate_basis_schedule_constant() -> None:
-    compilation_pass = ChangeControlledGateBasisPass(Basis.X, ScheduleConstant(0), ScheduleConstant(6))
+    compilation_pass = ChangeControlledGateBasisPass(
+        Basis.X, ScheduleConstant(0), ScheduleConstant(6)
+    )
     qubit_map = QubitMap({i: GridQubit(i, i) for i in [0, 1]})
     for sched in range(1, 6):
         circ = ScheduledCircuit([Moment(stim.Circuit("CZ 0 1"))], [sched], qubit_map)

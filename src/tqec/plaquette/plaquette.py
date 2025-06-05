@@ -208,7 +208,14 @@ class Plaquettes:
         The returned value is reliable across runs, interpreters and
         OSes.
         """
-        return hash(tuple(sorted((index, plaquette.reliable_hash()) for index, plaquette in self.collection.items())))
+        return hash(
+            tuple(
+                sorted(
+                    (index, plaquette.reliable_hash())
+                    for index, plaquette in self.collection.items()
+                )
+            )
+        )
 
     def to_name_dict(self) -> dict[int | Literal["default"], str]:
         d: dict[int | Literal["default"], str] = {k: p.name for k, p in self.collection.items()}
@@ -241,13 +248,20 @@ class Plaquettes:
 
         return {
             "plaquettes": [
-                {"index": index, "plaquette": convert(plaquette)} for index, plaquette in self.collection.items()
+                {"index": index, "plaquette": convert(plaquette)}
+                for index, plaquette in self.collection.items()
             ],
-            "default": (convert(self.collection.default_value) if self.collection.default_value is not None else None),
+            "default": (
+                convert(self.collection.default_value)
+                if self.collection.default_value is not None
+                else None
+            ),
         }
 
     @staticmethod
-    def from_dict(data: dict[str, Any], plaquettes: Sequence[Plaquette] | None = None) -> Plaquettes:
+    def from_dict(
+        data: dict[str, Any], plaquettes: Sequence[Plaquette] | None = None
+    ) -> Plaquettes:
         """Return a collection of plaquettes from its dictionary representation.
 
         Args:
@@ -260,7 +274,11 @@ class Plaquettes:
         """
 
         def convert(item: dict[str, Any]) -> Plaquette:
-            return Plaquette.from_dict(item["plaquette"]) if plaquettes is None else plaquettes[item["plaquette"]]
+            return (
+                Plaquette.from_dict(item["plaquette"])
+                if plaquettes is None
+                else plaquettes[item["plaquette"]]
+            )
 
         collection = FrozenDefaultDict(
             {int(item["index"]): convert(item) for item in data["plaquettes"]},
@@ -289,7 +307,9 @@ class RepeatedPlaquettes(Plaquettes):
         return round_or_fail(self.repetitions(k))
 
     @override
-    def with_updated_plaquettes(self, plaquettes_to_update: Mapping[int, Plaquette]) -> RepeatedPlaquettes:
+    def with_updated_plaquettes(
+        self, plaquettes_to_update: Mapping[int, Plaquette]
+    ) -> RepeatedPlaquettes:
         return RepeatedPlaquettes(
             self.collection | plaquettes_to_update,
             repetitions=self.repetitions,

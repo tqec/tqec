@@ -28,7 +28,9 @@ def _is_sorted(seq: Sequence[int | float]) -> bool:
     return True
 
 
-def get_logical_error_rate_per_shot(stat: sinter.TaskStats, max_likelihood_factor: float = 1e3) -> sinter.Fit:
+def get_logical_error_rate_per_shot(
+    stat: sinter.TaskStats, max_likelihood_factor: float = 1e3
+) -> sinter.Fit:
     """Estimates the logical error rate per shot for the given ``stat``.
 
     Note:
@@ -157,7 +159,9 @@ def binary_search_threshold(
     compiled_graph = compile_block_graph(block_graph, convention, [observable])
     ks = tuple(sorted(ks))
     noiseless_circuits = [
-        compiled_graph.generate_stim_circuit(k, manhattan_radius=manhattan_radius, detector_database=detector_database)
+        compiled_graph.generate_stim_circuit(
+            k, manhattan_radius=manhattan_radius, detector_database=detector_database
+        )
         for k in ks
     ]
     computed_logical_errors: dict[int, list[tuple[float, sinter.Fit]]] = {k: [] for k in ks}
@@ -179,7 +183,8 @@ def binary_search_threshold(
             hint_num_tasks=len(ks),
         )
         logical_errors_fits: list[sinter.Fit] = [
-            get_logical_error_rate_per_shot(stat) for stat in sorted(stats, key=lambda s: s.json_metadata["d"])
+            get_logical_error_rate_per_shot(stat)
+            for stat in sorted(stats, key=lambda s: s.json_metadata["d"])
         ]
         # Update computed_logical_errors
         for i, k in enumerate(ks):

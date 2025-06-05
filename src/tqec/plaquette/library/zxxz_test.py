@@ -111,7 +111,9 @@ def test_zxxz_surface_code_init_meas_plaquette() -> None:
     plaquette = make_zxxz_surface_code_plaquette("Z", Basis.Z, Basis.Z)
     assert plaquette.name == "ZXXZ_basis(Z)_VERTICAL_datainit(Z)_datameas(Z)"
     circuit = plaquette.circuit.get_circuit()
-    assert circuit.has_flow(stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]"))
+    assert circuit.has_flow(
+        stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]")
+    )
     assert circuit == stim.Circuit("""
 QUBIT_COORDS(0, 0) 0
 QUBIT_COORDS(-1, -1) 1
@@ -141,7 +143,9 @@ M 0 1 2 3 4
     plaquette = make_zxxz_surface_code_plaquette("X", Basis.X, Basis.X)
     assert plaquette.name == "ZXXZ_basis(X)_VERTICAL_datainit(X)_datameas(X)"
     circuit = plaquette.circuit.get_circuit()
-    assert circuit.has_flow(stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]"))
+    assert circuit.has_flow(
+        stim.Flow("1 -> 1 xor rec[-1] xor rec[-2] xor rec[-3] xor rec[-4] xor rec[-5]")
+    )
     assert circuit == stim.Circuit("""
 QUBIT_COORDS(0, 0) 0
 QUBIT_COORDS(-1, -1) 1
@@ -333,7 +337,9 @@ M 0 1 2
 
 
 def test_zxxz_surface_code_init_meas_only_on_side() -> None:
-    plaquette = make_zxxz_surface_code_plaquette("X", Basis.X, init_meas_only_on_side=PlaquetteSide.RIGHT)
+    plaquette = make_zxxz_surface_code_plaquette(
+        "X", Basis.X, init_meas_only_on_side=PlaquetteSide.RIGHT
+    )
     assert plaquette.name == "ZXXZ_basis(X)_VERTICAL_datainit(X,RIGHT)"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("1 -> _ZXXZ xor rec[-1]"))
@@ -363,7 +369,9 @@ H 0
 TICK
 M 0
 """)
-    plaquette = make_zxxz_surface_code_plaquette("Z", data_measurement=Basis.Z, init_meas_only_on_side=PlaquetteSide.UP)
+    plaquette = make_zxxz_surface_code_plaquette(
+        "Z", data_measurement=Basis.Z, init_meas_only_on_side=PlaquetteSide.UP
+    )
     assert plaquette.name == "ZXXZ_basis(Z)_VERTICAL_datameas(Z,UP)"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("1 -> ___XZ xor rec[-1] xor rec[-2] xor rec[-3]"))

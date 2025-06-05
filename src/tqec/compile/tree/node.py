@@ -172,7 +172,9 @@ class LayerNode:
                     "LayerTree.annotate_circuits before?"
                 )
             local_qubit_map = base_circuit.qubit_map
-            qubit_indices_mapping = {local_qubit_map[q]: global_qubit_map[q] for q in local_qubit_map.qubits}
+            qubit_indices_mapping = {
+                local_qubit_map[q]: global_qubit_map[q] for q in local_qubit_map.qubits
+            }
             mapped_circuit = base_circuit.map_qubit_indices(qubit_indices_mapping)
             if shift_coords is not None:
                 mapped_circuit.append_annotation(
@@ -180,7 +182,9 @@ class LayerNode:
                 )
             for annotation in annotations.detectors + annotations.observables:
                 mapped_circuit.append_annotation(annotation.to_instruction())
-            ret: list[stim.Circuit | list[Polygon]] = [mapped_circuit.get_circuit(include_qubit_coords=False)]
+            ret: list[stim.Circuit | list[Polygon]] = [
+                mapped_circuit.get_circuit(include_qubit_coords=False)
+            ]
             if add_polygons:
                 ret.insert(0, annotations.polygons)
 
@@ -189,7 +193,9 @@ class LayerNode:
         if isinstance(self._layer, SequencedLayers):
             ret = []
             for child, next_child in zip(self._children[:-1], self._children[1:]):
-                ret += child.generate_circuits_with_potential_polygons(k, global_qubit_map, shift_coords, add_polygons)
+                ret += child.generate_circuits_with_potential_polygons(
+                    k, global_qubit_map, shift_coords, add_polygons
+                )
                 if not next_child.is_repeated:
                     assert isinstance(ret[-1], stim.Circuit)
                     ret[-1].append("TICK")
@@ -240,7 +246,9 @@ class LayerNode:
             ``global_qubit_map``.
 
         """
-        circuits = self.generate_circuits_with_potential_polygons(k, global_qubit_map, shift_coords, add_polygons=False)
+        circuits = self.generate_circuits_with_potential_polygons(
+            k, global_qubit_map, shift_coords, add_polygons=False
+        )
         ret = stim.Circuit()
         for circuit in circuits:
             assert isinstance(circuit, stim.Circuit)

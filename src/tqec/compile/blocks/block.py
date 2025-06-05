@@ -122,7 +122,8 @@ def merge_parallel_block_layers(
     if not blocks_in_parallel:
         return []
     internal_layers_schedules = frozenset(
-        tuple(layer.scalable_timesteps for layer in block.layer_sequence) for block in blocks_in_parallel.values()
+        tuple(layer.scalable_timesteps for layer in block.layer_sequence)
+        for block in blocks_in_parallel.values()
     )
     if len(internal_layers_schedules) != 1:
         raise NotImplementedError(

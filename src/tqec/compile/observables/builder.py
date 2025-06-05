@@ -50,7 +50,9 @@ class CubeTopReadoutsBuilder(Protocol):
     system.
     """
 
-    def __call__(self, shape: PlaquetteShape2D, obs_orientation: Orientation, /) -> list[tuple[int, int]]: ...
+    def __call__(
+        self, shape: PlaquetteShape2D, obs_orientation: Orientation, /
+    ) -> list[tuple[int, int]]: ...
 
 
 class SpatialCubeTopReadoutsBuilder(Protocol):
@@ -111,7 +113,9 @@ class SpatialCubeBottomStabilizersBuilder(Protocol):
     logical observable.
     """
 
-    def __call__(self, shape: PlaquetteShape2D, stabilizer_basis: Basis, /) -> list[tuple[float, float]]: ...
+    def __call__(
+        self, shape: PlaquetteShape2D, stabilizer_basis: Basis, /
+    ) -> list[tuple[float, float]]: ...
 
 
 class TemporalHadamardIncludesBuilder(Protocol):
@@ -248,7 +252,9 @@ def compute_observable_qubits(
             # Since the basis of the top face decides the measurement basis of the data
             # qubits, i.e. the logical operator basis. We only need to find the spatial
             # boundaries that the logical operator can be attached to.
-            obs_orientation = Orientation.VERTICAL if cube.kind.y == cube.kind.z else Orientation.HORIZONTAL
+            obs_orientation = (
+                Orientation.VERTICAL if cube.kind.y == cube.kind.z else Orientation.HORIZONTAL
+            )
             collect(
                 cube.position,
                 obs_builder.cube_top_readouts_builder(shape, obs_orientation),
@@ -264,7 +270,9 @@ def compute_observable_qubits(
     else:  # component == ObservableComponent.REALIGNMENT
         for pipe, obs_basis in obs_slice.temporal_hadamard_pipes:
             z_orientation = (
-                Orientation.VERTICAL if pipe.kind.get_basis_along(Direction3D.Y) == Basis.Z else Orientation.HORIZONTAL
+                Orientation.VERTICAL
+                if pipe.kind.get_basis_along(Direction3D.Y) == Basis.Z
+                else Orientation.HORIZONTAL
             )
             collect(
                 pipe.u.position,
@@ -294,7 +302,9 @@ def get_observable_with_measurement_records(
         The logical observable.
 
     """
-    if not ignore_qubits_with_no_measurement and any(len(measurement_records.mapping.get(q, [])) == 0 for q in qubits):
+    if not ignore_qubits_with_no_measurement and any(
+        len(measurement_records.mapping.get(q, [])) == 0 for q in qubits
+    ):
         raise TQECException(
             "Some qubits are not measured in the circuit. Set ignore_qubits_with_no_measurement to True to ignore them."
         )

@@ -75,7 +75,9 @@ def test_cz_resolve_ports() -> None:
         (None, 4, {"IXZX", "ZIZI", "IZIZ", "XIXZ"}),
     ],
 )
-def test_cz_correlation_surface(flows: list[str] | None, num_surfaces: int, external_stabilizers: set[str]) -> None:
+def test_cz_correlation_surface(
+    flows: list[str] | None, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
     io_ports = [0, 3, 2, 5]
 
     g = cz(flows)

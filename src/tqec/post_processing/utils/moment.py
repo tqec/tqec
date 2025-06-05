@@ -18,7 +18,9 @@ class RepeatedMoments:
 def iter_stim_circuit_by_moments(
     circuit: stim.Circuit, collected_before_use: bool = True
 ) -> Iterator[Moment | RepeatedMoments]:
-    copy_func: Callable[[stim.Circuit], stim.Circuit] = (lambda c: c.copy()) if collected_before_use else (lambda c: c)
+    copy_func: Callable[[stim.Circuit], stim.Circuit] = (
+        (lambda c: c.copy()) if collected_before_use else (lambda c: c)
+    )
     cur_moment = stim.Circuit()
     for inst in circuit:
         if isinstance(inst, stim.CircuitRepeatBlock):

@@ -85,7 +85,9 @@ class CorrelationSurfaceTransformationHelper:
         pipe = self.block_graph.get_pipe(up, vp)
         correlation_basis = u.basis
         return next(
-            d for d in Direction3D.all_directions() if pipe.kind.get_basis_along(d) == correlation_basis.flipped()
+            d
+            for d in Direction3D.all_directions()
+            if pipe.kind.get_basis_along(d) == correlation_basis.flipped()
         )
 
     def _scale_position(self, pos: Position3D) -> FloatPosition3D:
@@ -169,7 +171,9 @@ class CorrelationSurfaceTransformationHelper:
                     )
                 # turn at corner
                 else:
-                    transformations.extend(self._compute_turn_transformation(scaled_pos, v, (e1, e2)))
+                    transformations.extend(
+                        self._compute_turn_transformation(scaled_pos, v, (e1, e2))
+                    )
             else:
                 e1, e2, e3, e4 = sorted(correlation_edges)
                 transformations.extend(self._compute_turn_transformation(scaled_pos, v, (e1, e2)))

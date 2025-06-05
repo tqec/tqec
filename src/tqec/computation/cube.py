@@ -127,7 +127,9 @@ class ZXCube:
             set along the given direction axis.
 
         """
-        return ZXCube(*[basis if i == direction.value else b for i, b in enumerate(self.as_tuple())])
+        return ZXCube(
+            *[basis if i == direction.value else b for i, b in enumerate(self.as_tuple())]
+        )
 
 
 class Port:

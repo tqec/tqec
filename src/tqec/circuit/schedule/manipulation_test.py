@@ -14,9 +14,13 @@ from tqec.utils.exceptions import TQECWarning
 
 
 def test_remove_duplicate_instructions() -> None:
-    instructions: list[stim.CircuitInstruction] = list(iter(stim.Circuit("H 0 0 0 2 0 0 0 0 1 1 2 2 0 0 0 3")))  # type: ignore
+    instructions: list[stim.CircuitInstruction] = list(
+        iter(stim.Circuit("H 0 0 0 2 0 0 0 0 1 1 2 2 0 0 0 3"))
+    )  # type: ignore
     expected_instructions = set(iter(stim.Circuit("H 0 1 2 3")))  # type: ignore
-    assert set(remove_duplicate_instructions(instructions, frozenset(["H"]))) == expected_instructions
+    assert (
+        set(remove_duplicate_instructions(instructions, frozenset(["H"]))) == expected_instructions
+    )
     with pytest.warns(TQECWarning):
         # Several H gates are overlapping, which means that the returned instruction
         # list is not a valid Moment, which should raise a warning.
@@ -75,7 +79,9 @@ def test_merge_scheduled_circuits() -> None:
         ]
     )
     circuit = merge_scheduled_circuits(_circuits, _qubit_map)
-    assert circuit.get_circuit() == stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 1) 1\nH 0\nX 1")
+    assert circuit.get_circuit() == stim.Circuit(
+        "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 1) 1\nH 0\nX 1"
+    )
 
     circuit = merge_scheduled_circuits(
         [
@@ -89,7 +95,9 @@ def test_merge_scheduled_circuits() -> None:
 
     _circuits, _qubit_map = relabel_circuits_qubit_indices(
         [
-            ScheduledCircuit.from_circuit(stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0\nTICK\nM 0"), [0, 2]),
+            ScheduledCircuit.from_circuit(
+                stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0\nTICK\nM 0"), [0, 2]
+            ),
             ScheduledCircuit.from_circuit(stim.Circuit("QUBIT_COORDS(1, 1) 0\nX 0"), 1),
         ]
     )

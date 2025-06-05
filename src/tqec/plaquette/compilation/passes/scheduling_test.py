@@ -32,5 +32,7 @@ def test_identity() -> None:
 def test_new_moments() -> None:
     compilation_pass = ChangeSchedulePass({0: 0, 1: 1, 2: 3})
     circ = _s("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 1) 1\nH 0\nTICK\nCX 0 1\nTICK\nM 1")
-    target_circ = _s("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 1) 1\nH 0\nTICK\nCX 0 1\nTICK\nTICK\nM 1")
+    target_circ = _s(
+        "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 1) 1\nH 0\nTICK\nCX 0 1\nTICK\nTICK\nM 1"
+    )
     assert compilation_pass.run(circ) == target_circ

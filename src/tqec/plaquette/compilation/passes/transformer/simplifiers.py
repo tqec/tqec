@@ -16,7 +16,9 @@ class InstructionSimplifier(ABC):
     """
 
     @abstractmethod
-    def simplify(self, instructions: Sequence[stim.CircuitInstruction]) -> list[stim.CircuitInstruction]:
+    def simplify(
+        self, instructions: Sequence[stim.CircuitInstruction]
+    ) -> list[stim.CircuitInstruction]:
         """Simplify a list of instructions that are happening at the same moment
         in the circuit.
         """
@@ -25,7 +27,9 @@ class InstructionSimplifier(ABC):
 
 class NoInstructionSimplification(InstructionSimplifier):
     @override
-    def simplify(self, instructions: Sequence[stim.CircuitInstruction]) -> list[stim.CircuitInstruction]:
+    def simplify(
+        self, instructions: Sequence[stim.CircuitInstruction]
+    ) -> list[stim.CircuitInstruction]:
         return list(instructions)
 
 
@@ -35,7 +39,9 @@ class SelfInverseGateSimplification(InstructionSimplifier):
         self._self_inverse_gates = frozenset(self_inverse_gates)
 
     @override
-    def simplify(self, instructions: Sequence[stim.CircuitInstruction]) -> list[stim.CircuitInstruction]:
+    def simplify(
+        self, instructions: Sequence[stim.CircuitInstruction]
+    ) -> list[stim.CircuitInstruction]:
         # Append in ret all the instructions that are not in
         # self._self_inverse_gates and count the instructions that are in it.
         ret: list[stim.CircuitInstruction] = []

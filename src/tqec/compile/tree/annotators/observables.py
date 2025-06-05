@@ -85,5 +85,7 @@ def _annotate_observable_at_node(
     template, _ = node._layer.to_template_and_plaquettes()
     obs_qubits = compute_observable_qubits(k, obs_slice, template, observable_builder, component)
     if obs_qubits:
-        obs_annotation = get_observable_with_measurement_records(obs_qubits, measurement_record, observable_index)
+        obs_annotation = get_observable_with_measurement_records(
+            obs_qubits, measurement_record, observable_index
+        )
         node.get_annotations(k).observables.append(obs_annotation)

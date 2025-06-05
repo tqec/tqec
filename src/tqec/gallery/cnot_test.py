@@ -50,7 +50,9 @@ def test_cnot_filled(obs_basis: Basis) -> None:
         (None, 4, {"ZIZI", "ZZIZ", "XIXX", "IXIX"}),
     ],
 )
-def test_cnot_correlation_surface(obs_basis: Basis | None, num_surfaces: int, external_stabilizers: set[str]) -> None:
+def test_cnot_correlation_surface(
+    obs_basis: Basis | None, num_surfaces: int, external_stabilizers: set[str]
+) -> None:
     g = cnot(obs_basis)
     io_ports = [0, 6, 3, 9]
     correlation_surfaces = g.find_correlation_surfaces()

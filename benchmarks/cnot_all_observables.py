@@ -17,8 +17,12 @@ ASSETS_FOLDER = TQEC_FOLDER / "assets"
 CNOT_DAE_FILE = ASSETS_FOLDER / "logical_cnot.dae"
 
 
-def generate_stim_circuit(compiled_graph: TopologicalComputationGraph, k: int, p: float) -> stim.Circuit:
-    circuit_without_detectors = compiled_graph.generate_stim_circuit(k, noise_model=NoiseModel.uniform_depolarizing(p))
+def generate_stim_circuit(
+    compiled_graph: TopologicalComputationGraph, k: int, p: float
+) -> stim.Circuit:
+    circuit_without_detectors = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(p)
+    )
     # For now, we annotate the detectors as post-processing step
     return annotate_detectors_automatically(circuit_without_detectors)
 

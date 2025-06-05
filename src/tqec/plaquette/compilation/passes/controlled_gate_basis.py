@@ -12,7 +12,9 @@ from tqec.utils.enums import Basis
 
 
 class ChangeControlledGateBasisPass(ScheduledCircuitTransformationPass):
-    def __init__(self, basis: Basis, bcsched1: ScheduleFunction, bcsched2: ScheduleFunction) -> None:
+    def __init__(
+        self, basis: Basis, bcsched1: ScheduleFunction, bcsched2: ScheduleFunction
+    ) -> None:
         """Change ``CX`` or ``CZ`` gates to the provided basis.
 
         Args:

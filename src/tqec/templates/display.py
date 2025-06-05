@@ -12,7 +12,9 @@ import numpy.typing as npt
 from tqec.templates.base import Template
 
 
-def display_template(template: Template, k: int, plaquette_indices: ty.Sequence[int] | None = None) -> None:
+def display_template(
+    template: Template, k: int, plaquette_indices: ty.Sequence[int] | None = None
+) -> None:
     """Display a template instance with ASCII output.
 
     Args:
@@ -45,4 +47,7 @@ def get_template_representation_from_instantiation(
     """Get the pretty-string representation of a template instantiation."""
     max_integer = numpy.max(instantiation)
     pad = len(str(max_integer)) + 1
-    return "\n".join(" ".join((str(num) if num != 0 else ".").rjust(pad) for num in line) for line in instantiation)
+    return "\n".join(
+        " ".join((str(num) if num != 0 else ".").rjust(pad) for num in line)
+        for line in instantiation
+    )

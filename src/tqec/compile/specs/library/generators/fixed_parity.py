@@ -131,7 +131,9 @@ class FixedParityConventionGenerator:
             measurements on the data-qubits too.
 
         """
-        return self._mapper(self.get_memory_qubit_rpng_descriptions)(z_orientation, reset, measurement)
+        return self._mapper(self.get_memory_qubit_rpng_descriptions)(
+            z_orientation, reset, measurement
+        )
 
     ########################################
     #                X pipe                #
@@ -229,7 +231,9 @@ class FixedParityConventionGenerator:
             data-qubits too.
 
         """
-        return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(z_orientation, reset, measurement)
+        return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
+            z_orientation, reset, measurement
+        )
 
     ########################################
     #                Y pipe                #
@@ -327,7 +331,9 @@ class FixedParityConventionGenerator:
             data-qubits too.
 
         """
-        return self._mapper(self.get_memory_horizontal_boundary_rpng_descriptions)(z_orientation, reset, measurement)
+        return self._mapper(self.get_memory_horizontal_boundary_rpng_descriptions)(
+            z_orientation, reset, measurement
+        )
 
     ############################################################
     #                          Spatial                         #
@@ -634,7 +640,9 @@ class FixedParityConventionGenerator:
         """
         raise self._not_implemented_exception()
 
-    def get_temporal_hadamard_plaquettes(self, z_orientation: Orientation = Orientation.HORIZONTAL) -> Plaquettes:
+    def get_temporal_hadamard_plaquettes(
+        self, z_orientation: Orientation = Orientation.HORIZONTAL
+    ) -> Plaquettes:
         return self._mapper(self.get_temporal_hadamard_rpng_descriptions)(z_orientation)
 
     ########################################

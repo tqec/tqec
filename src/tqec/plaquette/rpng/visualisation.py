@@ -47,13 +47,19 @@ def rpng_svg_viewer(
     """
     if show_plaquette_indices:
         if isinstance(rpng_object, RPNGDescription):
-            raise TQECException("``rpng_object`` must be a 2D list when ``show_plaquette_indices`` is True.")
+            raise TQECException(
+                "``rpng_object`` must be a 2D list when ``show_plaquette_indices`` is True."
+            )
         if plaquette_indices is None:
-            raise TQECException("Plaquette indices must be provided when ``show_plaquette_indices`` is True.")
+            raise TQECException(
+                "Plaquette indices must be provided when ``show_plaquette_indices`` is True."
+            )
         if not len(rpng_object) == len(plaquette_indices) and all(
             len(row) == len(indices) for row, indices in zip(rpng_object, plaquette_indices)
         ):
-            raise TQECException("The dimensions of ``rpng_object`` and ``plaquette_indices`` must match.")
+            raise TQECException(
+                "The dimensions of ``rpng_object`` and ``plaquette_indices`` must match."
+            )
 
     data_qubits: set[complex] = set()
     plaquettes: dict[complex, dict[complex, RPNG]] = {}
@@ -106,7 +112,9 @@ def rpng_svg_viewer(
         return scale_factor * (q - min_c)
 
     # Collect the SVG lines
-    lines = [f"""<svg viewBox="0 0 {canvas_width} {canvas_height}" xmlns="http://www.w3.org/2000/svg">"""]
+    lines = [
+        f"""<svg viewBox="0 0 {canvas_width} {canvas_height}" xmlns="http://www.w3.org/2000/svg">"""
+    ]
     fill_layer: list[str] = []
     stroke_layer: list[str] = []
     rg_layer: list[str] = []
@@ -145,7 +153,9 @@ def rpng_svg_viewer(
     return "\n".join(lines)
 
 
-def _merge_rg_field(value1: ExtendedBasis | None, value2: ExtendedBasis | None) -> ExtendedBasis | None:
+def _merge_rg_field(
+    value1: ExtendedBasis | None, value2: ExtendedBasis | None
+) -> ExtendedBasis | None:
     if value1 is None:
         return value2
     if value2 is None:

@@ -169,7 +169,9 @@ def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
     measurements_reverse_order: list[Measurement] = []
     for instruction in reversed(circuit):
         if isinstance(instruction, stim.CircuitRepeatBlock):
-            raise TQECException("Found a REPEAT block in get_measurements_from_circuit. This is not supported.")
+            raise TQECException(
+                "Found a REPEAT block in get_measurements_from_circuit. This is not supported."
+            )
         if is_multi_qubit_measurement_instruction(instruction):
             raise TQECException(
                 f"Got a multi-qubit measurement instruction ({instruction.name}) "

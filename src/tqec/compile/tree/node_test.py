@@ -33,7 +33,9 @@ def layout_layer_fixture() -> LayoutLayer:
     plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
     return LayoutLayer(
         {
-            LayoutPosition2D.from_block_position(BlockPosition2D(x, y)): PlaquetteLayer(template, plaquettes)
+            LayoutPosition2D.from_block_position(BlockPosition2D(x, y)): PlaquetteLayer(
+                template, plaquettes
+            )
             for x, y in [(0, 0), (1, 0)]
         },
         LOGICAL_QUBIT_SHAPE,
@@ -88,6 +90,12 @@ def test_walk_see_all_leaf_nodes(layout_layer: LayoutLayer) -> None:
     )  # Because RepeatedLayer has only its repeated node as child.
     assert count_leaves(LayerNode(SequencedLayers([layout_layer for _ in range(3)]))) == 3
     assert (
-        count_leaves(LayerNode(SequencedLayers([SequencedLayers([layout_layer for _ in range(3)]) for _ in range(5)])))
+        count_leaves(
+            LayerNode(
+                SequencedLayers(
+                    [SequencedLayers([layout_layer for _ in range(3)]) for _ in range(5)]
+                )
+            )
+        )
         == 15
     )

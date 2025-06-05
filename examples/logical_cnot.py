@@ -66,7 +66,9 @@ def generate_graphs(style: Literal["css", "zxxz"], observable_basis: Basis) -> N
         ax.legend()
         ax.loglog()
         ax.set_title(f"{style.upper()} Logical CNOT Error Rate")
-        fig.savefig(ASSETS_FOLDER / f"{style}_logical_cnot_result_{observable_basis}_observable_{i}.png")
+        fig.savefig(
+            ASSETS_FOLDER / f"{style}_logical_cnot_result_{observable_basis}_observable_{i}.png"
+        )
 
 
 def main():

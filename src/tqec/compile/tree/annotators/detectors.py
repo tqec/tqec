@@ -108,9 +108,13 @@ class LookbackStack:
         """Append a new QEC round in the data-structure."""
         self._stack[-1].append(template, plaquettes, measurement_records)
 
-    def _get_last_n(self, n: int) -> tuple[list[Template], list[Plaquettes], list[MeasurementRecordsMap]]:
+    def _get_last_n(
+        self, n: int
+    ) -> tuple[list[Template], list[Plaquettes], list[MeasurementRecordsMap]]:
         if n < 0:
-            raise TQECException(f"Cannot look back a negative number of rounds. Got a lookback value of {n}.")
+            raise TQECException(
+                f"Cannot look back a negative number of rounds. Got a lookback value of {n}."
+            )
         if n == 0:
             return [], [], []
         templates: list[Template] = []
@@ -141,7 +145,9 @@ class LookbackStack:
 
     def __len__(self) -> int:
         if len(self._stack) > 1:
-            raise TQECException("Cannot get a meaningful stack length when a REPEAT block is in construction.")
+            raise TQECException(
+                "Cannot get a meaningful stack length when a REPEAT block is in construction."
+            )
         return len(self._stack[0])
 
 
@@ -203,7 +209,9 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             *node._layer.to_template_and_plaquettes(),
             MeasurementRecordsMap.from_scheduled_circuit(annotations.circuit),
         )
-        templates, plaquettes, measurement_records = self._lookback_stack.lookback(self._lookback_size)
+        templates, plaquettes, measurement_records = self._lookback_stack.lookback(
+            self._lookback_size
+        )
 
         detectors = compute_detectors_for_fixed_radius(
             templates,
@@ -215,7 +223,9 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         )
 
         for detector in detectors:
-            annotations.detectors.append(DetectorAnnotation.from_detector(detector, measurement_records))
+            annotations.detectors.append(
+                DetectorAnnotation.from_detector(detector, measurement_records)
+            )
 
     @override
     def enter_node(self, node: LayerNode) -> None:

@@ -79,7 +79,9 @@ class DefaultRPNGTranslator(RPNGTranslator):
         if (g := rpng_description.ancilla.g) is not None:
             meas_timestep_operations[g.to_extended_basis()] = [syndrome_qubit_index]
         # Handling data-qubits
-        entangling_operations: list[tuple[PauliBasis, int] | None] = [None for _ in range(MEASUREMENT_SCHEDULE - 1)]
+        entangling_operations: list[tuple[PauliBasis, int] | None] = [
+            None for _ in range(MEASUREMENT_SCHEDULE - 1)
+        ]
         for qi, rpng in enumerate(rpng_description.corners):
             dqi = data_qubit_indices[qi]
             if rpng.r is not None:
