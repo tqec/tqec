@@ -516,12 +516,12 @@ def _extract_subtemplates_from_s3d(
 
 def _compute_detector_for_subtemplate(
     args: tuple[
-        tuple[int, ...],
-        npt.NDArray[numpy.int_],
-        Sequence[Plaquettes],
-        Shift2D,
-        DetectorDatabase | None,
-        bool,
+        tuple[int, ...],  # indices
+        npt.NDArray[numpy.int_],  # s3d
+        Sequence[Plaquettes],  # plaquettes
+        Shift2D,  # increments
+        DetectorDatabase | None,  # database
+        bool,  # only_use_database
     ],
 ) -> tuple[tuple[int, ...], frozenset[Detector]]:
     """Helper function for parallel processing of detector computation.
