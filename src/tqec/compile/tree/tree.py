@@ -17,10 +17,9 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
-from tqec.plaquette.rpng.rpng import RPNGDescription
-from tqec.plaquette.rpng.template import RPNGTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
+from tqec.visualisation.computation.plaquette.grid import plaquette_grid_svg_viewer
 
 
 class QubitLister(NodeWalker):
@@ -57,26 +56,18 @@ class LayerVisualiser(NodeWalker):
 
     @override
     def visit_node(self, node: LayerNode) -> None:
-        from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
-
         if not node.is_leaf:
             return
         layer = node._layer
         assert isinstance(layer, LayoutLayer)
         template, plaquettes = layer.to_template_and_plaquettes()
-        rpngs = plaquettes.collection.map_values(
-            lambda plaq: (
-                plaq.debug_information.rpng
-                if (
-                    plaq.debug_information is not None
-                    and plaq.debug_information.rpng is not None
-                )
-                else RPNGDescription.empty()
-            )
+        instantiation = template.instantiate(self._k).tolist()
+        drawers = plaquettes.collection.map_values(
+            lambda plaq: plaq.debug_information.get_svg_drawer()
         )
-        rpng_template = RPNGTemplate(template, rpngs)
-        rpng_instantiation = rpng_template.instantiate(self._k)
-        self._visualisations.append(rpng_svg_viewer(rpng_instantiation))
+        self._visualisations.append(
+            plaquette_grid_svg_viewer(instantiation, drawers).as_str()
+        )
 
     @property
     def visualisations(self) -> list[str]:
