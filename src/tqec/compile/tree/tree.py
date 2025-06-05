@@ -338,11 +338,7 @@ class LayerTree:
         # Decide whether to enable parallel processing when computing detectors
         # If not using a database, or if the database is empty, we can use parallel processing.
         # to accelerate the computation.
-        if detector_database is None or len(detector_database) == 0:
-            parallel = True
-        # Otherwise we disable parallel processing
-        else:
-            parallel = False
+        parallel = detector_database is None or len(detector_database) == 0
 
         self._generate_annotations(
             k,
