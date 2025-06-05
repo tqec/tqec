@@ -1646,7 +1646,9 @@
 
 <span class="n">graph</span> <span class="o">=</span> <span class="n">cnot</span><span class="p">(</span><span class="n">Basis</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
 <span class="n">compiled_graph</span> <span class="o">=</span> <span class="n">compile_block_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
-<span class="n">circuit</span> <span class="o">=</span> <span class="n">compiled_graph</span><span class="o">.</span><span class="n">generate_stim_circuit</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">noise_model</span><span class="o">=</span><span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.001</span><span class="p">))</span>
+<span class="n">circuit</span> <span class="o">=</span> <span class="n">compiled_graph</span><span class="o">.</span><span class="n">generate_stim_circuit</span><span class="p">(</span>
+    <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">noise_model</span><span class="o">=</span><span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>

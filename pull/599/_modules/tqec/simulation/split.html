@@ -473,7 +473,11 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="n">task_stats</span><span class="o">.</span><span class="n">with_edits</span><span class="p">(</span>
                     <span class="n">errors</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
                     <span class="n">custom_counts</span><span class="o">=</span><span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span>
-                        <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">task_stats</span><span class="o">.</span><span class="n">custom_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;obs_mistake_mask=&quot;</span><span class="p">)}</span>
+                        <span class="p">{</span>
+                            <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+                            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">task_stats</span><span class="o">.</span><span class="n">custom_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;obs_mistake_mask=&quot;</span><span class="p">)</span>
+                        <span class="p">}</span>
                     <span class="p">),</span>
                 <span class="p">)</span>
             <span class="p">)</span>

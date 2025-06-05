@@ -525,7 +525,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="s2">&quot;MPP&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 <span class="n">COLLAPSING_OPS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">op</span> <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">OP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_RESET_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_MEASURE_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MPP</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MEASURE_RESET_1Q</span>
+    <span class="n">op</span>
+    <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">OP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_RESET_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">JUST_MEASURE_1Q</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MPP</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="n">MEASURE_RESET_1Q</span>
 <span class="p">}</span>
 
 
@@ -563,7 +565,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">immune_qubits</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">is_qubit_target</span> <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">is_x_target</span> <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">is_y_target</span> <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">is_z_target</span><span class="p">)</span> <span class="ow">and</span> <span class="n">t</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">immune_qubits</span>
+            <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">is_qubit_target</span> <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">is_x_target</span> <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">is_y_target</span> <span class="ow">or</span> <span class="n">t</span><span class="o">.</span><span class="n">is_z_target</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">t</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">immune_qubits</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">targets</span>
         <span class="p">):</span>
             <span class="n">out_during_moment</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">split_op</span><span class="p">)</span>
@@ -597,7 +600,9 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">any_clifford_2q_rule</span><span class="p">:</span> <span class="n">NoiseRule</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span> <span class="o">=</span> <span class="n">idle_depolarization</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span> <span class="o">=</span> <span class="n">additional_depolarization_waiting_for_m_or_r</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">additional_depolarization_waiting_for_m_or_r</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gate_rules</span> <span class="o">=</span> <span class="n">gate_rules</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">measure_rules</span> <span class="o">=</span> <span class="n">measure_rules</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_1q_rule</span> <span class="o">=</span> <span class="n">any_clifford_1q_rule</span>
@@ -663,7 +668,9 @@ window.addEventListener("load", () => mermaid.run());
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_noise_rule_for_split_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">split_op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoiseRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_noise_rule_for_split_operation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">split_op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoiseRule</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">occurs_in_classical_control_system</span><span class="p">(</span><span class="n">split_op</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -729,7 +736,11 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span><span class="p">)</span>
 
         <span class="n">waiting_for_mr</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">system_qubits</span> <span class="o">-</span> <span class="n">collapse_qubits_set</span> <span class="o">-</span> <span class="n">immune_qubits</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">collapse_qubits_set</span> <span class="ow">and</span> <span class="n">waiting_for_mr</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">collapse_qubits_set</span>
+            <span class="ow">and</span> <span class="n">waiting_for_mr</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span>
+        <span class="p">):</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_append_noisy_moment</span><span class="p">(</span>
@@ -805,7 +816,11 @@ window.addEventListener("load", () => mermaid.run());
                     <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">noisy_body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TICK&quot;</span><span class="p">)</span>
-                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">(</span><span class="n">repeat_count</span><span class="o">=</span><span class="n">moment_split_ops</span><span class="o">.</span><span class="n">repeat_count</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">noisy_body</span><span class="p">))</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">(</span>
+                        <span class="n">repeat_count</span><span class="o">=</span><span class="n">moment_split_ops</span><span class="o">.</span><span class="n">repeat_count</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">noisy_body</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_append_noisy_moment</span><span class="p">(</span>
                     <span class="n">moment_split_ops</span><span class="o">=</span><span class="n">moment_split_ops</span><span class="p">,</span>

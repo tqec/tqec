@@ -516,7 +516,9 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">qubit_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QubitMap</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">QubitMap</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_qubits_with_indices</span><span class="p">)</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">syndrome_qubits_with_indices</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">QubitMap</span><span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_qubits_with_indices</span><span class="p">)</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">syndrome_qubits_with_indices</span><span class="p">)</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="PlaquetteQubits.to_dict">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.PlaquetteQubits.html#tqec.plaquette.PlaquetteQubits.to_dict">[docs]</a>

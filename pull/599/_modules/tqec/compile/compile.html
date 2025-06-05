@@ -424,7 +424,9 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="n">Direction3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">PhysicalQubitScalable2D</span>
 
-<span class="n">_DEFAULT_SCALABLE_QUBIT_SHAPE</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">(</span><span class="n">LinearFunction</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">_DEFAULT_SCALABLE_QUBIT_SHAPE</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="n">PhysicalQubitScalable2D</span><span class="p">(</span>
+    <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="compile_block_graph">
@@ -482,7 +484,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">if</span> <span class="n">observables</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
             <span class="n">observables</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">find_correlation_surfaces</span><span class="p">()</span>
         <span class="n">obs_included</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">compile_correlation_surface_to_abstract_observable</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">surface</span><span class="p">)</span> <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">observables</span>
+            <span class="n">compile_correlation_surface_to_abstract_observable</span><span class="p">(</span><span class="n">block_graph</span><span class="p">,</span> <span class="n">surface</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">surface</span> <span class="ow">in</span> <span class="n">observables</span>
         <span class="p">]</span>
 
     <span class="c1"># 1. Create topological computation graph</span>
@@ -504,7 +507,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="c1"># added by the space-direction pipes, we first add the time-direction pipes</span>
     <span class="n">pipes</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes</span>
     <span class="n">time_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
-    <span class="n">temporal_hadamard_z_positions</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">time_pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">has_hadamard</span><span class="p">}</span>
+    <span class="n">temporal_hadamard_z_positions</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">time_pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">has_hadamard</span>
+    <span class="p">}</span>
     <span class="n">space_pipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipe</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipes</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="o">!=</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">time_pipes</span> <span class="o">+</span> <span class="n">space_pipes</span><span class="p">:</span>
         <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">position</span>
@@ -514,7 +519,9 @@ window.addEventListener("load", () => mermaid.run());
             <span class="p">(</span><span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="p">],</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">pipe</span><span class="o">.</span><span class="n">v</span><span class="p">]),</span>
             <span class="p">(</span><span class="n">QubitTemplate</span><span class="p">(),</span> <span class="n">QubitTemplate</span><span class="p">()),</span>
             <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
-            <span class="n">at_temporal_hadamard_layer</span><span class="o">=</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_temporal</span> <span class="ow">and</span> <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">temporal_hadamard_z_positions</span><span class="p">),</span>
+            <span class="n">at_temporal_hadamard_layer</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_temporal</span> <span class="ow">and</span> <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">temporal_hadamard_z_positions</span>
+            <span class="p">),</span>
         <span class="p">)</span>
         <span class="n">graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">convention</span><span class="o">.</span><span class="n">triplet</span><span class="o">.</span><span class="n">pipe_builder</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
 
