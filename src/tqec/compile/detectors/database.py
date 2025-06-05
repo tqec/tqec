@@ -224,7 +224,7 @@ class DetectorDatabase:
 
     def __init__(
         self,
-        mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = None,
+        mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] | None = None,
         frozen: bool = False,
     ):
         self.version = CURRENT_DATABASE_VERSION
