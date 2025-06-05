@@ -332,12 +332,12 @@ class LayerTree:
             user_defined = True
         # If do_not_use_database is True, override the above code and reset the database to None
         # Also do this if the database version is set to None in the TQEC code (ie in testing mode)
-        current_version = DetectorDatabase.version
+        current_version = DetectorDatabase().version
         if do_not_use_database or (current_version is None):
             detector_database = None
         if detector_database is not None:
             loaded_version = detector_database.version
-            if loaded_version != current_version:
+            if loaded_version != current_version:  # type:ignore
                 if user_defined:
                     raise TQECException(
                         f"The detector database on disk you have specified is incompatible with the version"

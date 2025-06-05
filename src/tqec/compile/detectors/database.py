@@ -4,7 +4,7 @@ import hashlib
 import json
 import pickle
 import semver
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Literal, Sequence
@@ -212,20 +212,25 @@ class DetectorDatabase:
 
     ``None`` is a special value which can be set in testing mode and translates into the
     database not being used (it is equivalent to the 'do_not_use_database' parameter
-    in the functions which use the database).
+    in the functions which use the database). NB it must be set in __init__. If it is set
+    directly on .version, __init__ will overwrite it.
 
     Old databases generated prior to the introduction of a version attribute will be
-    loaded with the current version number. If the version number has increased past
-    1.0 when this happens the database will need to be force regenerated manually
-    (by deleting and then rerunning - simply running the default code will not add a
-    version attribute to the saved database) to avoid errors.
+    loaded with the default value of .version, without passing through __init__,
+    ie (0,0,0).
     """
 
-    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = field(
-        default_factory=dict
-    )
-    frozen: bool = False
-    version: semver.Version | None = CURRENT_DATABASE_VERSION
+    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]]
+    frozen: bool
+    version: semver.Version | None = semver.Version(0, 0, 0)
+
+    def __init__(self, mapping=None, frozen=False):
+        self.version = CURRENT_DATABASE_VERSION
+        if mapping is None:
+            self.mapping = dict()
+        else:
+            self.mapping = mapping
+        self.frozen = frozen
 
     def add_situation(
         self,
