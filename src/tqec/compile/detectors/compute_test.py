@@ -434,4 +434,4 @@ def test_compute_detectors_for_fixed_radius(
     parallel_detectors = compute_detectors_for_fixed_radius(
         [template, template], k, [init_plaquettes, memory_plaquettes], parallel=True
     )
-    assert len(parallel_detectors) == len(detectors)
+    assert set(parallel_detectors) == set(detectors)
