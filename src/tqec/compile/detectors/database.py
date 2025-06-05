@@ -220,11 +220,13 @@ class DetectorDatabase:
     ie (0,0,0).
     """
 
-    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]]
-    frozen: bool
     version: semver.Version | None = semver.Version(0, 0, 0)
 
-    def __init__(self, mapping=None, frozen=False):
+    def __init__(
+        self,
+        mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = None,
+        frozen: bool = False,
+    ):
         self.version = CURRENT_DATABASE_VERSION
         if mapping is None:
             self.mapping = dict()
