@@ -24,7 +24,8 @@ Modifications to the original code:
 """
 
 from collections import Counter, defaultdict
-from typing import AbstractSet, Iterator
+from collections.abc import Iterator
+from typing import AbstractSet
 
 import stim
 
@@ -127,14 +128,16 @@ class NoiseRule:
     """Describes how to add noise to an operation."""
 
     def __init__(self, *, after: dict[str, float], flip_result: float = 0):
-        """Args:
-        after: A dictionary mapping noise rule names to their probability argument.
-            For example, {"DEPOLARIZE2": 0.01, "X_ERROR": 0.02} will add two qubit
-            depolarization with parameter 0.01 and also add 2% bit flip noise. These
-            noise channels occur after all other operations in the moment and are applied
-            to the same targets as the relevant operation.
-        flip_result: The probability that a measurement result should be reported incorrectly.
-            Only valid when applied to operations that produce measurement results.
+        """Describes how to add noise to an operation.
+
+        Args:
+            after: A dictionary mapping noise rule names to their probability argument.
+                For example, {"DEPOLARIZE2": 0.01, "X_ERROR": 0.02} will add two qubit
+                depolarization with parameter 0.01 and also add 2% bit flip noise. These
+                noise channels occur after all other operations in the moment and are applied
+                to the same targets as the relevant operation.
+            flip_result: The probability that a measurement result should be reported incorrectly.
+                Only valid when applied to operations that produce measurement results.
 
         """
         if not (0 <= flip_result <= 1):
