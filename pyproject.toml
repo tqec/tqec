@@ -222,7 +222,7 @@ exclude = ["docs/conf.py", "setup.py"]
 ignore = [
   "D407", "D203", "D213", "D416", "PLR0912", "PLR0911", "PLR0915", "PLR2004", "PLR0913",  "N802",
   "D103", "D100", "D101", "D102", "D105", "D104", "D107", "D205", "D301","D400", "D401", "D404", "D415", "D417", "E501",
-  "PLR1714", "PLC0414", "PLC0105", "PLW2901",  "PERF401", "RUF017", "RUF009", "RUF005", "RUF015", "RUF002", "RUF003", "N806", "N817",
+  "PLR1714", "PLC0414", "PLC0105", "PLW2901", "PERF203", "PERF401", "RUF017", "RUF009", "RUF005", "RUF015", "RUF002", "RUF003", "N806", "N817",
   "N818", "N803", "UP038", "UP035"
   ]
 # Rules Ignored Permanently
@@ -241,12 +241,11 @@ ignore = [
 # D401 - Checks for docstring first lines that are not in an imperative mood.
 # D404 - Checks for docstrings that start with `This`.
 # D415 - Checks for docstrings in which the first line does not end in a punctuation mark, such as a period, question mark, or exclamation point.
+
 # N802 - This catches lowercase isssues in function names. We have quite a few unit tests along the lines of `test_default_translator_from_ZZZZ_rpng_string`
+
 # PLR0912 -- Checks for functions or methods with too many branches. The default number is 12.
 # PLR0911 -- Checks for functions or methods with too many return statements. The default number is 6.
 # PLR0915 -- Checks for functions or methods with too many statements. The default number is 50.
 # PLR2004 -- Checks if an equality or an inequality is compared to a variable or a num (prefers variable pre)
 # PLR0913 Too many arguments in function definition
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["I001"]
-# I001 - skip checking Import block is un-sorted or un-formatted
