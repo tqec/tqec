@@ -536,15 +536,16 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Describes how to add noise to an operation.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">after</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">flip_result</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Args:</span>
-<span class="sd">        after: A dictionary mapping noise rule names to their probability argument.</span>
-<span class="sd">            For example, {&quot;DEPOLARIZE2&quot;: 0.01, &quot;X_ERROR&quot;: 0.02} will add two qubit</span>
-<span class="sd">            depolarization with parameter 0.01 and also add 2% bit flip noise. These</span>
-<span class="sd">            noise channels occur after all other operations in the moment and are applied</span>
-<span class="sd">            to the same targets as the relevant operation.</span>
-<span class="sd">        flip_result: The probability that a measurement result should be reported incorrectly.</span>
-<span class="sd">            Only valid when applied to operations that produce measurement results.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Describes how to add noise to an operation.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            after: A dictionary mapping noise rule names to their probability argument.</span>
+<span class="sd">                For example, {&quot;DEPOLARIZE2&quot;: 0.01, &quot;X_ERROR&quot;: 0.02} will add two qubit</span>
+<span class="sd">                depolarization with parameter 0.01 and also add 2% bit flip noise. These</span>
+<span class="sd">                noise channels occur after all other operations in the moment and are applied</span>
+<span class="sd">                to the same targets as the relevant operation.</span>
+<span class="sd">            flip_result: The probability that a measurement result should be reported incorrectly.</span>
+<span class="sd">                Only valid when applied to operations that produce measurement results.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">flip_result</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;not (0 &lt;= </span><span class="si">{</span><span class="n">flip_result</span><span class="si">=}</span><span class="s2"> &lt;= 1)&quot;</span><span class="p">)</span>
