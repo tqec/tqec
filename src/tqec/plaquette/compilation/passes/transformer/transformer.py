@@ -1,5 +1,5 @@
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Callable, Sequence
 
 import stim
 from typing_extensions import override

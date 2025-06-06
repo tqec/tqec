@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Final, Iterable
+from collections.abc import Iterable
+from typing import Final
 
 from typing_extensions import Self
 

@@ -2,7 +2,8 @@
 used to implement a plaquette compiler.
 """
 
-from typing import Callable, Final, Iterable
+from collections.abc import Callable, Iterable
+from typing import Final
 
 from tqec.plaquette.compilation.passes.base import CompilationPass
 from tqec.plaquette.plaquette import Plaquette

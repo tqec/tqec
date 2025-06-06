@@ -1,6 +1,6 @@
 import multiprocessing
+from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
-from typing import Callable, Iterable, Sequence
 
 import sinter
 

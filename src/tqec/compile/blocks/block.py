@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Final, Iterable, Mapping
+from collections.abc import Iterable, Mapping
+from typing import Final
 
 from typing_extensions import override
 

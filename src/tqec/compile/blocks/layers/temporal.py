@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Mapping
+from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.utils.scale import LinearFunction

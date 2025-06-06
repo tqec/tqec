@@ -3,10 +3,11 @@ from __future__ import annotations
 import hashlib
 import json
 import pickle
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Literal, Sequence
+from typing import Any, Literal
 
 import numpy
 

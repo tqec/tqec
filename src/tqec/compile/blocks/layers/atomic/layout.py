@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import cached_property
-from typing import Final, Iterable, TypeGuard
+from typing import Final, TypeGuard
 
 from typing_extensions import override
 

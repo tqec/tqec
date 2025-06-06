@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from enum import Flag, auto
-from typing import Iterator
 
 
 class SpatialArms(Flag):

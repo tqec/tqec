@@ -1,7 +1,7 @@
 """Split the statistics for multiple observables."""
 
 import collections
-from typing import Mapping
+from collections.abc import Mapping
 
 import sinter
 

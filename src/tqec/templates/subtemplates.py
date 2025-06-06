@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import typing
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 import numpy
 import numpy.typing as npt

@@ -64,8 +64,8 @@ which outputs
 
 """
 
+from collections.abc import Mapping, Sequence
 from copy import deepcopy
-from typing import Mapping, Sequence
 
 import numpy
 import numpy.typing as npt

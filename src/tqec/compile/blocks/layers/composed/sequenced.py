@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from itertools import chain
-from typing import Iterable, Mapping, Sequence
 
 from typing_extensions import override
 

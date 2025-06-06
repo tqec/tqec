@@ -11,8 +11,9 @@ represented by instances of :class:`~.schedule.schedule.Schedule`).
 from __future__ import annotations
 
 import bisect
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from copy import copy, deepcopy
-from typing import Any, Callable, Iterable, Iterator, Sequence
+from typing import Any
 
 import stim
 

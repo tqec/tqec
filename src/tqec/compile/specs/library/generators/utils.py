@@ -7,8 +7,9 @@ functions that return :class:`~tqec.plaquettes.plaquettes.Plaquettes` instances
 from one that returns `FrozenDefaultDict[int, RPNGDescription]`.
 """
 
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable, Final, ParamSpec
+from typing import Final, ParamSpec
 
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquette, Plaquettes

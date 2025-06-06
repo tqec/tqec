@@ -1,4 +1,4 @@
-from typing import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 
 import pytest
 import stim

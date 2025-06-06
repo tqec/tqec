@@ -5,9 +5,9 @@ correlation surfaces in the ZX graph.
 from __future__ import annotations
 
 import itertools
+from collections.abc import Iterator
 from fractions import Fraction
 from functools import reduce
-from typing import Iterator
 
 import stim
 from pyzx.graph.graph_s import GraphS

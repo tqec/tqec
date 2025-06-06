@@ -10,8 +10,9 @@ instead of using ``cirq`` data-structures.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Iterator
 from copy import deepcopy
-from typing import Any, Callable, Iterable, Iterator, cast
+from typing import Any, cast
 
 import stim
 

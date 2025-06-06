@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from fractions import Fraction
-from typing import Mapping
 
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d.axes3d import Axes3D

@@ -4,9 +4,10 @@ correlation surfaces in the ZX graph.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass
 from functools import reduce
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.utils.enums import Basis

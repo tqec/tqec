@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Collection, Iterable, Literal, Mapping, Sequence
+from typing import Any, Literal
 
 import stim
 from typing_extensions import override

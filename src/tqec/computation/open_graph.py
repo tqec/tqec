@@ -1,10 +1,10 @@
 """Utilities for working with graphs with open ports."""
 
 import warnings
+from collections.abc import Iterator
 from dataclasses import dataclass
 from functools import reduce
 from itertools import combinations
-from typing import Iterator
 
 import networkx as nx
 

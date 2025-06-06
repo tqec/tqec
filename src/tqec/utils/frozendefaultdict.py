@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from copy import deepcopy
-from typing import Callable, Generic, Iterable, Iterator, TypeVar, cast
+from typing import Generic, TypeVar, cast
 
 from typing_extensions import override
 

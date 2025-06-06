@@ -1,6 +1,7 @@
 import multiprocessing
+from collections.abc import Callable, Iterable, Sequence
 from math import isclose
-from typing import Callable, Iterable, Sequence, TypeGuard
+from typing import TypeGuard
 
 import sinter
 

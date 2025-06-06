@@ -1,5 +1,5 @@
 import json
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy
 import numpy.typing as npt

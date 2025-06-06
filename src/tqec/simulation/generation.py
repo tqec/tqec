@@ -1,5 +1,5 @@
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
-from typing import Callable, Iterable, Iterator
 
 import sinter
 import stim

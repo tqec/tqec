@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
-from typing import ClassVar, Iterator, Sequence
+from typing import ClassVar
 
 from tqec.circuit.schedule.exception import ScheduleException
 

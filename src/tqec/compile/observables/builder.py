@@ -1,8 +1,9 @@
 """Provides helper functions to add observables to circuits."""
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Iterable, Protocol
+from typing import Protocol
 
 import stim
 
