@@ -1,6 +1,7 @@
 from pathlib import Path
-from platformdirs import user_data_path
 from typing import Final
+
+from platformdirs import user_data_path
 
 USER_DATA_PATH: Final[Path] = user_data_path(appname="TQEC")
 DEFAULT_DETECTOR_DATABASE_PATH: Final[Path] = USER_DATA_PATH / "detector_database.pkl"

@@ -42,6 +42,7 @@ def compile_block_graph(
     Returns:
         A :class:`TopologicalComputationGraph` object that can be used to generate a
         ``stim.Circuit`` and scale easily.
+
     """
     # All the ports should be filled before compiling the block graph.
     if block_graph.num_ports != 0:
@@ -65,9 +66,7 @@ def compile_block_graph(
     if minz != 0:
         block_graph = block_graph.shift_by(dz=-minz)
 
-    cube_specs = {
-        cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes
-    }
+    cube_specs = {cube: CubeSpec.from_cube(cube, block_graph) for cube in block_graph.cubes}
 
     # 0. Get the abstract observables to be included in the compiled circuit.
     obs_included: list[AbstractObservable] = []

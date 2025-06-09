@@ -1,16 +1,14 @@
 """Split the statistics for multiple observables."""
 
 import collections
-from typing import Mapping
+from collections.abc import Mapping
 
 import sinter
 
 from tqec.computation.correlation import CorrelationSurface
 
 
-def split_counts_for_observables(
-    counts: Mapping[str, int], num_observables: int
-) -> list[int]:
+def split_counts_for_observables(counts: Mapping[str, int], num_observables: int) -> list[int]:
     """Split the error counts for each individual observable when
     specifying ``count_observable_error_combos=True`` for ``sinter``.
 
@@ -20,6 +18,7 @@ def split_counts_for_observables(
 
     Returns:
         A list of error counts for each individual observable.
+
     """
     split_counts: list[int] = [0] * num_observables
     for key, count in counts.items():
@@ -45,6 +44,7 @@ def split_stats_for_observables(
 
     Returns:
         A list of statistics for each individual observable.
+
     """
     from sinter._data import ExistingData  # type: ignore
 
@@ -55,13 +55,9 @@ def split_stats_for_observables(
     combined_stats = list(data.data.values())
 
     # For each task, split the stats by observable
-    stats_by_observables: list[list[sinter.TaskStats]] = [
-        [] for _ in range(num_observables)
-    ]
+    stats_by_observables: list[list[sinter.TaskStats]] = [[] for _ in range(num_observables)]
     for task_stats in combined_stats:
-        split_counts = split_counts_for_observables(
-            task_stats.custom_counts, num_observables
-        )
+        split_counts = split_counts_for_observables(task_stats.custom_counts, num_observables)
         for obs_idx, count in enumerate(split_counts):
             stats_by_observables[obs_idx].append(
                 task_stats.with_edits(
@@ -120,6 +116,7 @@ def heuristic_custom_error_key(observables: list[CorrelationSurface]) -> str:
 
     Returns:
         The heuristic custom error key.
+
     """
     # observable with minimal correlation surface area
     minimal_area_obs = min(observables, key=lambda x: x.area())

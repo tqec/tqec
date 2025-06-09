@@ -63,12 +63,15 @@ def memory_plaquettes_fixture() -> Plaquettes:
 
 
 def test_get_measurement_offset_mapping() -> None:
-    assert _get_measurement_offset_mapping(
-        stim.Circuit("QUBIT_COORDS(0, 0) 0\nM 0")
-    ) == {-1: Measurement(GridQubit(0, 0), -1)}
+    assert _get_measurement_offset_mapping(stim.Circuit("QUBIT_COORDS(0, 0) 0\nM 0")) == {
+        -1: Measurement(GridQubit(0, 0), -1)
+    }
     assert _get_measurement_offset_mapping(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 1) 1\nM 0 1")
-    ) == {-2: Measurement(GridQubit(0, 0), -1), -1: Measurement(GridQubit(1, 1), -1)}
+    ) == {
+        -2: Measurement(GridQubit(0, 0), -1),
+        -1: Measurement(GridQubit(1, 1), -1),
+    }
     assert _get_measurement_offset_mapping(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 1) 1\nM 0 1\nTICK\nM 1 0")
     ) == {
@@ -80,46 +83,20 @@ def test_get_measurement_offset_mapping() -> None:
 
 
 def test_matched_detectors_to_detectors() -> None:
-    circuit = stim.Circuit(
-        "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 1) 1\nM 0 1\nTICK\nM 1 0"
-    )
+    circuit = stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 1) 1\nM 0 1\nTICK\nM 1 0")
     measurement_offset_mapping = _get_measurement_offset_mapping(circuit)
     assert _matched_detectors_to_detectors(
-        [
-            MatchedDetector(
-                (0, 0, 0), frozenset([RelativeMeasurementLocation(-1, 0)]), resets=()
-            )
-        ],
+        [MatchedDetector((0, 0, 0), frozenset([RelativeMeasurementLocation(-1, 0)]), resets=())],
         measurement_offset_mapping,
-    ) == [
-        Detector(
-            frozenset([Measurement(GridQubit(0, 0), -1)]), StimCoordinates(0, 0, 0)
-        )
-    ]
+    ) == [Detector(frozenset([Measurement(GridQubit(0, 0), -1)]), StimCoordinates(0, 0, 0))]
     assert _matched_detectors_to_detectors(
-        [
-            MatchedDetector(
-                (-1, 3, 23), frozenset([RelativeMeasurementLocation(-4, 0)]), resets=()
-            )
-        ],
+        [MatchedDetector((-1, 3, 23), frozenset([RelativeMeasurementLocation(-4, 0)]), resets=())],
         measurement_offset_mapping,
-    ) == [
-        Detector(
-            frozenset([Measurement(GridQubit(0, 0), -2)]), StimCoordinates(-1, 3, 23)
-        )
-    ]
+    ) == [Detector(frozenset([Measurement(GridQubit(0, 0), -2)]), StimCoordinates(-1, 3, 23))]
     assert _matched_detectors_to_detectors(
-        [
-            MatchedDetector(
-                (0, 0, 0), frozenset([RelativeMeasurementLocation(-3, 1)]), resets=()
-            )
-        ],
+        [MatchedDetector((0, 0, 0), frozenset([RelativeMeasurementLocation(-3, 1)]), resets=())],
         measurement_offset_mapping,
-    ) == [
-        Detector(
-            frozenset([Measurement(GridQubit(1, 1), -2)]), StimCoordinates(0, 0, 0)
-        )
-    ]
+    ) == [Detector(frozenset([Measurement(GridQubit(1, 1), -2)]), StimCoordinates(0, 0, 0))]
 
 
 @pytest.mark.parametrize(
@@ -140,11 +117,7 @@ def test_center_plaquette_syndrome_qubits_empty(
     assert (
         _center_plaquette_syndrome_qubits(
             empty_center_plaquette_subtemplate,
-            Plaquettes(
-                FrozenDefaultDict(
-                    {}, default_value=make_css_surface_code_plaquette("X")
-                )
-            ),
+            Plaquettes(FrozenDefaultDict({}, default_value=make_css_surface_code_plaquette("X"))),
             Shift2D(2, 2),
         )
         == []
@@ -152,11 +125,7 @@ def test_center_plaquette_syndrome_qubits_empty(
     assert (
         _center_plaquette_syndrome_qubits(
             empty_center_plaquette_subtemplate,
-            Plaquettes(
-                FrozenDefaultDict(
-                    {}, default_value=make_css_surface_code_plaquette("X")
-                )
-            ),
+            Plaquettes(FrozenDefaultDict({}, default_value=make_css_surface_code_plaquette("X"))),
             Shift2D(4, 2),
         )
         == []
@@ -214,13 +183,9 @@ def test_filter_detectors(
         ),
     ]
     non_filtered_detectors = [
+        Detector(frozenset([Measurement(syndrome_qubits[0], -1)]), StimCoordinates(0, 0, 0)),
         Detector(
-            frozenset([Measurement(syndrome_qubits[0], -1)]), StimCoordinates(0, 0, 0)
-        ),
-        Detector(
-            frozenset(
-                [Measurement(GridQubit(0, 0), -1), Measurement(syndrome_qubits[0], -1)]
-            ),
+            frozenset([Measurement(GridQubit(0, 0), -1), Measurement(syndrome_qubits[0], -1)]),
             StimCoordinates(0, 0, 0),
         ),
     ]
@@ -289,9 +254,7 @@ def test_compute_detectors_at_end_of_situation(
     assert memory_round_detectors == frozenset(
         [
             Detector(
-                frozenset(
-                    [Measurement(GridQubit(2, 2), -1), Measurement(GridQubit(2, 2), -2)]
-                ),
+                frozenset([Measurement(GridQubit(2, 2), -1), Measurement(GridQubit(2, 2), -2)]),
                 coordinates=StimCoordinates(2, 2, 0),
             )
         ]
@@ -356,9 +319,7 @@ def test_get_or_default() -> None:
         _get_or_default(array, [(-1, 1), (0, 2)], default=42),
         [[42, 42], [0, 1]],
     )
-    with pytest.raises(
-        TQECException, match="^The provided slices should be non-empty.$"
-    ):
+    with pytest.raises(TQECException, match="^The provided slices should be non-empty.$"):
         _get_or_default(array, [(10, 5)], default=34)
 
 
@@ -383,9 +344,7 @@ def test_compute_superimposed_template_instantiations_shifted(k: int) -> None:
                 BlockPosition2D(1, 1): template,
             }
         ),
-        LayoutTemplate(
-            {BlockPosition2D(0, 0): template, BlockPosition2D(1, 1): template}
-        ),
+        LayoutTemplate({BlockPosition2D(0, 0): template, BlockPosition2D(1, 1): template}),
         LayoutTemplate({BlockPosition2D(1, 1): template}),
     ]
     instantiations = _compute_superimposed_template_instantiations(templates, k)
@@ -418,9 +377,7 @@ def test_compute_detectors_for_fixed_radius(
     # . . . . . . .
     # . . . . . . .
     # 1 2 1 ... 2 1
-    template = FixedTemplate(
-        [[0 if (i + j) % 2 == 0 else 1 for j in range(d)] for i in range(d)]
-    )
+    template = FixedTemplate([[0 if (i + j) % 2 == 0 else 1 for j in range(d)] for i in range(d)])
     detectors = compute_detectors_for_fixed_radius([template], k, [init_plaquettes])
     assert len(detectors) == (k + 1) ** 2 + k**2
 
