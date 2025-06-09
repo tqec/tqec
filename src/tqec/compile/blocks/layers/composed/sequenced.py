@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from itertools import chain
-from typing import Iterable, Mapping, Sequence
 
 from typing_extensions import override
 
@@ -32,6 +32,7 @@ class SequencedLayers(BaseComposedLayer):
 
         Raises:
             TQECException: if the provided ``layer_sequence`` is empty.
+
         """
         super().__init__(trimmed_spatial_borders)
         self._layer_sequence = layer_sequence
@@ -66,8 +67,7 @@ class SequencedLayers(BaseComposedLayer):
     def scalable_shape(self) -> PhysicalQubitScalable2D:
         if any(isinstance(layer, LayoutLayer) for layer in self._layer_sequence):
             raise NotImplementedError(
-                f"Computation of the scalable_shape for {LayoutLayer.__name__} "
-                "instances has not been implemented yet."
+                f"Computation of the scalable_shape for {LayoutLayer.__name__} instances has not been implemented yet."
             )
         scalable_shape = self._layer_sequence[0].scalable_shape
         for layer in self._layer_sequence[1:]:
@@ -78,9 +78,7 @@ class SequencedLayers(BaseComposedLayer):
     def _layers_with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> list[BaseLayer | BaseComposedLayer]:
-        return [
-            layer.with_spatial_borders_trimmed(borders) for layer in self.layer_sequence
-        ]
+        return [layer.with_spatial_borders_trimmed(borders) for layer in self.layer_sequence]
 
     @override
     def with_spatial_borders_trimmed(
@@ -150,15 +148,11 @@ class SequencedLayers(BaseComposedLayer):
         if self.schedule == schedule:
             return self
         raise NotImplementedError(
-            f"Adapting a {SequencedLayers.__name__} instance to another schedule "
-            "is not yet implemented."
+            f"Adapting a {SequencedLayers.__name__} instance to another schedule is not yet implemented."
         )
 
     def __eq__(self, value: object) -> bool:
-        return (
-            isinstance(value, SequencedLayers)
-            and self.layer_sequence == value.layer_sequence
-        )
+        return isinstance(value, SequencedLayers) and self.layer_sequence == value.layer_sequence
 
     @override
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:

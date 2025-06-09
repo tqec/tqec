@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Sequence
+from collections.abc import Sequence
 
 import stim
 from typing_extensions import override
@@ -20,7 +20,8 @@ class InstructionSimplifier(ABC):
         self, instructions: Sequence[stim.CircuitInstruction]
     ) -> list[stim.CircuitInstruction]:
         """Simplify a list of instructions that are happening at the same moment
-        in the circuit."""
+        in the circuit.
+        """
         pass
 
 
@@ -44,9 +45,7 @@ class SelfInverseGateSimplification(InstructionSimplifier):
         # Append in ret all the instructions that are not in
         # self._self_inverse_gates and count the instructions that are in it.
         ret: list[stim.CircuitInstruction] = []
-        gate_counter: dict[
-            tuple[str, tuple[stim.GateTarget, ...], tuple[float, ...]], int
-        ] = {}
+        gate_counter: dict[tuple[str, tuple[stim.GateTarget, ...], tuple[float, ...]], int] = {}
         for instruction in instructions:
             if instruction.name not in self._self_inverse_gates:
                 ret.append(instruction)

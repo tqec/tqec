@@ -57,7 +57,8 @@ class FixedParityConventionGenerator:
     ########################################
     def get_memory_qubit_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance
-        needed to implement a single logical qubit."""
+        needed to implement a single logical qubit.
+        """
         raise self._not_implemented_exception()
 
     def get_memory_qubit_rpng_descriptions(
@@ -92,6 +93,7 @@ class FixedParityConventionGenerator:
             a description of the plaquettes needed to implement a standard
             memory operation on a logical qubit, optionally with resets or
             measurements on the data-qubits too.
+
         """
         raise self._not_implemented_exception()
 
@@ -127,6 +129,7 @@ class FixedParityConventionGenerator:
             a description of the plaquettes needed to implement a standard
             memory operation on a logical qubit, optionally with resets or
             measurements on the data-qubits too.
+
         """
         return self._mapper(self.get_memory_qubit_rpng_descriptions)(
             z_orientation, reset, measurement
@@ -138,7 +141,8 @@ class FixedParityConventionGenerator:
     def get_memory_vertical_boundary_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate`
         instance needed to implement a regular spatial pipe between two logical
-        qubits aligned on the ``X`` axis."""
+        qubits aligned on the ``X`` axis.
+        """
         raise self._not_implemented_exception()
 
     def get_memory_vertical_boundary_rpng_descriptions(
@@ -181,6 +185,7 @@ class FixedParityConventionGenerator:
             operation on a pipe between two neighbouring logical qubits aligned on
             the ``X``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         raise self._not_implemented_exception()
 
@@ -224,6 +229,7 @@ class FixedParityConventionGenerator:
             pipe between two neighbouring logical qubits aligned on the
             ``X``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
             z_orientation, reset, measurement
@@ -235,7 +241,8 @@ class FixedParityConventionGenerator:
     def get_memory_horizontal_boundary_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance
         needed to implement a regular spatial pipe between two logical qubits
-        aligned on the ``Y`` axis."""
+        aligned on the ``Y`` axis.
+        """
         raise self._not_implemented_exception()
 
     def get_memory_horizontal_boundary_rpng_descriptions(
@@ -278,6 +285,7 @@ class FixedParityConventionGenerator:
             operation on a pipe between two neighbouring logical qubits aligned on
             the ``Y``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         raise self._not_implemented_exception()
 
@@ -321,6 +329,7 @@ class FixedParityConventionGenerator:
             pipe between two neighbouring logical qubits aligned on the
             ``Y``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         return self._mapper(self.get_memory_horizontal_boundary_rpng_descriptions)(
             z_orientation, reset, measurement
@@ -340,6 +349,7 @@ class FixedParityConventionGenerator:
             http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
             with more than one pipe in the spatial plane) or in other QEC gadgets
             such as the lattice surgery implementation of a ``CZ`` gate.
+
         """
         raise self._not_implemented_exception()
 
@@ -389,6 +399,7 @@ class FixedParityConventionGenerator:
 
         Returns:
             a description of the plaquettes needed to implement a spatial cube.
+
         """
         raise self._not_implemented_exception()
 
@@ -437,6 +448,7 @@ class FixedParityConventionGenerator:
 
         Returns:
             the plaquettes needed to implement a spatial cube.
+
         """
         return self._mapper(self.get_spatial_cube_qubit_rpng_descriptions)(
             spatial_boundary_basis, arms, reset, measurement
@@ -445,9 +457,7 @@ class FixedParityConventionGenerator:
     ########################################
     #              Spatial arm             #
     ########################################
-    def get_spatial_cube_arm_raw_template(
-        self, arms: SpatialArms
-    ) -> RectangularTemplate:
+    def get_spatial_cube_arm_raw_template(self, arms: SpatialArms) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate`
         instance needed to implement the given spatial ``arms``.
 
@@ -455,6 +465,7 @@ class FixedParityConventionGenerator:
             arms: specification of the spatial arm(s) we want a template for.
                 Needs to contain either one arm, or 2 arms that form a line
                 (e.g., ``SpatialArms.UP | SpatialArms.DOWN``).
+
         """
         raise self._not_implemented_exception()
 
@@ -506,6 +517,7 @@ class FixedParityConventionGenerator:
         Returns:
             a description of the plaquettes needed to implement **one** pipe
             connecting to a spatial cube.
+
         """
         raise self._not_implemented_exception()
 
@@ -557,6 +569,7 @@ class FixedParityConventionGenerator:
         Returns:
             the plaquettes needed to implement **one** pipe connecting to a
             spatial cube.
+
         """
         return self._mapper(self.get_spatial_cube_arm_rpng_descriptions)(
             spatial_boundary_basis, arms, linked_cubes, reset, measurement
@@ -592,7 +605,8 @@ class FixedParityConventionGenerator:
     def get_temporal_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.Template` instance
         needed to implement a transversal Hadamard gate applied on one logical
-        qubit."""
+        qubit.
+        """
         raise self._not_implemented_exception()
 
     def get_temporal_hadamard_rpng_descriptions(
@@ -622,6 +636,7 @@ class FixedParityConventionGenerator:
         Returns:
             a description of the plaquettes needed to implement a transversal
             Hadamard gate applied on one logical qubit.
+
         """
         raise self._not_implemented_exception()
 
@@ -636,7 +651,8 @@ class FixedParityConventionGenerator:
     def get_spatial_vertical_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.Template` instance needed to
         implement a spatial Hadamard pipe between two logical qubits aligned on
-        the ``X`` axis."""
+        the ``X`` axis.
+        """
         raise self._not_implemented_exception()
 
     def get_spatial_vertical_hadamard_rpng_descriptions(
@@ -684,6 +700,7 @@ class FixedParityConventionGenerator:
             a description of the plaquettes needed to implement a Hadamard
             spatial transition between two neighbouring logical qubits aligned
             on the ``X`` axis.
+
         """
         raise self._not_implemented_exception()
 
@@ -703,7 +720,8 @@ class FixedParityConventionGenerator:
     def get_spatial_horizontal_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.Template` instance needed to
         implement a spatial Hadamard pipe between two neighbouring logical
-        qubits aligned on the ``Y`` axis."""
+        qubits aligned on the ``Y`` axis.
+        """
         raise self._not_implemented_exception()
 
     def get_spatial_horizontal_hadamard_rpng_descriptions(
@@ -750,6 +768,7 @@ class FixedParityConventionGenerator:
             a description of the plaquettes needed to implement a Hadamard
             spatial transition between two neighbouring logical qubits aligned
             on the ``Y`` axis.
+
         """
         raise self._not_implemented_exception()
 

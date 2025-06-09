@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Final, Iterable
+from collections.abc import Iterable
+from typing import Final
 
 from typing_extensions import Self
 
@@ -24,16 +25,16 @@ will likely lead to various errors in the code base.
 
 class WithSpatialFootprint(ABC):
     """Base class providing the interface that should be implemented by objects
-    that have a spatial footprint."""
+    that have a spatial footprint.
+    """
 
-    def __init__(
-        self, trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset()
-    ):
+    def __init__(self, trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset()):
         """Initialise the instance.
 
         Args:
             removed_spatial_borders: all the spatial borders that have been
                 trimmed from the layer.
+
         """
         super().__init__()
         self._trimmed_spatial_borders = trimmed_spatial_borders
@@ -55,6 +56,7 @@ class WithSpatialFootprint(ABC):
             the 2-dimensional shape **in qubit-coordinates** of the object as an
             exact expression that can then be used to compute the shape for any
             value of ``k``.
+
         """
         pass
 
@@ -66,13 +68,12 @@ class WithSpatialFootprint(ABC):
 
         Returns:
             the 2-dimensional shape of the object for the given ``k``.
+
         """
         return self.scalable_shape.to_shape_2d(k)
 
     @abstractmethod
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> Self:
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> Self:
         """Returns ``self`` with the provided spatial borders removed.
 
         Args:
@@ -80,6 +81,7 @@ class WithSpatialFootprint(ABC):
 
         Returns:
             a copy of ``self`` with the provided ``borders`` removed.
+
         """
         pass
 

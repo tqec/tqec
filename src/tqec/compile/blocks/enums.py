@@ -46,6 +46,7 @@ def border_from_signed_direction(
 
         For example, if ``"+X"`` is provided, the returned border will be
         ``SpatialBlockBorder.X_POSITIVE``
+
     """
     match direction:
         case SignedDirection3D(Direction3D.Z, _):

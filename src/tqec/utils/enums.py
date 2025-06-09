@@ -10,11 +10,7 @@ class Orientation(Enum):
     VERTICAL = auto()
 
     def flip(self) -> Orientation:
-        return (
-            Orientation.HORIZONTAL
-            if self == Orientation.VERTICAL
-            else Orientation.VERTICAL
-        )
+        return Orientation.HORIZONTAL if self == Orientation.VERTICAL else Orientation.VERTICAL
 
 
 class Basis(Enum):

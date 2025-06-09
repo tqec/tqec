@@ -28,6 +28,7 @@ def write_sinter_stats_to_csv(
             - overwrite: Effectively delete the file and pretend none exists.
             - merge: Read the file and try to match entries with the simulation data from ``stats``
                 by strong id. In case of a match merge the entries.
+
     """
     filepath = Path(filepath)
 

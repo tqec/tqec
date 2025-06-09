@@ -3,8 +3,8 @@ import pytest
 from tqec.compile.observables.fixed_bulk_builder import (
     _get_bottom_stabilizer_cube_qubits,
     _get_bottom_stabilizer_spatial_cube_qubits,
-    _get_top_readout_spatial_cube_qubits,
     _get_temporal_hadamard_includes_qubits,
+    _get_top_readout_spatial_cube_qubits,
 )
 from tqec.compile.specs.enums import SpatialArms
 from tqec.utils.enums import Basis, Orientation
@@ -101,9 +101,7 @@ def test_get_bottom_stabilizer_cube_qubits(
     expected: list[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
-    coords = sorted(
-        _get_bottom_stabilizer_cube_qubits(shape, connect_to, stabilizer_basis)
-    )
+    coords = sorted(_get_bottom_stabilizer_cube_qubits(shape, connect_to, stabilizer_basis))
     assert coords == expected
 
 
@@ -183,7 +181,5 @@ def test_get_temporal_hadamard_includes(
     expected: set[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(2 * k + 2, 2 * k + 2)
-    coords = set(
-        _get_temporal_hadamard_includes_qubits(shape, obs_basis, z_orientation)
-    )
+    coords = set(_get_temporal_hadamard_includes_qubits(shape, obs_basis, z_orientation))
     assert coords == expected

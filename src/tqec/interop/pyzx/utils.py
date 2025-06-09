@@ -54,6 +54,7 @@ def cube_kind_to_zx(kind: CubeKind) -> tuple[VertexType, FractionLike]:
 
     Returns:
         A tuple of vertex type and spider phase.
+
     """
     if isinstance(kind, ZXCube):
         if sum(basis == Basis.Z for basis in kind.as_tuple()) == 1:

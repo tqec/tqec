@@ -22,8 +22,7 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
         parser: argparse.ArgumentParser = main_parser.add_parser(
             "dae2circuits",
             description=(
-                "Convert a .dae file representing a logical "
-                "computation into concrete stim circuits."
+                "Convert a .dae file representing a logical computation into concrete stim circuits."
             ),
         )
         parser.add_argument(

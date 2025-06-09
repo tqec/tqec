@@ -36,9 +36,7 @@ def test_qubit_map_creation() -> None:
         TQECException,
         match=f"^Found qubit\\(s\\) with more than one index: {qset_str}.$",
     ):
-        QubitMap.from_circuit(
-            stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 0) 1")
-        )
+        QubitMap.from_circuit(stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 0) 1"))
 
 
 def test_qubit_map_getters() -> None:
@@ -72,24 +70,18 @@ def test_qubit_map_filter_by_qubits() -> None:
     assert QubitMap().filter_by_qubits(qubits) == QubitMap()
 
     qmap = QubitMap({i: GridQubit(i, -i) for i in range(4)})
-    assert qmap.filter_by_qubits(qubits) == QubitMap(
-        {i: GridQubit(i, -i) for i in range(3)}
-    )
+    assert qmap.filter_by_qubits(qubits) == QubitMap({i: GridQubit(i, -i) for i in range(3)})
 
 
 def test_get_final_qubits() -> None:
-    assert get_qubit_map(stim.Circuit("QUBIT_COORDS(0, 0) 0")) == QubitMap(
-        {0: GridQubit(0, 0)}
-    )
-    assert get_qubit_map(stim.Circuit("QUBIT_COORDS(0, 0) 1")) == QubitMap(
-        {1: GridQubit(0, 0)}
-    )
+    assert get_qubit_map(stim.Circuit("QUBIT_COORDS(0, 0) 0")) == QubitMap({0: GridQubit(0, 0)})
+    assert get_qubit_map(stim.Circuit("QUBIT_COORDS(0, 0) 1")) == QubitMap({1: GridQubit(0, 0)})
     # assert get_final_qubits(
     #     stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 4) 0")
     # ) == {0: GridQubit(1, 4)}
-    assert get_qubit_map(
-        stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 4) 1")
-    ) == QubitMap({0: GridQubit(0, 0), 1: GridQubit(1, 4)})
+    assert get_qubit_map(stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(1, 4) 1")) == QubitMap(
+        {0: GridQubit(0, 0), 1: GridQubit(1, 4)}
+    )
 
     with pytest.raises(
         TQECException,

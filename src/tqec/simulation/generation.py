@@ -1,6 +1,6 @@
-from typing import Callable, Iterable, Iterator
-
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
+
 import sinter
 import stim
 
@@ -73,6 +73,7 @@ def generate_stim_circuits_with_detectors(
         a tuple containing the resulting circuit, the value of `k` that
         corresponds to the returned circuit and the value of `p` that corresponds
         to the returned circuit.
+
     """
     noise_models = {p: noise_model_factory(p) for p in ps}
     circuits = {
@@ -142,6 +143,7 @@ def generate_sinter_tasks(
 
     Yields:
         tasks to be collected by a call to `sinter.collect`.
+
     """
     yield from (
         sinter.Task(

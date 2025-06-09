@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from copy import deepcopy
-from typing import Callable, Generic, Iterable, Iterator, TypeVar, cast
+from typing import Generic, TypeVar, cast
 
 from typing_extensions import override
 
@@ -76,9 +76,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         if not isinstance(other, FrozenDefaultDict):
             return False
         other = cast(FrozenDefaultDict[K, V], other)
-        return (
-            self._default_value == other._default_value
-        ) and self._dict == other._dict
+        return (self._default_value == other._default_value) and self._dict == other._dict
 
     def has_default_value(self) -> bool:
         return self._default_value is not None

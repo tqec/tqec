@@ -1,8 +1,8 @@
 import stim
 
-from tqec.utils.enums import Basis
 from tqec.plaquette.library.spatial import make_spatial_cube_arm_plaquette
 from tqec.plaquette.qubit import SquarePlaquetteQubits
+from tqec.utils.enums import Basis
 
 
 def test_spatial_cube_arm_plaquette() -> None:
