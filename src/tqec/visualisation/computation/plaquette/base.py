@@ -146,11 +146,22 @@ class SVGPlaquetteDrawer(ABC):
         fill: str = "none",
         configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
     ) -> svg.Rect:
+        """Returns a small square with its origin at the opposite of ``place``.
+
+        Args:
+            place: the plaquette corner the reset is located on.
+            fill: SVG colour to use to fill the square.
+            configuration: drawing configuration.
+
+        Returns:
+            the reset shape (a small square) that can then be applied the appropriate offset to be
+            placed in the ``place`` corner of the plaquette.
+        """
         r = configuration.reset_square_radius
         PC = PlaquetteCorner
         return svg.Rect(
-            x=0 if place in [PC.TOP_LEFT, PC.BOTTOM_LEFT] else 1 - r,
-            y=0 if place in [PC.TOP_LEFT, PC.TOP_RIGHT] else 1 - r,
+            x=0 if place in [PC.TOP_LEFT, PC.BOTTOM_LEFT] else -r,
+            y=0 if place in [PC.TOP_LEFT, PC.TOP_RIGHT] else -r,
             width=r,
             height=r,
             fill=fill,
@@ -164,10 +175,21 @@ class SVGPlaquetteDrawer(ABC):
         fill: str = "none",
         configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
     ) -> svg.G:
+        """Returns a small quarter circle with its origin at the opposite of ``place``.
+
+        Args:
+            place: the plaquette corner the measurement is located on.
+            fill: SVG colour to use to fill the quarter circle.
+            configuration: drawing configuration.
+
+        Returns:
+            the measurement shape (a small quarter circle) that can then be applied the appropriate
+            offset to be placed in the ``place`` corner of the plaquette.
+        """
         rotation_angle: int = {
             PlaquetteCorner.TOP_LEFT: 0,
-            PlaquetteCorner.TOP_RIGHT: 270,
-            PlaquetteCorner.BOTTOM_LEFT: 90,
+            PlaquetteCorner.BOTTOM_LEFT: 270,
+            PlaquetteCorner.TOP_RIGHT: 90,
             PlaquetteCorner.BOTTOM_RIGHT: 180,
         }[place]
         r = configuration.measurement_circle_radius
