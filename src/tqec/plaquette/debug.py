@@ -5,7 +5,10 @@ from typing import Any
 
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
-from tqec.visualisation.computation.plaquette.base import SVGPlaquetteDrawer
+from tqec.visualisation.computation.plaquette.base import (
+    EmptySVGPlaquetteDrawer,
+    SVGPlaquetteDrawer,
+)
 from tqec.visualisation.computation.plaquette.rpng import RPNGPlaquetteDrawer
 
 
@@ -62,9 +65,9 @@ class PlaquetteDebugInformation:
             PauliBasis(data["basis"]) if data["basis"] is not None else None,
         )
 
-    def get_svg_drawer(self) -> SVGPlaquetteDrawer | None:
+    def get_svg_drawer(self) -> SVGPlaquetteDrawer:
         if self.drawer is not None:
             return self.drawer
         if self.rpng is not None:
             return RPNGPlaquetteDrawer(self.rpng)
-        return None
+        return EmptySVGPlaquetteDrawer()
