@@ -622,12 +622,12 @@ def compute_detectors_for_fixed_radius(
     # centered on the central plaquette origin.
     detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]]
 
-    # If parallel_process_count > 1 or parallel_process_count == -1, we will
-    # enable parallel processing to compute detectors in parallel.
-    if parallel_process_count > 1 or parallel_process_count == -1:
-        parallel_process_count = (
-            cpu_count() if parallel_process_count == -1 else parallel_process_count
-        )
+    # Handle the special case of parallel_process_count == -1
+    if parallel_process_count == -1:
+        parallel_process_count = cpu_count()
+    # If parallel_process_count > 1 we will enable parallel processing to 
+    # compute detectors in parallel.
+    if parallel_process_count > 1:
         # If database is not None, using a shared database via SyncManager
         if database is not None:
             # Create a manager to handle the shared database
