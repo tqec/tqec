@@ -202,7 +202,7 @@ reportPrivateImportUsage = false
 [tool.ruff]
 # exclude = ["__init__.py"]
 line-length = 100
-target-version = "py311"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["I", "E", "W", "D", "PL", "NPY", "N", "PERF", "RUF", "UP"]
