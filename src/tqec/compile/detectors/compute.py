@@ -279,7 +279,7 @@ def compute_detectors_at_end_of_situation(
     increments: Shift2D,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
-) -> frozenset[Detector]:
+) -> tuple[frozenset[Detector], frozenset[Detector] | None]:
     """Returns detectors that should be added at the end of the provided
     situation.
 
@@ -312,6 +312,8 @@ def compute_detectors_at_end_of_situation(
         TQECException: if `len(subtemplates) != len(plaquettes_at_timestep)`.
     """
 
+    detectors_to_save_in_db = None
+
     # Try to recover the result from the database.
     if database is not None:
         detectors = database.get_detectors(subtemplates, plaquettes_by_timestep)
@@ -325,6 +327,7 @@ def compute_detectors_at_end_of_situation(
             detectors = _compute_detectors_at_end_of_situation(
                 subtemplates, plaquettes_by_timestep, increments
             )
+            detectors_to_save_in_db = detectors
             database.add_situation(subtemplates, plaquettes_by_timestep, detectors)
     # If database is None
     else:
@@ -345,7 +348,9 @@ def compute_detectors_at_end_of_situation(
     # origin.
     shift_x, shift_y = -radius * increments.x, -radius * increments.y
 
-    return frozenset(d.offset_spatially_by(shift_x, shift_y) for d in detectors)
+    return frozenset(
+        d.offset_spatially_by(shift_x, shift_y) for d in detectors
+    ), detectors_to_save_in_db
 
 
 def _get_or_default(
@@ -523,7 +528,7 @@ def _compute_detector_for_subtemplate(
         DetectorDatabase | None,  # database
         bool,  # only_use_database
     ],
-) -> tuple[tuple[int, ...], frozenset[Detector]]:
+) -> tuple[tuple[int, ...], tuple[frozenset[Detector], frozenset[Detector] | None]]:
     """Helper function for parallel processing of detector computation.
 
     Args:
@@ -653,8 +658,19 @@ def compute_detectors_for_fixed_radius(
                 with Pool(processes=parallel_process_count) as pool:
                     results = pool.map(_compute_detector_for_subtemplate, args_list)
 
+                for indices, (_, detectors_for_db) in results:
+                    subtemplates = _extract_subtemplates_from_s3d(
+                        unique_3d_subtemplates.subtemplates[indices]
+                    )
+                    if detectors_for_db is not None:
+                        database.add_situation(
+                            subtemplates, plaquettes, detectors_for_db
+                        )
+
                 # Convert results to dictionary
-                detectors_by_subtemplate = dict(results)
+                detectors_by_subtemplate = {
+                    result[0]: result[1][0] for result in results
+                }
 
         # Else, not using a database
         else:
@@ -667,7 +683,7 @@ def compute_detectors_for_fixed_radius(
                 results = pool.map(_compute_detector_for_subtemplate, args_list)
 
             # Convert results to dictionary
-            detectors_by_subtemplate = dict(results)
+            detectors_by_subtemplate = {result[0]: result[1][0] for result in results}
     # If parallel_process_count == 1, computing detectors sequentially
     elif parallel_process_count == 1:
         detectors_by_subtemplate = {
@@ -677,7 +693,7 @@ def compute_detectors_for_fixed_radius(
                 increments,
                 database,
                 only_use_database,
-            )
+            )[0]
             for indices, s3d in unique_3d_subtemplates.subtemplates.items()
         }
     # Elase, invalid parallel_process_count
