@@ -1,7 +1,6 @@
 import json
-from typing import Any, List, Sequence
+from typing import Sequence
 from multiprocessing import Pool, cpu_count
-from multiprocessing.managers import SyncManager
 
 import numpy
 import numpy.typing as npt
@@ -633,57 +632,17 @@ def compute_detectors_for_fixed_radius(
     # If parallel_process_count > 1 we will enable parallel processing to
     # compute detectors in parallel.
     if parallel_process_count > 1:
-        # If database is not None, using a shared database via SyncManager
-        if database is not None:
-            # Create a manager to handle the shared database
-            with SyncManager() as manager:
-                # Create a proxy for the database that can be safely shared between processes
-                shared_db = manager.Namespace()
-                shared_db.db = database
+        args_list = [
+            (indices, s3d, plaquettes, increments, None, False)
+            for indices, s3d in unique_3d_subtemplates.subtemplates.items()
+        ]
 
-                # Update args list to use the shared database
-                args_list: List[Any] = [
-                    (
-                        indices,
-                        s3d,
-                        plaquettes,
-                        increments,
-                        shared_db.db,
-                        only_use_database,
-                    )  # type: ignore
-                    for indices, s3d in unique_3d_subtemplates.subtemplates.items()
-                ]
+        with Pool(processes=parallel_process_count) as pool:
+            results = pool.map(_compute_detector_for_subtemplate, args_list)
 
-                # Use multiprocessing to compute detectors in parallel
-                with Pool(processes=parallel_process_count) as pool:
-                    results = pool.map(_compute_detector_for_subtemplate, args_list)
+        # Convert results to dictionary
+        detectors_by_subtemplate = {result[0]: result[1][0] for result in results}
 
-                for indices, (_, detectors_for_db) in results:
-                    subtemplates = _extract_subtemplates_from_s3d(
-                        unique_3d_subtemplates.subtemplates[indices]
-                    )
-                    if detectors_for_db is not None:
-                        database.add_situation(
-                            subtemplates, plaquettes, detectors_for_db
-                        )
-
-                # Convert results to dictionary
-                detectors_by_subtemplate = {
-                    result[0]: result[1][0] for result in results
-                }
-
-        # Else, not using a database
-        else:
-            args_list = [
-                (indices, s3d, plaquettes, increments, None, False)
-                for indices, s3d in unique_3d_subtemplates.subtemplates.items()
-            ]
-
-            with Pool(processes=parallel_process_count) as pool:
-                results = pool.map(_compute_detector_for_subtemplate, args_list)
-
-            # Convert results to dictionary
-            detectors_by_subtemplate = {result[0]: result[1][0] for result in results}
     # If parallel_process_count == 1, computing detectors sequentially
     elif parallel_process_count == 1:
         detectors_by_subtemplate = {
@@ -696,7 +655,7 @@ def compute_detectors_for_fixed_radius(
             )[0]
             for indices, s3d in unique_3d_subtemplates.subtemplates.items()
         }
-    # Elase, invalid parallel_process_count
+    # Else, invalid parallel_process_count
     else:
         raise TQECException(
             f"Invalid parallel_process_count: {parallel_process_count}. "
