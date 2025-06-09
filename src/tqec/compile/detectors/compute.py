@@ -311,8 +311,6 @@ def compute_detectors_at_end_of_situation(
         TQECException: if `len(subtemplates) != len(plaquettes_at_timestep)`.
     """
 
-    detectors_to_save_in_db = None
-
     # Try to recover the result from the database.
     if database is not None:
         detectors = database.get_detectors(subtemplates, plaquettes_by_timestep)
@@ -326,7 +324,6 @@ def compute_detectors_at_end_of_situation(
             detectors = _compute_detectors_at_end_of_situation(
                 subtemplates, plaquettes_by_timestep, increments
             )
-            detectors_to_save_in_db = detectors
             database.add_situation(subtemplates, plaquettes_by_timestep, detectors)
     # If database is None
     else:
@@ -347,6 +344,7 @@ def compute_detectors_at_end_of_situation(
     # origin.
     shift_x, shift_y = -radius * increments.x, -radius * increments.y
 
+    detectors_to_save_in_db = detectors
     return frozenset(
         d.offset_spatially_by(shift_x, shift_y) for d in detectors
     ), detectors_to_save_in_db
@@ -639,6 +637,14 @@ def compute_detectors_for_fixed_radius(
 
         with Pool(processes=parallel_process_count) as pool:
             results = pool.map(_compute_detector_for_subtemplate, args_list)
+
+        if database is not None:
+            for indices, (_, detectors_for_db) in results:
+                subtemplates = _extract_subtemplates_from_s3d(
+                    unique_3d_subtemplates.subtemplates[indices]
+                )
+                if detectors_for_db is not None:
+                    database.add_situation(subtemplates, plaquettes, detectors_for_db)
 
         # Convert results to dictionary
         detectors_by_subtemplate = {result[0]: result[1][0] for result in results}
