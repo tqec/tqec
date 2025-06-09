@@ -80,8 +80,6 @@ dependencies = { file = "requirements.txt" }
 
 
 [tool.mypy]
-# See https://numpy.org/devdocs/reference/typing.html
-plugins = "numpy.typing.mypy_plugin"
 # Start off with these
 warn_unused_configs = true
 warn_redundant_casts = true
