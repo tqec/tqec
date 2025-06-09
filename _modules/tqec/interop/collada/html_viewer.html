@@ -648,9 +648,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath_or_bytes</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
                 <span class="n">collada_bytes</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">collada_base64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">collada_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">html_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HTML_TEMPLATE</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span>
-            <span class="n">MODEL_BASE64_PLACEHOLDER</span><span class="o">=</span><span class="n">collada_base64</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">html_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HTML_TEMPLATE</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">MODEL_BASE64_PLACEHOLDER</span><span class="o">=</span><span class="n">collada_base64</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">framed</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;iframe style=&quot;width: 100%; height: 300px; overflow: hidden; resize: both; border: 1px dashed gray;&quot; frameBorder=&quot;0&quot; srcdoc=&quot;</span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html_str</span><span class="p">,</span><span class="w"> </span><span class="n">quote</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&gt;&lt;/iframe&gt;&quot;&quot;&quot;</span>
@@ -679,6 +677,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    Returns:</span>
 <span class="sd">        A helper class to display the 3D model, which implements the ``_repr_html_`` method and</span>
 <span class="sd">        can be directly displayed in IPython compatible environments.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">helper</span> <span class="o">=</span> <span class="n">_ColladaHTMLViewer</span><span class="p">(</span><span class="n">filepath_or_bytes</span><span class="p">)</span>
 

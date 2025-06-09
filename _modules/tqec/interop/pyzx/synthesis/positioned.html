@@ -452,6 +452,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">    Raises:</span>
 <span class="sd">        TQECException: A valid block graph cannot be constructed.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nodes_to_handle</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">vertices</span><span class="p">())</span>
     <span class="n">edges_to_handle</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
@@ -476,17 +477,13 @@ window.addEventListener("load", () => mermaid.run());
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_handle_corners</span><span class="p">(</span>
-    <span class="n">pg</span><span class="p">:</span> <span class="n">PositionedZX</span><span class="p">,</span> <span class="n">bg</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span> <span class="n">nodes_to_handle</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_handle_corners</span><span class="p">(</span><span class="n">pg</span><span class="p">:</span> <span class="n">PositionedZX</span><span class="p">,</span> <span class="n">bg</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span> <span class="n">nodes_to_handle</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">g</span>
     <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
         <span class="n">directions</span> <span class="o">=</span> <span class="p">{</span><span class="n">pg</span><span class="o">.</span><span class="n">get_direction</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">v</span><span class="p">)}</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">normal_direction</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">set</span><span class="p">(</span><span class="n">Direction3D</span><span class="o">.</span><span class="n">all_directions</span><span class="p">())</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="p">)</span>
+        <span class="n">normal_direction</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">Direction3D</span><span class="o">.</span><span class="n">all_directions</span><span class="p">())</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="n">normal_direction_basis</span> <span class="o">=</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span> <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="n">zx</span><span class="o">.</span><span class="n">VertexType</span><span class="o">.</span><span class="n">Z</span> <span class="k">else</span> <span class="n">Basis</span><span class="o">.</span><span class="n">X</span>
         <span class="n">bases</span> <span class="o">=</span> <span class="p">[</span><span class="n">normal_direction_basis</span><span class="o">.</span><span class="n">flipped</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
         <span class="n">bases</span><span class="p">[</span><span class="n">normal_direction</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">normal_direction_basis</span>
@@ -588,9 +585,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="c1"># Special case: single node ZXGraph</span>
     <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex_degree</span><span class="p">(</span><span class="n">fix_node</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">specified_kind</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">fix_type</span> <span class="o">==</span> <span class="n">zx</span><span class="o">.</span><span class="n">VertexType</span><span class="o">.</span><span class="n">X</span>
-            <span class="k">else</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">)</span>
+            <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXZ&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">fix_type</span> <span class="o">==</span> <span class="n">zx</span><span class="o">.</span><span class="n">VertexType</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="n">ZXCube</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;ZXX&quot;</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># the basis along the edge direction must be the opposite of the node kind</span>
@@ -636,9 +631,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="n">Direction3D</span><span class="o">.</span><span class="n">all_directions</span><span class="p">()</span>
     <span class="p">]</span>
     <span class="k">assert</span> <span class="n">vertex_is_zx</span><span class="p">(</span><span class="n">vertex_type</span><span class="p">)</span>
-    <span class="n">bases</span><span class="p">[</span><span class="n">pipe_kind</span><span class="o">.</span><span class="n">direction</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span> <span class="k">if</span> <span class="n">vertex_type</span> <span class="o">==</span> <span class="n">zx</span><span class="o">.</span><span class="n">VertexType</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="n">Basis</span><span class="o">.</span><span class="n">X</span>
-    <span class="p">)</span>
+    <span class="n">bases</span><span class="p">[</span><span class="n">pipe_kind</span><span class="o">.</span><span class="n">direction</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">Basis</span><span class="o">.</span><span class="n">Z</span> <span class="k">if</span> <span class="n">vertex_type</span> <span class="o">==</span> <span class="n">zx</span><span class="o">.</span><span class="n">VertexType</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="n">Basis</span><span class="o">.</span><span class="n">X</span>
     <span class="k">return</span> <span class="n">ZXCube</span><span class="p">(</span><span class="o">*</span><span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="n">Basis</span><span class="p">],</span> <span class="n">bases</span><span class="p">))</span>
 
 

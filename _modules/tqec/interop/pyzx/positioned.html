@@ -410,8 +410,8 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fractions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fraction</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.mplot3d.axes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes3D</span>
@@ -447,8 +447,8 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">        Raises:</span>
 <span class="sd">            TQECException: If the constraints are not satisfied.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
 
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_preconditions</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_g</span> <span class="o">=</span> <span class="n">g</span>
@@ -462,16 +462,13 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check the preconditions for the ZX graph with 3D positions.&quot;&quot;&quot;</span>
         <span class="c1"># 1. Check the vertex IDs in the graph match the positions</span>
         <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex_set</span><span class="p">()</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">positions</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                <span class="s2">&quot;The vertex IDs in the ZX graph and the positions do not match.&quot;</span>
-            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;The vertex IDs in the ZX graph and the positions do not match.&quot;</span><span class="p">)</span>
         <span class="c1"># 2. Check the neighbors are all shifted by 1 in the 3D positions</span>
         <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edge_set</span><span class="p">():</span>
             <span class="n">ps</span><span class="p">,</span> <span class="n">pt</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ps</span><span class="o">.</span><span class="n">is_neighbour</span><span class="p">(</span><span class="n">pt</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The 3D positions of the endpoints of the edge </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">--</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;must be neighbors, but got </span><span class="si">{</span><span class="n">ps</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">pt</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;The 3D positions of the endpoints of the edge </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">--</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> must be neighbors, but got </span><span class="si">{</span><span class="n">ps</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">pt</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
         <span class="c1"># 3. Check all the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
@@ -483,24 +480,20 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="p">(</span><span class="n">VertexType</span><span class="o">.</span><span class="n">Z</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
                 <span class="p">(</span><span class="n">VertexType</span><span class="o">.</span><span class="n">BOUNDARY</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
             <span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Unsupported vertex type and phase: </span><span class="si">{</span><span class="n">vt</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">phase</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
+                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported vertex type and phase: </span><span class="si">{</span><span class="n">vt</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">phase</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
             <span class="c1"># 4. Check Boundary and Z(1/2) spiders are dangling, additionally</span>
             <span class="c1"># Z(1/2) connects to time direction</span>
             <span class="k">if</span> <span class="n">vt</span> <span class="o">==</span> <span class="n">VertexType</span><span class="o">.</span><span class="n">BOUNDARY</span> <span class="ow">or</span> <span class="n">phase</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex_degree</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                        <span class="s2">&quot;Boundary or Z(1/2) spider must be dangling, but got &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="si">}</span><span class="s2"> neighbors.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Boundary or Z(1/2) spider must be dangling, but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="si">}</span><span class="s2"> neighbors.&quot;</span>
                     <span class="p">)</span>
                 <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
                     <span class="n">nb</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
                     <span class="n">vp</span><span class="p">,</span> <span class="n">nbp</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="n">nb</span><span class="p">]</span>
                     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nbp</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">vp</span><span class="o">.</span><span class="n">z</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Z(1/2) spider must connect to the time direction, &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;but Z(1/2) at </span><span class="si">{</span><span class="n">vp</span><span class="si">}</span><span class="s2"> connects to </span><span class="si">{</span><span class="n">nbp</span><span class="si">}</span><span class="s2">.&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Z(1/2) spider must connect to the time direction, but Z(1/2) at </span><span class="si">{</span><span class="n">vp</span><span class="si">}</span><span class="s2"> connects to </span><span class="si">{</span><span class="n">nbp</span><span class="si">}</span><span class="s2">.&quot;</span>
                         <span class="p">)</span>
         <span class="c1"># 5. Check there are no 3D corners</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
@@ -553,6 +546,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returns:</span>
 <span class="sd">            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from the block</span>
 <span class="sd">            graph.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">v2p</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Position3D</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">p2v</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Position3D</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -605,6 +599,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A tuple of the figure and the axes.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_positioned_zx_graph</span>
 

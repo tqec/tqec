@@ -452,6 +452,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`TopologicalComputationGraph` object that can be used to generate a</span>
 <span class="sd">        ``stim.Circuit`` and scale easily.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># All the ports should be filled before compiling the block graph.</span>
     <span class="k">if</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -475,9 +476,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">if</span> <span class="n">minz</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">)</span>
 
-    <span class="n">cube_specs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">)</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span>
-    <span class="p">}</span>
+    <span class="n">cube_specs</span> <span class="o">=</span> <span class="p">{</span><span class="n">cube</span><span class="p">:</span> <span class="n">CubeSpec</span><span class="o">.</span><span class="n">from_cube</span><span class="p">(</span><span class="n">cube</span><span class="p">,</span> <span class="n">block_graph</span><span class="p">)</span> <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">}</span>
 
     <span class="c1"># 0. Get the abstract observables to be included in the compiled circuit.</span>
     <span class="n">obs_included</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractObservable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>

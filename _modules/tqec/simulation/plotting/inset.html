@@ -422,11 +422,10 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositionedZX</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">add_inset_axes3d</span><span class="p">(</span>
-    <span class="n">ax_target</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes3D</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_inset_axes3d</span><span class="p">(</span><span class="n">ax_target</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Axes3D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper around `fig.add_axes` to achieve `ax.inset_axes` functionality</span>
-<span class="sd">    that works also for insetting 3D plot on 2D ax/figures.&quot;&quot;&quot;</span>
+<span class="sd">    that works also for insetting 3D plot on 2D ax/figures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">ax_target</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">Axes3D</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ax</span>
@@ -451,6 +450,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        zx_graph: ZX graph used.</span>
 <span class="sd">        observable: correlation surface over the provided `zx_graph` to</span>
 <span class="sd">            draw.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">add_inset_axes3d</span><span class="p">(</span><span class="n">ax_target</span><span class="p">,</span> <span class="n">bounds</span><span class="p">)</span>
     <span class="n">inset_ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
@@ -485,6 +485,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            default value tries to place the inset such that it does not overlap</span>
 <span class="sd">            with the logical error-rate curves on the main plot while still</span>
 <span class="sd">            leaving room to plot the observable in another inset.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Creating the inset</span>
     <span class="n">inset_ax</span> <span class="o">=</span> <span class="n">ax_target</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span>
@@ -513,9 +514,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="c1"># 3. Make the grid apparent.</span>
     <span class="n">inset_ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
     <span class="c1"># 4. Annotate the inset correctly.</span>
-    <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">lower_left</span><span class="p">,</span> <span class="n">upper_left</span><span class="p">,</span> <span class="n">lower_right</span><span class="p">,</span> <span class="n">upper_right</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">ax_target</span><span class="o">.</span><span class="n">indicate_inset_zoom</span><span class="p">(</span><span class="n">inset_ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-    <span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">lower_left</span><span class="p">,</span> <span class="n">upper_left</span><span class="p">,</span> <span class="n">lower_right</span><span class="p">,</span> <span class="n">upper_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">ax_target</span><span class="o">.</span><span class="n">indicate_inset_zoom</span><span class="p">(</span>
+        <span class="n">inset_ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span>
+    <span class="p">)</span>  <span class="c1"># type: ignore</span>
     <span class="n">lower_left</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
     <span class="n">upper_right</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
     <span class="n">lower_right</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># type: ignore</span>

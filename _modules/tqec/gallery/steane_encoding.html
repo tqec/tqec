@@ -428,6 +428,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :py:class:`~tqec.computation.block_graph.BlockGraph` instance.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">BlockGraph</span><span class="o">.</span><span class="n">from_dae_file</span><span class="p">(</span><span class="n">STEANE_CODE_DAE</span><span class="p">)</span>
     <span class="n">filled_graphs</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">fill_ports_for_minimal_simulation</span><span class="p">()</span>

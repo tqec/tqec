@@ -409,16 +409,14 @@ window.addEventListener("load", () => mermaid.run());
 <span></span><span class="sd">&quot;&quot;&quot;Split the statistics for multiple observables.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">collections</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">split_counts_for_observables</span><span class="p">(</span>
-    <span class="n">counts</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">num_observables</span><span class="p">:</span> <span class="nb">int</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_counts_for_observables</span><span class="p">(</span><span class="n">counts</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">num_observables</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Split the error counts for each individual observable when</span>
 <span class="sd">    specifying ``count_observable_error_combos=True`` for ``sinter``.</span>
 
@@ -428,6 +426,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of error counts for each individual observable.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">split_counts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_observables</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -455,6 +454,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of statistics for each individual observable.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">sinter._data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExistingData</span>  <span class="c1"># type: ignore</span>
 
@@ -465,13 +465,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">combined_stats</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="c1"># For each task, split the stats by observable</span>
-    <span class="n">stats_by_observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">sinter</span><span class="o">.</span><span class="n">TaskStats</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_observables</span><span class="p">)</span>
-    <span class="p">]</span>
+    <span class="n">stats_by_observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">sinter</span><span class="o">.</span><span class="n">TaskStats</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_observables</span><span class="p">)]</span>
     <span class="k">for</span> <span class="n">task_stats</span> <span class="ow">in</span> <span class="n">combined_stats</span><span class="p">:</span>
-        <span class="n">split_counts</span> <span class="o">=</span> <span class="n">split_counts_for_observables</span><span class="p">(</span>
-            <span class="n">task_stats</span><span class="o">.</span><span class="n">custom_counts</span><span class="p">,</span> <span class="n">num_observables</span>
-        <span class="p">)</span>
+        <span class="n">split_counts</span> <span class="o">=</span> <span class="n">split_counts_for_observables</span><span class="p">(</span><span class="n">task_stats</span><span class="o">.</span><span class="n">custom_counts</span><span class="p">,</span> <span class="n">num_observables</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">obs_idx</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">split_counts</span><span class="p">):</span>
             <span class="n">stats_by_observables</span><span class="p">[</span><span class="n">obs_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">task_stats</span><span class="o">.</span><span class="n">with_edits</span><span class="p">(</span>
@@ -533,6 +529,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The heuristic custom error key.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># observable with minimal correlation surface area</span>
     <span class="n">minimal_area_obs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">observables</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">area</span><span class="p">())</span>

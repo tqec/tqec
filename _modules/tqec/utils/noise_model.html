@@ -432,7 +432,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractSet</span><span class="p">,</span> <span class="n">Iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractSet</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 
@@ -535,7 +536,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Describes how to add noise to an operation.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">after</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">flip_result</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Describes how to add noise to an operation.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            after: A dictionary mapping noise rule names to their probability argument.</span>
 <span class="sd">                For example, {&quot;DEPOLARIZE2&quot;: 0.01, &quot;X_ERROR&quot;: 0.02} will add two qubit</span>
@@ -544,6 +546,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">                to the same targets as the relevant operation.</span>
 <span class="sd">            flip_result: The probability that a measurement result should be reported incorrectly.</span>
 <span class="sd">                Only valid when applied to operations that produce measurement results.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">flip_result</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;not (0 &lt;= </span><span class="si">{</span><span class="n">flip_result</span><span class="si">=}</span><span class="s2"> &lt;= 1)&quot;</span><span class="p">)</span>
@@ -731,9 +734,7 @@ window.addEventListener("load", () => mermaid.run());
 
         <span class="n">collapse_qubits_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">collapse_qubits</span><span class="p">)</span>
         <span class="n">clifford_qubits_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">clifford_qubits</span><span class="p">)</span>
-        <span class="n">idle</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-            <span class="n">system_qubits</span> <span class="o">-</span> <span class="n">collapse_qubits_set</span> <span class="o">-</span> <span class="n">clifford_qubits_set</span> <span class="o">-</span> <span class="n">immune_qubits</span>
-        <span class="p">)</span>
+        <span class="n">idle</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">system_qubits</span> <span class="o">-</span> <span class="n">collapse_qubits_set</span> <span class="o">-</span> <span class="n">clifford_qubits_set</span> <span class="o">-</span> <span class="n">immune_qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">idle</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idle_depolarization</span><span class="p">)</span>
 
@@ -743,9 +744,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="ow">and</span> <span class="n">waiting_for_mr</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span>
         <span class="p">):</span>
-            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span>
-            <span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DEPOLARIZE1&quot;</span><span class="p">,</span> <span class="n">idle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_depolarization_waiting_for_m_or_r</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_append_noisy_moment</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -796,6 +795,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The noisy version of the circuit.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">system_qubits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">system_qubits</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
@@ -805,9 +805,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">result</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">()</span>
 
         <span class="n">first</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">for</span> <span class="n">moment_split_ops</span> <span class="ow">in</span> <span class="n">_iter_split_op_moments</span><span class="p">(</span>
-            <span class="n">circuit</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span>
-        <span class="p">):</span>
+        <span class="k">for</span> <span class="n">moment_split_ops</span> <span class="ow">in</span> <span class="n">_iter_split_op_moments</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">first</span><span class="p">:</span>
                 <span class="n">first</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">elif</span> <span class="n">result</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span><span class="p">):</span>
@@ -841,7 +839,8 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="k">def</span><span class="w"> </span><span class="nf">occurs_in_classical_control_system</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines if an operation is an annotation or a classical control</span>
-<span class="sd">    system update.&quot;&quot;&quot;</span>
+<span class="sd">    system update.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">ANNOTATION</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -862,7 +861,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits operations into pieces as needed (e.g. MPP into each product,</span>
-<span class="sd">    classical control away from quantum ops).&quot;&quot;&quot;</span>
+<span class="sd">    classical control away from quantum ops).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span><span class="p">:</span>
         <span class="k">yield from</span> <span class="n">_split_targets_if_needed_clifford_2q</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">)</span>
@@ -889,7 +889,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits classical control system operations away from things actually</span>
-<span class="sd">    happening on the quantum computer.&quot;&quot;&quot;</span>
+<span class="sd">    happening on the quantum computer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">immune_qubits</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">is_measurement_record_target</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">):</span>
@@ -904,7 +905,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits an MPP operation into one operation for each Pauli product it</span>
-<span class="sd">    measures.&quot;&quot;&quot;</span>
+<span class="sd">    measures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">()</span>
     <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
@@ -933,6 +935,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        like MPPs split into pieces.</span>
 
 <span class="sd">        (A moment is the time between two TICKs.)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cur_moment</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -942,14 +945,11 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="k">yield</span> <span class="n">cur_moment</span>
                 <span class="n">cur_moment</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">yield</span> <span class="n">op</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># if isinstance(op, stim.CircuitInstruction):</span>
-            <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;TICK&quot;</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">cur_moment</span>
-                <span class="n">cur_moment</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">cur_moment</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                    <span class="n">_split_targets_if_needed</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span><span class="p">)</span>
-                <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">op</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;TICK&quot;</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">cur_moment</span>
+            <span class="n">cur_moment</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cur_moment</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_split_targets_if_needed</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="o">=</span><span class="n">immune_qubits</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">cur_moment</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">cur_moment</span>
 
@@ -961,6 +961,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    Returns:</span>
 <span class="sd">        None: This is not a measurement (or not *just* a measurement).</span>
 <span class="sd">        str: Pauli product string that the operation measures (e.g. &quot;XX&quot; or &quot;Y&quot;).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">OP_MEASURE_BASES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">split_op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
