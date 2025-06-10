@@ -33,6 +33,7 @@ class LookbackInformation:
             circuit and then extracting the measurement records from it, but it
             turns out that we already have access to these records when creating
             such a structure, so we store them to avoid re-computing.
+
     """
 
     template: Template
@@ -53,10 +54,9 @@ class LookbackInformationList:
         measurement_records: MeasurementRecordsMap,
     ) -> None:
         """Add the provided parameters to the lookback window, potentially removing
-        older items that should not be considered anymore."""
-        self.infos.append(
-            LookbackInformation(template, plaquettes, measurement_records)
-        )
+        older items that should not be considered anymore.
+        """
+        self.infos.append(LookbackInformation(template, plaquettes, measurement_records))
 
     def extend(self, other: LookbackInformationList, repetitions: int = 1) -> None:
         self.infos.extend(other.infos * repetitions)
@@ -64,9 +64,7 @@ class LookbackInformationList:
     def __len__(self) -> int:
         return len(self.infos)
 
-    def __getitem__(
-        self, index: int | slice
-    ) -> LookbackInformation | list[LookbackInformation]:
+    def __getitem__(self, index: int | slice) -> LookbackInformation | list[LookbackInformation]:
         return self.infos[index]
 
 
@@ -96,8 +94,7 @@ class LookbackStack:
             )
         if repetitions < 1:
             raise TQECException(
-                "Cannot have a REPEAT block with less than 1 repetitions. Got "
-                f"{repetitions} repetitions."
+                f"Cannot have a REPEAT block with less than 1 repetitions. Got {repetitions} repetitions."
             )
         self._stack[-2].extend(self._stack[-1], repetitions)
         self._stack.pop(-1)
@@ -116,8 +113,7 @@ class LookbackStack:
     ) -> tuple[list[Template], list[Plaquettes], list[MeasurementRecordsMap]]:
         if n < 0:
             raise TQECException(
-                "Cannot look back a negative number of rounds. Got a lookback "
-                f"value of {n}."
+                f"Cannot look back a negative number of rounds. Got a lookback value of {n}."
             )
         if n == 0:
             return [], [], []
@@ -150,8 +146,7 @@ class LookbackStack:
     def __len__(self) -> int:
         if len(self._stack) > 1:
             raise TQECException(
-                "Cannot get a meaningful stack length when a REPEAT block is "
-                "in construction."
+                "Cannot get a meaningful stack length when a REPEAT block is in construction."
             )
         return len(self._stack[0])
 
@@ -194,6 +189,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 1 for sequential processing, >1 for parallel processing using
                 ``parallel_process_count`` processes, and -1 for using all available
                 CPU cores. Default to 1.
+
         """
         if lookback < 1:
             raise TQECException(
@@ -214,9 +210,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             return
         annotations = node.get_annotations(self._k)
         if annotations.circuit is None:
-            raise TQECException(
-                "Cannot compute detectors without the circuit annotation."
-            )
+            raise TQECException("Cannot compute detectors without the circuit annotation.")
         self._lookback_stack.append(
             *node._layer.to_template_and_plaquettes(),
             MeasurementRecordsMap.from_scheduled_circuit(annotations.circuit),

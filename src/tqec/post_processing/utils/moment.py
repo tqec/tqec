@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-from typing import Callable, Iterator
 
 import stim
 
@@ -28,11 +28,7 @@ def iter_stim_circuit_by_moments(
             cur_moment.clear()
             yield RepeatedMoments(
                 inst.repeat_count,
-                list(
-                    iter_stim_circuit_by_moments(
-                        inst.body_copy(), collected_before_use=True
-                    )
-                ),
+                list(iter_stim_circuit_by_moments(inst.body_copy(), collected_before_use=True)),
             )
         elif inst.name == "TICK":
             yield Moment(copy_func(cur_moment))

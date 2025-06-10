@@ -1,9 +1,9 @@
 import stim
 
-from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteOrientation, PlaquetteSide
 from tqec.plaquette.library.css import make_css_surface_code_plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
+from tqec.utils.enums import Basis
 
 
 def test_css_surface_code_memory_plaquette() -> None:
@@ -54,9 +54,7 @@ CX 4 0
 TICK
 M 0
 """)
-    plaquette = make_css_surface_code_plaquette(
-        "X", x_boundary_orientation="HORIZONTAL"
-    )
+    plaquette = make_css_surface_code_plaquette("X", x_boundary_orientation="HORIZONTAL")
     assert plaquette.name == "CSS_basis(X)_HORIZONTAL"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("1 -> _XXXX xor rec[-1]"))
@@ -79,9 +77,7 @@ CX 0 4
 TICK
 MX 0
 """)
-    plaquette = make_css_surface_code_plaquette(
-        "Z", x_boundary_orientation="HORIZONTAL"
-    )
+    plaquette = make_css_surface_code_plaquette("Z", x_boundary_orientation="HORIZONTAL")
     assert plaquette.name == "CSS_basis(Z)_HORIZONTAL"
     circuit = plaquette.circuit.get_circuit()
     assert circuit.has_flow(stim.Flow("1 -> _ZZZZ xor rec[-1]"))

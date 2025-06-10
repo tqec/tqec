@@ -47,9 +47,7 @@ def raw_circuit_fixed_size_layer_fixture() -> RawCircuitLayer:
     )
 
 
-def test_creation(
-    plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer
-) -> None:
+def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer) -> None:
     # Invalid sequences due to duration < 1
     err_regex = ".*expected to have at least one layer.*"
     with pytest.raises(TQECException, match=err_regex):
@@ -117,8 +115,7 @@ def test_with_spatial_borders_trimmed(
     trimmed_layer = layer.with_spatial_borders_trimmed(borders)
     trimmed_internal_layer = plaquette_layer.with_spatial_borders_trimmed(borders)
     assert all(
-        internal_layer == trimmed_internal_layer
-        for internal_layer in trimmed_layer.layer_sequence
+        internal_layer == trimmed_internal_layer for internal_layer in trimmed_layer.layer_sequence
     )
 
 
@@ -143,9 +140,7 @@ def test_with_temporal_borders_replaced_none(
     )
     # Shorter to cover one edge-case:
     assert (
-        SequencedLayers(
-            [plaquette_layer, raw_circuit_layer]
-        ).with_temporal_borders_replaced(
+        SequencedLayers([plaquette_layer, raw_circuit_layer]).with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
         )
         is None
@@ -182,24 +177,13 @@ def test_with_temporal_borders_replaced(
 
 
 def test_to_sequenced_layer_with_schedule(plaquette_layer: PlaquetteLayer) -> None:
-    layer = SequencedLayers(
-        [RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer]
-    )
+    layer = SequencedLayers([RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer])
     assert (
-        layer.to_sequenced_layer_with_schedule(
-            (LinearFunction(2, 0), LinearFunction(0, 1))
-        )
+        layer.to_sequenced_layer_with_schedule((LinearFunction(2, 0), LinearFunction(0, 1)))
         == layer
     )
-    err_regex = (
-        "^.*The provided schedule has a duration of .* but the instance "
-        "to transform has a duration of .*$"
-    )
+    err_regex = "^.*The provided schedule has a duration of .* but the instance to transform has a duration of .*$"
     with pytest.raises(TQECException, match=err_regex):
-        layer.to_sequenced_layer_with_schedule(
-            (LinearFunction(0, 1), LinearFunction(1, 0))
-        )
+        layer.to_sequenced_layer_with_schedule((LinearFunction(0, 1), LinearFunction(1, 0)))
     with pytest.raises(NotImplementedError):
-        layer.to_sequenced_layer_with_schedule(
-            (LinearFunction(0, 1), LinearFunction(2, 0))
-        )
+        layer.to_sequenced_layer_with_schedule((LinearFunction(0, 1), LinearFunction(2, 0)))

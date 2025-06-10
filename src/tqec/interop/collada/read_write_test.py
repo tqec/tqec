@@ -1,11 +1,12 @@
 import os
 import tempfile
+from pathlib import Path
 
 import pytest
-from pathlib import Path
+
 from tqec.computation.block_graph import BlockGraph
-from tqec.gallery.cnot import cnot
 from tqec.computation.cube import ZXCube
+from tqec.gallery.cnot import cnot
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
@@ -23,8 +24,8 @@ def rotated_cnot(observable_basis: Basis | None = None) -> BlockGraph:
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing
         the logical CNOT gate.
-    """
 
+    """
     g = BlockGraph()
 
     nodes = [

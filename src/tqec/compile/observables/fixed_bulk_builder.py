@@ -65,9 +65,7 @@ def _get_top_readout_spatial_cube_qubits(
     elif arms == SpatialArms.UP | SpatialArms.DOWN:
         return [(half_x, y) for y in range(1, cube_shape.y)]
     elif arms == SpatialArms.LEFT | SpatialArms.UP:
-        qubits = [(x, half_y) for x in range(1, half_x)] + [
-            (half_x, y) for y in range(1, half_y)
-        ]
+        qubits = [(x, half_y) for x in range(1, half_x)] + [(half_x, y) for y in range(1, half_y)]
         if observable_basis == Basis.Z:
             qubits.append((half_x, half_y))
         return qubits

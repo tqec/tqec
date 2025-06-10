@@ -5,9 +5,7 @@ from tqec.utils.position import Shape2D
 from tqec.utils.scale import LinearFunction, Scalable2D, round_or_fail
 
 
-@pytest.mark.parametrize(
-    "slope,offset", [(0, 0), (2, 0), (1, 0), (0, 4), (-1, 5), (2, -1)]
-)
+@pytest.mark.parametrize("slope,offset", [(0, 0), (2, 0), (1, 0), (0, 4), (-1, 5), (2, -1)])
 def test_linear_function(slope: int, offset: int) -> None:
     f = LinearFunction(slope, offset)
     assert f(10) == slope * 10 + offset

@@ -112,8 +112,7 @@ def test_horizontal_borders_template_borders_indices() -> None:
     instantiation = template.instantiate(2)
 
     expected_error_message = (
-        "Template QubitHorizontalBorders does not have repeating elements "
-        "on the {} border."
+        "Template QubitHorizontalBorders does not have repeating elements on the {} border."
     )
     with pytest.raises(TQECException, match=expected_error_message.format("LEFT")):
         template.get_border_indices(TemplateBorder.LEFT)
@@ -162,8 +161,7 @@ def test_vertical_borders_template_borders_indices() -> None:
     instantiation = template.instantiate(2)
 
     expected_error_message = (
-        "Template QubitVerticalBorders does not have repeating elements "
-        "on the {} border."
+        "Template QubitVerticalBorders does not have repeating elements on the {} border."
     )
     with pytest.raises(TQECException, match=expected_error_message.format("TOP")):
         template.get_border_indices(TemplateBorder.TOP)

@@ -38,7 +38,7 @@ from scipy.spatial.transform import Rotation as R
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
 from tqec.utils.exceptions import TQECException
-from tqec.utils.position import Direction3D, Position3D, FloatPosition3D
+from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
 
 
@@ -52,8 +52,8 @@ def calc_rotation_angles(
 
     Returns:
         rotations: the rotation angle for each of the three vectors in M (see notes: !)
-    """
 
+    """
     # Placeholder for results
     rotations = np.array([])
 
@@ -81,8 +81,8 @@ def get_axes_directions(rotation_matrix: npt.NDArray[np.float32]) -> dict[str, i
 
     Returns:
         axes_directions: up/down multipliers for each axis
-    """
 
+    """
     # Placeholder for results
     axes_directions = {"X": 1, "Y": 1, "Z": 1}
 
@@ -106,6 +106,7 @@ def rotate_block_kind_by_matrix(
 
     Returns:
         rotated_kind: rotated kind for the node.
+
     """
     if str(block_kind) == "PORT":
         return block_kind
@@ -114,9 +115,7 @@ def rotate_block_kind_by_matrix(
     rotated_name = ""
 
     # State cultivation blocks: special case – added chars needed to clear loop
-    original_name = (
-        str(block_kind)[:3] if len(str(block_kind)) > 1 else str(block_kind) + "-!"
-    )
+    original_name = str(block_kind)[:3] if len(str(block_kind)) > 1 else str(block_kind) + "-!"
 
     # Loop:
     # - applies transformation encoded in rotate_matrix to vectorised kind
@@ -130,9 +129,7 @@ def rotate_block_kind_by_matrix(
     axes_directions = get_axes_directions(rotation_matrix)
 
     # Reject state cultivation blocks if rotated_name not ends in "!" or axes_directions["Z"] is negative
-    if "!" in rotated_name and (
-        not rotated_name.endswith("!") or axes_directions["Z"] < 0
-    ):
+    if "!" in rotated_name and (not rotated_name.endswith("!") or axes_directions["Z"] < 0):
         raise TQECException(
             f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} block.",
             "Cultivation and Y blocks should only allow rotation around Z axis.",
@@ -165,6 +162,7 @@ def get_rotation_matrix(
 
     Returns:
         The rotation matrix.
+
     """
     rot_vec = np.array([0, 0, 0])
     rot_vec[rotation_axis.value] = 1 if counterclockwise else -1
@@ -190,6 +188,7 @@ def rotate_position_by_matrix(
 
     Raises:
         TQECException: if the rotated position is not integer.
+
     """
     rotation = R.from_matrix(rotation_matrix)
     center_pos = [i + 0.5 for i in position.as_tuple()]
@@ -224,9 +223,7 @@ def rotate_on_import(
     kind = rotate_block_kind_by_matrix(kind, rotation_matrix)
 
     # Shift nodes slightly according to rotation
-    translation = FloatPosition3D(
-        *translation_matrix + rotation_matrix.dot(scale_matrix)
-    )
+    translation = FloatPosition3D(*translation_matrix + rotation_matrix.dot(scale_matrix))
 
     # Return revised data
     return translation, kind

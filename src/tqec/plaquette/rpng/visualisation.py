@@ -1,12 +1,12 @@
 """Visualize the RPNG plaquettes as SVG."""
 
-from collections.abc import Callable, Iterable
 import math
+from collections.abc import Callable, Iterable
 from typing import Literal, cast
 
-from tqec.utils.exceptions import TQECException
 from tqec.interop.color import RGBA, TQECColor
 from tqec.plaquette.rpng import RPNG, ExtendedBasis, RPNGDescription
+from tqec.utils.exceptions import TQECException
 
 
 def rpng_svg_viewer(
@@ -43,6 +43,7 @@ def rpng_svg_viewer(
 
     Returns:
         The SVG string representing the RPNG object.
+
     """
     if show_plaquette_indices:
         if isinstance(rpng_object, RPNGDescription):
@@ -54,8 +55,7 @@ def rpng_svg_viewer(
                 "Plaquette indices must be provided when ``show_plaquette_indices`` is True."
             )
         if not len(rpng_object) == len(plaquette_indices) and all(
-            len(row) == len(indices)
-            for row, indices in zip(rpng_object, plaquette_indices)
+            len(row) == len(indices) for row, indices in zip(rpng_object, plaquette_indices)
         ):
             raise TQECException(
                 "The dimensions of ``rpng_object`` and ``plaquette_indices`` must match."
@@ -75,9 +75,7 @@ def rpng_svg_viewer(
         for c, description in enumerate(row):
             center = complex(2 * c + 1, 2 * r + 1)
             plaquette: dict[complex, RPNG] = {}
-            for delta, rpng in zip(
-                [-1 - 1j, 1 - 1j, -1 + 1j, 1 + 1j], description.corners
-            ):
+            for delta, rpng in zip([-1 - 1j, 1 - 1j, -1 + 1j, 1 + 1j], description.corners):
                 # filter out the "----" null plaquettes
                 if rpng.is_null:
                     continue
@@ -141,9 +139,7 @@ def rpng_svg_viewer(
         clip_path_id += 1
         if show_plaquette_indices:
             index = indices[center]
-            _draw_plaquette_index(
-                stroke_layer, text_layer, center, index, q2p, scale_factor
-            )
+            _draw_plaquette_index(stroke_layer, text_layer, center, index, q2p, scale_factor)
 
     # Draw the R/G fields on the data qubits
     if show_rg_fields:
@@ -234,8 +230,7 @@ def _draw_plaquette(
             )
     # stroke around the polygon
     stroke_layer.append(
-        f'<path d="{path_directions}" '
-        f'fill="none" stroke="black" stroke-width="{0.05 * scale_factor}"/>'
+        f'<path d="{path_directions}" fill="none" stroke="black" stroke-width="{0.05 * scale_factor}"/>'
     )
     # Add the hook error
     if hook_error is not None:
