@@ -23,7 +23,7 @@ call :code:`BlockGraph.from_dae_file` directly.
 
     from tqec import BlockGraph
 
-    graph = BlockGraph.from_dae_file("../media/user_guide/logical_cnot.dae")
+    graph = BlockGraph.from_dae_file("../assets/logical_cnot.dae")
 
 Export COLLADA model
 ---------------------

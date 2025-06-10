@@ -30,7 +30,7 @@ The workflow using SketchUp to build computations is as follows:
 4. Import the computation into :code:`tqec` using the :code:`tqec.read_block_graph_from_dae_file` or :code:`BlockGraph.from_dae_file()` function.
 
 2. Build :code:`BlockGraph` directly
--------------------------------
+------------------------------------
 
 You can add blocks to a :code:`BlockGraph` by calling :code:`add_cube` and :code:`add_pipe`. Here we show how to build a logical CNOT directly with :code:`BlockGraph`.
 
