@@ -539,7 +539,6 @@ def _compute_detector_for_subtemplate(
             - s3d: 3D numpy array representing the subtemplate
             - plaquettes: Sequence of plaquettes for each time slice
             - increments: Spatial increments between plaquette origins
-            - database: Detector database (optional)
             - only_use_database: Whether to only use the database
 
     Returns:
@@ -644,6 +643,8 @@ def compute_detectors_for_fixed_radius(
         with Pool(processes=parallel_process_count) as pool:
             results = pool.map(_compute_detector_for_subtemplate, args_list)
 
+        # After synchronizing all child processes, we get all computed detectors,
+        # first we add them to database if it is provides, then we shift the coordinates of them
         for indices, detectors_set in results:
             subtemplates = _extract_subtemplates_from_s3d(
                 unique_3d_subtemplates.subtemplates[indices]
