@@ -268,7 +268,7 @@ def test_public_compute_detectors_at_end_of_situation(
     increments = Shift2D(2, 2)
     database = DetectorDatabase()
     # No database
-    detectors, _ = compute_detectors_at_end_of_situation(
+    detectors = compute_detectors_at_end_of_situation(
         [alternating_subtemplate], [init_plaquettes], increments, None, False
     )
     assert len(detectors) == 1
@@ -287,12 +287,12 @@ def test_public_compute_detectors_at_end_of_situation(
             True,
         )
     assert len(database) == 0
-    detectors, _ = compute_detectors_at_end_of_situation(
+    detectors = compute_detectors_at_end_of_situation(
         [alternating_subtemplate], [init_plaquettes], increments, database, False
     )
     assert len(database) == 1
     assert len(detectors) == 1
-    detectors, _ = compute_detectors_at_end_of_situation(
+    detectors = compute_detectors_at_end_of_situation(
         [alternating_subtemplate], [init_plaquettes], increments, database, True
     )
     assert len(detectors) == 1

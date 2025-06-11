@@ -269,7 +269,8 @@ def compute_detectors_at_end_of_situation(
     increments: Shift2D,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
-) -> tuple[frozenset[Detector], frozenset[Detector] | None]:
+    parallel_process_count: int = 1,
+) -> frozenset[Detector]:
     """Returns detectors that should be added at the end of the provided
     situation.
 
@@ -293,6 +294,10 @@ def compute_detectors_at_end_of_situation(
             used. An error will be raised if a situation that is not registered
             in the database is encountered or if the database is not provided.
             Default to ``False``.
+        parallel_process_count: number of processes to use for parallel processing.
+            1 for sequential processing, >1 for parallel processing using
+            ``parallel_process_count`` processes, and -1 for using all available
+            CPU cores. Default to 1.
 
     Returns:
         all the detectors that can be appended at the end of the circuit
@@ -324,6 +329,20 @@ def compute_detectors_at_end_of_situation(
             subtemplates, plaquettes_by_timestep, increments
         )
 
+    # If parallel processing is not enabled, shift the detectors here.
+    # Otherwise, wait until all child processes have finished computation.
+    # In that case, update the database with the computed detectors in the parent process,
+    # and then shift the detectors afterwards.
+    if parallel_process_count == 1:
+        detectors = _shift_detectors_to_center_of_subtemplate(detectors, subtemplates, increments)
+    return detectors
+
+
+def _shift_detectors_to_center_of_subtemplate(
+    detectors: frozenset[Detector],
+    subtemplates: Sequence[SubTemplateType],
+    increments: Shift2D,
+) -> frozenset[Detector]:
     # `subtemplate.shape` should be `(2 * radius + 1, 2 * radius + 1)` so we can
     # recover the radius with the below expression.
     radius = subtemplates[0].shape[0] // 2
@@ -335,10 +354,7 @@ def compute_detectors_at_end_of_situation(
     # origin.
     shift_x, shift_y = -radius * increments.x, -radius * increments.y
 
-    detectors_to_save_in_db = detectors
-    return frozenset(
-        d.offset_spatially_by(shift_x, shift_y) for d in detectors
-    ), detectors_to_save_in_db
+    return frozenset(d.offset_spatially_by(shift_x, shift_y) for d in detectors)
 
 
 def _get_or_default(
@@ -511,10 +527,10 @@ def _compute_detector_for_subtemplate(
         npt.NDArray[numpy.int_],  # s3d
         Sequence[Plaquettes],  # plaquettes
         Shift2D,  # increments
-        DetectorDatabase | None,  # database
         bool,  # only_use_database
+        int,  # parallel_process_count
     ],
-) -> tuple[tuple[int, ...], tuple[frozenset[Detector], frozenset[Detector] | None]]:
+) -> tuple[tuple[int, ...], frozenset[Detector]]:
     """Helper function for parallel processing of detector computation.
 
     Args:
@@ -528,16 +544,20 @@ def _compute_detector_for_subtemplate(
 
     Returns:
         A tuple containing the indices and the computed detectors
+
     """
-    indices, s3d, plaquettes, increments, database, only_use_database = args
+    indices, s3d, plaquettes, increments, only_use_database, parallel_process_count = args
     return (
         indices,
         compute_detectors_at_end_of_situation(
             _extract_subtemplates_from_s3d(s3d),
             plaquettes,
             increments,
-            database,
-            only_use_database,
+            # Currently, we do not find an efficient way to share the database between
+            # multiple processes, so we just pass `None` here.
+            database=None,
+            only_use_database=only_use_database,
+            parallel_process_count=parallel_process_count,
         ),
     )
 
@@ -608,7 +628,7 @@ def compute_detectors_for_fixed_radius(
 
     # Each detector in detectors_by_subtemplate is using a coordinate system
     # centered on the central plaquette origin.
-    detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]]
+    detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]] = {}
 
     # Handle the special case of parallel_process_count == -1
     if parallel_process_count == -1:
@@ -617,23 +637,22 @@ def compute_detectors_for_fixed_radius(
     # compute detectors in parallel.
     if parallel_process_count > 1:
         args_list = [
-            (indices, s3d, plaquettes, increments, None, False)
+            (indices, s3d, plaquettes, increments, False, parallel_process_count)
             for indices, s3d in unique_3d_subtemplates.subtemplates.items()
         ]
 
         with Pool(processes=parallel_process_count) as pool:
             results = pool.map(_compute_detector_for_subtemplate, args_list)
 
-        if database is not None:
-            for indices, (_, detectors_for_db) in results:
-                subtemplates = _extract_subtemplates_from_s3d(
-                    unique_3d_subtemplates.subtemplates[indices]
-                )
-                if detectors_for_db is not None:
-                    database.add_situation(subtemplates, plaquettes, detectors_for_db)
-
-        # Convert results to dictionary
-        detectors_by_subtemplate = {result[0]: result[1][0] for result in results}
+        for indices, detectors_set in results:
+            subtemplates = _extract_subtemplates_from_s3d(
+                unique_3d_subtemplates.subtemplates[indices]
+            )
+            if database is not None:
+                database.add_situation(subtemplates, plaquettes, detectors_set)
+            detectors_by_subtemplate[indices] = _shift_detectors_to_center_of_subtemplate(
+                detectors_set, subtemplates, increments
+            )
 
     # If parallel_process_count == 1, computing detectors sequentially
     elif parallel_process_count == 1:
@@ -644,7 +663,7 @@ def compute_detectors_for_fixed_radius(
                 increments,
                 database,
                 only_use_database,
-            )[0]
+            )
             for indices, s3d in unique_3d_subtemplates.subtemplates.items()
         }
     # Else, invalid parallel_process_count
