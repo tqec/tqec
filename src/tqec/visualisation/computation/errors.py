@@ -12,8 +12,8 @@ def _get_error_cross_svg(
         d=[
             svg.M(-size / 2, -size / 2),
             svg.L(size / 2, size / 2),
-            svg.M(0, size / 2),
-            svg.L(size / 2, 0),
+            svg.M(-size / 2, size / 2),
+            svg.L(size / 2, -size / 2),
         ],
         stroke=stroke_color,
         stroke_width=size * stroke_width_multiplier,
