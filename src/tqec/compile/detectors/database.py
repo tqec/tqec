@@ -227,12 +227,11 @@ class DetectorDatabase:
         mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] | None = None,
         frozen: bool = False,
     ):
-        self.version = CURRENT_DATABASE_VERSION
         if mapping is None:
-            self.mapping = dict()
-        else:
-            self.mapping = mapping
+            mapping = dict()
+        self.mapping = mapping
         self.frozen = frozen
+        self.version = CURRENT_DATABASE_VERSION
 
     def add_situation(
         self,
