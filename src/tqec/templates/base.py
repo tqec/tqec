@@ -59,6 +59,18 @@ class Template(ABC):
             the underlying shape of the template.
         """
 
+    def instantiate_list(
+        self, k: int, plaquette_indices: Sequence[int] | None = None
+    ) -> list[list[int]]:
+        instantiation = self.instantiate(k, plaquette_indices=plaquette_indices)
+        m, n = instantiation.shape
+        ret: list[list[int]] = []
+        for i in range(m):
+            ret.append([])
+            for j in range(n):
+                ret[-1].append(int(instantiation[i, j]))
+        return ret
+
     def shape(self, k: int) -> PlaquetteShape2D:
         """Returns the current template shape."""
         sshape = self.scalable_shape
