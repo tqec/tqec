@@ -318,8 +318,12 @@ class LayerTree:
         # First, before we start any computations, decide which detector database to use.
         if isinstance(database_path, str):
             database_path = Path(database_path)
-        # Start user_defined from False, override with True later if certain conditions are met:
-        user_defined = False
+        # We need to know for later if the user explicitly provided a database or
+        # not to decide if we should warn or raise.
+        user_defined = (
+            detector_database is not None
+            or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+        )
         # If the user has passed a database in, use that, otherwise:
         if detector_database is None:  # Nothing passed in,
             if database_path.exists():  # look for an existing database at the path.
