@@ -63,6 +63,7 @@ class LayerVisualiser(NodeWalker):
         self._k = k
         self._svgs_stack: list[list[svg.SVG]] = [list()]
         self._num_tick_stack: list[list[int]] = [list()]
+        self._current_tick: int = 0
         self._errors: list[stim.ExplainedError] = list(errors)
         self._font_size = font_size
         self._font_color = font_color
@@ -97,10 +98,20 @@ class LayerVisualiser(NodeWalker):
         drawers = plaquettes.collection.map_values(
             lambda plaq: plaq.debug_information.get_svg_drawer()
         )
+        num_ticks = layer.num_moments(self._k)
+
         self._svgs_stack[-1].append(
-            plaquette_grid_svg_viewer(instantiation, drawers, errors=self._errors)
+            plaquette_grid_svg_viewer(
+                instantiation,
+                drawers,
+                errors=self._get_errors_within(
+                    self._current_tick, self._current_tick + num_ticks
+                ),
+            )
         )
-        self._num_tick_stack[-1].append(layer.timesteps(self._k))
+
+        self._num_tick_stack[-1].append(num_ticks)
+        self._current_tick += num_ticks
 
     def get_tick_text(self, start: int, end: int) -> svg.Text:
         return svg.Text(
@@ -135,6 +146,7 @@ class LayerVisualiser(NodeWalker):
             assert s.elements is not None
             s.elements.append(self.get_tick_text(current_tick, next_tick))
             ret.append(s.as_str())
+            current_tick = next_tick
         return ret
 
 
