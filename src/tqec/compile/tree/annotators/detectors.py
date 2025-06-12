@@ -159,6 +159,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         detector_database: DetectorDatabase | None = None,
         only_use_database: bool = False,
         lookback: int = 2,
+        parallel_process_count: int = 1,
     ):
         """Walker computing and annotating detectors on leaf nodes.
 
@@ -184,6 +185,10 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 in the database is encountered. Default to ``False``.
             lookback_size: number of QEC rounds to consider to try to find
                 detectors. Including more rounds increases computation time.
+            parallel_process_count: number of processes to use for parallel processing.
+                1 for sequential processing, >1 for parallel processing using
+                ``parallel_process_count`` processes, and -1 for using all available
+                CPU cores. Default to 1.
 
         """
         if lookback < 1:
@@ -197,6 +202,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         self._only_use_database = only_use_database
         self._lookback_size = lookback
         self._lookback_stack = LookbackStack()
+        self._parallel_process_count = parallel_process_count
 
     @override
     def visit_node(self, node: LayerNode) -> None:
@@ -220,6 +226,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             self._manhattan_radius,
             self._database,
             self._only_use_database,
+            self._parallel_process_count,
         )
 
         for detector in detectors:
