@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Mapping
 import warnings
@@ -84,8 +85,12 @@ class LayerVisualiser(NodeWalker):
             )
         assert node.repetitions is not None
         repetitions = node.repetitions.integer_eval(self._k)
-        self._svgs_stack[-2].extend(self._svgs_stack.pop(-1) * repetitions)
-        self._num_tick_stack[-2].extend(self._num_tick_stack.pop(-1) * repetitions)
+        svgs = self._svgs_stack.pop(-1)
+        ticks = self._num_tick_stack.pop(-1)
+        for _ in range(repetitions):
+            self._svgs_stack[-1].extend(deepcopy(svgs))
+            # No need to deepcopy integers.
+            self._num_tick_stack[-1].extend(ticks)
 
     @override
     def visit_node(self, node: LayerNode) -> None:
