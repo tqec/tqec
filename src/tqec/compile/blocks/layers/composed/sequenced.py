@@ -165,3 +165,11 @@ class SequencedLayers(BaseComposedLayer):
         return self._layer_sequence[
             0 if border == TemporalBlockBorder.Z_NEGATIVE else -1
         ].get_temporal_layer_on_border(border)
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return sum(
+            (layer.scalable_num_moments for layer in self.layer_sequence),
+            start=LinearFunction(0, 0),
+        )

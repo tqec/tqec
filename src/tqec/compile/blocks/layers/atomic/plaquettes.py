@@ -171,3 +171,14 @@ class PlaquetteLayer(BaseLayer):
             and self._template == value._template
             and self._plaquettes == value._plaquettes
         )
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return LinearFunction(
+            0,
+            max(
+                plaquette.num_moments
+                for plaquette in self.plaquettes.collection.values()
+            ),
+        )

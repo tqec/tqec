@@ -20,7 +20,7 @@ from tqec.templates.enums import TemplateBorder
 from tqec.templates.layout import LayoutTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition2D, Direction3D, Shift2D
-from tqec.utils.scale import PhysicalQubitScalable2D
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER: Final[int] = 1
 """Default number of qubits that are shared between two neighbouring layers."""
@@ -212,3 +212,10 @@ class LayoutLayer(BaseLayer):
         shift = Shift2D(mincube.x * (eshape.x - 1), mincube.y * (eshape.y - 1))
         shifted_circuit = scheduled_circuit.map_to_qubits(lambda q: q + shift)
         return shifted_circuit
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return LinearFunction.unambiguous_max_on_positives(
+            layer.scalable_num_moments for layer in self.layers.values()
+        )

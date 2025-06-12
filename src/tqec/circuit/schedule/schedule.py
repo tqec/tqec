@@ -108,3 +108,7 @@ class Schedule:
         # Not using a generator here but explicitly constructing a list because
         # if `schedule == self` a generator would induce an infinite loop.
         self.schedule.extend([starting_index + s for s in schedule.schedule])
+
+    @property
+    def max_schedule(self, default: int = 0) -> int:
+        return self.schedule[-1] if self.schedule else default

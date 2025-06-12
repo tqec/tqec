@@ -16,6 +16,7 @@ basically ``2k + 2``.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 from typing_extensions import Self
@@ -156,6 +157,60 @@ class LinearFunction:
         return (
             abs(self.slope - other.slope) < atol
             and abs(self.offset - other.offset) < atol
+        )
+
+    @staticmethod
+    def unambiguous_max_on_positives(
+        fs: Iterable[LinearFunction], default: LinearFunction | None = None
+    ) -> LinearFunction:
+        """Compute the unambiguous maximum of the provided linear functions on
+        the positive numbers.
+
+        A unambiguous maximum on R+ (the set of positive numbers) is a linear
+        function that is greater or equal than all the functions in ``fs`` on
+        the whole R+ interval.
+
+        Args:
+            fs: linear functions to find a unambiguous maximum in.
+            default: default value to return if ``fs`` is empty. Defaults to
+                ``None`` which is internally translated to ``LinearFunction(0, 0)``.
+
+        Raises:
+            TQECException: if the maximum found is ambiguous.
+
+        Returns:
+            the unambiguous maximum in ``fs``.
+        """
+        if default is None:
+            default = LinearFunction(0, 0)
+        iterator = iter(fs)
+        try:
+            res: LinearFunction = next(iterator)
+        except StopIteration:
+            return default
+        # Find the **potentially ambiguous** maximum trivially.
+        # If the maximum is unambiguous, res will be it. Else, there is an
+        # ambiguity and so we should raise.
+        for f in iterator:
+            if f.offset >= res.offset and f.slope >= res.slope:
+                res = f
+
+        for f in fs:
+            if f.offset < res.offset or f.slope < res.slope:
+                raise TQECException(
+                    "Could not find a unambiguous maximum in the provided linear functions. "
+                    f"{res} could be the maximum, but is ambiguous with {f}."
+                )
+        return res
+
+    @staticmethod
+    def safe_mul(lhs: LinearFunction, rhs: LinearFunction) -> LinearFunction:
+        if lhs.slope != 0 and rhs.slope != 0:
+            raise TQECException(
+                f"The result of ({lhs}) * ({rhs}) is not a linear function."
+            )
+        return LinearFunction(
+            lhs.slope * rhs.offset + rhs.slope * lhs.offset, lhs.offset * rhs.offset
         )
 
 
