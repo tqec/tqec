@@ -16,5 +16,4 @@ User Guide
 
    Build Computations <build_computation>
    Collada <collada_interop>
-   Detectors Computation <detectors/detector_computation>
    Detailed plotting <detailed_plots>
