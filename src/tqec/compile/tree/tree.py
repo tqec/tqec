@@ -22,7 +22,6 @@ from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.utils.exceptions import TQECException
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
-from tqec.visualisation.computation.errors import get_errors_svg
 from tqec.visualisation.computation.plaquette.grid import plaquette_grid_svg_viewer
 
 
@@ -57,7 +56,8 @@ class LayerVisualiser(NodeWalker):
         self,
         k: int,
         errors: Sequence[stim.ExplainedError] = tuple(),
-        font_size: float = 10,
+        font_size: float = 0.5,
+        font_color: str = "red",
     ):
         super().__init__()
         self._k = k
@@ -65,6 +65,7 @@ class LayerVisualiser(NodeWalker):
         self._num_tick_stack: list[list[int]] = [list()]
         self._errors: list[stim.ExplainedError] = list(errors)
         self._font_size = font_size
+        self._font_color = font_color
 
     @override
     def enter_node(self, node: LayerNode) -> None:
@@ -92,18 +93,20 @@ class LayerVisualiser(NodeWalker):
         layer = node._layer
         assert isinstance(layer, LayoutLayer)
         template, plaquettes = layer.to_template_and_plaquettes()
-        instantiation = template.instantiate(self._k)
+        instantiation = template.instantiate_list(self._k)
         drawers = plaquettes.collection.map_values(
             lambda plaq: plaq.debug_information.get_svg_drawer()
         )
-        self._svgs_stack[-1].append(plaquette_grid_svg_viewer(instantiation, drawers))
+        self._svgs_stack[-1].append(
+            plaquette_grid_svg_viewer(instantiation, drawers, errors=self._errors)
+        )
         self._num_tick_stack[-1].append(layer.timesteps(self._k))
 
     def get_tick_text(self, start: int, end: int) -> svg.Text:
         return svg.Text(
             x=0,
             y=0,
-            fill="black",
+            fill=self._font_color,
             font_size=self._font_size,
             text_anchor="start",
             dominant_baseline="hanging",
@@ -131,10 +134,6 @@ class LayerVisualiser(NodeWalker):
             # Adding text to mark which TICKs are concerned.
             assert s.elements is not None
             s.elements.append(self.get_tick_text(current_tick, next_tick))
-            # Potentially adding errors.
-            concerned_errors = self._get_errors_within(current_tick, next_tick)
-            if concerned_errors:
-                s.elements.append(get_errors_svg(concerned_errors))
             ret.append(s.as_str())
         return ret
 
