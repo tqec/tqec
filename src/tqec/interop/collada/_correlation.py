@@ -152,9 +152,14 @@ class CorrelationSurfaceTransformationHelper:
 
         # Surfaces with even parity constraint
         if kind.normal_basis in surface_bases:
-            assert len(correlation_edges) in {2, 4}, "Even parity constraint violated"
-            if len(correlation_edges) == 2:
-                e1, e2 = sorted(correlation_edges)
+            normal_basis_edges: set[ZXEdge] = set()
+            for edge in correlation_edges:
+                this_node = edge.u if edge.u.id == v else edge.v
+                if this_node.basis == kind.normal_basis:
+                    normal_basis_edges.add(edge)
+            assert len(normal_basis_edges) in {2, 4}, "Even parity constraint violated"
+            if len(normal_basis_edges) == 2:
+                e1, e2 = sorted(normal_basis_edges)
                 # passthrough
                 if self._edge_direction(e1) == self._edge_direction(e2):
                     normal_direction = self._surface_normal_direction(e1)
@@ -175,7 +180,7 @@ class CorrelationSurfaceTransformationHelper:
                         self._compute_turn_transformation(scaled_pos, v, (e1, e2))
                     )
             else:
-                e1, e2, e3, e4 = sorted(correlation_edges)
+                e1, e2, e3, e4 = sorted(normal_basis_edges)
                 transformations.extend(self._compute_turn_transformation(scaled_pos, v, (e1, e2)))
                 transformations.extend(self._compute_turn_transformation(scaled_pos, v, (e3, e4)))
 
