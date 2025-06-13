@@ -200,7 +200,7 @@ class LayerNode:
                 )
                 if not next_child.is_repeated:
                     assert isinstance(ret[-1], stim.Circuit)
-                    ret[-1].append("TICK")
+                    ret[-1].append("TICK", [], [])
             ret += self._children[-1].generate_circuits_with_potential_polygons(
                 k, global_qubit_map, shift_coords, add_polygons
             )
