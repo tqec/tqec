@@ -3,20 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import pickle
-<<<<<<< issue575
 import semver
+from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Literal, Sequence
-from typing_extensions import Final
-=======
-from collections.abc import Sequence
-from dataclasses import dataclass, field
-from functools import cached_property
-from pathlib import Path
 from typing import Any, Literal
->>>>>>> main
+from typing_extensions import Final
 
 import numpy
 
@@ -226,7 +219,6 @@ class DetectorDatabase:
     ie (0,0,0).
     """
 
-<<<<<<< issue575
     version: semver.Version | None = semver.Version(0, 0, 0)
 
     def __init__(
@@ -239,10 +231,6 @@ class DetectorDatabase:
         self.mapping = mapping
         self.frozen = frozen
         self.version = CURRENT_DATABASE_VERSION
-=======
-    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = field(default_factory=dict)
-    frozen: bool = False
->>>>>>> main
 
     def add_situation(
         self,
