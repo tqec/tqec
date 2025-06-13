@@ -28,11 +28,11 @@ implementation that has been defined using SketchUp and available at
 In order to use the computation with the ``tqec`` library you need to import it
 using ``tqec.BlockGraph``:
 
-.. code-block:: python
+.. jupyter-execute::
 
     from tqec import BlockGraph
 
-    block_graph = BlockGraph.from_dae_file("logical_cnot.dae")
+    block_graph = BlockGraph.from_dae_file("../assets/logical_cnot.dae")
 
 
 .. note:: Pre-defined computations
@@ -56,9 +56,10 @@ The ``tqec`` library can automatically search for valid observables in the
 imported computation. To get a list of all the valid observables, you can
 use the following code
 
-.. code-block:: python
+.. jupyter-execute::
 
     correlation_surfaces = block_graph.find_correlation_surfaces()
+
 
 Any observable can be plotted using the ``tqec dae2observables`` command line. For our
 specific example, the command line
@@ -75,7 +76,7 @@ two independent logical observables.
 
 In order to get a ``stim.Circuit`` instance, the computation first need to be compiled.
 
-.. code-block:: python
+.. jupyter-execute::
 
     from tqec import compile_block_graph
 
@@ -83,11 +84,12 @@ In order to get a ``stim.Circuit`` instance, the computation first need to be co
     # block_graph.find_correlation_surfaces() and provide them here.
     # In this example, picking only the second observable for demonstration
     # purposes.
+
     compiled_computation = compile_block_graph(block_graph, observables=[correlation_surfaces[1]])
 
 From this compiled computation, the final ``stim.Circuit`` instance can be generated.
 
-.. code-block:: python
+.. jupyter-execute::
 
     from tqec import NoiseModel
 
@@ -119,14 +121,14 @@ Multiple runs can be done in parallel using the ``sinter`` library using the
 ``start_simulation_using_sinter``.
 The compilation of the block graph is done automatically based on the inputs.
 
-.. code-block:: python
+.. jupyter-execute::
 
     from multiprocessing import cpu_count
-
     import numpy as np
 
     from tqec import NoiseModel
     from tqec.simulation.simulation import start_simulation_using_sinter
+
 
     # returns a iterator
     stats = start_simulation_using_sinter(
@@ -139,8 +141,7 @@ The compilation of the block graph is done automatically based on the inputs.
         decoders=["pymatching"],
         num_workers=cpu_count(),
         max_shots=10_000_000,
-        max_errors=5_000,
-        print_progress=True,
+        max_errors=5_00,
     )
 
 .. note::
@@ -166,7 +167,7 @@ The compilation of the block graph is done automatically based on the inputs.
 Simulation results can be plotted with ``matplolib`` using the
 ``plot_simulation_results``.
 
-.. code-block:: python
+.. jupyter-execute::
 
     import matplotlib.pyplot as plt
     import sinter
@@ -179,7 +180,7 @@ Simulation results can be plotted with ``matplolib`` using the
     # len(stats) = 1 if we have multiple we can iterate over the results
     sinter.plot_error_rate(
         ax=ax,
-        stats=next(stats),
+        stats=next(iter(stats)),
         x_func=lambda stat: stat.json_metadata["p"],
         group_func=lambda stat: stat.json_metadata["d"],
     )
@@ -188,7 +189,8 @@ Simulation results can be plotted with ``matplolib`` using the
     ax.legend()
     ax.loglog()
     ax.set_title("Logical CNOT Error Rate")
-    fig.savefig(f"logical_cnot_result_x_observable_{1}.png")
+    plt.show()
+    # fig.savefig(f"logical_cnot_result_x_observable_{1}.png")
 
 8. Conclusion
 -------------

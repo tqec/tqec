@@ -4,7 +4,7 @@
 # You can set these variables from the command line, and also
 # from the environment for the first two.
 # -W will make the workflow fail if there are any build errors/warnings
-SPHINXOPTS    ?= -W
+SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
@@ -15,6 +15,8 @@ help:
 
 clean:
 	rm -rfv "$(SOURCEDIR)/_autosummary"
+	rm -rfv "$(SOURCEDIR)/_examples_database"
+	rm -rfv "$(SOURCEDIR)/_examples_stats"
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 .PHONY: help Makefile

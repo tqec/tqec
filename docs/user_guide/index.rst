@@ -14,7 +14,6 @@ User Guide
    :maxdepth: 1
    :caption: Tutorials
 
-   build_computations.ipynb
-   collada_interop.ipynb
-   Detectors Computation <detectors/detector_computation.ipynb>
-   Detailed plotting <detailed_plots.ipynb>
+   Build Computations <build_computation>
+   Collada <collada_interop>
+   Detailed plotting <detailed_plots>

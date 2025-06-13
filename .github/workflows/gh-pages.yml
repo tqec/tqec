@@ -32,7 +32,13 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt -r requirements-dev.txt
           python -m pip install '.[all]'
+      - uses: actions/cache@v4
+        id: cache-docs
+        with:
+          path: docs/_examples_database/
+          key: ${{ runner.os }}-sphinx
       - name: Generate the documentation
+        if: steps.${{ runner.os }}-sphinx.outputs.cache-hit != 'true'
         run: |
           cd docs/
           make html
