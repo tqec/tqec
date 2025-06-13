@@ -60,9 +60,7 @@ def test_three_cnots_correlation_surface(
     io_ports = [1, 4, 8, 0, 7, 11]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert external_stabilizers == {
-        s.external_stabilizer(io_ports) for s in correlation_surfaces
-    }
+    assert external_stabilizers == {s.external_stabilizer(io_ports) for s in correlation_surfaces}
 
 
 def test_three_cnots_ports_filling() -> None:

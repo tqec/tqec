@@ -55,9 +55,7 @@ def test_signed_direction() -> None:
         ((1, 0), (0, 1), False),
     ],
 )
-def test_is_neighbour(
-    source: tuple[int, int], sink: tuple[int, int], is_neighbour: bool
-) -> None:
+def test_is_neighbour(source: tuple[int, int], sink: tuple[int, int], is_neighbour: bool) -> None:
     assert Position2D(*source).is_neighbour(Position2D(*sink)) == is_neighbour
 
 

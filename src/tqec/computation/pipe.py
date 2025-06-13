@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from dataclasses import dataclass
-from typing import Any, Generator
+from typing import Any
 
 from tqec.computation.cube import Cube, ZXCube
 from tqec.utils.enums import Basis
@@ -31,6 +32,7 @@ class PipeKind:
            of the walls observed. Can be None if the pipe connects two cubes along
            the z-axis.
         has_hadamard: Whether the pipe has a hadamard transition.
+
     """
 
     x: Basis | None
@@ -46,8 +48,7 @@ class PipeKind:
 
     def __str__(self) -> str:
         return "".join(
-            basis.value if basis is not None else "O"
-            for basis in (self.x, self.y, self.z)
+            basis.value if basis is not None else "O" for basis in (self.x, self.y, self.z)
         ) + ("H" if self.has_hadamard else "")
 
     @staticmethod
@@ -66,6 +67,7 @@ class PipeKind:
 
         Returns:
             The pipe kind represented by the string.
+
         """
         string = string.upper()
         has_hadamard = len(string) == 4 and string[3] == "H"
@@ -79,9 +81,7 @@ class PipeKind:
         """The direction along which the pipe connects the cubes."""
         return Direction3D(str(self).index("O"))
 
-    def get_basis_along(
-        self, direction: Direction3D, at_head: bool = True
-    ) -> Basis | None:
+    def get_basis_along(self, direction: Direction3D, at_head: bool = True) -> Basis | None:
         """Get the wall basis of the pipe in the specified direction.
 
         Args:
@@ -93,6 +93,7 @@ class PipeKind:
         Returns:
             None if the direction is the same as the pipe direction. Otherwise, the
             basis of the wall in the specified direction.
+
         """
         if direction == self.direction:
             return None
@@ -104,13 +105,15 @@ class PipeKind:
     @property
     def is_temporal(self) -> bool:
         """Whether the pipe is temporal, i.e. connects two cubes along the Z
-        axis."""
+        axis.
+        """
         return self.z is None
 
     @property
     def is_spatial(self) -> bool:
         """Whether the pipe is spatial, i.e. connects two cubes along the X or
-        Y axis."""
+        Y axis.
+        """
         return not self.is_temporal
 
     @staticmethod
@@ -132,6 +135,7 @@ class PipeKind:
 
         Returns:
             The inferred pipe kind.
+
         """
         bases: list[Basis]
         if not cube_at_head and has_hadamard:
@@ -162,6 +166,7 @@ class Pipe:
         u: The cube at the head of the pipe. The position of u will be guaranteed to be less than v.
         v: The cube at the tail of the pipe. The position of v will be guaranteed to be greater than u.
         kind: The kind of the pipe.
+
     """
 
     u: Cube
@@ -197,11 +202,10 @@ class Pipe:
         Raises:
             TQECException: If the cubes are not neighbours or both of them are not ZX cubes.
             TQECException: If kind of the pipe cannot be inferred from the cubes.
+
         """
         if not u.is_zx_cube and not v.is_zx_cube:
-            raise TQECException(
-                "At least one cube must be a ZX cube to infer the pipe kind."
-            )
+            raise TQECException("At least one cube must be a ZX cube to infer the pipe kind.")
         u, v = (u, v) if u.position < v.position else (v, u)
         if not u.position.is_neighbour(v.position):
             raise TQECException("The cubes must be neighbours to create a pipe.")
@@ -228,9 +232,7 @@ class Pipe:
         }
         if len(has_hadamard) == 2:
             raise TQECException("Cannot infer a valid pipe kind from the cubes.")
-        pipe_kind = PipeKind._from_cube_kind(
-            u.kind, direction, True, has_hadamard.pop()
-        )
+        pipe_kind = PipeKind._from_cube_kind(u.kind, direction, True, has_hadamard.pop())
         return Pipe(u, v, pipe_kind)
 
     @property

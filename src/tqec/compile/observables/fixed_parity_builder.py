@@ -70,9 +70,7 @@ def _get_top_readout_spatial_cube_qubits(
     elif arms == SpatialArms.UP | SpatialArms.DOWN:
         return [(half_x, y) for y in range(1, cube_shape.y)]
     elif arms == SpatialArms.LEFT | SpatialArms.UP:
-        return [(x, half_y) for x in range(1, half_x)] + [
-            (half_x, y) for y in range(1, half_y)
-        ]
+        return [(x, half_y) for x in range(1, half_x)] + [(half_x, y) for y in range(1, half_y)]
     elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
         return [(x, half_y) for x in range(cube_shape.x - 1, half_x, -1)] + [
             (half_x, y) for y in range(cube_shape.y - 1, half_y, -1)

@@ -12,10 +12,10 @@ instances representing the logical computations, including:
 - :mod:`.steane_encoding`: Steane encoding circuit compressed in spacetime
 """
 
-from .memory import memory as memory
-from .stability import stability as stability
 from .cnot import cnot as cnot
 from .cz import cz as cz
+from .memory import memory as memory
 from .move_rotation import move_rotation as move_rotation
-from .three_cnots import three_cnots as three_cnots
+from .stability import stability as stability
 from .steane_encoding import steane_encoding as steane_encoding
+from .three_cnots import three_cnots as three_cnots

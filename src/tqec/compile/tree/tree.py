@@ -1,5 +1,6 @@
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 from typing_extensions import override
 import warnings
 
@@ -30,6 +31,7 @@ class QubitLister(NodeWalker):
 
         Args:
             k: scaling factor used to explore the quantum circuits.
+
         """
         super().__init__()
         self._k = k
@@ -68,10 +70,7 @@ class LayerVisualiser(NodeWalker):
         rpngs = plaquettes.collection.map_values(
             lambda plaq: (
                 plaq.debug_information.rpng
-                if (
-                    plaq.debug_information is not None
-                    and plaq.debug_information.rpng is not None
-                )
+                if (plaq.debug_information is not None and plaq.debug_information.rpng is not None)
                 else RPNGDescription.empty()
             )
         )
@@ -120,9 +119,7 @@ class LayerTree:
         return {
             "root": self._root.to_dict(),
             "abstract_observables": self._abstract_observables,
-            "annotations": {
-                k: annotation.to_dict() for k, annotation in self._annotations.items()
-            },
+            "annotations": {k: annotation.to_dict() for k, annotation in self._annotations.items()},
         }
 
     def _annotate_circuits(self, k: int) -> None:
@@ -138,9 +135,7 @@ class LayerTree:
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(
-                self._root, k, observable, obs_idx, self._observable_builder
-            )
+            annotate_observable(self._root, k, observable, obs_idx, self._observable_builder)
 
     def _annotate_detectors(
         self,
@@ -205,6 +200,7 @@ class LayerTree:
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
+
         """
         if not add_polygons:
             circuit = self.generate_circuit(
@@ -237,9 +233,7 @@ class LayerTree:
                 polygons = set(item)
                 if polygons == last_polygons:
                     continue
-                crumble_url += "".join(
-                    polygon.to_crumble_url_string(qubit_map) for polygon in item
-                )
+                crumble_url += "".join(polygon.to_crumble_url_string(qubit_map) for polygon in item)
                 last_polygons = polygons
         return crumble_url
 
@@ -314,6 +308,7 @@ class LayerTree:
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
             by ``self``.
+
         """
         # First, before we start any computations, decide which detector database to use.
         if isinstance(database_path, str):

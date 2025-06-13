@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from itertools import chain
-from typing import Iterable, Mapping
 
 from typing_extensions import override
 
@@ -37,8 +37,8 @@ class RepeatedLayer(BaseComposedLayer):
                 and ``repetitions.slope != 0``).
             TQECException: if the total number of timesteps is strictly
                 decreasing.
-        """
 
+        """
         super().__init__(trimmed_spatial_borders)
         self._internal_layer = internal_layer
         self._repetitions = repetitions
@@ -54,10 +54,7 @@ class RepeatedLayer(BaseComposedLayer):
 
     def _post_init_check(self) -> None:
         # Check that the number of timesteps of self is a linear function.
-        if (
-            self.internal_layer.scalable_timesteps.slope != 0
-            and self.repetitions.slope != 0
-        ):
+        if self.internal_layer.scalable_timesteps.slope != 0 and self.repetitions.slope != 0:
             raise TQECException(
                 "Layers with a non-constant number of timesteps cannot be "
                 "repeated a non-constant number of times as that would lead to "
@@ -66,10 +63,7 @@ class RepeatedLayer(BaseComposedLayer):
                 f"and tried to repeat it {self.repetitions} times."
             )
         # Check that the number of timesteps of ``self`` is not strictly decreasing.
-        if (
-            self.repetitions.slope < 0
-            or self.internal_layer.scalable_timesteps.slope < 0
-        ):
+        if self.repetitions.slope < 0 or self.internal_layer.scalable_timesteps.slope < 0:
             raise TQECException(
                 f"Cannot create a {RepeatedLayer.__name__} instance with a decreasing "
                 f"number of timesteps. Got repeated layer with "
@@ -92,9 +86,7 @@ class RepeatedLayer(BaseComposedLayer):
         return self.internal_layer.scalable_shape
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> RepeatedLayer:
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> RepeatedLayer:
         return RepeatedLayer(
             self.internal_layer.with_spatial_borders_trimmed(borders),
             self.repetitions,

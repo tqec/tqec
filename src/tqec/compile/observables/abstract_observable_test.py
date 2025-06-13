@@ -6,9 +6,9 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe
 from tqec.gallery.cnot import cnot
-from tqec.gallery.three_cnots import three_cnots
 from tqec.gallery.memory import memory
 from tqec.gallery.stability import stability
+from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
 
@@ -20,9 +20,7 @@ def test_abstract_observable_for_single_memory_cube() -> None:
         g, correlation_surfaces[0]
     )
     assert abstract_observable == AbstractObservable(
-        top_readout_cubes=frozenset(
-            {Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))}
-        ),
+        top_readout_cubes=frozenset({Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))}),
     )
 
 
@@ -50,9 +48,7 @@ def test_abstract_observable_for_single_vertical_pipe() -> None:
         g, correlation_surfaces[0]
     )
     assert abstract_observable == AbstractObservable(
-        top_readout_cubes=frozenset(
-            {Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXZ"))}
-        ),
+        top_readout_cubes=frozenset({Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXZ"))}),
     )
 
 
@@ -81,9 +77,7 @@ def test_abstract_observable_for_logical_cnot() -> None:
         for correlation_surface in correlation_surfaces
     ]
     assert observables[0] == AbstractObservable(
-        top_readout_cubes=frozenset(
-            [Cube(Position3D(0, 0, 3), ZXCube.from_str("ZXZ"))]
-        ),
+        top_readout_cubes=frozenset([Cube(Position3D(0, 0, 3), ZXCube.from_str("ZXZ"))]),
     )
     assert observables[1] == AbstractObservable(
         top_readout_cubes=frozenset(

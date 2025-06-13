@@ -42,6 +42,7 @@ def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
 
     Raises:
         TQECException: A valid block graph cannot be constructed.
+
     """
     nodes_to_handle = set(g.g.vertices())
     edges_to_handle = set(g.g.edges())
@@ -65,17 +66,13 @@ def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
     return bg
 
 
-def _handle_corners(
-    pg: PositionedZX, bg: BlockGraph, nodes_to_handle: set[int]
-) -> None:
+def _handle_corners(pg: PositionedZX, bg: BlockGraph, nodes_to_handle: set[int]) -> None:
     g = pg.g
     for v in g.vertices():
         directions = {pg.get_direction(u, v) for u in g.neighbors(v)}
         if len(directions) != 2:
             continue
-        normal_direction = (
-            set(Direction3D.all_directions()).difference(directions).pop()
-        )
+        normal_direction = set(Direction3D.all_directions()).difference(directions).pop()
         normal_direction_basis = Basis.Z if g.type(v) == zx.VertexType.Z else Basis.X
         bases = [normal_direction_basis.flipped() for _ in range(3)]
         bases[normal_direction.value] = normal_direction_basis
@@ -177,9 +174,7 @@ def _fix_kind_for_one_node(
     # Special case: single node ZXGraph
     if g.vertex_degree(fix_node) == 0:
         specified_kind = (
-            ZXCube.from_str("ZXZ")
-            if fix_type == zx.VertexType.X
-            else ZXCube.from_str("ZXX")
+            ZXCube.from_str("ZXZ") if fix_type == zx.VertexType.X else ZXCube.from_str("ZXX")
         )
     else:
         # the basis along the edge direction must be the opposite of the node kind
@@ -225,9 +220,7 @@ def _infer_cube_kind_from_pipe(
         for direction in Direction3D.all_directions()
     ]
     assert vertex_is_zx(vertex_type)
-    bases[pipe_kind.direction.value] = (
-        Basis.Z if vertex_type == zx.VertexType.X else Basis.X
-    )
+    bases[pipe_kind.direction.value] = Basis.Z if vertex_type == zx.VertexType.X else Basis.X
     return ZXCube(*cast(list[Basis], bases))
 
 

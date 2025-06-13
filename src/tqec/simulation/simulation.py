@@ -1,6 +1,6 @@
 import multiprocessing
+from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
-from typing import Callable, Iterable, Sequence
 
 import sinter
 
@@ -114,6 +114,7 @@ def start_simulation_using_sinter(
         True, the outer list has one element per provided observable in `observables`.
         If `split_observable_stats` is False, the outer list has only one element,
         containing the raw statistics collected.
+
     """
     if observables is None:
         observables = block_graph.find_correlation_surfaces()

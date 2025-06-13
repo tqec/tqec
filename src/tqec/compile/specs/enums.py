@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from enum import Flag, auto
-from typing import Iterator
 
 
 class SpatialArms(Flag):
@@ -47,9 +47,7 @@ class SpatialArms(Flag):
 
     @staticmethod
     def X_shaped_arms() -> list[SpatialArms]:
-        return [
-            SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT
-        ]
+        return [SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT]
 
     @staticmethod
     def single_arms() -> list[SpatialArms]:

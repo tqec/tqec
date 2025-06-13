@@ -75,9 +75,7 @@ def logical_qubit_shape_fixture() -> PhysicalQubitScalable2D:
     return PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5))
 
 
-def test_creation(
-    plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer
-) -> None:
+def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer) -> None:
     # Invalid sequences due to duration < 1
     err_regex = ".*expected to have at least one layer.*"
     with pytest.raises(TQECException, match=err_regex):
@@ -107,8 +105,7 @@ def test_with_spatial_borders_trimmed(
     trimmed_block = block.with_spatial_borders_trimmed(borders)
     trimmed_internal_layer = plaquette_layer.with_spatial_borders_trimmed(borders)
     assert all(
-        internal_layer == trimmed_internal_layer
-        for internal_layer in trimmed_block.layer_sequence
+        internal_layer == trimmed_internal_layer for internal_layer in trimmed_block.layer_sequence
     )
 
 
@@ -119,12 +116,12 @@ def test_with_temporal_borders_replaced_none(
 ) -> None:
     block = Block([plaquette_layer, plaquette_layer2, raw_circuit_layer])
     assert block.with_temporal_borders_replaced({}) == block
-    assert block.with_temporal_borders_replaced(
-        {TemporalBlockBorder.Z_NEGATIVE: None}
-    ) == Block([plaquette_layer2, raw_circuit_layer])
-    assert block.with_temporal_borders_replaced(
-        {TemporalBlockBorder.Z_POSITIVE: None}
-    ) == Block([plaquette_layer, plaquette_layer2])
+    assert block.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: None}) == Block(
+        [plaquette_layer2, raw_circuit_layer]
+    )
+    assert block.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: None}) == Block(
+        [plaquette_layer, plaquette_layer2]
+    )
     assert block.with_temporal_borders_replaced(
         {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
     ) == Block([plaquette_layer2])
@@ -276,9 +273,7 @@ def test_merge_parallel_block_layers(
                         {b00: plaquette_layer, b01: plaquette_layer2},
                         logical_qubit_shape,
                     ),
-                    LayoutLayer(
-                        {b00: plaquette_layer, b01: raw_layer}, logical_qubit_shape
-                    ),
+                    LayoutLayer({b00: plaquette_layer, b01: raw_layer}, logical_qubit_shape),
                 ]
             ),
             LinearFunction(1, 0),

@@ -43,9 +43,7 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
     @override
     def execute(args: argparse.Namespace) -> None:
         dae_absolute_path: Path = args.dae_file.resolve()
-        block_graph = BlockGraph.from_dae_file(
-            dae_absolute_path, graph_name=str(dae_absolute_path)
-        )
+        block_graph = BlockGraph.from_dae_file(dae_absolute_path, graph_name=str(dae_absolute_path))
         zx_graph = block_graph.to_zx_graph()
         correlation_surfaces = block_graph.find_correlation_surfaces()
 

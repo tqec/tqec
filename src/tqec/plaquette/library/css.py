@@ -9,10 +9,10 @@ import stim
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.utils.enums import Basis
 from tqec.plaquette.enums import PlaquetteSide
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import SquarePlaquetteQubits
+from tqec.utils.enums import Basis
 
 
 def make_css_surface_code_plaquette(
@@ -33,12 +33,11 @@ def make_css_surface_code_plaquette(
 
     Returns:
         A CSS-type surface code plaquette.
+
     """
     builder = _CSSPlaquetteBuilder(basis, x_boundary_orientation)
     if data_initialization is not None:
-        builder.add_data_init_or_meas(
-            data_initialization, False, init_meas_only_on_side
-        )
+        builder.add_data_init_or_meas(data_initialization, False, init_meas_only_on_side)
     if data_measurement is not None:
         builder.add_data_init_or_meas(data_measurement, True, init_meas_only_on_side)
     return builder.build()
@@ -71,14 +70,10 @@ class _CSSPlaquetteBuilder:
             self._x_boundary_orientation,
         ]
         if self._data_init is not None:
-            side_part = (
-                f",{self._data_init[1].name}" if self._data_init[1] is not None else ""
-            )
+            side_part = f",{self._data_init[1].name}" if self._data_init[1] is not None else ""
             parts.append(f"datainit({self._data_init[0].name}{side_part})")
         if self._data_meas is not None:
-            side_part = (
-                f",{self._data_meas[1].name}" if self._data_meas[1] is not None else ""
-            )
+            side_part = f",{self._data_meas[1].name}" if self._data_meas[1] is not None else ""
             parts.append(f"datameas({self._data_meas[0].name}{side_part})")
         return "_".join(parts)
 

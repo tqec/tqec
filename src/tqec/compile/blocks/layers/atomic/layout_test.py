@@ -15,17 +15,13 @@ from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 LOGICAL_QUBIT_SIDE: Final = LinearFunction(4, 5)
-LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
-    LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE
-)
+LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE)
 
 
 @pytest.fixture(name="plaquette_layer")
 def plaquette_layer_fixture() -> PlaquetteLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_value=empty_square_plaquette())
-    )
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
     return PlaquetteLayer(template, plaquettes)
 
 
@@ -46,9 +42,7 @@ def test_bounds(plaquette_layer: PlaquetteLayer) -> None:
     pos2 = LayoutPosition2D.from_block_position(BlockPosition2D(-93485, 12))
     layer = LayoutLayer({pos1: plaquette_layer}, LOGICAL_QUBIT_SHAPE)
     assert layer.bounds == (BlockPosition2D(0, 0), BlockPosition2D(0, 0))
-    layer = LayoutLayer(
-        {pos1: plaquette_layer, pos2: plaquette_layer}, LOGICAL_QUBIT_SHAPE
-    )
+    layer = LayoutLayer({pos1: plaquette_layer, pos2: plaquette_layer}, LOGICAL_QUBIT_SHAPE)
     assert layer.bounds == (BlockPosition2D(-93485, 0), BlockPosition2D(0, 12))
 
 
@@ -67,9 +61,7 @@ def test_scalable_shape(plaquette_layer: PlaquetteLayer) -> None:
     pos2 = LayoutPosition2D.from_block_position(BlockPosition2D(-1, 12))
     layer = LayoutLayer({pos1: plaquette_layer}, LOGICAL_QUBIT_SHAPE)
     assert layer.scalable_shape == LOGICAL_QUBIT_SHAPE
-    layer = LayoutLayer(
-        {pos1: plaquette_layer, pos2: plaquette_layer}, LOGICAL_QUBIT_SHAPE
-    )
+    layer = LayoutLayer({pos1: plaquette_layer, pos2: plaquette_layer}, LOGICAL_QUBIT_SHAPE)
     assert layer.scalable_shape == PhysicalQubitScalable2D(
         2 * LOGICAL_QUBIT_SIDE - 1, 13 * (LOGICAL_QUBIT_SIDE - 1) + 1
     )
@@ -91,9 +83,7 @@ def test_to_template_and_plaquettes_single(plaquette_layer: PlaquetteLayer) -> N
 def test_to_template_and_plaquettes_multiple(plaquette_layer: PlaquetteLayer) -> None:
     pos1 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     pos2 = LayoutPosition2D.from_block_position(BlockPosition2D(-1, 12))
-    layer = LayoutLayer(
-        {pos1: plaquette_layer, pos2: plaquette_layer}, LOGICAL_QUBIT_SHAPE
-    )
+    layer = LayoutLayer({pos1: plaquette_layer, pos2: plaquette_layer}, LOGICAL_QUBIT_SHAPE)
     template, plaquettes = layer.to_template_and_plaquettes()
 
     assert isinstance(template, LayoutTemplate)
