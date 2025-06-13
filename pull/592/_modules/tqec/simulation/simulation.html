@@ -428,6 +428,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">split_stats_for_observables</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_DETECTOR_DATABASE_PATH</span>
 
 
 <div class="viewcode-block" id="start_simulation_using_sinter">
@@ -441,6 +442,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span> <span class="o">=</span> <span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span>
     <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">detector_database</span><span class="p">:</span> <span class="n">DetectorDatabase</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">database_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DEFAULT_DETECTOR_DATABASE_PATH</span><span class="p">,</span>
     <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
     <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">sinter</span><span class="o">.</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -487,6 +489,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">             surfaces of the provided computation are used.</span>
 <span class="sd">        detector_database: an instance to retrieve from / store in detectors</span>
 <span class="sd">            that are computed as part of the circuit generation.</span>
+<span class="sd">        database_path: str or Path where detector database is presaved</span>
 <span class="sd">        num_workers: The number of worker processes to use.</span>
 <span class="sd">        progress_callback: Defaults to None (unused). If specified, then each</span>
 <span class="sd">            time new sample statistics are acquired from a worker this method</span>
@@ -547,6 +550,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">noise_model_factory</span><span class="p">,</span>
             <span class="n">manhattan_radius</span><span class="p">,</span>
             <span class="n">detector_database</span><span class="p">,</span>
+            <span class="n">database_path</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">existing_data_filepaths</span><span class="o">=</span><span class="n">existing_data_filepaths</span><span class="p">,</span>
         <span class="n">save_resume_filepath</span><span class="o">=</span><span class="n">save_resume_filepath</span><span class="p">,</span>
