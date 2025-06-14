@@ -10,7 +10,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.detectors.database import DetectorDatabase, CURRENT_DATABASE_VERSION
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -325,28 +325,23 @@ class LayerTree:
                 detector_database = DetectorDatabase.from_file(database_path)
             else:  # if there is no existing database, create one.
                 detector_database = DetectorDatabase()
-        else:
-            user_defined = True
-        if database_path != DEFAULT_DETECTOR_DATABASE_PATH:
-            user_defined = True
         # If do_not_use_database is True, override the above code and reset the database to None
-        # Also do this if the database version is set to None in the TQEC code (ie in testing mode)
-        current_version = DetectorDatabase().version
-        if do_not_use_database or (current_version is None):
+        if do_not_use_database:
             detector_database = None
         if detector_database is not None:
             loaded_version = detector_database.version
-            if loaded_version != current_version:  # type:ignore
+            current_version = CURRENT_DATABASE_VERSION
+            if loaded_version != current_version:
                 if user_defined:
                     raise TQECException(
-                        f"The detector database on disk you have specified is incompatible with the version"
+                        f"The detector database on disk you have specified is incompatible with the version "
                         f"in the TQEC code you are running. The version of the disk database is {loaded_version}"
                         f", while the version in the TQEC code is {current_version}"
                     )
                 else:  # ie using the default
                     warnings.warn(
-                        f"The default detector database that you have saved on your system is out of date"
-                        f"(version {loaded_version}). The version in the TQEC code you are running is newer"
+                        f"The default detector database that you have saved on your system is out of date "
+                        f"(version {loaded_version}). The version in the TQEC code you are running is newer "
                         f"(version {current_version}). The database will be regenerated.",
                         TQECWarning,
                     )

@@ -190,7 +190,6 @@ class _DetectorDatabaseKey:
         return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
 
 
-@dataclass
 class DetectorDatabase:
     """Store a mapping from "situations" to the corresponding detectors.
 
@@ -219,7 +218,7 @@ class DetectorDatabase:
     ie (0,0,0).
     """
 
-    version: semver.Version | None = semver.Version(0, 0, 0)
+    version: semver.Version = semver.Version(0, 0, 0)
 
     def __init__(
         self,
