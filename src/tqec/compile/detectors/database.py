@@ -208,11 +208,6 @@ class DetectorDatabase:
     - MINOR when the content of the database is invalidated (e.g. by changing a plaquette
       implementation without changing its name).
 
-    ``None`` is a special value which can be set in testing mode and translates into the
-    database not being used (it is equivalent to the 'do_not_use_database' parameter
-    in the functions which use the database). NB it must be set in __init__. If it is set
-    directly on .version, __init__ will overwrite it.
-
     Old databases generated prior to the introduction of a version attribute will be
     loaded with the default value of .version, without passing through __init__,
     ie (0,0,0).
