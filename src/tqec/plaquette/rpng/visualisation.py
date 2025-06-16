@@ -106,7 +106,7 @@ def rpng_svg_viewer(
     box_width = max_c.real - min_c.real
     box_height = max_c.imag - min_c.imag
     scale_factor = canvas_height / box_height
-    canvas_width = int(math.ceil(canvas_height * (box_width / box_height)))
+    canvas_width = math.ceil(canvas_height * (box_width / box_height))
 
     def q2p(q: complex) -> complex:
         return scale_factor * (q - min_c)

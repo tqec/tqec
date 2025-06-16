@@ -3,7 +3,7 @@ from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 import stim
 import svg
@@ -22,8 +22,6 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
-from tqec.plaquette.rpng.rpng import RPNGDescription
-from tqec.plaquette.rpng.template import RPNGTemplate
 from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 from tqec.visualisation.computation.plaquette.grid import plaquette_grid_svg_viewer

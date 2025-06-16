@@ -81,6 +81,7 @@ class WithTemporalFootprint(ABC):
             the number of moments needed to implement the object as an
             exact expression that can then be used to compute the number of
             moments for any value of ``k``.
+
         """
         pass
 
@@ -94,5 +95,6 @@ class WithTemporalFootprint(ABC):
         Returns:
             the number of moments needed to implement the object for
             the provided scaling parameter ``k``.
+
         """
         return self.scalable_num_moments.integer_eval(k)

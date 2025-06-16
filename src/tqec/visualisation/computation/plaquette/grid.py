@@ -52,6 +52,7 @@ def plaquette_grid_to_svg(
 
     Returns:
         a SVG element representing the provided plaquette grid.
+
     """
     if not grid:
         return svg.G()
@@ -143,6 +144,7 @@ def plaquette_grid_svg_viewer(
     Returns:
         a ``<svg>`` element that can be directly written to a ``.svg`` file and representing the
         provided plaquette grid.
+
     """
     if width is None and height is None:
         height, width = len(grid), len(grid[0])

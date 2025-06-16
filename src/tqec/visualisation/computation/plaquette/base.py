@@ -1,10 +1,11 @@
+import math
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-import math
 from typing import ClassVar, Final
-from typing_extensions import override
+
 import svg
+from typing_extensions import override
 
 from tqec.interop.color import TQECColor
 from tqec.plaquette.enums import PlaquetteOrientation
@@ -156,6 +157,7 @@ class SVGPlaquetteDrawer(ABC):
         Returns:
             the reset shape (a small square) that can then be applied the appropriate offset to be
             placed in the ``place`` corner of the plaquette.
+
         """
         r = configuration.reset_square_radius
         PC = PlaquetteCorner
@@ -185,6 +187,7 @@ class SVGPlaquetteDrawer(ABC):
         Returns:
             the measurement shape (a small quarter circle) that can then be applied the appropriate
             offset to be placed in the ``place`` corner of the plaquette.
+
         """
         rotation_angle: int = {
             PlaquetteCorner.TOP_LEFT: 0,
@@ -257,6 +260,7 @@ def svg_path_enclosing_points(
 
     Returns:
         a closed path enclosing all the provided ``points``.
+
     """
     center_point: complex = sum(points) / len(points)
     first, *others = _sort_by_angle(center_point, points)

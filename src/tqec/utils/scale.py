@@ -183,6 +183,7 @@ class LinearFunction:
 
         Returns:
             the unambiguous maximum in ``fs``.
+
         """
         if default is None:
             default = LinearFunction(0, 0)
@@ -209,9 +210,7 @@ class LinearFunction:
     @staticmethod
     def safe_mul(lhs: LinearFunction, rhs: LinearFunction) -> LinearFunction:
         if lhs.slope != 0 and rhs.slope != 0:
-            raise TQECException(
-                f"The result of ({lhs}) * ({rhs}) is not a linear function."
-            )
+            raise TQECException(f"The result of ({lhs}) * ({rhs}) is not a linear function.")
         return LinearFunction(
             lhs.slope * rhs.offset + rhs.slope * lhs.offset, lhs.offset * rhs.offset
         )
@@ -234,7 +233,7 @@ def round_or_fail(f: float, atol: float = 1e-8) -> int:
         ``int(round(f))``
 
     """
-    rounded_value = int(round(f))
+    rounded_value = round(f)
     if abs(f - rounded_value) > atol:
         raise TQECException(f"Rounding from {f} to integer failed.")
     return rounded_value
