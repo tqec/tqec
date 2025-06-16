@@ -545,7 +545,7 @@ def _compute_detector_for_subtemplate(
         A tuple containing the indices and the computed detectors
 
     """
-    indices, s3d, plaquettes, increments, only_use_database, parallel_process_count = args
+    indices, s3d, plaquettes, increments, parallel_process_count = args
     return (
         indices,
         compute_detectors_at_end_of_situation(
@@ -555,7 +555,7 @@ def _compute_detector_for_subtemplate(
             # Currently, we do not find an efficient way to share the database between
             # multiple processes, so we just pass `None` here.
             database=None,
-            only_use_database=only_use_database,
+            only_use_database=False,
             parallel_process_count=parallel_process_count,
         ),
     )
@@ -636,7 +636,7 @@ def compute_detectors_for_fixed_radius(
     # compute detectors in parallel.
     if parallel_process_count > 1:
         args_list = [
-            (indices, s3d, plaquettes, increments, False, parallel_process_count)
+            (indices, s3d, plaquettes, increments, parallel_process_count)
             for indices, s3d in unique_3d_subtemplates.subtemplates.items()
         ]
 
