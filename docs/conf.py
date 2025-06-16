@@ -9,6 +9,7 @@ from __future__ import annotations
 import sys
 import typing as ty
 from pathlib import Path
+import datetime
 
 DOCUMENTATION_DIRECTORY = Path(__file__).parent
 PROJECT_DIRECTORY = DOCUMENTATION_DIRECTORY.parent
@@ -20,7 +21,7 @@ sys.path.append(str(SOURCE_DIRECTORY))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "TQEC"
-copyright = "2024, TQEC Community"
+copyright = f"2024 - {datetime.date.today().year}, TQEC Community"
 author = "TQEC Community"
 
 # -- General configuration ---------------------------------------------------
