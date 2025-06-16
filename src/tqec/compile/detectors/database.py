@@ -3,11 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import pickle
+import semver
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Literal
+from typing_extensions import Final
 
 import numpy
 
@@ -24,6 +26,8 @@ from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import Shift2D
+
+CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 0, 0)
 
 
 @dataclass(frozen=True)
@@ -186,7 +190,6 @@ class _DetectorDatabaseKey:
         return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
 
 
-@dataclass
 class DetectorDatabase:
     """Store a mapping from "situations" to the corresponding detectors.
 
@@ -196,10 +199,32 @@ class DetectorDatabase:
     In this class, a "situation" is described by :class:`_DetectorDatabaseKey`
     and correspond to a spatially and temporally local piece of a larger
     computation.
+
+    The version number should be manually updated when code is pushed which makes old
+    instances of the database incompatible with newly generated instances.
+    Guidance on when to change `a` (major) or `b` (minor) in the `a.b` version number:
+    - MAJOR when the format of the file changes (i.e. when the attributes of
+      ``DetectorDatabase`` change),
+    - MINOR when the content of the database is invalidated (e.g. by changing a plaquette
+      implementation without changing its name).
+
+    Old databases generated prior to the introduction of a version attribute will be
+    loaded with the default value of .version, without passing through __init__,
+    ie (0,0,0).
     """
 
-    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = field(default_factory=dict)
-    frozen: bool = False
+    version: semver.Version = semver.Version(0, 0, 0)
+
+    def __init__(
+        self,
+        mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] | None = None,
+        frozen: bool = False,
+    ):
+        if mapping is None:
+            mapping = dict()
+        self.mapping = mapping
+        self.frozen = frozen
+        self.version = CURRENT_DATABASE_VERSION
 
     def add_situation(
         self,
