@@ -16,7 +16,6 @@ help:
 clean:
 	rm -rfv "$(SOURCEDIR)/_autosummary"
 	rm -rfv "$(SOURCEDIR)/_examples_database"
-	rm -rfv "$(SOURCEDIR)/_examples_stats"
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 .PHONY: help Makefile
