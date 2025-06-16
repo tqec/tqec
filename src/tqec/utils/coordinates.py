@@ -1,5 +1,6 @@
 """Implements a wrapper to standardise stim coordinate system across the code
-base."""
+base.
+"""
 
 from __future__ import annotations
 
@@ -83,6 +84,7 @@ class StimCoordinates:
         Returns:
             a new instance of :class:`StimCoordinates` with the provided
             ``x``, ``y`` and ``t``.
+
         """
         x = data["x"]
         y = data["y"]

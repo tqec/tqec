@@ -7,8 +7,8 @@ from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
-from tqec.gallery.stability import stability
 from tqec.gallery.move_rotation import move_rotation
+from tqec.gallery.stability import stability
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Position3D
@@ -150,10 +150,7 @@ def test_compile_L_shape_in_space_time(
     )
 
     dem = circuit.detector_error_model()
-    assert (
-        dem.num_detectors
-        == 2 * (d**2 - 1) + (d + 1 + 2 * (d**2 - 1)) * (d - 1) + (d**2 - 1) * d
-    )
+    assert dem.num_detectors == 2 * (d**2 - 1) + (d + 1 + 2 * (d**2 - 1)) * (d - 1) + (d**2 - 1) * d
     assert dem.num_observables == 1
     assert len(dem.shortest_graphlike_error()) == d
 
@@ -207,8 +204,7 @@ def test_compile_stability(convention_name: str, obs_basis: Basis, k: int) -> No
     num_temporal_basis_stabilizers = (d - 1) ** 2 // 2
     assert (
         dem.num_detectors
-        == (d - 1) * num_spatial_basis_stabilizers
-        + (d + 1) * num_temporal_basis_stabilizers
+        == (d - 1) * num_spatial_basis_stabilizers + (d + 1) * num_temporal_basis_stabilizers
     )
     assert len(dem.shortest_graphlike_error()) == d
 
@@ -268,9 +264,7 @@ def test_compile_move_rotation(convention_name: str, obs_basis: Basis, k: int) -
         (1, 2),
     ),
 )
-def test_compile_temporal_hadamard(
-    convention_name: str, in_obs_basis: Basis, k: int
-) -> None:
+def test_compile_temporal_hadamard(convention_name: str, in_obs_basis: Basis, k: int) -> None:
     d = 2 * k + 1
 
     g = BlockGraph("Test Temporal Hadamard")

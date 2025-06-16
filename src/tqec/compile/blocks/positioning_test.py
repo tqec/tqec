@@ -12,13 +12,9 @@ def test_creation() -> None:
 
 def test_creation_raises() -> None:
     with pytest.raises(AssertionError):
-        LayoutPosition2D.from_pipe_position(
-            (BlockPosition2D(0, 0), BlockPosition2D(2, 0))
-        )
+        LayoutPosition2D.from_pipe_position((BlockPosition2D(0, 0), BlockPosition2D(2, 0)))
     with pytest.raises(AssertionError):
-        LayoutPosition2D.from_pipe_position(
-            (BlockPosition2D(0, 0), BlockPosition2D(0, 0))
-        )
+        LayoutPosition2D.from_pipe_position((BlockPosition2D(0, 0), BlockPosition2D(0, 0)))
 
 
 @pytest.mark.parametrize("x,y", ((0, 0), (1, 0), (-1, 98), (-98, 6)))

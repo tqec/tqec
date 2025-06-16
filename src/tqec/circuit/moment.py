@@ -10,8 +10,9 @@ instead of using ``cirq`` data-structures.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Iterator
 from copy import deepcopy
-from typing import Any, Callable, Iterable, Iterator, cast
+from typing import Any, cast
 
 import stim
 
@@ -74,6 +75,7 @@ class Moment:
                 target.
             TQECException: if the provided ``circuit`` contains a ``REPEAT``
                 block instruction.
+
         """
         if not _avoid_checks:
             Moment.check_is_valid_moment(circuit)
@@ -103,16 +105,14 @@ class Moment:
                 target.
             TQECException: if the provided ``circuit`` contains a ``REPEAT``
                 block instruction.
+
         """
         if circuit.num_ticks > 0:
             raise TQECException(
-                "Cannot initialize a Moment with a stim.Circuit instance "
-                "containing at least one TICK instruction."
+                "Cannot initialize a Moment with a stim.Circuit instance containing at least one TICK instruction."
             )
         qubit_usage = count_qubit_accesses(circuit)
-        multi_used_qubits = [
-            qi for qi, usage_count in qubit_usage.items() if usage_count > 1
-        ]
+        multi_used_qubits = [qi for qi, usage_count in qubit_usage.items() if usage_count > 1]
         if multi_used_qubits:
             raise TQECException(
                 "Moment instances cannot be initialized with a stim.Circuit "
@@ -122,8 +122,7 @@ class Moment:
             )
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
             raise TQECException(
-                "Moment instances should no contain any instance "
-                "of stim.CircuitRepeatBlock."
+                "Moment instances should no contain any instance of stim.CircuitRepeatBlock."
             )
 
     @staticmethod
@@ -145,19 +144,20 @@ class Moment:
             meaning that the qubits they operate on will only be returned by
             this property iff another non-annotation instruction is applied on
             said qubits.
+
         """
         return self._used_qubits
 
     def contains_instruction(self, instruction_name: str) -> bool:
         """Return ``True`` if ``self`` contains at least one operation with the
-        provided name."""
+        provided name.
+        """
         return any(instr.name == instruction_name for instr in self._circuit)
 
-    def remove_all_instructions_inplace(
-        self, instructions_to_remove: frozenset[str]
-    ) -> None:
+    def remove_all_instructions_inplace(self, instructions_to_remove: frozenset[str]) -> None:
         """Remove in-place all the instructions that have their name in the
-        provided ``instructions_to_remove``."""
+        provided ``instructions_to_remove``.
+        """
         new_circuit = stim.Circuit()
         for inst in self._circuit:
             if inst.name in instructions_to_remove:
@@ -224,6 +224,7 @@ class Moment:
             args: if ``name_or_instr`` is a string representing the instruction
                 name, this argument represent the arguments the instruction
                 should be applied with. Else, it is not used.
+
         """
         if targets is None:
             targets = tuple()
@@ -247,15 +248,12 @@ class Moment:
         overlapping_qubits = self._used_qubits.intersection(instruction_qubits)
         if overlapping_qubits:
             raise TQECException(
-                f"Cannot add {instruction} to the Moment due to qubit(s) "
-                f"{overlapping_qubits} being already in use."
+                f"Cannot add {instruction} to the Moment due to qubit(s) {overlapping_qubits} being already in use."
             )
         self._used_qubits.update(instruction_qubits)
         self._circuit.append(instruction)
 
-    def append_annotation(
-        self, annotation_instruction: stim.CircuitInstruction
-    ) -> None:
+    def append_annotation(self, annotation_instruction: stim.CircuitInstruction) -> None:
         """Append an annotation instruction to ``self``.
 
         This method is way more efficient than :meth:`append` to append an
@@ -269,6 +267,7 @@ class Moment:
 
         Raises:
             TQECException: if ``not is_annotation_instruction(annotation_instruction)``.
+
         """
         if not is_annotation_instruction(annotation_instruction):
             raise TQECException(
@@ -295,7 +294,8 @@ class Moment:
     @property
     def num_measurements(self) -> int:
         """Return the number of measurements in the :class:`Moment`
-        instance."""
+        instance.
+        """
         # Mypy is showing an error here:
         # error: Returning Any from function declared to return "int"
         # I do not understand why, but it probably has to do with Stim typing
@@ -304,7 +304,8 @@ class Moment:
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[int]) -> Moment:
         """Return a new :class:`Moment` instance containing only the
-        instructions that are applied on the provided qubits."""
+        instructions that are applied on the provided qubits.
+        """
         qubits = frozenset(qubits_to_keep)
         used_qubits: set[int] = set()
         new_circuit = stim.Circuit()
@@ -319,9 +320,7 @@ class Moment:
                 targets.extend(target_group)
                 used_qubits.update(qubit_targets)
             if targets:
-                new_circuit.append(
-                    instruction.name, targets, instruction.gate_args_copy()
-                )
+                new_circuit.append(instruction.name, targets, instruction.gate_args_copy())
         return Moment(new_circuit, used_qubits=used_qubits, _avoid_checks=True)
 
     @property
@@ -357,6 +356,7 @@ class Moment:
         Returns:
             a modified copy of ``self`` with the qubit gate targets mapped according
             to the provided ``qubit_index_map``.
+
         """
         circuit = stim.Circuit()
         for instr in self.instructions:
@@ -403,6 +403,7 @@ class Moment:
         Returns:
             a new instance of :class:`Moment` with the provided ``circuit`` and
             ``used_qubits``.
+
         """
         circuit = stim.Circuit(data["circuit"])
         used_qubits = set(data["used_qubits"])
@@ -436,6 +437,7 @@ def iter_stim_circuit_without_repeat_by_moments(
         TQECException: if the provided ``circuit`` ``TICK`` instructions are not
             inserted such that instructions between two ``TICK`` instructions
             are always applied on disjoint sets of qubits.
+
     """
     copy_func: Callable[[stim.Circuit], stim.Circuit] = (
         (lambda c: c.copy()) if collected_before_use else (lambda c: c)
@@ -444,8 +446,7 @@ def iter_stim_circuit_without_repeat_by_moments(
     for inst in circuit:
         if isinstance(inst, stim.CircuitRepeatBlock):
             raise TQECException(
-                "Found an instance of stim.CircuitRepeatBlock which is "
-                "explicitly not supported by this method."
+                "Found an instance of stim.CircuitRepeatBlock which is explicitly not supported by this method."
             )
         elif inst.name == "TICK":
             yield Moment(copy_func(cur_moment))

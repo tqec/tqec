@@ -44,9 +44,7 @@ class PlaquetteDebugInformation:
             case PlaquetteOrientation.RIGHT:
                 corners[0] = corners[2] = empty_rpng
         return PlaquetteDebugInformation(
-            RPNGDescription(
-                (corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla
-            ),
+            RPNGDescription((corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla),
             self.basis,
         )
 
@@ -59,9 +57,7 @@ class PlaquetteDebugInformation:
     @staticmethod
     def from_dict(data: dict[str, Any]) -> PlaquetteDebugInformation:
         return PlaquetteDebugInformation(
-            RPNGDescription.from_dict(data["rpng"])
-            if data["rpng"] is not None
-            else None,
+            RPNGDescription.from_dict(data["rpng"]) if data["rpng"] is not None else None,
             PauliBasis(data["basis"]) if data["basis"] is not None else None,
         )
 

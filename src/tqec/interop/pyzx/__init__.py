@@ -5,7 +5,11 @@ from tqec.interop.pyzx.correlation import (
 )
 from tqec.interop.pyzx.plot import (
     draw_positioned_zx_graph_on as draw_positioned_zx_graph_on,
+)
+from tqec.interop.pyzx.plot import (
     plot_positioned_zx_graph as plot_positioned_zx_graph,
+)
+from tqec.interop.pyzx.plot import (
     pyzx_draw_positioned_zx_3d as pyzx_draw_positioned_zx_3d,
 )
 from tqec.interop.pyzx.positioned import PositionedZX as PositionedZX

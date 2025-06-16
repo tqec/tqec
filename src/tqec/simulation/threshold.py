@@ -1,6 +1,7 @@
 import multiprocessing
+from collections.abc import Callable, Iterable, Sequence
 from math import isclose
-from typing import Callable, Iterable, Sequence, TypeGuard
+from typing import TypeGuard
 
 import sinter
 
@@ -48,6 +49,7 @@ def get_logical_error_rate_per_shot(
     Returns:
         The estimation of the logical error rate per shot with appropriate error
         bars.
+
     """
     result = sinter.fit_binomial(
         num_shots=stat.shots - stat.discards,
@@ -153,6 +155,7 @@ def binary_search_threshold(
     Returns:
         A tuple containing an estimation of the threshold and a collection of all
         the logical error-rates computed while searching the threshold
+
     """
     compiled_graph = compile_block_graph(block_graph, convention, [observable])
     ks = tuple(sorted(ks))
@@ -162,9 +165,7 @@ def binary_search_threshold(
         )
         for k in ks
     ]
-    computed_logical_errors: dict[int, list[tuple[float, sinter.Fit]]] = {
-        k: [] for k in ks
-    }
+    computed_logical_errors: dict[int, list[tuple[float, sinter.Fit]]] = {k: [] for k in ks}
     while not isclose(minp, maxp, rel_tol=rtol, abs_tol=atol):
         midp = (minp + maxp) / 2
         noise_model = noise_model_factory(midp)
@@ -189,9 +190,7 @@ def binary_search_threshold(
         # Update computed_logical_errors
         for i, k in enumerate(ks):
             computed_logical_errors[k].append((midp, logical_errors_fits[i]))
-        logical_errors: list[float | None] = [
-            lerr_fit.best for lerr_fit in logical_errors_fits
-        ]
+        logical_errors: list[float | None] = [lerr_fit.best for lerr_fit in logical_errors_fits]
         if not _is_only_floats(logical_errors):
             raise TQECException(
                 "One of the computed logical errors is None. That likely means "

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Collection, Iterable, Literal, Mapping, Sequence
+from typing import Any, Literal
 
 import stim
 
@@ -43,15 +44,14 @@ class Plaquette:
     Raises:
         TQECException: if the provided `circuit` uses qubits not listed in
             `qubits`.
+
     """
 
     name: str
     qubits: PlaquetteQubits
     circuit: ScheduledCircuit
     mergeable_instructions: frozenset[str] = field(default_factory=frozenset)
-    debug_information: PlaquetteDebugInformation = field(
-        default_factory=PlaquetteDebugInformation
-    )
+    debug_information: PlaquetteDebugInformation = field(default_factory=PlaquetteDebugInformation)
 
     def __post_init__(self) -> None:
         plaquette_qubits = set(self.qubits)
@@ -76,9 +76,7 @@ class Plaquette:
     def __str__(self) -> str:
         return self.name
 
-    def project_on_boundary(
-        self, projected_orientation: PlaquetteOrientation
-    ) -> Plaquette:
+    def project_on_boundary(self, projected_orientation: PlaquetteOrientation) -> Plaquette:
         """Project the plaquette on boundary and return a new plaquette with
         the remaining qubits and circuit.
 
@@ -95,16 +93,11 @@ class Plaquette:
             provided orientation. The circuit is also updated to only use the
             kept qubits and empty moments with the corresponding schedules are
             removed.
+
         """
-        kept_data_qubits = self.qubits.get_qubits_on_side(
-            projected_orientation.to_plaquette_side()
-        )
-        new_plaquette_qubits = PlaquetteQubits(
-            kept_data_qubits, self.qubits.syndrome_qubits
-        )
-        new_scheduled_circuit = self.circuit.filter_by_qubits(
-            new_plaquette_qubits.all_qubits
-        )
+        kept_data_qubits = self.qubits.get_qubits_on_side(projected_orientation.to_plaquette_side())
+        new_plaquette_qubits = PlaquetteQubits(kept_data_qubits, self.qubits.syndrome_qubits)
+        new_scheduled_circuit = self.circuit.filter_by_qubits(new_plaquette_qubits.all_qubits)
         debug_info = self.debug_information.project_on_boundary(projected_orientation)
         return Plaquette(
             f"{self.name}_{projected_orientation.name}",
@@ -130,9 +123,7 @@ class Plaquette:
 
         An empty plaquette is a plaquette that contain empty scheduled circuit.
         """
-        return bool(
-            self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit()
-        )
+        return bool(self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit())
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the plaquette.
@@ -159,14 +150,13 @@ class Plaquette:
             a new instance of :class:`Plaquette` with the provided
             ``name``, ``qubits``, ``circuit``, ``mergeable_instructions`` and
             ``debug_information``.
+
         """
         name = data["name"]
         qubits = PlaquetteQubits.from_dict(data["qubits"])
         circuit = ScheduledCircuit.from_dict(data["circuit"])
         mergeable_instructions = frozenset(data["mergeable_instructions"])
-        debug_information = PlaquetteDebugInformation.from_dict(
-            data["debug_information"]
-        )
+        debug_information = PlaquetteDebugInformation.from_dict(data["debug_information"])
         return Plaquette(
             name,
             qubits,
@@ -203,9 +193,7 @@ class Plaquettes:
     def __getitem__(self, index: int) -> Plaquette:
         return self.collection[index]
 
-    def with_updated_plaquettes(
-        self, plaquettes_to_update: Mapping[int, Plaquette]
-    ) -> Plaquettes:
+    def with_updated_plaquettes(self, plaquettes_to_update: Mapping[int, Plaquette]) -> Plaquettes:
         return Plaquettes(self.collection | plaquettes_to_update)
 
     def map_indices(self, callable: Callable[[int], int]) -> Plaquettes:
@@ -230,9 +218,7 @@ class Plaquettes:
         )
 
     def to_name_dict(self) -> dict[int | Literal["default"], str]:
-        d: dict[int | Literal["default"], str] = {
-            k: p.name for k, p in self.collection.items()
-        }
+        d: dict[int | Literal["default"], str] = {k: p.name for k, p in self.collection.items()}
         if self.collection.default_value is not None:
             d["default"] = self.collection.default_value.name
         return d
@@ -248,22 +234,17 @@ class Plaquettes:
     def items(self) -> Iterable[tuple[int, Plaquette]]:
         return self.collection.items()
 
-    def to_dict(
-        self, plaquettes_to_indices: dict[Plaquette, int] | None = None
-    ) -> dict[str, Any]:
+    def to_dict(self, plaquettes_to_indices: dict[Plaquette, int] | None = None) -> dict[str, Any]:
         """Return a dictionary representation of the plaquettes.
 
         Args:
             plaquettes_to_indices: a dictionary mapping plaquettes to their
                 indices. If provided, a plaquette will be represented by its index
+
         """
 
         def convert(value: Plaquette) -> Any:
-            return (
-                plaquettes_to_indices[value]
-                if plaquettes_to_indices
-                else value.to_dict()
-            )
+            return plaquettes_to_indices[value] if plaquettes_to_indices else value.to_dict()
 
         return {
             "plaquettes": [
@@ -289,6 +270,7 @@ class Plaquettes:
         Returns:
             a new instance of :class:`Plaquettes` with the provided
             ``plaquettes`` and ``default``.
+
         """
 
         def convert(item: dict[str, Any]) -> Plaquette:
@@ -303,16 +285,13 @@ class Plaquettes:
             default_value=(
                 (Plaquette.from_dict(data["default"]) if data["default"] else None)
                 if plaquettes is None
-                else (
-                    plaquettes[data["default"]] if data["default"] is not None else None
-                )
+                else (plaquettes[data["default"]] if data["default"] is not None else None)
             ),
         )
         # If the default value is None, print a WARNING
         # (this should not happen in practice)
         if collection.default_value is None:
             print(
-                "WARNING: The default value of the plaquettes collection is None. "
-                "This should not happen in practice."
+                "WARNING: The default value of the plaquettes collection is None. This should not happen in practice."
             )
         return Plaquettes(collection)

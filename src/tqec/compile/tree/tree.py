@@ -1,8 +1,8 @@
-from collections.abc import Sequence
+import warnings
+from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Mapping
-import warnings
 
 import stim
 import svg
@@ -12,7 +12,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -21,7 +21,9 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
-from tqec.utils.exceptions import TQECException
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.template import RPNGTemplate
+from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 from tqec.visualisation.computation.plaquette.grid import plaquette_grid_svg_viewer
 
@@ -32,6 +34,7 @@ class QubitLister(NodeWalker):
 
         Args:
             k: scaling factor used to explore the quantum circuits.
+
         """
         super().__init__()
         self._k = k
@@ -109,9 +112,7 @@ class LayerVisualiser(NodeWalker):
             plaquette_grid_svg_viewer(
                 instantiation,
                 drawers,
-                errors=self._get_errors_within(
-                    self._current_tick, self._current_tick + num_ticks
-                ),
+                errors=self._get_errors_within(self._current_tick, self._current_tick + num_ticks),
             )
         )
 
@@ -191,9 +192,7 @@ class LayerTree:
         return {
             "root": self._root.to_dict(),
             "abstract_observables": self._abstract_observables,
-            "annotations": {
-                k: annotation.to_dict() for k, annotation in self._annotations.items()
-            },
+            "annotations": {k: annotation.to_dict() for k, annotation in self._annotations.items()},
         }
 
     def _annotate_circuits(self, k: int) -> None:
@@ -209,9 +208,7 @@ class LayerTree:
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(
-                self._root, k, observable, obs_idx, self._observable_builder
-            )
+            annotate_observable(self._root, k, observable, obs_idx, self._observable_builder)
 
     def _annotate_detectors(
         self,
@@ -230,7 +227,7 @@ class LayerTree:
             )
         )
         # The database will have been updated inside the above function, and here at
-        # the end of the computation we save it to file:
+        # the end of the computation we save it to file.
         if detector_database is not None:
             detector_database.to_file(database_path)
 
@@ -276,6 +273,7 @@ class LayerTree:
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
+
         """
         if not add_polygons:
             circuit = self.generate_circuit(
@@ -308,9 +306,7 @@ class LayerTree:
                 polygons = set(item)
                 if polygons == last_polygons:
                     continue
-                crumble_url += "".join(
-                    polygon.to_crumble_url_string(qubit_map) for polygon in item
-                )
+                crumble_url += "".join(polygon.to_crumble_url_string(qubit_map) for polygon in item)
                 last_polygons = polygons
         return crumble_url
 
@@ -369,7 +365,7 @@ class LayerTree:
                 produce invalid detectors.
             detector_database: an instance to retrieve from / store in detectors
                 that are computed as part of the circuit generation. If not given,
-                the detectors are retrieved from/stored in the the provided
+                the detectors are retrieved from/stored in the provided
                 ``database_path``.
             database_path: specify where to save to after the calculation.
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
@@ -385,10 +381,16 @@ class LayerTree:
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
             by ``self``.
+
         """
         # First, before we start any computations, decide which detector database to use.
         if isinstance(database_path, str):
             database_path = Path(database_path)
+        # We need to know for later if the user explicitly provided a database or
+        # not to decide if we should warn or raise.
+        user_defined = (
+            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+        )
         # If the user has passed a database in, use that, otherwise:
         if detector_database is None:  # Nothing passed in,
             if database_path.exists():  # look for an existing database at the path.
@@ -398,6 +400,25 @@ class LayerTree:
         # If do_not_use_database is True, override the above code and reset the database to None
         if do_not_use_database:
             detector_database = None
+        if detector_database is not None:
+            loaded_version = detector_database.version
+            current_version = CURRENT_DATABASE_VERSION
+            if loaded_version != current_version:
+                if user_defined:
+                    raise TQECException(
+                        f"The detector database on disk you have specified is incompatible with"
+                        f" the version in the TQEC code you are running. The version of the disk"
+                        f" database is {loaded_version}, while the version in the TQEC code is "
+                        f"{current_version}."
+                    )
+                else:  # ie using the default
+                    warnings.warn(
+                        f"The default detector database that you have saved on your system is out "
+                        f"of date (version {loaded_version}). The version in the TQEC code you are "
+                        f"running is newer (version {current_version}). The database will be regenerated.",
+                        TQECWarning,
+                    )
+                    detector_database = DetectorDatabase()
 
         self._generate_annotations(
             k,
@@ -419,9 +440,7 @@ class LayerTree:
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
 
-    def layers_to_svg(
-        self, k: int, errors: Sequence[stim.ExplainedError] = tuple()
-    ) -> list[str]:
+    def layers_to_svg(self, k: int, errors: Sequence[stim.ExplainedError] = tuple()) -> list[str]:
         visualiser = LayerVisualiser(k, errors)
         self._root.walk(visualiser)
         return visualiser.visualisations

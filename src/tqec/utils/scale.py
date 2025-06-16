@@ -43,6 +43,7 @@ class LinearFunction:
 
         Returns:
             the image of x.
+
         """
         return self.slope * x + self.offset
 
@@ -56,6 +57,7 @@ class LinearFunction:
 
         Returns:
             a new linear function instance representing `self + other`.
+
         """
         if isinstance(other, (int, float)):
             other = LinearFunction(0, other)
@@ -71,6 +73,7 @@ class LinearFunction:
 
         Returns:
             a new linear function instance representing `self - other`.
+
         """
         if isinstance(other, (int, float)):
             other = LinearFunction(0, other)
@@ -84,6 +87,7 @@ class LinearFunction:
 
         Returns:
             a copy of `self`, scaled by the provided `other`.
+
         """
         return self.__rmul__(other)
 
@@ -95,6 +99,7 @@ class LinearFunction:
 
         Returns:
             a copy of `self`, scaled by the provided `other`.
+
         """
         return LinearFunction(other * self.slope, other * self.offset)
 
@@ -107,6 +112,7 @@ class LinearFunction:
         Returns:
             If they intersect, return x such that `self(x) = other(x)`.
             Otherwise, return None.
+
         """
         if self.slope == other.slope:
             return None
@@ -154,10 +160,7 @@ class LinearFunction:
         return not self.is_constant(atol)
 
     def is_close_to(self, other: LinearFunction, atol: float = 1e-8) -> bool:
-        return (
-            abs(self.slope - other.slope) < atol
-            and abs(self.offset - other.offset) < atol
-        )
+        return abs(self.slope - other.slope) < atol and abs(self.offset - other.offset) < atol
 
     @staticmethod
     def unambiguous_max_on_positives(
@@ -229,6 +232,7 @@ def round_or_fail(f: float, atol: float = 1e-8) -> int:
 
     Returns:
         ``int(round(f))``
+
     """
     rounded_value = int(round(f))
     if abs(f - rounded_value) > atol:
@@ -243,6 +247,7 @@ class Scalable2D:
     Attributes:
         x: a linear function representing the value of the ``x`` coordinate.
         y: a linear function representing the value of the ``y`` coordinate.
+
     """
 
     x: LinearFunction
@@ -261,6 +266,7 @@ class Scalable2D:
 
         Returns:
             ``Shape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))``
+
         """
         return Shape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
 
@@ -273,6 +279,7 @@ class Scalable2D:
 
         Returns:
             a tuple of coordinates in ``numpy``-coordinates.
+
         """
         return self.to_shape_2d(k).to_numpy_shape()
 

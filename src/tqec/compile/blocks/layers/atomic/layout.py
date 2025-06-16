@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import cached_property
-from typing import Final, Iterable, TypeGuard
+from typing import Final, TypeGuard
 
 from typing_extensions import override
 
@@ -51,6 +52,7 @@ class LayoutLayer(BaseLayer):
         Raises:
             TQECException: if ``layers`` is empty.
             TQECException: if ``trimmed_spatial_borders`` is not empty.
+
         """
         super().__init__(frozenset())
         self._layers = layers
@@ -63,9 +65,7 @@ class LayoutLayer(BaseLayer):
                 f"An instance of {type(self).__name__} should have at least one layer."
             )
         if self.trimmed_spatial_borders:
-            raise TQECException(
-                f"{LayoutLayer.__name__} cannot have trimmed spatial borders."
-            )
+            raise TQECException(f"{LayoutLayer.__name__} cannot have trimmed spatial borders.")
 
     @property
     def layers(self) -> dict[LayoutPosition2D, BaseLayer]:
@@ -109,12 +109,8 @@ class LayoutLayer(BaseLayer):
         )
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> LayoutLayer:
-        raise TQECException(
-            f"Cannot trim spatial borders of a {type(self).__name__} instance."
-        )
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> LayoutLayer:
+        raise TQECException(f"Cannot trim spatial borders of a {type(self).__name__} instance.")
 
     def __eq__(self, value: object) -> bool:
         return (
@@ -135,6 +131,7 @@ class LayoutLayer(BaseLayer):
             a tuple ``(template, plaquettes)`` that is ready to be used with
             :meth:`~tqec.compile.generation.generate_circuit` to obtain the quantum
             circuit representing ``self``.
+
         """
         if not contains_only_plaquette_layers(self.layers):
             raise NotImplementedError(
@@ -156,9 +153,7 @@ class LayoutLayer(BaseLayer):
             if isinstance(pos, LayoutPipePosition2D)
         }
         for (u, v), pipe_layer in pipes.items():
-            pipe_direction = Direction3D.from_neighbouring_positions(
-                u.to_3d(), v.to_3d()
-            )
+            pipe_direction = Direction3D.from_neighbouring_positions(u.to_3d(), v.to_3d())
             # {u,v}_border: border of the respective node that is touched by the
             # the pipe.
             u_border: TemplateBorder
@@ -176,9 +171,9 @@ class LayoutLayer(BaseLayer):
                 (u, (u_border, v_border)),
                 (v, (v_border, u_border)),
             ]:
-                plaquette_indices_mapping = pipe_layer.template.get_border_indices(
-                    pipe_border
-                ).to(template_dict[pos].get_border_indices(cube_border))
+                plaquette_indices_mapping = pipe_layer.template.get_border_indices(pipe_border).to(
+                    template_dict[pos].get_border_indices(cube_border)
+                )
                 plaquettes_dict[pos] = plaquettes_dict[pos].with_updated_plaquettes(
                     {
                         plaquette_indices_mapping[pipe_plaquette_index]: plaquette
@@ -200,6 +195,7 @@ class LayoutLayer(BaseLayer):
 
         Returns:
             quantum circuit representing the layer.
+
         """
         template, plaquettes = self.to_template_and_plaquettes()
         scheduled_circuit = generate_circuit(template, k, plaquettes)

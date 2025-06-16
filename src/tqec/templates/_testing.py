@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy
 import numpy.typing as npt
@@ -19,9 +19,7 @@ class FixedTemplate(RectangularTemplate):
         default_increments: Shift2D | None = None,
     ) -> None:
         super().__init__(default_increments)
-        self._indices: npt.NDArray[numpy.int_] = numpy.array(
-            [list(line) for line in indices]
-        )
+        self._indices: npt.NDArray[numpy.int_] = numpy.array([list(line) for line in indices])
 
     @override
     def instantiate(

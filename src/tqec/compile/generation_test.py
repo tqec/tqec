@@ -9,9 +9,7 @@ from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 
 def test_generate_circuit_one_plaquette() -> None:
-    plaquette = make_css_surface_code_plaquette("Z").project_on_boundary(
-        PlaquetteOrientation.LEFT
-    )
+    plaquette = make_css_surface_code_plaquette("Z").project_on_boundary(PlaquetteOrientation.LEFT)
     circuit = generate_circuit(
         FixedTemplate([[0]]),
         2,
@@ -42,9 +40,7 @@ def test_generate_circuit_multiple_plaquettes() -> None:
             }
         )
     )
-    circuit = generate_circuit(
-        FixedTemplate([[0, 1], [1, 0]]), k=1, plaquettes=plaquettes
-    )
+    circuit = generate_circuit(FixedTemplate([[0, 1], [1, 0]]), k=1, plaquettes=plaquettes)
     assert circuit.get_circuit() == stim.Circuit("""
 QUBIT_COORDS(-1, -1) 0
 QUBIT_COORDS(-1, 1) 1

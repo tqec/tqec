@@ -240,9 +240,7 @@ class _ColladaHTMLViewer:
             with open(filepath_or_bytes, "rb") as file:
                 collada_bytes = file.read()
         collada_base64 = base64.b64encode(collada_bytes).decode("utf-8")
-        self.html_str = self.HTML_TEMPLATE.substitute(
-            MODEL_BASE64_PLACEHOLDER=collada_base64
-        )
+        self.html_str = self.HTML_TEMPLATE.substitute(MODEL_BASE64_PLACEHOLDER=collada_base64)
 
     def _repr_html_(self) -> str:
         framed = f"""<iframe style="width: 100%; height: 300px; overflow: hidden; resize: both; border: 1px dashed gray;" frameBorder="0" srcdoc="{html.escape(self.html_str, quote=True)}"></iframe>"""
@@ -269,6 +267,7 @@ def display_collada_model(
     Returns:
         A helper class to display the 3D model, which implements the ``_repr_html_`` method and
         can be directly displayed in IPython compatible environments.
+
     """
     helper = _ColladaHTMLViewer(filepath_or_bytes)
 
