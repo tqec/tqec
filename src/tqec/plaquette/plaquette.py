@@ -116,7 +116,7 @@ class Plaquette:
 
     @property
     def num_moments(self) -> int:
-        return self.circuit.schedule.max_schedule
+        return self.circuit.schedule.max_schedule + 1
 
     def is_empty(self) -> bool:
         """Check if the plaquette is empty.
