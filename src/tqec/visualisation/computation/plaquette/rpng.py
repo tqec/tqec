@@ -28,13 +28,9 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self._description = description
         self._center = RPNGPlaquetteDrawer._CENTER_COORDINATE
         bases = {rpng.p for rpng in description.corners if rpng.p is not None}
-        uniform_basis: PauliBasis | None = (
-            next(iter(bases)) if len(bases) == 1 else None
-        )
+        uniform_basis: PauliBasis | None = next(iter(bases)) if len(bases) == 1 else None
         self._uniform_colour = (
-            SVGPlaquetteDrawer.get_colour(uniform_basis)
-            if uniform_basis is not None
-            else None
+            SVGPlaquetteDrawer.get_colour(uniform_basis) if uniform_basis is not None else None
         )
         self._sorted_corner_indices: list[int] = []
         self._corners: list[complex] = []
@@ -112,6 +108,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
             all the qubits (e.g. ``XXXX``). If different bases are present (e.g.
             ``ZXXZ``), the returned SVG element does not contain any fill, and
             the colours should be added later.
+
         """
         fill = "none" if self._uniform_colour is None else self._uniform_colour
         match len(self._corners):
@@ -157,8 +154,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
                 return self.get_square_shape(fill, configuration)
             case num:
                 raise TQECDrawingException(
-                    f"Got a plaquette with {num} corners. Only 2, 3 "
-                    "or 4 corners are supported."
+                    f"Got a plaquette with {num} corners. Only 2, 3 or 4 corners are supported."
                 )
 
     def get_fill_layers(
@@ -180,17 +176,14 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
             A list of ``len(self._corners)`` SVG elements, each filling a
             quarter of the square plaquette and clipping to the clipPath with
             id ``self._uuid``.
+
         """
         # Draw one rectangle for each corner
         fill_layer: list[svg.Element] = []
         for corner, rpng in zip(self._corners, self._rpngs):
             tl, br = _get_bounding_box([self._center, corner])
             basis = rpng.p
-            fill = (
-                configuration.mixed_basis_color
-                if basis is None
-                else self.get_colour(basis)
-            )
+            fill = configuration.mixed_basis_color if basis is None else self.get_colour(basis)
             fill_layer.append(
                 svg.Rect(
                     x=tl.real,
@@ -219,14 +212,13 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
             One SVG element per non-empty corners, each containing a text
             element with the time slice at which a 2-qubit operation is applied
             on the corner qubit.
+
         """
         interaction_order_texts: list[svg.Text] = []
         for corner, rpng in zip(self._corners, self._rpngs):
             if rpng.n is None:
                 continue
-            text_position = lerp(
-                self._center, corner, configuration.text_lerp_coefficient
-            )
+            text_position = lerp(self._center, corner, configuration.text_lerp_coefficient)
             interaction_order_texts.append(
                 svg.Text(
                     x=text_position.real,
@@ -253,6 +245,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         Returns:
             A SVG line showing the direction of the hook error, or ``None`` if
             there is no hook error.
+
         """
         if len(self._corners) != 4:
             return None
@@ -273,12 +266,12 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
     ) -> svg.G:
-        """
-
-        Args:
+        """Args:
             configuration: drawing configuration.
 
         Returns:
+            a SVG element containing all the reset or measurements on the
+            plaquette drawn by ``self``.
 
         """
         reset_measurement_elements: list[svg.Element] = []
@@ -294,7 +287,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
                     "supported in the drawer."
                 )
             assert r_is_basis ^ m_is_basis
-            fill = self.get_colour(r if r_is_basis else cast(ExtendedBasis, m))
+            fill = self.get_colour(r if r is not None else cast(ExtendedBasis, m))
             shape = (
                 self.get_reset_shape(place, fill, configuration)
                 if r_is_basis

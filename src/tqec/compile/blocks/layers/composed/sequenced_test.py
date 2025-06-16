@@ -36,6 +36,7 @@ def raw_circuit_layer_fixture() -> RawCircuitLayer:
     return RawCircuitLayer(
         lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
         PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5)),
+        LinearFunction(0, 0),
     )
 
 
@@ -44,6 +45,7 @@ def raw_circuit_fixed_size_layer_fixture() -> RawCircuitLayer:
     return RawCircuitLayer(
         lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
         PhysicalQubitScalable2D(LinearFunction(0, 1), LinearFunction(0, 1)),
+        LinearFunction(0, 0),
     )
 
 

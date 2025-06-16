@@ -218,6 +218,4 @@ class RepeatedLayer(BaseComposedLayer):
     @property
     @override
     def scalable_num_moments(self) -> LinearFunction:
-        return LinearFunction.safe_mul(
-            self.internal_layer.scalable_num_moments, self.repetitions
-        )
+        return LinearFunction.safe_mul(self.internal_layer.scalable_num_moments, self.repetitions)
