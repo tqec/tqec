@@ -171,7 +171,7 @@ class PlaquetteLayer(BaseLayer):
         return LinearFunction(
             0,
             max(
-                plaquette.num_moments
-                for plaquette in self.plaquettes.collection.values()
+                (plaquette.num_moments for plaquette in self.plaquettes.collection.values()),
+                default=0,
             ),
         )
