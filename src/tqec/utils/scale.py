@@ -21,6 +21,7 @@ from dataclasses import dataclass
 
 from typing_extensions import Self
 
+from tqec.circuit.qubit import GridQubit
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import PhysicalQubitShape2D, PlaquetteShape2D, Shape2D, Shift2D
 
@@ -264,10 +265,10 @@ class Scalable2D:
                 number that is not an integer (or very close to an integer).
 
         Returns:
-            ``Shape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))``
+            ``Shape2D(self.x.integer_eval(k), self.y.integer_eval(k))``
 
         """
-        return Shape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
+        return Shape2D(self.x.integer_eval(k), self.y.integer_eval(k))
 
     def to_numpy_shape(self, k: int) -> tuple[int, int]:
         """Get a tuple of coordinates in ``numpy``-coordinates.
@@ -282,18 +283,29 @@ class Scalable2D:
         """
         return self.to_shape_2d(k).to_numpy_shape()
 
-    def __add__(self: Self, other: Self) -> Self:
-        return self.__class__(self.x + other.x, self.y + other.y)
+    @staticmethod
+    def _get_x_y(
+        other: Scalable2D | Shift2D | tuple[LinearFunction | int, LinearFunction | int],
+    ) -> tuple[LinearFunction | int, LinearFunction | int]:
+        if isinstance(other, tuple):
+            return other
+        else:
+            return other.x, other.y
 
-    def __sub__(self: Self, other: Self) -> Self:
-        return self.__class__(self.x - other.x, self.y - other.y)
+    def __add__(self: Self, other: Self | Shift2D | tuple[int, int]) -> Self:
+        x, y = Scalable2D._get_x_y(other)
+        return self.__class__(self.x + x, self.y + y)
+
+    def __sub__(self: Self, other: Self | Shift2D | tuple[int, int]) -> Self:
+        x, y = Scalable2D._get_x_y(other)
+        return self.__class__(self.x - x, self.y - y)
 
 
 class PlaquetteScalable2D(Scalable2D):
     """A pair of scalable quantities in plaquette coordinates."""
 
     def to_shape_2d(self, k: int) -> PlaquetteShape2D:
-        return PlaquetteShape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
+        return PlaquetteShape2D(self.x.integer_eval(k), self.y.integer_eval(k))
 
     def __mul__(self, other: Shift2D) -> PhysicalQubitScalable2D:
         return PhysicalQubitScalable2D(self.x * other.x, self.y * other.y)
@@ -303,4 +315,7 @@ class PhysicalQubitScalable2D(Scalable2D):
     """A pair of scalable quantities in physical qubit coordinates."""
 
     def to_shape_2d(self, k: int) -> PhysicalQubitShape2D:
-        return PhysicalQubitShape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
+        return PhysicalQubitShape2D(self.x.integer_eval(k), self.y.integer_eval(k))
+
+    def to_grid_qubit(self, k: int) -> GridQubit:
+        return GridQubit(self.x.integer_eval(k), self.y.integer_eval(k))

@@ -220,7 +220,7 @@ class LayoutLayer(BaseLayer):
     def qubit_bounds(self) -> tuple[PhysicalQubitScalable2D, PhysicalQubitScalable2D]:
         tlb, brb = self.bounds
         eshape = self.element_shape
-        increments = PhysicalQubitScalable2D(eshape.x - 1, eshape.y - 1)
+        increments = PhysicalQubitScalable2D(eshape.x, eshape.y) - (1, 1)
         tlq = PhysicalQubitScalable2D(tlb.x * increments.x, tlb.y * increments.y)
         brq = PhysicalQubitScalable2D((brb.x + 1) * increments.x, (brb.y + 1) * increments.y)
         return tlq, brq
