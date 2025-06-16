@@ -1,21 +1,17 @@
-from collections.abc import Mapping
-from pathlib import Path
-<<<<<<< perf/parallel-circ-gen
-from typing import Any, Mapping
-from multiprocessing import cpu_count
-=======
-from typing import Any
-from typing_extensions import override
 import warnings
->>>>>>> main
+from collections.abc import Mapping
+from multiprocessing import cpu_count
+from pathlib import Path
+from typing import Any, Mapping
 
 import stim
+from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import DetectorDatabase, CURRENT_DATABASE_VERSION
+from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -329,8 +325,7 @@ class LayerTree:
         # We need to know for later if the user explicitly provided a database or
         # not to decide if we should warn or raise.
         user_defined = (
-            detector_database is not None
-            or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
         )
         # If the user has passed a database in, use that, otherwise:
         if detector_database is None:  # Nothing passed in,
