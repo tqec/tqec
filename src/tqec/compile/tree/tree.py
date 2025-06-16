@@ -1,16 +1,17 @@
-from collections.abc import Mapping
-from pathlib import Path
-from typing import Any
-from typing_extensions import override
 import warnings
+from collections.abc import Mapping
+from multiprocessing import cpu_count
+from pathlib import Path
+from typing import Any, Mapping
 
 import stim
+from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import DetectorDatabase, CURRENT_DATABASE_VERSION
+from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -145,12 +146,18 @@ class LayerTree:
         database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
+        parallel_process_count: int = 1,
     ) -> None:
         if manhattan_radius <= 0:
             return
         self._root.walk(
             AnnotateDetectorsOnLayerNode(
-                k, manhattan_radius, detector_database, only_use_database, lookback
+                k,
+                manhattan_radius,
+                detector_database,
+                only_use_database,
+                lookback,
+                parallel_process_count,
             )
         )
         # The database will have been updated inside the above function, and here at
@@ -246,6 +253,7 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
         add_polygons: bool = False,
+        parallel_process_count: int = 1,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         self._annotate_circuits(k)
@@ -258,6 +266,7 @@ class LayerTree:
             database_path,
             only_use_database,
             lookback,
+            parallel_process_count,
         )
         self._annotate_observables(k)
         if add_polygons:
@@ -316,8 +325,7 @@ class LayerTree:
         # We need to know for later if the user explicitly provided a database or
         # not to decide if we should warn or raise.
         user_defined = (
-            detector_database is not None
-            or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
         )
         # If the user has passed a database in, use that, otherwise:
         if detector_database is None:  # Nothing passed in,
@@ -348,6 +356,16 @@ class LayerTree:
                     )
                     detector_database = DetectorDatabase()
 
+        # Enable parallel processing only if the detector database is empty or None,
+        # as current parallelization is effective only in this case.
+        # If we later support efficient parallelism with a populated database,
+        # we will expose the parallel_count parameter to users.
+        parallel_process_count = (
+            cpu_count() // 2 + 1
+            if (detector_database is None or len(detector_database) == 0)
+            else 1
+        )
+
         self._generate_annotations(
             k,
             manhattan_radius,
@@ -355,6 +373,7 @@ class LayerTree:
             database_path=database_path,
             only_use_database=only_use_database,
             lookback=lookback,
+            parallel_process_count=parallel_process_count,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None

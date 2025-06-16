@@ -1,3 +1,5 @@
+import multiprocessing as mp
+
 import numpy.testing
 import pytest
 import stim
@@ -385,3 +387,13 @@ def test_compute_detectors_for_fixed_radius(
         [template, template], k, [init_plaquettes, memory_plaquettes]
     )
     assert len(detectors) == d**2
+
+    # Test the parallel parameter
+    # Should get the same results with parallelization as without
+    parallel_detectors = compute_detectors_for_fixed_radius(
+        [template, template],
+        k,
+        [init_plaquettes, memory_plaquettes],
+        parallel_process_count=mp.cpu_count() // 2 + 1,
+    )
+    assert set(parallel_detectors) == set(detectors)
