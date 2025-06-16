@@ -1,5 +1,7 @@
 import json
 from collections.abc import Sequence
+from multiprocessing import Pool, cpu_count
+from typing import Sequence
 
 import numpy
 import numpy.typing as npt
@@ -267,6 +269,7 @@ def compute_detectors_at_end_of_situation(
     increments: Shift2D,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
+    parallel_process_count: int = 1,
 ) -> frozenset[Detector]:
     """Returns detectors that should be added at the end of the provided
     situation.
@@ -291,6 +294,10 @@ def compute_detectors_at_end_of_situation(
             used. An error will be raised if a situation that is not registered
             in the database is encountered or if the database is not provided.
             Default to ``False``.
+        parallel_process_count: number of processes to use for parallel processing.
+            1 for sequential processing, >1 for parallel processing using
+            ``parallel_process_count`` processes, and -1 for using all available
+            CPU cores. Default to 1.
 
     Returns:
         all the detectors that can be appended at the end of the circuit
@@ -322,6 +329,20 @@ def compute_detectors_at_end_of_situation(
             subtemplates, plaquettes_by_timestep, increments
         )
 
+    # If parallel processing is not enabled, shift the detectors here.
+    # Otherwise, wait until all child processes have finished computation.
+    # In that case, update the database with the computed detectors in the parent process,
+    # and then shift the detectors afterwards.
+    if parallel_process_count == 1:
+        detectors = _shift_detectors_to_center_of_subtemplate(detectors, subtemplates, increments)
+    return detectors
+
+
+def _shift_detectors_to_center_of_subtemplate(
+    detectors: frozenset[Detector],
+    subtemplates: Sequence[SubTemplateType],
+    increments: Shift2D,
+) -> frozenset[Detector]:
     # `subtemplate.shape` should be `(2 * radius + 1, 2 * radius + 1)` so we can
     # recover the radius with the below expression.
     radius = subtemplates[0].shape[0] // 2
@@ -482,6 +503,64 @@ def _compute_superimposed_template_instantiations(
     return ret
 
 
+def _extract_subtemplates_from_s3d(
+    s3d: npt.NDArray[numpy.int_],
+) -> list[npt.NDArray[numpy.int_]]:
+    """Extract 2D spatial subtemplates from a 3D array.
+
+    This function takes a 3D array where the first two dimensions
+    represent spatial coordinates and the third dimension represents time steps.
+    It extracts a list of 2D spatial arrays, one for each time step.
+
+    Args:
+        s3d: 3D numpy array representation of sub-templates.
+
+    Returns:
+        List of 2D numpy arrays, one for each time step.
+
+    """
+    return [s3d[:, :, i] for i in range(s3d.shape[2])]
+
+
+def _compute_detector_for_subtemplate(
+    args: tuple[
+        tuple[int, ...],  # indices
+        npt.NDArray[numpy.int_],  # s3d
+        Sequence[Plaquettes],  # plaquettes
+        Shift2D,  # increments
+        int,  # parallel_process_count
+    ],
+) -> tuple[tuple[int, ...], frozenset[Detector]]:
+    """Helper function for parallel processing of detector computation.
+
+    Args:
+        args: A tuple containing:
+            - indices: Tuple of indices identifying the subtemplate
+            - s3d: 3D numpy array representing the subtemplate
+            - plaquettes: Sequence of plaquettes for each time slice
+            - increments: Spatial increments between plaquette origins
+            - only_use_database: Whether to only use the database
+
+    Returns:
+        A tuple containing the indices and the computed detectors
+
+    """
+    indices, s3d, plaquettes, increments, parallel_process_count = args
+    return (
+        indices,
+        compute_detectors_at_end_of_situation(
+            _extract_subtemplates_from_s3d(s3d),
+            plaquettes,
+            increments,
+            # Currently, we do not find an efficient way to share the database between
+            # multiple processes, so we just pass `None` here.
+            database=None,
+            only_use_database=False,
+            parallel_process_count=parallel_process_count,
+        ),
+    )
+
+
 def compute_detectors_for_fixed_radius(
     templates: Sequence[Template],
     k: int,
@@ -489,6 +568,7 @@ def compute_detectors_for_fixed_radius(
     fixed_subtemplate_radius: int = 2,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
+    parallel_process_count: int = 1,
 ) -> list[Detector]:
     """Returns detectors that should be added at the end of the circuit that
     would be obtained from the provided `template_at_timestep` and
@@ -517,6 +597,10 @@ def compute_detectors_for_fixed_radius(
         only_use_database: if ``True``, only detectors from the database will be
             used. An error will be raised if a situation that is not registered
             in the database is encountered. Default to ``False``.
+        parallel_process_count: number of processes to use for parallel processing.
+            1 for sequential processing, >1 for parallel processing using
+            ``parallel_process_count`` processes, and -1 for using all available
+            CPU cores. Default to 1.
 
     Returns:
         a collection of detectors that should be added at the end of the circuit
@@ -543,16 +627,53 @@ def compute_detectors_for_fixed_radius(
 
     # Each detector in detectors_by_subtemplate is using a coordinate system
     # centered on the central plaquette origin.
-    detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]] = {
-        indices: compute_detectors_at_end_of_situation(
-            [s3d[:, :, i] for i in range(s3d.shape[2])],
-            plaquettes,
-            increments,
-            database,
-            only_use_database,
+    detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]] = {}
+
+    # Handle the special case of parallel_process_count == -1
+    if parallel_process_count == -1:
+        parallel_process_count = cpu_count()
+    # If parallel_process_count > 1 we will enable parallel processing to
+    # compute detectors in parallel.
+    if parallel_process_count > 1:
+        args_list = [
+            (indices, s3d, plaquettes, increments, parallel_process_count)
+            for indices, s3d in unique_3d_subtemplates.subtemplates.items()
+        ]
+
+        with Pool(processes=parallel_process_count) as pool:
+            results = pool.map(_compute_detector_for_subtemplate, args_list)
+
+        # After synchronizing all child processes, we get all computed detectors,
+        # first we add them to database if it is provides, then we shift the coordinates of them
+        for indices, detectors_set in results:
+            subtemplates = _extract_subtemplates_from_s3d(
+                unique_3d_subtemplates.subtemplates[indices]
+            )
+            if database is not None:
+                database.add_situation(subtemplates, plaquettes, detectors_set)
+            detectors_by_subtemplate[indices] = _shift_detectors_to_center_of_subtemplate(
+                detectors_set, subtemplates, increments
+            )
+
+    # If parallel_process_count == 1, computing detectors sequentially
+    elif parallel_process_count == 1:
+        detectors_by_subtemplate = {
+            indices: compute_detectors_at_end_of_situation(
+                _extract_subtemplates_from_s3d(s3d),
+                plaquettes,
+                increments,
+                database,
+                only_use_database,
+            )
+            for indices, s3d in unique_3d_subtemplates.subtemplates.items()
+        }
+    # Else, invalid parallel_process_count
+    else:
+        raise TQECException(
+            f"Invalid parallel_process_count: {parallel_process_count}. "
+            "Expected a positive integer or -1 for using all available CPU cores."
         )
-        for indices, s3d in unique_3d_subtemplates.subtemplates.items()
-    }
+
     # We know for sure that detectors in each subtemplate all involve a measurement
     # on at least one syndrome qubit of the central plaquette. That means that
     # detectors computed here are unique and we do not have to check for
