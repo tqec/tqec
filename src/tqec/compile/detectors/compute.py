@@ -1,7 +1,7 @@
 import json
-from typing import Sequence
-from multiprocessing import Pool, cpu_count
 from collections.abc import Sequence
+from multiprocessing import Pool, cpu_count
+from typing import Sequence
 
 import numpy
 import numpy.typing as npt
@@ -517,6 +517,7 @@ def _extract_subtemplates_from_s3d(
 
     Returns:
         List of 2D numpy arrays, one for each time step.
+
     """
     return [s3d[:, :, i] for i in range(s3d.shape[2])]
 
