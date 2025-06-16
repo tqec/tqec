@@ -219,3 +219,13 @@ class LayoutLayer(BaseLayer):
         return LinearFunction.unambiguous_max_on_positives(
             layer.scalable_num_moments for layer in self.layers.values()
         )
+
+    @property
+    def qubit_bounds(self) -> tuple[PhysicalQubitScalable2D, PhysicalQubitScalable2D]:
+        tlb, brb = self.bounds
+        eshape = self.element_shape
+        tlq = PhysicalQubitScalable2D(tlb.x * eshape.x, tlb.y * eshape.y)
+        brq = PhysicalQubitScalable2D(
+            (brb.x + 1) * eshape.x - 1, (brb.y + 1) * eshape.y - 1
+        )
+        return tlq, brq
