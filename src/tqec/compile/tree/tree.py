@@ -1,6 +1,7 @@
 import warnings
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
+from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -218,12 +219,18 @@ class LayerTree:
         database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
+        parallel_process_count: int = 1,
     ) -> None:
         if manhattan_radius <= 0:
             return
         self._root.walk(
             AnnotateDetectorsOnLayerNode(
-                k, manhattan_radius, detector_database, only_use_database, lookback
+                k,
+                manhattan_radius,
+                detector_database,
+                only_use_database,
+                lookback,
+                parallel_process_count,
             )
         )
         # The database will have been updated inside the above function, and here at
@@ -319,6 +326,7 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
         add_polygons: bool = False,
+        parallel_process_count: int = 1,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         self._annotate_circuits(k)
@@ -331,6 +339,7 @@ class LayerTree:
             database_path,
             only_use_database,
             lookback,
+            parallel_process_count,
         )
         self._annotate_observables(k)
         if add_polygons:
@@ -420,6 +429,16 @@ class LayerTree:
                     )
                     detector_database = DetectorDatabase()
 
+        # Enable parallel processing only if the detector database is empty or None,
+        # as current parallelization is effective only in this case.
+        # If we later support efficient parallelism with a populated database,
+        # we will expose the parallel_count parameter to users.
+        parallel_process_count = (
+            cpu_count() // 2 + 1
+            if (detector_database is None or len(detector_database) == 0)
+            else 1
+        )
+
         self._generate_annotations(
             k,
             manhattan_radius,
@@ -427,6 +446,7 @@ class LayerTree:
             database_path=database_path,
             only_use_database=only_use_database,
             lookback=lookback,
+            parallel_process_count=parallel_process_count,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
