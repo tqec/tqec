@@ -528,7 +528,6 @@ def _compute_detector_for_subtemplate(
         npt.NDArray[numpy.int_],  # s3d
         Sequence[Plaquettes],  # plaquettes
         Shift2D,  # increments
-        bool,  # only_use_database
         int,  # parallel_process_count
     ],
 ) -> tuple[tuple[int, ...], frozenset[Detector]]:
