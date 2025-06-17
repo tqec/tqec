@@ -201,7 +201,7 @@ class LinearFunction:
                 res = f
 
         for f in fs:
-            if f.offset < res.offset or f.slope < res.slope:
+            if f.offset > res.offset or f.slope > res.slope:
                 raise TQECException(
                     "Could not find a unambiguous maximum in the provided linear functions. "
                     f"{res} could be the maximum, but is ambiguous with {f}."
