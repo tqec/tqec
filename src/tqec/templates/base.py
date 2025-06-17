@@ -65,6 +65,24 @@ class Template(ABC):
     def instantiate_list(
         self, k: int, plaquette_indices: Sequence[int] | None = None
     ) -> list[list[int]]:
+        """Generate a 2-dimensional list of integers representing the template.
+
+        This method is equivalent to
+        ``self.instantiate(k, plaquette_indices).tolist()`` but has a stricter
+        and more correct typing than calling ``tolist`` on a numpy array.
+
+        Args:
+            k: scaling parameter used to instantiate the template.
+            plaquette_indices: the plaquette indices that will be forwarded to
+                the underlying Shape instance's instantiate method. Defaults
+                to ``range(1, self.expected_plaquettes_number + 1)`` if ``None``.
+
+        Returns:
+            a 2-dimensional list (i.e., a list of lists) with the given
+            plaquette indices arranged according to the underlying shape of the
+            template.
+
+        """
         instantiation = self.instantiate(k, plaquette_indices=plaquette_indices)
         m, n = instantiation.shape
         ret: list[list[int]] = []
