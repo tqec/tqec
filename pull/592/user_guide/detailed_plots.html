@@ -567,7 +567,9 @@ where we perform more sampling around the estimated threshold value to have a de
 <p>Now that we have a good estimation of the computation threshold, we can gather statistics around it.</p>
 <div class="jupyter_cell jupyter_container docutils container">
 <div class="cell_input code_cell docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">observables</span><span class="p">:</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cpu_count</span>
+
+<span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">observables</span><span class="p">:</span>
     <span class="n">threshold_stats</span> <span class="o">=</span> <span class="n">start_simulation_using_sinter</span><span class="p">(</span>
         <span class="n">block_graph</span><span class="p">,</span>
         <span class="n">ks</span><span class="p">,</span>
@@ -576,7 +578,7 @@ where we perform more sampling around the estimated threshold value to have a de
         <span class="n">manhattan_radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">convention</span><span class="o">=</span><span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span>
         <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">obs</span><span class="p">],</span>
-        <span class="n">num_workers</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">cpu_count</span><span class="p">(),</span>
         <span class="n">max_shots</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
         <span class="n">max_errors</span><span class="o">=</span><span class="mi">5_000</span><span class="p">,</span>
         <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pymatching&quot;</span><span class="p">],</span>

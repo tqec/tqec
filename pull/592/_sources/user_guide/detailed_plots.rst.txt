@@ -123,6 +123,8 @@ Now that we have a good estimation of the computation threshold, we can gather s
 
 .. jupyter-execute::
 
+    from multiprocessing import cpu_count
+
     for obs in observables:
         threshold_stats = start_simulation_using_sinter(
             block_graph,
@@ -132,7 +134,7 @@ Now that we have a good estimation of the computation threshold, we can gather s
             manhattan_radius=2,
             convention=FIXED_BULK_CONVENTION,
             observables=[obs],
-            num_workers=30,
+            num_workers=cpu_count(),
             max_shots=10_000_000,
             max_errors=5_000,
             decoders=["pymatching"],
