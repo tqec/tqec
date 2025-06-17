@@ -223,4 +223,8 @@ class LayoutLayer(BaseLayer):
         increments = PhysicalQubitScalable2D(eshape.x, eshape.y) - (1, 1)
         tlq = PhysicalQubitScalable2D(tlb.x * increments.x, tlb.y * increments.y)
         brq = PhysicalQubitScalable2D((brb.x + 1) * increments.x, (brb.y + 1) * increments.y)
-        return tlq, brq
+        # Note: for the moment, plaquette origin is defined as the CENTER of the
+        # plaquette, which lead the above computations to be off-by-1. Correct that
+        # before returning.
+        shift = (-1, -1)
+        return tlq + shift, brq + shift
