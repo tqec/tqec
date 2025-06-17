@@ -71,13 +71,16 @@ def test_scalable_qubit_bound() -> None:
 
     pos1 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     pos2 = LayoutPosition2D.from_block_position(BlockPosition2D(-1, 12))
-
+    # Important note for the hard-coded values here: plaquette origin are currently located in
+    # the center of the plaquette. That means that the top-left qubit is in position (-1, -1). So
+    # we should apply a shift to recover the correct bounds. This is why there are `` - (1, 1)``
+    # to each PhysicalQubitScalable2D.
     fixed_layout_layer = LayoutLayer(
         {pos1: fixed_layer, pos2: fixed_layer}, fixed_layer.scalable_shape
     )
     assert fixed_layout_layer.qubit_bounds == (
-        PhysicalQubitScalable2D(LinearFunction(0, -2), LinearFunction(0, 0)),
-        PhysicalQubitScalable2D(LinearFunction(0, 2), LinearFunction(0, 26)),
+        PhysicalQubitScalable2D(LinearFunction(0, -2), LinearFunction(0, 0)) - (1, 1),
+        PhysicalQubitScalable2D(LinearFunction(0, 2), LinearFunction(0, 26)) - (1, 1),
     )
 
     qubit_layout_layer = LayoutLayer(
@@ -85,8 +88,8 @@ def test_scalable_qubit_bound() -> None:
     )
     # qubit_layer.scalable_shape is "4x + 5" (in qubit coordinates, NOT in plaquette coordinates).
     assert qubit_layout_layer.qubit_bounds == (
-        PhysicalQubitScalable2D(LinearFunction(-4, -4), LinearFunction(0, 0)),
-        PhysicalQubitScalable2D(LinearFunction(4, 4), LinearFunction(52, 52)),
+        PhysicalQubitScalable2D(LinearFunction(-4, -4), LinearFunction(0, 0)) - (1, 1),
+        PhysicalQubitScalable2D(LinearFunction(4, 4), LinearFunction(52, 52)) - (1, 1),
     )
 
 
