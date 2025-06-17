@@ -1,17 +1,16 @@
+from __future__ import annotations
+
 import warnings
 from collections.abc import Mapping, Sequence
-from copy import deepcopy
 from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Any
 
 import stim
-import svg
 from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
-from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
@@ -24,7 +23,7 @@ from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
-from tqec.visualisation.computation.plaquette.grid import plaquette_grid_svg_viewer
+from tqec.visualisation.computation.tree import LayerVisualiser
 
 
 class QubitLister(NodeWalker):
@@ -52,107 +51,6 @@ class QubitLister(NodeWalker):
     def seen_qubits(self) -> set[GridQubit]:
         """Returns all the qubits seen when exploring."""
         return self._seen_qubits
-
-
-class LayerVisualiser(NodeWalker):
-    def __init__(
-        self,
-        k: int,
-        errors: Sequence[stim.ExplainedError] = tuple(),
-        font_size: float = 0.5,
-        font_color: str = "red",
-    ):
-        super().__init__()
-        self._k = k
-        self._svgs_stack: list[list[svg.SVG]] = [list()]
-        self._num_tick_stack: list[list[int]] = [list()]
-        self._current_tick: int = 0
-        self._errors: list[stim.ExplainedError] = list(errors)
-        self._font_size = font_size
-        self._font_color = font_color
-
-    @override
-    def enter_node(self, node: LayerNode) -> None:
-        if node.is_repeated:
-            self._svgs_stack.append(list())
-            self._num_tick_stack.append(list())
-
-    @override
-    def exit_node(self, node: LayerNode) -> None:
-        if not node.is_repeated:
-            return
-        if len(self._svgs_stack) < 2:
-            raise TQECException(
-                "Logical error: exiting a repeated node with less than 2 entries in the stack."
-            )
-        assert node.repetitions is not None
-        repetitions = node.repetitions.integer_eval(self._k)
-        svgs = self._svgs_stack.pop(-1)
-        ticks = self._num_tick_stack.pop(-1)
-        for _ in range(repetitions):
-            self._svgs_stack[-1].extend(deepcopy(svgs))
-            # No need to deepcopy integers.
-            self._num_tick_stack[-1].extend(ticks)
-
-    @override
-    def visit_node(self, node: LayerNode) -> None:
-        if not node.is_leaf:
-            return
-        layer = node._layer
-        assert isinstance(layer, LayoutLayer)
-        template, plaquettes = layer.to_template_and_plaquettes()
-        instantiation = template.instantiate_list(self._k)
-        drawers = plaquettes.collection.map_values(
-            lambda plaq: plaq.debug_information.get_svg_drawer()
-        )
-        num_ticks = layer.num_moments(self._k)
-
-        self._svgs_stack[-1].append(
-            plaquette_grid_svg_viewer(
-                instantiation,
-                drawers,
-                errors=self._get_errors_within(self._current_tick, self._current_tick + num_ticks),
-            )
-        )
-
-        self._num_tick_stack[-1].append(num_ticks)
-        self._current_tick += num_ticks
-
-    def get_tick_text(self, start: int, end: int) -> svg.Text:
-        return svg.Text(
-            x=0,
-            y=0,
-            fill=self._font_color,
-            font_size=self._font_size,
-            text_anchor="start",
-            dominant_baseline="hanging",
-            text=f"TICKs: {start} -> {end}",
-        )
-
-    def _get_errors_within(self, start: int, end: int) -> list[stim.ExplainedError]:
-        return [
-            err
-            for err in self._errors
-            if (start <= err.circuit_error_locations[0].tick_offset < end)
-        ]
-
-    @property
-    def visualisations(self) -> list[str]:
-        if len(self._svgs_stack) > 1:
-            warnings.warn(
-                "Trying to get the layer visualisations but the stack contains more than one "
-                "element. You may get incorrect results. Did you forget to close a REPEAT block?"
-            )
-        ret: list[str] = []
-        current_tick: int = 0
-        for s, t in zip(self._svgs_stack[0], self._num_tick_stack[0]):
-            next_tick = current_tick + t
-            # Adding text to mark which TICKs are concerned.
-            assert s.elements is not None
-            s.elements.append(self.get_tick_text(current_tick, next_tick))
-            ret.append(s.as_str())
-            current_tick = next_tick
-        return ret
 
 
 class LayerTree:
