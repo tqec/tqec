@@ -23,6 +23,8 @@ def _get_bounding_box(coords: Iterable[complex]) -> tuple[complex, complex]:
 
 
 class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
+    """SVG plaquette drawer for RPNG descriptions."""
+
     def __init__(self, description: RPNGDescription) -> None:
         super().__init__()
         self._description = description

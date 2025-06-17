@@ -37,6 +37,9 @@ def plaquette_grid_to_svg(
             used to index the provided ``drawers``.
         drawers: a default dictionary containing a SVG drawer for each of the plaquette indices
             provided in ``grid``. If an index is not present, the default value is used.
+        top_left_qubit: coordinates of the qubit at the very top-left of the
+            visualisation canva. Used to correctly offset qubit values from the
+            provided ``errors``.
         width: width of the resulting SVG.
         height: height of the resulting SVG.
         show_interaction_order: if ``True``, numbers representing the timestep(s) at which each
@@ -129,6 +132,9 @@ def plaquette_grid_svg_viewer(
             used to index the provided ``drawers``.
         drawers: a default dictionary containing a SVG drawer for each of the plaquette indices
             provided in ``grid``. If an index is not present, the default value is used.
+        top_left_qubit: coordinates of the qubit at the very top-left of the
+            visualisation canva. Used to correctly offset qubit values from the
+            provided ``errors``.
         width: width of the resulting SVG. If ``None``, defaults to ``len(grid[0])``.
         height: height of the resulting SVG. If ``None``, defaults to ``len(grid)``.
         show_interaction_order: if ``True``, numbers representing the timestep(s) at which each

@@ -38,11 +38,24 @@ def get_errors_svg(
     Args:
         errors: a sequence of errors to plot. It is often desirable to filter
             errors according to the moment they appear in.
-        plaquette_width:
-        plaquette_height:
-        size:
-        stroke_color:
-        stroke_width_multiplier:
+        top_left_qubit: coordinates of the qubit at the very top-left of the
+            visualisation canva. Used to correctly offset qubit values from the
+            provided ``errors``.
+        plaquette_width: width (in SVG dimensions) of a regular square plaquette.
+        plaquette_height: height (in SVG dimensions) of a regular square plaquette.
+        size: size (in SVG dimensions) of the crosses used to mark errors.
+        stroke_color: color used to draw the crosses representing each error.
+        stroke_width_multiplier: multiplier applied to ``size`` to get the stroke
+            width used to draw the crosses representing errors.
+
+    Returns:
+        a SVG element containing as many sub-elements as there are errors in the
+        provided ``errors`` list, each representing one of the provided errors.
+
+    Raises:
+        TQECDrawingError: if at least one of the provided ``errors`` has both an
+            empty ``flipped_measurement`` list AND an empty ``flipped_pauli_product``
+            list.
 
     """
     width_between_qubits: float = plaquette_width / 2
