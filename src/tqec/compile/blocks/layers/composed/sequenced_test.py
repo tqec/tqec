@@ -1,3 +1,5 @@
+from typing import Final
+
 import pytest
 import stim
 
@@ -9,10 +11,15 @@ from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
+from tqec.templates._testing import FixedTemplate
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+
+TRANSLATOR: Final = DefaultRPNGTranslator()
 
 
 @pytest.fixture(name="plaquette_layer")
@@ -28,6 +35,19 @@ def plaquette_layer2_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitSpatialCubeTemplate(),
         Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+    )
+
+
+@pytest.fixture(name="non_empty_plaquette_layer")
+def non_empty_plaquette_layer_fixture() -> PlaquetteLayer:
+    return PlaquetteLayer(
+        FixedTemplate([[1]]),
+        Plaquettes(
+            FrozenDefaultDict(
+                {1: TRANSLATOR.translate(RPNGDescription.from_string("-x1- -x2- -x3- -x4-"))},
+                default_value=empty_square_plaquette(),
+            )
+        ),
     )
 
 
@@ -189,3 +209,28 @@ def test_to_sequenced_layer_with_schedule(plaquette_layer: PlaquetteLayer) -> No
         layer.to_sequenced_layer_with_schedule((LinearFunction(0, 1), LinearFunction(1, 0)))
     with pytest.raises(NotImplementedError):
         layer.to_sequenced_layer_with_schedule((LinearFunction(0, 1), LinearFunction(2, 0)))
+
+
+def test_scalable_num_moments(
+    plaquette_layer: PlaquetteLayer, non_empty_plaquette_layer: PlaquetteLayer
+) -> None:
+    # Empty layer, repeated 10 times
+    assert SequencedLayers(
+        [plaquette_layer for _ in range(10)]
+    ).scalable_num_moments == LinearFunction(0, 0)
+    # Non empty layer, repeated 10 times
+    assert non_empty_plaquette_layer.scalable_num_moments.is_constant()
+    layer_num_moments = non_empty_plaquette_layer.scalable_num_moments.offset
+    assert SequencedLayers(
+        [non_empty_plaquette_layer for _ in range(10)]
+    ).scalable_num_moments == LinearFunction(0, 10 * layer_num_moments)
+    # A mix of empty and non-empty
+    assert SequencedLayers(
+        [
+            plaquette_layer,
+            plaquette_layer,
+            non_empty_plaquette_layer,
+            plaquette_layer,
+            non_empty_plaquette_layer,
+        ]
+    ).scalable_num_moments == LinearFunction(0, 2 * layer_num_moments)
