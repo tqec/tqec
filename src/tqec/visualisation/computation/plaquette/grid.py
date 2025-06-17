@@ -3,6 +3,7 @@ from typing import Sequence
 import stim
 import svg
 
+from tqec.circuit.qubit import GridQubit
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.visualisation.computation.errors import get_errors_svg
 from tqec.visualisation.computation.plaquette.base import (
@@ -14,6 +15,7 @@ from tqec.visualisation.computation.plaquette.base import (
 def plaquette_grid_to_svg(
     grid: Sequence[Sequence[int]],
     drawers: FrozenDefaultDict[int, SVGPlaquetteDrawer],
+    top_left_qubit: GridQubit,
     width: float,
     height: float,
     show_interaction_order: bool = True,
@@ -98,13 +100,14 @@ def plaquette_grid_to_svg(
             template_id = element_id_template.format(key)
             drawing_lines.append(svg.Use(x=x, y=y, href=f"#{template_id}"))
     if errors:
-        drawing_lines.append(get_errors_svg(errors, pw, ph, size=(pw + ph) / 10))
+        drawing_lines.append(get_errors_svg(errors, top_left_qubit, pw, ph, size=(pw + ph) / 10))
     return svg.G(elements=drawing_lines)
 
 
 def plaquette_grid_svg_viewer(
     grid: Sequence[Sequence[int]],
     drawers: FrozenDefaultDict[int, SVGPlaquetteDrawer],
+    top_left_qubit: GridQubit,
     width: float | None = None,
     height: float | None = None,
     show_interaction_order: bool = True,
@@ -159,6 +162,7 @@ def plaquette_grid_svg_viewer(
             plaquette_grid_to_svg(
                 grid,
                 drawers,
+                top_left_qubit,
                 width,
                 height,
                 show_interaction_order,
