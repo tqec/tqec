@@ -54,10 +54,10 @@ def make_fixed_bulk_realignment_plaquette(
             cx_schedule = [1, 2, 3, 5]
     circuit = stim.Circuit()
     circuit.append(f"R{mq_reset.value}", qubits.syndrome_qubits_indices, [])
-    circuit.append("TICK")
+    circuit.append("TICK", [], [])
     for targets in cx_targets:
         circuit.append("CX", targets, [])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
     circuit.append(f"M{mq_measurement.value}", qubits.syndrome_qubits_indices, [])
     circuit.append("H", qubits.data_qubits_indices, [])
     schedule = [0, *cx_schedule, 6]
