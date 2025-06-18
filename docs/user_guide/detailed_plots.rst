@@ -1,5 +1,5 @@
 Detailed plots with :code:`tqec`
-===============================
+================================
 
 The :code:`tqec` library provides tools to create detailed plots of the results obtained with :code:`sinter`. Below is an example of the type of plots you can generate
 with :code:`tqec`.
@@ -85,8 +85,8 @@ This part should be quite familiar if you already used the :code:`tqec.simulatio
         )
         main_statistics.append(stats[0])
 
-### 2.2. Estimating the threshold
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2.2. Estimating the threshold
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The next step will be to have a good-enough estimation of the provided computation threshold. This threshold will help us calibrating the next step
 where we perform more sampling around the estimated threshold value to have a detailed view of the code behaviour near its threshold.

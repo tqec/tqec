@@ -4,8 +4,8 @@
       <author>TQEC Community</author>
       <authoring_tool>https://github.com/tqec/tqec</authoring_tool>
     </contributor>
-    <created>2025-06-16T17:27:47.538505</created>
-    <modified>2025-06-16T17:27:47.538506</modified>
+    <created>2025-06-18T12:50:03.528289</created>
+    <modified>2025-06-18T12:50:03.528291</modified>
     <unit name="inch" meter="0.02539999969303608" />
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -810,7 +810,7 @@
     </material>
   </library_materials>
   <library_nodes>
-    <node id="ZXZ-without--X--Z-+Z" name="ZXZ">
+    <node id="ZXZ-without--Z-+Z--X" name="ZXZ">
       <instance_geometry url="#FaceID0">
         <bind_material>
           <technique_common>
@@ -868,7 +868,7 @@
         </bind_material>
       </instance_geometry>
       </node>
-    <node id="ZXZ-without-+X--Z" name="ZXZ">
+    <node id="ZXZ-without--Z-+X" name="ZXZ">
       <instance_geometry url="#FaceID3">
         <bind_material>
           <technique_common>
@@ -1196,7 +1196,7 @@
       <node id="SketchUp" name="SketchUp">
         <node id="ID0" name="instance_0">
           <matrix>1.0 0.0 0.0 3.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 6.0 0.0 0.0 0.0 1.0</matrix>
-          <instance_node url="#ZXZ-without--X--Z-+Z" />
+          <instance_node url="#ZXZ-without--Z-+Z--X" />
         </node>
         <node id="ID1" name="instance_1">
           <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 3.0 0.0 0.0 0.0 1.0</matrix>
@@ -1204,7 +1204,7 @@
         </node>
         <node id="ID2" name="instance_2">
           <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 6.0 0.0 0.0 0.0 1.0</matrix>
-          <instance_node url="#ZXZ-without-+X--Z" />
+          <instance_node url="#ZXZ-without--Z-+X" />
         </node>
         <node id="ID3" name="instance_3">
           <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 3.0 0.0 0.0 0.0 1.0</matrix>

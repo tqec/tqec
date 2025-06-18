@@ -24,7 +24,7 @@ SketchUp scene to a :code:`.dae` file on Mac OSX or Linux.
 
 The workflow using SketchUp to build computations is as follows:
 
-1. Open the `template file <https://github.com/tqec/tqec/blob/main/assets/template.skp>`_` in SketchUp.
+1. Open the `template file <https://github.com/tqec/tqec/blob/main/assets/template.skp>`_ in SketchUp.
 2. Use the building blocks provided in the template file to build your computation. After you finish building, remove the template blocks from the scene.
 3. Save and export the model to :code:`.dae` file format.
 4. Import the computation into :code:`tqec` using the :code:`tqec.read_block_graph_from_dae_file` or :code:`BlockGraph.from_dae_file()` function.

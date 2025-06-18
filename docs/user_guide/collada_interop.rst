@@ -2,7 +2,7 @@ COLLADA Interoperability
 ========================
 
 This notebook demonstrates how to interoperate :code:`tqec` with `COLLADA <https://en.wikipedia.org/wiki/COLLADA>`_ ( :code:`.dae`) files. COLLADA files can be
-imported/exported to/from [SketchUp](https://www.sketchup.com/), which is a common used 3D modeling tool in QEC paper.
+imported/exported to/from `SketchUp <https://www.sketchup.com/>`_, which is a common used 3D modeling tool in QEC paper.
 
 :code:`tqec` relies on `PyCollada <https://github.com/pycollada/pycollada>`_ under the hood to realize the interoperability with COLLADA files.
 
