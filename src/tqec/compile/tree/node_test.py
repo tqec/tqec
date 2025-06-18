@@ -18,9 +18,7 @@ from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 LOGICAL_QUBIT_SIDE: Final = LinearFunction(4, 5)
-LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
-    LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE
-)
+LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE)
 
 _TRANSLATOR = DefaultRPNGTranslator()
 _EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
@@ -94,17 +92,12 @@ def test_walk_see_all_leaf_nodes(layout_layer: LayoutLayer) -> None:
     assert (
         count_leaves(LayerNode(RepeatedLayer(layout_layer, LinearFunction(2, 0)))) == 1
     )  # Because RepeatedLayer has only its repeated node as child.
-    assert (
-        count_leaves(LayerNode(SequencedLayers([layout_layer for _ in range(3)]))) == 3
-    )
+    assert count_leaves(LayerNode(SequencedLayers([layout_layer for _ in range(3)]))) == 3
     assert (
         count_leaves(
             LayerNode(
                 SequencedLayers(
-                    [
-                        SequencedLayers([layout_layer for _ in range(3)])
-                        for _ in range(5)
-                    ]
+                    [SequencedLayers([layout_layer for _ in range(3)]) for _ in range(5)]
                 )
             )
         )

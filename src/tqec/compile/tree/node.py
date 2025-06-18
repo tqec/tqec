@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence, TypeGuard
+from collections.abc import Mapping, Sequence
+from typing import Any, TypeGuard
 
 import stim
 
@@ -49,6 +50,7 @@ class LayerNode:
             annotations: already computed annotations. Default to ``None`` meaning
                 no annotations are provided. Should be a mapping from values of
                 ``k`` to the annotations already computed for that value of ``k``.
+
         """
         self._layer = layer
         self._children = LayerNode._get_children(layer)
@@ -83,7 +85,8 @@ class LayerNode:
     @property
     def is_leaf(self) -> bool:
         """Returns ``True`` if ``self`` does not have any children and so is a
-        leaf node."""
+        leaf node.
+        """
         return isinstance(self._layer, LayoutLayer)
 
     @property
@@ -94,18 +97,15 @@ class LayerNode:
     @property
     def repetitions(self) -> LinearFunction | None:
         """Returns the number of repetitions of the repeated block if
-        ``self.is_repeated`` else ``None``."""
-        return (
-            self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
-        )
+        ``self.is_repeated`` else ``None``.
+        """
+        return self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "layer": type(self._layer).__name__,
             "children": [child.to_dict() for child in self._children],
-            "annotations": {
-                k: annotation.to_dict() for k, annotation in self._annotations.items()
-            },
+            "annotations": {k: annotation.to_dict() for k, annotation in self._annotations.items()},
         }
 
     def walk(self, walker: NodeWalker) -> None:
@@ -114,6 +114,7 @@ class LayerNode:
 
         Args:
             walker: structure that will be called on each explored node.
+
         """
         walker.enter_node(self)
         walker.visit_node(self)
@@ -156,6 +157,7 @@ class LayerNode:
             corresponding circuit in the returned list. If two consecutive leaf
             nodes have the same stabilizer configuration, only the first polygons
             will be kept.
+
         """
         if isinstance(self._layer, LayoutLayer):
             annotations = self.get_annotations(k)
@@ -229,6 +231,7 @@ class LayerNode:
         Returns:
             a ``stim.Circuit`` instance representing ``self`` with the provided
             ``global_qubit_map``.
+
         """
         circuits = self.generate_circuits_with_potential_polygons(
             k, global_qubit_map, add_polygons=False

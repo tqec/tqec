@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Iterable, Iterator, Any
+from typing import Any
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
@@ -32,19 +33,17 @@ class PlaquetteQubits:
         Args:
             orientation (TemplateOrientation, optional): Whether to use horizontal or
                 vertical orientation as the axis. Defaults to horizontal.
+
         Returns:
             The qubits on the edge of the plaquette.
+
         """
 
         def _get_relevant_value(qubit: GridQubit) -> int:
             return qubit.y if orientation == Orientation.HORIZONTAL else qubit.x
 
         max_index = max(_get_relevant_value(q) for q in self.data_qubits)
-        return [
-            qubit
-            for qubit in self.data_qubits
-            if (_get_relevant_value(qubit) == max_index)
-        ]
+        return [qubit for qubit in self.data_qubits if (_get_relevant_value(qubit) == max_index)]
 
     def get_qubits_on_side(self, side: PlaquetteSide) -> list[GridQubit]:
         """Return the qubits one the provided side of the instance.
@@ -59,6 +58,7 @@ class PlaquetteQubits:
 
         Returns:
             The qubits on the edge of the plaquette.
+
         """
         if side == PlaquetteSide.LEFT:
             min_x = min(q.x for q in self)
@@ -97,26 +97,19 @@ class PlaquetteQubits:
 
     @property
     def syndrome_qubits_with_indices(self) -> Iterator[tuple[int, GridQubit]]:
-        yield from (
-            (i, q) for i, q in zip(self.syndrome_qubits_indices, self.syndrome_qubits)
-        )
+        yield from ((i, q) for i, q in zip(self.syndrome_qubits_indices, self.syndrome_qubits))
 
     @property
     def qubit_map(self) -> QubitMap:
         return QubitMap(
-            dict(self.data_qubits_with_indices)
-            | dict(self.syndrome_qubits_with_indices)
+            dict(self.data_qubits_with_indices) | dict(self.syndrome_qubits_with_indices)
         )
 
     def without_qubits(self, qubits: Iterable[int]) -> PlaquetteQubits:
         removed_qubits = frozenset(qubits)
         return PlaquetteQubits(
             [q for i, q in self.data_qubits_with_indices if i not in removed_qubits],
-            [
-                q
-                for i, q in self.syndrome_qubits_with_indices
-                if i not in removed_qubits
-            ],
+            [q for i, q in self.syndrome_qubits_with_indices if i not in removed_qubits],
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -125,6 +118,7 @@ class PlaquetteQubits:
         Returns:
             a dictionary with the keys ``data_qubits`` and ``syndrome_qubits`` and
             their corresponding values.
+
         """
         return {
             "data_qubits": [q.to_dict() for q in self.data_qubits],
@@ -142,6 +136,7 @@ class PlaquetteQubits:
         Returns:
             a new instance of :class:`PlaquetteQubits` with the provided
             ``data_qubits`` and ``syndrome_qubits``.
+
         """
         data_qubits = [GridQubit.from_dict(q) for q in data["data_qubits"]]
         syndrome_qubits = [GridQubit.from_dict(q) for q in data["syndrome_qubits"]]

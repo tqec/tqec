@@ -149,10 +149,7 @@ def test_compile_L_shape_in_space_time(
     )
 
     dem = circuit.detector_error_model(decompose_errors=True)
-    assert (
-        dem.num_detectors
-        == 2 * (d**2 - 1) + (d + 1 + 2 * (d**2 - 1)) * (d - 1) + (d**2 - 1) * d
-    )
+    assert dem.num_detectors == 2 * (d**2 - 1) + (d + 1 + 2 * (d**2 - 1)) * (d - 1) + (d**2 - 1) * d
     assert dem.num_observables == 1
     assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
 
@@ -206,8 +203,7 @@ def test_compile_stability(convention_name: str, obs_basis: Basis, k: int) -> No
     num_temporal_basis_stabilizers = (d - 1) ** 2 // 2
     assert (
         dem.num_detectors
-        == (d - 1) * num_spatial_basis_stabilizers
-        + (d + 1) * num_temporal_basis_stabilizers
+        == (d - 1) * num_spatial_basis_stabilizers + (d + 1) * num_temporal_basis_stabilizers
     )
     assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
 
@@ -234,10 +230,7 @@ def test_compile_L_spatial_junction(convention_name: str, k: int) -> None:
     dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_observables == 1
     expected_distance = d - 1 if convention_name == "fixed_parity" else d
-    assert (
-        len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False))
-        == expected_distance
-    )
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == expected_distance
 
 
 @pytest.mark.parametrize(
@@ -264,10 +257,7 @@ def test_compile_move_rotation(convention_name: str, obs_basis: Basis, k: int) -
         expected_distance = d
     else:
         expected_distance = d - 1 if obs_basis == Basis.X else d
-    assert (
-        len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False))
-        == expected_distance
-    )
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == expected_distance
 
 
 @pytest.mark.parametrize(
@@ -296,10 +286,7 @@ def test_compile_L_spatial_junction_with_time_pipe(
     dem = circuit.detector_error_model(decompose_errors=True)
     assert dem.num_observables == 1
     expected_distance = d - 1 if convention_name == "fixed_parity" else d
-    assert (
-        len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False))
-        == expected_distance
-    )
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == expected_distance
 
 
 @pytest.mark.parametrize(
@@ -310,9 +297,7 @@ def test_compile_L_spatial_junction_with_time_pipe(
         (1, 2),
     ),
 )
-def test_compile_temporal_hadamard(
-    convention_name: str, in_obs_basis: Basis, k: int
-) -> None:
+def test_compile_temporal_hadamard(convention_name: str, in_obs_basis: Basis, k: int) -> None:
     d = 2 * k + 1
 
     g = BlockGraph("Test Temporal Hadamard")

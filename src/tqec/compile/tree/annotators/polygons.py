@@ -56,9 +56,7 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
                         plaquette.origin.x + column_index * increments.x,
                         plaquette.origin.y + row_index * increments.y,
                     )
-                    polygons.append(
-                        Polygon(basis, frozenset(q + qubit_offset for q in qubits))
-                    )
+                    polygons.append(Polygon(basis, frozenset(q + qubit_offset for q in qubits)))
 
     # Shift the qubits of the returned scheduled circuit
     mincube, _ = layer.bounds
@@ -67,8 +65,6 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
     # This is a temporary fix to the above issue, we may need a utility function
     # to calculate shift to avoid similar issues in the future.
     shift = Shift2D(mincube.x * (eshape.x - 1), mincube.y * (eshape.y - 1))
-    shifted_polygons = [
-        Polygon(p.basis, frozenset(q + shift for q in p.qubits)) for p in polygons
-    ]
+    shifted_polygons = [Polygon(p.basis, frozenset(q + shift for q in p.qubits)) for p in polygons]
 
     return shifted_polygons

@@ -30,6 +30,7 @@ class CubeSpec:
             pipe at the top or bottom of a spatial cube is executed on the same
             timeslice as this cube. This information is needed for the fixed
             parity convention.
+
     """
 
     kind: CubeKind
@@ -67,17 +68,12 @@ class CubeSpec:
         for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
             if graph.has_pipe_between(pos, pos.shift_by(*shift)):
                 spatial_arms |= flag
-        return CubeSpec(
-            cube.kind, spatial_arms, has_spatial_up_or_down_pipe_in_timeslice
-        )
+        return CubeSpec(cube.kind, spatial_arms, has_spatial_up_or_down_pipe_in_timeslice)
 
     @property
     def pipe_dimensions(self) -> frozenset[Literal[Direction3D.X, Direction3D.Y]]:
         dimensions: list[Literal[Direction3D.X, Direction3D.Y]] = []
-        if (
-            SpatialArms.LEFT in self.spatial_arms
-            or SpatialArms.RIGHT in self.spatial_arms
-        ):
+        if SpatialArms.LEFT in self.spatial_arms or SpatialArms.RIGHT in self.spatial_arms:
             dimensions.append(Direction3D.X)
         if SpatialArms.UP in self.spatial_arms or SpatialArms.DOWN in self.spatial_arms:
             dimensions.append(Direction3D.Y)
@@ -85,11 +81,8 @@ class CubeSpec:
 
     @property
     def has_spatial_pipe_in_both_dimensions(self) -> bool:
-        return (
-            SpatialArms.DOWN in self.spatial_arms or SpatialArms.UP in self.spatial_arms
-        ) and (
-            SpatialArms.LEFT in self.spatial_arms
-            or SpatialArms.RIGHT in self.spatial_arms
+        return (SpatialArms.DOWN in self.spatial_arms or SpatialArms.UP in self.spatial_arms) and (
+            SpatialArms.LEFT in self.spatial_arms or SpatialArms.RIGHT in self.spatial_arms
         )
 
 
@@ -104,6 +97,7 @@ class CubeBuilder(Protocol):
 
         Returns:
             a ``Block`` based on the provided ``CubeSpec``.
+
         """
         ...
 
@@ -119,6 +113,7 @@ class PipeBuilder(Protocol):
 
         Returns:
             a `CompiledBlock` based on the provided `PipeSpec`.
+
         """
         ...
 
@@ -146,6 +141,7 @@ class PipeSpec:
         at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal
             pipe and there is a temporal Hadamard pipe at the same Z position
             in the block graph.
+
     """
 
     cube_specs: tuple[CubeSpec, CubeSpec]

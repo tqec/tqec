@@ -12,8 +12,9 @@ from __future__ import annotations
 
 import functools
 from collections import Counter
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Iterable
+from typing import Any
 
 import numpy
 import stim
@@ -35,6 +36,7 @@ class QubitMap:
     Raises:
         TQECException: if the provided mapping from indices to qubits is not a
             bijection (i.e., if at least to values represent the same qubit).
+
     """
 
     i2q: dict[int, GridQubit] = field(default_factory=dict)
@@ -42,17 +44,14 @@ class QubitMap:
     def __post_init__(self) -> None:
         qubit_counter = Counter(self.i2q.values())
         if len(qubit_counter) != len(self.i2q):
-            duplicated_qubits = frozenset(
-                q for q in qubit_counter if qubit_counter[q] > 1
-            )
-            raise TQECException(
-                f"Found qubit(s) with more than one index: {duplicated_qubits}."
-            )
+            duplicated_qubits = frozenset(q for q in qubit_counter if qubit_counter[q] > 1)
+            raise TQECException(f"Found qubit(s) with more than one index: {duplicated_qubits}.")
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
         """Creates a qubit map from the provided ``qubits``, associating
-        indices using the order in which qubits are provided."""
+        indices using the order in which qubits are provided.
+        """
         return QubitMap(dict(enumerate(qubits)))
 
     @staticmethod
@@ -71,9 +70,7 @@ class QubitMap:
     def qubits(self) -> Iterable[GridQubit]:
         return self.i2q.values()
 
-    def with_mapped_qubits(
-        self, qubit_map: Callable[[GridQubit], GridQubit]
-    ) -> QubitMap:
+    def with_mapped_qubits(self, qubit_map: Callable[[GridQubit], GridQubit]) -> QubitMap:
         """Change the qubits involved in ``self`` without changing the
         associated indices.
 
@@ -87,6 +84,7 @@ class QubitMap:
 
         Returns:
             a new instance representing the updated mapping.
+
         """
         return QubitMap({i: qubit_map(q) for i, q in self.i2q.items()})
 
@@ -103,10 +101,9 @@ class QubitMap:
         Returns:
             a copy of ``self`` for which the assertion
             ``set(return_value.qubits).issubset(qubits_to_keep)`` is ``True``.
+
         """
-        return self.filter_by_qubit_indices(
-            self.q2i[q] for q in qubits_to_keep if q in self.q2i
-        )
+        return self.filter_by_qubit_indices(self.q2i[q] for q in qubits_to_keep if q in self.q2i)
 
     def filter_by_qubit_indices(self, qubit_indices_to_keep: Iterable[int]) -> QubitMap:
         """Filter the qubit map to only keep qubits present in the provided
@@ -118,6 +115,7 @@ class QubitMap:
         Returns:
             a copy of ``self`` with all the qubits associated to indices not in
             ``qubit_indices_to_keep`` removed.
+
         """
         kept_qubit_indices = frozenset(qubit_indices_to_keep)
         return QubitMap({i: q for i, q in self.i2q.items() if i in kept_qubit_indices})
@@ -133,6 +131,7 @@ class QubitMap:
 
         Returns:
             a ``stim.Circuit`` containing only ``QUBIT_COORDS`` instructions.
+
         """
         shiftx, shifty = 0, 0
         if shift_to_positive:
@@ -143,9 +142,7 @@ class QubitMap:
             ret.append(
                 "QUBIT_COORDS",
                 qi,
-                StimCoordinates(
-                    qubit.x + shiftx, qubit.y + shifty
-                ).to_stim_coordinates(),
+                StimCoordinates(qubit.x + shiftx, qubit.y + shifty).to_stim_coordinates(),
             )
         return ret
 
@@ -158,6 +155,7 @@ class QubitMap:
         Returns:
             ``(mins, maxes)`` where each of ``mins`` (resp. ``maxes``) is a pair
             of values ``(x, y)`` corresponding to the dimension.
+
         """
         coordinates = numpy.array([(q.x, q.y) for q in self.qubits])
         mins = numpy.min(coordinates, axis=0)
@@ -181,6 +179,7 @@ class QubitMap:
         Returns:
             a new instance of :class:`QubitMap` with the provided
             ``i2q`` and ``q2i``.
+
         """
         i2q = {int(qi): GridQubit.from_dict(q) for qi, q in data["i2q"]}
         return QubitMap(i2q)
@@ -204,6 +203,7 @@ def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
 
     Returns:
         a mapping from qubit indices (keys) to qubit coordinates (values).
+
     """
     qubit_coordinates = circuit.get_final_qubit_coordinates()
     qubits: dict[int, GridQubit] = {}

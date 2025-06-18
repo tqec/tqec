@@ -45,18 +45,12 @@ def raw_circuit_layer_fixture() -> RawCircuitLayer:
     )
 
 
-def test_creation(
-    plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer
-) -> None:
+def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer) -> None:
     RepeatedLayer(plaquette_layer, LinearFunction(0, 1))
     RepeatedLayer(raw_circuit_layer, LinearFunction(1, 90))
-    RepeatedLayer(
-        SequencedLayers([plaquette_layer, plaquette_layer]), LinearFunction(1, 0)
-    )
+    RepeatedLayer(SequencedLayers([plaquette_layer, plaquette_layer]), LinearFunction(1, 0))
     with pytest.raises(TQECException, match=".*non-linear number of timesteps.*"):
-        RepeatedLayer(
-            RepeatedLayer(plaquette_layer, LinearFunction(1, 0)), LinearFunction(1, 0)
-        )
+        RepeatedLayer(RepeatedLayer(plaquette_layer, LinearFunction(1, 0)), LinearFunction(1, 0))
 
 
 def test_scalable_timesteps(plaquette_layer: PlaquetteLayer) -> None:
@@ -79,9 +73,7 @@ def test_with_spatial_borders_trimmed(
     all_indices = frozenset(plaquette_layer.plaquettes.collection.keys())
     expected_plaquette_indices = all_indices - frozenset(
         itertools.chain.from_iterable(
-            frozenset(
-                plaquette_layer.template.get_border_indices(border.to_template_border())
-            )
+            frozenset(plaquette_layer.template.get_border_indices(border.to_template_border()))
             for border in borders
         )
     )
@@ -153,9 +145,9 @@ def test_to_sequenced_layer_with_schedule_raising(
         NotImplementedError,
         match="^Splitting a RepeatedLayer instance with a non-constant duration body is not implemented yet.$",
     ):
-        RepeatedLayer(
-            repeated_layer, LinearFunction(0, 2)
-        ).to_sequenced_layer_with_schedule((LinearFunction(2, 2), LinearFunction(2, 2)))
+        RepeatedLayer(repeated_layer, LinearFunction(0, 2)).to_sequenced_layer_with_schedule(
+            (LinearFunction(2, 2), LinearFunction(2, 2))
+        )
 
 
 def test_with_temporal_borders_replaced_none(plaquette_layer: PlaquetteLayer) -> None:
@@ -200,14 +192,10 @@ def test_with_temporal_borders_replaced(
     for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:
         assert layer.with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_NEGATIVE: replacement}
-        ) == SequencedLayers(
-            [replacement, RepeatedLayer(plaquette_layer, LinearFunction(2, 1))]
-        )
+        ) == SequencedLayers([replacement, RepeatedLayer(plaquette_layer, LinearFunction(2, 1))])
         assert layer.with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_POSITIVE: replacement}
-        ) == SequencedLayers(
-            [RepeatedLayer(plaquette_layer, LinearFunction(2, 1)), replacement]
-        )
+        ) == SequencedLayers([RepeatedLayer(plaquette_layer, LinearFunction(2, 1)), replacement])
         assert layer.with_temporal_borders_replaced(
             {
                 TemporalBlockBorder.Z_NEGATIVE: replacement,
@@ -225,9 +213,7 @@ def test_with_temporal_borders_replaced(
             TemporalBlockBorder.Z_NEGATIVE: None,
             TemporalBlockBorder.Z_POSITIVE: plaquette_layer2,
         }
-    ) == SequencedLayers(
-        [RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer2]
-    )
+    ) == SequencedLayers([RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer2])
     # Now with only a few repetitions, leading to edge-cases
     layer = RepeatedLayer(plaquette_layer, LinearFunction(0, 2))
     for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:

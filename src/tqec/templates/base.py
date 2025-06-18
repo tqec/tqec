@@ -1,11 +1,13 @@
 """Defines the base classes for templates: :class:`Template` and
-:class:`RectangularTemplate`."""
+:class:`RectangularTemplate`.
+"""
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
-from typing import Any, Iterator, Sequence
+from typing import Any
 
 import numpy
 import numpy.typing as npt
@@ -38,6 +40,7 @@ class Template(ABC):
         Args:
             default_increments: default increments between two plaquettes. Defaults
                 to ``Displacement(2, 2)`` when ``None``
+
         """
         super().__init__()
         self._default_shift = default_increments or Shift2D(2, 2)
@@ -63,6 +66,7 @@ class Template(ABC):
         Returns:
             a numpy array with the given plaquette indices arranged according to
             the underlying shape of the template.
+
         """
 
     def shape(self, k: int) -> PlaquetteShape2D:
@@ -83,6 +87,7 @@ class Template(ABC):
 
         Returns:
             the number of plaquettes expected from the :py:meth:`instantiate` method.
+
         """
 
     def get_increments(self) -> Shift2D:
@@ -90,6 +95,7 @@ class Template(ABC):
 
         Returns:
             a displacement of the default increments in the x and y directions.
+
         """
         return self._default_shift
 
@@ -118,6 +124,7 @@ class Template(ABC):
 
         Returns:
             a representation of all the sub-templates found.
+
         """
         return get_spatially_distinct_subtemplates(
             self.instantiate(k), manhattan_radius, avoid_zero_plaquettes
@@ -145,6 +152,7 @@ class Template(ABC):
             (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
             to the top-left entry of the array returned by
             :meth:`~tqec.templates.base.Template.instantiate`.
+
         """
         return BlockPosition2D(0, 0).get_top_left_plaquette_position(self.shape(k))
 
@@ -160,6 +168,7 @@ class BorderIndices:
         second_repeating: second repeating index on the border "bulk".
         bottom_right_corner: non-repeating index at the bottom or right part of
             the border.
+
     """
 
     top_left_corner: int
@@ -179,6 +188,7 @@ class BorderIndices:
         Returns:
             a mapping from the indices stored in ``self`` to the indices stored
             in ``other``.
+
         """
         return {s: o for s, o in zip(self, other)}
 
@@ -205,5 +215,6 @@ class RectangularTemplate(Template):
         Returns:
             a description of the indices present on the provided ``border`` of
             the represented template.
+
         """
         pass

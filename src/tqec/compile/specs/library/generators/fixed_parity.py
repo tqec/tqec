@@ -3,7 +3,6 @@ from __future__ import annotations
 import inspect
 from typing import ClassVar, Final, Literal
 
-
 from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.extended_stabilizers import (
@@ -78,6 +77,7 @@ class FixedParityConventionGenerator:
         Returns:
             a mapping with 4 plaquettes: one for each basis (either ``X`` or ``Z``)
             and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
+
         """
         # _r/_m: reset/measurement basis applied to each data-qubit in
         # reset_and_measured_indices
@@ -92,16 +92,10 @@ class FixedParityConventionGenerator:
         return {
             basis: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(
-                        f"{r}{basis.value.lower()}{s}{m}"
-                        for r, s, m in zip(rs, vsched, ms)
-                    )
+                    " ".join(f"{r}{basis.value.lower()}{s}{m}" for r, s, m in zip(rs, vsched, ms))
                 ),
                 Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(
-                        f"{r}{basis.value.lower()}{s}{m}"
-                        for r, s, m in zip(rs, hsched, ms)
-                    )
+                    " ".join(f"{r}{basis.value.lower()}{s}{m}" for r, s, m in zip(rs, hsched, ms))
                 ),
             }
             for basis in Basis
@@ -129,18 +123,10 @@ class FixedParityConventionGenerator:
         # the data-qubits cannot be already initialised to a value we would like to
         # keep and that would be destroyed by reset/measurement.
         return (
-            RPNGDescription.from_string(
-                f"---- {r}{b}{s[1]}{m} {r}{b}{s[2]}{m} {r}{b}{s[3]}{m}"
-            ),
-            RPNGDescription.from_string(
-                f"{r}{b}{s[0]}{m} ---- {r}{b}{s[2]}{m} {r}{b}{s[3]}{m}"
-            ),
-            RPNGDescription.from_string(
-                f"{r}{b}{s[0]}{m} {r}{b}{s[1]}{m} ---- {r}{b}{s[3]}{m}"
-            ),
-            RPNGDescription.from_string(
-                f"{r}{b}{s[0]}{m} {r}{b}{s[1]}{m} {r}{b}{s[2]}{m} ----"
-            ),
+            RPNGDescription.from_string(f"---- {r}{b}{s[1]}{m} {r}{b}{s[2]}{m} {r}{b}{s[3]}{m}"),
+            RPNGDescription.from_string(f"{r}{b}{s[0]}{m} ---- {r}{b}{s[2]}{m} {r}{b}{s[3]}{m}"),
+            RPNGDescription.from_string(f"{r}{b}{s[0]}{m} {r}{b}{s[1]}{m} ---- {r}{b}{s[3]}{m}"),
+            RPNGDescription.from_string(f"{r}{b}{s[0]}{m} {r}{b}{s[1]}{m} {r}{b}{s[2]}{m} ----"),
         )
 
     def get_2_body_rpng_descriptions(
@@ -184,6 +170,7 @@ class FixedParityConventionGenerator:
             a mapping with 8 plaquettes: one for each basis (either ``X`` or ``Z``)
             and for each plaquette orientation (``UP``, ``DOWN``, ``LEFT`` or
             ``RIGHT``).
+
         """
         PO = PlaquetteOrientation
         h = "h" if hadamard else "-"
@@ -195,18 +182,10 @@ class FixedParityConventionGenerator:
         for basis in Basis:
             b = basis.value.lower()
             ret[basis] = {
-                PO.DOWN: RPNGDescription.from_string(
-                    f"-{b}{s[0]}{h} -{b}{s[1]}{h} ---- ----"
-                ),
-                PO.LEFT: RPNGDescription.from_string(
-                    f"---- -{b}{s[1]}{h} ---- -{b}{s[3]}{h}"
-                ),
-                PO.UP: RPNGDescription.from_string(
-                    f"---- ---- -{b}{s[2]}{h} -{b}{s[3]}{h}"
-                ),
-                PO.RIGHT: RPNGDescription.from_string(
-                    f"-{b}{s[0]}{h} ---- -{b}{s[2]}{h} ----"
-                ),
+                PO.DOWN: RPNGDescription.from_string(f"-{b}{s[0]}{h} -{b}{s[1]}{h} ---- ----"),
+                PO.LEFT: RPNGDescription.from_string(f"---- -{b}{s[1]}{h} ---- -{b}{s[3]}{h}"),
+                PO.UP: RPNGDescription.from_string(f"---- ---- -{b}{s[2]}{h} -{b}{s[3]}{h}"),
+                PO.RIGHT: RPNGDescription.from_string(f"-{b}{s[0]}{h} ---- -{b}{s[2]}{h} ----"),
             }
         return ret
 
@@ -221,13 +200,10 @@ class FixedParityConventionGenerator:
             :class:`ExtendedPlaquetteCollection`. The first entry of the pair
             contains plaquettes that have not been reversed, the second entry
             contains plaquettes that have been reversed.
+
         """
         return {
-            b: (
-                ExtendedPlaquetteCollection.from_args(
-                    b, reset, measurement, is_reversed
-                )
-            )
+            b: (ExtendedPlaquetteCollection.from_args(b, reset, measurement, is_reversed))
             for b in Basis
         }
 
@@ -284,6 +260,7 @@ class FixedParityConventionGenerator:
               left-most data-qubit measuring ``top_left_basis`` stabilizer and
               right-most data-qubit measuring ``top_left_basis.flipped()``
               stabilizer.
+
         """
         b = top_left_basis.value.lower()
         o = top_left_basis.flipped().value.lower()
@@ -341,6 +318,7 @@ class FixedParityConventionGenerator:
                 left  |  bulk1  |  bulk2
 
             but this method returns ``(bulk1, bulk2, left)``.
+
         """
         b = top_left_basis.value.lower()
         o = top_left_basis.flipped().value.lower()
@@ -368,7 +346,8 @@ class FixedParityConventionGenerator:
     ########################################
     def get_memory_qubit_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance
-        needed to implement a single logical qubit."""
+        needed to implement a single logical qubit.
+        """
         return QubitTemplate()
 
     def get_memory_qubit_rpng_descriptions(
@@ -408,6 +387,7 @@ class FixedParityConventionGenerator:
             a description of the plaquettes needed to implement a standard
             memory operation on a logical qubit, optionally with resets or
             measurements on the data-qubits too.
+
         """
         # Basis for top/bottom and left/right boundary plaquettes
         HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
@@ -466,6 +446,7 @@ class FixedParityConventionGenerator:
             a description of the plaquettes needed to implement a standard
             memory operation on a logical qubit, optionally with resets or
             measurements on the data-qubits too.
+
         """
         return self._mapper(self.get_memory_qubit_rpng_descriptions)(
             is_reversed, z_orientation, reset, measurement
@@ -477,7 +458,8 @@ class FixedParityConventionGenerator:
     def get_memory_vertical_boundary_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate`
         instance needed to implement a regular spatial pipe between two logical
-        qubits aligned on the ``X`` axis."""
+        qubits aligned on the ``X`` axis.
+        """
         return QubitVerticalBorders()
 
     def get_memory_vertical_boundary_rpng_descriptions(
@@ -521,17 +503,14 @@ class FixedParityConventionGenerator:
             operation on a pipe between two neighbouring logical qubits aligned on
             the ``X``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         # Basis for top/bottom boundary plaquettes
         VBASIS = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
         HBASIS = VBASIS.flipped()
         # BPs: Bulk Plaquettes.
-        BPs_LEFT = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (1, 3)
-        )
-        BPs_RIGHT = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (0, 2)
-        )
+        BPs_LEFT = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement, (1, 3))
+        BPs_RIGHT = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement, (0, 2))
         # TBPs: Two Body Plaquettes.
         TBPs = self.get_2_body_rpng_descriptions(is_reversed)
 
@@ -594,6 +573,7 @@ class FixedParityConventionGenerator:
             pipe between two neighbouring logical qubits aligned on the
             ``X``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
             is_reversed, z_orientation, reset, measurement
@@ -605,7 +585,8 @@ class FixedParityConventionGenerator:
     def get_memory_horizontal_boundary_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance
         needed to implement a regular spatial pipe between two logical qubits
-        aligned on the ``Y`` axis."""
+        aligned on the ``Y`` axis.
+        """
         return QubitHorizontalBorders()
 
     def get_memory_horizontal_boundary_rpng_descriptions(
@@ -653,17 +634,14 @@ class FixedParityConventionGenerator:
             operation on a pipe between two neighbouring logical qubits aligned on
             the ``Y``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         # Basis for left/right boundary plaquettes
         HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
         VBASIS = HBASIS.flipped()
         # BPs: Bulk Plaquettes.
-        BPs_UP = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (2, 3)
-        )
-        BPs_DOWN = self.get_bulk_rpng_descriptions(
-            is_reversed, reset, measurement, (0, 1)
-        )
+        BPs_UP = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement, (2, 3))
+        BPs_DOWN = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement, (0, 1))
         # TBPs: Two Body Plaquettes.
         TBPs = self.get_2_body_rpng_descriptions(is_reversed)
 
@@ -726,6 +704,7 @@ class FixedParityConventionGenerator:
             pipe between two neighbouring logical qubits aligned on the
             ``Y``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         return self._mapper(self.get_memory_horizontal_boundary_rpng_descriptions)(
             is_reversed, z_orientation, reset, measurement
@@ -745,6 +724,7 @@ class FixedParityConventionGenerator:
             http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
             with more than one pipe in the spatial plane) or in other QEC gadgets
             such as the lattice surgery implementation of a ``CZ`` gate.
+
         """
         return QubitSpatialCubeTemplate()
 
@@ -798,6 +778,7 @@ class FixedParityConventionGenerator:
 
         Returns:
             a description of the plaquettes needed to implement a spatial cube.
+
         """
         # In this function implementation, all the indices used are referring to the
         # indices returned by the QubitSpatialCubeTemplate template. They are
@@ -869,9 +850,7 @@ class FixedParityConventionGenerator:
         # convention), so we only have to test if we have a dead-end in the Y
         # dimension.
         ODD_BOUNDARY_DIMENSION: Final[Literal[Direction3D.X, Direction3D.Y]] = (
-            Direction3D.Y
-            if arms in [SpatialArms.UP, SpatialArms.DOWN]
-            else Direction3D.X
+            Direction3D.Y if arms in [SpatialArms.UP, SpatialArms.DOWN] else Direction3D.X
         )
 
         mapping: dict[int, RPNGDescription] = {}
@@ -882,9 +861,7 @@ class FixedParityConventionGenerator:
         # Fill the boundaries that should be filled in the returned template
         # because they have no arms, and so will not be filled later.
         TOP, BOTTOM, LEFT, RIGHT = (
-            (10, 23, 12, 21)
-            if ODD_BOUNDARY_DIMENSION == Direction3D.X
-            else (9, 24, 11, 22)
+            (10, 23, 12, 21) if ODD_BOUNDARY_DIMENSION == Direction3D.X else (9, 24, 11, 22)
         )
         if SpatialArms.UP not in arms:
             mapping[TOP] = TBPs[SBB][PlaquetteOrientation.UP]
@@ -1015,6 +992,7 @@ class FixedParityConventionGenerator:
 
         Returns:
             the plaquettes needed to implement a spatial cube.
+
         """
         return self._mapper(self.get_spatial_cube_qubit_rpng_descriptions)(
             spatial_boundary_basis, arms, is_reversed, reset, measurement
@@ -1023,9 +1001,7 @@ class FixedParityConventionGenerator:
     ########################################
     #              Spatial arm             #
     ########################################
-    def get_spatial_cube_arm_raw_template(
-        self, arms: SpatialArms
-    ) -> RectangularTemplate:
+    def get_spatial_cube_arm_raw_template(self, arms: SpatialArms) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate`
         instance needed to implement the given spatial ``arms``.
 
@@ -1040,11 +1016,12 @@ class FixedParityConventionGenerator:
                 be the union of the arms (and so can only be
                 ``SpatialArms.UP | SpatialArms.DOWN`` or
                 ``SpatialArms.LEFT | SpatialArms.RIGHT`` because any other
-                ombination cannot be formed by a single arm).
+                combination cannot be formed by a single arm).
 
         Raises:
             TQECException: if the provided ``arms`` value does not check the
                 documented pre-conditions.
+
         """
         if (
             len(arms) == 0
@@ -1116,6 +1093,7 @@ class FixedParityConventionGenerator:
         Returns:
             the plaquettes needed to implement **one** pipe connecting to a
             spatial cube.
+
         """
         if len(arms) == 2 and arms not in SpatialArms.I_shaped_arms():
             raise TQECException(
@@ -1163,9 +1141,7 @@ class FixedParityConventionGenerator:
         # This is a regular memory arm, except that we should make sure that one
         # of the boundary does not override the extended stabilizer.
         z_orientation = (
-            Orientation.VERTICAL
-            if spatial_boundary_basis == Basis.Z
-            else Orientation.HORIZONTAL
+            Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
         )
         regular_memory = self.get_memory_vertical_boundary_plaquettes(
             is_reversed, z_orientation, reset, measurement
@@ -1199,8 +1175,8 @@ class FixedParityConventionGenerator:
 
         Returns:
             ``True`` if extended stablizers should be used, ``False`` otherwise.
-        """
 
+        """
         return (
             linked_cubes[0].has_spatial_pipe_in_both_dimensions
             ^ linked_cubes[1].has_spatial_pipe_in_both_dimensions
@@ -1215,9 +1191,7 @@ class FixedParityConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        if not FixedParityConventionGenerator.pipe_needs_extended_stablizers(
-            linked_cubes
-        ):
+        if not FixedParityConventionGenerator.pipe_needs_extended_stablizers(linked_cubes):
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
                 spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
@@ -1313,25 +1287,18 @@ class FixedParityConventionGenerator:
         # plaquettes or three-body plaquettes.
         u, v = linked_cubes
         both_cubes_have_spatial_pipes_in_both_dimensions = (
-            u.has_spatial_pipe_in_both_dimensions
-            and v.has_spatial_pipe_in_both_dimensions
+            u.has_spatial_pipe_in_both_dimensions and v.has_spatial_pipe_in_both_dimensions
         )
         right_plaquette = (
-            CSs[3]
-            if SpatialArms.RIGHT in u.spatial_arms
-            else TBPs[SBB][PlaquetteOrientation.RIGHT]
+            CSs[3] if SpatialArms.RIGHT in u.spatial_arms else TBPs[SBB][PlaquetteOrientation.RIGHT]
         )
         left_plaquette = (
-            CSs[0]
-            if SpatialArms.LEFT in v.spatial_arms
-            else TBPs[SBB][PlaquetteOrientation.LEFT]
+            CSs[0] if SpatialArms.LEFT in v.spatial_arms else TBPs[SBB][PlaquetteOrientation.LEFT]
         )
         # TLB, OTB: Top-Left Basis, Other Basis
         TLB = SBB if both_cubes_have_spatial_pipes_in_both_dimensions else SBB.flipped()
         OTB = TLB.flipped()
-        LEFT, RIGHT = (
-            (3, 2) if both_cubes_have_spatial_pipes_in_both_dimensions else (1, 4)
-        )
+        LEFT, RIGHT = (3, 2) if both_cubes_have_spatial_pipes_in_both_dimensions else (1, 4)
         return FrozenDefaultDict(
             {
                 RIGHT: right_plaquette,
@@ -1354,7 +1321,8 @@ class FixedParityConventionGenerator:
     def get_temporal_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.Template` instance
         needed to implement a transversal Hadamard gate applied on one logical
-        qubit."""
+        qubit.
+        """
         return QubitTemplate()
 
     def get_temporal_hadamard_rpng_descriptions(
@@ -1388,6 +1356,7 @@ class FixedParityConventionGenerator:
         Returns:
             a description of the plaquettes needed to implement a transversal
             Hadamard gate applied on one logical qubit.
+
         """
         # BPs: Bulk Plaquettes.
         BPs = self.get_bulk_hadamard_rpng_descriptions(is_reversed)
@@ -1420,7 +1389,8 @@ class FixedParityConventionGenerator:
     def get_spatial_vertical_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate`
         instance needed to implement a spatial Hadamard pipe between two logical
-        qubits aligned on the ``X`` axis."""
+        qubits aligned on the ``X`` axis.
+        """
         return QubitVerticalBorders()
 
     def get_spatial_vertical_hadamard_rpng_descriptions(
@@ -1467,6 +1437,7 @@ class FixedParityConventionGenerator:
             a description of the plaquettes needed to implement a Hadamard
             spatial transition between two neighbouring logical qubits aligned
             on the ``X`` axis.
+
         """
         # BPs: Bulk Plaquettes.
         BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
@@ -1506,7 +1477,8 @@ class FixedParityConventionGenerator:
     def get_spatial_horizontal_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate`
         instance needed to implement a spatial Hadamard pipe between two logical
-        qubits aligned on the ``Y`` axis."""
+        qubits aligned on the ``Y`` axis.
+        """
         return QubitHorizontalBorders()
 
     def get_spatial_horizontal_hadamard_rpng_descriptions(
@@ -1553,6 +1525,7 @@ class FixedParityConventionGenerator:
             a description of the plaquettes needed to implement a Hadamard
             spatial transition between two neighbouring logical qubits aligned
             on the ``Y`` axis.
+
         """
         # BPs: Bulk Plaquettes.
         BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)

@@ -46,9 +46,7 @@ class PlaquetteDebugInformation:
                 return bases.pop()
         return None
 
-    def with_data_qubits_removed(
-        self, removed_data_qubits: list[int]
-    ) -> PlaquetteDebugInformation:
+    def with_data_qubits_removed(self, removed_data_qubits: list[int]) -> PlaquetteDebugInformation:
         if self.rpng is None:
             return self
         corners: list[RPNG] = list(self.rpng.corners)
@@ -82,9 +80,7 @@ class PlaquetteDebugInformation:
             case PlaquetteOrientation.RIGHT:
                 corners[0] = corners[2] = empty_rpng
         return PlaquetteDebugInformation(
-            RPNGDescription(
-                (corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla
-            ),
+            RPNGDescription((corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla),
             self.draw_polygons,
         )
 
@@ -99,11 +95,7 @@ class PlaquetteDebugInformation:
     @staticmethod
     def from_dict(data: dict[str, Any]) -> PlaquetteDebugInformation:
         return PlaquetteDebugInformation(
-            (
-                RPNGDescription.from_dict(data["rpng"])
-                if data["rpng"] is not None
-                else None
-            ),
+            (RPNGDescription.from_dict(data["rpng"]) if data["rpng"] is not None else None),
             (
                 DrawPolygon.from_json(data["draw_polygons"])
                 if data["draw_polygons"] is not None

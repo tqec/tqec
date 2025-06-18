@@ -38,9 +38,7 @@ def _get_template_from_layer(
             )
         return root.template
     elif isinstance(root, SequencedLayers):
-        possible_templates = {
-            _get_template_from_layer(layer) for layer in root.layer_sequence
-        }
+        possible_templates = {_get_template_from_layer(layer) for layer in root.layer_sequence}
         if len(possible_templates) > 1:
             raise TQECException(
                 "Multiple possible Template found:\n  -"
@@ -51,9 +49,7 @@ def _get_template_from_layer(
     elif isinstance(root, RepeatedLayer):
         return _get_template_from_layer(root.internal_layer)
     else:
-        raise NotImplementedError(
-            "Unknown layer type encountered:", type(root).__name__
-        )
+        raise NotImplementedError("Unknown layer type encountered:", type(root).__name__)
 
 
 def compile_block_graph(
@@ -77,6 +73,7 @@ def compile_block_graph(
     Returns:
         A :class:`TopologicalComputationGraph` object that can be used to generate a
         ``stim.Circuit`` and scale easily.
+
     """
     # All the ports should be filled before compiling the block graph.
     if block_graph.num_ports != 0:
@@ -102,9 +99,7 @@ def compile_block_graph(
 
     def has_pipes_in_both_spatial_dimensions(cube: Cube) -> bool:
         return frozenset(
-            pipe.direction
-            for pipe in block_graph.pipes_at(cube.position)
-            if pipe.kind.is_spatial
+            pipe.direction for pipe in block_graph.pipes_at(cube.position) if pipe.kind.is_spatial
         ) == frozenset([Direction3D.X, Direction3D.Y])
 
     extended_stabilizers_pipe_slices: frozenset[int] = frozenset(

@@ -13,7 +13,7 @@ from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.plaquette.qubit import SquarePlaquetteQubits
-from tqec.plaquette.rpng.rpng import RPNGDescription, PauliBasis
+from tqec.plaquette.rpng.rpng import PauliBasis, RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.templates.qubit import (
@@ -61,9 +61,7 @@ def make_fixed_bulk_realignment_plaquette(
     circuit.append(f"M{mq_measurement.value}", qubits.syndrome_qubits_indices, [])
     circuit.append("H", qubits.data_qubits_indices, [])
     schedule = [0, *cx_schedule, 6]
-    scheduled_circuit = ScheduledCircuit.from_circuit(
-        circuit, schedule, qubits.qubit_map
-    )
+    scheduled_circuit = ScheduledCircuit.from_circuit(circuit, schedule, qubits.qubit_map)
     return Plaquette(
         f"fixed_bulk_realignment_{stabilizer_basis}_{z_orientation.value}_R{mq_reset}_M{mq_measurement}",
         qubits,
@@ -115,6 +113,7 @@ class FixedBulkConventionGenerator:
         Returns:
             a mapping with 4 plaquettes: one for each basis (either ``X`` or ``Z``)
             and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
+
         """
         # _r/_m: reset/measurement basis applied to each data-qubit in
         # reset_and_measured_indices
@@ -202,6 +201,7 @@ class FixedBulkConventionGenerator:
             a mapping with 8 plaquettes: one for each basis (either ``X`` or ``Z``)
             and for each plaquette orientation (``UP``, ``DOWN``, ``LEFT`` or
             ``RIGHT``).
+
         """
         PO = PlaquetteOrientation
         return {
@@ -228,7 +228,8 @@ class FixedBulkConventionGenerator:
     ########################################
     def get_memory_qubit_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance
-        needed to implement a single logical qubit."""
+        needed to implement a single logical qubit.
+        """
         return QubitTemplate()
 
     def get_memory_qubit_rpng_descriptions(
@@ -263,6 +264,7 @@ class FixedBulkConventionGenerator:
             a description of the plaquettes needed to implement a standard
             memory operation on a logical qubit, optionally with resets or
             measurements on the data-qubits too.
+
         """
         # Border plaquette indices
         UP, DOWN, LEFT, RIGHT = (
@@ -323,6 +325,7 @@ class FixedBulkConventionGenerator:
             a description of the plaquettes needed to implement a standard
             memory operation on a logical qubit, optionally with resets or
             measurements on the data-qubits too.
+
         """
         return self._mapper(self.get_memory_qubit_rpng_descriptions)(
             z_orientation, reset, measurement
@@ -334,7 +337,8 @@ class FixedBulkConventionGenerator:
     def get_memory_vertical_boundary_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate`
         instance needed to implement a regular spatial pipe between two logical
-        qubits aligned on the ``X`` axis."""
+        qubits aligned on the ``X`` axis.
+        """
         return QubitVerticalBorders()
 
     def get_memory_vertical_boundary_rpng_descriptions(
@@ -377,6 +381,7 @@ class FixedBulkConventionGenerator:
             operation on a pipe between two neighbouring logical qubits aligned on
             the ``X``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         # Border plaquette indices
         UP, DOWN = (2, 3) if z_orientation == Orientation.VERTICAL else (1, 4)
@@ -445,6 +450,7 @@ class FixedBulkConventionGenerator:
             pipe between two neighbouring logical qubits aligned on the
             ``X``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         return self._mapper(self.get_memory_vertical_boundary_rpng_descriptions)(
             z_orientation, reset, measurement
@@ -456,7 +462,8 @@ class FixedBulkConventionGenerator:
     def get_memory_horizontal_boundary_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance
         needed to implement a regular spatial pipe between two logical qubits
-        aligned on the ``Y`` axis."""
+        aligned on the ``Y`` axis.
+        """
         return QubitHorizontalBorders()
 
     def get_memory_horizontal_boundary_rpng_descriptions(
@@ -499,6 +506,7 @@ class FixedBulkConventionGenerator:
             operation on a pipe between two neighbouring logical qubits aligned on
             the ``Y``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         # Border plaquette indices
         LEFT, RIGHT = (1, 4) if z_orientation == Orientation.VERTICAL else (3, 2)
@@ -567,6 +575,7 @@ class FixedBulkConventionGenerator:
             pipe between two neighbouring logical qubits aligned on the
             ``Y``-axis, optionally with resets or measurements on the
             data-qubits too.
+
         """
         return self._mapper(self.get_memory_horizontal_boundary_rpng_descriptions)(
             z_orientation, reset, measurement
@@ -586,6 +595,7 @@ class FixedBulkConventionGenerator:
             http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
             with more than one pipe in the spatial plane) or in other QEC gadgets
             such as the lattice surgery implementation of a ``CZ`` gate.
+
         """
         return QubitSpatialCubeTemplate()
 
@@ -635,6 +645,7 @@ class FixedBulkConventionGenerator:
 
         Returns:
             a description of the plaquettes needed to implement a spatial cube.
+
         """
         # In this function implementation, all the indices used are referring to the
         # indices returned by the QubitSpatialCubeTemplate template. They are
@@ -816,6 +827,7 @@ class FixedBulkConventionGenerator:
 
         Returns:
             the plaquettes needed to implement a spatial cube.
+
         """
         return self._mapper(self.get_spatial_cube_qubit_rpng_descriptions)(
             spatial_boundary_basis, arms, reset, measurement
@@ -824,9 +836,7 @@ class FixedBulkConventionGenerator:
     ########################################
     #              Spatial arm             #
     ########################################
-    def get_spatial_cube_arm_raw_template(
-        self, arms: SpatialArms
-    ) -> RectangularTemplate:
+    def get_spatial_cube_arm_raw_template(self, arms: SpatialArms) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.RectangularTemplate`
         instance needed to implement the given spatial ``arms``.
 
@@ -834,6 +844,7 @@ class FixedBulkConventionGenerator:
             arms: specification of the spatial arm(s) we want a template for.
                 Needs to contain either one arm, or 2 arms that form a line
                 (e.g., ``SpatialArms.UP | SpatialArms.DOWN``).
+
         """
         if (
             len(arms) == 0
@@ -900,6 +911,7 @@ class FixedBulkConventionGenerator:
         Returns:
             a description of the plaquettes needed to implement **one** pipe
             connecting to a spatial cube.
+
         """
         if len(arms) == 2 and arms not in SpatialArms.I_shaped_arms():
             raise TQECException(
@@ -973,6 +985,7 @@ class FixedBulkConventionGenerator:
         Returns:
             the plaquettes needed to implement **one** pipe connecting to a
             spatial cube.
+
         """
         return self._mapper(self.get_spatial_cube_arm_rpng_descriptions)(
             spatial_boundary_basis, arms, linked_cubes, reset, measurement
@@ -998,9 +1011,7 @@ class FixedBulkConventionGenerator:
         TBPs = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
         ZHOOK = (
-            Orientation.HORIZONTAL
-            if spatial_boundary_basis == Basis.Z
-            else Orientation.VERTICAL
+            Orientation.HORIZONTAL if spatial_boundary_basis == Basis.Z else Orientation.VERTICAL
         )
         XHOOK = ZHOOK.flip()
         # List the plaquettes used. This mapping might be corrected afterwards to
@@ -1059,9 +1070,7 @@ class FixedBulkConventionGenerator:
         TBPs = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
         ZHOOK = (
-            Orientation.VERTICAL
-            if spatial_boundary_basis == Basis.Z
-            else Orientation.HORIZONTAL
+            Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
         )
         XHOOK = ZHOOK.flip()
         # List the plaquettes used. This mapping might be corrected afterwards to
@@ -1109,7 +1118,8 @@ class FixedBulkConventionGenerator:
     def get_temporal_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.Template` instance
         needed to implement a transversal Hadamard gate applied on one logical
-        qubit."""
+        qubit.
+        """
         return QubitTemplate()
 
     def get_temporal_hadamard_realignment_plaquettes(
@@ -1138,9 +1148,7 @@ class FixedBulkConventionGenerator:
             debug_basis=PauliBasis.Z,
         )
         # plaquettes at the right boundary of the template
-        right_boundary_basis = (
-            Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
-        )
+        right_boundary_basis = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
         X_RIGHT = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.X,
             z_orientation=z_orientation,
@@ -1153,9 +1161,7 @@ class FixedBulkConventionGenerator:
             z_orientation=z_orientation,
             mq_reset=right_boundary_basis,
             mq_measurement=right_boundary_basis,
-            debug_basis=PauliBasis.Z
-            if z_orientation == Orientation.HORIZONTAL
-            else None,
+            debug_basis=PauliBasis.Z if z_orientation == Orientation.HORIZONTAL else None,
         ).project_on_boundary(PlaquetteOrientation.RIGHT)
         down_boundary_basis = right_boundary_basis.flipped()
         X_DOWN = make_fixed_bulk_realignment_plaquette(
@@ -1163,9 +1169,7 @@ class FixedBulkConventionGenerator:
             z_orientation=z_orientation,
             mq_reset=down_boundary_basis,
             mq_measurement=down_boundary_basis,
-            debug_basis=PauliBasis.X
-            if z_orientation == Orientation.HORIZONTAL
-            else None,
+            debug_basis=PauliBasis.X if z_orientation == Orientation.HORIZONTAL else None,
         ).project_on_boundary(PlaquetteOrientation.DOWN)
         Z_DOWN = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.Z,
@@ -1193,7 +1197,8 @@ class FixedBulkConventionGenerator:
     def get_spatial_vertical_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.Template` instance needed to
         implement a spatial Hadamard pipe between two logical qubits aligned on
-        the ``X`` axis."""
+        the ``X`` axis.
+        """
         raise self._not_implemented_exception()
 
     def get_spatial_vertical_hadamard_rpng_descriptions(
@@ -1241,6 +1246,7 @@ class FixedBulkConventionGenerator:
             a description of the plaquettes needed to implement a Hadamard
             spatial transition between two neighbouring logical qubits aligned
             on the ``X`` axis.
+
         """
         raise self._not_implemented_exception()
 
@@ -1260,7 +1266,8 @@ class FixedBulkConventionGenerator:
     def get_spatial_horizontal_hadamard_raw_template(self) -> RectangularTemplate:
         """Returns the :class:`~tqec.templates.base.Template` instance needed to
         implement a spatial Hadamard pipe between two neighbouring logical
-        qubits aligned on the ``Y`` axis."""
+        qubits aligned on the ``Y`` axis.
+        """
         raise self._not_implemented_exception()
 
     def get_spatial_horizontal_hadamard_rpng_descriptions(
@@ -1307,6 +1314,7 @@ class FixedBulkConventionGenerator:
             a description of the plaquettes needed to implement a Hadamard
             spatial transition between two neighbouring logical qubits aligned
             on the ``Y`` axis.
+
         """
         raise self._not_implemented_exception()
 

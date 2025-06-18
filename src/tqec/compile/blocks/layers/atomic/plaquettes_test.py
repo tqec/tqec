@@ -45,24 +45,18 @@ def test_scalable_shape() -> None:
     template = FixedTemplate([[1]])
     large_template = FixedTemplate([[1 for _ in range(10)] for _ in range(10)])
     plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
-    single_plaquette_shape = PhysicalQubitScalable2D(
-        LinearFunction(0, 3), LinearFunction(0, 3)
-    )
+    single_plaquette_shape = PhysicalQubitScalable2D(LinearFunction(0, 3), LinearFunction(0, 3))
     assert PlaquetteLayer(template, plaquettes).scalable_shape == single_plaquette_shape
     assert PlaquetteLayer(
         large_template,
         plaquettes,
         trimmed_spatial_borders=frozenset([SpatialBlockBorder.X_NEGATIVE]),
-    ).scalable_shape == PhysicalQubitScalable2D(
-        LinearFunction(0, 19), LinearFunction(0, 21)
-    )
+    ).scalable_shape == PhysicalQubitScalable2D(LinearFunction(0, 19), LinearFunction(0, 21))
     assert PlaquetteLayer(
         large_template,
         plaquettes,
         trimmed_spatial_borders=frozenset(SpatialBlockBorder),
-    ).scalable_shape == PhysicalQubitScalable2D(
-        LinearFunction(0, 17), LinearFunction(0, 17)
-    )
+    ).scalable_shape == PhysicalQubitScalable2D(LinearFunction(0, 17), LinearFunction(0, 17))
 
 
 @pytest.mark.parametrize("borders", [(border,) for border in SpatialBlockBorder])
@@ -70,10 +64,7 @@ def test_with_spatial_borders_trimmed(borders: tuple[SpatialBlockBorder, ...]) -
     template = QubitTemplate()
     plaquettes = Plaquettes(
         FrozenDefaultDict(
-            {
-                i + 1: _EMPTY_PLAQUETTE
-                for i in range(template.expected_plaquettes_number)
-            },
+            {i + 1: _EMPTY_PLAQUETTE for i in range(template.expected_plaquettes_number)},
             default_value=_EMPTY_PLAQUETTE,
         )
     )
@@ -86,9 +77,7 @@ def test_with_spatial_borders_trimmed(borders: tuple[SpatialBlockBorder, ...]) -
         )
     )
     assert (
-        frozenset(
-            layer.with_spatial_borders_trimmed(borders).plaquettes.collection.keys()
-        )
+        frozenset(layer.with_spatial_borders_trimmed(borders).plaquettes.collection.keys())
         == expected_plaquette_indices
     )
 
@@ -98,14 +87,8 @@ def test_with_temporal_borders_replaced_none() -> None:
     plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     layer = PlaquetteLayer(template, plaquettes)
     assert layer.with_temporal_borders_replaced({}) == layer
-    assert (
-        layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: None})
-        is None
-    )
-    assert (
-        layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: None})
-        is None
-    )
+    assert layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: None}) is None
+    assert layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: None}) is None
     assert (
         layer.with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
@@ -119,17 +102,13 @@ def test_with_temporal_borders_replaced() -> None:
     plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     layer = PlaquetteLayer(template, plaquettes)
     replacement_template = FixedTemplate([[2]])
-    replacement_plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)
-    )
+    replacement_plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     replacement_layer = PlaquetteLayer(replacement_template, replacement_plaquettes)
 
     assert layer.with_temporal_borders_replaced({}) == layer
     for replacement in [None, layer, replacement_layer]:
         assert (
-            layer.with_temporal_borders_replaced(
-                {TemporalBlockBorder.Z_NEGATIVE: replacement}
-            )
+            layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: replacement})
             == replacement
         )
     with pytest.raises(TQECException):

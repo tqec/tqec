@@ -1,4 +1,6 @@
 import json
+from collections.abc import Sequence
+from multiprocessing import Pool, cpu_count
 from typing import Sequence
 
 import numpy
@@ -50,11 +52,9 @@ def _get_measurement_offset_mapping(circuit: stim.Circuit) -> dict[int, Measurem
     Returns:
         a mapping from record offset to :class:`Measurement` for all the
         measurements appearing in the provided `circuit`.
+
     """
-    return {
-        -i - 1: m
-        for i, m in enumerate(reversed(get_measurements_from_circuit(circuit)))
-    }
+    return {-i - 1: m for i, m in enumerate(reversed(get_measurements_from_circuit(circuit)))}
 
 
 def _matched_detectors_to_detectors(
@@ -72,6 +72,7 @@ def _matched_detectors_to_detectors(
     Returns:
         :class:`Detector` instances representing the same detectors as the
         provided `detectors`.
+
     """
     ret: list[Detector] = []
     for d in detectors:
@@ -117,6 +118,7 @@ def _center_plaquette_syndrome_qubits(
         a collection of qubits that are used as syndrome qubits by the central
         plaquette. Returns an empty collection if the central plaquette has the
         index `0`.
+
     """
     # Subtemplates are expected to have a shape of (2*r+1, 2*r+1), so `r` can
     # be recovered by computing `(2*r+1) // 2 == r`.
@@ -227,6 +229,7 @@ def _best_effort_filter_detectors(
         a filtered sequence of detectors. All the returned detectors are from
         the provided `detectors` (i.e., this function does not create or combine
         detectors).
+
     """
     # First, we want the detectors to be composed of at least one measurement
     # involving one of the syndrome qubits of the central plaquette in the last
@@ -235,14 +238,10 @@ def _best_effort_filter_detectors(
         # Assumes that syndrome qubits are only measured once per round, which
         # seems reasonable. But still, this is an important assumption.
         Measurement(q, -1)
-        for q in _center_plaquette_syndrome_qubits(
-            subtemplates[-1], plaquettes[-1], increments
-        )
+        for q in _center_plaquette_syndrome_qubits(subtemplates[-1], plaquettes[-1], increments)
     )
     filtered_detectors = [
-        d
-        for d in detectors
-        if d.measurements.intersection(central_syndrome_qubits_measurements)
+        d for d in detectors if d.measurements.intersection(central_syndrome_qubits_measurements)
     ]
     return frozenset(filtered_detectors)
 
@@ -254,8 +253,7 @@ def _compute_detectors_at_end_of_situation(
 ) -> frozenset[Detector]:
     if len(plaquettes) != len(subtemplates):
         raise TQECException(
-            "Unsupported input: you should provide as many subtemplates as "
-            "there are plaquettes."
+            "Unsupported input: you should provide as many subtemplates as there are plaquettes."
         )
     # Note: if the center plaquette of the last entry of `subtemplates` does not
     #       contain any measurement, then we can be sure that there is no
@@ -300,9 +298,7 @@ def _compute_detectors_at_end_of_situation(
     subcircuits, global_qubit_map = relabel_circuits_qubit_indices(subcircuits)
     # Get the stim.Circuit instances. We do not need the coordinates here
     # because we have already computed the global qubit map.
-    coordless_subcircuits = [
-        sc.get_circuit(include_qubit_coords=False) for sc in subcircuits
-    ]
+    coordless_subcircuits = [sc.get_circuit(include_qubit_coords=False) for sc in subcircuits]
     # Get the full stim.Circuit to compute a measurement records offset map and
     # filter out detectors at the end.
     complete_circuit = global_qubit_map.to_circuit()
@@ -313,9 +309,7 @@ def _compute_detectors_at_end_of_situation(
 
     # Use tqecd.detectors module to match the detectors. Note that, for
     # the moment, only the last two time slices are taken into account.
-    coordinates_by_index = {
-        i: (float(q.x), float(q.y)) for i, q in global_qubit_map.items()
-    }
+    coordinates_by_index = {i: (float(q.x), float(q.y)) for i, q in global_qubit_map.items()}
     fragments = [Fragment(circ) for circ in coordless_subcircuits]
     flows = build_flows_from_fragments(fragments)
     matched_detectors = match_detectors_within_fragment(flows[-1], coordinates_by_index)
@@ -331,9 +325,7 @@ def _compute_detectors_at_end_of_situation(
     # Get the detectors as Detector instances instead of the
     # `tqecd.MatchedDetector` class.
     measurements_by_offset = _get_measurement_offset_mapping(complete_circuit)
-    detectors = _matched_detectors_to_detectors(
-        matched_detectors, measurements_by_offset
-    )
+    detectors = _matched_detectors_to_detectors(matched_detectors, measurements_by_offset)
 
     # Filter out detectors and return the left ones.
     return _best_effort_filter_detectors(
@@ -373,6 +365,7 @@ def compute_detectors_at_end_of_situation(
     increments: Shift2D,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
+    parallel_process_count: int = 1,
 ) -> frozenset[Detector]:
     """Returns detectors that should be added at the end of the provided
     situation.
@@ -397,6 +390,10 @@ def compute_detectors_at_end_of_situation(
             used. An error will be raised if a situation that is not registered
             in the database is encountered or if the database is not provided.
             Default to ``False``.
+        parallel_process_count: number of processes to use for parallel processing.
+            1 for sequential processing, >1 for parallel processing using
+            ``parallel_process_count`` processes, and -1 for using all available
+            CPU cores. Default to 1.
 
     Returns:
         all the detectors that can be appended at the end of the circuit
@@ -404,8 +401,8 @@ def compute_detectors_at_end_of_situation(
 
     Raises:
         TQECException: if `len(subtemplates) != len(plaquettes_at_timestep)`.
-    """
 
+    """
     # Try to recover the result from the database.
     if database is not None:
         detectors = database.get_detectors(subtemplates, plaquettes_by_timestep)
@@ -428,6 +425,20 @@ def compute_detectors_at_end_of_situation(
             subtemplates, plaquettes_by_timestep, increments
         )
 
+    # If parallel processing is not enabled, shift the detectors here.
+    # Otherwise, wait until all child processes have finished computation.
+    # In that case, update the database with the computed detectors in the parent process,
+    # and then shift the detectors afterwards.
+    if parallel_process_count == 1:
+        detectors = _shift_detectors_to_center_of_subtemplate(detectors, subtemplates, increments)
+    return detectors
+
+
+def _shift_detectors_to_center_of_subtemplate(
+    detectors: frozenset[Detector],
+    subtemplates: Sequence[SubTemplateType],
+    increments: Shift2D,
+) -> frozenset[Detector]:
     # `subtemplate.shape` should be `(2 * radius + 1, 2 * radius + 1)` so we can
     # recover the radius with the below expression.
     radius = subtemplates[0].shape[0] // 2
@@ -465,6 +476,7 @@ def _get_or_default(
     Returns:
         `array[slices[0][0]:slices[0][1], ..., slices[-1][0]:slices[-1][1]]`,
         with any out-of-bounds index associated to the provided `default` value.
+
     """
     if any(start > stop for start, stop in slices):
         raise TQECException("The provided slices should be non-empty.")
@@ -502,15 +514,11 @@ def _get_or_default(
         # In case 3, the slice covers the array, so take the whole dimension of
         # the array.
         elif start_slice <= start_array and stop_array <= stop_slice:
-            ret_slices.append(
-                slice(start_array - start_slice, stop_array - start_slice)
-            )
+            ret_slices.append(slice(start_array - start_slice, stop_array - start_slice))
             array_slices.append(slice(start_array, stop_array))
         # In case 4, only a part of the slice covers the array.
         elif start_slice <= start_array < stop_slice <= stop_array:
-            ret_slices.append(
-                slice(start_array - start_slice, stop_slice - start_slice)
-            )
+            ret_slices.append(slice(start_array - start_slice, stop_slice - start_slice))
             array_slices.append(slice(start_array, stop_slice))
         # In case 5, only a part of the slice covers the array.
         elif start_array <= start_slice < stop_array <= stop_slice:
@@ -566,6 +574,7 @@ def _compute_superimposed_template_instantiations(
         same origin, meaning that in the final circuit `ret[i][x, y]` represent
         indices of plaquettes that will be stacked up (in time) for all `i` and
         any `x` and `y`.
+
     """
     origins = [t.instantiation_origin(k) for t in templates]
     instantiations = [t.instantiate(k) for t in templates]
@@ -590,6 +599,64 @@ def _compute_superimposed_template_instantiations(
     return ret
 
 
+def _extract_subtemplates_from_s3d(
+    s3d: npt.NDArray[numpy.int_],
+) -> list[npt.NDArray[numpy.int_]]:
+    """Extract 2D spatial subtemplates from a 3D array.
+
+    This function takes a 3D array where the first two dimensions
+    represent spatial coordinates and the third dimension represents time steps.
+    It extracts a list of 2D spatial arrays, one for each time step.
+
+    Args:
+        s3d: 3D numpy array representation of sub-templates.
+
+    Returns:
+        List of 2D numpy arrays, one for each time step.
+
+    """
+    return [s3d[:, :, i] for i in range(s3d.shape[2])]
+
+
+def _compute_detector_for_subtemplate(
+    args: tuple[
+        tuple[int, ...],  # indices
+        npt.NDArray[numpy.int_],  # s3d
+        Sequence[Plaquettes],  # plaquettes
+        Shift2D,  # increments
+        int,  # parallel_process_count
+    ],
+) -> tuple[tuple[int, ...], frozenset[Detector]]:
+    """Helper function for parallel processing of detector computation.
+
+    Args:
+        args: A tuple containing:
+            - indices: Tuple of indices identifying the subtemplate
+            - s3d: 3D numpy array representing the subtemplate
+            - plaquettes: Sequence of plaquettes for each time slice
+            - increments: Spatial increments between plaquette origins
+            - only_use_database: Whether to only use the database
+
+    Returns:
+        A tuple containing the indices and the computed detectors
+
+    """
+    indices, s3d, plaquettes, increments, parallel_process_count = args
+    return (
+        indices,
+        compute_detectors_at_end_of_situation(
+            _extract_subtemplates_from_s3d(s3d),
+            plaquettes,
+            increments,
+            # Currently, we do not find an efficient way to share the database between
+            # multiple processes, so we just pass `None` here.
+            database=None,
+            only_use_database=False,
+            parallel_process_count=parallel_process_count,
+        ),
+    )
+
+
 def compute_detectors_for_fixed_radius(
     templates: Sequence[Template],
     k: int,
@@ -597,6 +664,7 @@ def compute_detectors_for_fixed_radius(
     fixed_subtemplate_radius: int = 2,
     database: DetectorDatabase | None = None,
     only_use_database: bool = False,
+    parallel_process_count: int = 1,
 ) -> list[Detector]:
     """Returns detectors that should be added at the end of the circuit that
     would be obtained from the provided `template_at_timestep` and
@@ -625,10 +693,15 @@ def compute_detectors_for_fixed_radius(
         only_use_database: if ``True``, only detectors from the database will be
             used. An error will be raised if a situation that is not registered
             in the database is encountered. Default to ``False``.
+        parallel_process_count: number of processes to use for parallel processing.
+            1 for sequential processing, >1 for parallel processing using
+            ``parallel_process_count`` processes, and -1 for using all available
+            CPU cores. Default to 1.
 
     Returns:
         a collection of detectors that should be added at the end of the circuit
         that would be obtained from the provided `templates` and `plaquettes`.
+
     """
     all_increments = frozenset(t.get_increments() for t in templates)
     if len(all_increments) != 1:
@@ -639,29 +712,62 @@ def compute_detectors_for_fixed_radius(
     increments = next(iter(all_increments))
 
     if len(templates) != len(plaquettes):
-        raise TQECException(
-            "Expecting the same number of entries in templates and plaquettes."
-        )
+        raise TQECException("Expecting the same number of entries in templates and plaquettes.")
 
-    template_instantiations = _compute_superimposed_template_instantiations(
-        templates, k
-    )
+    template_instantiations = _compute_superimposed_template_instantiations(templates, k)
     unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(
         template_instantiations, manhattan_radius=fixed_subtemplate_radius
     )
 
     # Each detector in detectors_by_subtemplate is using a coordinate system
     # centered on the central plaquette origin.
-    detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]] = {
-        indices: compute_detectors_at_end_of_situation(
-            [s3d[:, :, i] for i in range(s3d.shape[2])],
-            plaquettes,
-            increments,
-            database,
-            only_use_database,
+    detectors_by_subtemplate: dict[tuple[int, ...], frozenset[Detector]] = {}
+
+    # Handle the special case of parallel_process_count == -1
+    if parallel_process_count == -1:
+        parallel_process_count = cpu_count()
+    # If parallel_process_count > 1 we will enable parallel processing to
+    # compute detectors in parallel.
+    if parallel_process_count > 1:
+        args_list = [
+            (indices, s3d, plaquettes, increments, parallel_process_count)
+            for indices, s3d in unique_3d_subtemplates.subtemplates.items()
+        ]
+
+        with Pool(processes=parallel_process_count) as pool:
+            results = pool.map(_compute_detector_for_subtemplate, args_list)
+
+        # After synchronizing all child processes, we get all computed detectors,
+        # first we add them to database if it is provides, then we shift the coordinates of them
+        for indices, detectors_set in results:
+            subtemplates = _extract_subtemplates_from_s3d(
+                unique_3d_subtemplates.subtemplates[indices]
+            )
+            if database is not None:
+                database.add_situation(subtemplates, plaquettes, detectors_set)
+            detectors_by_subtemplate[indices] = _shift_detectors_to_center_of_subtemplate(
+                detectors_set, subtemplates, increments
+            )
+
+    # If parallel_process_count == 1, computing detectors sequentially
+    elif parallel_process_count == 1:
+        detectors_by_subtemplate = {
+            indices: compute_detectors_at_end_of_situation(
+                _extract_subtemplates_from_s3d(s3d),
+                plaquettes,
+                increments,
+                database,
+                only_use_database,
+            )
+            for indices, s3d in unique_3d_subtemplates.subtemplates.items()
+        }
+    # Else, invalid parallel_process_count
+    else:
+        raise TQECException(
+            f"Invalid parallel_process_count: {parallel_process_count}. "
+            "Expected a positive integer or -1 for using all available CPU cores."
         )
-        for indices, s3d in unique_3d_subtemplates.subtemplates.items()
-    }
+
     # We know for sure that detectors in each subtemplate all involve a measurement
     # on at least one syndrome qubit of the central plaquette. That means that
     # detectors computed here are unique and we do not have to check for

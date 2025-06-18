@@ -8,9 +8,7 @@ class CompilationPass(ABC):
     """Base interface that should be implemented by all compilation passes."""
 
     @abstractmethod
-    def run(
-        self, circuit: ScheduledCircuit, check_all_flows: bool = False
-    ) -> ScheduledCircuit:
+    def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
         """Run the compilation pass.
 
         Args:
@@ -23,6 +21,7 @@ class CompilationPass(ABC):
 
         Returns:
             the compiled quantum circuit.
+
         """
         pass
 
@@ -45,6 +44,7 @@ class CompilationPass(ABC):
             TQECException: if the two provided circuits are not functionally
                 equivalent (i.e. ``modified_circuit`` does not have at least
                 one of flow of ``original_circuit``).
+
         """
         original_flows = original_circuit.get_circuit().flow_generators()
         if not modified_circuit.get_circuit().has_all_flows(original_flows):

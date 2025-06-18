@@ -1,3 +1,6 @@
+import warnings
+from collections.abc import Mapping
+from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -8,7 +11,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.detectors.database import DetectorDatabase
+from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.annotations import LayerTreeAnnotations, Polygon
@@ -20,7 +23,7 @@ from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.template import RPNGTemplate
 from tqec.post_processing.shift import shift_to_only_positive
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
 
@@ -30,6 +33,7 @@ class QubitLister(NodeWalker):
 
         Args:
             k: scaling factor used to explore the quantum circuits.
+
         """
         super().__init__()
         self._k = k
@@ -68,10 +72,7 @@ class LayerVisualiser(NodeWalker):
         rpngs = plaquettes.collection.map_values(
             lambda plaq: (
                 plaq.debug_information.rpng
-                if (
-                    plaq.debug_information is not None
-                    and plaq.debug_information.rpng is not None
-                )
+                if (plaq.debug_information is not None and plaq.debug_information.rpng is not None)
                 else RPNGDescription.empty()
             )
         )
@@ -120,9 +121,7 @@ class LayerTree:
         return {
             "root": self._root.to_dict(),
             "abstract_observables": self._abstract_observables,
-            "annotations": {
-                k: annotation.to_dict() for k, annotation in self._annotations.items()
-            },
+            "annotations": {k: annotation.to_dict() for k, annotation in self._annotations.items()},
         }
 
     def _annotate_circuits(self, k: int) -> None:
@@ -138,9 +137,7 @@ class LayerTree:
 
     def _annotate_observables(self, k: int) -> None:
         for obs_idx, observable in enumerate(self._abstract_observables):
-            annotate_observable(
-                self._root, k, observable, obs_idx, self._observable_builder
-            )
+            annotate_observable(self._root, k, observable, obs_idx, self._observable_builder)
 
     def _annotate_detectors(
         self,
@@ -150,16 +147,22 @@ class LayerTree:
         database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
+        parallel_process_count: int = 1,
     ) -> None:
         if manhattan_radius <= 0:
             return
         self._root.walk(
             AnnotateDetectorsOnLayerNode(
-                k, manhattan_radius, detector_database, only_use_database, lookback
+                k,
+                manhattan_radius,
+                detector_database,
+                only_use_database,
+                lookback,
+                parallel_process_count,
             )
         )
         # The database will have been updated inside the above function, and here at
-        # the end of the computation we save it to file:
+        # the end of the computation we save it to file.
         if detector_database is not None:
             detector_database.to_file(database_path)
 
@@ -209,6 +212,7 @@ class LayerTree:
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
+
         """
         if not add_polygons:
             circuit = self.generate_circuit(
@@ -244,9 +248,7 @@ class LayerTree:
                 polygons = set(item)
                 if polygons == last_polygons:
                     continue
-                crumble_url += "".join(
-                    polygon.to_crumble_url_string(qubit_map) for polygon in item
-                )
+                crumble_url += "".join(polygon.to_crumble_url_string(qubit_map) for polygon in item)
                 last_polygons = polygons
         return crumble_url
 
@@ -259,6 +261,7 @@ class LayerTree:
         only_use_database: bool = False,
         lookback: int = 2,
         add_polygons: bool = False,
+        parallel_process_count: int = 1,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         # If already annotated, no need to re-annotate.
@@ -275,6 +278,7 @@ class LayerTree:
             database_path,
             only_use_database,
             lookback,
+            parallel_process_count,
         )
         self._annotate_observables(k)
         if add_polygons:
@@ -309,7 +313,7 @@ class LayerTree:
                 produce invalid detectors.
             detector_database: an instance to retrieve from / store in detectors
                 that are computed as part of the circuit generation. If not given,
-                the detectors are retrieved from/stored in the the provided
+                the detectors are retrieved from/stored in the provided
                 ``database_path``.
             database_path: specify where to save to after the calculation.
                 This defaults to :data:`.DEFAULT_DETECTOR_DATABASE_PATH` if
@@ -325,10 +329,16 @@ class LayerTree:
         Returns:
             a ``stim.Circuit`` instance implementing the computation described
             by ``self``.
+
         """
         # First, before we start any computations, decide which detector database to use.
         if isinstance(database_path, str):
             database_path = Path(database_path)
+        # We need to know for later if the user explicitly provided a database or
+        # not to decide if we should warn or raise.
+        user_defined = (
+            detector_database is not None or database_path != DEFAULT_DETECTOR_DATABASE_PATH
+        )
         # If the user has passed a database in, use that, otherwise:
         if detector_database is None:  # Nothing passed in,
             if database_path.exists():  # look for an existing database at the path.
@@ -338,6 +348,35 @@ class LayerTree:
         # If do_not_use_database is True, override the above code and reset the database to None
         if do_not_use_database:
             detector_database = None
+        if detector_database is not None:
+            loaded_version = detector_database.version
+            current_version = CURRENT_DATABASE_VERSION
+            if loaded_version != current_version:
+                if user_defined:
+                    raise TQECException(
+                        f"The detector database on disk you have specified is incompatible with"
+                        f" the version in the TQEC code you are running. The version of the disk"
+                        f" database is {loaded_version}, while the version in the TQEC code is "
+                        f"{current_version}."
+                    )
+                else:  # ie using the default
+                    warnings.warn(
+                        f"The default detector database that you have saved on your system is out "
+                        f"of date (version {loaded_version}). The version in the TQEC code you are "
+                        f"running is newer (version {current_version}). The database will be regenerated.",
+                        TQECWarning,
+                    )
+                    detector_database = DetectorDatabase()
+
+        # Enable parallel processing only if the detector database is empty or None,
+        # as current parallelization is effective only in this case.
+        # If we later support efficient parallelism with a populated database,
+        # we will expose the parallel_count parameter to users.
+        parallel_process_count = (
+            cpu_count() // 2 + 1
+            if (detector_database is None or len(detector_database) == 0)
+            else 1
+        )
 
         self._generate_annotations(
             k,
@@ -346,6 +385,7 @@ class LayerTree:
             database_path=database_path,
             only_use_database=only_use_database,
             lookback=lookback,
+            parallel_process_count=parallel_process_count,
         )
         annotations = self._get_annotation(k)
         assert annotations.qubit_map is not None
