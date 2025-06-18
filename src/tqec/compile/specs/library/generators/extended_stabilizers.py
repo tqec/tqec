@@ -8,6 +8,7 @@ import stim
 from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.schedule.circuit import ScheduledCircuit
+from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_SCHEDULES
 from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits
@@ -40,7 +41,7 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-    reversed: bool = False,
+    is_reverse: bool = False,
 ) -> Plaquette:
     # d1 ---- d2
     # |        |
@@ -49,7 +50,7 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     # s2 ---- s2
     qubits = PlaquetteQubits(
         [GridQubit(-1, -1), GridQubit(1, -1)],
-        [GridQubit(0, 0), GridQubit(1 if reversed else -1, 1)],
+        [GridQubit(0, 0), GridQubit(1 if is_reverse else -1, 1)],
     )
     d1, d2 = tuple(qubits.data_qubits_indices)
     s1, s2 = tuple(qubits.syndrome_qubits_indices)
@@ -66,7 +67,7 @@ def _make_spatial_cube_arm_memory_plaquette_up(
         Moment(stim.Circuit()),
     ]
     # Add the GHZ state creation and measurement.
-    if not reversed:
+    if not is_reverse:
         base_moments[0].append("RX", [s1], [])
         base_moments[1].append("CX", [s1, s2], [])
         base_moments[5].append("CX", [s2, s1], [])
@@ -77,7 +78,7 @@ def _make_spatial_cube_arm_memory_plaquette_up(
         base_moments[7].append("MX", [s1], [])
     # Add controlled gates
     b = basis.name.upper()
-    schedule = (2, 4) if not reversed else (5, 3)
+    schedule = EXTENDED_PLAQUETTE_SCHEDULES[is_reverse][0:2]
     for d, s in zip((d1, d2), schedule):
         base_moments[s].append(f"C{b}", [s1, d], [])
     # Add data-qubit reset/measurement if needed
@@ -88,10 +89,10 @@ def _make_spatial_cube_arm_memory_plaquette_up(
     # is kept because the plaquette naming should be adapted.
     if measurement:
         # Add ancilla measurements if data-qubits are measured.
-        base_moments[-1].append("M", [s2] if reversed else [s1, s2], [])
+        base_moments[-1].append("M", [s2] if is_reverse else [s1, s2], [])
     # Finally, return the plaquette
     return Plaquette(
-        _get_spatial_cube_arm_name(basis, "UP", reset, measurement, reversed),
+        _get_spatial_cube_arm_name(basis, "UP", reset, measurement, is_reverse),
         qubits,
         ScheduledCircuit(base_moments, 0, qubits.qubit_map),
         MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES,
@@ -102,7 +103,7 @@ def _make_spatial_cube_arm_memory_plaquette_down(
     basis: Basis,
     reset: Basis | None = None,
     measurement: Basis | None = None,
-    reversed: bool = False,
+    is_reverse: bool = False,
 ) -> Plaquette:
     # s2 ---- s2
     # |        |
@@ -111,7 +112,7 @@ def _make_spatial_cube_arm_memory_plaquette_down(
     # d1 ---- d2
     qubits = PlaquetteQubits(
         [GridQubit(-1, 1), GridQubit(1, 1)],
-        [GridQubit(0, 0), GridQubit(1 if reversed else -1, -1)],
+        [GridQubit(0, 0), GridQubit(1 if is_reverse else -1, -1)],
     )
     d1, d2 = tuple(qubits.data_qubits_indices)
     s1, s2 = tuple(qubits.syndrome_qubits_indices)
@@ -128,7 +129,7 @@ def _make_spatial_cube_arm_memory_plaquette_down(
         Moment(stim.Circuit()),
     ]
     # Add the GHZ state creation and measurement.
-    if reversed:
+    if is_reverse:
         base_moments[0].append("RX", [s1], [])
         base_moments[1].append("CX", [s1, s2], [])
         base_moments[5].append("CX", [s2, s1], [])
@@ -139,7 +140,7 @@ def _make_spatial_cube_arm_memory_plaquette_down(
         base_moments[7].append("MX", [s1], [])
     # Add controlled gates
     b = basis.name.upper()
-    schedule = (3, 5) if not reversed else (4, 2)
+    schedule = EXTENDED_PLAQUETTE_SCHEDULES[is_reverse][2:4]
     for d, s in zip((d1, d2), schedule):
         base_moments[s].append(f"C{b}", [s1, d], [])
     # Add data-qubit reset/measurement if needed
@@ -151,10 +152,10 @@ def _make_spatial_cube_arm_memory_plaquette_down(
     # is kept because the plaquette naming should be adapted.
     if measurement:
         # Add ancilla measurements if data-qubits are measured.
-        base_moments[-1].append("M", [s1, s2] if reversed else [s2], [])
+        base_moments[-1].append("M", [s1, s2] if is_reverse else [s2], [])
     # Finally, return the plaquette
     return Plaquette(
-        _get_spatial_cube_arm_name(basis, "DOWN", reset, measurement, reversed),
+        _get_spatial_cube_arm_name(basis, "DOWN", reset, measurement, is_reverse),
         qubits,
         ScheduledCircuit(base_moments, 0, qubits.qubit_map),
         MEASUREMENT_INSTRUCTION_NAMES | RESET_INSTRUCTION_NAMES,

@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import inspect
-from typing import ClassVar, Final, Literal
+from typing import Final, Literal
 
 from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
+from tqec.compile.specs.library.generators.constants import (
+    HORIZONTAL_HOOK_SCHEDULES,
+    VERTICAL_HOOK_SCHEDULES,
+)
 from tqec.compile.specs.library.generators.extended_stabilizers import (
     ExtendedPlaquetteCollection,
 )
@@ -28,15 +32,6 @@ from tqec.utils.position import Direction3D
 
 
 class FixedParityConventionGenerator:
-    VSCHED: ClassVar[dict[bool, tuple[int, int, int, int]]] = {
-        False: (1, 4, 3, 5),
-        True: (5, 3, 4, 1),
-    }
-    HSCHED: ClassVar[dict[bool, tuple[int, int, int, int]]] = {
-        False: (1, 2, 3, 5),
-        True: (5, 3, 2, 1),
-    }
-
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
         self._mapper = PlaquetteMapper(translator, compiler)
 
@@ -87,8 +82,8 @@ class FixedParityConventionGenerator:
         rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
         ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
         # 2-qubit gate schedules
-        vsched = FixedParityConventionGenerator.VSCHED[is_reversed]
-        hsched = FixedParityConventionGenerator.HSCHED[is_reversed]
+        vsched = VERTICAL_HOOK_SCHEDULES[is_reversed]
+        hsched = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
         return {
             basis: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
@@ -115,7 +110,7 @@ class FixedParityConventionGenerator:
         # Note: the schedule of CNOT gates in corner plaquettes is less important
         # because hook errors do not exist on 3-body stabilizers. We arbitrarily
         # chose the vertical schedule.
-        s = FixedParityConventionGenerator.VSCHED[is_reversed]
+        s = VERTICAL_HOOK_SCHEDULES[is_reversed]
         # Note that we include resets and measurements on all the used data-qubits.
         # That should be fine because this plaquette only touches cubes and pipes
         # that are related to the spatial junction being implemented, and it is not
@@ -178,7 +173,7 @@ class FixedParityConventionGenerator:
         # Note: the schedule of CNOT gates in weight-2 plaquettes is less
         # important because hook errors do not exist. We arbitrarily chose the
         # vertical schedule.
-        s = FixedParityConventionGenerator.VSCHED[is_reversed]
+        s = VERTICAL_HOOK_SCHEDULES[is_reversed]
         for basis in Basis:
             b = basis.value.lower()
             ret[basis] = {
@@ -211,8 +206,8 @@ class FixedParityConventionGenerator:
         self, is_reversed: bool
     ) -> dict[Basis, dict[Orientation, RPNGDescription]]:
         # 2-qubit gate schedules
-        vsched = FixedParityConventionGenerator.VSCHED[is_reversed]
-        hsched = FixedParityConventionGenerator.HSCHED[is_reversed]
+        vsched = VERTICAL_HOOK_SCHEDULES[is_reversed]
+        hsched = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
         return {
             basis: {
                 Orientation.VERTICAL: RPNGDescription.from_string(
@@ -267,8 +262,8 @@ class FixedParityConventionGenerator:
         r = reset.value.lower() if reset is not None else "-"
         m = measurement.value.lower() if measurement is not None else "-"
         # 2-qubit gate schedules
-        vs = FixedParityConventionGenerator.VSCHED[is_reversed]
-        hs = FixedParityConventionGenerator.HSCHED[is_reversed]
+        vs = VERTICAL_HOOK_SCHEDULES[is_reversed]
+        hs = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
         return (
             RPNGDescription.from_string(
                 f"-{b}{hs[0]}- {r}{o}{hs[1]}{m} -{b}{hs[2]}- {r}{o}{hs[3]}{m}"
@@ -325,8 +320,8 @@ class FixedParityConventionGenerator:
         r = reset.value.lower() if reset is not None else "-"
         m = measurement.value.lower() if measurement is not None else "-"
         # 2-qubit gate schedules
-        vs = FixedParityConventionGenerator.VSCHED[is_reversed]
-        hs = FixedParityConventionGenerator.HSCHED[is_reversed]
+        vs = VERTICAL_HOOK_SCHEDULES[is_reversed]
+        hs = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
         return (
             RPNGDescription.from_string(
                 f"-{o}{hs[0]}- -{o}{hs[1]}{m} {r}{b}{hs[2]}- {r}{b}{hs[3]}{m}"
