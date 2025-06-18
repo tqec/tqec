@@ -50,8 +50,8 @@ def plaquette_grid_to_svg(
         show_data_qubit_reset_measurements: if ``True``, small squares/quarter circles will be added
             to each data qubit when they are reset/measured.
         borders: additional blank space reserved for border at the left/right and bottom/top. The
-            width (resp. height) of the drawing area will be ``width - borders[0]`` (resp.
-            ``height - borders[1]``).
+            width (resp. height) of the drawing area will be ``width - 2 * borders[0]`` (resp.
+            ``height - 2 * borders[1]``).
         errors: a collection of errors that should be drawn on the resulting SVG.
         configuration: drawing configuration.
 
