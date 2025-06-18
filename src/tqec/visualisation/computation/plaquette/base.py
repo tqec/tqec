@@ -125,7 +125,7 @@ class SVGPlaquetteDrawer(ABC):
 
         Args:
             missing_qubit_corner: the plaquette corner the missing qubit is located on.
-            fill: SVG colour to use to fill the square.
+            fill: SVG colour to use to fill the triangle.
             configuration: drawing configuration.
 
         """
