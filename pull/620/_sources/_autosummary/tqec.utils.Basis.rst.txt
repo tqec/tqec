@@ -1,0 +1,36 @@
+Basis
+=====
+
+.. currentmodule:: tqec.utils
+
+.. autoclass:: Basis
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Basis.flipped
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Basis.X
+      ~Basis.Z
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: flipped
+   
+   
