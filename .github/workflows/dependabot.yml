@@ -1,0 +1,18 @@
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+updates:
+
+    # Maintain dependencies for pip
+    # poetry is not a valid entry for package-ecosystem
+    - package-ecosystem: "pip"
+      directory: "/"
+      schedule:
+        interval: "daily"
+      open-pull-requests-limit: 10
+      allow:
+        - dependency-type: "direct"
+      ignore:
+        - dependency-name: "*"
+          update-types: ["version-update:semver-patch"]
+      labels:
+        - "dependency update"
