@@ -4,8 +4,8 @@
       <author>TQEC Community</author>
       <authoring_tool>https://github.com/tqec/tqec</authoring_tool>
     </contributor>
-    <created>2025-06-18T18:30:16.312961</created>
-    <modified>2025-06-18T18:30:16.312962</modified>
+    <created>2025-06-18T18:39:05.205243</created>
+    <modified>2025-06-18T18:39:05.205244</modified>
     <unit name="inch" meter="0.02539999969303608" />
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -906,7 +906,7 @@
         </bind_material>
       </instance_geometry>
     </node>
-    <node id="ZXX-without--Y-+Z" name="ZXX">
+    <node id="ZXX-without-+Z--Y" name="ZXX">
       <instance_geometry url="#FaceID3">
         <bind_material>
           <technique_common>
@@ -1208,7 +1208,7 @@
         </node>
         <node id="ID3" name="instance_3">
           <matrix>1.0 0.0 0.0 0.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 3.0 0.0 0.0 0.0 1.0</matrix>
-          <instance_node url="#ZXX-without--Y-+Z" />
+          <instance_node url="#ZXX-without-+Z--Y" />
         </node>
         <node id="ID4" name="instance_4">
           <matrix>1.0 0.0 0.0 3.0 0.0 1.0 0.0 3.0 0.0 0.0 1.0 3.0 0.0 0.0 0.0 1.0</matrix>
