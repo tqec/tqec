@@ -3,7 +3,7 @@ Build Computations
 
 In :code:`tqec`, a logical computation is represented as a :code:`BlockGraph`. There are several ways to build it:
 
-1. Build the structure interactively with [SketchUp](https://www.sketchup.com/app), export and convert it to a :code:`BlockGraph`.
+1. Build the structure interactively with `SketchUp <https://www.sketchup.com/app>`_, export and convert it to a :code:`BlockGraph`.
 2. Build a :code:`BlockGraph` programmatically with :code:`add_cube` and :code:`add_pipe` methods.
 3. Build a :code:`pyzx.GraphS` ZX graph representation of the computation and synthesize it to a :code:`BlockGraph`.
 
@@ -12,19 +12,19 @@ In this notebook, we will guide you through all the methods.
 1. Use SketchUp
 ----------------
 
-[SketchUp](https://www.sketchup.com/app) is a 3D modeling tool widely used in QEC community to build the spacetime diagram for logical computations.
+`SketchUp <https://www.sketchup.com/app>`_ is a 3D modeling tool widely used in QEC community to build the spacetime diagram for logical computations.
 Its user-friendly interface allows you to easily create and manipulate the computation blocks.
 
 Once you make a Trimble account, you may freely use the web version of SketchUp to import a :code:`.skp` file and create a scene. However, unless you are on
 a Windows machine, you must either activate a paid license or free trial to export a SketchUp :code:`.skp` file as a COLLADA :code:`.dae` file. On Windows, it suffices
-to use the [freeware version SketchUp8](https://google-sketchup.en.lo4d.com/download).
+to use the `freeware version SketchUp8 <https://google-sketchup.en.lo4d.com/download>`_.
 
 Users that are not on Windows may fully use :code:`tqec` via the programmatic construction below. Please notify a developer if you are aware of a way to export a
 SketchUp scene to a :code:`.dae` file on Mac OSX or Linux.
 
 The workflow using SketchUp to build computations is as follows:
 
-1. Open the [template file](https://github.com/tqec/tqec/blob/main/assets/template.skp) in SketchUp.
+1. Open the `template file <https://github.com/tqec/tqec/blob/main/assets/template.skp>`_` in SketchUp.
 2. Use the building blocks provided in the template file to build your computation. After you finish building, remove the template blocks from the scene.
 3. Save and export the model to :code:`.dae` file format.
 4. Import the computation into :code:`tqec` using the :code:`tqec.read_block_graph_from_dae_file` or :code:`BlockGraph.from_dae_file()` function.

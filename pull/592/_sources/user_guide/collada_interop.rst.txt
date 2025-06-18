@@ -1,17 +1,17 @@
 COLLADA Interoperability
 ========================
 
-This notebook demonstrates how to interoperate :code:`tqec` with [COLLADA](https://en.wikipedia.org/wiki/COLLADA)( :code:`.dae`) files. COLLADA files can be
+This notebook demonstrates how to interoperate :code:`tqec` with `COLLADA <https://en.wikipedia.org/wiki/COLLADA>`_ ( :code:`.dae`) files. COLLADA files can be
 imported/exported to/from [SketchUp](https://www.sketchup.com/), which is a common used 3D modeling tool in QEC paper.
 
-:code:`tqec` relies on [PyCollada](https://github.com/pycollada/pycollada) under the hood to realize the interoperability with COLLADA files.
+:code:`tqec` relies on `PyCollada <https://github.com/pycollada/pycollada>`_ under the hood to realize the interoperability with COLLADA files.
 
 Import COLLADA model
 ---------------------
 
 A common workflow starting from SketchUp is:
 
-1. Open the [template file](https://github.com/QCHackers/tqec/blob/main/assets/template.skp) in SketchUp.
+1. Open the `template file <https://github.com/QCHackers/tqec/blob/main/assets/template.skp>`_ in SketchUp.
 2. Construct the model representing the logical computation.
 3. Export the model as a COLLADA(:code:`.dae`) file from SketchUp.
 4. Import the COLLADA file to :code:`tqec` as a :code:`BlockGraph`, which can be compiled to circuits.
@@ -38,7 +38,7 @@ calling :code:`BlockGraph.to_dae_file`.
 Display COLLADA model
 ---------------------
 
-:code:`tqec` provides the function :code:`tqec.interop.display_collada_model` to view the COLLADA model as html and render it with [three.js](https://threejs.org/).
+:code:`tqec` provides the function :code:`tqec.interop.display_collada_model` to view the COLLADA model as html and render it with `three.js <https://threejs.org/>`_.
 It can be used in IPython environment to display and play with the model interactively. You can also call :code:`BlockGraph.view_as_html` directly to first
 convert it to a COLLADA model then display it.
 
