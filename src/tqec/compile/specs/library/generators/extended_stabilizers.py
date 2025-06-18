@@ -77,7 +77,7 @@ def _make_spatial_cube_arm_memory_plaquette_up(
         base_moments[7].append("MX", [s1], [])
     # Add controlled gates
     b = basis.name.upper()
-    schedule = (4, 2) if not reversed else (3, 5)
+    schedule = (2, 4) if not reversed else (5, 3)
     for d, s in zip((d1, d2), schedule):
         base_moments[s].append(f"C{b}", [s1, d], [])
     # Add data-qubit reset/measurement if needed
@@ -139,7 +139,7 @@ def _make_spatial_cube_arm_memory_plaquette_down(
         base_moments[7].append("MX", [s1], [])
     # Add controlled gates
     b = basis.name.upper()
-    schedule = (5, 3) if not reversed else (2, 4)
+    schedule = (3, 5) if not reversed else (4, 2)
     for d, s in zip((d1, d2), schedule):
         base_moments[s].append(f"C{b}", [s1, d], [])
     # Add data-qubit reset/measurement if needed
