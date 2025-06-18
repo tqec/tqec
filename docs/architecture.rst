@@ -133,15 +133,15 @@ maps from the numbered templates to some plaquettes that implement small local c
 
 .. note::
 
-    The code for this module was modified from the code for :cite:`Gidney_inplace_access_2024`.
+    The code for this module was modified from the code for :footcite:`Gidney_inplace_access_2024`.
 
 This module implements the following noise models for ``Stim`` simulations:
 
-#. **Superconducting Inspired Circuit Error Model (SI1000)**: A modified version of the noise model introduced in :cite:`Gidney_si1000_2021` which represents the noise on Google's superconducting quantum chip.
+#. **Superconducting Inspired Circuit Error Model (SI1000)**: A modified version of the noise model introduced in :footcite:`Gidney_si1000_2021` which represents the noise on Google's superconducting quantum chip.
 
     In :meth:`.si1000`:
 
-    * Depolarizing noise on measured qubits from the noise modeil in :cite:`Gidney_si1000_2021` has been removed because ``tqec`` measurements are immediately followed by resets.
+    * Depolarizing noise on measured qubits from the noise modeil in :footcite:`Gidney_si1000_2021` has been removed because ``tqec`` measurements are immediately followed by resets.
 
     * The measurement result is probabilistically flipped instead of the input qubit.
 
@@ -165,5 +165,5 @@ Plotting functions are in this module too.
 
 References
 -----------
-.. bibliography::
+.. footbibliography::
    :filter: docname in docnames
