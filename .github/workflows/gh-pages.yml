@@ -36,9 +36,9 @@ jobs:
         id: cache-docs
         with:
           path: docs/_examples_database/
-          key: ${{ runner.os }}-sphinx
+          key: ${{ runner.os }}-docs
       - name: Generate the documentation
-        if: steps.${{ runner.os }}-sphinx.outputs.cache-hit != 'true'
+        if: steps.${{ runner.os }}-docs.outputs.cache-hit != 'true'
         run: |
           cd docs/
           make html
