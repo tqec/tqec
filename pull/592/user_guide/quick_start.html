@@ -554,6 +554,7 @@ The compilation of the block graph is done automatically based on the inputs.</p
 <div class="cell_input code_cell docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cpu_count</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
@@ -571,6 +572,8 @@ The compilation of the block graph is done automatically based on the inputs.</p
     <span class="n">num_workers</span><span class="o">=</span><span class="n">cpu_count</span><span class="p">(),</span>
     <span class="n">max_shots</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
     <span class="n">max_errors</span><span class="o">=</span><span class="mi">5_00</span><span class="p">,</span>
+    <span class="n">save_resume_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./_examples_database/quick_start.csv&quot;</span><span class="p">),</span>
+    <span class="n">database_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./_examples_database/database.pkl&quot;</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
 </div>

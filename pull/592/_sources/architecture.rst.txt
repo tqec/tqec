@@ -166,4 +166,3 @@ Plotting functions are in this module too.
 References
 -----------
 .. footbibliography::
-   :filter: docname in docnames

@@ -124,6 +124,7 @@ Now that we have a good estimation of the computation threshold, we can gather s
 .. jupyter-execute::
 
     from multiprocessing import cpu_count
+    from pathlib import Path
 
     for obs in observables:
         threshold_stats = start_simulation_using_sinter(
@@ -139,6 +140,7 @@ Now that we have a good estimation of the computation threshold, we can gather s
             max_errors=5_000,
             decoders=["pymatching"],
             split_observable_stats=False,
+            save_resume_filepath=Path(f"./_examples_database/detailed_plots_z.csv"),
         )
         threshold_statistics.append(threshold_stats[0])
 

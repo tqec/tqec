@@ -125,6 +125,7 @@ The compilation of the block graph is done automatically based on the inputs.
 
     from multiprocessing import cpu_count
     import numpy as np
+    from pathlib import Path
 
     from tqec import NoiseModel
     from tqec.simulation.simulation import start_simulation_using_sinter
@@ -142,6 +143,8 @@ The compilation of the block graph is done automatically based on the inputs.
         num_workers=cpu_count(),
         max_shots=10_000_000,
         max_errors=5_00,
+        save_resume_filepath=Path(f"./_examples_database/quick_start.csv"),
+        database_path=Path("./_examples_database/database.pkl"),
     )
 
 .. note::

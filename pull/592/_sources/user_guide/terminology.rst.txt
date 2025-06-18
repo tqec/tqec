@@ -370,4 +370,3 @@ supposed to have a deterministic parity in the absence of errors.
 References
 -----------
 .. footbibliography::
-   :filter: docname in docnames
