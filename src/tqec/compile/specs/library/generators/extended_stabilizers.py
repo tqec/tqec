@@ -197,14 +197,11 @@ def make_spatial_cube_arm_plaquettes(
     Returns:
         A tuple ``(UP, DOWN)`` containing the two plaquettes needed to implement
         spatial cube arms.
+
     """
     return (
-        _make_spatial_cube_arm_memory_plaquette_up(
-            basis, reset, measurement, is_reverse
-        ),
-        _make_spatial_cube_arm_memory_plaquette_down(
-            basis, reset, measurement, is_reverse
-        ),
+        _make_spatial_cube_arm_memory_plaquette_up(basis, reset, measurement, is_reverse),
+        _make_spatial_cube_arm_memory_plaquette_down(basis, reset, measurement, is_reverse),
     )
 
 
