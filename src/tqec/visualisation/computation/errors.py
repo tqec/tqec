@@ -23,6 +23,25 @@ def _get_error_cross_svg(
     )
 
 
+def _get_coordinates(
+    targets: list[stim.GateTargetWithCoords],
+) -> tuple[float, float, float | None, float | None]:
+    match len(targets):
+        case 1:
+            qx, qy = targets[0].coords
+            return qx, qy, None, None
+        case 2:
+            qx, qy = targets[0].coords
+            qx2, qy2 = targets[1].coords
+            return qx, qy, qx2, qy2
+        case 0:
+            raise TQECDrawingException("Could not extract coordinates from an empty list.")
+        case _:
+            raise TQECDrawingException(
+                f"Could not extract coordinates from a list with {len(targets)}."
+            )
+
+
 def get_errors_svg(
     errors: Sequence[stim.ExplainedError],
     top_left_qubit: GridQubit,
@@ -63,24 +82,48 @@ def get_errors_svg(
     cross_svg = _get_error_cross_svg(size, stroke_color, stroke_width_multiplier)
     crosses: list[svg.Element] = []
     for error in errors:
-        # Get the x and y coordinates in qubit-coordinates.
+        # We take the first error location. All the error locations in error.circuit_error_locations
+        # are valid and could be picked, but we need to take one here.
         location = error.circuit_error_locations[0]
+        # Get the x and y coordinates in qubit-coordinates.
+        # For 2-qubit errors, we get also the second qubit x and y coordinates.
         flipped_measurement = location.flipped_measurement
         flipped_pauli_product = location.flipped_pauli_product
         if flipped_pauli_product:
-            qx, qy = flipped_pauli_product[0].coords
+            qx, qy, qx2, qy2 = _get_coordinates(flipped_pauli_product)
         elif flipped_measurement:
-            qx, qy = flipped_measurement.observable[0].coords
+            qx, qy, qx2, qy2 = _get_coordinates(flipped_measurement.observable)
         else:
             raise TQECDrawingException("Could not draw the following error:\n" + str(error))
         # Make the coordinates relative to the top-left qubit.
         qx -= top_left_qubit.x
         qy -= top_left_qubit.y
-        # Plot the cross.
-        crosses.append(
+        # Plot the cross for a single-qubit error.
+        error_svg: list[svg.Element] = [
             svg.G(
                 elements=[cross_svg],
                 transform=[svg.Translate(qx * width_between_qubits, qy * height_between_qubits)],
             )
-        )
+        ]
+        # Plot the additional SVG lines if we have a 2-qubit error.
+        if qx2 is not None and qy2 is not None:
+            error_svg.append(
+                svg.G(
+                    elements=[cross_svg],
+                    transform=[
+                        svg.Translate(qx2 * width_between_qubits, qy2 * height_between_qubits)
+                    ],
+                )
+            )
+            error_svg.append(
+                svg.Line(
+                    x1=qx * width_between_qubits,
+                    x2=qx2 * width_between_qubits,
+                    y1=qy * height_between_qubits,
+                    y2=qy2 * height_between_qubits,
+                    stroke=stroke_color,
+                    stroke_width=size * stroke_width_multiplier,
+                )
+            )
+        crosses.append(svg.G(elements=error_svg))
     return svg.G(elements=crosses)
