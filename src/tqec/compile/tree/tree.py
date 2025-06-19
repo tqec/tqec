@@ -21,6 +21,7 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
+from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 from tqec.visualisation.computation.tree import LayerVisualiser
@@ -147,6 +148,7 @@ class LayerTree:
         detector_database: DetectorDatabase | None = None,
         lookback: int = 2,
         add_polygons: bool = True,
+        shift_to_positive: bool = True,
     ) -> str:
         """Generate the Crumble URL of the quantum circuit representing ``self``.
 
@@ -173,6 +175,9 @@ class LayerTree:
                 ``True``, the polygons representing the stabilizers will be generated
                 based on the RPNG information of underlying plaquettes and add
                 to the Crumble URL.
+            shift_to_positive: if ``True``, the resulting circuit is shifted such
+                that only qubits with positive coordinates are used. Else, the
+                circuit is left as is.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
@@ -196,7 +201,10 @@ class LayerTree:
         circuits_with_polygons = self._root.generate_circuits_with_potential_polygons(
             k, qubit_map, add_polygons=True
         )
-        crumble_url: str = qubit_map.to_circuit().to_crumble_url() + ";"
+        qubit_map_circuit = qubit_map.to_circuit()
+        if shift_to_positive:
+            qubit_map_circuit = shift_to_only_positive(qubit_map_circuit)
+        crumble_url: str = qubit_map_circuit.to_crumble_url() + ";"
         last_polygons: set[Polygon] = set()
         for item in circuits_with_polygons:
             if isinstance(item, stim.Circuit):
@@ -225,6 +233,10 @@ class LayerTree:
         parallel_process_count: int = 1,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
+        # If already annotated, no need to re-annotate.
+        if k in self._annotations:
+            return
+        # Else, perform all the needed computations.
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
         # This method will also update the detector_database and save it to disk at database_path.
@@ -363,6 +375,15 @@ class LayerTree:
             if annotations.qubit_map is not None
             else (None, None)
         )
+        # Note: if the top-left and bottom-right qubits are not None, we just computed them from
+        # the resulting circuit. Most of the time, the border plaquettes are 2-body stabilizers and
+        # do not use the top/bottom/left/right qubits. Because we want this space (e.g., to write
+        # the moments that are concerned by a given visualisation), we add 1-qubit worth of space
+        # on each border.
+        if tl is not None:
+            tl = GridQubit(tl.x - 1, tl.y - 1)
+        if br is not None:
+            br = GridQubit(br.x + 1, br.y + 1)
         visualiser = LayerVisualiser(k, errors, top_left_qubit=tl, bottom_right_qubit=br)
         self._root.walk(visualiser)
         return visualiser.visualisations

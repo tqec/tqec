@@ -136,7 +136,6 @@ class LayerNode:
         self,
         k: int,
         global_qubit_map: QubitMap,
-        shift_coords: StimCoordinates | None = None,
         add_polygons: bool = False,
     ) -> list[stim.Circuit | list[Polygon]]:
         """Generate the circuits and polygons for each nodes in the subtree rooted
@@ -147,9 +146,6 @@ class LayerNode:
             global_qubit_map: qubit map that should be used to generate the
                 quantum circuit. Qubits from the returned quantum circuit will
                 adhere to the provided qubit map.
-            shift_coords: if provided, a ``SHIFT_COORDS`` instruction with the
-                provided shift will be appended before each block of ``DETECTOR``
-                annotations. Defaults to ``None`` which means "no shift".
             add_polygons: if ``True``, polygon objects for visualization in Crumble
                 will be added to the returned list.
 
@@ -177,12 +173,13 @@ class LayerNode:
                 local_qubit_map[q]: global_qubit_map[q] for q in local_qubit_map.qubits
             }
             mapped_circuit = base_circuit.map_qubit_indices(qubit_indices_mapping)
-            if shift_coords is not None:
-                mapped_circuit.append_annotation(
-                    stim.CircuitInstruction("SHIFT_COORDS", [], shift_coords.to_stim_coordinates())
-                )
             for annotation in annotations.detectors + annotations.observables:
                 mapped_circuit.append_annotation(annotation.to_instruction())
+            mapped_circuit.append_annotation(
+                stim.CircuitInstruction(
+                    "SHIFT_COORDS", [], StimCoordinates(0, 0, 1).to_stim_coordinates()
+                )
+            )
             ret: list[stim.Circuit | list[Polygon]] = [
                 mapped_circuit.get_circuit(include_qubit_coords=False)
             ]
@@ -195,22 +192,19 @@ class LayerNode:
             ret = []
             for child, next_child in zip(self._children[:-1], self._children[1:]):
                 ret += child.generate_circuits_with_potential_polygons(
-                    k, global_qubit_map, shift_coords, add_polygons
+                    k, global_qubit_map, add_polygons
                 )
                 if not next_child.is_repeated:
                     assert isinstance(ret[-1], stim.Circuit)
                     ret[-1].append("TICK", [], [])
             ret += self._children[-1].generate_circuits_with_potential_polygons(
-                k, global_qubit_map, shift_coords, add_polygons
+                k, global_qubit_map, add_polygons
             )
             return ret
 
         if isinstance(self._layer, RepeatedLayer):
             body = self._children[0].generate_circuits_with_potential_polygons(
-                k,
-                global_qubit_map,
-                shift_coords=StimCoordinates(0, 0, self._layer.internal_layer.timesteps(k)),
-                add_polygons=add_polygons,
+                k, global_qubit_map, add_polygons=add_polygons
             )
             body_circuit = sum(
                 (i for i in body if isinstance(i, stim.Circuit)),
@@ -225,12 +219,7 @@ class LayerNode:
             return ret
         raise TQECException(f"Unknown layer type found: {type(self._layer).__name__}.")
 
-    def generate_circuit(
-        self,
-        k: int,
-        global_qubit_map: QubitMap,
-        shift_coords: StimCoordinates | None = None,
-    ) -> stim.Circuit:
+    def generate_circuit(self, k: int, global_qubit_map: QubitMap) -> stim.Circuit:
         """Generate the quantum circuit representing the node.
 
         Args:
@@ -238,9 +227,6 @@ class LayerNode:
             global_qubit_map: qubit map that should be used to generate the
                 quantum circuit. Qubits from the returned quantum circuit will
                 adhere to the provided qubit map.
-            shift_coords: if provided, a ``SHIFT_COORDS`` instruction with the
-                provided shift will be appended before each block of ``DETECTOR``
-                annotations. Defaults to ``None`` which means "no shift".
 
         Returns:
             a ``stim.Circuit`` instance representing ``self`` with the provided
@@ -248,7 +234,7 @@ class LayerNode:
 
         """
         circuits = self.generate_circuits_with_potential_polygons(
-            k, global_qubit_map, shift_coords, add_polygons=False
+            k, global_qubit_map, add_polygons=False
         )
         ret = stim.Circuit()
         for circuit in circuits:

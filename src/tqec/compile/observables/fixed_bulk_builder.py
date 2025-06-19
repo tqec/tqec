@@ -1,17 +1,13 @@
 from tqec.compile.observables.builder import ObservableBuilder
-from tqec.compile.observables.fixed_parity_builder import (
-    _get_top_readout_cube_qubits,
-    _get_top_readout_pipe_qubits,
-)
+from tqec.compile.observables.fixed_parity_builder import _get_top_readout_cube_qubits
 from tqec.compile.specs.enums import SpatialArms
+from tqec.computation.pipe import Pipe
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
 
 def _get_bottom_stabilizer_cube_qubits(
-    cube_shape: PlaquetteShape2D,
-    connect_to: SignedDirection3D,
-    stabilizer_basis: Basis,
+    cube_shape: PlaquetteShape2D, connect_to: SignedDirection3D, stabilizer_basis: Basis
 ) -> list[tuple[float, float]]:
     stabilizers: list[tuple[float, float]] = []
     xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
@@ -54,6 +50,17 @@ def _get_bottom_stabilizer_cube_qubits(
     ]
 
 
+def _get_top_readout_pipe_qubits(
+    u_shape: PlaquetteShape2D, pipe: Pipe
+) -> list[tuple[int, int]]:
+    direction = pipe.direction
+    assert direction != Direction3D.Z
+    if direction == Direction3D.X:
+        return [(u_shape.x, u_shape.y // 2)]
+    else:
+        return [(u_shape.x // 2, u_shape.y)]
+
+
 def _get_top_readout_spatial_cube_qubits(
     cube_shape: PlaquetteShape2D, arms: SpatialArms, observable_basis: Basis
 ) -> list[tuple[int, int]]:
@@ -93,8 +100,7 @@ def _get_top_readout_spatial_cube_qubits(
 
 
 def _get_bottom_stabilizer_spatial_cube_qubits(
-    cube_shape: PlaquetteShape2D,
-    stabilizer_basis: Basis,
+    cube_shape: PlaquetteShape2D, stabilizer_basis: Basis
 ) -> list[tuple[float, float]]:
     xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
     return [
@@ -106,9 +112,7 @@ def _get_bottom_stabilizer_spatial_cube_qubits(
 
 
 def _get_temporal_hadamard_includes_qubits(
-    shape: PlaquetteShape2D,
-    observable_basis: Basis,
-    z_orientation: Orientation,
+    shape: PlaquetteShape2D, observable_basis: Basis, z_orientation: Orientation
 ) -> list[tuple[float, float]]:
     # observable is horizontal
     if (observable_basis == Basis.X) ^ (z_orientation == Orientation.HORIZONTAL):

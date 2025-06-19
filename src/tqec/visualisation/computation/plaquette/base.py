@@ -10,6 +10,7 @@ from typing_extensions import override
 from tqec.interop.color import TQECColor
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng.rpng import ExtendedBasis, PauliBasis
+from tqec.utils.enums import Basis
 
 
 def lerp(a: complex, b: complex, t: float) -> complex:
@@ -32,6 +33,8 @@ class PlaquetteDrawerConfiguration:
             error crosses.
         stroke_color: default stroke color used for all the drawing, except for
             error crosses.
+        thin_stroke_color: color used to draw stroke that should appear thiner,
+            for example between the UP and DOWN plaquette of an extended plaquette.
         font_size: default font size of all the text in the drawing except the
             overlaid "Moments: XX -> YY" text.
         hook_error_line_lerp_coefficient: a coefficient in [0, 1] that defines how close
@@ -60,6 +63,7 @@ class PlaquetteDrawerConfiguration:
 
     stroke_width: float = 0.01
     stroke_color: str = "black"
+    thin_stroke_color: str = "grey"
     font_size: float = 0.1
     hook_error_line_lerp_coefficient: float = 0.9
     plaquette_overflow_lerp_coefficient: float = 0.2
@@ -262,7 +266,7 @@ class SVGPlaquetteDrawer(ABC):
         )
 
     @staticmethod
-    def get_colour(basis: PauliBasis | ExtendedBasis) -> str:
+    def get_colour(basis: Basis | PauliBasis | ExtendedBasis) -> str:
         """Helper to get a SVG-compatible hexadecimal color from a basis."""
         match basis.value.upper():
             case "X":
@@ -273,6 +277,18 @@ class SVGPlaquetteDrawer(ABC):
                 return TQECColor.Z.rgba.to_hex()
             case _:
                 return "none"
+
+    @staticmethod
+    def get_corner_coordinates(corner: PlaquetteCorner) -> complex:
+        match corner:
+            case PlaquetteCorner.TOP_LEFT:
+                return SVGPlaquetteDrawer._CORNERS[0]
+            case PlaquetteCorner.TOP_RIGHT:
+                return SVGPlaquetteDrawer._CORNERS[1]
+            case PlaquetteCorner.BOTTOM_LEFT:
+                return SVGPlaquetteDrawer._CORNERS[2]
+            case PlaquetteCorner.BOTTOM_RIGHT:
+                return SVGPlaquetteDrawer._CORNERS[3]
 
 
 class EmptySVGPlaquetteDrawer(SVGPlaquetteDrawer):

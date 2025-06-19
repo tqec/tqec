@@ -5,7 +5,6 @@ import pytest
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.positioning import LayoutPosition2D
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
@@ -19,13 +18,14 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 LOGICAL_QUBIT_SIDE: Final = LinearFunction(4, 5)
 LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE)
-TRANSLATOR: Final = DefaultRPNGTranslator()
+_TRANSLATOR: Final = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
 
 
 @pytest.fixture(name="empty_plaquette_layer")
 def empty_plaquette_layer_fixture() -> PlaquetteLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     return PlaquetteLayer(template, plaquettes)
 
 
@@ -34,8 +34,8 @@ def plaquette_layer_fixture() -> PlaquetteLayer:
     template = FixedTemplate([[1]])
     plaquettes = Plaquettes(
         FrozenDefaultDict(
-            {1: TRANSLATOR.translate(RPNGDescription.from_string("-x1- -x2- -x3- -x4-"))},
-            default_value=empty_square_plaquette(),
+            {1: _TRANSLATOR.translate(RPNGDescription.from_string("-x1- -x2- -x3- -x4-"))},
+            default_value=_EMPTY_PLAQUETTE,
         )
     )
     return PlaquetteLayer(template, plaquettes)
@@ -65,7 +65,7 @@ def test_bounds(empty_plaquette_layer: PlaquetteLayer) -> None:
 
 
 def test_scalable_qubit_bound() -> None:
-    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     fixed_layer = PlaquetteLayer(FixedTemplate([[1]]), plaquettes)
     qubit_layer = PlaquetteLayer(QubitTemplate(), plaquettes)
 

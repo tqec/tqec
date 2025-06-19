@@ -124,6 +124,8 @@ class DefaultRPNGTranslator(RPNGTranslator):
             name=str(rpng_description),
             qubits=new_plaquette_qubits,
             circuit=filtered_circuit,
-            mergeable_instructions=(RESET_INSTRUCTION_NAMES | MEASUREMENT_INSTRUCTION_NAMES),
+            mergeable_instructions=(
+                RESET_INSTRUCTION_NAMES | MEASUREMENT_INSTRUCTION_NAMES | {"H"}
+            ),
             debug_information=PlaquetteDebugInformation(rpng_description),
         )

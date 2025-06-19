@@ -86,11 +86,25 @@ def _matched_detectors_to_detectors(
 def _center_plaquette_syndrome_qubits(
     subtemplate: SubTemplateType, plaquettes: Plaquettes, increments: Shift2D
 ) -> list[GridQubit]:
-    """Return a collection of qubits that are used as syndrome qubits by the
+    """Return a subset of qubits that are used as syndrome qubits by the
     central plaquette of the provided `subtemplate`.
 
     The qubits are returned in the sub-template coordinates (i.e., origin at
     top-left corner of the provided `subtemplate`).
+
+    Note:
+        This function only returns a subset of the syndrome qubits. This is
+        because, for some plaquettes (e.g., extended stabilizer measurement),
+        some corner qubits are syndrome qubits, but are shared by 4 plaquettes.
+        For this reason, each plaquette "owns" its top-left qubit. Following
+        this rule, there are a few cases where a data-qubit is owned by nobody,
+        hence a few exceptions to the above rule are added.
+
+    Warning:
+        If the provided ``subtemplate`` has been obtained from a manhattan radius
+        ``r == 0`` (i.e., no neighbouring plaquette is taken into account), only
+        the top-left data-qubit is owned by the plaquette, and no exception come
+        into play.
 
     Args:
         subtemplate: 2-dimensional array representing the sub-template we are
@@ -113,13 +127,68 @@ def _center_plaquette_syndrome_qubits(
     if central_plaquette_index == 0:
         return []
 
+    # In the following, "X" is a qubit that "belongs" to the plaquette drawn
+    # using "=" and "|", "O" is a qubit that does not, and plaquette(s) drawn
+    # using "~" and "'" are representing empty plaquettes. Numbers in the center
+    # of empty plaquettes correspond to the case applied to justify the absence
+    # of owner.
+
+    # Case 1, General case, always valid:
+    # X ===== O
+    # |       |
+    # |   X   |
+    # |       |
+    # O ===== O
+    considered_syndrome_qubits = {GridQubit(0, 0), GridQubit(-1, -1)}
+    # Case 2, when the top-right qubit should be added because no plaquette on
+    # the left to own it.
+    # X ===== X ~~~~~ O
+    # |       |       '
+    # |   X   |   1   '
+    # |       |       '
+    # O ===== O ~~~~~ O
+    if r != 0 and subtemplate[r, r + 1] == 0:
+        considered_syndrome_qubits |= {GridQubit(1, -1)}
+    # When the bottom-left qubit should be added because no plaquette on the
+    # bottom and bottom-left to own it.
+    #         X ===== O
+    #         |       |
+    #         |   X   |
+    #         |       |
+    # O ~~~~~ X ===== O
+    # '       '       '
+    # '   2   '   1   '
+    # '       '       '
+    # O ~~~~~ O ~~~~~ O
+    if r != 0 and (subtemplate[r + 1, r - 1] == subtemplate[r + 1, r] == 0):
+        considered_syndrome_qubits |= {GridQubit(-1, 1)}
+    # When the bottom-right qubit should be added because no plaquette on the
+    # bottom, bottom-right and right to own it.
+    # X ===== O ~~~~~ O
+    # |       |       '
+    # |   X   |   3   '
+    # |       |       '
+    # O ===== X ~~~~~ O
+    # '       '       '
+    # '   2   '   1   '
+    # '       '       '
+    # O ~~~~~ O ~~~~~ O
+    if r != 0 and (
+        subtemplate[r + 1, r - 1] == subtemplate[r + 1, r] == subtemplate[r, r + 1] == 0
+    ):
+        considered_syndrome_qubits |= {GridQubit(1, 1)}
+
     central_plaquette = plaquettes[central_plaquette_index]
     origin = central_plaquette.origin
     offset = Shift2D(r * increments.x + origin.x, r * increments.y + origin.y)
-    return [q + offset for q in central_plaquette.qubits.syndrome_qubits]
+    return [
+        q + offset
+        for q in central_plaquette.qubits.syndrome_qubits
+        if q in considered_syndrome_qubits
+    ]
 
 
-def _filter_detectors(
+def _best_effort_filter_detectors(
     detectors: list[Detector],
     subtemplates: Sequence[SubTemplateType],
     plaquettes: Sequence[Plaquettes],
@@ -136,6 +205,16 @@ def _filter_detectors(
         For the moment, this assumption is verified for all the plaquettes we are
         using, but this restriction should be kept in mind in case a future
         plaquette does not check this condition.
+
+    Warning:
+        This function tries as much as possible to filter the maximum number of
+        detectors for the provided ``subtemplates`` and ``plaquettes``. For the
+        moment, this filtering is not perfect and detectors might end up
+        duplicated on several combos of ``subtemplates`` and ``plaquettes``.
+
+        That is not a problem as long as the number of duplicated detectors is
+        relatively low and a second more robust filter based on deduplication
+        via ``set`` is in place.
 
     Args:
         detectors: list of detectors to filter.
@@ -187,15 +266,30 @@ def _compute_detectors_at_end_of_situation(
         return frozenset()
 
     # Note: if there is more than 1 time slice, remove any initial time slice
-    #       that is empty.
+    # that is trivially empty. This is a faster version of the next while loop,
+    # but this might not catch all empty circuits (e.g., those that have an
+    # explicit plaquette, that turns out to be empty).
     while len(subtemplates) > 1 and numpy.all(subtemplates[0] == 0):
         assert len(plaquettes) > 1  # make type checkers happy
         subtemplates = subtemplates[1:]
         plaquettes = plaquettes[1:]
 
+    # Note: if there is more than 1 time slice, remove any initial time slice
+    # that is empty. Same as above, but without any false negative and less
+    # efficient.
+    current_circuit = generate_circuit_from_instantiation(
+        subtemplates[0], plaquettes[0], increments
+    )
+    while len(subtemplates) > 1 and current_circuit.is_empty():
+        assert len(plaquettes) > 1  # make type checkers happy
+        subtemplates = subtemplates[1:]
+        plaquettes = plaquettes[1:]
+        current_circuit = generate_circuit_from_instantiation(
+            subtemplates[0], plaquettes[0], increments
+        )
     # Build subcircuit for each Plaquettes layer
-    subcircuits: list[ScheduledCircuit] = []
-    for subtemplate, plaqs in zip(subtemplates, plaquettes):
+    subcircuits: list[ScheduledCircuit] = [current_circuit]
+    for subtemplate, plaqs in zip(subtemplates[1:], plaquettes[1:]):
         subcircuit = generate_circuit_from_instantiation(subtemplate, plaqs, increments)
         subcircuits.append(subcircuit)
     # Extract the global qubit map from the generated sub-circuits, relabeling
@@ -233,7 +327,9 @@ def _compute_detectors_at_end_of_situation(
     detectors = _matched_detectors_to_detectors(matched_detectors, measurements_by_offset)
 
     # Filter out detectors and return the left ones.
-    return _filter_detectors(detectors, subtemplates, plaquettes, increments)
+    return _best_effort_filter_detectors(
+        detectors, subtemplates, plaquettes, increments
+    )
 
 
 def _get_database_access_exception(
@@ -619,9 +715,7 @@ def compute_detectors_for_fixed_radius(
 
     template_instantiations = _compute_superimposed_template_instantiations(templates, k)
     unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(
-        template_instantiations,
-        manhattan_radius=fixed_subtemplate_radius,
-        avoid_zero_plaquettes=True,
+        template_instantiations, manhattan_radius=fixed_subtemplate_radius
     )
 
     # Each detector in detectors_by_subtemplate is using a coordinate system
@@ -698,5 +792,7 @@ def compute_detectors_for_fixed_radius(
                         (i + last_template_origin.y) * increments.y,
                     )
                 )
-
+    # Second filter, here to catch the duplicated detectors that were not
+    # filtered by the _best_effort_filter_detectors function.
+    detectors = list(set(detectors))
     return detectors
