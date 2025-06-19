@@ -46,7 +46,7 @@ class DetectorAnnotation:
         """
         return DetectorAnnotation(
             detector.coordinates,
-            [measurement_records[m.qubit][m.offset] for m in detector.measurements],
+            sorted([measurement_records[m.qubit][m.offset] for m in detector.measurements]),
         )
 
 
