@@ -21,6 +21,9 @@ Modifications to the original code:
    immediately followed by resets. As a result, the depolarizing error has no
    effect.
 4. Remove the ``depolarizing_two_body_measurement_noise`` noise model.
+5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and
+   REPEAT blocks (not before the block, the first instruction in the repeated
+   inner block, and after the block).
 """
 
 from collections import Counter, defaultdict
@@ -382,22 +385,21 @@ class NoiseModel:
             immune_qubits = set()
 
         result = stim.Circuit()
-
-        first = True
         for moment_split_ops in _iter_split_op_moments(circuit, immune_qubits=immune_qubits):
-            if first:
-                first = False
-            elif result and isinstance(result[-1], stim.CircuitRepeatBlock):
+            if not result:
+                pass
+            elif isinstance(moment_split_ops, stim.CircuitRepeatBlock):
+                pass
+            elif isinstance(result[-1], stim.CircuitRepeatBlock):
                 pass
             else:
-                result.append("TICK")
+                result.append("TICK", [], [])
             if isinstance(moment_split_ops, stim.CircuitRepeatBlock):
                 noisy_body = self.noisy_circuit(
                     moment_split_ops.body_copy(),
                     system_qubits=system_qubits,
                     immune_qubits=immune_qubits,
                 )
-                noisy_body.append("TICK")
                 result.append(
                     stim.CircuitRepeatBlock(
                         repeat_count=moment_split_ops.repeat_count, body=noisy_body

@@ -4,13 +4,18 @@ import pytest
 
 from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
+from tqec.plaquette.constants import MEASUREMENT_SCHEDULE
 from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates._testing import FixedTemplate
 from tqec.templates.qubit import QubitTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+
+_TRANSLATOR = DefaultRPNGTranslator()
 
 
 def test_creation() -> None:
@@ -116,3 +121,32 @@ def test_with_temporal_borders_replaced() -> None:
                 TemporalBlockBorder.Z_POSITIVE: replacement_layer,
             }
         )
+
+
+def test_scalable_num_moments() -> None:
+    template = FixedTemplate([[1]])
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
+    layer = PlaquetteLayer(template, plaquettes)
+    assert layer.scalable_num_moments == LinearFunction(0, 0)
+
+    plaquettes = Plaquettes(
+        FrozenDefaultDict(
+            {1: _TRANSLATOR.translate(RPNGDescription.from_string("-x1- -x2- -x3- -x4-"))},
+            default_value=empty_square_plaquette(),
+        )
+    )
+    layer = PlaquetteLayer(template, plaquettes)
+    # Note: even if there is no measurement in the plaquette, the measurement moment is
+    # still present, and so is accounted for. That is an implementation detail of the
+    # translator and may lead to inaccurate results.
+    assert layer.scalable_num_moments == LinearFunction(0, MEASUREMENT_SCHEDULE + 1)
+
+    plaquettes = Plaquettes(
+        FrozenDefaultDict(
+            {1: _TRANSLATOR.translate(RPNGDescription.from_string("-x1z -x2z -x3z -x4z"))},
+            default_value=empty_square_plaquette(),
+        )
+    )
+    print(plaquettes[1].circuit.get_circuit())
+    layer = PlaquetteLayer(template, plaquettes)
+    assert layer.scalable_num_moments == LinearFunction(0, MEASUREMENT_SCHEDULE + 1)
