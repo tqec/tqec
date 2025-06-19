@@ -2,14 +2,10 @@ name: GitHub Pages
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'docs/**'
-    branches:
-      - main
-  pull_request:
-    paths:
-      - 'docs/**'
+    push:
+      branches:
+        - main
+    pull_request:
 
 concurrency:
   group: ${{ github.ref }}
