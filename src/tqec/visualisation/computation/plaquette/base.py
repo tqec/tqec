@@ -23,10 +23,6 @@ def lerp(a: complex, b: complex, t: float) -> complex:
     return (1 - t) * a + t * b
 
 
-def _is_close(a: complex, b: complex, atol: float = 1e-8) -> bool:
-    return abs(b - a) < atol
-
-
 @dataclass(frozen=True)
 class PlaquetteDrawerConfiguration:
     """Drawing configuration with sensible defaults that can be modified by the user.
