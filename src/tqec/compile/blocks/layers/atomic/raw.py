@@ -7,7 +7,7 @@ from typing_extensions import override
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.blocks.enums import SpatialBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
-from tqec.utils.scale import PhysicalQubitScalable2D
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
 class RawCircuitLayer(BaseLayer):
@@ -15,6 +15,7 @@ class RawCircuitLayer(BaseLayer):
         self,
         circuit_factory: Callable[[int], ScheduledCircuit],
         scalable_raw_shape: PhysicalQubitScalable2D,
+        scalable_num_moments: LinearFunction,
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
     ):
         """Represents a layer with a spatial footprint that is defined by a raw
@@ -25,6 +26,11 @@ class RawCircuitLayer(BaseLayer):
                 any input ``k >= 1``.
             scalable_raw_shape: scalable shape of the quantum circuit returned
                 by the provided ``circuit_factory``.
+            scalable_num_moments: a linear function associating to any input
+                ``k >= 1`` the number of moments returned by the provided
+                ``circuit_factory`` when given ``k`` as input. This is expected
+                to be constant in most scenario, but left as a linear function
+                to cover potential edge-cases.
             trimmed_spatial_borders: all the spatial borders that have been
                 removed from the layer.
 
@@ -32,6 +38,7 @@ class RawCircuitLayer(BaseLayer):
         super().__init__(trimmed_spatial_borders)
         self._circuit_factory = circuit_factory
         self._scalable_raw_shape = scalable_raw_shape
+        self._scalable_num_moments = scalable_num_moments
 
     @property
     def scalable_raw_shape(self) -> PhysicalQubitScalable2D:
@@ -57,3 +64,8 @@ class RawCircuitLayer(BaseLayer):
     @override
     def __eq__(self, value: object) -> bool:
         raise NotImplementedError()
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return self._scalable_num_moments

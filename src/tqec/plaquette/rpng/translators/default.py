@@ -98,7 +98,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
         schedule: list[int] = [0]
         # Add reset operations
         self._add_extended_basis_operation(circuit, "R", reset_timestep_operations)
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
 
         # Add entangling gates
         for sched, entangling_operation in enumerate(entangling_operations):
@@ -107,7 +107,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
             p, data_qubit = entangling_operation
             circuit.append(f"C{p.value.upper()}", [syndrome_qubit_index, data_qubit], [])
             schedule.append(sched + 1)
-            circuit.append("TICK")
+            circuit.append("TICK", [], [])
 
         # Add measurement operations
         self._add_extended_basis_operation(circuit, "M", meas_timestep_operations)

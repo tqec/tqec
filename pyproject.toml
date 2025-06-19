@@ -43,19 +43,19 @@ Repository = "https://github.com/tqec/tqec"
 Issues = "https://github.com/tqec/tqec/issues"
 
 [project.optional-dependencies]
-test = ["pytest", "mypy", "pytest-cov", "types-networkx", "scipy-stubs"]
-dev = ["pymatching", "jupyterlab", "tqec[test, doc, bench]", "pre-commit"]
+test = ["pytest<=8.4.1", "mypy<=1.16.1", "pytest-cov<=6.2.1", "types-networkx<=3.5.0.20250610", "scipy-stubs<=1.16.0.0"]
+dev = ["pymatching<=2.2.2", "jupyterlab<=4.4.3", "tqec[test, doc, bench]", "pre-commit<=4.2.0", "ruff<=0.9.5"]
 doc = [
-    "sphinx",
-    "myst-parser",
-    "pydata-sphinx-theme",
-    "nbsphinx",
-    "pandoc",
-    "sphinxcontrib-mermaid",
-    "docformatter",
-    "sphinx-autobuild",
-    "sphinx-copybutton",
-    "sphinxcontrib-bibtex",
+    "sphinx<=8.1.3",
+    "myst-parser<=4.0.1",
+    "pydata-sphinx-theme<=0.16.1",
+    "nbsphinx<=0.9.7",
+    "pandoc<=2.4",
+    "sphinxcontrib-mermaid<=1.0.0",
+    "docformatter<=1.7.7",
+    "sphinx-autobuild<=2024.10.3",
+    "sphinx-copybutton<=0.5.2",
+    "sphinxcontrib-bibtex<=2.64",
 ]
 bench = ["pyinstrument"]
 all = ["tqec[test, dev, doc, bench]"]
@@ -205,11 +205,12 @@ line-length = 100
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["I", "E", "W", "D", "PL", "NPY", "N", "PERF", "RUF", "UP"]
+select = ["I", "E", "W", "D", "F", "PL", "NPY", "N", "PERF", "RUF", "UP"]
 # ruff configuration
 # E, W -- pycodestyle
 # D -- pydocstyle
 # I -- isort
+# F -- pyflakes
 # PL -- pylint
 # NPY -- Numpy specific rules
 # N -- pep8-naming
@@ -224,7 +225,7 @@ ignore = [
   "D103", "D100", "D101", "D102", "D105", "D104", "D107", "D205", "D301","D400", "D401", "D404", "D415", "D417", "E501",
   "PLR1714", "PLC0414", "PLC0105", "PLW2901", "PERF203", "PERF401", "RUF017", "RUF009", "RUF005", "RUF015", "RUF002", "RUF003", "N806", "N817",
   "N818", "N803", "UP038", "UP035"
-  ]
+]
 # Rules Ignored Permanently
 
 # D407 - Ignored because ==== under a section heading is considered as a missing underline.
