@@ -21,7 +21,7 @@ from tqec.templates.enums import TemplateBorder
 from tqec.templates.layout import LayoutTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.position import BlockPosition2D, Direction3D, Shift2D
-from tqec.utils.scale import PhysicalQubitScalable2D
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER: Final[int] = 1
 """Default number of qubits that are shared between two neighbouring layers."""
@@ -208,3 +208,23 @@ class LayoutLayer(BaseLayer):
         shift = Shift2D(mincube.x * (eshape.x - 1), mincube.y * (eshape.y - 1))
         shifted_circuit = scheduled_circuit.map_to_qubits(lambda q: q + shift)
         return shifted_circuit
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return LinearFunction.unambiguous_max_on_positives(
+            layer.scalable_num_moments for layer in self.layers.values()
+        )
+
+    @property
+    def qubit_bounds(self) -> tuple[PhysicalQubitScalable2D, PhysicalQubitScalable2D]:
+        tlb, brb = self.bounds
+        eshape = self.element_shape
+        increments = PhysicalQubitScalable2D(eshape.x, eshape.y) - (1, 1)
+        tlq = PhysicalQubitScalable2D(tlb.x * increments.x, tlb.y * increments.y)
+        brq = PhysicalQubitScalable2D((brb.x + 1) * increments.x, (brb.y + 1) * increments.y)
+        # Note: for the moment, plaquette origin is defined as the CENTER of the
+        # plaquette, which lead the above computations to be off-by-1. Correct that
+        # before returning.
+        shift = (-1, -1)
+        return tlq + shift, brq + shift

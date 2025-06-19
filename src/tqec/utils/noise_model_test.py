@@ -214,6 +214,5 @@ def test_si_1000_repeat_block() -> None:
             M(0.005) 0 1 2 3
             DEPOLARIZE1(0.0001) 4 5 6 7
             DEPOLARIZE1(0.002) 4 5 6 7
-            TICK
         }
     """)

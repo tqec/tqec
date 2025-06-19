@@ -148,7 +148,7 @@ class _SpatialCubeArmPlaquetteBuilder:
 
     def _append_ctrl_op_to_data_qubit(self, circuit: stim.Circuit, target: int) -> None:
         if self._trimmed_qubit is not None and target == self._trimmed_qubit:
-            circuit.append("TICK")
+            circuit.append("TICK", [], [])
         else:
             circuit.append(f"C{self._basis.name}", [0, target], [])
 
@@ -164,15 +164,15 @@ class _SpatialCubeArmPlaquetteBuilder:
         circuit = stim.Circuit()
         circuit.append("RX", [0], [])
         circuit.append("RZ", [3], [])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
         circuit.append("CX", [0, 3], [])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
         targ_order = [2, 1] if self._is_reverse else [1, 2]
         self._append_ctrl_op_to_data_qubit(circuit, targ_order[0])
-        circuit.append("TICK")
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
+        circuit.append("TICK", [], [])
         self._append_ctrl_op_to_data_qubit(circuit, targ_order[1])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
         circuit.append("CX", [3, 0], [])
         return list(iter_stim_circuit_without_repeat_by_moments(circuit))
 
@@ -187,19 +187,19 @@ class _SpatialCubeArmPlaquetteBuilder:
         """
         circuit = stim.Circuit()
         circuit.append("RZ", [1], [])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
         circuit.append("RZ", [0], [])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
         circuit.append("CX", [1, 0], [])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
         targ_order = [4, 3] if self._is_reverse else [3, 4]
         self._append_ctrl_op_to_data_qubit(circuit, targ_order[0])
-        circuit.append("TICK")
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
+        circuit.append("TICK", [], [])
         self._append_ctrl_op_to_data_qubit(circuit, targ_order[1])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
         circuit.append("CX", [0, 1], [])
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
         circuit.append("MX", [0], [])
         return list(iter_stim_circuit_without_repeat_by_moments(circuit))
 
