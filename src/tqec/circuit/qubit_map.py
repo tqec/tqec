@@ -139,6 +139,18 @@ class QubitMap:
         return QubitMap(i2q)
 
     def qubit_bounds(self) -> tuple[GridQubit, GridQubit]:
+        """Returns the tightest possible bounding box containing all the qubits in ``self``.
+
+        Raises:
+            TQECException: if ``self`` is empty.
+
+        Returns:
+            ``(top_left, bottom_right)`` representing the bounding box of the qubits listed in
+            ``self``.
+
+        """
+        if not self.i2q:
+            raise TQECException("Cannot get the bounding box of an empty QubitMap.")
         qxs, qys = [q.x for q in self.i2q.values()], [q.y for q in self.i2q.values()]
         return GridQubit(min(qxs), min(qys)), GridQubit(max(qxs), max(qys))
 
