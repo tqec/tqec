@@ -317,4 +317,4 @@ def get_observable_with_measurement_records(
         # in the scretched stabilizers to simplify the calculation.
         if q in measurement_records
     ]
-    return Observable(observable_index, measurement_offsets)
+    return Observable(observable_index, sorted(measurement_offsets))
