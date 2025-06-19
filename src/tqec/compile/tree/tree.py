@@ -1,15 +1,16 @@
+from __future__ import annotations
+
 import warnings
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from multiprocessing import cpu_count
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 import stim
 from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
-from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
@@ -20,10 +21,9 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
-from tqec.plaquette.rpng.rpng import RPNGDescription
-from tqec.plaquette.rpng.template import RPNGTemplate
 from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
+from tqec.visualisation.computation.tree import LayerVisualiser
 
 
 class QubitLister(NodeWalker):
@@ -51,37 +51,6 @@ class QubitLister(NodeWalker):
     def seen_qubits(self) -> set[GridQubit]:
         """Returns all the qubits seen when exploring."""
         return self._seen_qubits
-
-
-class LayerVisualiser(NodeWalker):
-    def __init__(self, k: int):
-        super().__init__()
-        self._k = k
-        self._visualisations: list[str] = []
-
-    @override
-    def visit_node(self, node: LayerNode) -> None:
-        from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
-
-        if not node.is_leaf:
-            return
-        layer = node._layer
-        assert isinstance(layer, LayoutLayer)
-        template, plaquettes = layer.to_template_and_plaquettes()
-        rpngs = plaquettes.collection.map_values(
-            lambda plaq: (
-                plaq.debug_information.rpng
-                if (plaq.debug_information is not None and plaq.debug_information.rpng is not None)
-                else RPNGDescription.empty()
-            )
-        )
-        rpng_template = RPNGTemplate(template, rpngs)
-        rpng_instantiation = rpng_template.instantiate(self._k)
-        self._visualisations.append(rpng_svg_viewer(rpng_instantiation))
-
-    @property
-    def visualisations(self) -> list[str]:
-        return self._visualisations
 
 
 class LayerTree:
@@ -387,7 +356,13 @@ class LayerTree:
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
 
-    def layers_to_svg(self, k: int) -> list[str]:
-        visualiser = LayerVisualiser(k)
+    def layers_to_svg(self, k: int, errors: Sequence[stim.ExplainedError] = tuple()) -> list[str]:
+        annotations = self._get_annotation(k)
+        tl, br = (
+            annotations.qubit_map.qubit_bounds()
+            if annotations.qubit_map is not None
+            else (None, None)
+        )
+        visualiser = LayerVisualiser(k, errors, top_left_qubit=tl, bottom_right_qubit=br)
         self._root.walk(visualiser)
         return visualiser.visualisations

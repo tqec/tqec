@@ -69,3 +69,32 @@ class WithTemporalFootprint(ABC):
     @abstractmethod
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
         pass
+
+    @property
+    @abstractmethod
+    def scalable_num_moments(self) -> LinearFunction:
+        """Returns the number of moments needed to implement the object as an
+        exact expression that can then be used to compute the number of
+        moments for any value of ``k``.
+
+        Returns:
+            the number of moments needed to implement the object as an
+            exact expression that can then be used to compute the number of
+            moments for any value of ``k``.
+
+        """
+        pass
+
+    def num_moments(self, k: int) -> int:
+        """Returns the number of moments needed to implement the object for
+        the provided scaling parameter ``k``.
+
+        Args:
+            k: scaling parameter.
+
+        Returns:
+            the number of moments needed to implement the object for
+            the provided scaling parameter ``k``.
+
+        """
+        return self.scalable_num_moments.integer_eval(k)

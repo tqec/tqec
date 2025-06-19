@@ -205,11 +205,12 @@ line-length = 100
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["I", "E", "W", "D", "PL", "NPY", "N", "PERF", "RUF", "UP"]
+select = ["I", "E", "W", "D", "F", "PL", "NPY", "N", "PERF", "RUF", "UP"]
 # ruff configuration
 # E, W -- pycodestyle
 # D -- pydocstyle
 # I -- isort
+# F -- pyflakes
 # PL -- pylint
 # NPY -- Numpy specific rules
 # N -- pep8-naming
@@ -224,7 +225,7 @@ ignore = [
   "D103", "D100", "D101", "D102", "D105", "D104", "D107", "D205", "D301","D400", "D401", "D404", "D415", "D417", "E501",
   "PLR1714", "PLC0414", "PLC0105", "PLW2901", "PERF203", "PERF401", "RUF017", "RUF009", "RUF005", "RUF015", "RUF002", "RUF003", "N806", "N817",
   "N818", "N803", "UP038", "UP035"
-  ]
+]
 # Rules Ignored Permanently
 
 # D407 - Ignored because ==== under a section heading is considered as a missing underline.
