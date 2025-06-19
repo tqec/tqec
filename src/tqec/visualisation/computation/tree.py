@@ -126,8 +126,8 @@ class LayerVisualiser(NodeWalker):
                 instantiation,
                 drawers,
                 top_left_used_qubit=tlq.to_grid_qubit(self._k),
-                top_left_qubit=self._top_left_qubit,
-                bottom_right_qubit=self._bottom_right_qubit,
+                view_box_top_left_qubit=self._top_left_qubit,
+                view_box_bottom_right_qubit=self._bottom_right_qubit,
                 errors=self._get_errors_within(element.start_moment, element.end_moment),
             )
             # Adding text to mark which TICKs are concerned.
