@@ -27,6 +27,7 @@ Plaquette
    .. autosummary::
    
       ~Plaquette.num_measurements
+      ~Plaquette.num_moments
       ~Plaquette.origin
       ~Plaquette.name
       ~Plaquette.qubits

@@ -365,7 +365,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RG.html">RG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNG.html">RPNG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RPNGDescription.html">RPNGDescription</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.RepeatedPlaquettes.html">RepeatedPlaquettes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tqec.plaquette.SquarePlaquetteQubits.html">SquarePlaquetteQubits</a></li>
 </ul>
 </details></li>
@@ -505,19 +504,16 @@ is internally and conventionally reserved for the empty plaquette).</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.map_indices" title="tqec.plaquette.Plaquettes.map_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_indices</span></code></a>(callable)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.repeat" title="tqec.plaquette.Plaquettes.repeat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">repeat</span></code></a>(repetitions)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.to_dict" title="tqec.plaquette.Plaquettes.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>([plaquettes_to_indices])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.to_dict" title="tqec.plaquette.Plaquettes.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>([plaquettes_to_indices])</p></td>
 <td><p>Return a dictionary representation of the plaquettes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.to_name_dict" title="tqec.plaquette.Plaquettes.to_name_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_name_dict</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.to_name_dict" title="tqec.plaquette.Plaquettes.to_name_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_name_dict</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.with_updated_plaquettes" title="tqec.plaquette.Plaquettes.with_updated_plaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_updated_plaquettes</span></code></a>(plaquettes_to_update)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.with_updated_plaquettes" title="tqec.plaquette.Plaquettes.with_updated_plaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_updated_plaquettes</span></code></a>(plaquettes_to_update)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.without_plaquettes" title="tqec.plaquette.Plaquettes.without_plaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">without_plaquettes</span></code></a>(indices)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.without_plaquettes" title="tqec.plaquette.Plaquettes.without_plaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">without_plaquettes</span></code></a>(indices)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -591,19 +587,6 @@ is internally and conventionally reserved for the empty plaquette).</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#tqec.plaquette.Plaquettes" title="tqec.plaquette.plaquette.Plaquettes"><em>Plaquettes</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.plaquette.Plaquettes.repeat">
-<span class="sig-name descname"><span class="pre">repeat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repetitions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquettes.repeat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquettes.repeat" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>repetitions</strong> (<em>LinearFunction</em>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="tqec.plaquette.RepeatedPlaquettes.html#tqec.plaquette.RepeatedPlaquettes" title="tqec.plaquette.plaquette.RepeatedPlaquettes"><em>RepeatedPlaquettes</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -715,7 +698,6 @@ indices. If provided, a plaquette will be represented by its index</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquettes.from_dict"><code class="docutils literal notranslate"><span class="pre">Plaquettes.from_dict()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquettes.items"><code class="docutils literal notranslate"><span class="pre">Plaquettes.items()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquettes.map_indices"><code class="docutils literal notranslate"><span class="pre">Plaquettes.map_indices()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquettes.repeat"><code class="docutils literal notranslate"><span class="pre">Plaquettes.repeat()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquettes.to_dict"><code class="docutils literal notranslate"><span class="pre">Plaquettes.to_dict()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquettes.to_name_dict"><code class="docutils literal notranslate"><span class="pre">Plaquettes.to_name_dict()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.Plaquettes.with_updated_plaquettes"><code class="docutils literal notranslate"><span class="pre">Plaquettes.with_updated_plaquettes()</span></code></a></li>
