@@ -107,6 +107,8 @@ def get_errors_svg(
         ]
         # Plot the additional SVG lines if we have a 2-qubit error.
         if qx2 is not None and qy2 is not None:
+            qx2 -= top_left_qubit.x
+            qy2 -= top_left_qubit.y
             error_svg.append(
                 svg.G(
                     elements=[cross_svg],
