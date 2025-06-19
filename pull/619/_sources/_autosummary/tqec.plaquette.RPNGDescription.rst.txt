@@ -20,7 +20,6 @@ RPNGDescription
       ~RPNGDescription.get_n
       ~RPNGDescription.get_r_op
       ~RPNGDescription.to_dict
-      ~RPNGDescription.view_as_svg
    
    
 
@@ -51,6 +50,5 @@ RPNGDescription
    .. automethod:: get_n
    .. automethod:: get_r_op
    .. automethod:: to_dict
-   .. automethod:: view_as_svg
    
    
