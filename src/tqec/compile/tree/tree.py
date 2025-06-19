@@ -375,6 +375,15 @@ class LayerTree:
             if annotations.qubit_map is not None
             else (None, None)
         )
+        # Note: if the top-left and bottom-right qubits are not None, we just computed them from
+        # the resulting circuit. Most of the time, the border plaquettes are 2-body stabilizers and
+        # do not use the top/bottom/left/right qubits. Because we want this space (e.g., to write
+        # the moments that are concerned by a given visualisation), we add 1-qubit worth of space
+        # on each border.
+        if tl is not None:
+            tl = GridQubit(tl.x - 1, tl.y - 1)
+        if br is not None:
+            br = GridQubit(br.x + 1, br.y + 1)
         visualiser = LayerVisualiser(k, errors, top_left_qubit=tl, bottom_right_qubit=br)
         self._root.walk(visualiser)
         return visualiser.visualisations
