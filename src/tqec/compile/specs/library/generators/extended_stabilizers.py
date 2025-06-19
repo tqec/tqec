@@ -18,6 +18,11 @@ from tqec.utils.instructions import (
     MEASUREMENT_INSTRUCTION_NAMES,
     RESET_INSTRUCTION_NAMES,
 )
+from tqec.visualisation.computation.plaquette.extended import (
+    ExtendedPlaquetteDrawer,
+    ExtendedPlaquettePosition,
+    ExtendedPlaquetteType,
+)
 
 
 def _get_spatial_cube_arm_name(
@@ -220,9 +225,7 @@ class ExtendedPlaquetteCollection:
     right_without_arm: ExtendedPlaquette
 
     @staticmethod
-    def _plaquette_debug_information(
-        basis: PauliBasis,
-    ) -> list[PlaquetteDebugInformation]:
+    def _up_plaquette_polygons(basis: PauliBasis) -> list[DrawPolygon]:
         extended_corners = [
             GridQubit(-1, -1),
             GridQubit(1, -1),
@@ -230,11 +233,7 @@ class ExtendedPlaquetteCollection:
             GridQubit(1, 3),
         ]
         return [
-            PlaquetteDebugInformation(
-                draw_polygons=DrawPolygon(
-                    {basis: [extended_corners[i] for i in indices]}
-                )
-            )
+            DrawPolygon({basis: [extended_corners[i] for i in indices]})
             for indices in [
                 # bulk
                 [0, 1, 2, 3],
@@ -250,19 +249,54 @@ class ExtendedPlaquetteCollection:
         ]
 
     @staticmethod
+    def _get_drawers(
+        basis: Basis, reset: Basis | None, measurement: Basis | None, is_reverse: bool
+    ) -> tuple[
+        dict[ExtendedPlaquetteType, ExtendedPlaquetteDrawer],
+        dict[ExtendedPlaquetteType, ExtendedPlaquetteDrawer],
+    ]:
+        schedule = EXTENDED_PLAQUETTE_SCHEDULES[is_reverse]
+        return (
+            {
+                ptype: ExtendedPlaquetteDrawer(
+                    ptype, ExtendedPlaquettePosition.UP, basis, schedule, reset, measurement
+                )
+                for ptype in ExtendedPlaquetteType
+            },
+            {
+                ptype: ExtendedPlaquetteDrawer(
+                    ptype, ExtendedPlaquettePosition.DOWN, basis, schedule, reset, measurement
+                )
+                for ptype in ExtendedPlaquetteType
+            },
+        )
+
+    @staticmethod
     def from_args(
         basis: Basis, reset: Basis | None, measurement: Basis | None, is_reverse: bool
     ) -> ExtendedPlaquetteCollection:
-        up, down = make_spatial_cube_arm_plaquettes(
-            basis, reset, measurement, is_reverse
-        )
-        debug_info = ExtendedPlaquetteCollection._plaquette_debug_information(
+        up, down = make_spatial_cube_arm_plaquettes(basis, reset, measurement, is_reverse)
+        up_plaquette_polygons = ExtendedPlaquetteCollection._up_plaquette_polygons(
             PauliBasis(basis.value.lower())
+        )
+        up_drawers, down_drawers = ExtendedPlaquetteCollection._get_drawers(
+            basis, reset, measurement, is_reverse
         )
         # Work-around: debug information for the whole extended plaquette is
         # embedded in the UP plaquette, so we do not need to include anything in
         # the DOWN plaquette.
-        up_plaquettes = [up.with_debug_information(info) for info in debug_info]
+        up_plaquettes = {
+            ptype: up.with_debug_information(
+                PlaquetteDebugInformation(draw_polygons=polygons, drawer=up_drawers[ptype])
+            )
+            for polygons, ptype in zip(up_plaquette_polygons, up_drawers)
+        }
+        down_plaquettes = {
+            ptype: down.with_debug_information(
+                PlaquetteDebugInformation(drawer=down_drawers[ptype])
+            )
+            for ptype in down_drawers
+        }
         # In the calls to project_on_data_qubit_indices, it is important to remember
         # that individual plaquettes composing the extended plaquette have slightly
         # unconventional qubit layouts. In the below ASCII representation, "s" means
@@ -281,20 +315,26 @@ class ExtendedPlaquetteCollection:
         # |   s2   |
         # |        |
         # d0 ---- d1
+        EPT = ExtendedPlaquetteType
         return ExtendedPlaquetteCollection(
-            bulk=ExtendedPlaquette(up_plaquettes[0], down),
+            bulk=ExtendedPlaquette(
+                up_plaquettes[EPT.BULK],
+                down_plaquettes[EPT.BULK],
+            ),
             left_with_arm=ExtendedPlaquette(
-                up_plaquettes[1].project_on_data_qubit_indices([1]), down
+                up_plaquettes[EPT.LEFT_WITH_ARM].project_on_data_qubit_indices([1]),
+                down_plaquettes[EPT.LEFT_WITH_ARM],
             ),
             left_without_arm=ExtendedPlaquette(
-                up_plaquettes[2].project_on_data_qubit_indices([1]),
-                down.project_on_data_qubit_indices([1]),
+                up_plaquettes[EPT.LEFT_WITHOUT_ARM].project_on_data_qubit_indices([1]),
+                down_plaquettes[EPT.LEFT_WITHOUT_ARM].project_on_data_qubit_indices([1]),
             ),
             right_with_arm=ExtendedPlaquette(
-                up_plaquettes[3], down.project_on_data_qubit_indices([0])
+                up_plaquettes[EPT.RIGHT_WITH_ARM],
+                down_plaquettes[EPT.RIGHT_WITH_ARM].project_on_data_qubit_indices([0]),
             ),
             right_without_arm=ExtendedPlaquette(
-                up_plaquettes[4].project_on_data_qubit_indices([0]),
-                down.project_on_data_qubit_indices([0]),
+                up_plaquettes[EPT.RIGHT_WITHOUT_ARM].project_on_data_qubit_indices([0]),
+                down_plaquettes[EPT.RIGHT_WITHOUT_ARM].project_on_data_qubit_indices([0]),
             ),
         )
