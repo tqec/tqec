@@ -110,7 +110,9 @@ def plaquette_grid_to_svg(
 def plaquette_grid_svg_viewer(
     grid: Sequence[Sequence[int]],
     drawers: FrozenDefaultDict[int, SVGPlaquetteDrawer],
-    top_left_qubit: GridQubit,
+    top_left_used_qubit: GridQubit,
+    top_left_qubit: GridQubit | None = None,
+    bottom_right_qubit: GridQubit | None = None,
     width: float | None = None,
     height: float | None = None,
     show_interaction_order: bool = True,
@@ -132,9 +134,14 @@ def plaquette_grid_svg_viewer(
             used to index the provided ``drawers``.
         drawers: a default dictionary containing a SVG drawer for each of the plaquette indices
             provided in ``grid``. If an index is not present, the default value is used.
-        top_left_qubit: coordinates of the qubit at the very top-left of the
-            visualisation canva. Used to correctly offset qubit values from the
-            provided ``errors``.
+        top_left_used_qubit: coordinates of the top-left most qubit being used by the provided
+            ``grid``. This is used to correctly offset qubit values from the provided ``errors``.
+        top_left_qubit: top-left qubit of the drawing frame. Can be used to change the view box of
+            the returned drawing. Contrary to ``width``, this parameter does **not** change the size
+            of the plaquettes that are drawn, but changes the view box.
+        bottom_right_qubit: bottom-right qubit of the drawing frame. Can be used to change the view
+            box of the returned drawing. Contrary to ``height``, this parameter does **not** change
+            the size of the plaquettes that are drawn, but changes the view box.
         width: width of the resulting SVG. If ``None``, defaults to ``len(grid[0])``.
         height: height of the resulting SVG. If ``None``, defaults to ``len(grid)``.
         show_interaction_order: if ``True``, numbers representing the timestep(s) at which each
@@ -162,13 +169,28 @@ def plaquette_grid_svg_viewer(
         width = len(grid[0]) * (height / len(grid))
     elif height is None:
         height = len(grid) * (width / len(grid[0]))
+
+    # By default, if either the top-left or top-right qubits is not provided, we stick to the
+    # [0, 0] x [width, height] viewbox.
+    viewbox = svg.ViewBoxSpec(0, 0, width, height)
+    if top_left_qubit is not None and bottom_right_qubit is not None:
+        # Compute viewbox bounds top-left [x1, y1] and bottom-right [x2, y2] knowing that by
+        # convention we have ``top_left_used_qubit`` at the coordinate ``(0, 0)``.
+        width_between_qubits = width / (2 * len(grid[0]))
+        height_between_qubits = height / (2 * len(grid))
+        x1 = (top_left_qubit.x - top_left_used_qubit.x) * width_between_qubits
+        x2 = (bottom_right_qubit.x - top_left_qubit.x) * width_between_qubits
+        y1 = (top_left_qubit.y - top_left_used_qubit.y) * height_between_qubits
+        y2 = (bottom_right_qubit.y - top_left_qubit.y) * height_between_qubits
+        viewbox = svg.ViewBoxSpec(x1, y1, x2, y2)
+
     return svg.SVG(
-        viewBox=svg.ViewBoxSpec(0, 0, width, height),
+        viewBox=viewbox,
         elements=[
             plaquette_grid_to_svg(
                 grid,
                 drawers,
-                top_left_qubit,
+                top_left_used_qubit,
                 width,
                 height,
                 show_interaction_order,

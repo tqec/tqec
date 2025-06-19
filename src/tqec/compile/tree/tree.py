@@ -357,6 +357,12 @@ class LayerTree:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
 
     def layers_to_svg(self, k: int, errors: Sequence[stim.ExplainedError] = tuple()) -> list[str]:
-        visualiser = LayerVisualiser(k, errors)
+        annotations = self._get_annotation(k)
+        tl, br = (
+            annotations.qubit_map.qubit_bounds()
+            if annotations.qubit_map is not None
+            else (None, None)
+        )
+        visualiser = LayerVisualiser(k, errors, top_left_qubit=tl, bottom_right_qubit=br)
         self._root.walk(visualiser)
         return visualiser.visualisations

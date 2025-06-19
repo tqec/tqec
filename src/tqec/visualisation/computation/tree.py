@@ -8,6 +8,7 @@ import stim
 import svg
 from typing_extensions import override
 
+from tqec.circuit.qubit import GridQubit
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.utils.exceptions import TQECException
@@ -34,6 +35,8 @@ class LayerVisualiser(NodeWalker):
         errors: Sequence[stim.ExplainedError] = tuple(),
         font_size: float = 0.5,
         font_color: str = "red",
+        top_left_qubit: GridQubit | None = None,
+        bottom_right_qubit: GridQubit | None = None,
     ):
         super().__init__()
         self._k = k
@@ -41,6 +44,8 @@ class LayerVisualiser(NodeWalker):
         self._errors: list[stim.ExplainedError] = list(errors)
         self._font_size = font_size
         self._font_color = font_color
+        self._top_left_qubit = top_left_qubit
+        self._bottom_right_qubit = bottom_right_qubit
 
     @override
     def enter_node(self, node: LayerNode) -> None:
@@ -120,7 +125,9 @@ class LayerVisualiser(NodeWalker):
             svg_element = plaquette_grid_svg_viewer(
                 instantiation,
                 drawers,
-                tlq.to_grid_qubit(self._k),
+                top_left_used_qubit=tlq.to_grid_qubit(self._k),
+                top_left_qubit=self._top_left_qubit,
+                bottom_right_qubit=self._bottom_right_qubit,
                 errors=self._get_errors_within(element.start_moment, element.end_moment),
             )
             # Adding text to mark which TICKs are concerned.
