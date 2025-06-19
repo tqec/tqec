@@ -31,6 +31,8 @@ class QubitMap:
     This class aims at representing a bidirectional mapping (hence the
     "bijection") between qubits and their associated indices.
 
+    This is a test change.
+
     Raises:
         TQECException: if the provided mapping from indices to qubits is not a
             bijection (i.e., if at least to values represent the same qubit).
