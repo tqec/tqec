@@ -2,9 +2,13 @@ name: GitHub Pages
 
 on:
   push:
+    paths:
+      - 'docs/**'
     branches:
       - main
   pull_request:
+    paths:
+      - 'docs/**'
 
 concurrency:
   group: ${{ github.ref }}
