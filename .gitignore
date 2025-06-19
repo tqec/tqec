@@ -71,6 +71,9 @@ instance/
 # Sphinx documentation
 docs/_build/
 
+# Documentation Examples Gallery Database and Stats
+docs/_examples_database/
+
 # PyBuilder
 .pybuilder/
 target/

@@ -19,7 +19,7 @@ Installation procedure
 (optional) Create a new environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is a good practice to create a new virtual environment for mananging the dependencies of the ``tqec`` package.
+It is a good practice to create a new virtual environment for managing the dependencies of the ``tqec`` package.
 
 One way of doing that is using the native ``venv`` package of your python installation:
 
