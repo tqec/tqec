@@ -85,3 +85,5 @@ Here are some helpful links to learn more about the community:
 All the resources and group meeting recordings are available at [this link](https://docs.google.com/spreadsheets/d/11DSA2wzKLOrfTGNHunFvzsMYeO7jZ8Ny8kpzoC_wKQg/edit?resourcekey=0-PdGFkp5s-4XWihMSxk0UIg&gid=0#gid=0).
 
 Please join the [Google group](https://groups.google.com/g/tqec-design-automation) to receive more updates and information!
+
+<span style="color:blue">This is a test change to trigger the docs build only when there has been a change in the docs directory.</span>.
