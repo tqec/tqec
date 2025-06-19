@@ -125,9 +125,6 @@ class LayerVisualiser(NodeWalker):
             )
             # Adding text to mark which TICKs are concerned.
             assert svg_element.elements is not None
-            start = element.start_moment
-            end = element.end_moment
-            print(f"Moment in ticks [{start}, {end}]: {end - start}")
             svg_element.elements.append(
                 self.get_moment_text(element.start_moment, element.end_moment)
             )
