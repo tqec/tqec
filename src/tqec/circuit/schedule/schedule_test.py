@@ -86,3 +86,9 @@ def test_schedule_append() -> None:
     assert schedule.schedule == [0, 3, 4]
     schedule.append(5)
     assert schedule.schedule == [0, 3, 4, 5]
+
+
+def test_max_schedule() -> None:
+    assert Schedule([]).max_schedule == 0
+    assert Schedule([0, 1, 3, 4]).max_schedule == 4
+    assert Schedule(list(range(0, 1000, 2))).max_schedule == 998

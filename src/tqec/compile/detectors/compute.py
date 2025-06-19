@@ -1,7 +1,6 @@
 import json
 from collections.abc import Sequence
 from multiprocessing import Pool, cpu_count
-from typing import Sequence
 
 import numpy
 import numpy.typing as npt

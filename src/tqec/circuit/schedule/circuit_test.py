@@ -100,24 +100,6 @@ def test_scheduled_circuit_get_qubit_coords_definition_preamble() -> None:
     )
 
 
-@pytest.mark.parametrize("circuit", _VALID_SCHEDULED_CIRCUITS)
-def test_scheduled_circuit_get_repeated_circuit(circuit: stim.Circuit) -> None:
-    for repetitions in [2, 6, 1345]:
-        scheduled_circuit = ScheduledCircuit.from_circuit(circuit)
-        coords_preamble = scheduled_circuit.get_qubit_coords_definition_preamble()
-        body_without_coords = scheduled_circuit.get_circuit(include_qubit_coords=False)
-        expected_circuit = stim.Circuit(f"REPEAT {repetitions} {{\n{body_without_coords}\nTICK\n}}")
-        assert (
-            ScheduledCircuit.from_circuit(circuit).get_repeated_circuit(
-                repetitions, include_qubit_coords=False
-            )
-            == expected_circuit
-        )
-        assert ScheduledCircuit.from_circuit(circuit).get_repeated_circuit(repetitions) == (
-            coords_preamble + expected_circuit
-        )
-
-
 def test_scheduled_circuit_get_circuit_with_schedule() -> None:
     circuit = ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), [0, 3])
     assert circuit.get_circuit() == stim.Circuit("H 0 1 2\nTICK\nTICK\nTICK\nH 0 1 2")

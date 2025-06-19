@@ -12,6 +12,7 @@ from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
+from tqec.templates._testing import FixedTemplate
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
@@ -37,11 +38,25 @@ def plaquette_layer2_fixture() -> PlaquetteLayer:
     )
 
 
+@pytest.fixture(name="non_empty_plaquette_layer")
+def non_empty_plaquette_layer_fixture() -> PlaquetteLayer:
+    return PlaquetteLayer(
+        FixedTemplate([[1]]),
+        Plaquettes(
+            FrozenDefaultDict(
+                {1: _TRANSLATOR.translate(RPNGDescription.from_string("-x1- -x2- -x3- -x4-"))},
+                default_value=_EMPTY_PLAQUETTE,
+            )
+        ),
+    )
+
+
 @pytest.fixture(name="raw_circuit_layer")
 def raw_circuit_layer_fixture() -> RawCircuitLayer:
     return RawCircuitLayer(
         lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
         PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5)),
+        LinearFunction(0, 0),
     )
 
 
@@ -238,3 +253,31 @@ def test_with_temporal_borders_replaced(
         )
         == plaquette_layer2
     )
+
+
+def test_scalable_num_moments(
+    plaquette_layer: PlaquetteLayer, non_empty_plaquette_layer: PlaquetteLayer
+) -> None:
+    for lf in [
+        LinearFunction(0, 0),
+        LinearFunction(0, 1),
+        LinearFunction(1, 0),
+        LinearFunction(2, 4),
+    ]:
+        assert RepeatedLayer(plaquette_layer, lf).scalable_num_moments == LinearFunction(0, 0)
+
+    assert RepeatedLayer(
+        non_empty_plaquette_layer, LinearFunction(0, 0)
+    ).scalable_num_moments == LinearFunction(0, 0)
+    assert (
+        RepeatedLayer(non_empty_plaquette_layer, LinearFunction(0, 1)).scalable_num_moments
+        == non_empty_plaquette_layer.scalable_num_moments
+    )
+    assert non_empty_plaquette_layer.scalable_num_moments.is_constant()
+    layer_num_moments = non_empty_plaquette_layer.scalable_num_moments.offset
+    assert RepeatedLayer(
+        non_empty_plaquette_layer, LinearFunction(1, 0)
+    ).scalable_num_moments == LinearFunction(layer_num_moments, 0)
+    assert RepeatedLayer(
+        non_empty_plaquette_layer, LinearFunction(2, 4)
+    ).scalable_num_moments == LinearFunction(2 * layer_num_moments, 4 * layer_num_moments)

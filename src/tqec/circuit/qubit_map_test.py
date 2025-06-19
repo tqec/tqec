@@ -108,3 +108,13 @@ def test_qubit_map_getitem() -> None:
         assert qmap[GridQubit(i, -i)] == i
     with pytest.raises(KeyError):
         qmap[GridQubit(1, 1)]
+
+
+def test_qubit_map_qubit_bounds() -> None:
+    with pytest.raises(TQECException):
+        QubitMap({}).qubit_bounds()
+    assert QubitMap({0: GridQubit(9, 45)}).qubit_bounds() == (GridQubit(9, 45), GridQubit(9, 45))
+    assert QubitMap({i: GridQubit(i, -i) for i in range(10)}).qubit_bounds() == (
+        GridQubit(0, -9),
+        GridQubit(9, 0),
+    )

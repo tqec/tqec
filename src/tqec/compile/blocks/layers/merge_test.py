@@ -48,6 +48,7 @@ def base_layers_fixture() -> list[BaseLayer]:
         RawCircuitLayer(
             lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
             PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5)),
+            LinearFunction(0, 0),
         ),
     ]
 
@@ -313,6 +314,10 @@ def test_merge_composed_layers_unknown_layer_type(
             raise NotImplementedError()
 
         def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
+            raise NotImplementedError()
+
+        @property
+        def scalable_num_moments(self) -> LinearFunction:
             raise NotImplementedError()
 
     plaquette_layer, plaquette_layer2, raw_layer = base_layers

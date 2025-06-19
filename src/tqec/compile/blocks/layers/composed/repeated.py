@@ -214,3 +214,8 @@ class RepeatedLayer(BaseComposedLayer):
     @override
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
         return self.internal_layer.get_temporal_layer_on_border(border)
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return LinearFunction.safe_mul(self.internal_layer.scalable_num_moments, self.repetitions)

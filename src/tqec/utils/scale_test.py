@@ -107,3 +107,26 @@ def test_is_close_to() -> None:
     assert not LinearFunction(0, 0).is_close_to(LinearFunction(1, 0))
     assert LinearFunction(0, 0).is_close_to(LinearFunction(0, 0))
     assert LinearFunction(0, 0).is_close_to(LinearFunction(0, -0))
+
+
+def test_unambiguous_max_on_positives() -> None:
+    assert LinearFunction.unambiguous_max_on_positives(
+        [LinearFunction(i, 0) for i in range(10)]
+    ) == LinearFunction(9, 0)
+    assert LinearFunction.unambiguous_max_on_positives(
+        [LinearFunction(0, i) for i in range(10)]
+    ) == LinearFunction(0, 9)
+    with pytest.raises(TQECException, match="^Could not find a unambiguous maximum.*"):
+        # Ambiguous because LinearFunction(0, 1) > LinearFunction(1, 0) for the input in [0, 1], but
+        # the opposite for [1, infinity].
+        LinearFunction.unambiguous_max_on_positives([LinearFunction(0, 1), LinearFunction(1, 0)])
+
+
+def test_safe_mul() -> None:
+    smul = LinearFunction.safe_mul
+    for i in range(1, 10):
+        lf = LinearFunction(i, i)
+        assert smul(lf, LinearFunction(0, 0)) == LinearFunction(0, 0)
+        assert smul(lf, LinearFunction(0, 1)) == lf
+        with pytest.raises(TQECException):
+            smul(lf, lf)

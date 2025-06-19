@@ -6,6 +6,11 @@ from typing import Any
 from tqec.circuit.qubit import GridQubit
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
+from tqec.visualisation.computation.plaquette.base import (
+    EmptySVGPlaquetteDrawer,
+    SVGPlaquetteDrawer,
+)
+from tqec.visualisation.computation.plaquette.rpng import RPNGPlaquetteDrawer
 
 
 @dataclass
@@ -36,6 +41,7 @@ class DrawPolygon:
 class PlaquetteDebugInformation:
     rpng: RPNGDescription | None = None
     draw_polygons: DrawPolygon | None = None
+    drawer: SVGPlaquetteDrawer | None = None
 
     def get_polygons(self) -> dict[PauliBasis, list[GridQubit]] | PauliBasis | None:
         if self.draw_polygons is not None:
@@ -102,3 +108,10 @@ class PlaquetteDebugInformation:
                 else None
             ),
         )
+
+    def get_svg_drawer(self) -> SVGPlaquetteDrawer:
+        if self.drawer is not None:
+            return self.drawer
+        if self.rpng is not None:
+            return RPNGPlaquetteDrawer(self.rpng)
+        return EmptySVGPlaquetteDrawer()
