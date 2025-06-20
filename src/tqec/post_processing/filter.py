@@ -26,26 +26,24 @@ def subcircuit_only_on_indices(
 
     Returns:
         a new quantum circuit, only containing qubits with the indices provided.
+
     """
     ret = stim.Circuit()
     for instruction in circuit:
         if isinstance(instruction, stim.CircuitRepeatBlock):
-            filtered_body = subcircuit_only_on_indices(
-                instruction.body_copy(), qubit_indices
-            )
+            filtered_body = subcircuit_only_on_indices(instruction.body_copy(), qubit_indices)
             if len(filtered_body) != 0:
-                ret.append(
-                    stim.CircuitRepeatBlock(instruction.repeat_count, filtered_body)
-                )
+                ret.append(stim.CircuitRepeatBlock(instruction.repeat_count, filtered_body))
         elif instruction.name == "TICK":
             # Unconditionally append TICK annotations.
             ret.append(instruction)
+        elif instruction.name in ["DETECTOR", "OBSERVABLE_INCLUDE"]:
+            continue
         else:
             targets: list[stim.GateTarget] = []
             for target_group in instruction.target_groups():
                 if all(
-                    t.qubit_value is None or t.qubit_value in qubit_indices
-                    for t in target_group
+                    t.qubit_value is None or t.qubit_value in qubit_indices for t in target_group
                 ):
                     targets.extend(target_group)
                 if any(t.is_measurement_record_target for t in target_group):
@@ -59,9 +57,7 @@ def subcircuit_only_on_indices(
                     )
             if targets:
                 ret.append(
-                    stim.CircuitInstruction(
-                        instruction.name, targets, instruction.gate_args_copy()
-                    )
+                    stim.CircuitInstruction(instruction.name, targets, instruction.gate_args_copy())
                 )
     return ret
 
@@ -91,11 +87,10 @@ def subcircuit(
     Returns:
         a new quantum circuit, only containing qubits within the provided
         bounding box.
+
     """
     qubit_map = QubitMap.from_circuit(circuit)
     indices_to_keep = frozenset(
-        i
-        for i, q in qubit_map.i2q.items()
-        if ((minx <= q.x < maxx) and (miny <= q.y < maxy))
+        i for i, q in qubit_map.i2q.items() if ((minx <= q.x < maxx) and (miny <= q.y < maxy))
     )
     return subcircuit_only_on_indices(circuit, indices_to_keep)
