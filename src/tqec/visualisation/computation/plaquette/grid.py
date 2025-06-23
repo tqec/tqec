@@ -103,7 +103,7 @@ def plaquette_grid_to_svg(
             template_id = element_id_template.format(key)
             drawing_lines.append(svg.Use(x=x, y=y, href=f"#{template_id}"))
     if errors:
-        drawing_lines.append(get_errors_svg(errors, top_left_qubit, pw, ph, size=(pw + ph) / 10))
+        drawing_lines.append(get_errors_svg(errors, top_left_qubit, pw, ph, size=(pw + ph) / 12))
     return svg.G(elements=drawing_lines)
 
 
