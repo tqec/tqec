@@ -4,6 +4,7 @@ import stim
 import svg
 
 from tqec.circuit.qubit import GridQubit
+from tqec.interop.color import TQECColor
 from tqec.visualisation.exception import TQECDrawingException
 
 
@@ -79,7 +80,6 @@ def get_errors_svg(
     """
     width_between_qubits: float = plaquette_width / 2
     height_between_qubits: float = plaquette_height / 2
-    cross_svg = _get_error_cross_svg(size, stroke_color, stroke_width_multiplier)
     crosses: list[svg.Element] = []
     for error in errors:
         # We take the first error location. All the error locations in error.circuit_error_locations
@@ -91,19 +91,33 @@ def get_errors_svg(
         flipped_pauli_product = location.flipped_pauli_product
         if flipped_pauli_product:
             qx, qy, qx2, qy2 = _get_coordinates(flipped_pauli_product)
+            basis = flipped_pauli_product[0].gate_target.pauli_type
         elif flipped_measurement:
             qx, qy, qx2, qy2 = _get_coordinates(flipped_measurement.observable)
+            basis = flipped_measurement.observable[0].gate_target.pauli_type
         else:
             raise TQECDrawingException("Could not draw the following error:\n" + str(error))
+        color = TQECColor(f"{basis}_CORRELATION").rgba.to_hex()
         # Make the coordinates relative to the top-left qubit.
         qx -= top_left_qubit.x
         qy -= top_left_qubit.y
         # Plot the cross for a single-qubit error.
+        tick_text_svg = svg.Text(
+            x=0,
+            y=-size,
+            text=str(location.tick_offset),
+            fill=color,
+            font_size=0.3,
+            font_weight="bold",
+            text_anchor="middle",
+            dominant_baseline="auto",
+        )
+        cross_svg = _get_error_cross_svg(size, color, stroke_width_multiplier)
         error_svg: list[svg.Element] = [
             svg.G(
-                elements=[cross_svg],
+                elements=[cross_svg, tick_text_svg],
                 transform=[svg.Translate(qx * width_between_qubits, qy * height_between_qubits)],
-            )
+            ),
         ]
         # Plot the additional SVG lines if we have a 2-qubit error.
         if qx2 is not None and qy2 is not None:
