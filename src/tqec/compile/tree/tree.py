@@ -376,14 +376,15 @@ class LayerTree:
             else (None, None)
         )
         # Note: if the top-left and bottom-right qubits are not None, we just computed them from
-        # the resulting circuit. Most of the time, the border plaquettes are 2-body stabilizers and
-        # do not use the top/bottom/left/right qubits. Because we want this space (e.g., to write
-        # the moments that are concerned by a given visualisation), we add 1-qubit worth of space
-        # on each border.
+        # the resulting circuit. We want to stick to the regular plaquette grid, and that might not
+        # be the case here because boundary plaquettes might not use the extremal data-qubits.
+        # As data-qubits are located on odd coordinates, we just ensure that the boundary coordinates
+        # are odd, flooring or ceiling to the closest odd coordinates depending on the boundary to
+        # make sure we extended the viewport (and not reduce it).
         if tl is not None:
-            tl = GridQubit(tl.x - 1, tl.y - 1)
+            tl = GridQubit(tl.x - 1 if tl.x % 2 == 0 else tl.x, tl.y - 1 if tl.y % 2 == 0 else tl.y)
         if br is not None:
-            br = GridQubit(br.x + 1, br.y + 1)
+            br = GridQubit(br.x + 1 if br.x % 2 == 0 else br.x, br.y + 1 if br.y % 2 == 0 else br.y)
         visualiser = LayerVisualiser(k, errors, top_left_qubit=tl, bottom_right_qubit=br)
         self._root.walk(visualiser)
         return visualiser.visualisations
