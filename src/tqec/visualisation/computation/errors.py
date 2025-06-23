@@ -49,8 +49,7 @@ def get_errors_svg(
     plaquette_width: float,
     plaquette_height: float,
     size: float = 1,
-    stroke_color: str = "red",
-    stroke_width_multiplier: float = 0.2,
+    add_detectors_from_errors: bool = True,
 ) -> svg.G:
     """Returns an SVG element with the provided ``errors`` drawn and a transparent
     background.
@@ -64,9 +63,6 @@ def get_errors_svg(
         plaquette_width: width (in SVG dimensions) of a regular square plaquette.
         plaquette_height: height (in SVG dimensions) of a regular square plaquette.
         size: size (in SVG dimensions) of the crosses used to mark errors.
-        stroke_color: color used to draw the crosses representing each error.
-        stroke_width_multiplier: multiplier applied to ``size`` to get the stroke
-            width used to draw the crosses representing errors.
 
     Returns:
         a SVG element containing as many sub-elements as there are errors in the
@@ -78,9 +74,52 @@ def get_errors_svg(
             list.
 
     """
+    # Default value for the moment
+    stroke_width_multiplier = 0.2
     width_between_qubits: float = plaquette_width / 2
     height_between_qubits: float = plaquette_height / 2
-    crosses: list[svg.Element] = []
+    stroke_width: float = size * stroke_width_multiplier
+    layer: list[svg.Element] = []
+    # Start by adding the detectors
+    detectors: dict[int, stim.DemTargetWithCoords] = {}
+    if add_detectors_from_errors:
+        # List the detectors that need to be drawn
+        for error in errors:
+            for target in error.dem_error_terms:
+                if target.dem_target.is_relative_detector_id():
+                    detectors[target.dem_target.val] = target
+        # Draw each of them once
+        for detector in detectors.values():
+            x, y, t, *_ = detector.coords
+            layer.append(
+                svg.G(
+                    elements=[
+                        svg.Circle(
+                            cx=0,
+                            cy=0,
+                            r=0.15,
+                            stroke="black",
+                            fill="transparent",
+                            stroke_width=0.01,
+                        ),
+                        svg.Text(
+                            x=0,
+                            y=0,
+                            text=f"D{detector.dem_target.val} ({int(t)})",
+                            fill="black",
+                            font_size=0.08,
+                            text_anchor="middle",
+                            dominant_baseline="middle",
+                        ),
+                    ],
+                    transform=[
+                        svg.Translate(
+                            (x - top_left_qubit.x) * width_between_qubits,
+                            (y - top_left_qubit.y) * height_between_qubits,
+                        )
+                    ],
+                )
+            )
     for error in errors:
         # We take the first error location. All the error locations in error.circuit_error_locations
         # are valid and could be picked, but we need to take one here.
@@ -119,6 +158,7 @@ def get_errors_svg(
                 transform=[svg.Translate(qx * width_between_qubits, qy * height_between_qubits)],
             ),
         ]
+        detector_arrow_source = qx * width_between_qubits, qy * height_between_qubits
         # Plot the additional SVG lines if we have a 2-qubit error.
         if qx2 is not None and qy2 is not None:
             qx2 -= top_left_qubit.x
@@ -137,9 +177,29 @@ def get_errors_svg(
                     x2=qx2 * width_between_qubits,
                     y1=qy * height_between_qubits,
                     y2=qy2 * height_between_qubits,
-                    stroke=stroke_color,
-                    stroke_width=size * stroke_width_multiplier,
+                    stroke=color,
+                    stroke_width=stroke_width,
                 )
             )
-        crosses.append(svg.G(elements=error_svg))
-    return svg.G(elements=crosses)
+            detector_arrow_source = (
+                (qx + qx2) * width_between_qubits / 2,
+                (qy + qy2) * height_between_qubits / 2,
+            )
+        # Plot lines to link detectors and errors.
+        if add_detectors_from_errors:
+            for dem_error_term in error.dem_error_terms:
+                if not dem_error_term.dem_target.is_relative_detector_id():
+                    continue
+                x, y, t, *_ = dem_error_term.coords
+                error_svg.append(
+                    svg.Line(
+                        x1=detector_arrow_source[0],
+                        y1=detector_arrow_source[1],
+                        x2=(x - top_left_qubit.x) * width_between_qubits,
+                        y2=(y - top_left_qubit.y) * height_between_qubits,
+                        stroke="black",
+                        stroke_width=0.01,
+                    )
+                )
+        layer.append(svg.G(elements=error_svg))
+    return svg.G(elements=layer)
