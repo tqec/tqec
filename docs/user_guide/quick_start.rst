@@ -192,8 +192,6 @@ Simulation results can be plotted with ``matplolib`` using the
     ax.legend()
     ax.loglog()
     ax.set_title("Logical CNOT Error Rate")
-    ax.set_xlabel("Physical Error Rate")
-    ax.set_ylabel("Logical Error Rate")
     plt.show()
 
 8. Conclusion
