@@ -30,6 +30,22 @@ _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
 def _get_template_from_layer(
     root: BaseLayer | BaseComposedLayer,
 ) -> RectangularTemplate:
+    """Get a unique template from any given layer.
+
+    This helper function try its best to recover the template a given layer uses.
+
+    Raises:
+        TQECException: if an instance of :class:`.BaseLayer` is something else than an instance of
+            :class:`.PlaquetteLayer`, because :class:`.PlaquetteLayer` is the only class from which
+            we can recover a template instance.
+        TQECException: if an instance of :class:`.SequencedLayers` contains sub-layers with
+            different templates.
+        NotImplementedError: if an unknown layer is found.
+
+    Returns:
+        the template used by the provided ``root`` layer.
+
+    """
     if isinstance(root, BaseLayer):
         if not isinstance(root, PlaquetteLayer):
             raise TQECException(
@@ -97,6 +113,8 @@ def compile_block_graph(
     if minz != 0:
         block_graph = block_graph.shift_by(dz=-minz)
 
+    # We need to know exactly which spatial pipes will be placed on a time slice where extended
+    # plaquettes will be used, in order to adapt the schedule of the measurement layer.
     def has_pipes_in_both_spatial_dimensions(cube: Cube) -> bool:
         return frozenset(
             pipe.direction for pipe in block_graph.pipes_at(cube.position) if pipe.kind.is_spatial
