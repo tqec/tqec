@@ -12,6 +12,12 @@ User Guide
 
 .. toctree::
    :maxdepth: 1
+   :caption: Advanced topics
+
+   Extended stabilizers implementation <extended_stabilizers_implementation>
+
+.. toctree::
+   :maxdepth: 1
    :caption: Tutorials
 
    build_computations.ipynb
