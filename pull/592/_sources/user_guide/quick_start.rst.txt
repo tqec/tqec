@@ -142,8 +142,8 @@ The compilation of the block graph is done automatically based on the inputs.
         decoders=["pymatching"],
         num_workers=cpu_count(),
         max_shots=10_000_000,
-        max_errors=5_00,
-        save_resume_filepath=Path(f"./_examples_database/quick_start.csv"),
+        max_errors=500,
+        save_resume_filepath=Path("./_examples_database/quick_start.csv"),
         database_path=Path("./_examples_database/database.pkl"),
     )
 
@@ -193,7 +193,6 @@ Simulation results can be plotted with ``matplolib`` using the
     ax.loglog()
     ax.set_title("Logical CNOT Error Rate")
     plt.show()
-    # fig.savefig(f"logical_cnot_result_x_observable_{1}.png")
 
 8. Conclusion
 -------------

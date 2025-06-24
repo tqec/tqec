@@ -571,8 +571,8 @@ The compilation of the block graph is done automatically based on the inputs.</p
     <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pymatching&quot;</span><span class="p">],</span>
     <span class="n">num_workers</span><span class="o">=</span><span class="n">cpu_count</span><span class="p">(),</span>
     <span class="n">max_shots</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
-    <span class="n">max_errors</span><span class="o">=</span><span class="mi">5_00</span><span class="p">,</span>
-    <span class="n">save_resume_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./_examples_database/quick_start.csv&quot;</span><span class="p">),</span>
+    <span class="n">max_errors</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">save_resume_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./_examples_database/quick_start.csv&quot;</span><span class="p">),</span>
     <span class="n">database_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./_examples_database/database.pkl&quot;</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
@@ -626,7 +626,6 @@ the <a class="reference external" href="https://docs.python.org/3/library/multip
 <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Logical CNOT Error Rate&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="c1"># fig.savefig(f&quot;logical_cnot_result_x_observable_{1}.png&quot;)</span>
 </pre></div>
 </div>
 </div>
