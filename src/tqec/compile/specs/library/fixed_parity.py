@@ -1,5 +1,3 @@
-from typing import Final
-
 from tqec.compile.blocks.block import Block
 from tqec.compile.specs.base import (
     CubeBuilder,
@@ -13,9 +11,6 @@ from tqec.compile.specs.library.generators.fixed_parity import (
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
-from tqec.utils.scale import LinearFunction
-
-_DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
 
 
 class FixedParityCubeBuilder(CubeBuilder):
