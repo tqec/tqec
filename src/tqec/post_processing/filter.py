@@ -37,8 +37,6 @@ def subcircuit_only_on_indices(
         elif instruction.name == "TICK":
             # Unconditionally append TICK annotations.
             ret.append(instruction)
-        elif instruction.name in ["DETECTOR", "OBSERVABLE_INCLUDE"]:
-            continue
         else:
             targets: list[stim.GateTarget] = []
             for target_group in instruction.target_groups():
