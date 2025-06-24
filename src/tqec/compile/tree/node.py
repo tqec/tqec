@@ -29,12 +29,15 @@ def contains_only_layout_or_composed_layers(
 
 class NodeWalker:
     def visit_node(self, node: LayerNode) -> None:
+        """Called when ``node`` is visited, before recursing in children."""
         pass
 
     def enter_node(self, node: LayerNode) -> None:
+        """Called when entering ``node``."""
         pass
 
     def exit_node(self, node: LayerNode) -> None:
+        """Called when exiting ``node``."""
         pass
 
 
@@ -103,6 +106,7 @@ class LayerNode:
         return self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of ``self``."""
         return {
             "layer": type(self._layer).__name__,
             "children": [child.to_dict() for child in self._children],
@@ -125,12 +129,15 @@ class LayerNode:
 
     @property
     def children(self) -> list[LayerNode]:
+        """Return the children nodes of ``self``."""
         return self._children
 
     def get_annotations(self, k: int) -> LayerNodeAnnotations:
+        """Return the annotations associated with the provided scaling parameter ``k``."""
         return self._annotations.setdefault(k, LayerNodeAnnotations())
 
     def set_circuit_annotation(self, k: int, circuit: ScheduledCircuit) -> None:
+        """Set the circuit annotation associated with the provided scaling parameter ``k`` to ``circuit``."""
         self.get_annotations(k).circuit = circuit
 
     def generate_circuits_with_potential_polygons(

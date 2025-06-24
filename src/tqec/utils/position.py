@@ -62,6 +62,7 @@ class Position2D(Vec2D):
     """
 
     def with_block_coordinate_system(self) -> BlockPosition2D:
+        """Return a :class:`.BlockPosition2D` from ``self``."""
         return BlockPosition2D(self.x, self.y)
 
     def is_neighbour(self, other: Position2D) -> bool:
@@ -71,6 +72,7 @@ class Position2D(Vec2D):
         return abs(self.x - other.x) + abs(self.y - other.y) == 1
 
     def to_3d(self, z: int = 0) -> Position3D:
+        """Get a 3-dimensional position with the ``x`` and ``y`` coordinates from ``self``."""
         return Position3D(self.x, self.y, z)
 
 
@@ -164,6 +166,7 @@ class BlockPosition3D(Position3D):
     """Represents the position of a block in 3D space."""
 
     def as_2d(self) -> BlockPosition2D:
+        """Return ``self`` as a 2-dimensional position, ignoring the ``z`` coordinate."""
         return BlockPosition2D(self.x, self.y)
 
 
@@ -181,10 +184,12 @@ class Direction3D(Enum):
 
     @staticmethod
     def spatial_directions() -> list[Direction3D]:
+        """Return all the spatial directions."""
         return [Direction3D.X, Direction3D.Y]
 
     @staticmethod
     def temporal_directions() -> list[Direction3D]:
+        """Return all the temporal directions."""
         return [Direction3D.Z]
 
     def __str__(self) -> str:
@@ -192,6 +197,7 @@ class Direction3D(Enum):
 
     @staticmethod
     def from_neighbouring_positions(source: Position3D, sink: Position3D) -> Direction3D:
+        """Return the direction to go from ``source`` to ``sink``."""
         assert source.is_neighbour(sink)
         for direction, (source_coord, sink_coord) in zip(
             Direction3D.all_directions(), zip(source.as_tuple(), sink.as_tuple())
@@ -204,6 +210,7 @@ class Direction3D(Enum):
 
     @property
     def orthogonal_directions(self) -> tuple[Direction3D, Direction3D]:
+        """Return the two directions orthogonal to ``self``."""
         i = self.value
         return Direction3D((i + 1) % 3), Direction3D((i + 2) % 3)
 

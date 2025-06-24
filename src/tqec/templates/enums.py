@@ -12,6 +12,7 @@ class TemplateBorder(Enum):
     RIGHT = auto()
 
     def opposite(self) -> TemplateBorder:
+        """Return the opposite border."""
         match self:
             case TemplateBorder.TOP:
                 return TemplateBorder.BOTTOM

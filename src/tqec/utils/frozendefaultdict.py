@@ -85,19 +85,23 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         return (self._default_value == other._default_value) and self._dict == other._dict
 
     def has_default_value(self) -> bool:
+        """Return ``True`` if ``self`` has a default value."""
         return self._default_value is not None
 
     @property
     def default_value(self) -> V | None:
+        """Get the default value returned when a queried key is missing."""
         return self._default_value
 
     def map_keys(self, callable: Callable[[K], K]) -> FrozenDefaultDict[K, V]:
+        """Apply ``callable`` to each key and return a new instance with the modified keys."""
         return FrozenDefaultDict(
             {callable(k): v for k, v in self.items()},
             default_value=self._default_value,
         )
 
     def map_values(self, callable: Callable[[V], Vp]) -> FrozenDefaultDict[K, Vp]:
+        """Apply ``callable`` to each value and return a new instance with the modified values."""
         default_value: Vp | None = None
         if self.default_value is not None:
             default_value = callable(self.default_value)
@@ -106,6 +110,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         )
 
     def map_keys_if_present(self, mapping: Mapping[K, K]) -> FrozenDefaultDict[K, V]:
+        """Apply ``callable`` to each key and return a new instance with the modified keys."""
         return FrozenDefaultDict(
             {mapping[k]: v for k, v in self.items() if k in mapping},
             default_value=self._default_value,

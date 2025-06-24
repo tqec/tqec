@@ -129,6 +129,7 @@ class TopologicalComputationGraph:
         self._observable_builder = observable_builder
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
+        """Add a new cube at ``position`` implemented by the provided ``block``."""
         if not block.is_cube:
             raise TQECException(
                 f"Cannot add the block as a cube. The provided block({block}) has at least one non-scalable dimension."

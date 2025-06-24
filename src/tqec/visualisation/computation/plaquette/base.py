@@ -101,6 +101,23 @@ class SVGPlaquetteDrawer(ABC):
         show_data_qubit_reset_measurements: bool = True,
         configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
     ) -> svg.Element:
+        """Draw the plaquette and return the drawing as a SVG element.
+
+        Args:
+            id: a unique ID representing the drawing. Used internally to reference the drawing. A
+                good default value could be the name of the drawn plaquette.
+            show_interaction_order: if ``True``, the time steps at which data-qubits interact with
+                the syndrome qubit(s) is written on the drawing.
+            show_hook_errors: if ``True``, a line is drawn to represent the hook error when it
+                exists.
+            show_data_qubit_reset_measurements: if ``True``, small symbols are used on data-qubits
+                when a reset or a measurement is applied.
+            configuration: drawing configuration.
+
+        Returns:
+            the drawing as a SVG element.
+
+        """
         pass
 
     @staticmethod

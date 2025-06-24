@@ -11,6 +11,7 @@ class ScheduleFunction(ABC):
 
     @abstractmethod
     def __call__(self, input_schedule: int) -> int:
+        """Transform the provided ``input_schedule`` to a new schedule and return it."""
         pass
 
 

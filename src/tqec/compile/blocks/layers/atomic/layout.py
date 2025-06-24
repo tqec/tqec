@@ -70,10 +70,12 @@ class LayoutLayer(BaseLayer):
 
     @property
     def layers(self) -> dict[LayoutPosition2D, BaseLayer]:
+        """Return the layers composing ``self``."""
         return self._layers
 
     @property
     def element_shape(self) -> PhysicalQubitScalable2D:
+        """Return the scalable shape of each stored elements."""
         return self._element_shape
 
     @cached_property
@@ -219,6 +221,12 @@ class LayoutLayer(BaseLayer):
 
     @property
     def qubit_bounds(self) -> tuple[PhysicalQubitScalable2D, PhysicalQubitScalable2D]:
+        """Return the top-left and bottom-right qubits representing the bounding box of ``self``.
+
+        Returns:
+            the ``(top_left, bottom_right)`` qubits.
+
+        """
         tlb, brb = self.bounds
         eshape = self.element_shape
         increments = PhysicalQubitScalable2D(eshape.x, eshape.y) - (1, 1)

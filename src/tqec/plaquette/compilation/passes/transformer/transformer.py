@@ -25,6 +25,7 @@ class InstructionCreator:
     def __call__(
         self, targets: list[stim.GateTarget], arguments: list[float]
     ) -> stim.CircuitInstruction:
+        """Create a ``stim.CircuitInstruction`` from the provided arguments."""
         return stim.CircuitInstruction(self.name, self.targets(targets), self.arguments(arguments))
 
 
@@ -52,6 +53,7 @@ class ScheduledCircuitTransformation:
     instruction_simplifier: InstructionSimplifier = NoInstructionSimplification()
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        """Apply the transformation to ``circuit`` and return the result."""
         # moment_instructions: schedule_index -> instruction list.
         moment_instructions: dict[int, list[stim.CircuitInstruction]] = {}
         for schedule, moment in circuit.scheduled_moments:
@@ -102,6 +104,7 @@ class ScheduledCircuitTransformer:
         self._transformations = transformations
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        """Apply the transformations stored in ``self`` to ``circuit`` and return the result."""
         for transformation in self._transformations:
             circuit = transformation.apply(circuit)
         return circuit
