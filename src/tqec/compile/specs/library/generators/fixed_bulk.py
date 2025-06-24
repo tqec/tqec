@@ -73,6 +73,16 @@ def make_fixed_bulk_realignment_plaquette(
 
 class FixedBulkConventionGenerator:
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
+        """Helper class containing all the plaquette generation to implement the fixed bulk
+        convention.
+
+        Args:
+            translator: instance used to translate :class:`.RPNGDescription` instances into
+                :class:`.Plaquette` instances.
+            compiler: instance used to transform :class:`.Plaquette` instances into other
+                :class:`.Plaquette` instances.
+
+        """
         self._mapper = PlaquetteMapper(translator, compiler)
 
     def _not_implemented_exception(self) -> NotImplementedError:

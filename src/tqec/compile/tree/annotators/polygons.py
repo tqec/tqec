@@ -8,6 +8,16 @@ from tqec.utils.position import Shift2D
 
 class AnnotatePolygonOnLayerNode(NodeWalker):
     def __init__(self, k: int):
+        """Node walker annotating potential polygons on each leaf node.
+
+        Polygons are used when exporting a :class:`~tqec.compile.tree.tree.LayerTree` instance to a
+        Crumble URL in order to have a visual hint representing the plaquettes directly in Crumble
+        interface.
+
+        Args:
+            k: scaling factor.
+
+        """
         self._k = k
 
     @override

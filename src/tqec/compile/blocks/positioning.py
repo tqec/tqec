@@ -10,11 +10,15 @@ from tqec.utils.position import BlockPosition2D, BlockPosition3D, SignedDirectio
 
 
 class LayoutPosition2D(ABC):
-    """Internal class to represent the local indexing used to represent both
-    cubes and pipes.
-    """
-
     def __init__(self, x: int, y: int) -> None:
+        """Internal class to represent the local indexing used to represent both
+        cubes and pipes.
+
+        Args:
+            x: first coordinate.
+            y: second coordinate.
+
+        """
         super().__init__()
         self._x = x
         self._y = y
@@ -49,15 +53,14 @@ class LayoutPosition2D(ABC):
 
 
 class LayoutCubePosition2D(LayoutPosition2D):
-    """Internal class to represent the position of a cube on the grid.
-
-    For the moment, only 2 entities have to appear on the grid: cubes and pipes.
-    For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
-    instances) to be on even coordinates and pipes positions to have one odd
-    coordinates in the pipe dimension and even coordinates elsewhere.
-    """
-
     def __init__(self, x: int, y: int) -> None:
+        """Internal class to represent the position of a cube on the grid.
+
+        For the moment, only 2 entities have to appear on the grid: cubes and pipes.
+        For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
+        instances) to be on even coordinates and pipes positions to have one odd
+        coordinates in the pipe dimension and even coordinates elsewhere.
+        """
         if (x % 2 == 1) or (y % 2 == 1):
             clsname = self.__class__.__name__
             raise TQECException(f"{clsname} cannot contain any odd coordinate.")
@@ -68,15 +71,14 @@ class LayoutCubePosition2D(LayoutPosition2D):
 
 
 class LayoutPipePosition2D(LayoutPosition2D):
-    """Internal class to represent the position of a cube on the grid.
-
-    For the moment, only 2 entities have to appear on the grid: cubes and pipes.
-    For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
-    instances) to be on even coordinates and pipes positions to have one odd
-    coordinates in the pipe dimension and even coordinates elsewhere.
-    """
-
     def __init__(self, x: int, y: int) -> None:
+        """Internal class to represent the position of a cube on the grid.
+
+        For the moment, only 2 entities have to appear on the grid: cubes and pipes.
+        For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
+        instances) to be on even coordinates and pipes positions to have one odd
+        coordinates in the pipe dimension and even coordinates elsewhere.
+        """
         if not ((x % 2 == 1) ^ (y % 2 == 1)):
             clsname = self.__class__.__name__
             raise TQECException(f"{clsname} should contain one odd and one even coordinate.")
@@ -96,18 +98,17 @@ T = TypeVar("T", bound=LayoutPosition2D, covariant=True, default=LayoutPosition2
 
 
 class LayoutPosition3D(ABC, Generic[T]):
-    """Internal class to represent the local indexing used to represent both
-    cubes and pipes in 3-dimensions.
-
-    This class simply wraps a :class:`LayoutPosition2D` instance with an
-    integer-valued z coordinate.
-
-    Because temporal pipes are "absorbed" in its neighbouring blocks, we do not
-    have to represent them, hence the z coordinate does not need any kind of
-    special treatment like the x and y coordinates.
-    """
-
     def __init__(self, spatial_position: T, z: int) -> None:
+        """Internal class to represent the local indexing used to represent both
+        cubes and pipes in 3-dimensions.
+
+        This class simply wraps a :class:`LayoutPosition2D` instance with an
+        integer-valued z coordinate.
+
+        Because temporal pipes are "absorbed" in its neighbouring blocks, we do not
+        have to represent them, hence the z coordinate does not need any kind of
+        special treatment like the x and y coordinates.
+        """
         super().__init__()
         self._spatial_position = spatial_position
         self._z = z

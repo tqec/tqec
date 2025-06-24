@@ -28,6 +28,7 @@ class PlaquetteMapper:
         translator: RPNGTranslator = DefaultRPNGTranslator(),
         compiler: PlaquetteCompiler = IdentityPlaquetteCompiler,
     ) -> None:
+        """Wrapper around a translator and a compiler to ease plaquette generation."""
         self._translator = translator
         self._compiler = compiler
 

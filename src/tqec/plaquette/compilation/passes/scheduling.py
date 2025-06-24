@@ -50,9 +50,8 @@ class ScheduleMap:
 
 
 class ChangeSchedulePass(CompilationPass):
-    """Compilation pass changing the schedule of the provided quantum circuit."""
-
     def __init__(self, schedule_map: dict[int, int]):
+        """Compilation pass changing the schedule of the provided quantum circuit."""
         super().__init__()
         self._map = ScheduleMap(schedule_map)
 

@@ -19,19 +19,18 @@ _DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
 
 
 class FixedParityCubeBuilder(CubeBuilder):
-    """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
-    interface for the fixed parity convention.
-
-    This class provides an implementation following the fixed-parity convention.
-    This convention consists in the fact that 2-body stabilizers on the boundary
-    of a logical qubit are always at an even parity.
-    """
-
     def __init__(
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
+        """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
+        interface for the fixed parity convention.
+
+        This class provides an implementation following the fixed-parity convention.
+        This convention consists in the fact that 2-body stabilizers on the boundary
+        of a logical qubit are always at an even parity.
+        """
         self._generator = FixedParityConventionGenerator(translator, compiler)
 
     def __call__(self, spec: CubeSpec) -> Block:
@@ -39,19 +38,18 @@ class FixedParityCubeBuilder(CubeBuilder):
 
 
 class FixedParityPipeBuilder(PipeBuilder):
-    """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
-    interface for the fixed parity convention.
-
-    This class provides an implementation following the fixed-parity convention.
-    This convention consists in the fact that 2-body stabilizers on the boundary
-    of a logical qubit are always at an even parity.
-    """
-
     def __init__(
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
+        """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
+        interface for the fixed parity convention.
+
+        This class provides an implementation following the fixed-parity convention.
+        This convention consists in the fact that 2-body stabilizers on the boundary
+        of a logical qubit are always at an even parity.
+        """
         self._generator = FixedParityConventionGenerator(translator, compiler)
 
     def __call__(self, spec: PipeSpec) -> Block:

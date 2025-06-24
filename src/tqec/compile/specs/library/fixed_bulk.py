@@ -31,19 +31,18 @@ _DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
 
 
 class FixedBulkCubeBuilder(CubeBuilder):
-    """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
-    interface for the fixed bulk convention.
-
-    This class provides an implementation following the fixed-bulk convention.
-    This convention consists in the fact that the top-left most plaquette in the
-    bulk always measures a known-basis stabilizer (Z-basis for this class).
-    """
-
     def __init__(
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
+        """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
+        interface for the fixed bulk convention.
+
+        This class provides an implementation following the fixed-bulk convention.
+        This convention consists in the fact that the top-left most plaquette in the
+        bulk always measures a known-basis stabilizer (Z-basis for this class).
+        """
         self._generator = FixedBulkConventionGenerator(translator, compiler)
 
     def _get_template_and_plaquettes(
@@ -93,19 +92,18 @@ class FixedBulkCubeBuilder(CubeBuilder):
 
 
 class FixedBulkPipeBuilder(PipeBuilder):
-    """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
-    interface for the fixed bulk convention.
-
-    This class provides an implementation following the fixed-bulk convention.
-    This convention consists in the fact that the top-left most plaquette in the
-    bulk always measures a known-parity stabilizer (Z-basis for this class).
-    """
-
     def __init__(
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
+        """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
+        interface for the fixed bulk convention.
+
+        This class provides an implementation following the fixed-bulk convention.
+        This convention consists in the fact that the top-left most plaquette in the
+        bulk always measures a known-parity stabilizer (Z-basis for this class).
+        """
         self._generator = FixedBulkConventionGenerator(translator, compiler)
 
     def __call__(self, spec: PipeSpec) -> Block:

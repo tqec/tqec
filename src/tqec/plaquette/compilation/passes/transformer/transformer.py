@@ -84,22 +84,21 @@ class ScheduledCircuitTransformation:
 
 
 class ScheduledCircuitTransformer:
-    """Describes a list of :class:`ScheduledCircuitTransformation` instances.
-
-    Note:
-        This class has been introduced for convenience and for future
-        optimisation. Right now, a new scheduled circuit is created for each
-        :class:`ScheduledCircuitTransformation` instance in ``self``. This is
-        unoptimal as we might be able to apply all the transformations by
-        iterating the original quantum circuit once.
-
-        Due to the very limited size of the circuits given to the compilation
-        pipeline, this performance issue does not seem to have a measurable
-        impact at the moment.
-
-    """
-
     def __init__(self, transformations: Sequence[ScheduledCircuitTransformation]) -> None:
+        """Describes a list of :class:`ScheduledCircuitTransformation` instances.
+
+        Note:
+            This class has been introduced for convenience and for future
+            optimisation. Right now, a new scheduled circuit is created for each
+            :class:`ScheduledCircuitTransformation` instance in ``self``. This is
+            suboptimal as we might be able to apply all the transformations by
+            iterating the original quantum circuit once.
+
+            Due to the very limited size of the circuits given to the compilation
+            pipeline, this performance issue does not seem to have a measurable
+            impact at the moment.
+
+        """
         self._transformations = transformations
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
@@ -109,12 +108,16 @@ class ScheduledCircuitTransformer:
 
 
 class ScheduledCircuitTransformationPass(CompilationPass):
-    """Apply the provided transformations as a compilation pass."""
-
     def __init__(
         self,
         transformations: Sequence[ScheduledCircuitTransformation],
     ) -> None:
+        """Apply the provided transformations as a compilation pass.
+
+        Args:
+            transformations: a sequence of transformation that are applied one after the other.
+
+        """
         super().__init__()
         self._transformations = ScheduledCircuitTransformer(transformations)
 

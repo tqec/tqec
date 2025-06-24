@@ -12,30 +12,36 @@ Vp = TypeVar("Vp")
 
 
 class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
-    """A defaultdict implementation that cannot be mutated.
-
-    This class re-defines all the mutating methods of `defaultdict` (i.e., all
-    the mutating methods of `dict` and `__missing__`) in order to make any
-    instance immutable.
-
-    Note on re-defining `__missing__`:
-
-    The standard `defaultdict` implementation is entirely based on the
-    `__missing__` method (described here
-    https://docs.python.org/3/library/collections.html#collections.defaultdict.__missing__)
-    that is called when a user-provided key was not found in the defined keys.
-    This `__missing__` method try to use `self.default_factory` to create a new
-    value and inserts that new value in the dictionary. That last part is
-    problematic for :class:`Plaquettes` and in particular to compare collections
-    of :class:`Plaquettes` through `__hash__` and `__eq__`.
-    """
-
     def __init__(
         self,
         arg: Mapping[K, V] | Iterable[tuple[K, V]] | None = None,
         *,
         default_value: V | None = None,
     ) -> None:
+        """A defaultdict implementation that cannot be mutated.
+
+        This class re-defines all the mutating methods of `defaultdict` (i.e., all
+        the mutating methods of `dict` and `__missing__`) in order to make any
+        instance immutable.
+
+        Note on re-defining `__missing__`:
+
+        The standard `defaultdict` implementation is entirely based on the
+        `__missing__` method (described here
+        https://docs.python.org/3/library/collections.html#collections.defaultdict.__missing__)
+        that is called when a user-provided key was not found in the defined keys.
+        This `__missing__` method try to use `self.default_factory` to create a new
+        value and inserts that new value in the dictionary. That last part is
+        problematic for :class:`Plaquettes` and in particular to compare collections
+        of :class:`Plaquettes` through `__hash__` and `__eq__`.
+
+        Args:
+            arg: a mapping from defined keys to values. Any key that is not present will be
+                implicitly associated to the provided ``default_value``.
+            default_value: value that will be returned (without copying) when a key not present in
+                ``arg`` is queried.
+
+        """
         super().__init__()
         self._dict: dict[K, V] = dict(arg) if arg is not None else dict()
         self._default_value = default_value

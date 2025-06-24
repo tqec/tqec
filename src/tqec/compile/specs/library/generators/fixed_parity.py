@@ -18,6 +18,16 @@ from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 class FixedParityConventionGenerator:
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
+        """Helper class containing all the plaquette generation to implement the fixed parity
+        convention.
+
+        Args:
+            translator: instance used to translate :class:`.RPNGDescription` instances into
+                :class:`.Plaquette` instances.
+            compiler: instance used to transform :class:`.Plaquette` instances into other
+                :class:`.Plaquette` instances.
+
+        """
         self._mapper = PlaquetteMapper(translator, compiler)
 
     def _not_implemented_exception(self) -> NotImplementedError:

@@ -193,6 +193,7 @@ class NoiseModel:
         any_clifford_1q_rule: NoiseRule | None = None,
         any_clifford_2q_rule: NoiseRule | None = None,
     ):
+        """Represents a noise model that can be applied to a ``stim.Circuit``."""
         self.idle_depolarization = idle_depolarization
         self.additional_depolarization_waiting_for_m_or_r = (
             additional_depolarization_waiting_for_m_or_r
