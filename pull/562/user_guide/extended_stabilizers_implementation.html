@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to install tqec &#8212; TQEC  documentation</title>
+    <title>Extended plaquettes implementation &#8212; TQEC  documentation</title>
   
   
   
@@ -45,11 +45,11 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/installation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/extended_stabilizers_implementation';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Quick start using tqec" href="quick_start.html" />
-    <link rel="prev" title="User Guide" href="index.html" />
+    <link rel="next" title="Build Computations" href="build_computations.html" />
+    <link rel="prev" title="Current known limitations" href="current_limitations.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -353,15 +353,15 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get started</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="terminology.html">Terminology</a></li>
 <li class="toctree-l1"><a class="reference internal" href="current_limitations.html">Current limitations</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced topics</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="extended_stabilizers_implementation.html">Extended stabilizers implementation</a></li>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Extended stabilizers implementation</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="nav bd-sidenav">
@@ -412,7 +412,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to install <code class="docutils literal notranslate"><span class="pre">tqec</span></code></span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Extended plaquettes implementation</span></li>
   </ul>
 </nav>
 </div>
@@ -429,53 +429,84 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="how-to-install-tqec">
-<span id="installation"></span><h1>How to install <code class="docutils literal notranslate"><span class="pre">tqec</span></code><a class="headerlink" href="#how-to-install-tqec" title="Link to this heading">#</a></h1>
-<section id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h2>
-<section id="python-version">
-<h3>Python version<a class="headerlink" href="#python-version" title="Link to this heading">#</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package only supports Python 3.10 and later. If you have Python 3.9 or earlier,
-please update your Python installation.</p>
+  <section id="extended-plaquettes-implementation">
+<span id="extendedstabilizersimplementation"></span><h1>Extended plaquettes implementation<a class="headerlink" href="#extended-plaquettes-implementation" title="Link to this heading">#</a></h1>
+<section id="when-are-extended-plaquettes-used">
+<h2>When are extended plaquettes used?<a class="headerlink" href="#when-are-extended-plaquettes-used" title="Link to this heading">#</a></h2>
+<p>Extended plaquettes are used in fixed parity convention when implementing some spatial junctions.</p>
+<p>These plaquettes are needed to keep the fixed parity convention.</p>
 </section>
+<section id="what-are-the-implications-of-using-extended-plaquettes">
+<h2>What are the implications of using extended plaquettes?<a class="headerlink" href="#what-are-the-implications-of-using-extended-plaquettes" title="Link to this heading">#</a></h2>
+<section id="longer-qec-rounds">
+<h3>Longer QEC rounds<a class="headerlink" href="#longer-qec-rounds" title="Link to this heading">#</a></h3>
+<p>The current implementation of extended plaquettes (sown below) requires 8 moments, instead of only
+6 moments for regular plaquettes.</p>
+<iframe title="Implementation of the Z-basis extended plaquette." width=100% height=650px src="https://algassert.com/crumble#circuit=Q(-1,-1)0;Q(-1,1)1;Q(-1,3)2;Q(0,0)3;Q(0,2)4;Q(1,-1)5;Q(1,3)6;R_1;RX_3;TICK;CX_3_1;R_4;TICK;CX_1_4;CZ_3_0;TICK;CZ_4_2;TICK;CZ_3_5;TICK;CX_1_3;CZ_4_6;TICK;CX_4_1;TICK;MX_4"></iframe><p>That means that the quantum circuit implementing a QEC experiment with a spatial junction will have
+idle moments, due to the need for regular plaquettes to wait 2 moments at each QEC rounds to
+synchronise with the extended plaquette.</p>
+<p>In turns, more idle moments means more opportunity for physical errors, which might reduce the final
+logical error-rate.</p>
 </section>
-<section id="installation-procedure">
-<h2>Installation procedure<a class="headerlink" href="#installation-procedure" title="Link to this heading">#</a></h2>
-<section id="optional-create-a-new-environment">
-<h3>(optional) Create a new environment<a class="headerlink" href="#optional-create-a-new-environment" title="Link to this heading">#</a></h3>
-<p>It is a good practice to create a new virtual environment for mananging the dependencies of the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package.</p>
-<p>One way of doing that is using the native <code class="docutils literal notranslate"><span class="pre">venv</span></code> package of your python installation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
-<span class="c1"># On GNU/Linux and MacOS</span>
-<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-<span class="c1"># On Windows</span>
-<span class="c1">## In cmd.exe</span>
-.venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate.bat
-<span class="c1">## In PowerShell</span>
-.venv<span class="se">\S</span>cripts<span class="se">\A</span>ctivate.ps1
-</pre></div>
-</div>
-</section>
-<section id="install-the-tqec-package">
-<h3>Install the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package<a class="headerlink" href="#install-the-tqec-package" title="Link to this heading">#</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package is a regular Python package that can be installed using <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
-<p>It is not (yet) available on the official Python Package Index PyPI, so you will have
-to manually provide the URL to install the package:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tqec/tqec.git
-</pre></div>
-</div>
-<p>And that’s it! You can test the installation by running</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import tqec&quot;</span>
-</pre></div>
-</div>
-<p>If the installation succeeded, the command should return without any message displayed.
-Else, a message like</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
-  <span class="n">File</span> <span class="s2">&quot;&lt;string&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-<span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="s1">&#39;tqec&#39;</span>
-</pre></div>
-</div>
-<p>should appear.</p>
+<section id="smaller-distance">
+<h3>Smaller distance<a class="headerlink" href="#smaller-distance" title="Link to this heading">#</a></h3>
+<p>Controlling the orientation of hook errors in extended plaquettes is way more costly than in
+regular ones. Due to the already high number of moments needed to implement extended plaquette,
+the cost of controlling hook errors becomes prohibitive in terms of number of moments needed (which
+directly translates to number of idle moments for regular plaquettes, and so more errors).</p>
+<p>Instead, hook errors are left as-is and schedules of extended plaquettes are alternated.</p>
+<p>It turns out that using this technique does not remove all low-weights errors. For example, for a
+very simple computation, here is an image showing a weight-5 undetectable logical error on a
+surface code that is supposed to have a distance of 7.</p>
+<figure class="align-center" id="id1">
+<img alt="../_images/error_k3.svg" src="../_images/error_k3.svg" />
+<figcaption>
+<p><span class="caption-text">Visualisation of a weight-5 error that is undetectable (because each detectors involved are
+triggered by 2 errors, which means that they will not raise any detection event) and that changes
+the logical observable. Each error is visualised with a cross. The cross colour follows the
+XYZ=RGB convention, and the moment index at which the error takes place is written above the
+cross (an error is always scheduled at the end of the moment, so any operation applied at the
+same moment is applied before the error).</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The same error pattern can be observed for higher distances:</p>
+<figure class="align-center" id="id2">
+<img alt="../_images/error_k5.svg" src="../_images/error_k5.svg" />
+<figcaption>
+<p><span class="caption-text">Visualisation of a weight-7 error that is undetectable (because each detectors involved are
+triggered by 2 errors, which means that they will not raise any detection event) and that changes
+the logical observable.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>In theory, this is a huge problem as the implementation of extended plaquettes reduces the resistance
+of the code against error.</p>
+<p>But in practice, it turns out that this is not an issue. To show that, we need to compare the
+logical error-rate of a computation that uses extended plaquettes with a similar computation that
+does not. For the sake of simplicity, we compare the simplest computation involving a spatial
+junction with its rotated counterpart.</p>
+<p><a class="reference internal" href="../_images/spatial_junction.png"><img alt="spatial_junction" src="../_images/spatial_junction.png" style="width: 45%;" /></a> <a class="reference internal" href="../_images/temporal_junction.png"><img alt="temporal_junction" src="../_images/temporal_junction.png" style="width: 45%;" /></a></p>
+<p>The logical error rates computed can be seen below:</p>
+<a class="reference internal image-reference" href="../_images/logical_error_rate_spatial.png"><img alt="../_images/logical_error_rate_spatial.png" src="../_images/logical_error_rate_spatial.png" style="width: 45%;" />
+</a>
+<a class="reference internal image-reference" href="../_images/logical_error_rate_temporal.png"><img alt="../_images/logical_error_rate_temporal.png" src="../_images/logical_error_rate_temporal.png" style="width: 45%;" />
+</a>
+<p>To compare these logical error rates, it is interesting to plot their ratio for each physical error
+rates and distances. This is done below with the ratio of the logical error rate obtained on the
+spatial junction (containing extended plaquettes) and the one obtained on temporal junctions (without
+extended plaquettes).</p>
+<figure class="align-center" id="id3">
+<img alt="../_images/logical_error_rate_comparison.png" src="../_images/logical_error_rate_comparison.png" />
+<figcaption>
+<p><span class="caption-text">Ratio between the logical error rates for the spatial junction and temporal junction.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>As expected, the use of extended plaquettes leads to a worse logical error rate. But the numbers
+matter here! For example, for a physical error rate of 10⁻³, increasing the distance on the temporal
+junction reduces the logical error rate by ~8. For the same physical error rate, and for distances up
+to 17, the above plot shows that the spatial junction (using extended plaquette) logical error
+rate is never higher than 3 times its temporal counterpart.</p>
+<p>That means that, in practice, using extended plaquettes have a noticeable effect on logical error
+rate <strong>but</strong> that effect is lower than decreasing the distance of the code.</p>
 </section>
 </section>
 </section>
@@ -491,20 +522,20 @@ Else, a message like</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="current_limitations.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">User Guide</p>
+        <p class="prev-next-title">Current known limitations</p>
       </div>
     </a>
     <a class="right-next"
-       href="quick_start.html"
+       href="build_computations.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Quick start using <code class="docutils literal notranslate"><span class="pre">tqec</span></code></p>
+        <p class="prev-next-title">Build Computations</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -527,13 +558,10 @@ Else, a message like</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-version">Python version</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-procedure">Installation procedure</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-create-a-new-environment">(optional) Create a new environment</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-tqec-package">Install the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-are-extended-plaquettes-used">When are extended plaquettes used?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-are-the-implications-of-using-extended-plaquettes">What are the implications of using extended plaquettes?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#longer-qec-rounds">Longer QEC rounds</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smaller-distance">Smaller distance</a></li>
 </ul>
 </li>
 </ul>
@@ -543,7 +571,7 @@ Else, a message like</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/user_guide/installation.rst.txt"
+      <li><a href="../_sources/user_guide/extended_stabilizers_implementation.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
