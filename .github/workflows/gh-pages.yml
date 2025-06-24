@@ -39,11 +39,10 @@ jobs:
           key: ${{ runner.os }}-docs_cache
       - name: Generate the documentation
         if: steps.${{ runner.os }}-docs_cache.outputs.cache-hit != 'true'
-        with:
-          path: docs/_examples_database/
         run: |
           cd docs/
           make html
+        working-directory: docs/_examples_database/
       - name: Deploy if 'main' branch
         uses: peaceiris/actions-gh-pages@v4
         # Only publish if we are on main!
