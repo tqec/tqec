@@ -17,10 +17,8 @@ clean:
 	rm -rfv "$(SOURCEDIR)/_autosummary"
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-cleanall:
-	rm -rfv "$(SOURCEDIR)/_autosummary"
+cleanall: clean
 	rm -rfv "$(SOURCEDIR)/_examples_database"
-	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 .PHONY: help Makefile
 
