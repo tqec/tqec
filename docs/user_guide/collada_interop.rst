@@ -31,7 +31,7 @@ Export COLLADA model
 If you start with building the logical computation in :code:`tqec` and build a :code:`BlockGraph`, you can export the :code:`BlockGraph` to a COLLADA file by
 calling :code:`BlockGraph.to_dae_file`.
 
-.. jupyter-execute::
+.. code-block:: python
 
     graph.to_dae_file("logical_cnot.dae")
 
