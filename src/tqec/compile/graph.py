@@ -77,6 +77,24 @@ from tqec.utils.scale import PhysicalQubitScalable2D
 def substitute_plaquettes(
     target: PlaquetteLayer, source: PlaquetteLayer, source_border: TemplateBorder
 ) -> PlaquetteLayer:
+    """Perform plaquette substitution on the provided layers.
+
+    Note:
+        Most of the time the ``target`` layer will represent a logical qubit and the ``source``
+        layer will be a spatial junction template.
+
+    Args:
+        target: layer that will have one or more of its :class:`.Plaquette` overwritten.
+        source: layer containing the :class:`.Plaquette` instances that will be copied over to
+            ``target``.
+        source_border: spatial border of the source that should be used. The opposite border will
+            be used to update plaquettes on the target layer.
+
+    Returns:
+        a copy of ``target`` with plaquettes from ``source`` at its ``source_border.opposite()``
+        border.
+
+    """
     source_border_indices = source.template.get_border_indices(source_border)
     target_border_indices = target.template.get_border_indices(source_border.opposite())
     indices_mapping = source_border_indices.to(target_border_indices)

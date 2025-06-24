@@ -31,6 +31,9 @@ class AnnotatePolygonOnLayerNode(NodeWalker):
 
 
 def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polygon]:
+    """Generate the polygons that might be used to visualise stabilizers in Crumble when exporting
+    the provided ``layer``.
+    """
     template, plaquettes = layer.to_template_and_plaquettes()
 
     _indices = list(range(1, template.expected_plaquettes_number + 1))

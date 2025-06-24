@@ -30,6 +30,7 @@ DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER: Final[int] = 1
 def contains_only_plaquette_layers(
     layers: dict[LayoutPosition2D, BaseLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, PlaquetteLayer]]:
+    """Helper function to ensure correct typing."""
     return all(isinstance(layer, PlaquetteLayer) for layer in layers.values())
 
 

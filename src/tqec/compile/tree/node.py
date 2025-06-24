@@ -23,6 +23,7 @@ from tqec.utils.scale import LinearFunction
 def contains_only_layout_or_composed_layers(
     layers: Sequence[BaseLayer | BaseComposedLayer],
 ) -> TypeGuard[Sequence[LayoutLayer | BaseComposedLayer]]:
+    """Helper function to ensure correct typing."""
     return all(isinstance(layer, (LayoutLayer, BaseComposedLayer)) for layer in layers)
 
 

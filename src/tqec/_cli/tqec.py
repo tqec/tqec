@@ -9,6 +9,7 @@ from tqec._cli.subcommands.viz import VisualisationTQECSubCommand
 
 
 def main() -> None:
+    """Entry point of TQEC CLI."""
     parser = argparse.ArgumentParser(
         prog="tqec",
         description="The main tqec command-line tool.",
