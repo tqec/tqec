@@ -1,3 +1,9 @@
+"""Implements the fixed parity convention.
+
+This module is intended to be the only module through which instances of :class:`.Plaquette` can be
+obtained for the fixed parity convention.
+"""
+
 from __future__ import annotations
 
 import inspect
@@ -74,13 +80,12 @@ class FixedParityConventionGenerator:
             and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
 
         """
-        # _r/_m: reset/measurement basis applied to each data-qubit in
-        # reset_and_measured_indices
-        _r = reset.value.lower() if reset is not None else "-"
-        _m = measurement.value.lower() if measurement is not None else "-"
+        # r/m: reset/measurement basis applied to each data-qubit in ``reset_and_measured_indices``
+        r = reset.value.lower() if reset is not None else "-"
+        m = measurement.value.lower() if measurement is not None else "-"
         # rs/ms: resets/measurements basis applied for each data-qubit
-        rs = [_r if i in reset_and_measured_indices else "-" for i in range(4)]
-        ms = [_m if i in reset_and_measured_indices else "-" for i in range(4)]
+        rs = [r if i in reset_and_measured_indices else "-" for i in range(4)]
+        ms = [m if i in reset_and_measured_indices else "-" for i in range(4)]
         # 2-qubit gate schedules
         vsched = VERTICAL_HOOK_SCHEDULES[is_reversed]
         hsched = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
@@ -103,13 +108,33 @@ class FixedParityConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
+        """Returns the four 3-body stabilizer measurement plaquettes.
+
+        Args:
+            basis: basis of the 3-body stabilizer that should be measured by the returned
+                plaquettes.
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
+            reset: basis of the reset operation performed on data-qubits. Defaults
+                to ``None`` that translates to no reset being applied on data-qubits.
+            measurement: basis of the measurement operation performed on data-qubits.
+                Defaults to ``None`` that translates to no measurement being applied
+                on data-qubits.
+
+        Returns:
+            the four 3-body stabilizer measurement plaquettes. Their order follow the usual
+            convention: ``(top_left, top_right, bottom_left, bottom_right)``.
+
+        """
         b = basis.value.lower()
         # r/m: reset/measurement basis applied to each data-qubit
         r = reset.value.lower() if reset is not None else "-"
         m = measurement.value.lower() if measurement is not None else "-"
         # Note: the schedule of CNOT gates in corner plaquettes is less important
         # because hook errors do not exist on 3-body stabilizers. We arbitrarily
-        # chose the vertical schedule.
+        # pick the vertical schedule.
         s = VERTICAL_HOOK_SCHEDULES[is_reversed]
         # Note that we include resets and measurements on all the used data-qubits.
         # That should be fine because this plaquette only touches cubes and pipes
@@ -131,7 +156,7 @@ class FixedParityConventionGenerator:
 
         This function returns the eight 2-body stabilizer measurement plaquettes
         that can be used on the 5-round plaquettes returned by
-        :meth:`get_bulk_plaquettes`.
+        :meth:`get_bulk_rpng_descriptions`.
 
         Args:
             is_reversed: flag indicating if the plaquette schedule should be
@@ -191,10 +216,7 @@ class FixedParityConventionGenerator:
         ``DOWN`` spatial pipes.
 
         Returns:
-            a map from stabilizer basis to a pair of
-            :class:`ExtendedPlaquetteCollection`. The first entry of the pair
-            contains plaquettes that have not been reversed, the second entry
-            contains plaquettes that have been reversed.
+            a map from stabilizer basis to :class:`ExtendedPlaquetteCollection`.
 
         """
         return {

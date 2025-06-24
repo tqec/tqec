@@ -44,7 +44,19 @@ def _get_block(
     repetitions: LinearFunction,
 ) -> Block:
     """Get the block implemented with the provided ``template`` and
-    ``plaquettes_generator``."""
+    ``plaquettes_generator``.
+
+    This helper function handles all the complexity linked to generating a :class:`.Block` instance
+    for the fixed parity convention, especially when a spatial junction needs to be implemented with
+    alternating plaquettes where it handles the alternation correctly even in REPEAT blocks.
+
+    Raises:
+        TQECException: if ``repetitions.slope`` is not even. This function requires an even
+            repetition slope because 1) the implementation for odd slopes is more complex and
+            requires the implementation of more classes and 2) all the repetitions we have at the
+            moment have an even slope.
+
+    """
     # Naming convention: {f,b}{init,memory,meas}
     # f: forward
     # b: backward
@@ -86,9 +98,7 @@ def _get_block(
     remainder = repetitions.offset % 2
     loop_replacement: list[BaseLayer | BaseComposedLayer] = [
         RepeatedLayer(
-            SequencedLayers(
-                [PlaquetteLayer(template, bmemory), PlaquetteLayer(template, fmemory)]
-            ),
+            SequencedLayers([PlaquetteLayer(template, bmemory), PlaquetteLayer(template, fmemory)]),
             halved_repetitions,
         )
     ]
@@ -126,16 +136,12 @@ class FixedParityCubeBuilder(CubeBuilder):
         assert isinstance(spec.kind, ZXCube)
         x = spec.kind.x
         if not spec.is_spatial:
-            orientation = (
-                Orientation.HORIZONTAL if x == Basis.Z else Orientation.VERTICAL
-            )
+            orientation = Orientation.HORIZONTAL if x == Basis.Z else Orientation.VERTICAL
 
             def _memory_plaquettes_generator(
                 is_reversed: bool, r: Basis | None, m: Basis | None
             ) -> Plaquettes:
-                return self._generator.get_memory_qubit_plaquettes(
-                    is_reversed, orientation, r, m
-                )
+                return self._generator.get_memory_qubit_plaquettes(is_reversed, orientation, r, m)
 
             return (
                 self._generator.get_memory_qubit_raw_template(),
@@ -209,13 +215,12 @@ class FixedParityPipeBuilder(PipeBuilder):
         Returns:
             the block to implement a temporal pipe based on the provided
             ``spec``.
+
         """
         assert spec.pipe_kind.is_temporal
         hadamard_transition = spec.pipe_kind.has_hadamard
         z_orientation = (
-            Orientation.HORIZONTAL
-            if spec.pipe_kind.x == Basis.Z
-            else Orientation.VERTICAL
+            Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
         )
         memory_template = self._generator.get_memory_qubit_raw_template()
         memory_plaquettes = self._generator.get_memory_qubit_plaquettes(
@@ -259,6 +264,7 @@ class FixedParityPipeBuilder(PipeBuilder):
             For example, if ``SpatialArms.LEFT`` is in the returned ``SpatialArms``
             flag, that means that the pipe represented by the provided ``spec``
             is the left arm of a spatial cube.
+
         """
         assert spec.pipe_kind.is_spatial
         # Check that we do have a spatial junction.
@@ -280,9 +286,7 @@ class FixedParityPipeBuilder(PipeBuilder):
         arms = FixedParityPipeBuilder._get_spatial_cube_arms(spec)
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
 
-        def plaquettes_generator(
-            is_reversed: bool, r: Basis | None, m: Basis | None
-        ) -> Plaquettes:
+        def plaquettes_generator(is_reversed: bool, r: Basis | None, m: Basis | None) -> Plaquettes:
             return self._generator.get_spatial_cube_arm_plaquettes(
                 spatial_boundary_basis, arms, spec.cube_specs, is_reversed, r, m
             )
@@ -297,7 +301,8 @@ class FixedParityPipeBuilder(PipeBuilder):
 
     def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
         """Returns the ``Template`` instance needed to implement the pipe
-        representing the provided ``spec``."""
+        representing the provided ``spec``.
+        """
         assert spec.pipe_kind.is_spatial
         match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
             case Direction3D.X, False:
@@ -309,9 +314,7 @@ class FixedParityPipeBuilder(PipeBuilder):
             case Direction3D.Y, True:
                 return self._generator.get_spatial_horizontal_hadamard_raw_template()
             case _:
-                raise TQECException(
-                    "Spatial pipes cannot have a direction equal to Direction3D.Z."
-                )
+                raise TQECException("Spatial pipes cannot have a direction equal to Direction3D.Z.")
 
     def _get_spatial_regular_non_hadamard_pipe_plaquettes_factory(
         self, spec: PipeSpec
@@ -319,9 +322,7 @@ class FixedParityPipeBuilder(PipeBuilder):
         if spec.pipe_kind.direction == Direction3D.X:
             # Pipe between two cubes aligned on the X axis
             z_observable_orientation = (
-                Orientation.HORIZONTAL
-                if spec.pipe_kind.y == Basis.X
-                else Orientation.VERTICAL
+                Orientation.HORIZONTAL if spec.pipe_kind.y == Basis.X else Orientation.VERTICAL
             )
             return lambda is_reversed, r, m: (
                 self._generator.get_memory_vertical_boundary_plaquettes(
@@ -330,9 +331,7 @@ class FixedParityPipeBuilder(PipeBuilder):
             )
         # Else, pipe between two cubes aligned on the Y axis
         z_observable_orientation = (
-            Orientation.HORIZONTAL
-            if spec.pipe_kind.x == Basis.Z
-            else Orientation.VERTICAL
+            Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
         )
         return lambda is_reversed, r, m: (
             self._generator.get_memory_horizontal_boundary_plaquettes(
