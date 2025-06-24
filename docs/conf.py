@@ -176,7 +176,6 @@ nbsphinx_thumbnails = {
     "gallery/steane_encoding": "_static/media/gallery/steane_encoding.png",
 }
 
-nbsphinx_allow_errors = True
 
 # -- Options for autosummary extension ---------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
