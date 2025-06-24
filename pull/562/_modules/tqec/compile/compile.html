@@ -438,6 +438,22 @@ window.addEventListener("load", () => mermaid.run());
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_template_from_layer</span><span class="p">(</span>
     <span class="n">root</span><span class="p">:</span> <span class="n">BaseLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RectangularTemplate</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a unique template from any given layer.</span>
+
+<span class="sd">    This helper function try its best to recover the template a given layer uses.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TQECException: if an instance of :class:`.BaseLayer` is something else than an instance of</span>
+<span class="sd">            :class:`.PlaquetteLayer`, because :class:`.PlaquetteLayer` is the only class from which</span>
+<span class="sd">            we can recover a template instance.</span>
+<span class="sd">        TQECException: if an instance of :class:`.SequencedLayers` contains sub-layers with</span>
+<span class="sd">            different templates.</span>
+<span class="sd">        NotImplementedError: if an unknown layer is found.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        the template used by the provided ``root`` layer.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">BaseLayer</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
@@ -507,6 +523,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">if</span> <span class="n">minz</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">block_graph</span> <span class="o">=</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="n">minz</span><span class="p">)</span>
 
+    <span class="c1"># We need to know exactly which spatial pipes will be placed on a time slice where extended</span>
+    <span class="c1"># plaquettes will be used, in order to adapt the schedule of the measurement layer.</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_pipes_in_both_spatial_dimensions</span><span class="p">(</span><span class="n">cube</span><span class="p">:</span> <span class="n">Cube</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span>
             <span class="n">pipe</span><span class="o">.</span><span class="n">direction</span> <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes_at</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">)</span> <span class="k">if</span> <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_spatial</span>
