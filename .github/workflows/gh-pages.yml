@@ -42,6 +42,8 @@ jobs:
         run: |
           make html
         working-directory: docs/
+        # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
+        # this is used to reduce the docs build time in the CI.
       - name: Deploy if 'main' branch
         uses: peaceiris/actions-gh-pages@v4
         # Only publish if we are on main!
