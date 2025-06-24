@@ -39,6 +39,8 @@ jobs:
           key: ${{ runner.os }}-docs_cache
       - name: Generate the documentation
         if: steps.${{ runner.os }}-docs_cache.outputs.cache-hit != 'true'
+        with:
+          path: docs/_examples_database/
         run: |
           cd docs/
           make html
