@@ -306,33 +306,33 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         match self._plaquette_type:
             case ExtendedPlaquetteType.BULK:
                 places = (
-                    (PlaquetteCorner.TOP_LEFT, PlaquetteCorner.TOP_RIGHT)
+                    [PlaquetteCorner.TOP_LEFT, PlaquetteCorner.TOP_RIGHT]
                     if self._position == ExtendedPlaquettePosition.UP
-                    else (PlaquetteCorner.BOTTOM_LEFT, PlaquetteCorner.BOTTOM_RIGHT)
+                    else [PlaquetteCorner.BOTTOM_LEFT, PlaquetteCorner.BOTTOM_RIGHT]
                 )
             case ExtendedPlaquetteType.LEFT_WITH_ARM:
                 places = (
-                    (PlaquetteCorner.TOP_RIGHT,)
+                    [PlaquetteCorner.TOP_RIGHT]
                     if self._position == ExtendedPlaquettePosition.UP
-                    else (PlaquetteCorner.BOTTOM_LEFT, PlaquetteCorner.BOTTOM_RIGHT)
+                    else [PlaquetteCorner.BOTTOM_LEFT, PlaquetteCorner.BOTTOM_RIGHT]
                 )
             case ExtendedPlaquetteType.RIGHT_WITH_ARM:
                 places = (
-                    (PlaquetteCorner.TOP_LEFT, PlaquetteCorner.TOP_RIGHT)
+                    [PlaquetteCorner.TOP_LEFT, PlaquetteCorner.TOP_RIGHT]
                     if self._position == ExtendedPlaquettePosition.UP
-                    else (PlaquetteCorner.BOTTOM_LEFT,)
+                    else [PlaquetteCorner.BOTTOM_LEFT]
                 )
             case ExtendedPlaquetteType.LEFT_WITHOUT_ARM:
                 places = (
-                    (PlaquetteCorner.TOP_RIGHT,)
+                    [PlaquetteCorner.TOP_RIGHT]
                     if self._position == ExtendedPlaquettePosition.UP
-                    else (PlaquetteCorner.BOTTOM_RIGHT,)
+                    else [PlaquetteCorner.BOTTOM_RIGHT]
                 )
             case ExtendedPlaquetteType.RIGHT_WITHOUT_ARM:
                 places = (
-                    (PlaquetteCorner.TOP_LEFT,)
+                    [PlaquetteCorner.TOP_LEFT]
                     if self._position == ExtendedPlaquettePosition.UP
-                    else (PlaquetteCorner.BOTTOM_LEFT,)
+                    else [PlaquetteCorner.BOTTOM_LEFT]
                 )
         reset_measurement_svgs: list[svg.Element] = []
         for place in places:
