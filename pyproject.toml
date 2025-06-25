@@ -56,6 +56,7 @@ doc = [
     "sphinx-autobuild<=2024.10.3",
     "sphinx-copybutton<=0.5.2",
     "sphinxcontrib-bibtex<=2.64",
+    "jupyter-sphinx<=0.5.3"
 ]
 bench = ["pyinstrument"]
 all = ["tqec[test, dev, doc, bench]"]

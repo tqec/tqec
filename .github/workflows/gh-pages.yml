@@ -32,10 +32,19 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt -r requirements-dev.txt
           python -m pip install '.[all]'
+      - uses: actions/cache@v4
+        id: cache-docs
+        with:
+          path: docs/_examples_database/
+          key: docs_database_and_stim_results_cache
+          enableCrossOsArchive: true
       - name: Generate the documentation
+        if: steps.docs_database_and_stim_results_cache.outputs.cache-hit != 'true'
         run: |
-          cd docs/
           make html
+        working-directory: docs/
+        # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
+        # this is used to reduce the docs build time in the CI.
       - name: Deploy if 'main' branch
         uses: peaceiris/actions-gh-pages@v4
         # Only publish if we are on main!
