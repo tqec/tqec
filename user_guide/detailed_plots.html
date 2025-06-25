@@ -32,7 +32,8 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -45,14 +46,17 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/detailed_plots';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="How to contribute" href="../contributor_guide.html" />
-    <link rel="prev" title="How to automatically find detectors?" href="detectors/detector_computation.html" />
+    <link rel="next" title="Computation Gallery" href="../gallery/index.html" />
+    <link rel="prev" title="COLLADA Interoperability" href="collada_interop.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -146,15 +150,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contributor_guide.html">
-    Contributor Guide
+  <a class="nav-link nav-internal" href="../gallery/index.html">
+    Gallery
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../gallery/index.html">
-    Gallery
+  <a class="nav-link nav-internal" href="../contributor_guide.html">
+    Contributor Guide
   </a>
 </li>
 
@@ -281,15 +285,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contributor_guide.html">
-    Contributor Guide
+  <a class="nav-link nav-internal" href="../gallery/index.html">
+    Gallery
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../gallery/index.html">
-    Gallery
+  <a class="nav-link nav-internal" href="../contributor_guide.html">
+    Contributor Guide
   </a>
 </li>
 
@@ -364,9 +368,8 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="build_computations.html">Build Computations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="collada_interop.html">COLLADA Interoperability</a></li>
-<li class="toctree-l1"><a class="reference internal" href="detectors/detector_computation.html">Detectors Computation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_computation.html">Build Computations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collada_interop.html">Collada</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Detailed plotting</a></li>
 </ul>
 </div>
@@ -411,7 +414,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Detailed plots with <code class="docutils literal notranslate"><span class="pre">tqec</span></code></span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Detailed plots with <code class="code docutils literal notranslate"><span class="pre">tqec</span></code></span></li>
   </ul>
 </nav>
 </div>
@@ -428,23 +431,23 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <style>
-    .wy-nav-content {
-        max-width: 1200px !important;
-    }
-</style><section id="Detailed-plots-with-tqec">
-<h1>Detailed plots with <code class="docutils literal notranslate"><span class="pre">tqec</span></code><a class="headerlink" href="#Detailed-plots-with-tqec" title="Link to this heading">#</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> library provides tools to create detailed plots of the results obtained with <code class="docutils literal notranslate"><span class="pre">sinter</span></code>. Below is an example of the type of plots you can generate with <code class="docutils literal notranslate"><span class="pre">tqec</span></code>.</p>
-<img alt="A detailed plot of the memory experiment with d = 3, 5 or 7 and an inset plot for threshold information" src="../_images/detailed_plot_memory.png" />
+  <section id="detailed-plots-with-tqec">
+<h1>Detailed plots with <code class="code docutils literal notranslate"><span class="pre">tqec</span></code><a class="headerlink" href="#detailed-plots-with-tqec" title="Link to this heading">#</a></h1>
+<p>The <code class="code docutils literal notranslate"><span class="pre">tqec</span></code> library provides tools to create detailed plots of the results obtained with <code class="code docutils literal notranslate"><span class="pre">sinter</span></code>. Below is an example of the type of plots you can generate
+with <code class="code docutils literal notranslate"><span class="pre">tqec</span></code>.</p>
+<figure class="align-default" id="id1">
+<img alt="../_images/detailed_plot_memory.png" src="../_images/detailed_plot_memory.png" />
+<figcaption>
+<p><span class="caption-text">A detailed plot of the memory experiment with d = 3, 5 or 7 and an inset plot for threshold information</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
 <p>This notebook will guide you through the process of creating such a plot for a basic memory experiment.</p>
-<section id="1.-Create-the-computation">
-<h2>1. Create the computation<a class="headerlink" href="#1.-Create-the-computation" title="Link to this heading">#</a></h2>
+<section id="create-the-computation">
+<h2>1. Create the computation<a class="headerlink" href="#create-the-computation" title="Link to this heading">#</a></h2>
 <p>The first step of any plot is to create the quantum computation that will be used to generate the plots. In our case, this is a memory experiment.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">memory</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.gallery.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">memory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
 
 <span class="n">block_graph</span> <span class="o">=</span> <span class="n">memory</span><span class="p">(</span><span class="n">Basis</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
@@ -452,34 +455,31 @@
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+</div>
+</div>
 </section>
-<section id="2.-Perform-the-simulations">
-<h2>2. Perform the simulations<a class="headerlink" href="#2.-Perform-the-simulations" title="Link to this heading">#</a></h2>
+<section id="perform-the-simulations">
+<h2>2. Perform the simulations<a class="headerlink" href="#perform-the-simulations" title="Link to this heading">#</a></h2>
 <p>Then, we need to perform multiple simulation to gather statistics to plot.</p>
 <p>This gathering stage is split in 3 parts:</p>
 <ol class="arabic simple">
 <li><p>Computing general statistics over a large range of physical error-rate (e.g., <span class="math notranslate nohighlight">\(p \in [10^{-4}, 10^{-1}]\)</span>),</p></li>
-<li><p>Computing an estimate of the threshold <span class="math notranslate nohighlight">\(p_\text{thres}\)</span> under which increasing the code distance corrects more errors,</p></li>
+<li><p>Computing an estimate of the threshold <span class="math notranslate nohighlight">\(p_\text{thres}`\)</span> under which increasing the code distance corrects more errors,</p></li>
 <li><p>Computing fine statistics around the computed threshold.</p></li>
 </ol>
 <p>First, define the parameters of our simulation.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.specs.library.css</span><span class="w"> </span><span class="kn">import</span> <span class="n">CSS_BLOCK_BUILDER</span><span class="p">,</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.compile.convention</span><span class="w"> </span><span class="kn">import</span> <span class="n">FIXED_BULK_CONVENTION</span>
 
 <span class="c1"># Define the values of k (scaling factor) and p (physical error-rate) for which</span>
 <span class="c1"># we want data points.</span>
 <span class="n">ks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="n">ps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-
-<span class="c1"># For the moment, use CSS-style code.</span>
-<span class="n">block_builder</span> <span class="o">=</span> <span class="n">CSS_BLOCK_BUILDER</span>
-<span class="n">substitution_builder</span> <span class="o">=</span> <span class="n">CSS_SUBSTITUTION_BUILDER</span>
 
 <span class="c1"># Only use a low number of shots for demonstration purposes.</span>
 <span class="n">max_shots</span> <span class="o">=</span> <span class="mi">1_000_000</span>
@@ -493,14 +493,15 @@
 </pre></div>
 </div>
 </div>
-<section id="2.1.-Gathering-general-statistics">
-<h3>2.1. Gathering general statistics<a class="headerlink" href="#2.1.-Gathering-general-statistics" title="Link to this heading">#</a></h3>
-<p>This part should be quite familiar if you already used the <code class="docutils literal notranslate"><span class="pre">tqec.simulation</span></code> module.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
+<div class="cell_output docutils container">
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
+</div>
+<section id="gathering-general-statistics">
+<h3>2.1. Gathering general statistics<a class="headerlink" href="#gathering-general-statistics" title="Link to this heading">#</a></h3>
+<p>This part should be quite familiar if you already used the <code class="code docutils literal notranslate"><span class="pre">tqec.simulation</span></code> module.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_simulation_using_sinter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.noise_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseModel</span>
 
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">observables</span><span class="p">):</span>
@@ -510,8 +511,7 @@
         <span class="nb">list</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span>
         <span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">,</span>
         <span class="n">manhattan_radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">block_builder</span><span class="o">=</span><span class="n">block_builder</span><span class="p">,</span>
-        <span class="n">substitution_builder</span><span class="o">=</span><span class="n">substitution_builder</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span>
         <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">obs</span><span class="p">],</span>
         <span class="n">max_shots</span><span class="o">=</span><span class="n">max_shots</span><span class="p">,</span>
         <span class="n">max_errors</span><span class="o">=</span><span class="n">max_errors</span><span class="p">,</span>
@@ -522,15 +522,17 @@
 </pre></div>
 </div>
 </div>
-</section>
-<section id="2.2.-Estimating-the-threshold">
-<h3>2.2. Estimating the threshold<a class="headerlink" href="#2.2.-Estimating-the-threshold" title="Link to this heading">#</a></h3>
-<p>The next step will be to have a good-enough estimation of the provided computation threshold. This threshold will help us calibrating the next step where we perform more sampling around the estimated threshold value to have a detailed view of the code behaviour near its threshold.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
-</pre></div>
+<div class="cell_output docutils container">
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">log10</span>
+</div>
+</section>
+<section id="estimating-the-threshold">
+<h3>2.2. Estimating the threshold<a class="headerlink" href="#estimating-the-threshold" title="Link to this heading">#</a></h3>
+<p>The next step will be to have a good-enough estimation of the provided computation threshold. This threshold will help us calibrating the next step
+where we perform more sampling around the estimated threshold value to have a detailed view of the code behaviour near its threshold.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">log10</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.threshold</span><span class="w"> </span><span class="kn">import</span> <span class="n">binary_search_threshold</span>
 
@@ -542,8 +544,7 @@
         <span class="n">manhattan_radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">minp</span><span class="o">=</span><span class="mi">10</span><span class="o">**-</span><span class="mi">5</span><span class="p">,</span>
         <span class="n">maxp</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-        <span class="n">block_builder</span><span class="o">=</span><span class="n">block_builder</span><span class="p">,</span>
-        <span class="n">substitution_builder</span><span class="o">=</span><span class="n">substitution_builder</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span>
         <span class="n">max_shots</span><span class="o">=</span><span class="n">max_shots</span><span class="p">,</span>
         <span class="n">max_errors</span><span class="o">=</span><span class="n">max_errors</span><span class="p">,</span>
         <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pymatching&quot;</span><span class="p">],</span>
@@ -556,44 +557,49 @@
 </pre></div>
 </div>
 </div>
-</section>
-</section>
-<section id="2.3.-Gathering-statistics-around-the-threshold">
-<h2>2.3. Gathering statistics around the threshold<a class="headerlink" href="#2.3.-Gathering-statistics-around-the-threshold" title="Link to this heading">#</a></h2>
-<p>Now that we have a good estimation of the computation threshold, we can gather statistics around it.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
+<div class="cell_output docutils container">
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">observables</span><span class="p">:</span>
+</div>
+</section>
+</section>
+<section id="gathering-statistics-around-the-threshold">
+<h2>2.3. Gathering statistics around the threshold<a class="headerlink" href="#gathering-statistics-around-the-threshold" title="Link to this heading">#</a></h2>
+<p>Now that we have a good estimation of the computation threshold, we can gather statistics around it.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cpu_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">observables</span><span class="p">:</span>
     <span class="n">threshold_stats</span> <span class="o">=</span> <span class="n">start_simulation_using_sinter</span><span class="p">(</span>
         <span class="n">block_graph</span><span class="p">,</span>
         <span class="n">ks</span><span class="p">,</span>
         <span class="nb">list</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">*</span><span class="n">log10_threshold_bounds</span><span class="p">,</span> <span class="mi">20</span><span class="p">)),</span>
         <span class="n">NoiseModel</span><span class="o">.</span><span class="n">uniform_depolarizing</span><span class="p">,</span>
         <span class="n">manhattan_radius</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">block_builder</span><span class="o">=</span><span class="n">block_builder</span><span class="p">,</span>
-        <span class="n">substitution_builder</span><span class="o">=</span><span class="n">substitution_builder</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span>
         <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">obs</span><span class="p">],</span>
-        <span class="n">num_workers</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">cpu_count</span><span class="p">(),</span>
         <span class="n">max_shots</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
         <span class="n">max_errors</span><span class="o">=</span><span class="mi">5_000</span><span class="p">,</span>
         <span class="n">decoders</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pymatching&quot;</span><span class="p">],</span>
         <span class="n">split_observable_stats</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">save_resume_filepath</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./_examples_database/detailed_plots_z.csv&quot;</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">threshold_statistics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">threshold_stats</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
-</section>
-<section id="3.-Plot">
-<h2>3. Plot<a class="headerlink" href="#3.-Plot" title="Link to this heading">#</a></h2>
-<p>All the statistics we need should now be computed. Let’s plot!</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
-</pre></div>
+<div class="cell_output docutils container">
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+</div>
+</section>
+<section id="plot">
+<h2>3. Plot<a class="headerlink" href="#plot" title="Link to this heading">#</a></h2>
+<p>All the statistics we need should now be computed. Let’s plot!</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.simulation.plotting.inset</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_threshold_as_inset</span>
@@ -635,11 +641,8 @@
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/user_guide_detailed_plots_12_0.svg" src="../_images/user_guide_detailed_plots_12_0.svg" />
+<div class="cell_output docutils container">
+<img alt="../_images/detailed_plots_5_0.svg" src="../_images/detailed_plots_5_0.svg" />
 </div>
 </div>
 </section>
@@ -656,20 +659,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="detectors/detector_computation.html"
+       href="collada_interop.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">How to automatically find detectors?</p>
+        <p class="prev-next-title">COLLADA Interoperability</p>
       </div>
     </a>
     <a class="right-next"
-       href="../contributor_guide.html"
+       href="../gallery/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">How to contribute</p>
+        <p class="prev-next-title">Computation Gallery</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -692,14 +695,14 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Create-the-computation">1. Create the computation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Perform-the-simulations">2. Perform the simulations</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#2.1.-Gathering-general-statistics">2.1. Gathering general statistics</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#2.2.-Estimating-the-threshold">2.2. Estimating the threshold</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-the-computation">1. Create the computation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perform-the-simulations">2. Perform the simulations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gathering-general-statistics">2.1. Gathering general statistics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#estimating-the-threshold">2.2. Estimating the threshold</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.3.-Gathering-statistics-around-the-threshold">2.3. Gathering statistics around the threshold</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#3.-Plot">3. Plot</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gathering-statistics-around-the-threshold">2.3. Gathering statistics around the threshold</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot">3. Plot</a></li>
 </ul>
   </nav></div>
 
@@ -707,7 +710,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/user_guide/detailed_plots.ipynb.txt"
+      <li><a href="../_sources/user_guide/detailed_plots.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

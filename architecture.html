@@ -32,6 +32,8 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -44,6 +46,9 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
@@ -56,7 +61,7 @@ window.addEventListener("load", () => mermaid.run());
     <script>DOCUMENTATION_OPTIONS.pagename = 'architecture';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Computation Gallery" href="gallery/index.html" />
+    <link rel="next" title="API Reference" href="api.html" />
     <link rel="prev" title="How to contribute" href="contributor_guide.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -150,16 +155,16 @@ window.addEventListener("load", () => mermaid.run());
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="contributor_guide.html">
-    Contributor Guide
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="gallery/index.html">
+    Gallery
   </a>
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="gallery/index.html">
-    Gallery
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="contributor_guide.html">
+    Contributor Guide
   </a>
 </li>
 
@@ -285,16 +290,16 @@ window.addEventListener("load", () => mermaid.run());
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="contributor_guide.html">
-    Contributor Guide
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="gallery/index.html">
+    Gallery
   </a>
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="gallery/index.html">
-    Gallery
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="contributor_guide.html">
+    Contributor Guide
   </a>
 </li>
 
@@ -541,15 +546,15 @@ maps from the numbered templates to some plaquettes that implement small local c
 <h2><a class="reference internal" href="_autosummary/tqec.utils.NoiseModel.html#tqec.utils.NoiseModel" title="tqec.utils.NoiseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoiseModel</span></code></a><a class="headerlink" href="#noisemodel" title="Link to this heading">#</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The code for this module was modified from the code for <span id="id1">[<a class="reference internal" href="#id6" title="Craig Gidney. Inplace access to the surface code y basis. Quantum, 8:1310, April 2024. URL: http://dx.doi.org/10.22331/q-2024-04-08-1310, doi:10.22331/q-2024-04-08-1310.">1</a>]</span>.</p>
+<p>The code for this module was modified from the code for <a class="footnote-reference brackets" href="#footcite-gidney-inplace-access-2024" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
 </div>
 <p>This module implements the following noise models for <code class="docutils literal notranslate"><span class="pre">Stim</span></code> simulations:</p>
 <ol class="arabic">
-<li><p><strong>Superconducting Inspired Circuit Error Model (SI1000)</strong>: A modified version of the noise model introduced in <span id="id2">[<a class="reference internal" href="#id7" title="Craig Gidney, Michael Newman, Austin Fowler, and Michael Broughton. A fault-tolerant honeycomb memory. Quantum, 5:605, December 2021. URL: http://dx.doi.org/10.22331/q-2021-12-20-605, doi:10.22331/q-2021-12-20-605.">2</a>]</span> which represents the noise on Google’s superconducting quantum chip.</p>
+<li><p><strong>Superconducting Inspired Circuit Error Model (SI1000)</strong>: A modified version of the noise model introduced in <a class="footnote-reference brackets" href="#footcite-gidney-si1000-2021" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> which represents the noise on Google’s superconducting quantum chip.</p>
 <blockquote>
 <div><p>In <a class="reference internal" href="_autosummary/tqec.utils.NoiseModel.html#tqec.utils.NoiseModel.si1000" title="tqec.utils.NoiseModel.si1000"><code class="xref py py-meth docutils literal notranslate"><span class="pre">si1000()</span></code></a>:</p>
 <ul class="simple">
-<li><p>Depolarizing noise on measured qubits from the noise modeil in <span id="id3">[<a class="reference internal" href="#id7" title="Craig Gidney, Michael Newman, Austin Fowler, and Michael Broughton. A fault-tolerant honeycomb memory. Quantum, 5:605, December 2021. URL: http://dx.doi.org/10.22331/q-2021-12-20-605, doi:10.22331/q-2021-12-20-605.">2</a>]</span> has been removed because <code class="docutils literal notranslate"><span class="pre">tqec</span></code> measurements are immediately followed by resets.</p></li>
+<li><p>Depolarizing noise on measured qubits from the noise modeil in <a class="footnote-reference brackets" href="#footcite-gidney-si1000-2021" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> has been removed because <code class="docutils literal notranslate"><span class="pre">tqec</span></code> measurements are immediately followed by resets.</p></li>
 <li><p>The measurement result is probabilistically flipped instead of the input qubit.</p></li>
 </ul>
 </div></blockquote>
@@ -573,17 +578,17 @@ Plotting functions are in this module too.</p>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <div class="docutils container" id="id4">
-<div role="list" class="citation-list">
-<div class="citation" id="id6" role="doc-biblioentry">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-gidney-inplace-access-2024" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Craig Gidney. Inplace access to the surface code y basis. <em>Quantum</em>, 8:1310, April 2024. URL: <a class="reference external" href="http://dx.doi.org/10.22331/q-2024-04-08-1310">http://dx.doi.org/10.22331/q-2024-04-08-1310</a>, <a class="reference external" href="https://doi.org/10.22331/q-2024-04-08-1310">doi:10.22331/q-2024-04-08-1310</a>.</p>
-</div>
-<div class="citation" id="id7" role="doc-biblioentry">
+</aside>
+<aside class="footnote brackets" id="footcite-gidney-si1000-2021" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
 <span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
 <p>Craig Gidney, Michael Newman, Austin Fowler, and Michael Broughton. A fault-tolerant honeycomb memory. <em>Quantum</em>, 5:605, December 2021. URL: <a class="reference external" href="http://dx.doi.org/10.22331/q-2021-12-20-605">http://dx.doi.org/10.22331/q-2021-12-20-605</a>, <a class="reference external" href="https://doi.org/10.22331/q-2021-12-20-605">doi:10.22331/q-2021-12-20-605</a>.</p>
-</div>
-</div>
+</aside>
+</aside>
 </div>
 </section>
 </section>
@@ -608,11 +613,11 @@ Plotting functions are in this module too.</p>
       </div>
     </a>
     <a class="right-next"
-       href="gallery/index.html"
+       href="api.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Computation Gallery</p>
+        <p class="prev-next-title">API Reference</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
