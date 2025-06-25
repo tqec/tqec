@@ -228,7 +228,8 @@ ignore = [
 ]
 # Rules Ignored Permanently
 
-# D101 - By convention, class docstrings are on the __init__ method.
+# D101 - By convention, class docstrings are on the __init__ method, so we do not document classes.
+# D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
 # D407 - Ignored because ==== under a section heading is considered as a missing underline.
 # pydocstyle considers ----- an underline.
 
