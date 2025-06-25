@@ -7,6 +7,7 @@ from tqec.compile.convention import ALL_CONVENTIONS
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
+from tqec.gallery.cz import cz
 from tqec.gallery.move_rotation import move_rotation
 from tqec.gallery.stability import stability
 from tqec.utils.enums import Basis
@@ -338,6 +339,29 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     g.add_pipe(n1, n3)
     g.add_pipe(n2, n4)
 
+    convention = ALL_CONVENTIONS[convention_name]
+    correlation_surfaces = g.find_correlation_surfaces()
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    circuit = compiled_graph.generate_stim_circuit(
+        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    )
+    dem = circuit.detector_error_model(decompose_errors=True)
+    assert dem.num_observables == 1
+    assert len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False)) == d
+
+
+@pytest.mark.parametrize(
+    ("convention_name", "support_flows", "k"),
+    itertools.product(
+        ALL_CONVENTIONS.keys(),
+        ("X_ -> XZ",),
+        (1, 2),
+    ),
+)
+def test_compile_cz(convention_name: str, support_flows: str | list[str], k: int) -> None:
+    d = 2 * k + 1
+
+    g = cz(support_flows)
     convention = ALL_CONVENTIONS[convention_name]
     correlation_surfaces = g.find_correlation_surfaces()
     compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
