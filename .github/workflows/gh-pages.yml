@@ -36,9 +36,10 @@ jobs:
         id: cache-docs
         with:
           path: docs/_examples_database/
-          key: ${{ runner.os }}-docs_cache
+          key: docs_database_and_stim_results_cache
+          enableCrossOsArchive: true
       - name: Generate the documentation
-        if: steps.${{ runner.os }}-docs_cache.outputs.cache-hit != 'true'
+        if: steps.docs_database_and_stim_results_cache.outputs.cache-hit != 'true'
         run: |
           make html
         working-directory: docs/
