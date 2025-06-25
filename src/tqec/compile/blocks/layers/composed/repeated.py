@@ -46,10 +46,12 @@ class RepeatedLayer(BaseComposedLayer):
 
     @property
     def internal_layer(self) -> BaseLayer | BaseComposedLayer:
+        """Get the internal layer that is being repeated by ``self``."""
         return self._internal_layer
 
     @property
     def repetitions(self) -> LinearFunction:
+        """Get the number of repetitions of the internal layer."""
         return self._repetitions
 
     def _post_init_check(self) -> None:

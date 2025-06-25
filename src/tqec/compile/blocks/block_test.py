@@ -174,8 +174,8 @@ def test_get_temporal_border(
     raw_circuit_layer: RawCircuitLayer,
 ) -> None:
     block = Block([plaquette_layer, raw_circuit_layer, plaquette_layer2])
-    assert block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE) == plaquette_layer
-    assert block.get_temporal_border(TemporalBlockBorder.Z_POSITIVE) == plaquette_layer2
+    assert block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE) == plaquette_layer
+    assert block.get_atomic_temporal_border(TemporalBlockBorder.Z_POSITIVE) == plaquette_layer2
 
     block = Block(
         [
@@ -189,7 +189,7 @@ def test_get_temporal_border(
         match=r"^Expected to recover a temporal \*\*border\*\* \(i.e. an atomic layer\) "
         "but got an instance of RepeatedLayer instead.$",
     ):
-        block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
+        block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
 
 
 def test_dimensions(

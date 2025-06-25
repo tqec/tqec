@@ -307,9 +307,11 @@ class DetectorDatabase:
         return self.mapping.get(key)
 
     def freeze(self) -> None:
+        """Make ``self`` read-only."""
         self.frozen = True
 
     def unfreeze(self) -> None:
+        """Make ``self`` writable."""
         self.frozen = False
 
     def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
@@ -410,6 +412,16 @@ class DetectorDatabase:
 
     @staticmethod
     def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
+        """Initialise a new instance from a file.
+
+        Args:
+            filepath: path to a file where a :class:`.DetectorDatabase` instance has been saved.
+            format: how the database was saved in ``filepath``.
+
+        Returns:
+            a new :class:`.DetectorDatabase` instance read from the provided ``filepath``.
+
+        """
         if format == "pickle":
             with open(filepath, "rb") as f:
                 database = pickle.load(f)

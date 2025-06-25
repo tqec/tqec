@@ -25,12 +25,14 @@ class LayoutPosition2D(ABC):
 
     @staticmethod
     def from_block_position(pos: BlockPosition2D) -> LayoutCubePosition2D:
+        """Get a layout position from a block position."""
         return LayoutCubePosition2D(2 * pos.x, 2 * pos.y)
 
     @staticmethod
     def from_pipe_position(
         pipe_position: tuple[BlockPosition2D, BlockPosition2D],
     ) -> LayoutPipePosition2D:
+        """Get a layout pipe position from a pipe position."""
         u, v = sorted(pipe_position)
         assert u.is_neighbour(v)
         assert u < v
@@ -67,6 +69,7 @@ class LayoutCubePosition2D(LayoutPosition2D):
         super().__init__(x, y)
 
     def to_block_position(self) -> BlockPosition2D:
+        """Get the block position."""
         return BlockPosition2D(self._x // 2, self._y // 2)
 
 
@@ -85,6 +88,7 @@ class LayoutPipePosition2D(LayoutPosition2D):
         super().__init__(x, y)
 
     def to_pipe(self) -> tuple[BlockPosition2D, BlockPosition2D]:
+        """Get the linked block positions."""
         if self._x % 2 == 1:
             return BlockPosition2D((self._x - 1) // 2, self._y // 2), BlockPosition2D(
                 (self._x + 1) // 2, self._y // 2
@@ -117,12 +121,14 @@ class LayoutPosition3D(ABC, Generic[T]):
     def from_block_position(
         pos: BlockPosition3D,
     ) -> LayoutPosition3D[LayoutCubePosition2D]:
+        """Get a layout position from a block position."""
         return LayoutPosition3D(LayoutCubePosition2D.from_block_position(pos.as_2d()), pos.z)
 
     @staticmethod
     def from_pipe_position(
         pipe_position: tuple[BlockPosition3D, BlockPosition3D],
     ) -> LayoutPosition3D[LayoutPipePosition2D]:
+        """Get a layout pipe position from a pipe position."""
         u, v = sorted(pipe_position)
         assert u.is_neighbour(v)
         assert u < v
@@ -132,6 +138,17 @@ class LayoutPosition3D(ABC, Generic[T]):
     def from_block_and_signed_direction(
         pos: BlockPosition3D, dir: SignedDirection3D
     ) -> LayoutPosition3D[LayoutPipePosition2D]:
+        """Get a 3-dimension pipe position from a block position and a direction.
+
+        Args:
+            pos: a block position connected by the returned pipe.
+            dir: the direction in which we want the pipe to go out of ``pos``.
+
+        Returns:
+            the pipe position of the unique pipe linked to the block in ``pos`` in the provided
+            ``dir``.
+
+        """
         neighbour = pos.shift_in_direction(dir.direction, 1 if dir.towards_positive else -1)
         u, v = sorted((pos, neighbour))
         assert u.is_neighbour(v)
@@ -148,10 +165,12 @@ class LayoutPosition3D(ABC, Generic[T]):
         )
 
     def as_2d(self) -> LayoutPosition2D:
+        """Return a 2-dimensional position, ignoring the third dimension in ``self``."""
         return self._spatial_position
 
     @property
     def z(self) -> int:
+        """Returns the z-coordinate."""
         return self._z
 
     def __repr__(self) -> str:

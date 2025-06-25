@@ -154,6 +154,20 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
+        """Returns the four 3-body stabilizer measurement plaquettes.
+
+        Args:
+            reset: basis of the reset operation performed on data-qubits. Defaults
+                to ``None`` that translates to no reset being applied on data-qubits.
+            measurement: basis of the measurement operation performed on data-qubits.
+                Defaults to ``None`` that translates to no measurement being applied
+                on data-qubits.
+
+        Returns:
+            the four 3-body stabilizer measurement plaquettes. Their order follow the usual
+            convention: ``(top_left, top_right, bottom_left, bottom_right)``.
+
+        """
         # r/m: reset/measurement basis applied to each data-qubit
         r = reset.value.lower() if reset is not None else "-"
         m = measurement.value.lower() if measurement is not None else "-"
@@ -1131,11 +1145,11 @@ class FixedBulkConventionGenerator:
     def get_temporal_hadamard_realignment_plaquettes(
         self, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> Plaquettes:
-        """Returns the :class:`~tqec.templates.base.Plaquettes` instance
-        needed to implement the realignment of the bulk stabilizer basis
-        of the code. This is needed because a transversal Hadamard layer
-        will change the bulk stabilizer basis of the code. Under fixed-bulk
-        convention, we use an extra realignment layer to realign the bulk
+        """Returns the :class:`.Plaquettes` instance needed to implement the realignment of the bulk
+        stabilizer basis of the code.
+
+        This is needed because a transversal Hadamard layer will change the bulk stabilizer basis of
+        the code. Under fixed-bulk convention, we use an extra realignment layer to realign the bulk
         stabilizer basis of the code to the original one.
         """
         # plaquettes at the bulk
@@ -1262,6 +1276,43 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
+        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        neighbouring logical qubits aligned on the ``X`` axis.
+
+        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
+        observables between two neighbouring logical qubits aligned on the ``X``
+        axis.
+
+        Note:
+            By convention, the hadamard-like transition is performed at the
+            top-most plaquettes.
+
+        Warning:
+            This method is tightly coupled with
+            :meth:`PlaquetteGenerator.get_spatial_vertical_hadamard_raw_template` and the returned
+            plaquettes should only be considered valid when used in conjunction with the
+            :class:`~tqec.templates.base.Template` instance returned by this method.
+
+        Arguments:
+            top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
+                :class:`~tqec.templates.qubit.QubitVerticalBorders`
+                should be measuring a ``Z`` stabilizer on its 2 left-most
+                data-qubits and a ``X`` stabilizer on its 2 right-most
+                data-qubits. Else, it measures a ``X`` stabilizer on its two
+                left-most data-qubits and a ``Z`` stabilizer on its two
+                right-most data-qubits.
+            reset: basis of the reset operation performed on **internal**
+                data-qubits. Defaults to ``None`` that translates to no reset
+                being applied on data-qubits.
+            measurement: basis of the measurement operation performed on
+                **internal** data-qubits. Defaults to ``None`` that translates
+                to no measurement being applied on data-qubits.
+
+        Returns:
+            the plaquettes needed to implement a Hadamard spatial transition between two
+            neighbouring logical qubits aligned on the ``X`` axis.
+
+        """
         return self._mapper(self.get_spatial_vertical_hadamard_rpng_descriptions)(
             top_left_is_z_stabilizer, reset, measurement
         )
@@ -1330,6 +1381,42 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
+        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        neighbouring logical qubits aligned on the ``Y`` axis.
+
+        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
+        observables between two neighbouring logical qubits aligned on the ``Y``
+        axis.
+
+        Note:
+            By convention, the hadamard-like transition is performed at the
+            top-most plaquettes.
+
+        Warning:
+            This method is tightly coupled with
+            :meth:`PlaquetteGenerator.get_spatial_horizontal_hadamard_raw_template` and the returned
+            plaquettes should only be considered valid when used in conjunction with the
+            :class:`~tqec.templates.base.Template` instance returned by this method.
+
+        Arguments:
+            top_left_is_z_stabilizer: if ``True``, the plaquette with index 5 in
+                :class:`~tqec.templates.qubit.QubitHorizontalBorders` should be
+                measuring a ``Z`` stabilizer on its 2 top-most data-qubits and a
+                ``X`` stabilizer on its 2 bottom-most data-qubits. Else, it
+                measures a ``X`` stabilizer on its two top-most data-qubits and
+                a ``Z`` stabilizer on its two bottom-most data-qubits.
+            reset: basis of the reset operation performed on **internal**
+                data-qubits. Defaults to ``None`` that translates to no reset
+                being applied on data-qubits.
+            measurement: basis of the measurement operation performed on
+                **internal** data-qubits. Defaults to ``None`` that translates
+                to no measurement being applied on data-qubits.
+
+        Returns:
+            the plaquettes needed to implement a Hadamard spatial transition between two
+            neighbouring logical qubits aligned on the ``Y`` axis.
+
+        """
         return self._mapper(self.get_spatial_horizontal_hadamard_rpng_descriptions)(
             top_left_is_z_stabilizer, reset, measurement
         )

@@ -40,6 +40,7 @@ class CubeSpec:
 
     @property
     def is_spatial(self) -> bool:
+        """Return ``True`` if ``self`` represents a spatial cube."""
         return isinstance(self.kind, ZXCube) and self.kind.is_spatial
 
     @staticmethod

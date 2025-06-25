@@ -36,6 +36,7 @@ class Observable:
             raise TQECException("Expected strictly negative measurement offsets.")
 
     def to_instruction(self) -> stim.CircuitInstruction:
+        """Return the ``stim`` instruction reprensented by ``self``."""
         return stim.CircuitInstruction(
             "OBSERVABLE_INCLUDE",
             [stim.target_rec(offset) for offset in self.measurement_offsets],

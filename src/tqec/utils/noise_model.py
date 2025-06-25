@@ -153,7 +153,7 @@ class NoiseRule:
         self.after = after
         self.flip_result = flip_result
 
-    def append_noisy_version_of(
+    def _append_noisy_version_of(
         self,
         *,
         split_op: stim.CircuitInstruction,
@@ -345,7 +345,7 @@ class NoiseModel:
             if rule is None:
                 out.append(split_op)
             else:
-                rule.append_noisy_version_of(
+                rule._append_noisy_version_of(
                     split_op=split_op,
                     out_during_moment=out,
                     after_moments=after,
