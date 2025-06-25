@@ -20,7 +20,7 @@ import stim
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap, get_qubit_map
-from tqec.circuit.schedule.exception import ScheduleException
+from tqec.circuit.schedule.exception import AnnotationError, ScheduleException
 from tqec.circuit.schedule.schedule import Schedule
 from tqec.utils.exceptions import TQECException
 from tqec.utils.instructions import is_annotation_instruction
@@ -422,11 +422,11 @@ class ScheduledCircuit:
                 ``self``.
 
         Raises:
-            TQECException: if the provided instruction is not an annotation.
+            AnnotationError: if the provided instruction is not an annotation.
 
         """
         if not is_annotation_instruction(instruction):
-            raise TQECException(
+            raise AnnotationError(
                 "The provided instruction is not an annotation, which is disallowed by the append_annotation method."
             )
         self._moments[-1].append_annotation(instruction)

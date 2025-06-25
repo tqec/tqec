@@ -5,3 +5,7 @@ from tqec.utils.exceptions import TQECException
 
 class ScheduleException(TQECException):
     pass
+
+
+class AnnotationError(TQECException):
+    pass
