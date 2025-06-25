@@ -451,7 +451,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="c1"># SHARED FUNCTIONS</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">int_position_before_scale</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">FloatPosition3D</span><span class="p">,</span> <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Position3D</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_int_position_before_scale</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">FloatPosition3D</span><span class="p">,</span> <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Position3D</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Position3D</span><span class="p">(</span>
         <span class="n">x</span><span class="o">=</span><span class="n">round_or_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pipe_length</span><span class="p">),</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.35</span><span class="p">),</span>
         <span class="n">y</span><span class="o">=</span><span class="n">round_or_fail</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pipe_length</span><span class="p">),</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.35</span><span class="p">),</span>
@@ -459,7 +459,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">offset_y_cube_position</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">FloatPosition3D</span><span class="p">,</span> <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatPosition3D</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_offset_y_cube_position</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">FloatPosition3D</span><span class="p">,</span> <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatPosition3D</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">z</span><span class="p">),</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shift_by</span><span class="p">(</span><span class="n">dz</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">FloatPosition3D</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">z</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pipe_length</span><span class="p">))</span>
@@ -582,15 +582,15 @@ window.addEventListener("load", () => mermaid.run());
     <span class="c1"># Add cubes</span>
     <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">cube_kind</span><span class="p">,</span> <span class="n">axes_directions</span> <span class="ow">in</span> <span class="n">parsed_cubes</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cube_kind</span><span class="p">,</span> <span class="n">YHalfCube</span><span class="p">):</span>
-            <span class="n">pos</span> <span class="o">=</span> <span class="n">offset_y_cube_position</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">pipe_length</span><span class="p">)</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">int_position_before_scale</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">pipe_length</span><span class="p">),</span> <span class="n">cube_kind</span><span class="p">)</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">_offset_y_cube_position</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">pipe_length</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">_int_position_before_scale</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">pipe_length</span><span class="p">),</span> <span class="n">cube_kind</span><span class="p">)</span>
     <span class="n">port_index</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="c1"># Add pipes</span>
     <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">pipe_kind</span><span class="p">,</span> <span class="n">axes_directions</span> <span class="ow">in</span> <span class="n">parsed_pipes</span><span class="p">:</span>
         <span class="c1"># Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers from previous operations</span>
         <span class="n">directional_multiplier</span> <span class="o">=</span> <span class="n">axes_directions</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">pipe_kind</span><span class="o">.</span><span class="n">direction</span><span class="p">)]</span>
-        <span class="n">head_pos</span> <span class="o">=</span> <span class="n">int_position_before_scale</span><span class="p">(</span>
+        <span class="n">head_pos</span> <span class="o">=</span> <span class="n">_int_position_before_scale</span><span class="p">(</span>
             <span class="n">pos</span><span class="o">.</span><span class="n">shift_in_direction</span><span class="p">(</span><span class="n">pipe_kind</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">directional_multiplier</span><span class="p">),</span>
             <span class="n">pipe_length</span><span class="p">,</span>
         <span class="p">)</span>
@@ -800,15 +800,15 @@ window.addEventListener("load", () => mermaid.run());
     <span class="c1"># Add cubes</span>
     <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">cube_kind</span><span class="p">,</span> <span class="n">axes_directions</span> <span class="ow">in</span> <span class="n">parsed_cubes</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cube_kind</span><span class="p">,</span> <span class="n">YHalfCube</span><span class="p">):</span>
-            <span class="n">pos</span> <span class="o">=</span> <span class="n">offset_y_cube_position</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">int_position_before_scale</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">cube_kind</span><span class="p">)</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">_offset_y_cube_position</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">_int_position_before_scale</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">cube_kind</span><span class="p">)</span>
     <span class="n">port_index</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="c1"># Add pipes</span>
     <span class="k">for</span> <span class="n">u_pos</span><span class="p">,</span> <span class="n">v_pos</span><span class="p">,</span> <span class="n">pipe_kind</span><span class="p">,</span> <span class="n">axes_directions</span> <span class="ow">in</span> <span class="n">parsed_pipes</span><span class="p">:</span>
         <span class="c1"># Write head_pos and tail_pos as Position3D</span>
-        <span class="n">head_pos</span> <span class="o">=</span> <span class="n">int_position_before_scale</span><span class="p">(</span><span class="n">u_pos</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">tail_pos</span> <span class="o">=</span> <span class="n">int_position_before_scale</span><span class="p">(</span><span class="n">v_pos</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">head_pos</span> <span class="o">=</span> <span class="n">_int_position_before_scale</span><span class="p">(</span><span class="n">u_pos</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">tail_pos</span> <span class="o">=</span> <span class="n">_int_position_before_scale</span><span class="p">(</span><span class="n">v_pos</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># Add pipe</span>
         <span class="k">if</span> <span class="n">head_pos</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">:</span>

@@ -561,7 +561,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">after</span> <span class="o">=</span> <span class="n">after</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flip_result</span> <span class="o">=</span> <span class="n">flip_result</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">append_noisy_version_of</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_append_noisy_version_of</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">split_op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span>
@@ -764,7 +764,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">split_op</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">rule</span><span class="o">.</span><span class="n">append_noisy_version_of</span><span class="p">(</span>
+                <span class="n">rule</span><span class="o">.</span><span class="n">_append_noisy_version_of</span><span class="p">(</span>
                     <span class="n">split_op</span><span class="o">=</span><span class="n">split_op</span><span class="p">,</span>
                     <span class="n">out_during_moment</span><span class="o">=</span><span class="n">out</span><span class="p">,</span>
                     <span class="n">after_moments</span><span class="o">=</span><span class="n">after</span><span class="p">,</span>
