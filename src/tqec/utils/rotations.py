@@ -203,6 +203,25 @@ def rotate_on_import(
     scale_matrix: npt.NDArray[np.float32],
     kind: BlockKind,
 ) -> tuple[FloatPosition3D, BlockKind]:
+    """Updates the kind of an incoming block when its translation matrix indicates the original
+    block has been rotated, rejecting any invalid rotation in the process.
+
+    Args:
+        rotation_matrix: rotation matrix of the incoming block.
+        translation_matrix: translation matrix of the incoming block.
+        scale_matrix: scaling factor of the incoming block.
+        kind: kind of the original block that was rotated / requires rotation.
+
+    Raises:
+        TQECException: if an invalid rotation is provided.
+
+    Returns:
+        A tuple containing two entries:
+
+        - translation: An updated translation matrix
+        - kind: An updated kind that factors the rotation into the kind itself
+
+    """
     # Calculate rotation
     rotation_angles = calc_rotation_angles(rotation_matrix)
 
@@ -230,6 +249,17 @@ def rotate_on_import(
 
 
 def adjust_hadamards_direction(kind: BlockKind) -> BlockKind:
+    """Inverts the direction of any "h" pipe when called as applicable (when pipe runs in the
+    negative direction on any given axis) by exchanging the kind for the corresponding pair on the
+    given axis.
+
+    Args:
+        kind: the original "h" kind.
+
+    Returns
+        the updated (inverse) "h" kind.
+
+    """
     # List of hadamard equivalences
     hdm_equivalences = {"ZXOH": "XZOH", "XOZH": "ZOXH", "OXZH": "OZXH"}
 

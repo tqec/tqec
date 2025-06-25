@@ -88,6 +88,7 @@ class Moment:
 
     @property
     def circuit(self) -> stim.Circuit:
+        """Get the underlying circuit containing the operations."""
         return self._circuit
 
     @staticmethod

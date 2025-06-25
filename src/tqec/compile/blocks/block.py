@@ -51,7 +51,17 @@ class Block(SequencedLayers):
         layers = self._layers_with_temporal_borders_replaced(border_replacements)
         return Block(layers) if layers else None
 
-    def get_temporal_border(self, border: TemporalBlockBorder) -> BaseLayer:
+    def get_atomic_temporal_border(self, border: TemporalBlockBorder) -> BaseLayer:
+        """Get the layer at the provided temporal ``border``.
+
+        This method is different to :meth:`get_temporal_layer_on_border` in that it raises when the
+        border is not an atomic layer.
+
+        Raises:
+            TQECException: if the layer at the provided temporal ``border`` is not atomic (i.e., an
+                instance of :class:`.BaseLayer`).
+
+        """
         layer_index: int
         match border:
             case TemporalBlockBorder.Z_NEGATIVE:
@@ -80,14 +90,27 @@ class Block(SequencedLayers):
 
     @property
     def is_cube(self) -> bool:
+        """Return ``True`` if ``self`` represents a cube, else ``False``.
+
+        A cube is defined as a block with all its 3 dimensions that are scalable.
+        """
         return all(dim.is_scalable() for dim in self.dimensions)
 
     @property
     def is_pipe(self) -> bool:
+        """Return ``True`` if ``self`` represents a pipe, else ``False``.
+
+        A pipe is defined as a block with all but one of its 3 dimensions that are scalable.
+        """
         return sum(dim.is_scalable() for dim in self.dimensions) == 2
 
     @property
     def is_temporal_pipe(self) -> bool:
+        """Return ``True`` if ``self`` is a temporal pipe, else ``False``.
+
+        A temporal pipe is a pipe (exactly 2 scalable dimensions) for which the non-scalable
+        dimension is the third one (time dimension).
+        """
         return self.is_pipe and self.dimensions[2].is_constant()
 
     def __eq__(self, value: object) -> bool:

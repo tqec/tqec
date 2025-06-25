@@ -54,18 +54,39 @@ class QubitMap:
 
     @staticmethod
     def from_circuit(circuit: stim.Circuit) -> QubitMap:
+        """Returns a qubit map with all the qubits and their coordinates at the end of the provided ``circuit``.
+
+        Warning:
+            This function, just like
+            `stim.Circuit.get_final_qubit_coordinates <https://github.com/quantumlib/Stim/blob/main/doc/python_api_reference_vDev.md#stim.Circuit.get_final_qubit_coordinates>`_,
+            returns the qubit coordinates **at the end** of the provided ``circuit``.
+
+        Args:
+            circuit: instance to get qubit coordinates from.
+
+        Raises:
+            TQECException: if any of the final qubits is not defined with exactly 2
+                coordinates (we only consider qubits on a 2-dimensional grid).
+
+        Returns:
+            a mapping from qubit indices (keys) to qubit coordinates (values).
+
+        """
         return get_qubit_map(circuit)
 
     @functools.cached_property
     def q2i(self) -> dict[GridQubit, int]:
+        """Get a mapping from qubits to indices."""
         return {q: i for i, q in self.i2q.items()}
 
     @property
     def indices(self) -> Iterable[int]:
+        """Get all the qubit indices managed by ``self``."""
         return self.i2q.keys()
 
     @property
     def qubits(self) -> Iterable[GridQubit]:
+        """Get all the qubits manager by ``self``."""
         return self.i2q.values()
 
     def with_mapped_qubits(self, qubit_map: Callable[[GridQubit], GridQubit]) -> QubitMap:
@@ -87,6 +108,7 @@ class QubitMap:
         return QubitMap({i: qubit_map(q) for i, q in self.i2q.items()})
 
     def items(self) -> Iterable[tuple[int, GridQubit]]:
+        """Get an iterator over each qubit and its corresponding index."""
         return self.i2q.items()
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[GridQubit]) -> QubitMap:

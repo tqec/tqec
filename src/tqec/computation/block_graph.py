@@ -38,31 +38,35 @@ BlockKind = CubeKind | PipeKind
 
 
 class BlockGraph:
-    """Block graph representation of a logical computation.
-
-    A block graph consists of building blocks that fully define the boundary
-    conditions and topological structures of a logical computation. It corresponds
-    to the commonly used 3D spacetime diagram representation of a surface code
-    logical computation.
-
-    The graph contains two categories of blocks:
-
-    1. :py:class:`~tqec.computation.cube.Cube`: The fundamental building blocks
-    of the computation. A cube represents a block of quantum operations within
-    a specific spacetime volume. These operations preserve or manipulate the
-    quantum information encoded in the logical qubits. Cubes are represented
-    as nodes in the graph.
-
-    2. :py:class:`~tqec.computation.pipe.Pipe`: Connects cubes to form the
-    topological structure representing the logical computation. A pipe occupies
-    no spacetime volume and only replaces the operations within the cubes it
-    connects. Pipes are represented as edges in the graph.
-    """
-
     _NODE_DATA_KEY: str = "tqec_node_data"
     _EDGE_DATA_KEY: str = "tqec_edge_data"
 
     def __init__(self, name: str = "") -> None:
+        """Block graph representation of a logical computation.
+
+        A block graph consists of building blocks that fully define the boundary
+        conditions and topological structures of a logical computation. It corresponds
+        to the commonly used 3D spacetime diagram representation of a surface code
+        logical computation.
+
+        The graph contains two categories of blocks:
+
+        1. :py:class:`~tqec.computation.cube.Cube`: The fundamental building blocks
+        of the computation. A cube represents a block of quantum operations within
+        a specific spacetime volume. These operations preserve or manipulate the
+        quantum information encoded in the logical qubits. Cubes are represented
+        as nodes in the graph.
+
+        2. :py:class:`~tqec.computation.pipe.Pipe`: Connects cubes to form the
+        topological structure representing the logical computation. A pipe occupies
+        no spacetime volume and only replaces the operations within the cubes it
+        connects. Pipes are represented as edges in the graph.
+
+        Args:
+            name: user-readable name representing the block-graph. Not used internally, but useful
+                to identify :class:`.BlockGraph` instances.
+
+        """
         self._name = name
         self._graph: Graph[Position3D] = Graph()
         self._ports: dict[str, Position3D] = {}

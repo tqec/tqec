@@ -106,6 +106,15 @@ class Schedule:
             raise e
 
     def append_schedule(self, schedule: Schedule) -> None:
+        """Append a full schedule **after** ``self``.
+
+        Note:
+            The provided ``schedule`` is append just after ``self``. If ``self`` is empty, then we
+            have ``self == schedule`` at the end of this method. If ``self`` contains at least one
+            schedule, all entries of ``schedule`` are offset by the maximum schedule in ``self``
+            plus 1.
+
+        """
         starting_index = self.schedule[-1] + 1 if self.schedule else Schedule._INITIAL_SCHEDULE
         # Not using a generator here but explicitly constructing a list because
         # if `schedule == self` a generator would induce an infinite loop.
@@ -113,4 +122,5 @@ class Schedule:
 
     @property
     def max_schedule(self) -> int:
+        """Get the maximum timestep in ``self`` or ``0`` if ``self`` is empty."""
         return self.schedule[-1] if self.schedule else 0

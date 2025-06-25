@@ -25,6 +25,7 @@ class InstructionCreator:
     def __call__(
         self, targets: list[stim.GateTarget], arguments: list[float]
     ) -> stim.CircuitInstruction:
+        """Create a ``stim.CircuitInstruction`` from the provided arguments."""
         return stim.CircuitInstruction(self.name, self.targets(targets), self.arguments(arguments))
 
 
@@ -52,6 +53,7 @@ class ScheduledCircuitTransformation:
     instruction_simplifier: InstructionSimplifier = NoInstructionSimplification()
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        """Apply the transformation to ``circuit`` and return the result."""
         # moment_instructions: schedule_index -> instruction list.
         moment_instructions: dict[int, list[stim.CircuitInstruction]] = {}
         for schedule, moment in circuit.scheduled_moments:
@@ -84,37 +86,41 @@ class ScheduledCircuitTransformation:
 
 
 class ScheduledCircuitTransformer:
-    """Describes a list of :class:`ScheduledCircuitTransformation` instances.
-
-    Note:
-        This class has been introduced for convenience and for future
-        optimisation. Right now, a new scheduled circuit is created for each
-        :class:`ScheduledCircuitTransformation` instance in ``self``. This is
-        unoptimal as we might be able to apply all the transformations by
-        iterating the original quantum circuit once.
-
-        Due to the very limited size of the circuits given to the compilation
-        pipeline, this performance issue does not seem to have a measurable
-        impact at the moment.
-
-    """
-
     def __init__(self, transformations: Sequence[ScheduledCircuitTransformation]) -> None:
+        """Describes a list of :class:`ScheduledCircuitTransformation` instances.
+
+        Note:
+            This class has been introduced for convenience and for future
+            optimisation. Right now, a new scheduled circuit is created for each
+            :class:`ScheduledCircuitTransformation` instance in ``self``. This is
+            suboptimal as we might be able to apply all the transformations by
+            iterating the original quantum circuit once.
+
+            Due to the very limited size of the circuits given to the compilation
+            pipeline, this performance issue does not seem to have a measurable
+            impact at the moment.
+
+        """
         self._transformations = transformations
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        """Apply the transformations stored in ``self`` to ``circuit`` and return the result."""
         for transformation in self._transformations:
             circuit = transformation.apply(circuit)
         return circuit
 
 
 class ScheduledCircuitTransformationPass(CompilationPass):
-    """Apply the provided transformations as a compilation pass."""
-
     def __init__(
         self,
         transformations: Sequence[ScheduledCircuitTransformation],
     ) -> None:
+        """Apply the provided transformations as a compilation pass.
+
+        Args:
+            transformations: a sequence of transformation that are applied one after the other.
+
+        """
         super().__init__()
         self._transformations = ScheduledCircuitTransformer(transformations)
 

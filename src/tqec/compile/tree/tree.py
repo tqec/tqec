@@ -86,6 +86,7 @@ class LayerTree:
         self._observable_builder = observable_builder
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of ``self``."""
         return {
             "root": self._root.to_dict(),
             "abstract_observables": self._abstract_observables,
@@ -357,6 +358,19 @@ class LayerTree:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
 
     def layers_to_svg(self, k: int, errors: Sequence[stim.ExplainedError] = tuple()) -> list[str]:
+        """Draw one SVG per base layer in ``self``.
+
+        Args:
+            k: scaling factor.
+            errors: if provided and non-empty, contains errors that will be drawn on the resulting
+                SVGs. Errors should originate from a **non-shifted** circuit, else they will be
+                shifted.
+
+        Returns:
+            a list of valid SVGs, each representing a QEC layer in the flattened circuit represented
+            by ``self``.
+
+        """
         annotations = self._get_annotation(k)
         tl, br = (
             annotations.qubit_map.qubit_bounds()

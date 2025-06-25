@@ -18,9 +18,14 @@ from tqec.utils.position import PhysicalQubitPosition2D, Shift2D
 
 
 class GridQubit:
-    """Represent a qubit placed on a 2-dimensional grid."""
-
     def __init__(self, x: int, y: int) -> None:
+        """Represent a qubit placed on a 2-dimensional grid.
+
+        Args:
+            x: first coordinate.
+            y: second coordinate.
+
+        """
         self._x = x
         self._y = y
 

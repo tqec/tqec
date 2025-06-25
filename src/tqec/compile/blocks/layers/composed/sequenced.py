@@ -40,6 +40,7 @@ class SequencedLayers(BaseComposedLayer):
 
     @property
     def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:
+        """Get the sequence of layers stored by ``self``."""
         return self._layer_sequence
 
     def _post_init_check(self) -> None:

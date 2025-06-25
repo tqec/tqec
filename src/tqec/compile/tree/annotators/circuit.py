@@ -6,6 +6,13 @@ from tqec.compile.tree.node import LayerNode, NodeWalker
 
 class AnnotateCircuitOnLayerNode(NodeWalker):
     def __init__(self, k: int):
+        """Node walker annotating ``stim.Circuit`` instances implementing the visited node on each
+        leaf node.
+
+        Args:
+            k: scaling factor.
+
+        """
         self._k = k
 
     @override

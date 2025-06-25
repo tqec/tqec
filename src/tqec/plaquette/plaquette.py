@@ -65,6 +65,10 @@ class Plaquette:
 
     @property
     def origin(self) -> PhysicalQubitPosition2D:
+        """Return the plaquette origin.
+
+        By definition, for the moment, the plaquette origin is always ``(0, 0)``.
+        """
         return PhysicalQubitPosition2D(0, 0)
 
     def __eq__(self, rhs: object) -> bool:
@@ -108,14 +112,25 @@ class Plaquette:
         )
 
     def reliable_hash(self) -> int:
+        """Return a hash of ``self`` that is replicable across OSes and Python runs.
+
+        The default ``hash`` function from Python is not guaranteed to always give the same value
+        from the same input. In particular, with CPython, ``str`` instances are hashed with an
+        additional salt that is randomly picked at each call to the Python executable.
+
+        This is an issue when trying to store a dictionary involving a plaquette as key and re-use
+        it in subsequent runs or on other machines / OSes.
+        """
         return int(hashlib.md5(self.name.encode()).hexdigest(), 16)
 
     @property
     def num_measurements(self) -> int:
+        """Return the number of measurements performed in the circuit representing ``self``."""
         return self.circuit.num_measurements
 
     @property
     def num_moments(self) -> int:
+        """Return the number of moments in the circuit representing ``self``."""
         return self.circuit.schedule.max_schedule + 1
 
     def is_empty(self) -> bool:
@@ -194,9 +209,22 @@ class Plaquettes:
         return self.collection[index]
 
     def with_updated_plaquettes(self, plaquettes_to_update: Mapping[int, Plaquette]) -> Plaquettes:
+        """Return a new :class:`.Plaquettes` instance with the updated plaquettes.
+
+        Args:
+            plaquettes_to_update: a mapping from plaquette indices to :class:`.Plaquette` instances.
+                Each entry will replace an existing (or create a new) entry in a copy of ``self``.
+
+        Returns:
+            a new :class:`.Plaquettes` instance with plaquettes from ``self`` and
+            ``plaquettes_to_update``. If an index is present in both ``self`` and
+            ``plaquettes_to_update``, ``plaquettes_to_update`` take precedence.
+
+        """
         return Plaquettes(self.collection | plaquettes_to_update)
 
     def map_indices(self, callable: Callable[[int], int]) -> Plaquettes:
+        """Return a new :class:`.Plaquettes` instance with updated plaquette indices."""
         return Plaquettes(self.collection.map_keys(callable))
 
     def __eq__(self, rhs: object) -> bool:
@@ -218,12 +246,16 @@ class Plaquettes:
         )
 
     def to_name_dict(self) -> dict[int | Literal["default"], str]:
+        """Return a dictionary with each plaquette name as value."""
         d: dict[int | Literal["default"], str] = {k: p.name for k, p in self.collection.items()}
         if self.collection.default_value is not None:
             d["default"] = self.collection.default_value.name
         return d
 
     def without_plaquettes(self, indices: Collection[int]) -> Plaquettes:
+        """Remove the plaquettes associated with the provided ``indices`` from a copy of ``self`` and return the new
+        instance.
+        """
         return Plaquettes(
             FrozenDefaultDict(
                 {k: v for k, v in self.collection.items() if k not in indices},
@@ -232,6 +264,7 @@ class Plaquettes:
         )
 
     def items(self) -> Iterable[tuple[int, Plaquette]]:
+        """Return an iterable over each :class:`.Plaquette` and its associated index in ``self``."""
         return self.collection.items()
 
     def to_dict(self, plaquettes_to_indices: dict[Plaquette, int] | None = None) -> dict[str, Any]:

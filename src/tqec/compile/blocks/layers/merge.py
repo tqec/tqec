@@ -29,30 +29,35 @@ from tqec.utils.scale import PhysicalQubitScalable2D, round_or_fail
 def contains_only_base_layers(
     layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, BaseLayer]]:
+    """Helper function to ensure correct typing."""
     return all(isinstance(layer, BaseLayer) for layer in layers.values())
 
 
 def contains_only_composed_layers(
     layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, BaseComposedLayer]]:
+    """Helper function to ensure correct typing."""
     return all(isinstance(layer, BaseComposedLayer) for layer in layers.values())
 
 
 def contains_only_repeated_layers(
     layers: dict[LayoutPosition2D, BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, RepeatedLayer]]:
+    """Helper function to ensure correct typing."""
     return all(isinstance(layer, RepeatedLayer) for layer in layers.values())
 
 
 def contains_only_sequenced_layers(
     layers: dict[LayoutPosition2D, BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, SequencedLayers]]:
+    """Helper function to ensure correct typing."""
     return all(isinstance(layer, SequencedLayers) for layer in layers.values())
 
 
 def contains_only_repeated_or_sequenced_layers(
     layers: dict[LayoutPosition2D, BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, SequencedLayers | RepeatedLayer]]:
+    """Helper function to ensure correct typing."""
     return all(isinstance(layer, (SequencedLayers, RepeatedLayer)) for layer in layers.values())
 
 
@@ -60,6 +65,7 @@ def merge_base_layers(
     layers: dict[LayoutPosition2D, BaseLayer],
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> LayoutLayer:
+    """Merge several :class:`.BaseLayer` instances into one."""
     return LayoutLayer(layers, scalable_qubit_shape)
 
 
@@ -67,6 +73,10 @@ def merge_composed_layers(
     layers: dict[LayoutPosition2D, BaseComposedLayer],
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> BaseComposedLayer:
+    """Merge several :class:`.BaseComposedLayer` instances into one.
+
+    The specific type returned will depend on the provided ``layers``.
+    """
     # First, check that all the provided layers have the same scalable timesteps.
     different_timesteps = frozenset(layer.scalable_timesteps for layer in layers.values())
     if len(different_timesteps) > 1:
@@ -202,6 +212,22 @@ def merge_sequenced_layers(
     layers: dict[LayoutPosition2D, SequencedLayers],
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> SequencedLayers:
+    """Merge several SequencedLayers that should be executed in parallel.
+
+    Args:
+        layers: the different sequenced layers that should be merged.
+        scalable_qubit_shape: scalable shape of a scalable qubit. Considered
+            valid across the whole domain.
+
+    Raises:
+        NotImplementedError: if any of the provided sequenced layer contains a different sub-layer
+            schedule.
+
+    Returns:
+        a unique sequenced layer implementing the same piece of computation as
+        the provided sequenced layers.
+
+    """
     internal_layers_schedules = frozenset(
         sequenced_layer.schedule for sequenced_layer in layers.values()
     )

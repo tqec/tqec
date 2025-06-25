@@ -14,6 +14,7 @@ class PauliBasis(Enum):
         return self.value
 
     def to_extended_basis(self) -> ExtendedBasis:
+        """Return ``self`` as an extended basis."""
         return ExtendedBasis(self.value)
 
 
@@ -220,6 +221,7 @@ class RPNGDescription:
 
     @staticmethod
     def empty() -> RPNGDescription:
+        """Return a description of the empty plaquette."""
         return RPNGDescription.from_extended_string("-- ---- ---- ---- ----")
 
     def get_r_op(self, data_idx: int) -> str | None:
@@ -236,10 +238,12 @@ class RPNGDescription:
 
     @property
     def has_reset(self) -> bool:
+        """Return ``True`` if ``self`` contains at least one corner with a reset."""
         return any(corner.get_r_op() not in {None, "H"} for corner in self.corners)
 
     @property
     def has_measurement(self) -> bool:
+        """Return ``True`` if ``self`` contains at least one corner with a measurement."""
         return any(corner.get_g_op() not in {None, "H"} for corner in self.corners)
 
     def __str__(self) -> str:

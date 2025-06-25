@@ -35,6 +35,7 @@ class NoInstructionSimplification(InstructionSimplifier):
 
 class SelfInverseGateSimplification(InstructionSimplifier):
     def __init__(self, *self_inverse_gates: str):
+        """Compilation pass simplifying self-inverse gates when applied more than once."""
         super().__init__()
         self._self_inverse_gates = frozenset(self_inverse_gates)
 

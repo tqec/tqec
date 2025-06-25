@@ -19,6 +19,16 @@ class PlaquetteDebugInformation:
     drawer: SVGPlaquetteDrawer | None = None
 
     def get_basis(self) -> PauliBasis | None:
+        """Get the basis of the measured stabilizer, or ``None`` if that is not possible.
+
+        If the plaquette ``self`` is associated to measures a uniform stabilizer (e.g., ``XXXX``),
+        this method returns the basis. If the stabilizer is not uniform or ``basis`` was not
+        explicitly provided at the creation of ``self``, return ``None``.
+
+        Returns:
+            the basis of the measured stabilizer, or ``None`` if that is not possible.
+
+        """
         if self.basis is not None:
             return self.basis
         if self.rpng is not None:
@@ -30,6 +40,7 @@ class PlaquetteDebugInformation:
     def project_on_boundary(
         self, projected_orientation: PlaquetteOrientation
     ) -> PlaquetteDebugInformation:
+        """Project the debug information on the provided ``projected_orientation``."""
         if self.rpng is None:
             return self
         corners: list[RPNG] = list(self.rpng.corners)
@@ -49,6 +60,7 @@ class PlaquetteDebugInformation:
         )
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representing ``self``."""
         return {
             "rpng": self.rpng.to_dict() if self.rpng is not None else None,
             "basis": self.basis.value if self.basis is not None else None,
@@ -56,12 +68,14 @@ class PlaquetteDebugInformation:
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> PlaquetteDebugInformation:
+        """Initialise a :class:`.DebugInformation` instance from a dictionary."""
         return PlaquetteDebugInformation(
             RPNGDescription.from_dict(data["rpng"]) if data["rpng"] is not None else None,
             PauliBasis(data["basis"]) if data["basis"] is not None else None,
         )
 
     def get_svg_drawer(self) -> SVGPlaquetteDrawer:
+        """Get a drawer to draw the plaquette associated to ``self``."""
         if self.drawer is not None:
             return self.drawer
         if self.rpng is not None:

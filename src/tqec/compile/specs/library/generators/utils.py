@@ -28,16 +28,26 @@ class PlaquetteMapper:
         translator: RPNGTranslator = DefaultRPNGTranslator(),
         compiler: PlaquetteCompiler = IdentityPlaquetteCompiler,
     ) -> None:
+        """Wrapper around a translator and a compiler to ease plaquette generation."""
         self._translator = translator
         self._compiler = compiler
 
     def get_plaquette(self, description: RPNGDescription) -> Plaquette:
+        """Successively call the translator and the compiler to return a plaquette."""
         return self._compiler.compile(self._translator.translate(description))
 
     def __call__(
         self,
         f: Callable[P, FrozenDefaultDict[int, RPNGDescription]],
     ) -> Callable[P, Plaquettes]:
+        """Wraps the provided callable ``f`` to automatically get :class:`.Plaquette` instances.
+
+        This method wraps correctly the provided function such that :meth:`get_plaquette` is called
+        on each of the returned :class:`.RPNGDescription` instance to get its corresponding
+        :class:`.Plaquette`.
+
+        """
+
         # The wraps decorator make sure that the original function name, module,
         # docstring, ... is correctly transmitted to the wrapper.
         @wraps(f)

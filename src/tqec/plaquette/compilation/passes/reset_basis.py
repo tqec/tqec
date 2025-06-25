@@ -8,9 +8,8 @@ from tqec.utils.enums import Basis
 
 
 class ChangeResetBasisPass(ScheduledCircuitTransformationPass):
-    """Change ``RX`` and ``RZ`` instructions to the provided basis."""
-
     def __init__(self, basis: Basis):
+        """Change ``RX`` and ``RZ`` instructions to the provided ``basis``."""
         ibasis = Basis.X if basis == Basis.Z else Basis.Z
         transformations = [
             ScheduledCircuitTransformation(

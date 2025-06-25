@@ -135,9 +135,28 @@ class LinearFunction:
         return f"{self.slope}*x + {self.offset}"
 
     def integer_eval(self, x: int) -> int:
+        """Evaluate the linear function on ``x`` and return the result as an integer.
+
+        Raises:
+            TQECException: if the result is not an integer.
+
+        Returns:
+            ``int(self(x))``.
+
+        """
         return round_or_fail(self.slope * x + self.offset)
 
     def exact_integer_div(self, div: int) -> LinearFunction:
+        """Divide ``self`` by ``div`` when possible.
+
+        Raises:
+            ZeroDivisionError: if ``div == 0``.
+            TQECException: if ``self.slope`` or ``self.offset`` are not divisible by ``div``.
+
+        Returns:
+            a new linear function such that ``div * ret == self``.
+
+        """
         if div == 0:
             raise ZeroDivisionError()
         slope, offset = round_or_fail(self.slope), round_or_fail(self.offset)
@@ -155,12 +174,15 @@ class LinearFunction:
         return LinearFunction(slope // div, offset // div)
 
     def is_constant(self, atol: float = 1e-8) -> bool:
+        """Return ``True`` if ``self.slope`` is close to ``0``."""
         return abs(self.slope) < atol
 
     def is_scalable(self, atol: float = 1e-8) -> bool:
+        """Return ``True`` if ``not self.is_scalable``."""
         return not self.is_constant(atol)
 
     def is_close_to(self, other: LinearFunction, atol: float = 1e-8) -> bool:
+        """Return ``True`` is ``self`` is approximately equal to ``other``."""
         return abs(self.slope - other.slope) < atol and abs(self.offset - other.offset) < atol
 
     @staticmethod
@@ -210,6 +232,12 @@ class LinearFunction:
 
     @staticmethod
     def safe_mul(lhs: LinearFunction, rhs: LinearFunction) -> LinearFunction:
+        """Return ``lhs * rhs``, checking that the result is a linear function.
+
+        Raises:
+            TQECException: if both ``lhs.slope`` and ``rhs.slope`` are non-zero.
+
+        """
         if lhs.slope != 0 and rhs.slope != 0:
             raise TQECException(f"The result of ({lhs}) * ({rhs}) is not a linear function.")
         return LinearFunction(
@@ -305,6 +333,7 @@ class PlaquetteScalable2D(Scalable2D):
     """A pair of scalable quantities in plaquette coordinates."""
 
     def to_shape_2d(self, k: int) -> PlaquetteShape2D:
+        """Evaluate both coordinates with ``k`` as input."""
         return PlaquetteShape2D(self.x.integer_eval(k), self.y.integer_eval(k))
 
     def __mul__(self, other: Shift2D) -> PhysicalQubitScalable2D:
@@ -315,7 +344,9 @@ class PhysicalQubitScalable2D(Scalable2D):
     """A pair of scalable quantities in physical qubit coordinates."""
 
     def to_shape_2d(self, k: int) -> PhysicalQubitShape2D:
+        """Evaluate both coordinates with ``k`` as input."""
         return PhysicalQubitShape2D(self.x.integer_eval(k), self.y.integer_eval(k))
 
     def to_grid_qubit(self, k: int) -> GridQubit:
+        """Evaluate both coordinates with ``k`` as input, returning a :class:`.GridQubit`."""
         return GridQubit(self.x.integer_eval(k), self.y.integer_eval(k))
