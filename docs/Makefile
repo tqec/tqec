@@ -17,6 +17,9 @@ clean:
 	rm -rfv "$(SOURCEDIR)/_autosummary"
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+cleanall: clean
+	rm -rfv "$(SOURCEDIR)/_examples_database"
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new
