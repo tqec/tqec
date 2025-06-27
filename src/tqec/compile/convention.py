@@ -42,6 +42,9 @@ class Convention:
     name: str
     triplet: ConventionTriplet
 
+    def __str__(self) -> str:
+        return self.name
+
 
 FIXED_BULK_CONVENTION = Convention(
     "fixed_bulk",
@@ -59,6 +62,4 @@ FIXED_PARITY_CONVENTION = Convention(
     ),
 )
 
-ALL_CONVENTIONS = {
-    conv.name: conv for conv in [FIXED_BULK_CONVENTION, FIXED_PARITY_CONVENTION]
-}
+ALL_CONVENTIONS = {conv.name: conv for conv in [FIXED_BULK_CONVENTION, FIXED_PARITY_CONVENTION]}
