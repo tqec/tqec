@@ -16,7 +16,9 @@ instances:
 """
 
 from .circuit import ScheduledCircuit as ScheduledCircuit
-from .exception import ScheduleException as ScheduleException
+from .exception import AnnotationError as AnnotationError
+from .exception import ScheduleError as ScheduleError
+from .exception import UnsupportedError as UnsupportedError
 from .manipulation import merge_scheduled_circuits as merge_scheduled_circuits
 from .manipulation import (
     relabel_circuits_qubit_indices as relabel_circuits_qubit_indices,
