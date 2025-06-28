@@ -47,15 +47,26 @@ def generate_circuit_and_assert(
     compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
     layer_tree = compiled_graph.to_layer_tree()
     if debug_output_dir is not None:
+        svg_out_dir = debug_output_dir / "layers" / "raw"
+        svg_out_dir.mkdir(parents=True, exist_ok=True)
         for i, svg_text in enumerate(layer_tree.layers_to_svg(k)):
-            svg_out_dir = debug_output_dir / "layers"
-            svg_out_dir.mkdir(exist_ok=True)
             with open(svg_out_dir / f"{i}.svg", "w") as f:
                 f.write(svg_text)
 
     circuit = layer_tree.generate_circuit(k)
     noise_model = NoiseModel.uniform_depolarizing(0.001)
     noisy_circuit = noise_model.noisy_circuit(circuit)
+    # layers svg with observable annotations
+    # need to be generated after the circuit is generated because we need to
+    # annotate the observables in the layer tree
+    if debug_output_dir is not None:
+        for obs_idx in range(len(correlation_surfaces)):
+            svg_out_dir = debug_output_dir / "layers" / f"with_observable{obs_idx}"
+            svg_out_dir.mkdir(exist_ok=True)
+            for i, svg_text in enumerate(layer_tree.layers_to_svg(k, show_observable=obs_idx)):
+                with open(svg_out_dir / f"{i}.svg", "w") as f:
+                    f.write(svg_text)
+
     logical_error = noisy_circuit.shortest_graphlike_error(
         ignore_ungraphlike_errors=False, canonicalize_circuit_errors=True
     )
@@ -69,9 +80,9 @@ def generate_circuit_and_assert(
         )
         with open(debug_output_dir / "crumble_url.txt", "w") as f:
             f.write(layer_tree.generate_crumble_url(k))
+        svg_out_dir = debug_output_dir / "layers" / "with_logical_error"
+        svg_out_dir.mkdir(exist_ok=True)
         for i, svg_text in enumerate(layer_tree.layers_to_svg(k, logical_error)):
-            svg_out_dir = debug_output_dir / "layers_with_logical_error"
-            svg_out_dir.mkdir(exist_ok=True)
             with open(svg_out_dir / f"{i}.svg", "w") as f:
                 f.write(svg_text)
 
@@ -430,19 +441,14 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
         )
 
 
+@pytest.mark.skip(reason="Hadamard around spatial junction is not implemented yet.")
 @pytest.mark.parametrize(
     ("convention", "direction", "obs_basis", "k"),
-    # itertools.product(
-    #     CONVENTIONS,
-    #     (Direction3D.X, Direction3D.Y),
-    #     (Basis.X, Basis.Z),
-    #     (1, 2),
-    # ),
     itertools.product(
         CONVENTIONS,
-        (Direction3D.X,),
-        (Basis.X,),
-        (1,),
+        (Direction3D.X, Direction3D.Y),
+        (Basis.X, Basis.Z),
+        (1, 2),
     ),
 )
 def test_compile_spatial_hadamard_horizontal_correlation_surface(
@@ -474,3 +480,55 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
             expected_num_observables=1,
             debug_output_dir="debug",
         )
+
+
+@pytest.mark.parametrize(
+    ("convention", "shape", "basis", "k"),
+    # itertools.product(
+    #     CONVENTIONS,
+    #     ("⊣", "T", "⊥", "⊢"),
+    #     (Basis.X, Basis.Z),
+    #     (1,),
+    # ),
+    itertools.product(
+        (FIXED_PARITY_CONVENTION,),
+        ("⊢",),
+        (Basis.Z,),
+        (1,),
+    ),
+)
+def test_compile_three_way_shape_spatial_junction(
+    convention: Convention, shape: str, basis: Basis, k: int
+) -> None:
+    g = BlockGraph(f"{shape}-shape Spatial Junction")
+    cube_kind = "ZZX" if basis == Basis.Z else "XXZ"
+    n0 = g.add_cube(Position3D(0, 0, 0), cube_kind)
+    if shape == "⊣":
+        n1 = g.add_cube(Position3D(0, 1, 0), cube_kind)
+        n2 = g.add_cube(Position3D(0, -1, 0), cube_kind)
+        n3 = g.add_cube(Position3D(-1, 0, 0), cube_kind)
+    elif shape == "T":
+        n1 = g.add_cube(Position3D(0, 1, 0), cube_kind)
+        n2 = g.add_cube(Position3D(-1, 0, 0), cube_kind)
+        n3 = g.add_cube(Position3D(1, 0, 0), cube_kind)
+    elif shape == "⊥":
+        n1 = g.add_cube(Position3D(0, -1, 0), cube_kind)
+        n2 = g.add_cube(Position3D(-1, 0, 0), cube_kind)
+        n3 = g.add_cube(Position3D(1, 0, 0), cube_kind)
+    else:  # shape == "⊢":
+        n1 = g.add_cube(Position3D(0, 1, 0), cube_kind)
+        n2 = g.add_cube(Position3D(0, -1, 0), cube_kind)
+        n3 = g.add_cube(Position3D(1, 0, 0), cube_kind)
+    g.add_pipe(n0, n1)
+    g.add_pipe(n0, n2)
+    g.add_pipe(n0, n3)
+
+    d = 2 * k + 1
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        expected_distance=d,
+        expected_num_observables=1,
+        debug_output_dir="debug",
+    )
