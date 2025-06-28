@@ -1,4 +1,5 @@
 import itertools
+from pathlib import Path
 
 import pytest
 
@@ -15,7 +16,7 @@ from tqec.gallery.move_rotation import move_rotation
 from tqec.gallery.stability import stability
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
-from tqec.utils.position import Position3D
+from tqec.utils.position import Direction3D, Position3D
 
 
 def generate_circuit_and_assert(
@@ -25,20 +26,61 @@ def generate_circuit_and_assert(
     expected_distance: int | None = None,
     expected_num_detectors: int | None = None,
     expected_num_observables: int | None = None,
+    debug_output_dir: str | Path | None = None,
 ) -> None:
+    if debug_output_dir is not None:
+        debug_output_dir = Path(debug_output_dir)
+        debug_output_dir.mkdir(parents=True, exist_ok=True)
+        g.view_as_html(debug_output_dir / "block_graph.html")
+
     correlation_surfaces = g.find_correlation_surfaces()
+    if debug_output_dir is not None and correlation_surfaces:
+        surface_dir = debug_output_dir / "correlation_surfaces"
+        surface_dir.mkdir(exist_ok=True)
+        for i, surface in enumerate(correlation_surfaces):
+            g.view_as_html(
+                surface_dir / f"correlation_surface_{i}.html",
+                show_correlation_surface=surface,
+                pop_faces_at_direction="-Y",
+            )
+
     compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
-    circuit = compiled_graph.generate_stim_circuit(
-        k, noise_model=NoiseModel.uniform_depolarizing(0.001), manhattan_radius=2
+    layer_tree = compiled_graph.to_layer_tree()
+    if debug_output_dir is not None:
+        for i, svg_text in enumerate(layer_tree.layers_to_svg(k)):
+            svg_out_dir = debug_output_dir / "layers"
+            svg_out_dir.mkdir(exist_ok=True)
+            with open(svg_out_dir / f"{i}.svg", "w") as f:
+                f.write(svg_text)
+
+    circuit = layer_tree.generate_circuit(k)
+    noise_model = NoiseModel.uniform_depolarizing(0.001)
+    noisy_circuit = noise_model.noisy_circuit(circuit)
+    logical_error = noisy_circuit.shortest_graphlike_error(
+        ignore_ungraphlike_errors=False, canonicalize_circuit_errors=True
     )
-    dem = circuit.detector_error_model(decompose_errors=True, ignore_decomposition_failures=False)
+    d = len(logical_error)
+
+    if debug_output_dir is not None:
+        circuit.to_file(debug_output_dir / "circuit_ideal.stim")
+        noisy_circuit.to_file(debug_output_dir / "circuit_noisy.stim")
+        noisy_circuit.detector_error_model(decompose_errors=True).to_file(
+            debug_output_dir / "detector_error_model.dem"
+        )
+        with open(debug_output_dir / "crumble_url.txt", "w") as f:
+            f.write(layer_tree.generate_crumble_url(k))
+        for i, svg_text in enumerate(layer_tree.layers_to_svg(k, logical_error)):
+            svg_out_dir = debug_output_dir / "layers_with_logical_error"
+            svg_out_dir.mkdir(exist_ok=True)
+            with open(svg_out_dir / f"{i}.svg", "w") as f:
+                f.write(svg_text)
+
     if expected_distance is not None:
-        d = len(dem.shortest_graphlike_error(ignore_ungraphlike_errors=False))
         assert d == expected_distance
     if expected_num_detectors is not None:
-        assert dem.num_detectors == expected_num_detectors
+        assert circuit.num_detectors == expected_num_detectors
     if expected_num_observables is not None:
-        assert dem.num_observables == expected_num_observables
+        assert circuit.num_observables == expected_num_observables
 
 
 CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_PARITY_CONVENTION)
@@ -348,3 +390,41 @@ def test_compile_bell_state_with_single_temporal_hadamard(
         expected_distance=d,
         expected_num_observables=1,
     )
+
+
+@pytest.mark.parametrize(
+    ("convention", "direction", "k"),
+    itertools.product(
+        CONVENTIONS,
+        (Direction3D.X, Direction3D.Y),
+        (1, 2),
+    ),
+)
+def test_compile_spatial_hadamard_vertical_correlation_surface(
+    convention: Convention, direction: Direction3D, k: int
+) -> None:
+    g = BlockGraph("Test Temporal Hadamard with Vertical Correlation Surface")
+    kind_before_hadamard = "ZXZ" if direction == Direction3D.X else "XZZ"
+    n1 = g.add_cube(Position3D(0, 0, 0), kind_before_hadamard)
+    kind_after_hadamard = "XZX" if direction == Direction3D.X else "ZXX"
+    n2 = g.add_cube(Position3D(0, 0, 0).shift_in_direction(direction, 1), kind_after_hadamard)
+    g.add_pipe(n1, n2)
+
+    d = 2 * k + 1
+    if convention.name == "fixed_bulk":
+        with pytest.raises(NotImplementedError):
+            generate_circuit_and_assert(
+                g,
+                k,
+                convention,
+                expected_distance=d,
+                expected_num_observables=1,
+            )
+    else:
+        generate_circuit_and_assert(
+            g,
+            k,
+            convention,
+            expected_distance=d,
+            expected_num_observables=1,
+        )
