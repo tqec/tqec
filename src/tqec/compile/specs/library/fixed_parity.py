@@ -371,7 +371,7 @@ class FixedParityPipeBuilder(PipeBuilder):
         assert all(not spec.is_spatial for spec in spec.cube_specs)
         plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
         template = self._get_spatial_regular_pipe_template(spec)
-        z = spec.pipe_kind.z
+        z = spec.pipe_kind.get_basis_along(Direction3D.Z, at_head=False)
         assert z is not None, "Spatial pipe should have a basis in the Z direction."
         return _get_block(
             z,
