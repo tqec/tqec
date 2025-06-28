@@ -369,7 +369,7 @@ class LayerTree:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
 
     def layers_to_svg(self, k: int, errors: Sequence[stim.ExplainedError] = tuple()) -> list[str]:
-        annotations = self._get_annotation(k)
+        annotations = self._annotations.get(k, LayerTreeAnnotations())
         tl, br = (
             annotations.qubit_map.qubit_bounds()
             if annotations.qubit_map is not None
