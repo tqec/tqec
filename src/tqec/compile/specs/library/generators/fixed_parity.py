@@ -346,10 +346,10 @@ class FixedParityConventionGenerator:
         hs = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
         return (
             RPNGDescription.from_string(
-                f"-{o}{hs[0]}- -{o}{hs[1]}{m} {r}{b}{hs[2]}- {r}{b}{hs[3]}{m}"
+                f"-{o}{hs[0]}- -{o}{hs[1]}- {r}{b}{hs[2]}{m} {r}{b}{hs[3]}{m}"
             ),
             RPNGDescription.from_string(
-                f"-{b}{vs[0]}- -{b}{vs[1]}{m} {r}{o}{vs[2]}- {r}{o}{vs[3]}{m}"
+                f"-{b}{vs[0]}- -{b}{vs[1]}- {r}{o}{vs[2]}{m} {r}{o}{vs[3]}{m}"
             ),
             RPNGDescription.from_string(f"---- -{b}{vs[1]}- ---- {r}{o}{vs[3]}{m}"),
         )
