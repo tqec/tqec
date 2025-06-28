@@ -1138,7 +1138,6 @@ class FixedParityConventionGenerator:
         ]:
             return self._get_up_down_spatial_cube_arm_plaquettes(
                 spatial_boundary_basis,
-                arms,
                 linked_cubes,
                 is_reversed,
                 reset,
@@ -1186,7 +1185,6 @@ class FixedParityConventionGenerator:
         in both spatial dimensions
 
         Args:
-            arms: arm(s) of the spatial cube(s) linked by the pipe.
             linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
                 specifications of the two ends of the pipe.
 
@@ -1199,10 +1197,32 @@ class FixedParityConventionGenerator:
             ^ linked_cubes[1].has_spatial_pipe_in_both_dimensions
         )
 
+    @staticmethod
+    def pipe_has_boundary_extended_stabilizer_at_left(
+        linked_cubes: tuple[CubeSpec, CubeSpec],
+    ) -> bool:
+        """Check if the pipe represented by the given ``arms`` and
+        ``linked_cubes`` has an extended stabilizer at the left boundary.
+
+        Assuming a pipe needs to be implemented with extended stabilizer, it hash
+        an extended stabilizer at the left boundary iff. the spatial cube that
+        has arms in both spatial directions is the bottom one of the pipe.
+
+        Args:
+            linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
+                specifications of the two ends of the pipe.
+
+        Returns:
+            ``True`` if an extended stabilizer should be used at the left
+            boundary, ``False`` otherwise.
+
+        """
+        assert FixedParityConventionGenerator.pipe_needs_extended_stablizers(linked_cubes)
+        return linked_cubes[1].has_spatial_pipe_in_both_dimensions
+
     def _get_up_down_spatial_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
-        arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
         is_reversed: bool,
         reset: Basis | None = None,
@@ -1220,14 +1240,19 @@ class FixedParityConventionGenerator:
         # Dictionary that will be filled with plaquettes
         plaquettes: dict[int, Plaquette] = {}
         # Getting the extended plaquettes for the bulk and filling the dictionary
-        bulk1 = EPs[OTB if arms == SpatialArms.UP else SBB].bulk
-        bulk2 = EPs[SBB if arms == SpatialArms.UP else OTB].bulk
+        has_left_boundary = (
+            FixedParityConventionGenerator.pipe_has_boundary_extended_stabilizer_at_left(
+                linked_cubes
+            )
+        )
+        bulk1 = EPs[OTB if has_left_boundary else SBB].bulk
+        bulk2 = EPs[SBB if has_left_boundary else OTB].bulk
         plaquettes |= {5: bulk1.top, 6: bulk2.top, 7: bulk1.bottom, 8: bulk2.bottom}
         # Getting the extended plaquette, either for the left or the right
         # boundary depending on the spatial arm that is being asked for.
         boundary_collection = EPs[SBB]
         u, v = linked_cubes
-        if arms == SpatialArms.UP:
+        if has_left_boundary:
             boundary = (
                 boundary_collection.left_with_arm
                 if SpatialArms.LEFT in v.spatial_arms
