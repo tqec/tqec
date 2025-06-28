@@ -160,7 +160,7 @@ class SVGPlaquetteDrawer(ABC):
         orientation: PlaquetteOrientation,
         fill: str = "none",
         configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
-    ) -> svg.G:
+    ) -> svg.Path:
         """Get the shape of a half-circle plaquette only involving 2 data qubits.
 
         Args:
@@ -170,27 +170,25 @@ class SVGPlaquetteDrawer(ABC):
             configuration: drawing configuration.
 
         """
-        PO = PlaquetteOrientation
-        rotation_angle: int = {PO.UP: 0, PO.DOWN: 180, PO.LEFT: 270, PO.RIGHT: 90}[orientation]
-        default_half_circle_path = svg.Path(
+        match orientation:
+            case PlaquetteOrientation.UP:
+                start, end, sweep = (0, 1), (1, 1), True
+            case PlaquetteOrientation.DOWN:
+                start, end, sweep = (0, 0), (1, 0), False
+            case PlaquetteOrientation.LEFT:
+                start, end, sweep = (1, 0), (1, 1), False
+            case _:
+                start, end, sweep = (0, 0), (0, 1), True
+
+        return svg.Path(
             d=[
-                svg.M(0, 1),
-                svg.Arc(0.5, 0.5, 180, True, True, 1, 1),
+                svg.M(*start),
+                svg.Arc(0.5, 0.5, 180, True, sweep, *end),
                 svg.Z(),
             ],
             fill=fill,
             stroke=configuration.stroke_color,
             stroke_width=configuration.stroke_width,
-        )
-        return svg.G(
-            transform=[
-                svg.Rotate(
-                    rotation_angle,
-                    SVGPlaquetteDrawer._CENTER_COORDINATE.real,
-                    SVGPlaquetteDrawer._CENTER_COORDINATE.imag,
-                )
-            ],
-            elements=[default_half_circle_path],
         )
 
     @staticmethod
