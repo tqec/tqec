@@ -428,3 +428,49 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
             expected_distance=d,
             expected_num_observables=1,
         )
+
+
+@pytest.mark.parametrize(
+    ("convention", "direction", "obs_basis", "k"),
+    # itertools.product(
+    #     CONVENTIONS,
+    #     (Direction3D.X, Direction3D.Y),
+    #     (Basis.X, Basis.Z),
+    #     (1, 2),
+    # ),
+    itertools.product(
+        CONVENTIONS,
+        (Direction3D.X,),
+        (Basis.X,),
+        (1,),
+    ),
+)
+def test_compile_spatial_hadamard_horizontal_correlation_surface(
+    convention: Convention, direction: Direction3D, obs_basis: Basis, k: int
+) -> None:
+    g = BlockGraph("Test Temporal Hadamard with Horizontal Correlation Surface")
+    kind_before_hadamard = "ZZX" if obs_basis == Basis.Z else "XXZ"
+    n1 = g.add_cube(Position3D(0, 0, 0), kind_before_hadamard)
+    kind_after_hadamard = "XXZ" if obs_basis == Basis.Z else "ZZX"
+    n2 = g.add_cube(Position3D(0, 0, 0).shift_in_direction(direction, 1), kind_after_hadamard)
+    g.add_pipe(n1, n2)
+
+    d = 2 * k + 1
+    if convention.name == "fixed_bulk":
+        with pytest.raises(NotImplementedError):
+            generate_circuit_and_assert(
+                g,
+                k,
+                convention,
+                expected_distance=d,
+                expected_num_observables=1,
+            )
+    else:
+        generate_circuit_and_assert(
+            g,
+            k,
+            convention,
+            expected_distance=d,
+            expected_num_observables=1,
+            debug_output_dir="debug",
+        )
