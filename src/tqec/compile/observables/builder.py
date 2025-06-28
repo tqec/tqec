@@ -30,16 +30,21 @@ class Observable:
     """Logical observable consisting of a list of measurements."""
 
     observable_index: int
+    measured_qubits: list[GridQubit]
     measurement_offsets: list[int]
 
     def __post_init__(self) -> None:
+        if len(self.measured_qubits) != len(self.measurement_offsets):
+            raise TQECException(
+                "The number of measured qubits and measurement offsets must be the same."
+            )
         if any(m >= 0 for m in self.measurement_offsets):
             raise TQECException("Expected strictly negative measurement offsets.")
 
     def to_instruction(self) -> stim.CircuitInstruction:
         return stim.CircuitInstruction(
             "OBSERVABLE_INCLUDE",
-            [stim.target_rec(offset) for offset in self.measurement_offsets],
+            [stim.target_rec(offset) for offset in sorted(self.measurement_offsets)],
             [self.observable_index],
         )
 
@@ -80,9 +85,7 @@ class PipeTopReadoutsBuilder(Protocol):
     coordinate system of the cube at the head of the pipe.
     """
 
-    def __call__(
-        self, shape: PlaquetteShape2D, pipe: Pipe, /
-    ) -> list[tuple[int, int]]: ...
+    def __call__(self, shape: PlaquetteShape2D, pipe: Pipe, /) -> list[tuple[int, int]]: ...
 
 
 class CubeBottomStabilizersBuilder(Protocol):
@@ -308,8 +311,8 @@ def get_observable_with_measurement_records(
             "Some qubits are not measured in the circuit. Set ignore_qubits_with_no_measurement to True to ignore them."
         )
 
-    measurement_offsets = [
-        measurement_records[q][-1]
+    measured_qubits = [
+        q
         for q in qubits
         # Ignore those qubits that are not measured in the circuit.
         # This is required because the some observable builders
@@ -317,4 +320,5 @@ def get_observable_with_measurement_records(
         # in the scretched stabilizers to simplify the calculation.
         if q in measurement_records
     ]
-    return Observable(observable_index, sorted(measurement_offsets))
+    measurement_offsets = [measurement_records[q][-1] for q in measured_qubits]
+    return Observable(observable_index, measured_qubits, measurement_offsets)

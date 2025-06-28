@@ -4,8 +4,10 @@ import stim
 import svg
 
 from tqec.circuit.qubit import GridQubit
+from tqec.compile.observables.builder import Observable
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.visualisation.computation.errors import get_errors_svg
+from tqec.visualisation.computation.observable import get_observable_svg
 from tqec.visualisation.computation.plaquette.base import (
     PlaquetteDrawerConfiguration,
     SVGPlaquetteDrawer,
@@ -24,6 +26,7 @@ def plaquette_grid_to_svg(
     borders: tuple[float, float] = (0, 0),
     errors: Sequence[stim.ExplainedError] = tuple(),
     configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+    observable: Observable | None = None,
 ) -> svg.Element:
     """Draws the provided plaquette grid and returns it as an SVG.
 
@@ -54,6 +57,8 @@ def plaquette_grid_to_svg(
             ``height - 2 * borders[1]``).
         errors: a collection of errors that should be drawn on the resulting SVG.
         configuration: drawing configuration.
+        observable: an observable that is being visualised. If provided, the SVG will be
+            annotated with the observable information.
 
     Returns:
         a SVG element representing the provided plaquette grid.
@@ -104,6 +109,8 @@ def plaquette_grid_to_svg(
             drawing_lines.append(svg.Use(x=x, y=y, href=f"#{template_id}"))
     if errors:
         drawing_lines.append(get_errors_svg(errors, top_left_qubit, pw, ph, size=(pw + ph) / 12))
+    if observable is not None:
+        drawing_lines.append(get_observable_svg(observable, top_left_qubit, pw, ph))
     return svg.G(elements=drawing_lines)
 
 
@@ -121,6 +128,7 @@ def plaquette_grid_svg_viewer(
     borders: tuple[float, float] = (0, 0),
     errors: Sequence[stim.ExplainedError] = tuple(),
     configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+    observable: Observable | None = None,
 ) -> svg.SVG:
     """Draws the provided plaquette grid and returns it as an SVG.
 
@@ -156,6 +164,8 @@ def plaquette_grid_svg_viewer(
             ``height - borders[1]``).
         errors: a collection of errors that should be drawn on the resulting SVG.
         configuration: drawing configuration.
+        observable: an observable that is being visualised. If provided, the SVG will be
+            annotated with the observable information.
 
     Returns:
         a ``<svg>`` element that can be directly written to a ``.svg`` file and representing the
@@ -199,6 +209,7 @@ def plaquette_grid_svg_viewer(
                 borders,
                 errors,
                 configuration,
+                observable,
             )
         ],
     )

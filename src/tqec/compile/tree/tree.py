@@ -368,7 +368,17 @@ class LayerTree:
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
 
-    def layers_to_svg(self, k: int, errors: Sequence[stim.ExplainedError] = tuple()) -> list[str]:
+    def layers_to_svg(
+        self,
+        k: int,
+        errors: Sequence[stim.ExplainedError] = tuple(),
+        show_observable: int | None = None,
+    ) -> list[str]:
+        if show_observable is not None and show_observable >= len(self._abstract_observables):
+            raise TQECException(
+                f"show_observable={show_observable} is out of range for the number of "
+                f"abstract observables ({len(self._abstract_observables)})."
+            )
         annotations = self._annotations.get(k, LayerTreeAnnotations())
         tl, br = (
             annotations.qubit_map.qubit_bounds()
@@ -385,6 +395,8 @@ class LayerTree:
             tl = GridQubit(tl.x - 1 if tl.x % 2 == 0 else tl.x, tl.y - 1 if tl.y % 2 == 0 else tl.y)
         if br is not None:
             br = GridQubit(br.x + 1 if br.x % 2 == 0 else br.x, br.y + 1 if br.y % 2 == 0 else br.y)
-        visualiser = LayerVisualiser(k, errors, top_left_qubit=tl, bottom_right_qubit=br)
+        visualiser = LayerVisualiser(
+            k, errors, show_observable, top_left_qubit=tl, bottom_right_qubit=br
+        )
         self._root.walk(visualiser)
         return visualiser.visualisations
