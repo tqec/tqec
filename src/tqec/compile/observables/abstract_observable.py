@@ -258,12 +258,22 @@ def compile_correlation_surface_to_abstract_observable(
             if has_obs_include(pipe.v, edge.v.basis):
                 top_readout_cubes.add(CubeWithArms(pipe.v))
             continue
+        arms_u = (
+            SpatialArms.from_cube_in_graph(pipe.u, block_graph)
+            if pipe.u.is_spatial
+            else SpatialArms.NONE
+        )
+        arms_v = (
+            SpatialArms.from_cube_in_graph(pipe.v, block_graph)
+            if pipe.v.is_spatial
+            else SpatialArms.NONE
+        )
         # Horizontal pipes
         pipe_top_face = pipe.kind.z
         assert pipe_top_face is not None, "The pipe is guaranteed to be spatial."
         # There is correlation surface attached to the top of the pipe
         if pipe_top_face.value == edge.u.basis.value:
-            top_readout_pipes.add(PipeWithArms(pipe))
+            top_readout_pipes.add(PipeWithArms(pipe, (arms_u, arms_v)))
             for cube, n in zip(pipe, edge):
                 # Spatial cubes have already been handled
                 if cube.is_spatial:
@@ -271,16 +281,6 @@ def compile_correlation_surface_to_abstract_observable(
                 if has_obs_include(cube, n.basis):
                     top_readout_cubes.add(CubeWithArms(cube))
         else:
-            arms_u = (
-                SpatialArms.from_cube_in_graph(pipe.u, block_graph)
-                if pipe.u.is_spatial
-                else SpatialArms.NONE
-            )
-            arms_v = (
-                SpatialArms.from_cube_in_graph(pipe.v, block_graph)
-                if pipe.v.is_spatial
-                else SpatialArms.NONE
-            )
             bottom_stabilizer_pipes.add(PipeWithArms(pipe, (arms_u, arms_v)))
 
     return AbstractObservable(
