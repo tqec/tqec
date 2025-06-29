@@ -9,10 +9,10 @@ from tqecd.measurement import RelativeMeasurementLocation
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.detectors.compute import (
+    _best_effort_filter_detectors,  # pyright: ignore[reportPrivateUsage]
     _center_plaquette_syndrome_qubits,  # pyright: ignore[reportPrivateUsage]
     _compute_detectors_at_end_of_situation,  # pyright: ignore[reportPrivateUsage]
     _compute_superimposed_template_instantiations,  # pyright: ignore[reportPrivateUsage]
-    _filter_detectors,  # pyright: ignore[reportPrivateUsage]
     _get_measurement_offset_mapping,  # pyright: ignore[reportPrivateUsage]
     _get_or_default,  # pyright: ignore[reportPrivateUsage]
     _matched_detectors_to_detectors,  # pyright: ignore[reportPrivateUsage]
@@ -21,9 +21,10 @@ from tqec.compile.detectors.compute import (
 )
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.detectors.detector import Detector
-from tqec.plaquette.library.css import make_css_surface_code_plaquette
-from tqec.plaquette.library.empty import empty_square_plaquette
+from tqec.plaquette._test_utils import make_surface_code_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates._testing import FixedTemplate
 from tqec.templates.layout import LayoutTemplate
 from tqec.templates.qubit import QubitTemplate
@@ -33,6 +34,9 @@ from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECException
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D, Shift2D
+
+_TRANSLATOR = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
 
 
 @pytest.fixture(name="alternating_subtemplate")
@@ -45,8 +49,8 @@ def init_plaquettes_fixture() -> Plaquettes:
     return Plaquettes(
         FrozenDefaultDict(
             {
-                1: make_css_surface_code_plaquette("Z", data_initialization=Basis.Z),
-                2: make_css_surface_code_plaquette("X", data_initialization=Basis.Z),
+                1: make_surface_code_plaquette(Basis.Z, reset=Basis.Z),
+                2: make_surface_code_plaquette(Basis.X, reset=Basis.Z),
             }
         )
     )
@@ -57,8 +61,8 @@ def memory_plaquettes_fixture() -> Plaquettes:
     return Plaquettes(
         FrozenDefaultDict(
             {
-                1: make_css_surface_code_plaquette("Z"),
-                2: make_css_surface_code_plaquette("X"),
+                1: make_surface_code_plaquette(Basis.Z),
+                2: make_surface_code_plaquette(Basis.X),
             }
         )
     )
@@ -119,7 +123,7 @@ def test_center_plaquette_syndrome_qubits_empty(
     assert (
         _center_plaquette_syndrome_qubits(
             empty_center_plaquette_subtemplate,
-            Plaquettes(FrozenDefaultDict({}, default_value=make_css_surface_code_plaquette("X"))),
+            Plaquettes(FrozenDefaultDict({}, default_value=make_surface_code_plaquette(Basis.X))),
             Shift2D(2, 2),
         )
         == []
@@ -127,7 +131,7 @@ def test_center_plaquette_syndrome_qubits_empty(
     assert (
         _center_plaquette_syndrome_qubits(
             empty_center_plaquette_subtemplate,
-            Plaquettes(FrozenDefaultDict({}, default_value=make_css_surface_code_plaquette("X"))),
+            Plaquettes(FrozenDefaultDict({}, default_value=make_surface_code_plaquette(Basis.X))),
             Shift2D(4, 2),
         )
         == []
@@ -146,8 +150,8 @@ def test_center_plaquette_syndrome_qubits(
         center_plaquette_subtemplate,
         Plaquettes(
             FrozenDefaultDict(
-                {1: make_css_surface_code_plaquette("X")},
-                default_value=empty_square_plaquette(),
+                {1: make_surface_code_plaquette(Basis.X)},
+                default_value=_EMPTY_PLAQUETTE,
             )
         ),
         Shift2D(2, 2),
@@ -156,8 +160,8 @@ def test_center_plaquette_syndrome_qubits(
         center_plaquette_subtemplate,
         Plaquettes(
             FrozenDefaultDict(
-                {1: make_css_surface_code_plaquette("X")},
-                default_value=empty_square_plaquette(),
+                {1: make_surface_code_plaquette(Basis.X)},
+                default_value=_EMPTY_PLAQUETTE,
             )
         ),
         Shift2D(4, 2),
@@ -192,7 +196,7 @@ def test_filter_detectors(
         ),
     ]
     assert (
-        _filter_detectors(
+        _best_effort_filter_detectors(
             filtered_out_detectors,
             [alternating_subtemplate],
             [init_plaquettes],
@@ -200,13 +204,13 @@ def test_filter_detectors(
         )
         == frozenset()
     )
-    assert _filter_detectors(
+    assert _best_effort_filter_detectors(
         [*filtered_out_detectors, non_filtered_detectors[0]],
         [alternating_subtemplate],
         [init_plaquettes],
         increments,
     ) == frozenset([non_filtered_detectors[0]])
-    assert _filter_detectors(
+    assert _best_effort_filter_detectors(
         [filtered_out_detectors[0], *non_filtered_detectors],
         [alternating_subtemplate],
         [init_plaquettes],
@@ -230,7 +234,7 @@ def test_compute_detectors_at_end_of_situation(
     assert (
         _compute_detectors_at_end_of_situation(
             [numpy.array([[1]])],
-            [Plaquettes(FrozenDefaultDict({1: empty_square_plaquette()}))],
+            [Plaquettes(FrozenDefaultDict({1: _EMPTY_PLAQUETTE}))],
             increments,
         )
         == frozenset()

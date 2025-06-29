@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from typing import Any
 
@@ -103,6 +103,13 @@ class PlaquetteQubits:
     def qubit_map(self) -> QubitMap:
         return QubitMap(
             dict(self.data_qubits_with_indices) | dict(self.syndrome_qubits_with_indices)
+        )
+
+    def without_qubits(self, qubits: Iterable[int]) -> PlaquetteQubits:
+        removed_qubits = frozenset(qubits)
+        return PlaquetteQubits(
+            [q for i, q in self.data_qubits_with_indices if i not in removed_qubits],
+            [q for i, q in self.syndrome_qubits_with_indices if i not in removed_qubits],
         )
 
     def to_dict(self) -> dict[str, Any]:

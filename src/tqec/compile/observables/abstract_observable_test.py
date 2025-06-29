@@ -1,5 +1,7 @@
 from tqec.compile.observables.abstract_observable import (
     AbstractObservable,
+    CubeWithArms,
+    PipeWithArms,
     compile_correlation_surface_to_abstract_observable,
 )
 from tqec.computation.block_graph import BlockGraph
@@ -20,7 +22,9 @@ def test_abstract_observable_for_single_memory_cube() -> None:
         g, correlation_surfaces[0]
     )
     assert abstract_observable == AbstractObservable(
-        top_readout_cubes=frozenset({Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))}),
+        top_readout_cubes=frozenset(
+            {CubeWithArms(Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ")))}
+        ),
     )
 
 
@@ -31,8 +35,8 @@ def test_abstract_observable_for_single_stability_cube() -> None:
         g, correlation_surfaces[0]
     )
     assert abstract_observable == AbstractObservable(
-        bottom_stabilizer_spatial_cubes=frozenset(
-            {Cube(Position3D(0, 0, 0), ZXCube.from_str("ZZX"))}
+        bottom_stabilizer_cubes=frozenset(
+            {CubeWithArms(Cube(Position3D(0, 0, 0), ZXCube.from_str("ZZX")))}
         ),
     )
 
@@ -48,7 +52,9 @@ def test_abstract_observable_for_single_vertical_pipe() -> None:
         g, correlation_surfaces[0]
     )
     assert abstract_observable == AbstractObservable(
-        top_readout_cubes=frozenset({Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXZ"))}),
+        top_readout_cubes=frozenset(
+            {CubeWithArms(Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXZ")))}
+        ),
     )
 
 
@@ -63,8 +69,8 @@ def test_abstract_observable_for_single_horizontal_pipe() -> None:
         g, correlation_surfaces[0]
     )
     assert abstract_observable == AbstractObservable(
-        top_readout_cubes=frozenset(g.cubes),
-        top_readout_pipes=frozenset(g.pipes),
+        top_readout_cubes=frozenset(CubeWithArms(cube) for cube in g.cubes),
+        top_readout_pipes=frozenset(PipeWithArms(pipe) for pipe in g.pipes),
     )
 
 
@@ -77,28 +83,34 @@ def test_abstract_observable_for_logical_cnot() -> None:
         for correlation_surface in correlation_surfaces
     ]
     assert observables[0] == AbstractObservable(
-        top_readout_cubes=frozenset([Cube(Position3D(0, 0, 3), ZXCube.from_str("ZXZ"))]),
+        top_readout_cubes=frozenset(
+            [CubeWithArms(Cube(Position3D(0, 0, 3), ZXCube.from_str("ZXZ")))]
+        ),
     )
     assert observables[1] == AbstractObservable(
         top_readout_cubes=frozenset(
             [
-                Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ")),
-                Cube(Position3D(1, 1, 3), ZXCube.from_str("ZXZ")),
+                CubeWithArms(Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ"))),
+                CubeWithArms(Cube(Position3D(1, 1, 3), ZXCube.from_str("ZXZ"))),
             ]
         ),
         top_readout_pipes=frozenset(
             [
-                Pipe.from_cubes(
-                    Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ")),
-                    Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
+                PipeWithArms(
+                    Pipe.from_cubes(
+                        Cube(Position3D(0, 1, 2), ZXCube.from_str("ZXZ")),
+                        Cube(Position3D(1, 1, 2), ZXCube.from_str("ZXZ")),
+                    )
                 )
             ]
         ),
         bottom_stabilizer_pipes=frozenset(
             [
-                Pipe.from_cubes(
-                    Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
-                    Cube(Position3D(0, 1, 1), ZXCube.from_str("ZXX")),
+                PipeWithArms(
+                    Pipe.from_cubes(
+                        Cube(Position3D(0, 0, 1), ZXCube.from_str("ZXX")),
+                        Cube(Position3D(0, 1, 1), ZXCube.from_str("ZXX")),
+                    )
                 )
             ]
         ),
@@ -113,25 +125,22 @@ def test_abstract_observable_for_three_cnots() -> None:
         compile_correlation_surface_to_abstract_observable(g, correlation_surface)
         for correlation_surface in correlation_surfaces
     ]
-    assert len(observables[0].top_readout_cubes) == 2
+    assert len(observables[0].top_readout_cubes) == 3
     assert len(observables[0].top_readout_pipes) == 2
-    assert len(observables[0].top_readout_spatial_cubes) == 1
     assert len(observables[0].bottom_stabilizer_pipes) == 0
-    assert len(observables[0].bottom_stabilizer_spatial_cubes) == 0
+    assert len(observables[0].bottom_stabilizer_cubes) == 0
     assert len(observables[0].temporal_hadamard_pipes) == 0
 
-    assert len(observables[1].top_readout_cubes) == 2
+    assert len(observables[1].top_readout_cubes) == 3
     assert len(observables[1].top_readout_pipes) == 2
-    assert len(observables[1].top_readout_spatial_cubes) == 1
     assert len(observables[1].bottom_stabilizer_pipes) == 0
-    assert len(observables[1].bottom_stabilizer_spatial_cubes) == 0
+    assert len(observables[1].bottom_stabilizer_cubes) == 0
     assert len(observables[1].temporal_hadamard_pipes) == 0
 
-    assert len(observables[2].top_readout_cubes) == 1
+    assert len(observables[2].top_readout_cubes) == 3
     assert len(observables[2].top_readout_pipes) == 4
-    assert len(observables[2].top_readout_spatial_cubes) == 2
     assert len(observables[2].bottom_stabilizer_pipes) == 1
-    assert len(observables[2].bottom_stabilizer_spatial_cubes) == 0
+    assert len(observables[2].bottom_stabilizer_cubes) == 0
     assert len(observables[2].temporal_hadamard_pipes) == 0
 
 
@@ -142,6 +151,8 @@ def test_abstract_observable_for_temporal_hadamard() -> None:
     g.add_pipe(n1, n2)
     surfaces = g.find_correlation_surfaces()
     assert len(surfaces) == 1
-    observable = compile_correlation_surface_to_abstract_observable(g, surfaces[0])
+    observable = compile_correlation_surface_to_abstract_observable(
+        g, surfaces[0], include_temporal_hadamard_pipes=True
+    )
     assert len(observable.top_readout_cubes) == 1
     assert len(observable.temporal_hadamard_pipes) == 1
