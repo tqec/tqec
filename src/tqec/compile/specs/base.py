@@ -63,11 +63,7 @@ class CubeSpec:
                 cube.kind,
                 has_spatial_up_or_down_pipe_in_timeslice=has_spatial_up_or_down_pipe_in_timeslice,
             )
-        pos = cube.position
-        spatial_arms = SpatialArms.NONE
-        for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
-            if graph.has_pipe_between(pos, pos.shift_by(*shift)):
-                spatial_arms |= flag
+        spatial_arms = SpatialArms.from_cube_in_graph(cube, graph)
         return CubeSpec(cube.kind, spatial_arms, has_spatial_up_or_down_pipe_in_timeslice)
 
     @property

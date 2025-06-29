@@ -3,6 +3,10 @@ from __future__ import annotations
 from collections.abc import Iterator
 from enum import Flag, auto
 
+from tqec.computation.block_graph import BlockGraph
+from tqec.computation.cube import Cube
+from tqec.utils.exceptions import TQECException
+
 
 class SpatialArms(Flag):
     NONE = 0
@@ -10,6 +14,20 @@ class SpatialArms(Flag):
     RIGHT = auto()
     DOWN = auto()
     LEFT = auto()
+
+    @staticmethod
+    def from_cube_in_graph(cube: Cube, graph: BlockGraph) -> SpatialArms:
+        """Returns the spatial arms of a cube in a block graph."""
+        if not cube.is_spatial:
+            return SpatialArms.NONE
+        pos = cube.position
+        if pos not in graph or graph[pos] != cube:
+            raise TQECException(f"Cube {cube} is not in the graph.")
+        spatial_arms = SpatialArms.NONE
+        for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
+            if graph.has_pipe_between(pos, pos.shift_by(*shift)):
+                spatial_arms |= flag
+        return spatial_arms
 
     @classmethod
     def get_map_from_arm_to_shift(cls) -> dict[SpatialArms, tuple[int, int]]:
