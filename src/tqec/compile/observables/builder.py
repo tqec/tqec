@@ -178,13 +178,13 @@ class ObservableBuilder:
                     )
                 )
         else:  # component == ObservableComponent.REALIGNMENT
-            for pipe in observable.temporal_hadamard_pipes:
+            for hadamard_pipe in observable.temporal_hadamard_pipes:
                 obs_qubits.update(
                     self.transform_coords_into_grid(
                         k,
                         template,
-                        self.pipe_temporal_hadamard_builder(shape, pipe),
-                        pipe.pipe.u.position,
+                        self.pipe_temporal_hadamard_builder(shape, hadamard_pipe),
+                        hadamard_pipe.pipe.u.position,
                     )
                 )
         return obs_qubits
