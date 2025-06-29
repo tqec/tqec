@@ -553,6 +553,51 @@ def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
+    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
+
+
+@pytest.mark.parametrize(
+    ("convention", "kind", "shape", "k"),
+    itertools.product(
+        CONVENTIONS,
+        ("ZZX", "XXZ"),
+        ("H", "工"),
+        (1,),
+    ),
+)
+def test_compile_H_shape_stability_experiment(
+    convention: Convention, kind: str, shape: str, k: int
+) -> None:
+    g = BlockGraph(f"Stability Experiment with {shape}-shape {kind} Cubes")
+
+    if shape == "H":
+        nodes = [
+            g.add_cube(pos, kind)
+            for pos in [
+                Position3D(0, 0, 0),
+                Position3D(0, 1, 0),
+                Position3D(0, -1, 0),
+                Position3D(1, 0, 0),
+                Position3D(1, -1, 0),
+                Position3D(1, 1, 0),
+            ]
+        ]
+    else:
+        nodes = [
+            g.add_cube(pos, kind)
+            for pos in [
+                Position3D(0, 0, 0),
+                Position3D(-1, 0, 0),
+                Position3D(1, 0, 0),
+                Position3D(0, 1, 0),
+                Position3D(-1, 1, 0),
+                Position3D(1, 1, 0),
+            ]
+        ]
+    for edge in [(0, 1), (0, 2), (0, 3), (3, 4), (3, 5)]:
+        g.add_pipe(nodes[edge[0]], nodes[edge[1]])
+
+    d = 2 * k + 1
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=1, debug_output_dir="debug"
     )
