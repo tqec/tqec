@@ -286,13 +286,7 @@ def test_compile_L_spatial_junction(convention: Convention, k: int) -> None:
     g.add_pipe(n2, n3)
 
     d = 2 * k if convention.name == "fixed_parity" else 2 * k + 1
-    generate_circuit_and_assert(
-        g,
-        k,
-        convention,
-        expected_distance=d,
-        expected_num_observables=1,
-    )
+    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
 @pytest.mark.parametrize(
@@ -312,11 +306,7 @@ def test_compile_move_rotation(convention: Convention, obs_basis: Basis, k: int)
     else:
         expected_distance = d - 1 if obs_basis == Basis.X else d
     generate_circuit_and_assert(
-        g,
-        k,
-        convention,
-        expected_distance=expected_distance,
-        expected_num_observables=1,
+        g, k, convention, expected_distance=expected_distance, expected_num_observables=1
     )
 
 
@@ -337,13 +327,7 @@ def test_compile_L_spatial_junction_with_time_pipe(
     g.add_pipe(n3, n4)
 
     d = 2 * k if convention.name == "fixed_parity" else 2 * k + 1
-    generate_circuit_and_assert(
-        g,
-        k,
-        convention,
-        expected_distance=d,
-        expected_num_observables=1,
-    )
+    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
 @pytest.mark.parametrize(
@@ -361,13 +345,7 @@ def test_compile_temporal_hadamard(convention: Convention, in_obs_basis: Basis, 
     g.add_pipe(n1, n2)
 
     d = 2 * k + 1
-    generate_circuit_and_assert(
-        g,
-        k,
-        convention,
-        expected_distance=d,
-        expected_num_observables=1,
-    )
+    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
 @pytest.mark.parametrize(
@@ -391,13 +369,7 @@ def test_compile_bell_state_with_single_temporal_hadamard(
     g.add_pipe(n2, n4)
 
     d = 2 * k + 1
-    generate_circuit_and_assert(
-        g,
-        k,
-        convention,
-        expected_distance=d,
-        expected_num_observables=1,
-    )
+    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
 @pytest.mark.parametrize(
@@ -430,11 +402,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
             )
     else:
         generate_circuit_and_assert(
-            g,
-            k,
-            convention,
-            expected_distance=d,
-            expected_num_observables=1,
+            g, k, convention, expected_distance=d, expected_num_observables=1
         )
 
 
@@ -470,11 +438,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
             )
     else:
         generate_circuit_and_assert(
-            g,
-            k,
-            convention,
-            expected_distance=d,
-            expected_num_observables=1,
+            g, k, convention, expected_distance=d, expected_num_observables=1
         )
 
 
@@ -484,13 +448,13 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
         CONVENTIONS,
         ("⊣", "T", "⊥", "⊢"),
         (Basis.X, Basis.Z),
-        (2,),
+        (1,),
     ),
 )
-def test_compile_three_way_shape_spatial_junction(
+def test_compile_three_way_junction_with_spatial_cube_endpoints(
     convention: Convention, shape: str, basis: Basis, k: int
 ) -> None:
-    g = BlockGraph(f"{shape}-shape Spatial Junction")
+    g = BlockGraph(f"{shape}-shape Spatial Junction with Horizontal Correlation Surface")
     cube_kind = "ZZX" if basis == Basis.Z else "XXZ"
     n0 = g.add_cube(Position3D(0, 0, 0), cube_kind)
     if shape == "⊣":
@@ -514,10 +478,55 @@ def test_compile_three_way_shape_spatial_junction(
     g.add_pipe(n0, n3)
 
     d = 2 * k + 1
-    generate_circuit_and_assert(
-        g,
-        k,
-        convention,
-        expected_distance=d,
-        expected_num_observables=1,
-    )
+    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
+
+
+@pytest.mark.parametrize(
+    ("convention", "shape", "spatial_basis", "k"),
+    itertools.product(
+        CONVENTIONS,
+        ("⊣", "T", "⊥", "⊢"),
+        (Basis.X, Basis.Z),
+        (1,),
+    ),
+)
+def test_compile_three_way_junction_with_regular_cube_endpoints(
+    convention: Convention, shape: str, spatial_basis: Basis, k: int
+) -> None:
+    g = BlockGraph(f"{shape}-shape Spatial Junction with Vertical Correlation Surface")
+
+    def may_flip(z_basis_kind: str) -> str:
+        if spatial_basis == Basis.X:
+            return "".join("X" if b == "Z" else "Z" for b in z_basis_kind)
+        return z_basis_kind
+
+    center_cube_kind = may_flip("ZZX")
+    n0 = g.add_cube(Position3D(0, 0, 0), center_cube_kind)
+
+    kv, kh = may_flip("ZXX"), may_flip("XZX")
+
+    if shape == "⊣":
+        n1 = g.add_cube(Position3D(0, 1, 0), kv)
+        n2 = g.add_cube(Position3D(0, -1, 0), kv)
+        n3 = g.add_cube(Position3D(-1, 0, 0), kh)
+    elif shape == "T":
+        n1 = g.add_cube(Position3D(0, 1, 0), kv)
+        n2 = g.add_cube(Position3D(-1, 0, 0), kh)
+        n3 = g.add_cube(Position3D(1, 0, 0), kh)
+    elif shape == "⊥":
+        n1 = g.add_cube(Position3D(0, -1, 0), kv)
+        n2 = g.add_cube(Position3D(-1, 0, 0), kh)
+        n3 = g.add_cube(Position3D(1, 0, 0), kh)
+    else:  # shape == "⊢":
+        n1 = g.add_cube(Position3D(0, 1, 0), kv)
+        n2 = g.add_cube(Position3D(0, -1, 0), kv)
+        n3 = g.add_cube(Position3D(1, 0, 0), kh)
+    g.add_pipe(n0, n1)
+    g.add_pipe(n0, n2)
+    g.add_pipe(n0, n3)
+
+    if convention.name == "fixed_bulk":
+        d = 2 * k + 1
+    else:
+        d = 2 * k
+    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=2)
