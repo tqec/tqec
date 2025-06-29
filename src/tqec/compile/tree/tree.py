@@ -192,9 +192,8 @@ class LayerTree:
                 lookback=lookback,
             )
             return str(circuit.to_crumble_url())
-        self._generate_annotations(
-            k, manhattan_radius, detector_database, lookback=lookback, add_polygons=True
-        )
+        self._generate_annotations(k, manhattan_radius, detector_database, lookback=lookback)
+        self._annotate_polygons(k)
         annotations = self._get_annotation(k)
         qubit_map = annotations.qubit_map
         assert qubit_map is not None
@@ -229,7 +228,6 @@ class LayerTree:
         database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
-        add_polygons: bool = False,
         parallel_process_count: int = 1,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
@@ -250,8 +248,6 @@ class LayerTree:
             parallel_process_count,
         )
         self._annotate_observables(k)
-        if add_polygons:
-            self._annotate_polygons(k)
 
     def generate_circuit(
         self,
