@@ -601,3 +601,61 @@ def test_compile_H_shape_stability_experiment(
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=1, debug_output_dir="debug"
     )
+
+
+@pytest.mark.parametrize(
+    ("convention", "shape", "spatial_basis", "k"),
+    itertools.product(
+        CONVENTIONS,
+        ("H", "工"),
+        (Basis.X, Basis.Z),
+        (1, 2),
+    ),
+)
+def test_compile_H_shape_junctions_with_regular_cube_endpoints(
+    convention: Convention, shape: str, spatial_basis: Basis, k: int
+) -> None:
+    g = BlockGraph(f"{shape}-shape Junction with Regular Cube Endpoints")
+
+    def may_flip(z_basis_kind: str) -> str:
+        if spatial_basis == Basis.X:
+            return "".join("X" if b == "Z" else "Z" for b in z_basis_kind)
+        return z_basis_kind
+
+    spatial_cube_kind = may_flip("ZZX")
+    endpoint_cube_kind = may_flip("ZXX") if shape == "H" else may_flip("XZX")
+
+    if shape == "H":
+        nodes = [
+            g.add_cube(pos, kind)
+            for pos, kind in [
+                (Position3D(0, 0, 0), spatial_cube_kind),
+                (Position3D(0, 1, 0), endpoint_cube_kind),
+                (Position3D(0, -1, 0), endpoint_cube_kind),
+                (Position3D(1, 0, 0), spatial_cube_kind),
+                (Position3D(1, -1, 0), endpoint_cube_kind),
+                (Position3D(1, 1, 0), endpoint_cube_kind),
+            ]
+        ]
+    else:
+        nodes = [
+            g.add_cube(pos, kind)
+            for pos, kind in [
+                (Position3D(0, 0, 0), spatial_cube_kind),
+                (Position3D(-1, 0, 0), endpoint_cube_kind),
+                (Position3D(1, 0, 0), endpoint_cube_kind),
+                (Position3D(0, 1, 0), spatial_cube_kind),
+                (Position3D(-1, 1, 0), endpoint_cube_kind),
+                (Position3D(1, 1, 0), endpoint_cube_kind),
+            ]
+        ]
+    for edge in [(0, 1), (0, 2), (0, 3), (3, 4), (3, 5)]:
+        g.add_pipe(nodes[edge[0]], nodes[edge[1]])
+
+    if shape == "H" and convention.name == "fixed_parity":
+        d = 2 * k
+    else:
+        d = 2 * k + 1
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=3, debug_output_dir="debug"
+    )
