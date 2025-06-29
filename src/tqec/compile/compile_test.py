@@ -14,6 +14,7 @@ from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.move_rotation import move_rotation
 from tqec.gallery.stability import stability
+from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Direction3D, Position3D
@@ -656,6 +657,25 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
         d = 2 * k
     else:
         d = 2 * k + 1
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=3, debug_output_dir="debug"
+    )
+
+
+@pytest.mark.parametrize(
+    ("convention", "observable_basis", "k"),
+    itertools.product(
+        CONVENTIONS,
+        (Basis.X, Basis.Z),
+        (1,),
+    ),
+)
+def test_compile_three_cnots(convention: Convention, observable_basis: Basis, k: int) -> None:
+    g = three_cnots(observable_basis)
+    if convention.name == "fixed_bulk" or observable_basis == Basis.X:
+        d = 2 * k + 1
+    else:
+        d = 2 * k
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=3, debug_output_dir="debug"
     )
