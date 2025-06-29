@@ -14,6 +14,7 @@ from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.move_rotation import move_rotation
 from tqec.gallery.stability import stability
+from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
@@ -667,7 +668,7 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
     itertools.product(
         CONVENTIONS,
         (Basis.X, Basis.Z),
-        (1,),
+        (1, 2),
     ),
 )
 def test_compile_three_cnots(convention: Convention, observable_basis: Basis, k: int) -> None:
@@ -677,5 +678,31 @@ def test_compile_three_cnots(convention: Convention, observable_basis: Basis, k:
     else:
         d = 2 * k
     generate_circuit_and_assert(
-        g, k, convention, expected_distance=d, expected_num_observables=3, debug_output_dir="debug"
+        g,
+        k,
+        convention,
+        expected_distance=d,
+        expected_num_observables=3,
+    )
+
+
+@pytest.mark.parametrize(
+    ("convention", "observable_basis", "k"),
+    itertools.product(
+        CONVENTIONS,
+        (Basis.X, Basis.Z),
+        (1, 2),
+    ),
+)
+def test_compile_steane_encoding(convention: Convention, observable_basis: Basis, k: int) -> None:
+    g = steane_encoding(observable_basis)
+    d = 2 * k + 1 if convention.name == "fixed_bulk" else 2 * k
+    expected_num_observables = 3 if observable_basis == Basis.X else 4
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        expected_distance=d,
+        expected_num_observables=expected_num_observables,
     )
