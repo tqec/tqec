@@ -530,3 +530,29 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     else:
         d = 2 * k
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=2)
+
+
+@pytest.mark.parametrize(
+    ("convention", "kind", "direction", "k"),
+    itertools.product(
+        CONVENTIONS,
+        ("ZZX", "XXZ"),
+        (Direction3D.X, Direction3D.Y),
+        (1,),
+    ),
+)
+def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
+    convention: Convention, kind: str, direction: Direction3D, k: int
+) -> None:
+    g = BlockGraph(f"Stability Experiment with Two {kind} Cubes in {direction.name} Direction")
+
+    n0 = g.add_cube(Position3D(0, 0, 0), kind)
+    n1 = g.add_cube(Position3D(0, 0, 0).shift_in_direction(direction, 1), kind)
+    n2 = g.add_cube(Position3D(0, 0, 0).shift_in_direction(direction, 2), kind)
+    g.add_pipe(n0, n1)
+    g.add_pipe(n1, n2)
+
+    d = 2 * k + 1
+    generate_circuit_and_assert(
+        g, k, convention, expected_distance=d, expected_num_observables=1, debug_output_dir="debug"
+    )
