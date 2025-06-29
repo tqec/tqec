@@ -104,7 +104,7 @@ def compile_correlation_surface_to_abstract_observable(
     block graph.
 
     The correlation surface translates into measurements to be included in the
-    observable in two main ways:
+    observable in the following ways:
 
     1. The surface attaches to the top face of some blocks. This means that part
     of the logical operator is measured by reading the data qubits. The parity
@@ -121,35 +121,38 @@ def compile_correlation_surface_to_abstract_observable(
     software we will have greater confidence in these measurements earlier and
     in principle be able to make decisions based on these measurements earlier.
 
+    3. A temporal Hadamard pipe under fixed-bulk convention includes a layer of
+    realignment stabilizers, which might includes a single stabilizer measurements
+    that need to be added to the observable.
+
     The compilation process is as follows:
 
     1. Find all the spatial cubes involved in the correlation surface. For
     each cube:
-
-    - If a surface is in the XY plane, include the stabilizer measurements at
-    the bottom of the cube in the observable, and add the cube to the
-    ``bottom_stabilizer_spatial_cubes`` set.
 
     - If a surface is perpendicular to the XY plane, include data qubit readouts
     on the top face of the cube in the observable. Correlation surfaces
     parallel to the cube's normal direction are guaranteed to attach to an
     even number of arms.
         - If exactly two arms touch the surface, add the cube and arms to the
-        ``top_readout_spatial_cubes`` set.
+        ``top_readout_cubes`` set.
         - If four arms touch the surface, split the arms into two pairs (e.g.
         ``SpatialArms.LEFT | SpatialArms.DOWN`` and
         ``SpatialArms.RIGHT | SpatialArms.UP``), and add the cube and arms
-        to the ``top_readout_spatial_cubes`` set.
+        to the ``top_readout_cubes`` set.
 
     2. Iterate over all the edges in the correlation surface. For each edge:
     - If the edge is vertical, check if the surface is attached to the top face
     of the top cube. If so, add the top cube to the ``top_readout_cubes`` set.
+    If the edge is a hadamard edge, add the pipe to the ``temporal_hadamard_pipes``
+    set.
     - If the edge is horizontal, check if the surface is attached to the top face
     of the pipe. If so, add the pipe to the ``top_readout_pipes`` set; otherwise,
     add the pipe to the ``bottom_stabilizer_pipes`` set.
-    - For each cube in the pipe, ignore the spatial cubes (already handled),
-    and check if the surface is attached to the top face of the cube. If so, add
-    the cube to the ``top_readout_cubes`` set.
+    - For each cube in the pipe, check if the surface is attached to the top face
+    of the cube. If so, add the cube to the ``top_readout_cubes`` set. Otherwise,
+    add the pipe to the ``bottom_stabilizer_pipes`` set with the arms of the
+    cubes in the pipe.
 
     Args:
         block_graph: The block graph whose corresponding ZX graph supports the
