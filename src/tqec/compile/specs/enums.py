@@ -29,6 +29,12 @@ class SpatialArms(Flag):
                 spatial_arms |= flag
         return spatial_arms
 
+    @property
+    def has_spatial_arm_in_both_dimensions(self) -> bool:
+        return (SpatialArms.DOWN in self or SpatialArms.UP in self) and (
+            SpatialArms.LEFT in self or SpatialArms.RIGHT in self
+        )
+
     @classmethod
     def get_map_from_arm_to_shift(cls) -> dict[SpatialArms, tuple[int, int]]:
         return {

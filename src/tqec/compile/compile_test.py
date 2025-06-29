@@ -94,7 +94,10 @@ def generate_circuit_and_assert(
         assert circuit.num_observables == expected_num_observables
 
 
-CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_PARITY_CONVENTION)
+CONVENTIONS = (
+    FIXED_BULK_CONVENTION,
+    FIXED_PARITY_CONVENTION,
+)
 
 
 @pytest.mark.parametrize(
@@ -240,13 +243,7 @@ def test_compile_logical_cnot(convention: Convention, obs_basis: Basis, k: int) 
     g = cnot(obs_basis)
 
     d = 2 * k + 1
-    generate_circuit_and_assert(
-        g,
-        k,
-        convention,
-        expected_distance=d,
-        expected_num_observables=2,
-    )
+    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=2)
 
 
 @pytest.mark.parametrize(
@@ -478,23 +475,16 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
             convention,
             expected_distance=d,
             expected_num_observables=1,
-            debug_output_dir="debug",
         )
 
 
 @pytest.mark.parametrize(
     ("convention", "shape", "basis", "k"),
-    # itertools.product(
-    #     CONVENTIONS,
-    #     ("⊣", "T", "⊥", "⊢"),
-    #     (Basis.X, Basis.Z),
-    #     (1,),
-    # ),
     itertools.product(
-        (FIXED_PARITY_CONVENTION,),
-        ("⊢",),
-        (Basis.Z,),
-        (1,),
+        CONVENTIONS,
+        ("⊣", "T", "⊥", "⊢"),
+        (Basis.X, Basis.Z),
+        (2,),
     ),
 )
 def test_compile_three_way_shape_spatial_junction(
@@ -530,5 +520,4 @@ def test_compile_three_way_shape_spatial_junction(
         convention,
         expected_distance=d,
         expected_num_observables=1,
-        debug_output_dir="debug",
     )

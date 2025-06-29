@@ -77,9 +77,7 @@ class CubeSpec:
 
     @property
     def has_spatial_pipe_in_both_dimensions(self) -> bool:
-        return (SpatialArms.DOWN in self.spatial_arms or SpatialArms.UP in self.spatial_arms) and (
-            SpatialArms.LEFT in self.spatial_arms or SpatialArms.RIGHT in self.spatial_arms
-        )
+        return self.spatial_arms.has_spatial_arm_in_both_dimensions
 
 
 class CubeBuilder(Protocol):
