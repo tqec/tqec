@@ -22,7 +22,17 @@ from tqec.utils.scale import round_or_fail
 
 @dataclass(frozen=True)
 class Observable:
-    """Logical observable consisting of a list of measurements."""
+    """Logical observable consisting of a list of measurements.
+
+    Attributes:
+        observable_index: The index of the observable in the circuit.
+        measured_qubits: The qubits whose measurements will be included in the
+            observable.
+        measurement_offsets: The offsets of the measurements in the circuit.
+            This should have the same length as `measured_qubits` and
+            contain strictly negative values.
+
+    """
 
     observable_index: int
     measured_qubits: list[GridQubit]

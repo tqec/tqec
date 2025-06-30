@@ -9,6 +9,7 @@ from tqec.compile.observables.builder import Coordinates2D, ObservableBuilder
 from tqec.compile.observables.fixed_bulk_builder import build_regular_cube_top_readout_qubits
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
+from tqec.utils.enums import Orientation
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
 
@@ -42,7 +43,14 @@ def build_cube_top_readout_qubits(
     shape: PlaquetteShape2D, cube: CubeWithArms
 ) -> Sequence[Coordinates2D]:
     if not cube.cube.is_spatial:
-        return build_regular_cube_top_readout_qubits(shape, cube.cube)
+        kind = cube.cube.kind
+        assert isinstance(kind, ZXCube)
+        # Determine the middle line orientation based on the cube kind.
+        # Since the basis of the top face decides the measurement basis of the data
+        # qubits, i.e. the logical operator basis. We only need to find the spatial
+        # boundaries that the logical operator can be attached to.
+        obs_orientation = Orientation.VERTICAL if kind.y == kind.z else Orientation.HORIZONTAL
+        return build_regular_cube_top_readout_qubits(shape, obs_orientation)
     return build_spatial_cube_top_readout_qubits(shape, cube.arms)
 
 
@@ -55,18 +63,25 @@ def _extended_stabilizers_used(
     return u_arms.has_spatial_arm_in_both_dimensions ^ v_arms.has_spatial_arm_in_both_dimensions
 
 
-def build_pipe_top_readout_qubits(
-    shape: PlaquetteShape2D, pipe: PipeWithArms
+def build_pipe_top_readout_qubits_impl(
+    shape: PlaquetteShape2D, direction: Direction3D, extended_stabilizers_used: bool
 ) -> Sequence[Coordinates2D]:
-    direction = pipe.pipe.direction
     assert direction != Direction3D.Z
     if direction == Direction3D.X:
         return [(shape.x, shape.y // 2)]
     # Extended stabilizers at pipe do not have qubits that need to be include
     # in the observable.
-    if _extended_stabilizers_used(pipe):
+    if extended_stabilizers_used:
         return []
     return [(shape.x // 2, shape.y)]
+
+
+def build_pipe_top_readout_qubits(
+    shape: PlaquetteShape2D, pipe: PipeWithArms
+) -> Sequence[Coordinates2D]:
+    return build_pipe_top_readout_qubits_impl(
+        shape, pipe.pipe.direction, _extended_stabilizers_used(pipe)
+    )
 
 
 def build_regular_cube_bottom_stabilizer_qubits(
@@ -106,10 +121,9 @@ def build_regular_cube_bottom_stabilizer_qubits(
     ]
 
 
-def build_cube_bottom_stabilizer_qubits(
-    shape: PlaquetteShape2D, cube: CubeWithArms
+def build_spatial_cube_bottom_stabilizer_qubits(
+    shape: PlaquetteShape2D,
 ) -> Sequence[Coordinates2D]:
-    assert cube.cube.is_spatial
     return [(i + 0.5, j + 0.5) for i in range(shape.x) for j in range(shape.y) if (i + j) % 2 == 0]
 
 
@@ -174,7 +188,9 @@ def build_pipe_temporal_hadamard_qubits(
 FIXED_BOUNDARY_OBSERVABLE_BUILDER = ObservableBuilder(
     cube_top_readouts_builder=build_cube_top_readout_qubits,
     pipe_top_readouts_builder=build_pipe_top_readout_qubits,
-    cube_bottom_stabilizers_builder=build_cube_bottom_stabilizer_qubits,
+    cube_bottom_stabilizers_builder=lambda shape, cube: build_spatial_cube_bottom_stabilizer_qubits(
+        shape
+    ),
     pipe_bottom_stabilizers_builder=build_pipe_bottom_stabilizer_qubits,
     pipe_temporal_hadamard_builder=build_pipe_temporal_hadamard_qubits,
 )

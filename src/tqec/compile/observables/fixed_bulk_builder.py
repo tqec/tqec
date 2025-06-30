@@ -7,33 +7,22 @@ from tqec.compile.observables.abstract_observable import (
 )
 from tqec.compile.observables.builder import Coordinates2D, ObservableBuilder
 from tqec.compile.specs.enums import SpatialArms
-from tqec.computation.cube import Cube, ZXCube
+from tqec.computation.cube import ZXCube
 from tqec.utils.enums import Basis, Orientation
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
 
 def build_regular_cube_top_readout_qubits(
-    shape: PlaquetteShape2D, cube: Cube
+    shape: PlaquetteShape2D, observable_orientation: Orientation
 ) -> Sequence[Coordinates2D]:
-    kind = cube.kind
-    assert isinstance(kind, ZXCube)
-    # Determine the middle line orientation based on the cube kind.
-    # Since the basis of the top face decides the measurement basis of the data
-    # qubits, i.e. the logical operator basis. We only need to find the spatial
-    # boundaries that the logical operator can be attached to.
-    obs_orientation = Orientation.VERTICAL if kind.y == kind.z else Orientation.HORIZONTAL
-    if obs_orientation == Orientation.HORIZONTAL:
+    if observable_orientation == Orientation.HORIZONTAL:
         return [(x, shape.y // 2) for x in range(1, shape.x)]
     return [(shape.x // 2, y) for y in range(1, shape.y)]
 
 
 def build_spatial_cube_top_readout_qubits(
-    shape: PlaquetteShape2D, cube: Cube, arms: SpatialArms
+    shape: PlaquetteShape2D, arms: SpatialArms, observable_basis: Basis
 ) -> Sequence[Coordinates2D]:
-    kind = cube.kind
-    assert isinstance(kind, ZXCube)
-    observable_basis = kind.z
-
     assert len(arms) == 2
     half_x, half_y = shape.x // 2, shape.y // 2
 
@@ -73,14 +62,23 @@ def build_cube_top_readout_qubits(
     shape: PlaquetteShape2D, cube: CubeWithArms
 ) -> Sequence[Coordinates2D]:
     if not cube.cube.is_spatial:
-        return build_regular_cube_top_readout_qubits(shape, cube.cube)
-    return build_spatial_cube_top_readout_qubits(shape, cube.cube, cube.arms)
+        kind = cube.cube.kind
+        assert isinstance(kind, ZXCube)
+        # Determine the middle line orientation based on the cube kind.
+        # Since the basis of the top face decides the measurement basis of the data
+        # qubits, i.e. the logical operator basis. We only need to find the spatial
+        # boundaries that the logical operator can be attached to.
+        obs_orientation = Orientation.VERTICAL if kind.y == kind.z else Orientation.HORIZONTAL
+        return build_regular_cube_top_readout_qubits(shape, obs_orientation)
+    kind = cube.cube.kind
+    assert isinstance(kind, ZXCube)
+    observable_basis = kind.z
+    return build_spatial_cube_top_readout_qubits(shape, cube.arms, observable_basis)
 
 
 def build_pipe_top_readout_qubits(
-    shape: PlaquetteShape2D, pipe: PipeWithArms
+    shape: PlaquetteShape2D, direction: Direction3D
 ) -> Sequence[Coordinates2D]:
-    direction = pipe.pipe.direction
     assert direction != Direction3D.Z
     if direction == Direction3D.X:
         return [(shape.x, shape.y // 2)]
@@ -186,16 +184,9 @@ def build_pipe_bottom_stabilizer_qubits(
     return qubits
 
 
-def build_pipe_temporal_hadamard_qubits(
-    shape: PlaquetteShape2D, pipe: PipeWithObservableBasis
+def build_pipe_temporal_hadamard_qubits_impl(
+    shape: PlaquetteShape2D, observable_basis: Basis, z_orientation: Orientation
 ) -> Sequence[Coordinates2D]:
-    pipe_kind = pipe.pipe.kind
-    observable_basis = pipe.observable_basis
-    z_orientation = (
-        Orientation.VERTICAL
-        if pipe_kind.get_basis_along(Direction3D.Y) == Basis.Z
-        else Orientation.HORIZONTAL
-    )
     # observable is horizontal
     if (observable_basis == Basis.X) ^ (z_orientation == Orientation.HORIZONTAL):
         if (shape.x % 4 == 0) ^ (observable_basis == Basis.Z):
@@ -207,9 +198,24 @@ def build_pipe_temporal_hadamard_qubits(
     return []
 
 
+def build_pipe_temporal_hadamard_qubits(
+    shape: PlaquetteShape2D, pipe: PipeWithObservableBasis
+) -> Sequence[Coordinates2D]:
+    pipe_kind = pipe.pipe.kind
+    observable_basis = pipe.observable_basis
+    z_orientation = (
+        Orientation.VERTICAL
+        if pipe_kind.get_basis_along(Direction3D.Y) == Basis.Z
+        else Orientation.HORIZONTAL
+    )
+    return build_pipe_temporal_hadamard_qubits_impl(shape, observable_basis, z_orientation)
+
+
 FIXED_BULK_OBSERVABLE_BUILDER = ObservableBuilder(
     cube_top_readouts_builder=build_cube_top_readout_qubits,
-    pipe_top_readouts_builder=build_pipe_top_readout_qubits,
+    pipe_top_readouts_builder=lambda shape, pipe: build_pipe_top_readout_qubits(
+        shape, pipe.pipe.direction
+    ),
     cube_bottom_stabilizers_builder=build_cube_bottom_stabilizer_qubits,
     pipe_bottom_stabilizers_builder=build_pipe_bottom_stabilizer_qubits,
     pipe_temporal_hadamard_builder=build_pipe_temporal_hadamard_qubits,
