@@ -21,6 +21,20 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class CubeWithArms:
+    """A cube with its arms in the block graph.
+
+    The arms are used to specify the connectivity of a spatial cube in the graph
+    or in a correlation surface. A regular cube should always have `arms` set to
+    `SpatialArms.NONE`.
+
+    Attributes:
+        cube: The cube in the block graph.
+        arms: The arms of the cube in the block graph or correlation surface.
+            If the cube is not spatial, the arms should be set to
+            `SpatialArms.NONE`.
+
+    """
+
     cube: Cube
     arms: SpatialArms = SpatialArms.NONE
 
@@ -33,14 +47,37 @@ class CubeWithArms:
 
 @dataclass(frozen=True)
 class PipeWithArms:
+    """A pipe with the arms of the two cubes it connects in the block graph.
+
+    Attributes:
+        pipe: The pipe in the block graph.
+        cube_arms: A tuple of arms of the two cubes (``u`` and ``v``) the pipe
+            connects. If the cubes are not spatial, the arms should be set to
+            `SpatialArms.NONE`.
+
+    """
+
     pipe: Pipe
     cube_arms: tuple[SpatialArms, SpatialArms] = (SpatialArms.NONE, SpatialArms.NONE)
 
 
 @dataclass(frozen=True)
 class PipeWithObservableBasis:
+    """A temporal Hadamard pipe with the attached observable basis at its head.
+
+    Attributes:
+        pipe: The temporal Hadamard pipe in the block graph.
+        observable_basis: The basis of the correlation surface at the head of
+            the pipe.
+
+    """
+
     pipe: Pipe
     observable_basis: Basis
+
+    def __post_init__(self) -> None:
+        if not self.pipe.kind.has_hadamard or self.pipe.direction != Direction3D.Z:
+            raise TQECException("The ``pipe`` should be a temporal Hadamard pipe.")
 
 
 @dataclass(frozen=True)
@@ -55,26 +92,27 @@ class AbstractObservable:
     specifies where are the measurements located in the block graph.
 
     Attributes:
-        top_readout_cubes: A set of cubes of which a straight line of data
-            qubit readouts on the top face should be included in the observable.
+        top_readout_cubes: A set of cubes of which a line of data qubit readouts
+            on the top face should be included in the observable.
         top_readout_pipes: A set of pipes of which a single data qubit readout
-            on the top face should be included in the observable. The data qubit
+            on the top face might be included in the observable. The data qubit
             is on the center of the interface between the two cubes. The other
             data qubit readouts that may be included in the observable will be
             handled by the ``top_readout_cubes`` set.
+        bottom_stabilizer_cubes: A set of spatial cubes of which the stabilizer
+            measurements on the bottom face should be included in the observable.
+            Usually, this is only used for the single-cube stability experiment
+            where no pipes are involved. In other cases, the stabilizer measured
+            at the bottom face of the cubes will be handled by the pipes
+            connecting them, i.e., the ``bottom_stabilizer_pipes`` set.
         bottom_stabilizer_pipes: A set of pipes of which a region of stabilizer
             measurements on the bottom face, which actually takes place in the
             cubes it connects, should be included in the observable.
-        top_readout_spatial_cubes: A set of spatial cubes with the arm
-            flags, of which the data qubit readouts on the top face should be
-            included in the observable.
-        bottom_stabilizer_spatial_cubes: A set of spatial cubes of which
-            the stabilizer measurements on the bottom face should be included in
-            the observable.
-        temporal_hadamard_pipes: A set of tuples of pipes and the observable basis
-            supported at the bottom of the pipe. A single stabilizer measurements
-            at the realignment layer represented by the pipe might be included in
-            the logical observable.
+        temporal_hadamard_pipes: A set of temporal Hadamard pipes of which a
+            single stabilizer measurements at the realignment layer represented
+            by the pipe might be included in the logical observable. It is only
+            relevant for the fixed-bulk convention, where the temporal Hadamard
+            includes a realignment layer of stabilizers.
 
     """
 
