@@ -5,8 +5,8 @@ import pytest
 
 from tqec.compile.compile import compile_block_graph
 from tqec.compile.convention import (
+    FIXED_BOUNDARY_CONVENTION,
     FIXED_BULK_CONVENTION,
-    FIXED_PARITY_CONVENTION,
     Convention,
 )
 from tqec.computation.block_graph import BlockGraph
@@ -98,7 +98,7 @@ def generate_circuit_and_assert(
 
 CONVENTIONS = (
     FIXED_BULK_CONVENTION,
-    FIXED_PARITY_CONVENTION,
+    FIXED_BOUNDARY_CONVENTION,
 )
 
 
@@ -287,7 +287,7 @@ def test_compile_L_spatial_junction(convention: Convention, k: int) -> None:
     g.add_pipe(n1, n2)
     g.add_pipe(n2, n3)
 
-    d = 2 * k if convention.name == "fixed_parity" else 2 * k + 1
+    d = 2 * k if convention.name == "fixed_boundary" else 2 * k + 1
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
@@ -328,7 +328,7 @@ def test_compile_L_spatial_junction_with_time_pipe(
     g.add_pipe(n2, n3)
     g.add_pipe(n3, n4)
 
-    d = 2 * k if convention.name == "fixed_parity" else 2 * k + 1
+    d = 2 * k if convention.name == "fixed_boundary" else 2 * k + 1
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
@@ -654,7 +654,7 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
     for edge in [(0, 1), (0, 2), (0, 3), (3, 4), (3, 5)]:
         g.add_pipe(nodes[edge[0]], nodes[edge[1]])
 
-    if shape == "H" and convention.name == "fixed_parity":
+    if shape == "H" and convention.name == "fixed_boundary":
         d = 2 * k
     else:
         d = 2 * k + 1

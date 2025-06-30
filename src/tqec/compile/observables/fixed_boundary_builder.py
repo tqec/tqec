@@ -171,7 +171,7 @@ def build_pipe_temporal_hadamard_qubits(
     return []
 
 
-FIXED_PARITY_OBSERVABLE_BUILDER = ObservableBuilder(
+FIXED_BOUNDARY_OBSERVABLE_BUILDER = ObservableBuilder(
     cube_top_readouts_builder=build_cube_top_readout_qubits,
     pipe_top_readouts_builder=build_pipe_top_readout_qubits,
     cube_bottom_stabilizers_builder=build_cube_bottom_stabilizer_qubits,

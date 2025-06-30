@@ -1,7 +1,7 @@
-"""Implements the fixed parity convention.
+"""Implements the fixed boundary convention.
 
 This module is intended to be the only module through which instances of :class:`.Plaquette` can be
-obtained for the fixed parity convention.
+obtained for the fixed boundary convention.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Direction3D
 
 
-class FixedParityConventionGenerator:
+class FixedBoundaryConventionGenerator:
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
         self._mapper = PlaquetteMapper(translator, compiler)
 
@@ -379,7 +379,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_memory_qubit_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_memory_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -438,7 +438,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_memory_qubit_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_memory_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -498,7 +498,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_memory_vertical_boundary_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_memory_vertical_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -564,7 +564,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_memory_vertical_boundary_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_memory_vertical_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -625,7 +625,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_memory_horizontal_boundary_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_memory_horizontal_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -695,7 +695,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_memory_horizontal_boundary_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_memory_horizontal_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -766,7 +766,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_spatial_cube_qubit_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_cube_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -851,15 +851,15 @@ class FixedParityConventionGenerator:
                 },
                 default_value=RPNGDescription.empty(),
             )
-        # Note about the fixed parity convention: in order to work as expected,
+        # Note about the fixed boundary convention: in order to work as expected,
         # spatial cubes need to have one dimension that does not respect the
-        # parity convention. By convention, we only use stretched stabilizers in
+        # boundary convention. By convention, we only use stretched stabilizers in
         # the vertical (Y) dimension (i.e., between two cubes that are aligned
         # on the Y axis), and so only the boundaries on the X axis (left and
-        # right) need to not follow the fixed parity convention.
+        # right) need to not follow the fixed boundary convention.
         # For spatial cubes, the only exception to the above rule is when the
         # cube is a "dead-end" (i.e., only one spatial arm: ``len(arms) == 1``).
-        # In that case, the dimension that should not follow the fixed parity
+        # In that case, the dimension that should not follow the fixed boundary
         # convention is the one "closing" the pipe, i.e., the dimension in which
         # the only arm is positioned.
         # For dead-end cubes, a dead-end in the X dimension still follows the
@@ -979,7 +979,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_spatial_cube_qubit_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_cube_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1079,7 +1079,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_spatial_cube_arm_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_cube_arm_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1174,9 +1174,9 @@ class FixedParityConventionGenerator:
         """Check if the pipe represented by the given ``arms`` and
         ``linked_cubes`` requires extended stablizers.
 
-        In fixed parity convention, spatial cubes change the parity. That is
-        why we need stretched stabilizers. By convention, TQEC inserts stretched
-        stabilizers only in the UP/DOWN pipes (i.e., in the Y spatial dimension).
+        In fixed boundary convention, spatial cubes change the boundary parity.
+        That is why we need stretched stabilizers. By convention, TQEC inserts
+        stretched stabilizers only in the UP/DOWN pipes (i.e., in the Y spatial dimension).
 
         But if 2 spatial cubes are linked by a pipe in the Y dimension, we
         *might* not need to fix the parity with extended stabilizers. We only
@@ -1217,7 +1217,7 @@ class FixedParityConventionGenerator:
             boundary, ``False`` otherwise.
 
         """
-        assert FixedParityConventionGenerator.pipe_needs_extended_stablizers(linked_cubes)
+        assert FixedBoundaryConventionGenerator.pipe_needs_extended_stablizers(linked_cubes)
         return linked_cubes[1].has_spatial_pipe_in_both_dimensions
 
     def _get_up_down_spatial_cube_arm_plaquettes(
@@ -1228,7 +1228,7 @@ class FixedParityConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        if not FixedParityConventionGenerator.pipe_needs_extended_stablizers(linked_cubes):
+        if not FixedBoundaryConventionGenerator.pipe_needs_extended_stablizers(linked_cubes):
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
                 spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
@@ -1241,7 +1241,7 @@ class FixedParityConventionGenerator:
         plaquettes: dict[int, Plaquette] = {}
         # Getting the extended plaquettes for the bulk and filling the dictionary
         has_left_boundary = (
-            FixedParityConventionGenerator.pipe_has_boundary_extended_stabilizer_at_left(
+            FixedBoundaryConventionGenerator.pipe_has_boundary_extended_stabilizer_at_left(
                 linked_cubes
             )
         )
@@ -1375,7 +1375,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_temporal_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_temporal_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.Template` instance returned by this
@@ -1456,7 +1456,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_spatial_vertical_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_vertical_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -1544,7 +1544,7 @@ class FixedParityConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedParityConventionGenerator.get_spatial_horizontal_hadamard_raw_template`
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_horizontal_hadamard_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned

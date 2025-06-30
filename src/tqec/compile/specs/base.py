@@ -29,7 +29,7 @@ class CubeSpec:
         has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial
             pipe at the top or bottom of a spatial cube is executed on the same
             timeslice as this cube. This information is needed for the fixed
-            parity convention.
+            boundary convention.
 
     """
 
@@ -131,7 +131,7 @@ class PipeSpec:
         has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial
             pipe at the top or bottom of a spatial cube is executed on the same
             timeslice as this cube. This information is needed for the fixed
-            parity convention.
+            boundary convention.
         at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal
             pipe and there is a temporal Hadamard pipe at the same Z position
             in the block graph.
