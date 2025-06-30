@@ -16,7 +16,7 @@ What are the implications of using extended plaquettes?
 Longer QEC rounds
 ~~~~~~~~~~~~~~~~~
 
-The current implementation of extended plaquettes (sown below) requires 8 moments, instead of only
+The current implementation of extended plaquettes (shown below) requires 8 moments, instead of only
 6 moments for regular plaquettes.
 
 .. raw:: html
@@ -27,7 +27,7 @@ That means that the quantum circuit implementing a QEC experiment with a spatial
 idle moments, due to the need for regular plaquettes to wait 2 moments at each QEC rounds to
 synchronise with the extended plaquette.
 
-In turns, more idle moments means more opportunity for physical errors, which might reduce the final
+In turns, more idle moments means more opportunity for physical errors, which might increase the final
 logical error-rate.
 
 Smaller distance
@@ -64,11 +64,9 @@ The same error pattern can be observed for higher distances:
    triggered by 2 errors, which means that they will not raise any detection event) and that changes
    the logical observable.
 
-In theory, this is a huge problem as the implementation of extended plaquettes reduces the resistance
-of the code against error.
-
-But in practice, it turns out that this is not an issue. To show that, we need to compare the
-logical error-rate of a computation that uses extended plaquettes with a similar computation that
+In theory, this seems to be a huge problem as the implementation of extended plaquettes reduces distance
+of the code. But in practice, it turns out that this is not an big issue. To show that, we need to compare
+the logical error-rate of a computation that uses extended plaquettes with a similar computation that
 does not. For the sake of simplicity, we compare the simplest computation involving a spatial
 junction with its rotated counterpart.
 
@@ -108,4 +106,5 @@ to 17, the above plot shows that the spatial junction (using extended plaquette)
 rate is never higher than 3 times its temporal counterpart.
 
 That means that, in practice, using extended plaquettes have a noticeable effect on logical error
-rate **but** that effect is lower than decreasing the distance of the code.
+rate **but** that effect is not as bad as it seems. In fact, the number of low-weight logical errors
+is small enough that the code still persists good performance in terms of logical error rate.
