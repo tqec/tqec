@@ -370,6 +370,28 @@ class LayerTree:
         errors: Sequence[stim.ExplainedError] = tuple(),
         show_observable: int | None = None,
     ) -> list[str]:
+        """Visualize the layers as a list of SVG strings.
+
+        Args:
+            k: scaling factor.
+            errors: a sequence of errors to be drawn on the layers. Each error
+                is visualised with a cross. The cross colour follows the XYZ=RGB
+                convention, and the moment index at which the error takes place
+                is written above the cross (an error is always scheduled at the
+                end of the moment, so any operation applied at the same moment
+                is applied before the error).
+            show_observable: the index of the observable to be drawn on the layers.
+                If set to ``None``, no observable will be shown. If set to an
+                integer, the observable with that index will be shown. The
+                observable is represented as the set of included measurements.
+                A yellow star on the plaquette vertex indicates a data qubit
+                readout, while a star on the plaquette face indicates a
+                stabilizer measurements.
+
+        Returns:
+            a list of SVG strings representing the layers of the tree.
+
+        """
         if show_observable is not None and show_observable >= len(self._abstract_observables):
             raise TQECException(
                 f"show_observable={show_observable} is out of range for the number of "

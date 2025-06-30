@@ -31,6 +31,7 @@ class SpatialArms(Flag):
 
     @property
     def has_spatial_arm_in_both_dimensions(self) -> bool:
+        """Checks if the spatial arms have arms in both spatial dimensions."""
         return (SpatialArms.DOWN in self or SpatialArms.UP in self) and (
             SpatialArms.LEFT in self or SpatialArms.RIGHT in self
         )
