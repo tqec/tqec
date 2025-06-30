@@ -6,9 +6,9 @@ Extended plaquettes implementation
 When are extended plaquettes used?
 -----------------------------------
 
-Extended plaquettes are used in fixed parity convention when implementing some spatial junctions.
+Extended plaquettes are used in fixed boundary convention when implementing some spatial junctions.
 
-These plaquettes are needed to keep the fixed parity convention.
+These plaquettes are needed to keep the fixed boundary convention.
 
 What are the implications of using extended plaquettes?
 --------------------------------------------------------
