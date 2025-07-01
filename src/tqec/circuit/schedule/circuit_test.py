@@ -4,8 +4,13 @@ import stim
 from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
-from tqec.circuit.schedule import Schedule, ScheduledCircuit, ScheduleException
-from tqec.utils.exceptions import TQECException
+from tqec.circuit.schedule import (
+    AnnotationError,
+    Schedule,
+    ScheduledCircuit,
+    ScheduleError,
+    UnsupportedError,
+)
 
 _VALID_SCHEDULED_CIRCUITS = [
     stim.Circuit(""),
@@ -31,13 +36,13 @@ def test_scheduled_circuit_construction() -> None:
         stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), Schedule.from_offsets([0, 3])
     )
 
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), -1)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), [1])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), [1, 2, 3])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(UnsupportedError):
         ScheduledCircuit.from_circuit(stim.Circuit("REPEAT 10{\nH 0 1 2\n}"), [1])
 
     ScheduledCircuit([], 0, QubitMap())
@@ -46,20 +51,20 @@ def test_scheduled_circuit_construction() -> None:
     ScheduledCircuit(moments, 0, i2q)
     ScheduledCircuit(moments, [0, 1], i2q)
     ScheduledCircuit(moments, Schedule.from_offsets([0, 1]), i2q)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, -1, i2q)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, [0], i2q)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, [0, 1, 2], i2q)
 
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nQUBIT_COORDS(0, 0) 0\nH 0 1 2"))
     moments = [
         Moment(stim.Circuit("H 0 1 2")),
         Moment(stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0 1 2")),
     ]
-    with pytest.raises(ScheduleException):
+    with pytest.raises(UnsupportedError):
         ScheduledCircuit(moments, 0, i2q)
 
 
@@ -163,9 +168,9 @@ def test_scheduled_circuit_moment_at_schedule() -> None:
     assert circuit.moment_at_schedule(1).circuit == stim.Circuit("H 2 1 0")
     assert circuit.moment_at_schedule(-1).circuit == stim.Circuit("H 2 1 0")
     assert circuit.moment_at_schedule(-2).circuit == stim.Circuit("H 0 1 2")
-    with pytest.raises(TQECException):
+    with pytest.raises(ScheduleError):
         circuit.moment_at_schedule(2)
-    with pytest.raises(TQECException):
+    with pytest.raises(ScheduleError):
         circuit.moment_at_schedule(-3)
 
 
@@ -199,7 +204,7 @@ def test_scheduled_circuit_append_annotation() -> None:
     circuit.append_annotation(stim.CircuitInstruction("DETECTOR", [stim.target_rec(-1)], [0, 0]))
     circuit.append_observable(0, [stim.target_rec(-1)])
     with pytest.raises(
-        TQECException,
+        AnnotationError,
         match="^The provided instruction is not an annotation, which is disallowed by the append_annotation method.$",
     ):
         circuit.append_annotation(stim.CircuitInstruction("H", [0, 1], []))
