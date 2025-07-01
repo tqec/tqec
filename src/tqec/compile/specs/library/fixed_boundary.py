@@ -13,8 +13,8 @@ from tqec.compile.specs.base import (
     PipeSpec,
 )
 from tqec.compile.specs.enums import SpatialArms
-from tqec.compile.specs.library.generators.fixed_parity import (
-    FixedParityConventionGenerator,
+from tqec.compile.specs.library.generators.fixed_boundary import (
+    FixedBoundaryConventionGenerator,
 )
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
@@ -47,7 +47,7 @@ def _get_block(
     ``plaquettes_generator``.
 
     This helper function handles all the complexity linked to generating a :class:`.Block` instance
-    for the fixed parity convention, especially when a spatial junction needs to be implemented with
+    for the fixed boundary convention, especially when a spatial junction needs to be implemented with
     alternating plaquettes where it handles the alternation correctly even in REPEAT blocks.
 
     Raises:
@@ -114,13 +114,15 @@ def _get_block(
     )
 
 
-class FixedParityCubeBuilder(CubeBuilder):
+class FixedBoundaryCubeBuilder(CubeBuilder):
     """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
-    interface for the fixed parity convention.
+    interface for the fixed boundary convention.
 
-    This class provides an implementation following the fixed-parity convention.
+    This class provides an implementation following the fixed-boundary convention.
     This convention consists in the fact that 2-body stabilizers on the boundary
-    of a logical qubit are always at an even parity.
+    of a logical qubit are always at an even position(counting clockwise from the
+    top left corner starting at 1).
+
     """
 
     def __init__(
@@ -128,7 +130,7 @@ class FixedParityCubeBuilder(CubeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        self._generator = FixedParityConventionGenerator(translator, compiler)
+        self._generator = FixedBoundaryConventionGenerator(translator, compiler)
 
     def _get_template_and_plaquettes_generator(
         self, spec: CubeSpec
@@ -177,13 +179,14 @@ class FixedParityCubeBuilder(CubeBuilder):
         )
 
 
-class FixedParityPipeBuilder(PipeBuilder):
+class FixedBoundaryPipeBuilder(PipeBuilder):
     """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
-    interface for the fixed parity convention.
+    interface for the fixed boundary convention.
 
-    This class provides an implementation following the fixed-parity convention.
+    This class provides an implementation following the fixed-boundary convention.
     This convention consists in the fact that 2-body stabilizers on the boundary
-    of a logical qubit are always at an even parity.
+    of a logical qubit are always at an even position(counting clockwise from the
+    top left corner starting at 1).
     """
 
     def __init__(
@@ -191,7 +194,7 @@ class FixedParityPipeBuilder(PipeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        self._generator = FixedParityConventionGenerator(translator, compiler)
+        self._generator = FixedBoundaryConventionGenerator(translator, compiler)
 
     def __call__(self, spec: PipeSpec) -> Block:
         if spec.pipe_kind.is_temporal:
@@ -283,7 +286,7 @@ class FixedParityPipeBuilder(PipeBuilder):
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
         # Get the plaquette indices mappings
-        arms = FixedParityPipeBuilder._get_spatial_cube_arms(spec)
+        arms = FixedBoundaryPipeBuilder._get_spatial_cube_arms(spec)
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
 
         def plaquettes_generator(is_reversed: bool, r: Basis | None, m: Basis | None) -> Plaquettes:
@@ -371,7 +374,7 @@ class FixedParityPipeBuilder(PipeBuilder):
         assert all(not spec.is_spatial for spec in spec.cube_specs)
         plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
         template = self._get_spatial_regular_pipe_template(spec)
-        z = spec.pipe_kind.z
+        z = spec.pipe_kind.get_basis_along(Direction3D.Z, at_head=False)
         assert z is not None, "Spatial pipe should have a basis in the Z direction."
         return _get_block(
             z,
@@ -389,5 +392,5 @@ class FixedParityPipeBuilder(PipeBuilder):
         return self._get_spatial_regular_pipe_block(spec)
 
 
-FIXED_PARITY_CUBE_BUILDER = FixedParityCubeBuilder(IdentityPlaquetteCompiler)
-FIXED_PARITY_PIPE_BUILDER = FixedParityPipeBuilder(IdentityPlaquetteCompiler)
+FIXED_BOUNDARY_CUBE_BUILDER = FixedBoundaryCubeBuilder(IdentityPlaquetteCompiler)
+FIXED_BOUNDARY_PIPE_BUILDER = FixedBoundaryPipeBuilder(IdentityPlaquetteCompiler)

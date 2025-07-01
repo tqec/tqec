@@ -153,6 +153,35 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
             ]
         )
 
+    @staticmethod
+    def get_weight_three_extended_plaquette_shape(
+        position: ExtendedPlaquettePosition,
+        plaquette_type: ExtendedPlaquetteType,
+        fill: str = "none",
+        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+    ) -> svg.Element:
+        if position == ExtendedPlaquettePosition.DOWN:
+            return svg.G()
+        _, tr, bl, br = SVGPlaquetteDrawer._CORNERS
+        bl += 1j
+        br += 1j
+        center = 0.5 + 1j
+        SIDE_LENGTH = 0.2
+
+        vs = [bl, bl - SIDE_LENGTH * 1j, tr - SIDE_LENGTH, tr, br]
+        if plaquette_type == ExtendedPlaquetteType.RIGHT_WITH_ARM:
+            vs = [2 * center - v for v in vs]
+        path_data: list[svg.PathData] = [svg.M(vs[0].real, vs[0].imag)]
+        for v in vs[1:]:
+            path_data.append(svg.L(v.real, v.imag))
+        path_data.append(svg.Z())
+        return svg.Path(
+            d=path_data,
+            fill=fill,
+            stroke=configuration.stroke_color,
+            stroke_width=configuration.stroke_width,
+        )
+
     def get_plaquette_shape_path(
         self,
         configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
@@ -178,8 +207,9 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
                     self._position, self._plaquette_type, fill, configuration
                 )
             case ExtendedPlaquetteType.LEFT_WITH_ARM | ExtendedPlaquetteType.RIGHT_WITH_ARM:
-                # TODO
-                return svg.G()
+                return ExtendedPlaquetteDrawer.get_weight_three_extended_plaquette_shape(
+                    self._position, self._plaquette_type, fill, configuration
+                )
 
     def get_interaction_order_text(
         self,

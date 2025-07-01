@@ -29,7 +29,7 @@ class CubeSpec:
         has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial
             pipe at the top or bottom of a spatial cube is executed on the same
             timeslice as this cube. This information is needed for the fixed
-            parity convention.
+            boundary convention.
 
     """
 
@@ -63,11 +63,7 @@ class CubeSpec:
                 cube.kind,
                 has_spatial_up_or_down_pipe_in_timeslice=has_spatial_up_or_down_pipe_in_timeslice,
             )
-        pos = cube.position
-        spatial_arms = SpatialArms.NONE
-        for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
-            if graph.has_pipe_between(pos, pos.shift_by(*shift)):
-                spatial_arms |= flag
+        spatial_arms = SpatialArms.from_cube_in_graph(cube, graph)
         return CubeSpec(cube.kind, spatial_arms, has_spatial_up_or_down_pipe_in_timeslice)
 
     @property
@@ -81,9 +77,7 @@ class CubeSpec:
 
     @property
     def has_spatial_pipe_in_both_dimensions(self) -> bool:
-        return (SpatialArms.DOWN in self.spatial_arms or SpatialArms.UP in self.spatial_arms) and (
-            SpatialArms.LEFT in self.spatial_arms or SpatialArms.RIGHT in self.spatial_arms
-        )
+        return self.spatial_arms.has_spatial_arm_in_both_dimensions
 
 
 class CubeBuilder(Protocol):
@@ -137,7 +131,7 @@ class PipeSpec:
         has_spatial_up_or_down_pipe_in_timeslice: a flag indicating if a spatial
             pipe at the top or bottom of a spatial cube is executed on the same
             timeslice as this cube. This information is needed for the fixed
-            parity convention.
+            boundary convention.
         at_temporal_hadamard_layer: flag indicating whether the pipe is a temporal
             pipe and there is a temporal Hadamard pipe at the same Z position
             in the block graph.

@@ -6,56 +6,37 @@ from tqec.compile.observables.abstract_observable import (
     PipeWithObservableBasis,
 )
 from tqec.compile.observables.builder import Coordinates2D, ObservableBuilder
+from tqec.compile.observables.fixed_bulk_builder import build_regular_cube_top_readout_qubits
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.cube import ZXCube
-from tqec.utils.enums import Basis, Orientation
+from tqec.utils.enums import Orientation
 from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 
 
-def build_regular_cube_top_readout_qubits(
-    shape: PlaquetteShape2D, observable_orientation: Orientation
-) -> Sequence[Coordinates2D]:
-    if observable_orientation == Orientation.HORIZONTAL:
-        return [(x, shape.y // 2) for x in range(1, shape.x)]
-    return [(shape.x // 2, y) for y in range(1, shape.y)]
-
-
 def build_spatial_cube_top_readout_qubits(
-    shape: PlaquetteShape2D, arms: SpatialArms, observable_basis: Basis
+    shape: PlaquetteShape2D, arms: SpatialArms
 ) -> Sequence[Coordinates2D]:
     assert len(arms) == 2
     half_x, half_y = shape.x // 2, shape.y // 2
 
     if arms == SpatialArms.LEFT | SpatialArms.RIGHT:
         return [(x, half_y) for x in range(1, shape.x)]
-    if arms == SpatialArms.UP | SpatialArms.DOWN:
+    elif arms == SpatialArms.UP | SpatialArms.DOWN:
         return [(half_x, y) for y in range(1, shape.y)]
-    if arms == SpatialArms.LEFT | SpatialArms.UP:
-        qubits = [(x, half_y) for x in range(1, half_x)] + [(half_x, y) for y in range(1, half_y)]
-        if observable_basis == Basis.Z:
-            qubits.append((half_x, half_y))
-        return qubits
-    if arms == SpatialArms.DOWN | SpatialArms.RIGHT:
-        qubits = [(x, half_y) for x in range(shape.x - 1, half_x, -1)] + [
+    elif arms == SpatialArms.LEFT | SpatialArms.UP:
+        return [(x, half_y) for x in range(1, half_x)] + [(half_x, y) for y in range(1, half_y)]
+    elif arms == SpatialArms.DOWN | SpatialArms.RIGHT:
+        return [(x, half_y) for x in range(shape.x - 1, half_x, -1)] + [
             (half_x, y) for y in range(shape.y - 1, half_y, -1)
         ]
-        if observable_basis == Basis.Z:
-            qubits.append((half_x, half_y))
-        return qubits
-    if arms == SpatialArms.UP | SpatialArms.RIGHT:
-        qubits = [(x, half_y) for x in range(shape.x - 1, half_x, -1)] + [
-            (half_x, y) for y in range(1, half_y)
+    elif arms == SpatialArms.UP | SpatialArms.RIGHT:
+        return [(x, half_y) for x in range(shape.x - 1, half_x, -1)] + [
+            (half_x, y) for y in range(1, half_y + 1)
         ]
-        if observable_basis == Basis.X:
-            qubits.append((half_x, half_y))
-        return qubits
     # arms == SpatialArms.LEFT | SpatialArms.DOWN:
-    qubits = [(x, half_y) for x in range(1, half_x)] + [
+    return [(x, half_y) for x in range(1, half_x + 1)] + [
         (half_x, y) for y in range(shape.y - 1, half_y, -1)
     ]
-    if observable_basis == Basis.X:
-        qubits.append((half_x, half_y))
-    return qubits
 
 
 def build_cube_top_readout_qubits(
@@ -70,42 +51,51 @@ def build_cube_top_readout_qubits(
         # boundaries that the logical operator can be attached to.
         obs_orientation = Orientation.VERTICAL if kind.y == kind.z else Orientation.HORIZONTAL
         return build_regular_cube_top_readout_qubits(shape, obs_orientation)
-    kind = cube.cube.kind
-    assert isinstance(kind, ZXCube)
-    observable_basis = kind.z
-    return build_spatial_cube_top_readout_qubits(shape, cube.arms, observable_basis)
+    return build_spatial_cube_top_readout_qubits(shape, cube.arms)
 
 
-def build_pipe_top_readout_qubits(
-    shape: PlaquetteShape2D, direction: Direction3D
+def _extended_stabilizers_used(
+    pipe: PipeWithArms,
+) -> bool:
+    if pipe.pipe.direction == Direction3D.X:
+        return False
+    u_arms, v_arms = pipe.cube_arms
+    return u_arms.has_spatial_arm_in_both_dimensions ^ v_arms.has_spatial_arm_in_both_dimensions
+
+
+def build_pipe_top_readout_qubits_impl(
+    shape: PlaquetteShape2D, direction: Direction3D, extended_stabilizers_used: bool
 ) -> Sequence[Coordinates2D]:
     assert direction != Direction3D.Z
     if direction == Direction3D.X:
         return [(shape.x, shape.y // 2)]
+    # Extended stabilizers at pipe do not have qubits that need to be include
+    # in the observable.
+    if extended_stabilizers_used:
+        return []
     return [(shape.x // 2, shape.y)]
+
+
+def build_pipe_top_readout_qubits(
+    shape: PlaquetteShape2D, pipe: PipeWithArms
+) -> Sequence[Coordinates2D]:
+    return build_pipe_top_readout_qubits_impl(
+        shape, pipe.pipe.direction, _extended_stabilizers_used(pipe)
+    )
 
 
 def build_regular_cube_bottom_stabilizer_qubits(
     shape: PlaquetteShape2D,
     connect_to: SignedDirection3D,
-    stabilizer_basis: Basis,
 ) -> Sequence[Coordinates2D]:
     stabilizers: list[tuple[float, float]] = []
-    xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
     # We calculate the qubits for the connect_to=SignedDirection3D(Direction3D.X, True) case
     # and rotate to get the correct orientation.
-    for i in range(shape.x // 2, shape.x):
-        for j in range(shape.y):
-            if (i + j) % 2 != xy_sum_parity:
-                continue
-            x = i + 0.5
-            y = j + 0.5
-            # reflect the coordinates along the middle line of the cube
-            # if the direction is along Y to preserve the checkerboard parity
-            if connect_to.direction == Direction3D.Y:
-                y = shape.y - y
+    for i in range(shape.x // 2):
+        x = shape.x - i - 0.5
+        for j in range(shape.y // 2):
+            y = (1 - i % 2) + 2 * j + 0.5
             stabilizers.append((x, y))
-
     # rotate all coordinates around the block center:
     # rx = cx + a * (x - cx) - b * (y - cy)
     # ry = cy + b * (x - cx) + a * (y - cy)
@@ -132,44 +122,49 @@ def build_regular_cube_bottom_stabilizer_qubits(
 
 
 def build_spatial_cube_bottom_stabilizer_qubits(
-    shape: PlaquetteShape2D, stabilizer_basis: Basis
+    shape: PlaquetteShape2D,
 ) -> Sequence[Coordinates2D]:
-    xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
+    return [(i + 0.5, j + 0.5) for i in range(shape.x) for j in range(shape.y) if (i + j) % 2 == 0]
+
+
+def build_connected_spatial_cube_bottom_stabilizer_qubits(
+    shape: PlaquetteShape2D,
+    arms: SpatialArms,
+    connect_to: SignedDirection3D,
+    extended_stabilizers_used: bool,
+) -> Sequence[Coordinates2D]:
+    max_y = (
+        shape.y - 1
+        if extended_stabilizers_used and connect_to == SignedDirection3D(Direction3D.Y, True)
+        else shape.y
+    )
+    bulk_parity = 1 if arms in [SpatialArms.UP, SpatialArms.DOWN] else 0
     return [
         (i + 0.5, j + 0.5)
         for i in range(shape.x)
-        for j in range(shape.y)
-        if (i + j) % 2 == xy_sum_parity
+        for j in range(max_y)
+        if (i + j) % 2 == bulk_parity
     ]
-
-
-def build_cube_bottom_stabilizer_qubits(
-    shape: PlaquetteShape2D, cube: CubeWithArms
-) -> Sequence[Coordinates2D]:
-    assert cube.cube.is_spatial
-    kind = cube.cube.kind
-    assert isinstance(kind, ZXCube)
-    return build_spatial_cube_bottom_stabilizer_qubits(shape, kind.x)
 
 
 def build_pipe_bottom_stabilizer_qubits(
     shape: PlaquetteShape2D, pipe: PipeWithArms
 ) -> Sequence[Coordinates2D]:
     direction = pipe.pipe.direction
+    extended_stabilizers_used = _extended_stabilizers_used(pipe)
 
     qubits: list[Coordinates2D] = []
-    for cube in pipe.pipe:
+    for cube, arms in zip(pipe.pipe, pipe.cube_arms):
         kind = cube.kind
         assert isinstance(kind, ZXCube)
         is_u = cube == pipe.pipe.u
+        connect_to = SignedDirection3D(direction, is_u)
         if cube.is_spatial:
-            stabilizers = build_spatial_cube_bottom_stabilizer_qubits(shape, kind.x)
-        else:
-            connect_to = SignedDirection3D(direction, is_u)
-            stabilizer_basis = kind.get_basis_along(Direction3D(1 - direction.value))
-            stabilizers = build_regular_cube_bottom_stabilizer_qubits(
-                shape, connect_to, stabilizer_basis
+            stabilizers = build_connected_spatial_cube_bottom_stabilizer_qubits(
+                shape, arms, connect_to, extended_stabilizers_used
             )
+        else:
+            stabilizers = build_regular_cube_bottom_stabilizer_qubits(shape, connect_to)
         # the local coordinates is of cube u, therefore, we need to shift the coordinates
         # of the stabilizers within cube v
         if not is_u:
@@ -184,39 +179,18 @@ def build_pipe_bottom_stabilizer_qubits(
     return qubits
 
 
-def build_pipe_temporal_hadamard_qubits_impl(
-    shape: PlaquetteShape2D, observable_basis: Basis, z_orientation: Orientation
-) -> Sequence[Coordinates2D]:
-    # observable is horizontal
-    if (observable_basis == Basis.X) ^ (z_orientation == Orientation.HORIZONTAL):
-        if (shape.x % 4 == 0) ^ (observable_basis == Basis.Z):
-            return [(shape.x - 0.5, shape.y // 2 + 0.5)]
-        return []
-    # observable is vertical
-    if (shape.y % 4 == 0) ^ (observable_basis == Basis.Z):
-        return [(shape.x // 2 + 0.5, shape.y - 0.5)]
-    return []
-
-
 def build_pipe_temporal_hadamard_qubits(
     shape: PlaquetteShape2D, pipe: PipeWithObservableBasis
 ) -> Sequence[Coordinates2D]:
-    pipe_kind = pipe.pipe.kind
-    observable_basis = pipe.observable_basis
-    z_orientation = (
-        Orientation.VERTICAL
-        if pipe_kind.get_basis_along(Direction3D.Y) == Basis.Z
-        else Orientation.HORIZONTAL
-    )
-    return build_pipe_temporal_hadamard_qubits_impl(shape, observable_basis, z_orientation)
+    return []
 
 
-FIXED_BULK_OBSERVABLE_BUILDER = ObservableBuilder(
+FIXED_BOUNDARY_OBSERVABLE_BUILDER = ObservableBuilder(
     cube_top_readouts_builder=build_cube_top_readout_qubits,
-    pipe_top_readouts_builder=lambda shape, pipe: build_pipe_top_readout_qubits(
-        shape, pipe.pipe.direction
+    pipe_top_readouts_builder=build_pipe_top_readout_qubits,
+    cube_bottom_stabilizers_builder=lambda shape, cube: build_spatial_cube_bottom_stabilizer_qubits(
+        shape
     ),
-    cube_bottom_stabilizers_builder=build_cube_bottom_stabilizer_qubits,
     pipe_bottom_stabilizers_builder=build_pipe_bottom_stabilizer_qubits,
     pipe_temporal_hadamard_builder=build_pipe_temporal_hadamard_qubits,
 )

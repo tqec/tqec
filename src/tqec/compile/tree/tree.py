@@ -192,9 +192,8 @@ class LayerTree:
                 lookback=lookback,
             )
             return str(circuit.to_crumble_url())
-        self._generate_annotations(
-            k, manhattan_radius, detector_database, lookback=lookback, add_polygons=True
-        )
+        self._generate_annotations(k, manhattan_radius, detector_database, lookback=lookback)
+        self._annotate_polygons(k)
         annotations = self._get_annotation(k)
         qubit_map = annotations.qubit_map
         assert qubit_map is not None
@@ -229,7 +228,6 @@ class LayerTree:
         database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
-        add_polygons: bool = False,
         parallel_process_count: int = 1,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
@@ -250,8 +248,6 @@ class LayerTree:
             parallel_process_count,
         )
         self._annotate_observables(k)
-        if add_polygons:
-            self._annotate_polygons(k)
 
     def generate_circuit(
         self,
@@ -368,8 +364,40 @@ class LayerTree:
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
 
-    def layers_to_svg(self, k: int, errors: Sequence[stim.ExplainedError] = tuple()) -> list[str]:
-        annotations = self._get_annotation(k)
+    def layers_to_svg(
+        self,
+        k: int,
+        errors: Sequence[stim.ExplainedError] = tuple(),
+        show_observable: int | None = None,
+    ) -> list[str]:
+        """Visualize the layers as a list of SVG strings.
+
+        Args:
+            k: scaling factor.
+            errors: a sequence of errors to be drawn on the layers. Each error
+                is visualised with a cross. The cross colour follows the XYZ=RGB
+                convention, and the moment index at which the error takes place
+                is written above the cross (an error is always scheduled at the
+                end of the moment, so any operation applied at the same moment
+                is applied before the error).
+            show_observable: the index of the observable to be drawn on the layers.
+                If set to ``None``, no observable will be shown. If set to an
+                integer, the observable with that index will be shown. The
+                observable is represented as the set of included measurements.
+                A yellow star on the plaquette vertex indicates a data qubit
+                readout, while a star on the plaquette face indicates a
+                stabilizer measurements.
+
+        Returns:
+            a list of SVG strings representing the layers of the tree.
+
+        """
+        if show_observable is not None and show_observable >= len(self._abstract_observables):
+            raise TQECException(
+                f"show_observable={show_observable} is out of range for the number of "
+                f"abstract observables ({len(self._abstract_observables)})."
+            )
+        annotations = self._annotations.get(k, LayerTreeAnnotations())
         tl, br = (
             annotations.qubit_map.qubit_bounds()
             if annotations.qubit_map is not None
@@ -385,6 +413,8 @@ class LayerTree:
             tl = GridQubit(tl.x - 1 if tl.x % 2 == 0 else tl.x, tl.y - 1 if tl.y % 2 == 0 else tl.y)
         if br is not None:
             br = GridQubit(br.x + 1 if br.x % 2 == 0 else br.x, br.y + 1 if br.y % 2 == 0 else br.y)
-        visualiser = LayerVisualiser(k, errors, top_left_qubit=tl, bottom_right_qubit=br)
+        visualiser = LayerVisualiser(
+            k, errors, show_observable, top_left_qubit=tl, bottom_right_qubit=br
+        )
         self._root.walk(visualiser)
         return visualiser.visualisations
