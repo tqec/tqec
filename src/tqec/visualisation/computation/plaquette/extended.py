@@ -271,6 +271,12 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         ):
             return None
 
+        if (
+            self._plaquette_type == ExtendedPlaquetteType.BULK
+            and self._position == ExtendedPlaquettePosition.UP
+        ):
+            return None
+
         tl, tr, bl, br = SVGPlaquetteDrawer._CORNERS
         c1, c2 = (tl, tr) if self._position == ExtendedPlaquettePosition.UP else (bl, br)
         f = configuration.hook_error_line_lerp_coefficient
