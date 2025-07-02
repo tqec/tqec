@@ -1,0 +1,52 @@
+Plaquette
+=========
+
+.. currentmodule:: tqec.plaquette
+
+.. autoclass:: Plaquette
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Plaquette.__init__
+      ~Plaquette.from_dict
+      ~Plaquette.is_empty
+      ~Plaquette.project_on_boundary
+      ~Plaquette.reliable_hash
+      ~Plaquette.to_dict
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Plaquette.num_measurements
+      ~Plaquette.num_moments
+      ~Plaquette.origin
+      ~Plaquette.name
+      ~Plaquette.qubits
+      ~Plaquette.circuit
+      ~Plaquette.mergeable_instructions
+      ~Plaquette.debug_information
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: from_dict
+   .. automethod:: is_empty
+   .. automethod:: project_on_boundary
+   .. automethod:: reliable_hash
+   .. automethod:: to_dict
+   
+   
