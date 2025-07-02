@@ -1201,8 +1201,8 @@ class FixedBoundaryConventionGenerator:
     def pipe_has_boundary_extended_stabilizer_at_left(
         linked_cubes: tuple[CubeSpec, CubeSpec],
     ) -> bool:
-        """Check if the pipe represented by the given ``arms`` and
-        ``linked_cubes`` has an extended stabilizer at the left boundary.
+        """Check if the pipe represented by the given ``linked_cubes`` has an extended stabilizer 
+        at the left boundary.
 
         Assuming a pipe needs to be implemented with extended stabilizer, it has
         an extended stabilizer at the left boundary iff. the spatial cube that
