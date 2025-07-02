@@ -1204,7 +1204,7 @@ class FixedBoundaryConventionGenerator:
         """Check if the pipe represented by the given ``arms`` and
         ``linked_cubes`` has an extended stabilizer at the left boundary.
 
-        Assuming a pipe needs to be implemented with extended stabilizer, it hash
+        Assuming a pipe needs to be implemented with extended stabilizer, it has
         an extended stabilizer at the left boundary iff. the spatial cube that
         has arms in both spatial directions is the bottom one of the pipe.
 
