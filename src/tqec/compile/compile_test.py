@@ -467,6 +467,7 @@ def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=1)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("convention", "kind", "shape", "k"),
     itertools.product(CONVENTIONS, ("ZZX", "XXZ"), ("H", "工"), (1,)),
@@ -509,6 +510,7 @@ def test_compile_H_shape_stability_experiment(
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("convention", "shape", "spatial_basis", "k"),
     itertools.product(CONVENTIONS, ("H", "工"), (Basis.X, Basis.Z), (1, 2)),
@@ -559,6 +561,7 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
     )
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("convention", "observable_basis", "k"),
     itertools.product(CONVENTIONS, (Basis.X, Basis.Z), (1, 2)),
@@ -569,6 +572,7 @@ def test_compile_three_cnots(convention: Convention, observable_basis: Basis, k:
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=3)
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("convention", "observable_basis", "k"),
     itertools.product(CONVENTIONS, (Basis.X, Basis.Z), (1, 2)),
