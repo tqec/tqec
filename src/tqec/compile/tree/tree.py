@@ -394,7 +394,7 @@ class LayerTree:
         """
         if show_observable is not None and show_observable >= len(self._abstract_observables):
             raise TQECException(
-                f"show_observable={show_observable} is out of range for the number of "
+                f"{show_observable:=} is out of range for the number of "
                 f"abstract observables ({len(self._abstract_observables)})."
             )
         annotations = self._annotations.get(k, LayerTreeAnnotations())
