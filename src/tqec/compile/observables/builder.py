@@ -71,11 +71,7 @@ class CubeObservableQubitsBuilder(Protocol):
     system.
     """
 
-    def __call__(
-        self,
-        shape: PlaquetteShape2D,
-        cube: CubeWithArms,
-    ) -> Sequence[Coordinates2D]: ...
+    def __call__(self, shape: PlaquetteShape2D, cube: CubeWithArms) -> Sequence[Coordinates2D]: ...
 
 
 class PipeObservableQubitsBuilder(Protocol):
@@ -86,11 +82,7 @@ class PipeObservableQubitsBuilder(Protocol):
     system of the cube at the head of the pipe.
     """
 
-    def __call__(
-        self,
-        shape: PlaquetteShape2D,
-        pipe: PipeWithArms,
-    ) -> Sequence[Coordinates2D]: ...
+    def __call__(self, shape: PlaquetteShape2D, pipe: PipeWithArms) -> Sequence[Coordinates2D]: ...
 
 
 class TemporalPipeObservableQubitsBuilder(Protocol):
@@ -102,9 +94,7 @@ class TemporalPipeObservableQubitsBuilder(Protocol):
     """
 
     def __call__(
-        self,
-        shape: PlaquetteShape2D,
-        pipe: PipeWithObservableBasis,
+        self, shape: PlaquetteShape2D, pipe: PipeWithObservableBasis
     ) -> Sequence[Coordinates2D]: ...
 
 

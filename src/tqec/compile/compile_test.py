@@ -4,11 +4,7 @@ from pathlib import Path
 import pytest
 
 from tqec.compile.compile import compile_block_graph
-from tqec.compile.convention import (
-    FIXED_BOUNDARY_CONVENTION,
-    FIXED_BULK_CONVENTION,
-    Convention,
-)
+from tqec.compile.convention import FIXED_BOUNDARY_CONVENTION, FIXED_BULK_CONVENTION, Convention
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
@@ -96,19 +92,12 @@ def generate_circuit_and_assert(
         assert circuit.num_observables == expected_num_observables
 
 
-CONVENTIONS = (
-    FIXED_BULK_CONVENTION,
-    FIXED_BOUNDARY_CONVENTION,
-)
+CONVENTIONS = (FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION)
 
 
 @pytest.mark.parametrize(
     ("convention", "kind", "k"),
-    itertools.product(
-        CONVENTIONS,
-        ("ZXZ", "ZXX", "XZX", "XZZ"),
-        (1,),
-    ),
+    itertools.product(CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"), (1,)),
 )
 def test_compile_memory(convention: Convention, kind: str, k: int) -> None:
     g = BlockGraph("Memory Experiment")
@@ -128,10 +117,7 @@ def test_compile_memory(convention: Convention, kind: str, k: int) -> None:
 @pytest.mark.parametrize(
     ("convention", "kind", "k", "xy"),
     itertools.product(
-        CONVENTIONS,
-        ("ZXZ", "ZXX", "XZX", "XZZ"),
-        (1,),
-        ((0, 0), (1, 1), (2, 2), (-1, -1)),
+        CONVENTIONS, ("ZXZ", "ZXX", "XZX", "XZZ"), (1,), ((0, 0), (1, 1), (2, 2), (-1, -1))
     ),
 )
 def test_compile_two_same_blocks_connected_in_time(
@@ -158,14 +144,7 @@ def test_compile_two_same_blocks_connected_in_time(
 @pytest.mark.parametrize(
     ("convention", "kinds", "k"),
     itertools.product(
-        CONVENTIONS,
-        (
-            ("ZXZ", "OXZ"),
-            ("ZXX", "ZOX"),
-            ("XZX", "OZX"),
-            ("XZZ", "XOZ"),
-        ),
-        (1,),
+        CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ")), (1,)
     ),
 )
 def test_compile_two_same_blocks_connected_in_space(
@@ -195,14 +174,7 @@ def test_compile_two_same_blocks_connected_in_space(
 @pytest.mark.parametrize(
     ("convention", "kinds", "k"),
     itertools.product(
-        CONVENTIONS,
-        (
-            ("ZXZ", "OXZ"),
-            ("ZXX", "ZOX"),
-            ("XZX", "OZX"),
-            ("XZZ", "XOZ"),
-        ),
-        (1,),
+        CONVENTIONS, (("ZXZ", "OXZ"), ("ZXX", "ZOX"), ("XZX", "OZX"), ("XZZ", "XOZ")), (1,)
     ),
 )
 def test_compile_L_shape_in_space_time(
@@ -234,12 +206,7 @@ def test_compile_L_shape_in_space_time(
 
 
 @pytest.mark.parametrize(
-    ("convention", "obs_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        (Basis.X, Basis.Z),
-        (1,),
-    ),
+    ("convention", "obs_basis", "k"), itertools.product(CONVENTIONS, (Basis.X, Basis.Z), (1,))
 )
 def test_compile_logical_cnot(convention: Convention, obs_basis: Basis, k: int) -> None:
     g = cnot(obs_basis)
@@ -249,12 +216,7 @@ def test_compile_logical_cnot(convention: Convention, obs_basis: Basis, k: int) 
 
 
 @pytest.mark.parametrize(
-    ("convention", "obs_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        (Basis.X, Basis.Z),
-        (1, 2),
-    ),
+    ("convention", "obs_basis", "k"), itertools.product(CONVENTIONS, (Basis.X, Basis.Z), (1, 2))
 )
 def test_compile_stability(convention: Convention, obs_basis: Basis, k: int) -> None:
     g = stability(obs_basis)
@@ -275,10 +237,7 @@ def test_compile_stability(convention: Convention, obs_basis: Basis, k: int) -> 
     )
 
 
-@pytest.mark.parametrize(
-    ("convention", "k"),
-    itertools.product(CONVENTIONS, (1, 2)),
-)
+@pytest.mark.parametrize(("convention", "k"), itertools.product(CONVENTIONS, (1, 2)))
 def test_compile_L_spatial_junction(convention: Convention, k: int) -> None:
     g = BlockGraph("L Spatial Junction")
     n1 = g.add_cube(Position3D(0, 0, 0), "ZXX")
@@ -292,12 +251,7 @@ def test_compile_L_spatial_junction(convention: Convention, k: int) -> None:
 
 
 @pytest.mark.parametrize(
-    ("convention", "obs_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        (Basis.X, Basis.Z),
-        (1, 2),
-    ),
+    ("convention", "obs_basis", "k"), itertools.product(CONVENTIONS, (Basis.X, Basis.Z), (1, 2))
 )
 def test_compile_move_rotation(convention: Convention, obs_basis: Basis, k: int) -> None:
     g = move_rotation(obs_basis)
@@ -313,8 +267,7 @@ def test_compile_move_rotation(convention: Convention, obs_basis: Basis, k: int)
 
 
 @pytest.mark.parametrize(
-    ("convention", "k", "in_future"),
-    itertools.product(CONVENTIONS, (1, 2), (False, True)),
+    ("convention", "k", "in_future"), itertools.product(CONVENTIONS, (1, 2), (False, True))
 )
 def test_compile_L_spatial_junction_with_time_pipe(
     convention: Convention, k: int, in_future: bool
@@ -333,12 +286,7 @@ def test_compile_L_spatial_junction_with_time_pipe(
 
 
 @pytest.mark.parametrize(
-    ("convention", "in_obs_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        (Basis.X, Basis.Z),
-        (1, 2),
-    ),
+    ("convention", "in_obs_basis", "k"), itertools.product(CONVENTIONS, (Basis.X, Basis.Z), (1, 2))
 )
 def test_compile_temporal_hadamard(convention: Convention, in_obs_basis: Basis, k: int) -> None:
     g = BlockGraph("Test Temporal Hadamard")
@@ -352,11 +300,7 @@ def test_compile_temporal_hadamard(convention: Convention, in_obs_basis: Basis, 
 
 @pytest.mark.parametrize(
     ("convention", "h_top_obs_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        [Basis.X, Basis.Z],
-        (1, 2),
-    ),
+    itertools.product(CONVENTIONS, [Basis.X, Basis.Z], (1, 2)),
 )
 def test_compile_bell_state_with_single_temporal_hadamard(
     convention: Convention, h_top_obs_basis: Basis, k: int
@@ -376,11 +320,7 @@ def test_compile_bell_state_with_single_temporal_hadamard(
 
 @pytest.mark.parametrize(
     ("convention", "direction", "k"),
-    itertools.product(
-        CONVENTIONS,
-        (Direction3D.X, Direction3D.Y),
-        (1, 2),
-    ),
+    itertools.product(CONVENTIONS, (Direction3D.X, Direction3D.Y), (1, 2)),
 )
 def test_compile_spatial_hadamard_vertical_correlation_surface(
     convention: Convention, direction: Direction3D, k: int
@@ -396,11 +336,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
     if convention.name == "fixed_bulk":
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
-                g,
-                k,
-                convention,
-                expected_distance=d,
-                expected_num_observables=1,
+                g, k, convention, expected_distance=d, expected_num_observables=1
             )
     else:
         generate_circuit_and_assert(
@@ -411,12 +347,7 @@ def test_compile_spatial_hadamard_vertical_correlation_surface(
 @pytest.mark.skip(reason="Hadamard around spatial junction is not implemented yet.")
 @pytest.mark.parametrize(
     ("convention", "direction", "obs_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        (Direction3D.X, Direction3D.Y),
-        (Basis.X, Basis.Z),
-        (1, 2),
-    ),
+    itertools.product(CONVENTIONS, (Direction3D.X, Direction3D.Y), (Basis.X, Basis.Z), (1, 2)),
 )
 def test_compile_spatial_hadamard_horizontal_correlation_surface(
     convention: Convention, direction: Direction3D, obs_basis: Basis, k: int
@@ -432,11 +363,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
     if convention.name == "fixed_bulk":
         with pytest.raises(NotImplementedError):
             generate_circuit_and_assert(
-                g,
-                k,
-                convention,
-                expected_distance=d,
-                expected_num_observables=1,
+                g, k, convention, expected_distance=d, expected_num_observables=1
             )
     else:
         generate_circuit_and_assert(
@@ -446,12 +373,7 @@ def test_compile_spatial_hadamard_horizontal_correlation_surface(
 
 @pytest.mark.parametrize(
     ("convention", "shape", "basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        ("⊣", "T", "⊥", "⊢"),
-        (Basis.X, Basis.Z),
-        (1,),
-    ),
+    itertools.product(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z), (1,)),
 )
 def test_compile_three_way_junction_with_spatial_cube_endpoints(
     convention: Convention, shape: str, basis: Basis, k: int
@@ -485,12 +407,7 @@ def test_compile_three_way_junction_with_spatial_cube_endpoints(
 
 @pytest.mark.parametrize(
     ("convention", "shape", "spatial_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        ("⊣", "T", "⊥", "⊢"),
-        (Basis.X, Basis.Z),
-        (1,),
-    ),
+    itertools.product(CONVENTIONS, ("⊣", "T", "⊥", "⊢"), (Basis.X, Basis.Z), (1,)),
 )
 def test_compile_three_way_junction_with_regular_cube_endpoints(
     convention: Convention, shape: str, spatial_basis: Basis, k: int
@@ -527,21 +444,13 @@ def test_compile_three_way_junction_with_regular_cube_endpoints(
     g.add_pipe(n0, n2)
     g.add_pipe(n0, n3)
 
-    if convention.name == "fixed_bulk":
-        d = 2 * k + 1
-    else:
-        d = 2 * k
+    d = 2 * k + 1 if convention.name == "fixed_bulk" else 2 * k
     generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=2)
 
 
 @pytest.mark.parametrize(
     ("convention", "kind", "direction", "k"),
-    itertools.product(
-        CONVENTIONS,
-        ("ZZX", "XXZ"),
-        (Direction3D.X, Direction3D.Y),
-        (1,),
-    ),
+    itertools.product(CONVENTIONS, ("ZZX", "XXZ"), (Direction3D.X, Direction3D.Y), (1,)),
 )
 def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
     convention: Convention, kind: str, direction: Direction3D, k: int
@@ -560,12 +469,7 @@ def test_compile_I_shape_stability_experiment_composed_of_three_cubes(
 
 @pytest.mark.parametrize(
     ("convention", "kind", "shape", "k"),
-    itertools.product(
-        CONVENTIONS,
-        ("ZZX", "XXZ"),
-        ("H", "工"),
-        (1,),
-    ),
+    itertools.product(CONVENTIONS, ("ZZX", "XXZ"), ("H", "工"), (1,)),
 )
 def test_compile_H_shape_stability_experiment(
     convention: Convention, kind: str, shape: str, k: int
@@ -607,12 +511,7 @@ def test_compile_H_shape_stability_experiment(
 
 @pytest.mark.parametrize(
     ("convention", "shape", "spatial_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        ("H", "工"),
-        (Basis.X, Basis.Z),
-        (1, 2),
-    ),
+    itertools.product(CONVENTIONS, ("H", "工"), (Basis.X, Basis.Z), (1, 2)),
 )
 def test_compile_H_shape_junctions_with_regular_cube_endpoints(
     convention: Convention, shape: str, spatial_basis: Basis, k: int
@@ -654,10 +553,7 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
     for edge in [(0, 1), (0, 2), (0, 3), (3, 4), (3, 5)]:
         g.add_pipe(nodes[edge[0]], nodes[edge[1]])
 
-    if shape == "H" and convention.name == "fixed_boundary":
-        d = 2 * k
-    else:
-        d = 2 * k + 1
+    d = 2 * k if shape == "H" and convention.name == "fixed_boundary" else 2 * k + 1
     generate_circuit_and_assert(
         g, k, convention, expected_distance=d, expected_num_observables=3, debug_output_dir="debug"
     )
@@ -665,34 +561,17 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
 
 @pytest.mark.parametrize(
     ("convention", "observable_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        (Basis.X, Basis.Z),
-        (1, 2),
-    ),
+    itertools.product(CONVENTIONS, (Basis.X, Basis.Z), (1, 2)),
 )
 def test_compile_three_cnots(convention: Convention, observable_basis: Basis, k: int) -> None:
     g = three_cnots(observable_basis)
-    if convention.name == "fixed_bulk" or observable_basis == Basis.X:
-        d = 2 * k + 1
-    else:
-        d = 2 * k
-    generate_circuit_and_assert(
-        g,
-        k,
-        convention,
-        expected_distance=d,
-        expected_num_observables=3,
-    )
+    d = 2 * k + 1 if convention.name == "fixed_bulk" or observable_basis == Basis.X else 2 * k
+    generate_circuit_and_assert(g, k, convention, expected_distance=d, expected_num_observables=3)
 
 
 @pytest.mark.parametrize(
     ("convention", "observable_basis", "k"),
-    itertools.product(
-        CONVENTIONS,
-        (Basis.X, Basis.Z),
-        (1, 2),
-    ),
+    itertools.product(CONVENTIONS, (Basis.X, Basis.Z), (1, 2)),
 )
 def test_compile_steane_encoding(convention: Convention, observable_basis: Basis, k: int) -> None:
     g = steane_encoding(observable_basis)
