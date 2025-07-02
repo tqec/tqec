@@ -7,12 +7,8 @@ import svg
 from typing_extensions import override
 
 from tqec.utils.enums import Basis
-from tqec.visualisation.computation.plaquette.base import (
-    PlaquetteCorner,
-    PlaquetteDrawerConfiguration,
-    SVGPlaquetteDrawer,
-    lerp,
-)
+from tqec.visualisation.computation.plaquette.base import PlaquetteCorner, SVGPlaquetteDrawer, lerp
+from tqec.visualisation.configuration import DrawerConfiguration
 from tqec.visualisation.exception import TQECDrawingException
 
 
@@ -65,7 +61,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         show_interaction_order: bool = True,
         show_hook_errors: bool = True,
         show_data_qubit_reset_measurements: bool = True,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
         # Build iteratively the different layers that we need to represent the
         # plaquette.
@@ -90,7 +86,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         position: ExtendedPlaquettePosition,
         plaquette_type: ExtendedPlaquetteType,
         fill: str = "none",
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
         tl, tr, bl, br = SVGPlaquetteDrawer._CORNERS
         if plaquette_type == ExtendedPlaquetteType.LEFT_WITHOUT_ARM:
@@ -158,7 +154,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         position: ExtendedPlaquettePosition,
         plaquette_type: ExtendedPlaquetteType,
         fill: str = "none",
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
         if position == ExtendedPlaquettePosition.DOWN:
             return svg.G()
@@ -184,7 +180,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
 
     def get_plaquette_shape_path(
         self,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
         """Returns the plaquette shape, uniformly filled with the appropriate color.
 
@@ -213,7 +209,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
 
     def get_interaction_order_text(
         self,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Text]:
         """Returns one SVG element per non-empty corners, each containing a text
         element with the time slice at which a 2-qubit operation is applied on
@@ -273,7 +269,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
 
     def get_hook_error_line(
         self,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Line | None:
         """Returns a SVG line showing the direction of the hook error, or ``None``
         if there is no hook error.
@@ -323,7 +319,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
 
     def get_data_qubit_reset_measurements_layers(
         self,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
         """Args:
             configuration: drawing configuration.

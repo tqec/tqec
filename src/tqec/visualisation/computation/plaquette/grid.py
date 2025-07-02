@@ -8,10 +8,8 @@ from tqec.compile.observables.builder import Observable
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.visualisation.computation.errors import get_errors_svg
 from tqec.visualisation.computation.observable import get_observable_svg
-from tqec.visualisation.computation.plaquette.base import (
-    PlaquetteDrawerConfiguration,
-    SVGPlaquetteDrawer,
-)
+from tqec.visualisation.computation.plaquette.base import SVGPlaquetteDrawer
+from tqec.visualisation.configuration import DrawerConfiguration
 
 
 def plaquette_grid_to_svg(
@@ -25,7 +23,7 @@ def plaquette_grid_to_svg(
     show_data_qubit_reset_measurements: bool = True,
     borders: tuple[float, float] = (0, 0),
     errors: Sequence[stim.ExplainedError] = tuple(),
-    configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+    configuration: DrawerConfiguration = DrawerConfiguration(),
     observable: Observable | None = None,
 ) -> svg.Element:
     """Draws the provided plaquette grid and returns it as an SVG.
@@ -127,7 +125,7 @@ def plaquette_grid_svg_viewer(
     show_data_qubit_reset_measurements: bool = True,
     borders: tuple[float, float] = (0, 0),
     errors: Sequence[stim.ExplainedError] = tuple(),
-    configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+    configuration: DrawerConfiguration = DrawerConfiguration(),
     observable: Observable | None = None,
 ) -> svg.SVG:
     """Draws the provided plaquette grid and returns it as an SVG.
