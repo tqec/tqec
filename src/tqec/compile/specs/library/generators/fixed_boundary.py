@@ -1205,8 +1205,8 @@ class FixedBoundaryConventionGenerator:
         at the left boundary.
 
         Assuming a pipe needs to be implemented with extended stabilizer, it has
-        an extended stabilizer at the left boundary iff. the spatial cube that
-        has arms in both spatial directions is the bottom one of the pipe.
+        an extended stabilizer at the left boundary iff. the bottom cube of the 
+        pipe has arms in both spatial directions and the top cube does not.
 
         Args:
             linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
