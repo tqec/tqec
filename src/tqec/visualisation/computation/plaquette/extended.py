@@ -162,9 +162,9 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         bl += 1j
         br += 1j
         center = 0.5 + 1j
-        SIDE_LENGTH = 0.2
+        side_length = configuration.plaquette_overflow_lerp_coefficient
 
-        vs = [bl, bl - SIDE_LENGTH * 1j, tr - SIDE_LENGTH, tr, br]
+        vs = [bl, bl - side_length * 1j, tr - side_length, tr, br]
         if plaquette_type == ExtendedPlaquetteType.RIGHT_WITH_ARM:
             vs = [2 * center - v for v in vs]
         path_data: list[svg.PathData] = [svg.M(vs[0].real, vs[0].imag)]
