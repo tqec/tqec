@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from tqec.interop.color import TQECColor
+
 
 @dataclass(frozen=True)
 class DrawerConfiguration:
@@ -31,6 +33,10 @@ class DrawerConfiguration:
             plaquette center".
         mixed_basis_color: color used to plot plaquettes measuring a non-uniform
             Pauli basis (e.g. ``ZXXZ``).
+        observable_fill_opacity: opacity of the color used to fill observable stars.
+        observable_stroke_width_multiplier: multiplier used on the plaquette width to obtain the
+            stroke width that should be used to draw observables.
+        observable_star_color: color used to draw the observable stars.
         reset_square_radius: representative size (in SVG coordinates) of the square used
             to represent data-qubit reset.
         measurement_circle_radius: representative size (in SVG coordinates) of the circle
@@ -50,6 +56,10 @@ class DrawerConfiguration:
     text_lerp_coefficient: float = 0.8
     # Default colors used for different contents when drawing
     mixed_basis_color: str = "gray"
+    # Observable-related drawing parameters
+    observable_fill_opacity: float = 0.5
+    observable_stroke_width_multiplier: float = 0.01
+    observable_star_color: TQECColor = TQECColor.H
     # Default size of some of the elements drawn
     reset_square_radius: float = 0.05
     measurement_circle_radius: float = 0.1

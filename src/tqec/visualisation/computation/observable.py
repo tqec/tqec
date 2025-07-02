@@ -4,7 +4,7 @@ import svg
 
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.observables.builder import Observable
-from tqec.interop.color import TQECColor
+from tqec.visualisation.configuration import DrawerConfiguration
 
 
 def _get_observable_star_svg(
@@ -38,6 +38,7 @@ def get_observable_svg(
     top_left_qubit: GridQubit,
     plaquette_width: float,
     plaquette_height: float,
+    configuration: DrawerConfiguration = DrawerConfiguration(),
 ) -> svg.G:
     """Returns an SVG element with the provided ``observable`` drawn and a transparent
     background.
@@ -50,6 +51,7 @@ def get_observable_svg(
             provided ``errors``.
         plaquette_width: width (in SVG dimensions) of a regular square plaquette.
         plaquette_height: height (in SVG dimensions) of a regular square plaquette.
+        configuration: drawing configuration.
 
     Returns:
         a SVG element containing as many sub-elements as there are measurements in the
@@ -63,8 +65,7 @@ def get_observable_svg(
 
     for q in observable.measured_qubits:
         qx, qy = q.x, q.y
-        # Use Hadamard color for the observable star, only a random choice.
-        color = TQECColor.H.rgba.to_hex()
+        color = configuration.observable_star_color.rgba.to_hex()
         # Make the coordinates relative to the top-left qubit.
         qx -= top_left_qubit.x
         qy -= top_left_qubit.y
@@ -73,8 +74,9 @@ def get_observable_svg(
             r_outer=0.15 * plaquette_width,
             r_inner=0.07 * plaquette_width,
             fill=color,
+            fill_opacity=configuration.observable_fill_opacity,
             stroke_color=color,
-            stroke_width=0.01 * plaquette_width,
+            stroke_width=configuration.observable_stroke_width_multiplier * plaquette_width,
         )
         layer.append(
             svg.G(
