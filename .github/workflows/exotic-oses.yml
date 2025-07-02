@@ -9,6 +9,9 @@ on:
     branches:
       - main
 
+env:
+  TQEC_DETECTOR_DATABASE_PATH: ~/cache/detector_database.pkl
+
 jobs:
   exotic-os-python-tests:
     strategy:
@@ -36,6 +39,13 @@ jobs:
         continue-on-error: true
       - name: Build
         run: python -m pip install '.[all]'
+      # Restore the database cache if we have one
+      - uses: actions/cache@v4
+        id: cache-detector-database
+        with:
+          path: ${{ env.TQEC_DETECTOR_DATABASE_PATH }}
+          key: detector_database
+          enableCrossOsArchive: true
       - name: Test and coverage
         run: |
           python -m pip install pytest pytest-cov
