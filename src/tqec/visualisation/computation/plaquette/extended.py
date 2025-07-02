@@ -7,7 +7,12 @@ import svg
 from typing_extensions import override
 
 from tqec.utils.enums import Basis
-from tqec.visualisation.computation.plaquette.base import PlaquetteCorner, SVGPlaquetteDrawer, lerp
+from tqec.visualisation.computation.plaquette.base import (
+    PlaquetteCorner,
+    SVGPlaquetteDrawer,
+    lerp,
+    svg_path_enclosing_points,
+)
 from tqec.visualisation.configuration import DrawerConfiguration
 from tqec.visualisation.exception import TQECDrawingException
 
