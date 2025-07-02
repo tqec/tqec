@@ -15,6 +15,7 @@ from tqec.simulation.split import (
     split_stats_for_observables,
 )
 from tqec.utils.noise_model import NoiseModel
+from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 
 
 def start_simulation_using_sinter(
@@ -26,6 +27,7 @@ def start_simulation_using_sinter(
     convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | None = None,
     detector_database: DetectorDatabase | None = None,
+    database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
     num_workers: int = multiprocessing.cpu_count(),
     progress_callback: Callable[[sinter.Progress], None] | None = None,
     max_shots: int | None = None,
@@ -72,6 +74,7 @@ def start_simulation_using_sinter(
              surfaces of the provided computation are used.
         detector_database: an instance to retrieve from / store in detectors
             that are computed as part of the circuit generation.
+        database_path: str or Path where detector database is presaved
         num_workers: The number of worker processes to use.
         progress_callback: Defaults to None (unused). If specified, then each
             time new sample statistics are acquired from a worker this method
@@ -132,6 +135,7 @@ def start_simulation_using_sinter(
             noise_model_factory,
             manhattan_radius,
             detector_database,
+            database_path,
         ),
         existing_data_filepaths=existing_data_filepaths,
         save_resume_filepath=save_resume_filepath,

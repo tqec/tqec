@@ -58,6 +58,11 @@ extensions = [
     # Allows us to add references to a page
     # https://sphinxcontrib-bibtex.readthedocs.io/en/latest/
     "sphinxcontrib.bibtex",
+    # measure documentation build time
+    "sphinx.ext.duration",
+    # make code blocks in the documentation executable
+    # https://jupyter-sphinx.readthedocs.io/en/latest/
+    "jupyter_sphinx",
 ]
 
 templates_path = ["_templates"]
@@ -170,6 +175,7 @@ nbsphinx_thumbnails = {
     "gallery/three_cnots": "_static/media/gallery/three_cnots.png",
     "gallery/steane_encoding": "_static/media/gallery/steane_encoding.png",
 }
+
 
 # -- Options for autosummary extension ---------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
