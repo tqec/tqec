@@ -171,16 +171,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         vs = [bl, bl - SIDE_LENGTH * 1j, tr - SIDE_LENGTH, tr, br]
         if plaquette_type == ExtendedPlaquetteType.RIGHT_WITH_ARM:
             vs = [2 * center - v for v in vs]
-        path_data: list[svg.PathData] = [svg.M(vs[0].real, vs[0].imag)]
-        for v in vs[1:]:
-            path_data.append(svg.L(v.real, v.imag))
-        path_data.append(svg.Z())
-        return svg.Path(
-            d=path_data,
-            fill=fill,
-            stroke=configuration.stroke_color,
-            stroke_width=configuration.stroke_width,
-        )
+        return svg_path_enclosing_points(vs, fill, configuration)
 
     def get_plaquette_shape_path(
         self,
