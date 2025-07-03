@@ -12,9 +12,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  TQEC_DETECTOR_DATABASE_PATH: ~/cache/detector_database.pkl
-
 jobs:
   pre-commit-ci:
     runs-on: ubuntu-latest
@@ -51,13 +48,6 @@ jobs:
           python -m pip install -r requirements.txt -r requirements-dev.txt
       - name: Build
         run: python -m pip install -e .
-      # Restore the database cache if we have one
-      - uses: actions/cache@v4
-        id: cache-detector-database
-        with:
-          path: ${{ env.TQEC_DETECTOR_DATABASE_PATH }}
-          key: detector_database
-          enableCrossOsArchive: true
       # Type check the code base.
       - name: Mypy type checking
         run: |
@@ -91,13 +81,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e '.[test]'
-      # Restore the database cache if we have one
-      - uses: actions/cache@v4
-        id: cache-detector-database
-        with:
-          path: ${{ env.TQEC_DETECTOR_DATABASE_PATH }}
-          key: detector_database
-          enableCrossOsArchive: true
       # Compute code coverage by starting the tests
       - name: Compute code coverage
         run: |
