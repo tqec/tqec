@@ -65,13 +65,13 @@ jobs:
           mypy src/tqec/
       # Perform the full tests (including slow ones) when pushing on main.
       - name: Test and coverage
-        if: ${{ github.head_ref || github.ref_name }} == "main"
+        if: github.ref == 'refs/heads/main'
         run: |
           python -m pip install pytest pytest-cov
           python -m pytest --cov=src/tqec $(git ls-files '*_test.py')
       # Only perform quick tests when pushing on a PR.
       - name: Test and coverage
-        if: ${{ github.head_ref || github.ref_name }} != "main"
+        if: github.ref != 'refs/heads/main'
         run: |
           python -m pip install pytest pytest-cov
           python -m pytest --cov=src/tqec $(git ls-files '*_test.py') -m "not slow"
