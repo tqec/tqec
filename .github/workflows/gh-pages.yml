@@ -36,12 +36,13 @@ jobs:
         id: cache-docs
         with:
           path: docs/_examples_database/
-          key: docs_database_and_stim_results_cache
+          # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
+          key: docs_database_and_stim_results_cache-${{ github.run_id }}
           enableCrossOsArchive: true
+          restore-keys: |
+            docs_database_and_stim_results_cache
       - name: Generate the documentation
-        if: steps.docs_database_and_stim_results_cache.outputs.cache-hit != 'true'
-        run: |
-          make html
+        run: make html
         working-directory: docs/
         # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
         # this is used to reduce the docs build time in the CI.

@@ -1,6 +1,5 @@
 import math
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from enum import Enum
 from typing import ClassVar, Final
 
@@ -10,6 +9,8 @@ from typing_extensions import override
 from tqec.interop.color import TQECColor
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng.rpng import ExtendedBasis, PauliBasis
+from tqec.utils.enums import Basis
+from tqec.visualisation.configuration import DrawerConfiguration
 
 
 def lerp(a: complex, b: complex, t: float) -> complex:
@@ -21,52 +22,6 @@ def lerp(a: complex, b: complex, t: float) -> complex:
 
     """
     return (1 - t) * a + t * b
-
-
-@dataclass(frozen=True)
-class PlaquetteDrawerConfiguration:
-    """Drawing configuration with sensible defaults that can be modified by the user.
-
-    Attributes:
-        stroke_width: default stroke width used for all the drawing, except for
-            error crosses.
-        stroke_color: default stroke color used for all the drawing, except for
-            error crosses.
-        font_size: default font size of all the text in the drawing except the
-            overlaid "Moments: XX -> YY" text.
-        hook_error_line_lerp_coefficient: a coefficient in [0, 1] that defines how close
-            the hook error line should be from the borders of the plaquette. As an
-            implementation detail, that number is also the hook error line length
-            compared to the full plaquette width or height. A value of ``0.9`` means
-            that the hook error line is closer to the plaquette border than to the
-            plaquette center.
-        plaquette_overflow_lerp_coefficient: coefficient in [0, 1] that defines how
-            some plaquettes overflow from the regular convex hull of the involved
-            data qubits. This is currently used for triangular plaquettes, but might
-            be used for other plaquettes later. A value of ``0`` means "no overflow"
-            whereas a value of ``1`` means "full overflow up to the missing data qubit".
-        text_lerp_coefficient: coefficient in [0, 1] that defines where data-qubit
-            interaction orders are written in the plaquette. A value of ``0`` means
-            "on their respective data-qubit" whereas a value of ``1`` means "on the
-            plaquette center".
-        mixed_basis_color: color used to plot plaquettes measuring a non-uniform
-            Pauli basis (e.g. ``ZXXZ``).
-        reset_square_radius: representative size (in SVG coordinates) of the square used
-            to represent data-qubit reset.
-        measurement_circle_radius: representative size (in SVG coordinates) of the circle
-            used to represent data-qubit measurement.
-
-    """
-
-    stroke_width: float = 0.01
-    stroke_color: str = "black"
-    font_size: float = 0.1
-    hook_error_line_lerp_coefficient: float = 0.9
-    plaquette_overflow_lerp_coefficient: float = 0.2
-    text_lerp_coefficient: float = 0.8
-    mixed_basis_color: str = "gray"
-    reset_square_radius: float = 0.05
-    measurement_circle_radius: float = 0.1
 
 
 class PlaquetteCorner(Enum):
@@ -99,14 +54,14 @@ class SVGPlaquetteDrawer(ABC):
         show_interaction_order: bool = True,
         show_hook_errors: bool = True,
         show_data_qubit_reset_measurements: bool = True,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
         pass
 
     @staticmethod
     def get_square_shape(
         fill: str = "none",
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Path:
         """Get the shape of a regular square plaquette."""
         return svg_path_enclosing_points(SVGPlaquetteDrawer._CORNERS, fill, configuration)
@@ -115,7 +70,7 @@ class SVGPlaquetteDrawer(ABC):
     def get_triangle_shape(
         missing_qubit_corner: PlaquetteCorner,
         fill: str = "none",
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
         """Get the shape of a triangular plaquette only involving 3 data qubits.
 
@@ -155,8 +110,8 @@ class SVGPlaquetteDrawer(ABC):
     def get_half_circle_shape(
         orientation: PlaquetteOrientation,
         fill: str = "none",
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
-    ) -> svg.G:
+        configuration: DrawerConfiguration = DrawerConfiguration(),
+    ) -> svg.Path:
         """Get the shape of a half-circle plaquette only involving 2 data qubits.
 
         Args:
@@ -166,34 +121,32 @@ class SVGPlaquetteDrawer(ABC):
             configuration: drawing configuration.
 
         """
-        PO = PlaquetteOrientation
-        rotation_angle: int = {PO.UP: 0, PO.DOWN: 180, PO.LEFT: 270, PO.RIGHT: 90}[orientation]
-        default_half_circle_path = svg.Path(
+        match orientation:
+            case PlaquetteOrientation.UP:
+                start, end, sweep = (0, 1), (1, 1), True
+            case PlaquetteOrientation.DOWN:
+                start, end, sweep = (0, 0), (1, 0), False
+            case PlaquetteOrientation.LEFT:
+                start, end, sweep = (1, 0), (1, 1), False
+            case _:
+                start, end, sweep = (0, 0), (0, 1), True
+
+        return svg.Path(
             d=[
-                svg.M(0, 1),
-                svg.Arc(0.5, 0.5, 180, True, True, 1, 1),
+                svg.M(*start),
+                svg.Arc(0.5, 0.5, 180, True, sweep, *end),
                 svg.Z(),
             ],
             fill=fill,
             stroke=configuration.stroke_color,
             stroke_width=configuration.stroke_width,
         )
-        return svg.G(
-            transform=[
-                svg.Rotate(
-                    rotation_angle,
-                    SVGPlaquetteDrawer._CENTER_COORDINATE.real,
-                    SVGPlaquetteDrawer._CENTER_COORDINATE.imag,
-                )
-            ],
-            elements=[default_half_circle_path],
-        )
 
     @staticmethod
     def get_reset_shape(
         place: PlaquetteCorner,
         fill: str = "none",
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Rect:
         """Returns a small square with its origin at the opposite of ``place``.
 
@@ -223,7 +176,7 @@ class SVGPlaquetteDrawer(ABC):
     def get_measurement_shape(
         place: PlaquetteCorner,
         fill: str = "none",
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
         """Returns a small quarter circle with its origin at the opposite of ``place``.
 
@@ -262,7 +215,7 @@ class SVGPlaquetteDrawer(ABC):
         )
 
     @staticmethod
-    def get_colour(basis: PauliBasis | ExtendedBasis) -> str:
+    def get_colour(basis: Basis | PauliBasis | ExtendedBasis) -> str:
         """Helper to get a SVG-compatible hexadecimal color from a basis."""
         match basis.value.upper():
             case "X":
@@ -273,6 +226,18 @@ class SVGPlaquetteDrawer(ABC):
                 return TQECColor.Z.rgba.to_hex()
             case _:
                 return "none"
+
+    @staticmethod
+    def get_corner_coordinates(corner: PlaquetteCorner) -> complex:
+        match corner:
+            case PlaquetteCorner.TOP_LEFT:
+                return SVGPlaquetteDrawer._CORNERS[0]
+            case PlaquetteCorner.TOP_RIGHT:
+                return SVGPlaquetteDrawer._CORNERS[1]
+            case PlaquetteCorner.BOTTOM_LEFT:
+                return SVGPlaquetteDrawer._CORNERS[2]
+            case PlaquetteCorner.BOTTOM_RIGHT:
+                return SVGPlaquetteDrawer._CORNERS[3]
 
 
 class EmptySVGPlaquetteDrawer(SVGPlaquetteDrawer):
@@ -285,7 +250,7 @@ class EmptySVGPlaquetteDrawer(SVGPlaquetteDrawer):
         show_interaction_order: bool = True,
         show_hook_errors: bool = True,
         show_data_qubit_reset_measurements: bool = True,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
         return svg.G()
 
@@ -302,7 +267,7 @@ def _sort_by_angle(center: complex, points: list[complex]) -> list[complex]:
 def svg_path_enclosing_points(
     points: list[complex],
     fill: str = "none",
-    configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+    configuration: DrawerConfiguration = DrawerConfiguration(),
 ) -> svg.Path:
     """Draw a path enclosing all the provided points.
 

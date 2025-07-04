@@ -7,6 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
+from typing import Any
 
 import numpy
 import numpy.typing as npt
@@ -43,6 +44,12 @@ class Template(ABC):
         """
         super().__init__()
         self._default_shift = default_increments or Shift2D(2, 2)
+
+    def __hash__(self) -> int:
+        return hash((type(self), self._default_shift))
+
+    def __eq__(self, value: Any) -> bool:
+        return type(self) is type(value) and self._default_shift == value._default_shift
 
     @abstractmethod
     def instantiate(

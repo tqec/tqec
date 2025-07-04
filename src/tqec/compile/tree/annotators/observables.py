@@ -4,7 +4,6 @@ from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import (
     ObservableBuilder,
     ObservableComponent,
-    compute_observable_qubits,
     get_observable_with_measurement_records,
 )
 from tqec.compile.tree.node import LayerNode
@@ -83,7 +82,7 @@ def _annotate_observable_at_node(
     measurement_record = MeasurementRecordsMap.from_scheduled_circuit(circuit)
     assert isinstance(node._layer, LayoutLayer)
     template, _ = node._layer.to_template_and_plaquettes()
-    obs_qubits = compute_observable_qubits(k, obs_slice, template, observable_builder, component)
+    obs_qubits = observable_builder.build(k, template, obs_slice, component)
     if obs_qubits:
         obs_annotation = get_observable_with_measurement_records(
             obs_qubits, measurement_record, observable_index
