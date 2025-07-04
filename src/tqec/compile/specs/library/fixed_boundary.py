@@ -6,16 +6,9 @@ from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.specs.base import (
-    CubeBuilder,
-    CubeSpec,
-    PipeBuilder,
-    PipeSpec,
-)
+from tqec.compile.specs.base import CubeBuilder, CubeSpec, PipeBuilder, PipeSpec
 from tqec.compile.specs.enums import SpatialArms
-from tqec.compile.specs.library.generators.fixed_boundary import (
-    FixedBoundaryConventionGenerator,
-)
+from tqec.compile.specs.library.generators.fixed_boundary import FixedBoundaryConventionGenerator
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
@@ -115,21 +108,23 @@ def _get_block(
 
 
 class FixedBoundaryCubeBuilder(CubeBuilder):
-    """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
-    interface for the fixed boundary convention.
-
-    This class provides an implementation following the fixed-boundary convention.
-    This convention consists in the fact that 2-body stabilizers on the boundary
-    of a logical qubit are always at an even position(counting clockwise from the
-    top left corner starting at 1).
-
-    """
-
     def __init__(
-        self,
-        compiler: PlaquetteCompiler,
-        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
+        """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
+        interface for the fixed boundary convention.
+
+        This class provides an implementation following the fixed-boundary convention.
+        This convention consists in the fact that 2-body stabilizers on the boundary
+        of a logical qubit are always at an even position(counting clockwise from the
+        top left corner starting at 1).
+
+        Args:
+            compiler: compiler used to compile :class:`.Plaquette` instances returned from the
+                provided ``translator``.
+            translator: translator to obtain :class:`.Plaquette` instances from a RPNG description.
+
+        """
         self._generator = FixedBoundaryConventionGenerator(translator, compiler)
 
     def _get_template_and_plaquettes_generator(
@@ -164,6 +159,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
         )
 
     def __call__(self, spec: CubeSpec) -> Block:
+        """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
         kind = spec.kind
         if isinstance(kind, Port):
             raise TQECException("Cannot build a block for a Port.")
@@ -180,23 +176,27 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
 
 
 class FixedBoundaryPipeBuilder(PipeBuilder):
-    """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
-    interface for the fixed boundary convention.
-
-    This class provides an implementation following the fixed-boundary convention.
-    This convention consists in the fact that 2-body stabilizers on the boundary
-    of a logical qubit are always at an even position(counting clockwise from the
-    top left corner starting at 1).
-    """
-
     def __init__(
-        self,
-        compiler: PlaquetteCompiler,
-        translator: RPNGTranslator = DefaultRPNGTranslator(),
+        self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
+        """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
+        interface for the fixed boundary convention.
+
+        This class provides an implementation following the fixed-boundary convention.
+        This convention consists in the fact that 2-body stabilizers on the boundary
+        of a logical qubit are always at an even position(counting clockwise from the
+        top left corner starting at 1).
+
+        Args:
+            compiler: compiler used to compile :class:`.Plaquette` instances returned from the
+                provided ``translator``.
+            translator: translator to obtain :class:`.Plaquette` instances from a RPNG description.
+
+        """
         self._generator = FixedBoundaryConventionGenerator(translator, compiler)
 
     def __call__(self, spec: PipeSpec) -> Block:
+        """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
         if spec.pipe_kind.is_temporal:
             return self.get_temporal_pipe_block(spec)
         return self.get_spatial_pipe_block(spec)
@@ -385,6 +385,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         )
 
     def get_spatial_pipe_block(self, spec: PipeSpec) -> Block:
+        """Returns a :class:`.Block` instance implementing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         cube_specs = spec.cube_specs
         if cube_specs[0].is_spatial or cube_specs[1].is_spatial:

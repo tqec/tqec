@@ -69,6 +69,7 @@ class CubeSpec:
 
     @property
     def pipe_dimensions(self) -> frozenset[Literal[Direction3D.X, Direction3D.Y]]:
+        """Return the dimension(s) in which ``self`` has at least one pipe."""
         dimensions: list[Literal[Direction3D.X, Direction3D.Y]] = []
         if SpatialArms.LEFT in self.spatial_arms or SpatialArms.RIGHT in self.spatial_arms:
             dimensions.append(Direction3D.X)
@@ -78,6 +79,9 @@ class CubeSpec:
 
     @property
     def has_spatial_pipe_in_both_dimensions(self) -> bool:
+        """Return ``True`` if the cube spec has at least one pipe in each of the two spatial
+        dimensions (``X`` and ``Y``).
+        """
         return self.spatial_arms.has_spatial_arm_in_both_dimensions
 
 

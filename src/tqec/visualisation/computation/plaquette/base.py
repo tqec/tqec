@@ -246,6 +246,7 @@ class SVGPlaquetteDrawer(ABC):
 
     @staticmethod
     def get_corner_coordinates(corner: PlaquetteCorner) -> complex:
+        """Get the coordinates of the point corresponding the provided ``corner``."""
         match corner:
             case PlaquetteCorner.TOP_LEFT:
                 return SVGPlaquetteDrawer._CORNERS[0]

@@ -22,6 +22,7 @@ class ExtendedPlaquettePosition(Enum):
     DOWN = "DOWN"
 
     def flip(self) -> ExtendedPlaquettePosition:
+        """Returns the opposite direction."""
         match self:
             case ExtendedPlaquettePosition.UP:
                 return ExtendedPlaquettePosition.DOWN
@@ -38,8 +39,6 @@ class ExtendedPlaquetteType(Enum):
 
 
 class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
-    """SVG plaquette drawer for RPNG descriptions."""
-
     def __init__(
         self,
         plaquette_type: ExtendedPlaquetteType,
@@ -49,6 +48,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> None:
+        """SVG plaquette drawer for extended plaquettes."""
         super().__init__()
         self._plaquette_type = plaquette_type
         self._position = position
@@ -87,7 +87,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         return svg.G(id=id, elements=layers)
 
     @staticmethod
-    def get_extended_plaquette_square_shape(
+    def _get_extended_plaquette_square_shape(
         position: ExtendedPlaquettePosition,
         plaquette_type: ExtendedPlaquetteType,
         fill: str = "none",
@@ -155,7 +155,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         )
 
     @staticmethod
-    def get_weight_three_extended_plaquette_shape(
+    def _get_weight_three_extended_plaquette_shape(
         position: ExtendedPlaquettePosition,
         plaquette_type: ExtendedPlaquetteType,
         fill: str = "none",
@@ -195,11 +195,11 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
                 | ExtendedPlaquetteType.LEFT_WITHOUT_ARM
                 | ExtendedPlaquetteType.RIGHT_WITHOUT_ARM
             ):
-                return ExtendedPlaquetteDrawer.get_extended_plaquette_square_shape(
+                return ExtendedPlaquetteDrawer._get_extended_plaquette_square_shape(
                     self._position, self._plaquette_type, fill, configuration
                 )
             case ExtendedPlaquetteType.LEFT_WITH_ARM | ExtendedPlaquetteType.RIGHT_WITH_ARM:
-                return ExtendedPlaquetteDrawer.get_weight_three_extended_plaquette_shape(
+                return ExtendedPlaquetteDrawer._get_weight_three_extended_plaquette_shape(
                     self._position, self._plaquette_type, fill, configuration
                 )
 

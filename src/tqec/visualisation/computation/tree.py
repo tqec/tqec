@@ -39,6 +39,11 @@ class VisualisationData:
         assert self.start_moment <= self.end_moment
 
     def with_duration_offset(self, offset: int) -> VisualisationData:
+        """Add a time offset to the time-related data in ``self``.
+
+        This method is used to get a new instance of :class:`.VisualisationData` with a modified
+        offset in time, for example when visualising each repetitions in a REPEAT loop.
+        """
         return VisualisationData(
             self.layer,
             self.start_moment + offset,
@@ -187,9 +192,7 @@ class LayerVisualiser(NodeWalker):
                 "Trying to get the layer visualisations but the stack contains more than one "
                 "element. You may get incorrect results. Did you forget to close a REPEAT block?"
             )
-        if self._observable_index and not any(
-            data.observable for data in self._stack[0]
-        ):
+        if self._observable_index and not any(data.observable for data in self._stack[0]):
             raise TQECException(
                 f"Observable index {self._observable_index} requested, but no observable "
                 "with this index was found to be annotated in the layer visualisation data."
@@ -209,9 +212,7 @@ class LayerVisualiser(NodeWalker):
                 top_left_used_qubit=tlq.to_grid_qubit(self._k),
                 view_box_top_left_qubit=self._top_left_qubit,
                 view_box_bottom_right_qubit=self._bottom_right_qubit,
-                errors=self._get_errors_within(
-                    element.start_moment, element.end_moment
-                ),
+                errors=self._get_errors_within(element.start_moment, element.end_moment),
                 observable=element.observable,
             )
             # Adding text to mark which TICKs are concerned.

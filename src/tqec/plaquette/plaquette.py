@@ -199,6 +199,9 @@ class Plaquette:
         return bool(self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit())
 
     def with_debug_information(self, debug_information: PlaquetteDebugInformation) -> Plaquette:
+        """Create a copy of ``self`` with its debug information replaced by the provided
+        ``debug_information``.
+        """
         return Plaquette(
             self.name,
             self.qubits,

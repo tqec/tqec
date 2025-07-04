@@ -18,6 +18,7 @@ class DrawPolygon:
     qubits_by_basis: dict[PauliBasis, list[GridQubit]] | PauliBasis
 
     def to_json(self) -> dict[str, Any]:
+        """Serialize ``self`` as a JSON-like dictionary."""
         if isinstance(self.qubits_by_basis, PauliBasis):
             return {"basis": self.qubits_by_basis.value}
         return {
@@ -27,6 +28,7 @@ class DrawPolygon:
 
     @staticmethod
     def from_json(data: dict[str, Any]) -> DrawPolygon:
+        """Deserialize ``self`` from a JSON-like dictionary."""
         if "basis" in data:
             return DrawPolygon(PauliBasis(data["basis"]))
         return DrawPolygon(
@@ -44,6 +46,17 @@ class PlaquetteDebugInformation:
     drawer: SVGPlaquetteDrawer | None = None
 
     def get_polygons(self) -> dict[PauliBasis, list[GridQubit]] | PauliBasis | None:
+        """Getter method to get the polygon information for Crumble outputs.
+
+        A polygon is one of Crumble annotation that allows to plot coloured polygons when exploring
+        a quantum circuit with Crumble. That is useful to annotate stabilizers and their basis.
+
+        Returns:
+            a mapping from measurement basis to the data-qubits that are measured in each basis. If
+            the debug information does not exists, returns ``None``. If all the data-qubits are
+            measured in the same basis, returns that basis as a simplification.
+
+        """
         if self.draw_polygons is not None:
             return self.draw_polygons.qubits_by_basis
         if self.rpng is not None:
@@ -52,9 +65,10 @@ class PlaquetteDebugInformation:
                 return bases.pop()
         return None
 
-    def with_data_qubits_removed(
-        self, removed_data_qubits: list[int]
-    ) -> PlaquetteDebugInformation:
+    def with_data_qubits_removed(self, removed_data_qubits: list[int]) -> PlaquetteDebugInformation:
+        """Returns a copy of ``self`` with the debug information concerning the provided
+        ``removed_data_qubits`` qubit indices removed.
+        """
         if self.rpng is None:
             return self
         corners: list[RPNG] = list(self.rpng.corners)
@@ -89,9 +103,7 @@ class PlaquetteDebugInformation:
             case PlaquetteOrientation.RIGHT:
                 corners[0] = corners[2] = empty_rpng
         return PlaquetteDebugInformation(
-            RPNGDescription(
-                (corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla
-            ),
+            RPNGDescription((corners[0], corners[1], corners[2], corners[3]), self.rpng.ancilla),
             self.draw_polygons,
         )
 
@@ -108,11 +120,7 @@ class PlaquetteDebugInformation:
     def from_dict(data: dict[str, Any]) -> PlaquetteDebugInformation:
         """Initialise a :class:`.DebugInformation` instance from a dictionary."""
         return PlaquetteDebugInformation(
-            (
-                RPNGDescription.from_dict(data["rpng"])
-                if data["rpng"] is not None
-                else None
-            ),
+            (RPNGDescription.from_dict(data["rpng"]) if data["rpng"] is not None else None),
             (
                 DrawPolygon.from_json(data["draw_polygons"])
                 if data["draw_polygons"] is not None
