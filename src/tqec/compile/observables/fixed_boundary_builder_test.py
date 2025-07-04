@@ -1,8 +1,8 @@
 import pytest
 
 from tqec.compile.observables.fixed_boundary_builder import (
+    _build_pipe_top_readout_qubits_impl,
     build_connected_spatial_cube_bottom_stabilizer_qubits,
-    build_pipe_top_readout_qubits_impl,
     build_regular_cube_bottom_stabilizer_qubits,
     build_spatial_cube_bottom_stabilizer_qubits,
     build_spatial_cube_top_readout_qubits,
@@ -30,7 +30,7 @@ def test_build_pipe_top_readout_qubits_impl(
     expected: list[tuple[int, int]],
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
-    coords = build_pipe_top_readout_qubits_impl(shape, direction, extended_stabilizers_used)
+    coords = _build_pipe_top_readout_qubits_impl(shape, direction, extended_stabilizers_used)
     assert coords == expected
 
 
