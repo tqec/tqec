@@ -1,7 +1,7 @@
 import pytest
 
 from tqec.compile.observables.fixed_bulk_builder import (
-    build_pipe_temporal_hadamard_qubits_impl,
+    _build_pipe_temporal_hadamard_qubits_impl,
     build_pipe_top_readout_qubits,
     build_regular_cube_bottom_stabilizer_qubits,
     build_regular_cube_top_readout_qubits,
@@ -216,5 +216,5 @@ def test_build_pipe_temporal_hadamard_qubits_impl(
     expected: set[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(2 * k + 2, 2 * k + 2)
-    coords = set(build_pipe_temporal_hadamard_qubits_impl(shape, obs_basis, z_orientation))
+    coords = set(_build_pipe_temporal_hadamard_qubits_impl(shape, obs_basis, z_orientation))
     assert coords == expected
