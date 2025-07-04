@@ -401,7 +401,7 @@ class DetectorDatabase:
 
         """
         if not filepath.parent.exists():
-            filepath.parent.mkdir()
+            filepath.parent.mkdir(parents=True)
         if format == "pickle":
             with open(filepath, "wb") as f:
                 pickle.dump(self, f)

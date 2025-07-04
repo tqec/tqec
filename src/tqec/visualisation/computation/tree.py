@@ -12,6 +12,7 @@ from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
+from tqec.compile.observables.builder import Observable
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.utils.exceptions import TQECException
 from tqec.visualisation.computation.plaquette.grid import plaquette_grid_svg_viewer
@@ -26,6 +27,7 @@ class VisualisationData:
     layer: LayoutLayer
     start_moment: int
     end_moment: int
+    observable: Observable | None = None
 
     def __post_init__(self) -> None:
         """Check that the instance is valid.
@@ -37,10 +39,12 @@ class VisualisationData:
         assert self.start_moment <= self.end_moment
 
     def with_duration_offset(self, offset: int) -> VisualisationData:
-        """Offset ``self`` by the given amounts of moments. Used to generate the visualisation data
-        for a ``REPEAT`` block.
-        """
-        return VisualisationData(self.layer, self.start_moment + offset, self.end_moment + offset)
+        return VisualisationData(
+            self.layer,
+            self.start_moment + offset,
+            self.end_moment + offset,
+            self.observable,
+        )
 
 
 class LayerVisualiser(NodeWalker):
@@ -50,6 +54,7 @@ class LayerVisualiser(NodeWalker):
         self,
         k: int,
         errors: Sequence[stim.ExplainedError] = tuple(),
+        show_observable: int | None = None,
         font_size: float = 0.5,
         font_color: str = "red",
         top_left_qubit: GridQubit | None = None,
@@ -77,6 +82,7 @@ class LayerVisualiser(NodeWalker):
         self._k = k
         self._stack: list[list[VisualisationData]] = [[]]
         self._errors: list[stim.ExplainedError] = list(errors)
+        self._observable_index = show_observable
         self._font_size = font_size
         self._font_color = font_color
         self._top_left_qubit = top_left_qubit
@@ -112,7 +118,19 @@ class LayerVisualiser(NodeWalker):
         assert isinstance(layer, LayoutLayer)
         start = self.current_moment
         end = start + layer.num_moments(self._k)
-        self._stack[-1].append(VisualisationData(layer, start, end))
+        observable: Observable | None = None
+        if self._observable_index is not None:
+            annotations = node._annotations.get(self._k)
+            if annotations is not None:
+                observable = next(
+                    (
+                        obs
+                        for obs in node.get_annotations(self._k).observables
+                        if obs.observable_index == self._observable_index
+                    ),
+                    None,
+                )
+        self._stack[-1].append(VisualisationData(layer, start, end, observable))
 
     @property
     def current_moment(self) -> int:
@@ -169,6 +187,13 @@ class LayerVisualiser(NodeWalker):
                 "Trying to get the layer visualisations but the stack contains more than one "
                 "element. You may get incorrect results. Did you forget to close a REPEAT block?"
             )
+        if self._observable_index and not any(
+            data.observable for data in self._stack[0]
+        ):
+            raise TQECException(
+                f"Observable index {self._observable_index} requested, but no observable "
+                "with this index was found to be annotated in the layer visualisation data."
+            )
         ret: list[str] = []
         for element in self._stack[0]:
             template, plaquettes = element.layer.to_template_and_plaquettes()
@@ -184,7 +209,10 @@ class LayerVisualiser(NodeWalker):
                 top_left_used_qubit=tlq.to_grid_qubit(self._k),
                 view_box_top_left_qubit=self._top_left_qubit,
                 view_box_bottom_right_qubit=self._bottom_right_qubit,
-                errors=self._get_errors_within(element.start_moment, element.end_moment),
+                errors=self._get_errors_within(
+                    element.start_moment, element.end_moment
+                ),
+                observable=element.observable,
             )
             # Adding text to mark which TICKs are concerned.
             assert svg_element.elements is not None

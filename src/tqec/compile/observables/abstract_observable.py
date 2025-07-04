@@ -20,6 +20,67 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
+class CubeWithArms:
+    """A cube with its arms in the block graph.
+
+    The arms are used to specify the connectivity of a spatial cube in the graph
+    or in a correlation surface. A regular cube should always have `arms` set to
+    `SpatialArms.NONE`.
+
+    Attributes:
+        cube: The cube in the block graph.
+        arms: The arms of the cube in the block graph or correlation surface.
+            If the cube is not spatial, the arms should be set to
+            `SpatialArms.NONE`.
+
+    """
+
+    cube: Cube
+    arms: SpatialArms = SpatialArms.NONE
+
+    def __post_init__(self) -> None:
+        if self.arms != SpatialArms.NONE and not self.cube.is_spatial:
+            raise TQECException(
+                "The `arms` attribute should be `SpatialArms.NONE` for non-spatial cubes."
+            )
+
+
+@dataclass(frozen=True)
+class PipeWithArms:
+    """A pipe with the arms of the two cubes it connects in the block graph.
+
+    Attributes:
+        pipe: The pipe in the block graph.
+        cube_arms: A tuple of arms of the two cubes (``u`` and ``v``) the pipe
+            connects. If the cubes are not spatial, the arms should be set to
+            `SpatialArms.NONE`.
+
+    """
+
+    pipe: Pipe
+    cube_arms: tuple[SpatialArms, SpatialArms] = (SpatialArms.NONE, SpatialArms.NONE)
+
+
+@dataclass(frozen=True)
+class PipeWithObservableBasis:
+    """A temporal Hadamard pipe with the attached observable basis at its head.
+
+    Attributes:
+        pipe: The temporal Hadamard pipe in the block graph.
+        observable_basis: The basis of the correlation surface at the head of
+            the pipe.
+
+    """
+
+    pipe: Pipe
+    observable_basis: Basis
+
+    def __post_init__(self) -> None:
+        if not self.pipe.kind.has_hadamard or self.pipe.direction != Direction3D.Z:
+            raise TQECException("The ``pipe`` should be a temporal Hadamard pipe.")
+
+
+@dataclass(frozen=True)
 class AbstractObservable:
     """An abstract description of a logical observable in the
     :py:class:`~tqec.computation.BlockGraph`.
@@ -31,57 +92,57 @@ class AbstractObservable:
     specifies where are the measurements located in the block graph.
 
     Attributes:
-        top_readout_cubes: A set of cubes of which a straight line of data
-            qubit readouts on the top face should be included in the observable.
+        top_readout_cubes: A set of cubes of which a line of data qubit readouts
+            on the top face should be included in the observable.
         top_readout_pipes: A set of pipes of which a single data qubit readout
-            on the top face should be included in the observable. The data qubit
+            on the top face might be included in the observable. The data qubit
             is on the center of the interface between the two cubes. The other
             data qubit readouts that may be included in the observable will be
             handled by the ``top_readout_cubes`` set.
+        bottom_stabilizer_cubes: A set of spatial cubes of which the stabilizer
+            measurements on the bottom face should be included in the observable.
+            Usually, this is only used for the single-cube stability experiment
+            where no pipes are involved. In other cases, the stabilizer measured
+            at the bottom face of the cubes will be handled by the pipes
+            connecting them, i.e., the ``bottom_stabilizer_pipes`` set.
         bottom_stabilizer_pipes: A set of pipes of which a region of stabilizer
             measurements on the bottom face, which actually takes place in the
             cubes it connects, should be included in the observable.
-        top_readout_spatial_cubes: A set of spatial cubes with the arm
-            flags, of which the data qubit readouts on the top face should be
-            included in the observable.
-        bottom_stabilizer_spatial_cubes: A set of spatial cubes of which
-            the stabilizer measurements on the bottom face should be included in
-            the observable.
-        temporal_hadamard_pipes: A set of tuples of pipes and the observable basis
-            supported at the bottom of the pipe. A single stabilizer measurements
-            at the realignment layer represented by the pipe might be included in
-            the logical observable.
+        temporal_hadamard_pipes: A set of temporal Hadamard pipes of which a
+            single stabilizer measurements at the realignment layer represented
+            by the pipe might be included in the logical observable. It is only
+            relevant for the fixed-bulk convention, where the temporal Hadamard
+            includes a realignment layer of stabilizers.
 
     """
 
-    top_readout_cubes: frozenset[Cube] = frozenset()
-    top_readout_pipes: frozenset[Pipe] = frozenset()
-    bottom_stabilizer_pipes: frozenset[Pipe] = frozenset()
-    top_readout_spatial_cubes: frozenset[tuple[Cube, SpatialArms]] = frozenset()
-    bottom_stabilizer_spatial_cubes: frozenset[Cube] = frozenset()
-    temporal_hadamard_pipes: frozenset[tuple[Pipe, Basis]] = frozenset()
+    top_readout_cubes: frozenset[CubeWithArms] = frozenset()
+    top_readout_pipes: frozenset[PipeWithArms] = frozenset()
+    bottom_stabilizer_cubes: frozenset[CubeWithArms] = frozenset()
+    bottom_stabilizer_pipes: frozenset[PipeWithArms] = frozenset()
+    temporal_hadamard_pipes: frozenset[PipeWithObservableBasis] = frozenset()
 
     def slice_at_z(self, z: int) -> AbstractObservable:
         """Get the observable slice at the given z position."""
         return AbstractObservable(
-            frozenset(c for c in self.top_readout_cubes if c.position.z == z),
-            frozenset(p for p in self.top_readout_pipes if p.u.position.z == z),
-            frozenset(p for p in self.bottom_stabilizer_pipes if p.u.position.z == z),
-            frozenset(c for c in self.top_readout_spatial_cubes if c[0].position.z == z),
-            frozenset(c for c in self.bottom_stabilizer_spatial_cubes if c.position.z == z),
-            frozenset(p for p in self.temporal_hadamard_pipes if p[0].u.position.z == z),
+            frozenset(c for c in self.top_readout_cubes if c.cube.position.z == z),
+            frozenset(p for p in self.top_readout_pipes if p.pipe.u.position.z == z),
+            frozenset(c for c in self.bottom_stabilizer_cubes if c.cube.position.z == z),
+            frozenset(p for p in self.bottom_stabilizer_pipes if p.pipe.u.position.z == z),
+            frozenset(p for p in self.temporal_hadamard_pipes if p.pipe.u.position.z == z),
         )
 
 
 def compile_correlation_surface_to_abstract_observable(
     block_graph: BlockGraph,
     correlation_surface: CorrelationSurface,
+    include_temporal_hadamard_pipes: bool = False,
 ) -> AbstractObservable:
     """Compile a ``CorrelationSurface`` into an ``AbstractObservable`` in the
     block graph.
 
     The correlation surface translates into measurements to be included in the
-    observable in two main ways:
+    observable in the following ways:
 
     1. The surface attaches to the top face of some blocks. This means that part
     of the logical operator is measured by reading the data qubits. The parity
@@ -98,41 +159,47 @@ def compile_correlation_surface_to_abstract_observable(
     software we will have greater confidence in these measurements earlier and
     in principle be able to make decisions based on these measurements earlier.
 
+    3. A temporal Hadamard pipe under fixed-bulk convention includes a layer of
+    realignment stabilizers, which might includes a single stabilizer measurements
+    that need to be added to the observable.
+
     The compilation process is as follows:
 
     1. Find all the spatial cubes involved in the correlation surface. For
     each cube:
-
-    - If a surface is in the XY plane, include the stabilizer measurements at
-    the bottom of the cube in the observable, and add the cube to the
-    ``bottom_stabilizer_spatial_cubes`` set.
 
     - If a surface is perpendicular to the XY plane, include data qubit readouts
     on the top face of the cube in the observable. Correlation surfaces
     parallel to the cube's normal direction are guaranteed to attach to an
     even number of arms.
         - If exactly two arms touch the surface, add the cube and arms to the
-        ``top_readout_spatial_cubes`` set.
+        ``top_readout_cubes`` set.
         - If four arms touch the surface, split the arms into two pairs (e.g.
         ``SpatialArms.LEFT | SpatialArms.DOWN`` and
         ``SpatialArms.RIGHT | SpatialArms.UP``), and add the cube and arms
-        to the ``top_readout_spatial_cubes`` set.
+        to the ``top_readout_cubes`` set.
 
     2. Iterate over all the edges in the correlation surface. For each edge:
     - If the edge is vertical, check if the surface is attached to the top face
     of the top cube. If so, add the top cube to the ``top_readout_cubes`` set.
+    If the edge is a hadamard edge, add the pipe to the ``temporal_hadamard_pipes``
+    set.
     - If the edge is horizontal, check if the surface is attached to the top face
     of the pipe. If so, add the pipe to the ``top_readout_pipes`` set; otherwise,
     add the pipe to the ``bottom_stabilizer_pipes`` set.
-    - For each cube in the pipe, ignore the spatial cubes (already handled),
-    and check if the surface is attached to the top face of the cube. If so, add
-    the cube to the ``top_readout_cubes`` set.
+    - For each cube in the pipe, check if the surface is attached to the top face
+    of the cube. If so, add the cube to the ``top_readout_cubes`` set. Otherwise,
+    add the pipe to the ``bottom_stabilizer_pipes`` set with the arms of the
+    cubes in the pipe.
 
     Args:
         block_graph: The block graph whose corresponding ZX graph supports the
             correlation surface.
         correlation_surface: The correlation surface to convert into an abstract
             observable.
+        include_temporal_hadamard_pipes: whether to include the temporal hadamard
+            pipes in the observable. This is only relevant for the fixed bulk
+            convention.
 
     Returns:
         The abstract observable corresponding to the correlation surface in the block graph.
@@ -145,10 +212,12 @@ def compile_correlation_surface_to_abstract_observable(
     # 0. Handle single node edge case
     if correlation_surface.is_single_node:
         # single stability experiment
-        if block_graph.cubes[0].is_spatial:
-            return AbstractObservable(bottom_stabilizer_spatial_cubes=frozenset(block_graph.cubes))
-
-        return AbstractObservable(top_readout_cubes=frozenset(block_graph.cubes))
+        cube = block_graph.cubes[0]
+        cube_with_arms = CubeWithArms(cube)
+        if cube.is_spatial:
+            return AbstractObservable(bottom_stabilizer_cubes=frozenset([cube_with_arms]))
+        # single memory experiment
+        return AbstractObservable(top_readout_cubes=frozenset([cube_with_arms]))
 
     pg = block_graph.to_zx_graph()
     _check_correlation_surface_validity(correlation_surface, pg.g)
@@ -159,26 +228,21 @@ def compile_correlation_surface_to_abstract_observable(
         endpoints = frozenset({pg[u], pg[v]})
         endpoints_to_edge.setdefault(endpoints, []).append(edge)
 
-    top_readout_cubes: set[Cube] = set()
-    top_readout_pipes: set[Pipe] = set()
-    bottom_stabilizer_pipes: set[Pipe] = set()
-    top_readout_spatial_cubes: set[tuple[Cube, SpatialArms]] = set()
-    bottom_stabilizer_spatial_cubes: set[Cube] = set()
-    temporal_hadamard_pipes: set[tuple[Pipe, Basis]] = set()
+    top_readout_cubes: set[CubeWithArms] = set()
+    top_readout_pipes: set[PipeWithArms] = set()
+    bottom_stabilizer_pipes: set[PipeWithArms] = set()
+    temporal_hadamard_pipes: set[PipeWithObservableBasis] = set()
 
-    # 1. Handle all spatial cubes
+    # 1. Handle spatial cubes top readouts
     for node in correlation_surface.span_vertices():
         cube = block_graph[pg[node]]
         if not cube.is_spatial:
             continue
+
         kind = cube.kind
         assert isinstance(kind, ZXCube)
         bases = correlation_surface.bases_at(node)
         normal_basis = kind.normal_basis
-        # correlation surface perpendicular to the normal direction of the cube
-        # accounts for the bottom stabilizer measurements
-        if {normal_basis} != bases:
-            bottom_stabilizer_spatial_cubes.add(cube)
         # correlation surface parallel to the normal direction of the cube
         # accounts for the top readout measurements
         # we need to record the arm flags to specify different shapes of the
@@ -201,10 +265,10 @@ def compile_correlation_surface_to_abstract_observable(
             # Two separate lines in the cube
             # By convention, we always split the four arms into [LEFT | DOWN] and [RIGHT | UP]
             if len(arms) == 4:
-                top_readout_spatial_cubes.add((cube, SpatialArms.LEFT | SpatialArms.DOWN))
-                top_readout_spatial_cubes.add((cube, SpatialArms.RIGHT | SpatialArms.UP))
+                top_readout_cubes.add(CubeWithArms(cube, SpatialArms.LEFT | SpatialArms.DOWN))
+                top_readout_cubes.add(CubeWithArms(cube, SpatialArms.RIGHT | SpatialArms.UP))
             else:
-                top_readout_spatial_cubes.add((cube, arms))
+                top_readout_cubes.add(CubeWithArms(cube, arms))
 
     # 2. Handle all the pipes
     def has_obs_include(cube: Cube, correlation: Basis) -> bool:
@@ -227,33 +291,41 @@ def compile_correlation_surface_to_abstract_observable(
         if pipe.direction == Direction3D.Z:
             # Temporal Hadamard might have measurements that should be included
             # during realignment of plaquettes under fixed-bulk convention
-            if pipe.kind.has_hadamard:
-                temporal_hadamard_pipes.add((pipe, edge.u.basis))
+            if include_temporal_hadamard_pipes and pipe.kind.has_hadamard:
+                temporal_hadamard_pipes.add(PipeWithObservableBasis(pipe, edge.u.basis))
             if has_obs_include(pipe.v, edge.v.basis):
-                top_readout_cubes.add(pipe.v)
+                top_readout_cubes.add(CubeWithArms(pipe.v))
             continue
+        arms_u = (
+            SpatialArms.from_cube_in_graph(pipe.u, block_graph)
+            if pipe.u.is_spatial
+            else SpatialArms.NONE
+        )
+        arms_v = (
+            SpatialArms.from_cube_in_graph(pipe.v, block_graph)
+            if pipe.v.is_spatial
+            else SpatialArms.NONE
+        )
         # Horizontal pipes
         pipe_top_face = pipe.kind.z
         assert pipe_top_face is not None, "The pipe is guaranteed to be spatial."
         # There is correlation surface attached to the top of the pipe
         if pipe_top_face.value == edge.u.basis.value:
-            top_readout_pipes.add(pipe)
+            top_readout_pipes.add(PipeWithArms(pipe, (arms_u, arms_v)))
             for cube, n in zip(pipe, edge):
                 # Spatial cubes have already been handled
                 if cube.is_spatial:
                     continue
                 if has_obs_include(cube, n.basis):
-                    top_readout_cubes.add(cube)
-        elif not all(cube.is_spatial for cube in pipe):
-            bottom_stabilizer_pipes.add(pipe)
+                    top_readout_cubes.add(CubeWithArms(cube))
+        else:
+            bottom_stabilizer_pipes.add(PipeWithArms(pipe, (arms_u, arms_v)))
 
     return AbstractObservable(
-        frozenset(top_readout_cubes),
-        frozenset(top_readout_pipes),
-        frozenset(bottom_stabilizer_pipes),
-        frozenset(top_readout_spatial_cubes),
-        frozenset(bottom_stabilizer_spatial_cubes),
-        frozenset(temporal_hadamard_pipes),
+        top_readout_cubes=frozenset(top_readout_cubes),
+        top_readout_pipes=frozenset(top_readout_pipes),
+        bottom_stabilizer_pipes=frozenset(bottom_stabilizer_pipes),
+        temporal_hadamard_pipes=frozenset(temporal_hadamard_pipes),
     )
 
 

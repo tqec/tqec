@@ -9,7 +9,7 @@ from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
-from tqec.plaquette.debug import PlaquetteDebugInformation
+from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.plaquette.qubit import SquarePlaquetteQubits
@@ -67,7 +67,11 @@ def make_fixed_bulk_realignment_plaquette(
         qubits,
         scheduled_circuit,
         mergeable_instructions=frozenset({"H"}),
-        debug_information=PlaquetteDebugInformation(basis=debug_basis),
+        debug_information=PlaquetteDebugInformation(
+            draw_polygons=(
+                DrawPolygon(debug_basis) if debug_basis is not None else None
+            )
+        ),
     )
 
 
@@ -263,7 +267,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_qubit_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -324,7 +328,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_qubit_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -379,7 +383,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_vertical_boundary_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_vertical_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -448,7 +452,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_vertical_boundary_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_vertical_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -504,7 +508,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_horizontal_boundary_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_horizontal_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -573,7 +577,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_memory_horizontal_boundary_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_memory_horizontal_boundary_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -639,7 +643,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_spatial_cube_qubit_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_cube_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -710,20 +714,20 @@ class FixedBulkConventionGenerator:
         # Note that resets and measurements are included on all data-qubits here.
         # TBPs: Two Body Plaquettes.
         TBPs = self.get_2_body_rpng_descriptions()
-        # SBS: Spatial Boundary Basis.
-        SBS = spatial_boundary_basis
+        # SBB: Spatial Boundary Basis.
+        SBB = spatial_boundary_basis
         if SpatialArms.UP not in arms:
             CORNER, BULK = (1, 10) if boundary_is_z else (2, 9)
-            mapping[CORNER] = mapping[BULK] = TBPs[SBS][PlaquetteOrientation.UP]
+            mapping[CORNER] = mapping[BULK] = TBPs[SBB][PlaquetteOrientation.UP]
         if SpatialArms.RIGHT not in arms:
             CORNER, BULK = (4, 21) if boundary_is_z else (2, 22)
-            mapping[CORNER] = mapping[BULK] = TBPs[SBS][PlaquetteOrientation.RIGHT]
+            mapping[CORNER] = mapping[BULK] = TBPs[SBB][PlaquetteOrientation.RIGHT]
         if SpatialArms.DOWN not in arms:
             CORNER, BULK = (4, 23) if boundary_is_z else (3, 24)
-            mapping[CORNER] = mapping[BULK] = TBPs[SBS][PlaquetteOrientation.DOWN]
+            mapping[CORNER] = mapping[BULK] = TBPs[SBB][PlaquetteOrientation.DOWN]
         if SpatialArms.LEFT not in arms:
             CORNER, BULK = (1, 12) if boundary_is_z else (3, 11)
-            mapping[CORNER] = mapping[BULK] = TBPs[SBS][PlaquetteOrientation.LEFT]
+            mapping[CORNER] = mapping[BULK] = TBPs[SBB][PlaquetteOrientation.LEFT]
 
         # For each corner, if the two arms around the corner are not present, the
         # corner plaquette should be removed from the mapping (this is the case
@@ -821,7 +825,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_spatial_cube_qubit_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_cube_qubit_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -904,7 +908,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_spatial_cube_arm_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_cube_arm_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned
@@ -978,7 +982,7 @@ class FixedBulkConventionGenerator:
 
         Warning:
             This method is tightly coupled with
-            :meth:`FixedBulkConventionPlaquetteGenerator.get_spatial_cube_arm_raw_template`
+            :meth:`FixedBulkConventionGenerator.get_spatial_cube_arm_raw_template`
             and the returned ``RPNG`` descriptions should only be considered
             valid when used in conjunction with the
             :class:`~tqec.templates.base.RectangularTemplate` instance returned

@@ -16,9 +16,11 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from typing import Any
 
+import numpy
 import stim
 
 from tqec.circuit.qubit import GridQubit
+from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECException
 from tqec.utils.scale import round_or_fail
 
@@ -123,20 +125,64 @@ class QubitMap:
             ``set(return_value.qubits).issubset(qubits_to_keep)`` is ``True``.
 
         """
-        kept_qubits = frozenset(qubits_to_keep)
-        return QubitMap({i: q for i, q in self.i2q.items() if q in kept_qubits})
+        return self.filter_by_qubit_indices(self.q2i[q] for q in qubits_to_keep if q in self.q2i)
 
-    def to_circuit(self) -> stim.Circuit:
+    def filter_by_qubit_indices(self, qubit_indices_to_keep: Iterable[int]) -> QubitMap:
+        """Filter the qubit map to only keep qubits present in the provided
+        ``qubit_indices_to_keep``.
+
+        Args:
+            qubit_indices_to_keep: the qubits to keep in the circuit.
+
+        Returns:
+            a copy of ``self`` with all the qubits associated to indices not in
+            ``qubit_indices_to_keep`` removed.
+
+        """
+        kept_qubit_indices = frozenset(qubit_indices_to_keep)
+        return QubitMap({i: q for i, q in self.i2q.items() if i in kept_qubit_indices})
+
+    def to_circuit(self, shift_to_positive: bool = False) -> stim.Circuit:
         """Get a circuit with only ``QUBIT_COORDS`` instructions representing
         ``self``.
+
+        Args:
+            shift_to_positive: if ``True``, the qubit coordinates are shift such
+                that they are all positive. Their relative positioning stays
+                unchanged.
+
+        Returns:
+            a ``stim.Circuit`` containing only ``QUBIT_COORDS`` instructions.
+
         """
+        shiftx, shifty = 0, 0
+        if shift_to_positive:
+            shiftx = -min((q.x for q in self.i2q.values()), default=0)
+            shifty = -min((q.y for q in self.i2q.values()), default=0)
         ret = stim.Circuit()
         for qi, qubit in sorted(self.i2q.items(), key=lambda t: t[0]):
-            ret.append("QUBIT_COORDS", qi, (float(qubit.x), float(qubit.y)))
+            ret.append(
+                "QUBIT_COORDS",
+                qi,
+                StimCoordinates(qubit.x + shiftx, qubit.y + shifty).to_stim_coordinates(),
+            )
         return ret
 
     def __getitem__(self, index: GridQubit) -> int:
         return self.q2i[index]
+
+    def bounding_box(self) -> tuple[tuple[float, float], tuple[float, float]]:
+        """Compute and return the bounding box of ``self``.
+
+        Returns:
+            ``(mins, maxes)`` where each of ``mins`` (resp. ``maxes``) is a pair
+            of values ``(x, y)`` corresponding to the dimension.
+
+        """
+        coordinates = numpy.array([(q.x, q.y) for q in self.qubits])
+        mins = numpy.min(coordinates, axis=0)
+        maxes = numpy.max(coordinates, axis=0)
+        return ((mins[0], mins[1]), (maxes[0], maxes[1]))
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the qubit map.

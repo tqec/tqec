@@ -21,6 +21,7 @@ from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
+from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECException, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 from tqec.visualisation.computation.tree import LayerVisualiser
@@ -148,6 +149,7 @@ class LayerTree:
         detector_database: DetectorDatabase | None = None,
         lookback: int = 2,
         add_polygons: bool = True,
+        shift_to_positive: bool = True,
     ) -> str:
         """Generate the Crumble URL of the quantum circuit representing ``self``.
 
@@ -174,6 +176,9 @@ class LayerTree:
                 ``True``, the polygons representing the stabilizers will be generated
                 based on the RPNG information of underlying plaquettes and add
                 to the Crumble URL.
+            shift_to_positive: if ``True``, the resulting circuit is shifted such
+                that only qubits with positive coordinates are used. Else, the
+                circuit is left as is.
 
         Returns:
             a string representing the Crumble URL of the quantum circuit.
@@ -188,16 +193,18 @@ class LayerTree:
                 lookback=lookback,
             )
             return str(circuit.to_crumble_url())
-        self._generate_annotations(
-            k, manhattan_radius, detector_database, lookback=lookback, add_polygons=True
-        )
+        self._generate_annotations(k, manhattan_radius, detector_database, lookback=lookback)
+        self._annotate_polygons(k)
         annotations = self._get_annotation(k)
         qubit_map = annotations.qubit_map
         assert qubit_map is not None
         circuits_with_polygons = self._root.generate_circuits_with_potential_polygons(
             k, qubit_map, add_polygons=True
         )
-        crumble_url: str = qubit_map.to_circuit().to_crumble_url() + ";"
+        qubit_map_circuit = qubit_map.to_circuit()
+        if shift_to_positive:
+            qubit_map_circuit = shift_to_only_positive(qubit_map_circuit)
+        crumble_url: str = qubit_map_circuit.to_crumble_url() + ";"
         last_polygons: set[Polygon] = set()
         for item in circuits_with_polygons:
             if isinstance(item, stim.Circuit):
@@ -222,10 +229,13 @@ class LayerTree:
         database_path: Path = DEFAULT_DETECTOR_DATABASE_PATH,
         only_use_database: bool = False,
         lookback: int = 2,
-        add_polygons: bool = False,
         parallel_process_count: int = 1,
     ) -> None:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
+        # If already annotated, no need to re-annotate.
+        if k in self._annotations:
+            return
+        # Else, perform all the needed computations.
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
         # This method will also update the detector_database and save it to disk at database_path.
@@ -239,8 +249,6 @@ class LayerTree:
             parallel_process_count,
         )
         self._annotate_observables(k)
-        if add_polygons:
-            self._annotate_polygons(k)
 
     def generate_circuit(
         self,
@@ -357,26 +365,57 @@ class LayerTree:
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())
 
-    def layers_to_svg(self, k: int, errors: Sequence[stim.ExplainedError] = tuple()) -> list[str]:
-        """Draw one SVG per base layer in ``self``.
+    def layers_to_svg(
+        self,
+        k: int,
+        errors: Sequence[stim.ExplainedError] = tuple(),
+        show_observable: int | None = None,
+    ) -> list[str]:
+        """Visualize the layers as a list of SVG strings.
 
         Args:
             k: scaling factor.
-            errors: if provided and non-empty, contains errors that will be drawn on the resulting
-                SVGs. Errors should originate from a **non-shifted** circuit, else they will be
-                shifted.
+            errors: a sequence of errors to be drawn on the layers. Each error
+                is visualised with a cross. The cross colour follows the XYZ=RGB
+                convention, and the moment index at which the error takes place
+                is written above the cross (an error is always scheduled at the
+                end of the moment, so any operation applied at the same moment
+                is applied before the error).
+            show_observable: the index of the observable to be drawn on the layers.
+                If set to ``None``, no observable will be shown. If set to an
+                integer, the observable with that index will be shown. The
+                observable is represented as the set of included measurements.
+                A yellow star on the plaquette vertex indicates a data qubit
+                readout, while a star on the plaquette face indicates a
+                stabilizer measurements.
 
         Returns:
-            a list of valid SVGs, each representing a QEC layer in the flattened circuit represented
-            by ``self``.
+            a list of SVG strings representing the layers of the tree.
 
         """
-        annotations = self._get_annotation(k)
+        if show_observable is not None and show_observable >= len(self._abstract_observables):
+            raise TQECException(
+                f"{show_observable:=} is out of range for the number of "
+                f"abstract observables ({len(self._abstract_observables)})."
+            )
+        annotations = self._annotations.get(k, LayerTreeAnnotations())
         tl, br = (
             annotations.qubit_map.qubit_bounds()
             if annotations.qubit_map is not None
             else (None, None)
         )
-        visualiser = LayerVisualiser(k, errors, top_left_qubit=tl, bottom_right_qubit=br)
+        # Note: if the top-left and bottom-right qubits are not None, we just computed them from
+        # the resulting circuit. We want to stick to the regular plaquette grid, and that might not
+        # be the case here because boundary plaquettes might not use the extremal data-qubits.
+        # As data-qubits are located on odd coordinates, we just ensure that the boundary coordinates
+        # are odd, flooring or ceiling to the closest odd coordinates depending on the boundary to
+        # make sure we extended the viewport (and not reduce it).
+        if tl is not None:
+            tl = GridQubit(tl.x - 1 if tl.x % 2 == 0 else tl.x, tl.y - 1 if tl.y % 2 == 0 else tl.y)
+        if br is not None:
+            br = GridQubit(br.x + 1 if br.x % 2 == 0 else br.x, br.y + 1 if br.y % 2 == 0 else br.y)
+        visualiser = LayerVisualiser(
+            k, errors, show_observable, top_left_qubit=tl, bottom_right_qubit=br
+        )
         self._root.walk(visualiser)
         return visualiser.visualisations
