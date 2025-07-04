@@ -169,6 +169,7 @@ class ScheduledCircuit:
             shift_to_positive: if ``True``, the qubit coordinates are shift such
                 that they are all positive. Their relative positioning stays
                 unchanged.
+
         """
         return self._qubit_map.to_circuit(shift_to_positive)
 

@@ -28,6 +28,7 @@ def shift_qubits(
     Returns:
         a new ``stim.Circuit`` instance with qubit coordinates shifted by
         ``shifts``.
+
     """
     ret = stim.Circuit()
     for instr in circuit:
@@ -73,9 +74,11 @@ def shift_to_only_positive(
             additional dimensions to the ``DETECTOR`` instructions if the
             provided ``shifts`` is contains more elements than the original
             number of dimensions in the arguments.
+
     Returns:
         a copy of ``circuit`` with all the qubit coordinates shifted to positive
         values.
+
     """
     mins, _ = circuit_bounding_box(circuit)
     shifts = [-m if stick_to_origin or m < 0 else 0 for m in mins]
@@ -101,6 +104,7 @@ def circuit_bounding_box(
         (resp. maximum) coordinate found in each dimension.
         If the circuit does not contain any ``QUBIT_COORDS`` instruction, the
         returned lists are empty.
+
     """
     coordinates = numpy.array(list(circuit.get_final_qubit_coordinates().values()))
     return list(numpy.min(coordinates, axis=0)), list(numpy.max(coordinates, axis=0))

@@ -153,6 +153,7 @@ class TopologicalComputationGraph:
 
         Returns:
             the :class:`.Block` instance at the provided ``position``.
+
         """
         layout_position = LayoutPosition3D.from_block_position(position)
         return self._blocks[layout_position]
