@@ -1,3 +1,17 @@
+"""Notes on some of the tests cases.
+
+Because circuit generation and checking that the circuit is correct are quite long operations (~4s
+for most of the tests) and because the runtime scales with the scaling factor ``k``, only ``k == 1``
+tests are done on a regular basis, and ``k == 2`` tests are only done when we can afford a longer
+CI run (e.g., when pushing on the main branch).
+
+Warning:
+    Tests involving a spatial junction in the fixed boundary convention will fail for ``k >= 3``!
+    That is explained in the documentation:
+    https://tqec.github.io/tqec/user_guide/extended_stabilizers_implementation.html.
+
+"""
+
 import itertools
 from pathlib import Path
 from typing import Any, Iterable, Sequence
