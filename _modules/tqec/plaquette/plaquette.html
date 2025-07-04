@@ -420,6 +420,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.qubit</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridQubit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.circuit.schedule</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduledCircuit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.debug</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteDebugInformation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteOrientation</span>
@@ -491,6 +492,69 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
+<div class="viewcode-block" id="Plaquette.project_on_data_qubit_indices">
+<a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.project_on_data_qubit_indices">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">project_on_data_qubit_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_qubits_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Plaquette</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the plaquette on the provided qubits and return a new</span>
+<span class="sd">        plaquette with the remaining qubits and circuit.</span>
+
+<span class="sd">        This method is useful for deriving a boundary plaquette from a integral</span>
+<span class="sd">        plaquette.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_qubits: data-qubit indices that will be kept in the returned</span>
+<span class="sd">                plaquette.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new plaquette with projected qubits and circuit. The qubits are</span>
+<span class="sd">            updated to only keep the provided ``data_qubits_indices``. The</span>
+<span class="sd">            circuit is also updated to only use the kept qubits and empty</span>
+<span class="sd">            moments with the corresponding schedules are removed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kept_qubits</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">q</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qubits</span><span class="o">.</span><span class="n">data_qubits_with_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data_qubits_indices</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_on_data_qubits</span><span class="p">(</span><span class="n">kept_qubits</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Plaquette.project_on_data_qubits">
+<a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.project_on_data_qubits">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">project_on_data_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">GridQubit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Plaquette</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the plaquette on the provided qubits and return a new</span>
+<span class="sd">        plaquette with the remaining qubits and circuit.</span>
+
+<span class="sd">        This method is useful for deriving a boundary plaquette from a integral</span>
+<span class="sd">        plaquette.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_qubits: qubits that will be kept in the returned plaquette.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new plaquette with projected qubits and circuit. The qubits are</span>
+<span class="sd">            updated to only keep the provided ``data_qubits``. The circuit is</span>
+<span class="sd">            also updated to only use the kept qubits and empty moments with the</span>
+<span class="sd">            corresponding schedules are removed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">removed_data_qubit_indices</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qubits</span><span class="o">.</span><span class="n">data_qubits_with_indices</span> <span class="k">if</span> <span class="n">q</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_qubits</span>
+        <span class="p">]</span>
+        <span class="n">new_plaquette_qubits</span> <span class="o">=</span> <span class="n">PlaquetteQubits</span><span class="p">(</span><span class="n">data_qubits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qubits</span><span class="o">.</span><span class="n">syndrome_qubits</span><span class="p">)</span>
+        <span class="n">new_scheduled_circuit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">filter_by_qubits</span><span class="p">(</span><span class="n">new_plaquette_qubits</span><span class="o">.</span><span class="n">all_qubits</span><span class="p">)</span>
+        <span class="n">debug_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_information</span>
+        <span class="k">if</span> <span class="n">debug_info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">debug_info</span> <span class="o">=</span> <span class="n">debug_info</span><span class="o">.</span><span class="n">with_data_qubits_removed</span><span class="p">(</span><span class="n">removed_data_qubit_indices</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Plaquette</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_&quot;</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">removed_data_qubit_indices</span><span class="p">)),</span>
+            <span class="n">new_plaquette_qubits</span><span class="p">,</span>
+            <span class="n">new_scheduled_circuit</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mergeable_instructions</span><span class="p">,</span>
+            <span class="n">debug_info</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Plaquette.project_on_boundary">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.project_on_boundary">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">project_on_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">projected_orientation</span><span class="p">:</span> <span class="n">PlaquetteOrientation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Plaquette</span><span class="p">:</span>
@@ -549,6 +613,18 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">get_circuit</span><span class="p">(</span><span class="n">include_qubit_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">())</span></div>
 
 
+<div class="viewcode-block" id="Plaquette.with_debug_information">
+<a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.with_debug_information">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_debug_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug_information</span><span class="p">:</span> <span class="n">PlaquetteDebugInformation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Plaquette</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Plaquette</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qubits</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mergeable_instructions</span><span class="p">,</span>
+            <span class="n">debug_information</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Plaquette.to_dict">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.to_dict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -586,13 +662,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">circuit</span> <span class="o">=</span> <span class="n">ScheduledCircuit</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;circuit&quot;</span><span class="p">])</span>
         <span class="n">mergeable_instructions</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;mergeable_instructions&quot;</span><span class="p">])</span>
         <span class="n">debug_information</span> <span class="o">=</span> <span class="n">PlaquetteDebugInformation</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;debug_information&quot;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">Plaquette</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">qubits</span><span class="p">,</span>
-            <span class="n">circuit</span><span class="p">,</span>
-            <span class="n">mergeable_instructions</span><span class="p">,</span>
-            <span class="n">debug_information</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Plaquette</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">qubits</span><span class="p">,</span> <span class="n">circuit</span><span class="p">,</span> <span class="n">mergeable_instructions</span><span class="p">,</span> <span class="n">debug_information</span><span class="p">)</span></div>
 </div>
 
 

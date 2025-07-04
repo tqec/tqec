@@ -16,6 +16,7 @@ SquarePlaquetteQubits
       ~SquarePlaquetteQubits.get_edge_qubits
       ~SquarePlaquetteQubits.get_qubits_on_side
       ~SquarePlaquetteQubits.to_dict
+      ~SquarePlaquetteQubits.without_qubits
    
    
 
@@ -46,5 +47,6 @@ SquarePlaquetteQubits
    .. automethod:: get_edge_qubits
    .. automethod:: get_qubits_on_side
    .. automethod:: to_dict
+   .. automethod:: without_qubits
    
    
