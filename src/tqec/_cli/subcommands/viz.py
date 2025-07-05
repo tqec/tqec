@@ -15,6 +15,7 @@ from tqec.utils.exceptions import TQECException
 
 
 def has_program(name: str) -> bool:
+    """Check if the provided ``name`` corresponds to a usable executable on the host system."""
     return shutil.which(name) is not None
 
 
@@ -25,6 +26,22 @@ def generate_animation(
     image_glob_pattern: str = "*.svg",
     overwrite: bool = True,
 ) -> None:
+    """Generate an animation from a directory containing images.
+
+    Args:
+        out_file: filepath to save the animation to.
+        framerate: how many images per seconds should be displayed in the animated video.
+        image_directory: a directory containing images following the provided
+            ``image_glob_pattern``. Images should be named appropriately to be sorted.
+        image_glob_pattern: file pattern used to get the list of all the images that should be
+            in the saved video.
+        overwrite: if ``True`` and ``out_file`` already exists, it will be overwritten. Else, the
+            file will not be updated.
+
+    Raises:
+        TQECException: if ``ffmpeg`` is not available in the host system.
+
+    """
     if not has_program("ffmpeg"):
         raise TQECException(
             "ffmpeg is needed to generate an animation, but could not find it. "

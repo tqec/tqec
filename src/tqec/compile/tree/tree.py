@@ -87,6 +87,7 @@ class LayerTree:
         self._observable_builder = observable_builder
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of ``self``."""
         return {
             "root": self._root.to_dict(),
             "abstract_observables": self._abstract_observables,

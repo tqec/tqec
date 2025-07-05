@@ -42,10 +42,12 @@ class RawCircuitLayer(BaseLayer):
 
     @property
     def scalable_raw_shape(self) -> PhysicalQubitScalable2D:
+        """Get the scalable shape of the quantum circuit returned by ``self.circuit_factory``."""
         return self._scalable_raw_shape
 
     @property
     def circuit_factory(self) -> Callable[[int], ScheduledCircuit]:
+        """Get the callable used to generate a scalable quantum circuit from the scaling factor."""
         return self._circuit_factory
 
     @property

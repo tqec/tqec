@@ -1,3 +1,5 @@
+"""Contains helpers to visualise a :class:`~tqec.compile.tree.tree.LayerTree` instance."""
+
 from __future__ import annotations
 
 import warnings
@@ -18,21 +20,41 @@ from tqec.visualisation.computation.plaquette.grid import plaquette_grid_svg_vie
 
 @dataclass(frozen=True)
 class VisualisationData:
+    """Holds data that will then be used to visualise one layer of the visualised
+    :class:`~tqec.compile.tree.tree.LayerTree` instance.
+    """
+
     layer: LayoutLayer
     start_moment: int
     end_moment: int
     observable: Observable | None = None
 
     def __post_init__(self) -> None:
+        """Check that the instance is valid.
+
+        Raises:
+            AssertionError: when ``self.start_moment <= self.end_moment``.
+
+        """
         assert self.start_moment <= self.end_moment
 
     def with_duration_offset(self, offset: int) -> VisualisationData:
+        """Add a time offset to the time-related data in ``self``.
+
+        This method is used to get a new instance of :class:`.VisualisationData` with a modified
+        offset in time, for example when visualising each repetitions in a REPEAT loop.
+        """
         return VisualisationData(
-            self.layer, self.start_moment + offset, self.end_moment + offset, self.observable
+            self.layer,
+            self.start_moment + offset,
+            self.end_moment + offset,
+            self.observable,
         )
 
 
 class LayerVisualiser(NodeWalker):
+    """A node walker that draws the visited :class:`~tqec.compile.tree.tree.LayerTree` instance."""
+
     def __init__(
         self,
         k: int,
@@ -43,6 +65,24 @@ class LayerVisualiser(NodeWalker):
         top_left_qubit: GridQubit | None = None,
         bottom_right_qubit: GridQubit | None = None,
     ):
+        """Creates a :class:`.LayerVisualiser` instance.
+
+        Args:
+            k: scaling factor.
+            errors: a (possibly empty) sequence of errors to draw on the resulting SVG
+                representation.
+            font_size: size of the font used to write the moment range of each layer that is drawn.
+            font_color: color of the font used to write the moment range of each layer that is
+                drawn.
+            top_left_qubit: qubit that should be at the top-left corner of the viewport. Can be used
+                top only visualise part of a computation, or to add empty border. If not provided,
+                the top-left qubit is automatically computed from the drawn computation.
+            bottom_right_qubit: qubit that should be at the bottom-right corner of the viewport. Can
+                be used top only visualise part of a computation, or to add empty border. If not
+                provided, the bottom-right qubit is automatically computed from the drawn
+                computation.
+
+        """
         super().__init__()
         self._k = k
         self._stack: list[list[VisualisationData]] = [[]]
@@ -81,7 +121,7 @@ class LayerVisualiser(NodeWalker):
             return
         layer = node._layer
         assert isinstance(layer, LayoutLayer)
-        start = self.current_tick
+        start = self.current_moment
         end = start + layer.num_moments(self._k)
         observable: Observable | None = None
         if self._observable_index is not None:
@@ -98,7 +138,13 @@ class LayerVisualiser(NodeWalker):
         self._stack[-1].append(VisualisationData(layer, start, end, observable))
 
     @property
-    def current_tick(self) -> int:
+    def current_moment(self) -> int:
+        """Returns the index of the first moment on which something can be scheduled.
+
+        Returns:
+            1 + the index of the last used moment.
+
+        """
         if self._stack[-1]:
             return self._stack[-1][-1].end_moment
         elif len(self._stack) > 1 and self._stack[-2]:
@@ -107,6 +153,14 @@ class LayerVisualiser(NodeWalker):
             return 0
 
     def get_moment_text(self, start: int, end: int) -> svg.Text:
+        """Returns an SVG representation of a text indicating the moments covererd by
+        ``[start, end]``.
+
+        Args:
+            start: initial moment.
+            end: final (exclusive) moment.
+
+        """
         return svg.Text(
             x=0,
             y=0,
@@ -126,6 +180,13 @@ class LayerVisualiser(NodeWalker):
 
     @property
     def visualisations(self) -> list[str]:
+        """Build and returns a list of SVG strings representing ``self``.
+
+        Warning:
+            Even though this is a property, non-trivial computations are made here. It is advised
+            to only use that property once, when the visualisation is needed.
+
+        """
         if len(self._stack) > 1:
             warnings.warn(
                 "Trying to get the layer visualisations but the stack contains more than one "

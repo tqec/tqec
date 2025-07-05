@@ -18,6 +18,23 @@ class RepeatedMoments:
 def iter_stim_circuit_by_moments(
     circuit: stim.Circuit, collected_before_use: bool = True
 ) -> Iterator[Moment | RepeatedMoments]:
+    """Return an iterator over the moments of the provided ``circuit``.
+
+    A moment is defined as all the operations between two ``TICK`` instructions. A moment can be
+    empty (i.e., contains no instruction).
+
+    Args:
+        circuit: quantum circuit to extract moments from.
+        collected_before_use: if ``False``, each call to ``next`` on the returned iterator will
+            erase the previously returned circuit and replace it with a new one. Should only be set
+            to ``False`` when iterating **AND** analysing moments one after the other, without the
+            need to collect all the moments before.
+
+    Returns:
+        all the moments appearing in the provided ``circuit``, in apparition order. The quantum
+        circuits representing each moment does **NOT** contain any ``TICK`` instruction.
+
+    """
     copy_func: Callable[[stim.Circuit], stim.Circuit] = (
         (lambda c: c.copy()) if collected_before_use else (lambda c: c)
     )
@@ -40,6 +57,7 @@ def iter_stim_circuit_by_moments(
 
 
 def collect_moments(moments: list[Moment | RepeatedMoments]) -> stim.Circuit:
+    """Merge the provided ``moments`` into a ``stim.Circuit``."""
     if not moments:
         return stim.Circuit()
 
@@ -62,6 +80,13 @@ def collect_moments(moments: list[Moment | RepeatedMoments]) -> stim.Circuit:
 
 
 def merge_moments(lhs: Moment, rhs: Moment) -> Moment:
+    """Merge two :class:`.Moment` instances into a single instance.
+
+    Raises:
+        TQECException if the resulting :class:`.Moment` instance is invalid, for example if it
+            contains two operations using the same qubit at the same time step.
+
+    """
     instructions = merge_instructions(list(lhs.instructions) + list(rhs.instructions))
     circuit = stim.Circuit()
     for inst in instructions:

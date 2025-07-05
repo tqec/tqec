@@ -131,10 +131,12 @@ class PlaquetteLayer(BaseLayer):
 
     @property
     def template(self) -> RectangularTemplate:
+        """Get the template stored by ``self``."""
         return self._template
 
     @property
     def plaquettes(self) -> Plaquettes:
+        """Get the plaquettes stored by ``self``."""
         return self._plaquettes
 
     @property

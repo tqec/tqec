@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Any
 
@@ -21,6 +21,7 @@ class PlaquetteQubits:
 
     @property
     def all_qubits(self) -> list[GridQubit]:
+        """Return all the qubits represented by ``self``."""
         return list(self)
 
     def get_edge_qubits(
@@ -85,31 +86,29 @@ class PlaquetteQubits:
 
     @property
     def data_qubits_indices(self) -> Iterator[int]:
+        """Return an iterator over the index of each data-qubit."""
         yield from range(len(self.data_qubits))
 
     @property
     def syndrome_qubits_indices(self) -> Iterator[int]:
+        """Return an iterator over the index of each syndrome-qubit."""
         yield from (i + len(self.data_qubits) for i in range(len(self.syndrome_qubits)))
 
     @property
     def data_qubits_with_indices(self) -> Iterator[tuple[int, GridQubit]]:
+        """Return an iterator over each data-qubit and their indices."""
         yield from ((i, q) for i, q in zip(self.data_qubits_indices, self.data_qubits))
 
     @property
     def syndrome_qubits_with_indices(self) -> Iterator[tuple[int, GridQubit]]:
+        """Return an iterator over each syndrome-qubit and their indices."""
         yield from ((i, q) for i, q in zip(self.syndrome_qubits_indices, self.syndrome_qubits))
 
     @property
     def qubit_map(self) -> QubitMap:
+        """Return the qubit map representing ``self``."""
         return QubitMap(
             dict(self.data_qubits_with_indices) | dict(self.syndrome_qubits_with_indices)
-        )
-
-    def without_qubits(self, qubits: Iterable[int]) -> PlaquetteQubits:
-        removed_qubits = frozenset(qubits)
-        return PlaquetteQubits(
-            [q for i, q in self.data_qubits_with_indices if i not in removed_qubits],
-            [q for i, q in self.syndrome_qubits_with_indices if i not in removed_qubits],
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -145,6 +144,7 @@ class PlaquetteQubits:
 
 class SquarePlaquetteQubits(PlaquetteQubits):
     def __init__(self) -> None:
+        """Represents the qubits used by a regular square plaquette."""
         super().__init__(
             # Order is important here! Top-left, top-right, bottom-left,
             # bottom-right.

@@ -160,15 +160,14 @@ class ScheduledCircuit:
         """Schedule of the internal moments."""
         return self._schedule
 
-    def get_qubit_coords_definition_preamble(
-        self, shift_to_positive: bool = False
-    ) -> stim.Circuit:
+    def get_qubit_coords_definition_preamble(self, shift_to_positive: bool = False) -> stim.Circuit:
         """Get a circuit with only ``QUBIT_COORDS`` instructions.
 
         Args:
             shift_to_positive: if ``True``, the qubit coordinates are shift such
                 that they are all positive. Their relative positioning stays
                 unchanged.
+
         """
         return self._qubit_map.to_circuit(shift_to_positive)
 
@@ -504,6 +503,16 @@ class ScheduledCircuit:
         )
 
     def is_empty(self) -> bool:
+        """Return ``True`` if ``self`` represents an empty circuit.
+
+        Warning:
+            an empty circuit is defined as a circuit containing no instructions.
+            ``QUBIT_COORDINATES`` instructions are ignored by this method (i.e., a circuit with only
+            ``QUBIT_COORDINATES`` instructions is considered empty), but other annotations are taken
+            into account (i.e., a circuit with a ``DETECTOR`` or ``SHIFT_COORDS`` instruction will
+            not be considered empty).
+
+        """
         return all(m.is_empty for m in self._moments)
 
     def to_dict(self) -> dict[str, Any]:

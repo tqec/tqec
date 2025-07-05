@@ -109,6 +109,7 @@ class UniqueSubTemplates:
 
     @property
     def manhattan_radius(self) -> int:
+        """Return the Manhattan radius of the stored subtemplate."""
         any_subtemplate = next(iter(self.subtemplates.values()))
         height: int = any_subtemplate.shape[0]
         # height should be `2 * manhattan_radius + 1` so `height // 2` is
@@ -314,6 +315,7 @@ class Unique3DSubTemplates:
 
     @property
     def manhattan_radius(self) -> int:
+        """Return the Manhattan radius of the stored subtemplate."""
         any_subtemplate = next(iter(self.subtemplates.values()))
         height: int = any_subtemplate.shape[0]
         # height should be `2 * manhattan_radius + 1` so `height // 2` is

@@ -43,7 +43,7 @@ _CORRELATION_SUFFIX = "_CORRELATION"
 
 
 # SHARED FUNCTIONS
-def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Position3D:
+def _int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Position3D:
     return Position3D(
         x=round_or_fail(pos.x / (1 + pipe_length), atol=0.35),
         y=round_or_fail(pos.y / (1 + pipe_length), atol=0.35),
@@ -51,7 +51,7 @@ def int_position_before_scale(pos: FloatPosition3D, pipe_length: float) -> Posit
     )
 
 
-def offset_y_cube_position(pos: FloatPosition3D, pipe_length: float) -> FloatPosition3D:
+def _offset_y_cube_position(pos: FloatPosition3D, pipe_length: float) -> FloatPosition3D:
     if np.isclose(pos.z - 0.5, np.floor(pos.z), atol=1e-9):
         pos = pos.shift_by(dz=-0.5)
     return FloatPosition3D(pos.x, pos.y, pos.z / (1 + pipe_length))
@@ -172,15 +172,15 @@ def read_block_graph_from_dae_file(
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
-            pos = offset_y_cube_position(pos, pipe_length)
-        graph.add_cube(int_position_before_scale(pos, pipe_length), cube_kind)
+            pos = _offset_y_cube_position(pos, pipe_length)
+        graph.add_cube(_int_position_before_scale(pos, pipe_length), cube_kind)
     port_index = 0
 
     # Add pipes
     for pos, pipe_kind, axes_directions in parsed_pipes:
         # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers from previous operations
         directional_multiplier = axes_directions[str(pipe_kind.direction)]
-        head_pos = int_position_before_scale(
+        head_pos = _int_position_before_scale(
             pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier),
             pipe_length,
         )
@@ -386,15 +386,15 @@ def read_block_graph_from_json(
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
-            pos = offset_y_cube_position(pos, 0.0)
-        graph.add_cube(int_position_before_scale(pos, 0.0), cube_kind)
+            pos = _offset_y_cube_position(pos, 0.0)
+        graph.add_cube(_int_position_before_scale(pos, 0.0), cube_kind)
     port_index = 0
 
     # Add pipes
     for u_pos, v_pos, pipe_kind, axes_directions in parsed_pipes:
         # Write head_pos and tail_pos as Position3D
-        head_pos = int_position_before_scale(u_pos, 0)
-        tail_pos = int_position_before_scale(v_pos, 0)
+        head_pos = _int_position_before_scale(u_pos, 0)
+        tail_pos = _int_position_before_scale(v_pos, 0)
 
         # Add pipe
         if head_pos not in graph:

@@ -36,6 +36,7 @@ def remap_qubit_indices(
     Returns:
         a copy of the provided ``circuit`` with qubit indices changed to the
         provided ``target_qubit_map``.
+
     """
     if original_qubit_map is None:
         original_qubit_map = QubitMap.from_circuit(circuit)

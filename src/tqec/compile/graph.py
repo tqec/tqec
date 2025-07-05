@@ -77,6 +77,24 @@ from tqec.utils.scale import PhysicalQubitScalable2D
 def substitute_plaquettes(
     target: PlaquetteLayer, source: PlaquetteLayer, source_border: TemplateBorder
 ) -> PlaquetteLayer:
+    """Perform plaquette substitution on the provided layers.
+
+    Note:
+        Most of the time the ``target`` layer will represent a logical qubit and the ``source``
+        layer will be a spatial junction template.
+
+    Args:
+        target: layer that will have one or more of its :class:`.Plaquette` overwritten.
+        source: layer containing the :class:`.Plaquette` instances that will be copied over to
+            ``target``.
+        source_border: spatial border of the source that should be used. The opposite border will
+            be used to update plaquettes on the target layer.
+
+    Returns:
+        a copy of ``target`` with plaquettes from ``source`` at its ``source_border.opposite()``
+        border.
+
+    """
     source_border_indices = source.template.get_border_indices(source_border)
     target_border_indices = target.template.get_border_indices(source_border.opposite())
     indices_mapping = source_border_indices.to(target_border_indices)
@@ -111,6 +129,7 @@ class TopologicalComputationGraph:
         self._observable_builder = observable_builder
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
+        """Add a new cube at ``position`` implemented by the provided ``block``."""
         if not block.is_cube:
             raise TQECException(
                 f"Cannot add the block as a cube. The provided block({block}) has at least one non-scalable dimension."
@@ -134,6 +153,7 @@ class TopologicalComputationGraph:
 
         Returns:
             the :class:`.Block` instance at the provided ``position``.
+
         """
         layout_position = LayoutPosition3D.from_block_position(position)
         return self._blocks[layout_position]
@@ -347,13 +367,13 @@ class TopologicalComputationGraph:
         self._replace_temporal_border(
             source,
             TemporalBlockBorder.Z_POSITIVE,
-            block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
+            block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
         )
         # Sink
         self._replace_temporal_border(
             sink,
             TemporalBlockBorder.Z_NEGATIVE,
-            block.get_temporal_border(TemporalBlockBorder.Z_POSITIVE),
+            block.get_atomic_temporal_border(TemporalBlockBorder.Z_POSITIVE),
         )
 
     def add_pipe(self, source: BlockPosition3D, sink: BlockPosition3D, block: Block) -> None:

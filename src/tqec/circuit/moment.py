@@ -23,6 +23,12 @@ from tqec.utils.instructions import is_annotation_instruction
 
 class MultipleOperationsOnSameQubitException(TQECException):
     def __init__(self, qubits: Sequence[int]):
+        """Create a new instance of the exception.
+
+        Args:
+            qubits: qubit indices that are targeted by several instructions at the same timestep.
+
+        """
         self._qubits = sorted(qubits)
         super().__init__(
             "Moment instances cannot be initialized with a stim.Circuit "
@@ -33,6 +39,7 @@ class MultipleOperationsOnSameQubitException(TQECException):
 
     @property
     def qubits(self) -> list[int]:
+        """Return the qubits that are targeted by several instructions at the same timestep."""
         return self._qubits
 
 
@@ -103,6 +110,7 @@ class Moment:
 
     @property
     def circuit(self) -> stim.Circuit:
+        """Get the underlying circuit containing the operations."""
         return self._circuit
 
     @staticmethod

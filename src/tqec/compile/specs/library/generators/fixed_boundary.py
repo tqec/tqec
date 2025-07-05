@@ -15,9 +15,7 @@ from tqec.compile.specs.library.generators.constants import (
     HORIZONTAL_HOOK_SCHEDULES,
     VERTICAL_HOOK_SCHEDULES,
 )
-from tqec.compile.specs.library.generators.extended_stabilizers import (
-    ExtendedPlaquetteCollection,
-)
+from tqec.compile.specs.library.generators.extended_stabilizers import ExtendedPlaquetteCollection
 from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.enums import PlaquetteOrientation
@@ -39,6 +37,12 @@ from tqec.utils.position import Direction3D
 
 class FixedBoundaryConventionGenerator:
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
+        """Low-level helper class centralising all the plaquette creation for the fixed boundary
+        convention.
+
+        This class provides all the methods needed to return the appropriate templates and
+        plaquettes needed to implement low-level QEC layers using the fixed boundary convention.
+        """
         self._mapper = PlaquetteMapper(translator, compiler)
 
     def _not_implemented_exception(self) -> NotImplementedError:
@@ -227,6 +231,13 @@ class FixedBoundaryConventionGenerator:
     def get_bulk_hadamard_rpng_descriptions(
         self, is_reversed: bool
     ) -> dict[Basis, dict[Orientation, RPNGDescription]]:
+        """Get plaquettes that are supposed to be used to implement a temporal Hadamard pipe.
+
+        Returns:
+            a mapping with 4 plaquettes: one for each basis (either ``X`` or ``Z``)
+            and for each hook orientation (either ``HORIZONTAL`` or ``VERTICAL``).
+
+        """
         # 2-qubit gate schedules
         vsched = VERTICAL_HOOK_SCHEDULES[is_reversed]
         hsched = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
@@ -1421,6 +1432,36 @@ class FixedBoundaryConventionGenerator:
     def get_temporal_hadamard_plaquettes(
         self, is_reversed: bool, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> Plaquettes:
+        """Returns the plaquettes needed to implement a transversal Hadamard gate applied on one
+        logical qubit.
+
+        Warning:
+            This method is tightly coupled with
+            :meth:`FixedBoundaryConventionGenerator.get_temporal_hadamard_raw_template`
+            and the returned ``RPNG`` descriptions should only be considered
+            valid when used in conjunction with the
+            :class:`~tqec.templates.base.Template` instance returned by this
+            method.
+
+        Arguments:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
+            z_orientation: orientation of the ``Z`` observable at the beginning
+                of the generated circuit description. The ``Z`` observable
+                orientation will be flipped at the end of the returned circuit
+                description, which is exactly the expected behaviour for a
+                Hadamard transition.
+                Used to compute the stabilizers that should be measured on the
+                boundaries and in the bulk of the returned logical qubit
+                description.
+
+        Returns:
+            the plaquettes needed to implement a transversal Hadamard gate applied on one logical
+            qubit.
+
+        """
         return self._mapper(self.get_temporal_hadamard_rpng_descriptions)(
             is_reversed, z_orientation
         )
@@ -1509,6 +1550,43 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
+        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        neighbouring logical qubits aligned on the ``X`` axis.
+
+        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
+        observables between two neighbouring logical qubits aligned on the ``X``
+        axis.
+
+        Note:
+            By convention, the hadamard-like transition is performed at the
+            top-most plaquettes.
+
+        Warning:
+            This method is tightly coupled with
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_vertical_hadamard_raw_template`
+            and the returned ``RPNG`` descriptions should only be considered
+            valid when used in conjunction with the
+            :class:`~tqec.templates.base.RectangularTemplate` instance returned
+            by this method.
+
+        Arguments:
+            top_left_basis: basis of the top-left-most stabilizer.
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
+            reset: basis of the reset operation performed on **internal**
+                data-qubits. Defaults to ``None`` that translates to no reset
+                being applied on data-qubits.
+            measurement: basis of the measurement operation performed on
+                **internal** data-qubits. Defaults to ``None`` that translates
+                to no measurement being applied on data-qubits.
+
+        Returns:
+            the plaquettes needed to implement a Hadamard spatial transition between two
+            neighbouring logical qubits aligned on the ``X`` axis.
+
+        """
         return self._mapper(self.get_spatial_vertical_hadamard_rpng_descriptions)(
             top_left_basis, is_reversed, reset, measurement
         )
@@ -1597,6 +1675,43 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
+        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        neighbouring logical qubits aligned on the ``Y`` axis.
+
+        The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
+        observables between two neighbouring logical qubits aligned on the ``Y``
+        axis.
+
+        Note:
+            By convention, the hadamard-like transition is performed at the
+            top-most plaquettes.
+
+        Warning:
+            This method is tightly coupled with
+            :meth:`FixedBoundaryConventionGenerator.get_spatial_horizontal_hadamard_raw_template`
+            and the returned ``RPNG`` descriptions should only be considered
+            valid when used in conjunction with the
+            :class:`~tqec.templates.base.RectangularTemplate` instance returned
+            by this method.
+
+        Arguments:
+            top_left_basis: basis of the top-left-most stabilizer.
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
+            reset: basis of the reset operation performed on **internal**
+                data-qubits. Defaults to ``None`` that translates to no reset
+                being applied on data-qubits.
+            measurement: basis of the measurement operation performed on
+                **internal** data-qubits. Defaults to ``None`` that translates
+                to no measurement being applied on data-qubits.
+
+        Returns:
+            the plaquettes needed to implement a Hadamard spatial transition between two
+            neighbouring logical qubits aligned on the ``Y`` axis.
+
+        """
         return self._mapper(self.get_spatial_horizontal_hadamard_rpng_descriptions)(
             top_left_basis, is_reversed, reset, measurement
         )
