@@ -427,6 +427,12 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="PlaquetteOrientation.to_plaquette_side">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.PlaquetteOrientation.html#tqec.plaquette.PlaquetteOrientation.to_plaquette_side">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_plaquette_side</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlaquetteSide</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the plaquette side corresponding to ``self``.</span>
+
+<span class="sd">        If ``self == PlaquetteOrientation.RIGHT`` then</span>
+<span class="sd">        ``self.to_plaquette_side() == PlaquetteSide.LEFT`` because a plaquette oriented to the right</span>
+<span class="sd">        has 2 data-qubit on its left side.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">PlaquetteOrientation</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">PlaquetteSide</span><span class="o">.</span><span class="n">LEFT</span>
         <span class="k">elif</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">PlaquetteOrientation</span><span class="o">.</span><span class="n">LEFT</span><span class="p">:</span>
@@ -450,6 +456,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="PlaquetteSide.opposite">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.PlaquetteSide.html#tqec.plaquette.PlaquetteSide.opposite">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">opposite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlaquetteSide</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the opposite side.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">PlaquetteSide</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">PlaquetteSide</span><span class="o">.</span><span class="n">LEFT</span>
         <span class="k">elif</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">PlaquetteSide</span><span class="o">.</span><span class="n">LEFT</span><span class="p">:</span>

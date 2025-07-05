@@ -484,14 +484,24 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="tqec.interop.block_synthesis">
 <span class="sig-prename descclassname"><span class="pre">tqec.interop.</span></span><span class="sig-name descname"><span class="pre">block_synthesis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zx_graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SynthesisStrategy.POSITIONED</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/interop/pyzx/synthesis/strategy.html#block_synthesis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.interop.block_synthesis" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Perform block synthesis, translating an instance of <code class="docutils literal notranslate"><span class="pre">pyzx.GraphS</span></code> to a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code>.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>zx_graph</strong> (<em>GraphS</em>)</p></li>
-<li><p><strong>strategy</strong> (<a class="reference internal" href="tqec.interop.SynthesisStrategy.html#tqec.interop.SynthesisStrategy" title="tqec.interop.pyzx.synthesis.strategy.SynthesisStrategy"><em>SynthesisStrategy</em></a>)</p></li>
-<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><em>Position3D</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>zx_graph</strong> (<em>GraphS</em>) – a ZX graph to transform into a <code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code>.</p></li>
+<li><p><strong>strategy</strong> (<a class="reference internal" href="tqec.interop.SynthesisStrategy.html#tqec.interop.SynthesisStrategy" title="tqec.interop.pyzx.synthesis.strategy.SynthesisStrategy"><em>SynthesisStrategy</em></a>) – strategy used to perform the translation.</p></li>
+<li><p><strong>positions</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><em>Position3D</em><em>] </em><em>| </em><em>None</em>) – explicit block positioning for each node in the provided <code class="docutils literal notranslate"><span class="pre">zx_graph</span></code>. Only used
+when <code class="docutils literal notranslate"><span class="pre">strategy</span> <span class="pre">==</span> <span class="pre">SynthesisStrategy.POSITIONED</span></code>.</p></li>
 <li><p><strong>_kwargs</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if <code class="docutils literal notranslate"><span class="pre">strategy</span> <span class="pre">==</span> <span class="pre">SynthesisStrategy.POSITIONED</span></code> and <code class="docutils literal notranslate"><span class="pre">positions</span></code> is not
+    provided.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">BlockGraph</span></code> representing the provided <code class="docutils literal notranslate"><span class="pre">zx_graph</span></code>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>BlockGraph</em></p>

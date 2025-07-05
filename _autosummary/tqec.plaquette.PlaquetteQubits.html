@@ -503,9 +503,6 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.PlaquetteQubits.to_dict" title="tqec.plaquette.PlaquetteQubits.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
 <td><p>Return a dictionary representation of the plaquette qubits.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.PlaquetteQubits.without_qubits" title="tqec.plaquette.PlaquetteQubits.without_qubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">without_qubits</span></code></a>(qubits)</p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -513,22 +510,22 @@
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">all_qubits</span></code></p></td>
-<td><p></p></td>
+<td><p>Return all the qubits represented by <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_qubits_indices</span></code></p></td>
-<td><p></p></td>
+<td><p>Return an iterator over the index of each data-qubit.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_qubits_with_indices</span></code></p></td>
-<td><p></p></td>
+<td><p>Return an iterator over each data-qubit and their indices.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">qubit_map</span></code></p></td>
-<td><p></p></td>
+<td><p>Return the qubit map representing <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">syndrome_qubits_indices</span></code></p></td>
-<td><p></p></td>
+<td><p>Return an iterator over the index of each syndrome-qubit.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">syndrome_qubits_with_indices</span></code></p></td>
-<td><p></p></td>
+<td><p>Return an iterator over each syndrome-qubit and their indices.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_qubits</span></code></p></td>
 <td><p></p></td>
@@ -638,19 +635,6 @@ their corresponding values.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="tqec.plaquette.PlaquetteQubits.without_qubits">
-<span class="sig-name descname"><span class="pre">without_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/qubit.html#PlaquetteQubits.without_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.PlaquetteQubits.without_qubits" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>qubits</strong> (<em>Iterable</em><em>[</em><em>int</em><em>]</em>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#tqec.plaquette.PlaquetteQubits" title="tqec.plaquette.qubit.PlaquetteQubits"><em>PlaquetteQubits</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -708,7 +692,6 @@ their corresponding values.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.PlaquetteQubits.get_edge_qubits"><code class="docutils literal notranslate"><span class="pre">PlaquetteQubits.get_edge_qubits()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.PlaquetteQubits.get_qubits_on_side"><code class="docutils literal notranslate"><span class="pre">PlaquetteQubits.get_qubits_on_side()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.PlaquetteQubits.to_dict"><code class="docutils literal notranslate"><span class="pre">PlaquetteQubits.to_dict()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.PlaquetteQubits.without_qubits"><code class="docutils literal notranslate"><span class="pre">PlaquetteQubits.without_qubits()</span></code></a></li>
 </ul>
 </li>
 </ul>

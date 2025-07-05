@@ -489,7 +489,7 @@
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.PlaquetteOrientation.to_plaquette_side" title="tqec.plaquette.PlaquetteOrientation.to_plaquette_side"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_plaquette_side</span></code></a>()</p></td>
-<td><p></p></td>
+<td><p>Return the plaquette side corresponding to <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,7 +516,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.PlaquetteOrientation.to_plaquette_side">
 <span class="sig-name descname"><span class="pre">to_plaquette_side</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/enums.html#PlaquetteOrientation.to_plaquette_side"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.PlaquetteOrientation.to_plaquette_side" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Return the plaquette side corresponding to <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">self</span> <span class="pre">==</span> <span class="pre">PlaquetteOrientation.RIGHT</span></code> then
+<code class="docutils literal notranslate"><span class="pre">self.to_plaquette_side()</span> <span class="pre">==</span> <span class="pre">PlaquetteSide.LEFT</span></code> because a plaquette oriented to the right
+has 2 data-qubit on its left side.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="tqec.plaquette.PlaquetteSide.html#tqec.plaquette.PlaquetteSide" title="tqec.plaquette.enums.PlaquetteSide"><em>PlaquetteSide</em></a></p>
 </dd>

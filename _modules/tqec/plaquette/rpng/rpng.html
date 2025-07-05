@@ -427,6 +427,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">to_extended_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExtendedBasis</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``self`` as an extended basis.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">ExtendedBasis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
 
@@ -661,6 +662,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.empty">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">empty</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">RPNGDescription</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a description of the empty plaquette.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">RPNGDescription</span><span class="o">.</span><span class="n">from_extended_string</span><span class="p">(</span><span class="s2">&quot;-- ---- ---- ---- ----&quot;</span><span class="p">)</span></div>
 
 
@@ -687,10 +689,12 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``True`` if ``self`` contains at least one corner with a reset.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">get_r_op</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_measurement</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``True`` if ``self`` contains at least one corner with a measurement.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">get_g_op</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

@@ -580,13 +580,13 @@ circuits together to remove duplicate instructions.</p>
 <td><p>Project the plaquette on the provided qubits and return a new plaquette with the remaining qubits and circuit.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.reliable_hash" title="tqec.plaquette.Plaquette.reliable_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reliable_hash</span></code></a>()</p></td>
-<td><p></p></td>
+<td><p>Return a hash of <code class="docutils literal notranslate"><span class="pre">self</span></code> that is replicable across OSes and Python runs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.to_dict" title="tqec.plaquette.Plaquette.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
 <td><p>Return a dictionary representation of the plaquette.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.with_debug_information" title="tqec.plaquette.Plaquette.with_debug_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_debug_information</span></code></a>(debug_information)</p></td>
-<td><p></p></td>
+<td><p>Create a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> with its debug information replaced by the provided <code class="docutils literal notranslate"><span class="pre">debug_information</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -595,13 +595,13 @@ circuits together to remove duplicate instructions.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_measurements</span></code></p></td>
-<td><p></p></td>
+<td><p>Return the number of measurements performed in the circuit representing <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_moments</span></code></p></td>
-<td><p></p></td>
+<td><p>Return the number of moments in the circuit representing <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">origin</span></code></p></td>
-<td><p></p></td>
+<td><p>Return the plaquette origin.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.name" title="tqec.plaquette.Plaquette.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></p></td>
 <td><p></p></td>
@@ -751,7 +751,13 @@ corresponding schedules are removed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquette.reliable_hash">
 <span class="sig-name descname"><span class="pre">reliable_hash</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.reliable_hash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.reliable_hash" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Return a hash of <code class="docutils literal notranslate"><span class="pre">self</span></code> that is replicable across OSes and Python runs.</p>
+<p>The default <code class="docutils literal notranslate"><span class="pre">hash</span></code> function from Python is not guaranteed to always give the same value
+from the same input. In particular, with CPython, <code class="docutils literal notranslate"><span class="pre">str</span></code> instances are hashed with an
+additional salt that is randomly picked at each call to the Python executable.</p>
+<p>This is an issue when trying to store a dictionary involving a plaquette as key and re-use
+it in subsequent runs or on other machines / OSes.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
 </dd>
@@ -773,7 +779,9 @@ corresponding schedules are removed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquette.with_debug_information">
 <span class="sig-name descname"><span class="pre">with_debug_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug_information</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.with_debug_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.with_debug_information" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> with its debug information replaced by the provided
+<code class="docutils literal notranslate"><span class="pre">debug_information</span></code>.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>debug_information</strong> (<em>PlaquetteDebugInformation</em>)</p>
 </dd>

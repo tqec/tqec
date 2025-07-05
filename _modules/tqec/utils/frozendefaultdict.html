@@ -427,24 +427,6 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="FrozenDefaultDict">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FrozenDefaultDict</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">],</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A defaultdict implementation that cannot be mutated.</span>
-
-<span class="sd">    This class re-defines all the mutating methods of `defaultdict` (i.e., all</span>
-<span class="sd">    the mutating methods of `dict` and `__missing__`) in order to make any</span>
-<span class="sd">    instance immutable.</span>
-
-<span class="sd">    Note on re-defining `__missing__`:</span>
-
-<span class="sd">    The standard `defaultdict` implementation is entirely based on the</span>
-<span class="sd">    `__missing__` method (described here</span>
-<span class="sd">    https://docs.python.org/3/library/collections.html#collections.defaultdict.__missing__)</span>
-<span class="sd">    that is called when a user-provided key was not found in the defined keys.</span>
-<span class="sd">    This `__missing__` method try to use `self.default_factory` to create a new</span>
-<span class="sd">    value and inserts that new value in the dictionary. That last part is</span>
-<span class="sd">    problematic for :class:`Plaquettes` and in particular to compare collections</span>
-<span class="sd">    of :class:`Plaquettes` through `__hash__` and `__eq__`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
 <div class="viewcode-block" id="FrozenDefaultDict.__init__">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -453,6 +435,30 @@ window.addEventListener("load", () => mermaid.run());
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default_value</span><span class="p">:</span> <span class="n">V</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A defaultdict implementation that cannot be mutated.</span>
+
+<span class="sd">        This class re-defines all the mutating methods of `defaultdict` (i.e., all</span>
+<span class="sd">        the mutating methods of `dict` and `__missing__`) in order to make any</span>
+<span class="sd">        instance immutable.</span>
+
+<span class="sd">        Note on re-defining `__missing__`:</span>
+
+<span class="sd">        The standard `defaultdict` implementation is entirely based on the</span>
+<span class="sd">        `__missing__` method (described here</span>
+<span class="sd">        https://docs.python.org/3/library/collections.html#collections.defaultdict.__missing__)</span>
+<span class="sd">        that is called when a user-provided key was not found in the defined keys.</span>
+<span class="sd">        This `__missing__` method try to use `self.default_factory` to create a new</span>
+<span class="sd">        value and inserts that new value in the dictionary. That last part is</span>
+<span class="sd">        problematic for :class:`Plaquettes` and in particular to compare collections</span>
+<span class="sd">        of :class:`Plaquettes` through `__hash__` and `__eq__`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            arg: a mapping from defined keys to values. Any key that is not present will be</span>
+<span class="sd">                implicitly associated to the provided ``default_value``.</span>
+<span class="sd">            default_value: value that will be returned (without copying) when a key not present in</span>
+<span class="sd">                ``arg`` is queried.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span> <span class="o">=</span> <span class="n">default_value</span></div>
@@ -499,16 +505,19 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="FrozenDefaultDict.has_default_value">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.has_default_value">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_default_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``True`` if ``self`` has a default value.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">default_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">V</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the default value returned when a queried key is missing.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span>
 
 <div class="viewcode-block" id="FrozenDefaultDict.map_keys">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.map_keys">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">callable</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">K</span><span class="p">],</span> <span class="n">K</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply ``callable`` to each key and return a new instance with the modified keys.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">FrozenDefaultDict</span><span class="p">(</span>
             <span class="p">{</span><span class="nb">callable</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
             <span class="n">default_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span><span class="p">,</span>
@@ -518,6 +527,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="FrozenDefaultDict.map_values">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.map_values">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">callable</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">V</span><span class="p">],</span> <span class="n">Vp</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">Vp</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply ``callable`` to each value and return a new instance with the modified values.&quot;&quot;&quot;</span>
         <span class="n">default_value</span><span class="p">:</span> <span class="n">Vp</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">default_value</span> <span class="o">=</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_value</span><span class="p">)</span>
@@ -529,6 +539,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="FrozenDefaultDict.map_keys_if_present">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.FrozenDefaultDict.html#tqec.plaquette.FrozenDefaultDict.map_keys_if_present">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_keys_if_present</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">K</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply ``callable`` to each key and return a new instance with the modified keys.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">FrozenDefaultDict</span><span class="p">(</span>
             <span class="p">{</span><span class="n">mapping</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">},</span>
             <span class="n">default_value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_value</span><span class="p">,</span>

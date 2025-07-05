@@ -498,17 +498,27 @@ This <cite>__missing__</cite> method try to use <cite>self.default_factory</cite
 value and inserts that new value in the dictionary. That last part is
 problematic for <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> and in particular to compare collections
 of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> through <cite>__hash__</cite> and <cite>__eq__</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arg</strong> (<em>Mapping</em><em>[</em><em>K</em><em>, </em><em>V</em><em>] </em><em>| </em><em>Iterable</em><em>[</em><em>tuple</em><em>[</em><em>K</em><em>, </em><em>V</em><em>]</em><em>] </em><em>| </em><em>None</em>) – a mapping from defined keys to values. Any key that is not present will be
+implicitly associated to the provided <code class="docutils literal notranslate"><span class="pre">default_value</span></code>.</p></li>
+<li><p><strong>default_value</strong> (<em>V</em><em> | </em><em>None</em>) – value that will be returned (without copying) when a key not present in
+<code class="docutils literal notranslate"><span class="pre">arg</span></code> is queried.</p></li>
+</ul>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.__init__" title="tqec.plaquette.FrozenDefaultDict.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([arg, default_value])</p></td>
-<td><p></p></td>
+<td><p>A defaultdict implementation that cannot be mutated.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.get" title="tqec.plaquette.FrozenDefaultDict.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(k[,d])</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.has_default_value" title="tqec.plaquette.FrozenDefaultDict.has_default_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_default_value</span></code></a>()</p></td>
-<td><p></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if <code class="docutils literal notranslate"><span class="pre">self</span></code> has a default value.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.items" title="tqec.plaquette.FrozenDefaultDict.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code></a>()</p></td>
 <td><p></p></td>
@@ -517,13 +527,13 @@ of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaqu
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.map_keys" title="tqec.plaquette.FrozenDefaultDict.map_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_keys</span></code></a>(callable)</p></td>
-<td><p></p></td>
+<td><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each key and return a new instance with the modified keys.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.map_keys_if_present" title="tqec.plaquette.FrozenDefaultDict.map_keys_if_present"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_keys_if_present</span></code></a>(mapping)</p></td>
-<td><p></p></td>
+<td><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each key and return a new instance with the modified keys.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.map_values" title="tqec.plaquette.FrozenDefaultDict.map_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_values</span></code></a>(callable)</p></td>
-<td><p></p></td>
+<td><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each value and return a new instance with the modified values.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.FrozenDefaultDict.values" title="tqec.plaquette.FrozenDefaultDict.values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code></a>()</p></td>
 <td><p></p></td>
@@ -535,28 +545,35 @@ of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaqu
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_value</span></code></p></td>
-<td><p></p></td>
+<td><p>Get the default value returned when a queried key is missing.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p class="rubric">Detailed methods</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arg</strong> (<em>Mapping</em><em>[</em><em>K</em><em>, </em><em>V</em><em>] </em><em>| </em><em>Iterable</em><em>[</em><em>tuple</em><em>[</em><em>K</em><em>, </em><em>V</em><em>]</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>default_value</strong> (<em>V</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.FrozenDefaultDict.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/frozendefaultdict.html#FrozenDefaultDict.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.FrozenDefaultDict.__init__" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>A defaultdict implementation that cannot be mutated.</p>
+<p>This class re-defines all the mutating methods of <cite>defaultdict</cite> (i.e., all
+the mutating methods of <cite>dict</cite> and <cite>__missing__</cite>) in order to make any
+instance immutable.</p>
+<p>Note on re-defining <cite>__missing__</cite>:</p>
+<p>The standard <cite>defaultdict</cite> implementation is entirely based on the
+<cite>__missing__</cite> method (described here
+<a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.defaultdict.__missing__">https://docs.python.org/3/library/collections.html#collections.defaultdict.__missing__</a>)
+that is called when a user-provided key was not found in the defined keys.
+This <cite>__missing__</cite> method try to use <cite>self.default_factory</cite> to create a new
+value and inserts that new value in the dictionary. That last part is
+problematic for <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> and in particular to compare collections
+of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes" title="tqec.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> through <cite>__hash__</cite> and <cite>__eq__</cite>.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>arg</strong> (<em>Mapping</em><em>[</em><em>K</em><em>, </em><em>V</em><em>] </em><em>| </em><em>Iterable</em><em>[</em><em>tuple</em><em>[</em><em>K</em><em>, </em><em>V</em><em>]</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>default_value</strong> (<em>V</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>arg</strong> (<em>Mapping</em><em>[</em><em>K</em><em>, </em><em>V</em><em>] </em><em>| </em><em>Iterable</em><em>[</em><em>tuple</em><em>[</em><em>K</em><em>, </em><em>V</em><em>]</em><em>] </em><em>| </em><em>None</em>) – a mapping from defined keys to values. Any key that is not present will be
+implicitly associated to the provided <code class="docutils literal notranslate"><span class="pre">default_value</span></code>.</p></li>
+<li><p><strong>default_value</strong> (<em>V</em><em> | </em><em>None</em>) – value that will be returned (without copying) when a key not present in
+<code class="docutils literal notranslate"><span class="pre">arg</span></code> is queried.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -573,7 +590,8 @@ of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaqu
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.FrozenDefaultDict.has_default_value">
 <span class="sig-name descname"><span class="pre">has_default_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/frozendefaultdict.html#FrozenDefaultDict.has_default_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.FrozenDefaultDict.has_default_value" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if <code class="docutils literal notranslate"><span class="pre">self</span></code> has a default value.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
@@ -593,7 +611,8 @@ of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaqu
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.FrozenDefaultDict.map_keys">
 <span class="sig-name descname"><span class="pre">map_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/frozendefaultdict.html#FrozenDefaultDict.map_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.FrozenDefaultDict.map_keys" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each key and return a new instance with the modified keys.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>callable</strong> (<em>Callable</em><em>[</em><em>[</em><em>K</em><em>]</em><em>, </em><em>K</em><em>]</em>)</p>
 </dd>
@@ -606,7 +625,8 @@ of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaqu
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.FrozenDefaultDict.map_keys_if_present">
 <span class="sig-name descname"><span class="pre">map_keys_if_present</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/frozendefaultdict.html#FrozenDefaultDict.map_keys_if_present"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.FrozenDefaultDict.map_keys_if_present" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each key and return a new instance with the modified keys.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>mapping</strong> (<em>Mapping</em><em>[</em><em>K</em><em>, </em><em>K</em><em>]</em>)</p>
 </dd>
@@ -619,7 +639,8 @@ of <a class="reference internal" href="tqec.plaquette.Plaquettes.html#tqec.plaqu
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.FrozenDefaultDict.map_values">
 <span class="sig-name descname"><span class="pre">map_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/frozendefaultdict.html#FrozenDefaultDict.map_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.FrozenDefaultDict.map_values" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Apply <code class="docutils literal notranslate"><span class="pre">callable</span></code> to each value and return a new instance with the modified values.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>callable</strong> (<em>Callable</em><em>[</em><em>[</em><em>V</em><em>]</em><em>, </em><em>Vp</em><em>]</em>)</p>
 </dd>
