@@ -191,28 +191,6 @@ class _DetectorDatabaseKey:
 
 
 class DetectorDatabase:
-    """Store a mapping from "situations" to the corresponding detectors.
-
-    This class aims at storing efficiently a set of "situations" in which the
-    corresponding detectors are known and do not have to be re-computed.
-
-    In this class, a "situation" is described by :class:`_DetectorDatabaseKey`
-    and correspond to a spatially and temporally local piece of a larger
-    computation.
-
-    The version number should be manually updated when code is pushed which makes old
-    instances of the database incompatible with newly generated instances.
-    Guidance on when to change `a` (major) or `b` (minor) in the `a.b` version number:
-    - MAJOR when the format of the file changes (i.e. when the attributes of
-      ``DetectorDatabase`` change),
-    - MINOR when the content of the database is invalidated (e.g. by changing a plaquette
-      implementation without changing its name).
-
-    Old databases generated prior to the introduction of a version attribute will be
-    loaded with the default value of .version, without passing through __init__,
-    ie (0,0,0).
-    """
-
     version: semver.Version = semver.Version(0, 0, 0)
 
     def __init__(
@@ -220,6 +198,27 @@ class DetectorDatabase:
         mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] | None = None,
         frozen: bool = False,
     ):
+        """Store a mapping from "situations" to the corresponding detectors.
+
+        This class aims at storing efficiently a set of "situations" in which the
+        corresponding detectors are known and do not have to be re-computed.
+
+        In this class, a "situation" is described by :class:`_DetectorDatabaseKey`
+        and correspond to a spatially and temporally local piece of a larger
+        computation.
+
+        The version number should be manually updated when code is pushed which makes old
+        instances of the database incompatible with newly generated instances.
+        Guidance on when to change `a` (major) or `b` (minor) in the `a.b` version number:
+        - MAJOR when the format of the file changes (i.e. when the attributes of
+        ``DetectorDatabase`` change),
+        - MINOR when the content of the database is invalidated (e.g. by changing a plaquette
+        implementation without changing its name).
+
+        Old databases generated prior to the introduction of a version attribute will be
+        loaded with the default value of .version, without passing through __init__,
+        ie (0,0,0).
+        """
         if mapping is None:
             mapping = dict()
         self.mapping = mapping
@@ -308,9 +307,11 @@ class DetectorDatabase:
         return self.mapping.get(key)
 
     def freeze(self) -> None:
+        """Make ``self`` read-only."""
         self.frozen = True
 
     def unfreeze(self) -> None:
+        """Make ``self`` writable."""
         self.frozen = False
 
     def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
@@ -400,7 +401,7 @@ class DetectorDatabase:
 
         """
         if not filepath.parent.exists():
-            filepath.parent.mkdir()
+            filepath.parent.mkdir(parents=True)
         if format == "pickle":
             with open(filepath, "wb") as f:
                 pickle.dump(self, f)
@@ -411,6 +412,16 @@ class DetectorDatabase:
 
     @staticmethod
     def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
+        """Initialise a new instance from a file.
+
+        Args:
+            filepath: path to a file where a :class:`.DetectorDatabase` instance has been saved.
+            format: how the database was saved in ``filepath``.
+
+        Returns:
+            a new :class:`.DetectorDatabase` instance read from the provided ``filepath``.
+
+        """
         if format == "pickle":
             with open(filepath, "rb") as f:
                 database = pickle.load(f)

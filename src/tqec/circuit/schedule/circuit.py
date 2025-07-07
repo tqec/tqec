@@ -157,13 +157,31 @@ class ScheduledCircuit:
         """Schedule of the internal moments."""
         return self._schedule
 
-    def get_qubit_coords_definition_preamble(self) -> stim.Circuit:
-        """Get a circuit with only ``QUBIT_COORDS`` instructions."""
-        return self._qubit_map.to_circuit()
+    def get_qubit_coords_definition_preamble(self, shift_to_positive: bool = False) -> stim.Circuit:
+        """Get a circuit with only ``QUBIT_COORDS`` instructions.
 
-    def get_circuit(self, include_qubit_coords: bool = True) -> stim.Circuit:
+        Args:
+            shift_to_positive: if ``True``, the qubit coordinates are shift such
+                that they are all positive. Their relative positioning stays
+                unchanged.
+
+        """
+        return self._qubit_map.to_circuit(shift_to_positive)
+
+    def get_circuit(
+        self, include_qubit_coords: bool = True, shift_to_positive: bool = False
+    ) -> stim.Circuit:
         """Build and return the ``stim.Circuit`` instance represented by
         ``self``.
+
+        Args:
+            include_qubit_coords: if ``True``, ``QUBIT_COORDS`` annotations are
+                added at the beginning of the returned circuit to declare the
+                coordinates of used qubits. Else, no ``QUBIT_COORDS`` annotation
+                is added.
+            shift_to_positive: if ``True``, the qubit coordinates are shift such
+                that they are all positive. Their relative positioning stays
+                unchanged.
 
         Warning:
             The circuit is re-built at each call! Use that function wisely.
@@ -178,7 +196,7 @@ class ScheduledCircuit:
 
         # Appending the QUBIT_COORDS instructions first.
         if include_qubit_coords:
-            ret += self.get_qubit_coords_definition_preamble()
+            ret += self.get_qubit_coords_definition_preamble(shift_to_positive)
 
         # Building the actual circuit.
         current_schedule: int = 0
@@ -480,6 +498,19 @@ class ScheduledCircuit:
             and self._qubit_map == other._qubit_map
             and self._moments == other._moments
         )
+
+    def is_empty(self) -> bool:
+        """Return ``True`` if ``self`` represents an empty circuit.
+
+        Warning:
+            an empty circuit is defined as a circuit containing no instructions.
+            ``QUBIT_COORDINATES`` instructions are ignored by this method (i.e., a circuit with only
+            ``QUBIT_COORDINATES`` instructions is considered empty), but other annotations are taken
+            into account (i.e., a circuit with a ``DETECTOR`` or ``SHIFT_COORDS`` instruction will
+            not be considered empty).
+
+        """
+        return all(m.is_empty for m in self._moments)
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the circuit.

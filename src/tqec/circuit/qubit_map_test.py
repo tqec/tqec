@@ -100,6 +100,9 @@ def test_qubit_map_to_circuit() -> None:
     assert QubitMap.from_circuit(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")
     ).to_circuit() == stim.Circuit("QUBIT_COORDS(0, 0) 0")
+    assert QubitMap.from_circuit(stim.Circuit("QUBIT_COORDS(-1, -1) 0\nH 0")).to_circuit(
+        shift_to_positive=True
+    ) == stim.Circuit("QUBIT_COORDS(0, 0) 0")
 
 
 def test_qubit_map_getitem() -> None:
@@ -117,4 +120,31 @@ def test_qubit_map_qubit_bounds() -> None:
     assert QubitMap({i: GridQubit(i, -i) for i in range(10)}).qubit_bounds() == (
         GridQubit(0, -9),
         GridQubit(9, 0),
+    )
+
+
+@pytest.mark.parametrize(
+    "qubit_map", [QubitMap({i: GridQubit(i, i) for i in range(n)}) for n in range(4)]
+)
+def test_qubit_map_filter_by_qubit_indices_empty(qubit_map: QubitMap) -> None:
+    assert qubit_map.filter_by_qubit_indices([]) == QubitMap()
+
+
+@pytest.mark.parametrize(
+    "qubit_map", [QubitMap({i: GridQubit(i, i) for i in range(n)}) for n in range(4)]
+)
+def test_qubit_map_filter_by_qubit_empty(qubit_map: QubitMap) -> None:
+    assert qubit_map.filter_by_qubits([]) == QubitMap()
+
+
+def test_qubit_map_filter_by_qubit_indices() -> None:
+    qubit_map = QubitMap({i: GridQubit(i, -i) for i in range(10)})
+    assert qubit_map.filter_by_qubit_indices(range(2)) == QubitMap(
+        {i: GridQubit(i, -i) for i in range(2)}
+    )
+    assert qubit_map.filter_by_qubit_indices(range(5)) == QubitMap(
+        {i: GridQubit(i, -i) for i in range(5)}
+    )
+    assert qubit_map.filter_by_qubit_indices([1, 3, 5, 7, 9]) == QubitMap(
+        {i: GridQubit(i, -i) for i in range(1, 10, 2)}
     )

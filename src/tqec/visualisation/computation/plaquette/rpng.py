@@ -5,12 +5,8 @@ from typing_extensions import override
 
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng.rpng import RPNG, ExtendedBasis, PauliBasis, RPNGDescription
-from tqec.visualisation.computation.plaquette.base import (
-    PlaquetteCorner,
-    PlaquetteDrawerConfiguration,
-    SVGPlaquetteDrawer,
-    lerp,
-)
+from tqec.visualisation.computation.plaquette.base import PlaquetteCorner, SVGPlaquetteDrawer, lerp
+from tqec.visualisation.configuration import DrawerConfiguration
 from tqec.visualisation.exception import TQECDrawingException
 
 
@@ -23,9 +19,13 @@ def _get_bounding_box(coords: Iterable[complex]) -> tuple[complex, complex]:
 
 
 class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
-    """SVG plaquette drawer for RPNG descriptions."""
-
     def __init__(self, description: RPNGDescription) -> None:
+        """SVG plaquette drawer for RPNG descriptions.
+
+        Args:
+            description: :class:`RPNGDescription` that should be drawn by this drawer.
+
+        """
         super().__init__()
         self._description = description
         self._center = RPNGPlaquetteDrawer._CENTER_COORDINATE
@@ -65,7 +65,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         show_interaction_order: bool = True,
         show_hook_errors: bool = True,
         show_data_qubit_reset_measurements: bool = True,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
         # Return an empty SVG element if there are no corners.
         if len(self._corners) == 0:
@@ -95,7 +95,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
 
     def get_plaquette_shape_path(
         self,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
         """Returns the plaquette shape, uniformly filled if ``self`` represents a
         plaquette measuring its qubits in the same Pauli basis, else without fill
@@ -161,7 +161,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
 
     def get_fill_layers(
         self,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Element]:
         """Returns one SVG element per non-empty corners filling each corresponding
         quarter with the appropriate colour.
@@ -201,7 +201,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
 
     def get_interaction_order_text(
         self,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Text]:
         """Returns one SVG element per non-empty corners, each containing a text
         element with the time slice at which a 2-qubit operation is applied on
@@ -236,7 +236,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
 
     def get_hook_error_line(
         self,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Line | None:
         """Returns a SVG line showing the direction of the hook error, or ``None``
         if there is no hook error.
@@ -266,7 +266,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
 
     def get_data_qubit_reset_measurements_layers(
         self,
-        configuration: PlaquetteDrawerConfiguration = PlaquetteDrawerConfiguration(),
+        configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
         """Args:
             configuration: drawing configuration.

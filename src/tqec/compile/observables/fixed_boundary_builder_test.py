@@ -1,14 +1,13 @@
 import pytest
 
-from tqec.compile.observables.fixed_parity_builder import (
-    _get_bottom_stabilizer_cube_qubits,
-    _get_bottom_stabilizer_spatial_cube_qubits,
-    _get_top_readout_cube_qubits,
-    _get_top_readout_pipe_qubits,
-    _get_top_readout_spatial_cube_qubits,
+from tqec.compile.observables.fixed_boundary_builder import (
+    _build_pipe_top_readout_qubits_impl,
+    build_connected_spatial_cube_bottom_stabilizer_qubits,
+    build_regular_cube_bottom_stabilizer_qubits,
+    build_spatial_cube_bottom_stabilizer_qubits,
+    build_spatial_cube_top_readout_qubits,
 )
 from tqec.compile.specs.enums import SpatialArms
-from tqec.utils.enums import Orientation
 from tqec.utils.position import (
     Direction3D,
     PlaquetteShape2D,
@@ -17,33 +16,21 @@ from tqec.utils.position import (
 
 
 @pytest.mark.parametrize(
-    "orientation, expected",
+    "direction, extended_stabilizers_used, expected",
     [
-        (Orientation.HORIZONTAL, [(1, 3), (2, 3), (3, 3), (4, 3), (5, 3)]),
-        (Orientation.VERTICAL, [(3, 1), (3, 2), (3, 3), (3, 4), (3, 5)]),
+        (Direction3D.X, False, [(6, 3)]),
+        (Direction3D.Y, False, [(3, 6)]),
+        (Direction3D.X, True, [(6, 3)]),
+        (Direction3D.Y, True, []),
     ],
 )
-def test_get_top_readout_cube_qubits(
-    orientation: Orientation, expected: list[tuple[int, int]]
-) -> None:
-    shape = PlaquetteShape2D(6, 6)
-    coords = _get_top_readout_cube_qubits(shape, orientation)
-    assert coords == expected
-
-
-@pytest.mark.parametrize(
-    "direction, expected",
-    [
-        (Direction3D.X, [(6, 3)]),
-        (Direction3D.Y, [(3, 6)]),
-    ],
-)
-def test_get_top_readout_pipe_qubits(
+def test_build_pipe_top_readout_qubits_impl(
     direction: Direction3D,
+    extended_stabilizers_used: bool,
     expected: list[tuple[int, int]],
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
-    coords = _get_top_readout_pipe_qubits(shape, direction)
+    coords = _build_pipe_top_readout_qubits_impl(shape, direction, extended_stabilizers_used)
     assert coords == expected
 
 
@@ -108,20 +95,20 @@ def test_get_top_readout_pipe_qubits(
         ),
     ],
 )
-def test_get_bottom_stabilizer_cube_qubits(
+def test_build_regular_cube_bottom_stabilizer_qubits(
     connect_to: SignedDirection3D,
     expected: set[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
-    coords = set(_get_bottom_stabilizer_cube_qubits(shape, connect_to))
+    coords = set(build_regular_cube_bottom_stabilizer_qubits(shape, connect_to))
     assert coords == expected
 
 
 @pytest.mark.parametrize("k", (1, 2, 10))
-def test_get_bottom_stabilizer_spatial_cube_qubits(k: int) -> None:
+def test_build_spatial_cube_bottom_stabilizer_qubits(k: int) -> None:
     w = 2 * k + 2
     shape = PlaquetteShape2D(w, w)
-    coords = set(_get_bottom_stabilizer_spatial_cube_qubits(shape))
+    coords = set(build_spatial_cube_bottom_stabilizer_qubits(shape))
     assert len(coords) == w**2 // 2
     assert all(c % 0.5 == 0 for cs in coords for c in cs)
 
@@ -149,10 +136,24 @@ def test_get_bottom_stabilizer_spatial_cube_qubits(k: int) -> None:
         ),
     ],
 )
-def test_get_top_readout_spatial_cube_qubits(
+def test_build_spatial_cube_top_readout_qubits(
     arms: SpatialArms,
     expected: set[tuple[int, int]],
 ) -> None:
     shape = PlaquetteShape2D(4, 4)
-    coords = set(_get_top_readout_spatial_cube_qubits(shape, arms))
+    coords = set(build_spatial_cube_top_readout_qubits(shape, arms))
     assert coords == expected
+
+
+@pytest.mark.parametrize("k", (1, 2, 10))
+def test_build_connected_spatial_cube_bottom_stabilizer_qubits(k: int) -> None:
+    w = 2 * k + 2
+    shape = PlaquetteShape2D(w, w)
+    arms = SpatialArms.UP
+    connect_to = SignedDirection3D.from_string("+Y")
+    coords = set(
+        build_connected_spatial_cube_bottom_stabilizer_qubits(shape, arms, connect_to, True)
+    )
+    assert coords == {
+        (i + 0.5, j + 0.5) for i in range(shape.x) for j in range(w - 1) if (i + j) % 2 == 1
+    }

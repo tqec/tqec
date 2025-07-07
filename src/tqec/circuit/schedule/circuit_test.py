@@ -95,6 +95,11 @@ def test_scheduled_circuit_get_qubit_coords_definition_preamble() -> None:
     ).get_qubit_coords_definition_preamble() == stim.Circuit("QUBIT_COORDS(0, 0) 0")
     assert ScheduledCircuit.from_circuit(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(-2345, 3456) 1\nH 0 1")
+    ).get_qubit_coords_definition_preamble(shift_to_positive=True) == stim.Circuit(
+        "QUBIT_COORDS(2345, 0) 0\nQUBIT_COORDS(0, 3456) 1"
+    )
+    assert ScheduledCircuit.from_circuit(
+        stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(-2345, 3456) 1\nH 0 1")
     ).get_qubit_coords_definition_preamble() == stim.Circuit(
         "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(-2345, 3456) 1"
     )

@@ -43,20 +43,32 @@ Repository = "https://github.com/tqec/tqec"
 Issues = "https://github.com/tqec/tqec/issues"
 
 [project.optional-dependencies]
-test = ["pytest<=8.4.1", "mypy<=1.16.1", "pytest-cov<=6.2.1", "types-networkx<=3.5.0.20250610", "scipy-stubs<=1.16.0.0"]
-dev = ["pymatching<=2.2.2", "jupyterlab<=4.4.3", "tqec[test, doc, bench]", "pre-commit<=4.2.0", "ruff<=0.12.0"]
+test = [
+  "pytest<=8.4.1",
+  "mypy<=1.16.1",
+  "pytest-cov<=6.2.1",
+  "types-networkx<=3.5.0.20250610",
+  "scipy-stubs<=1.16.0.0",
+]
+dev = [
+  "pymatching<=2.2.2",
+  "jupyterlab<=4.4.3",
+  "tqec[test, doc, bench]",
+  "pre-commit<=4.2.0",
+  "ruff<=0.12.0",
+]
 doc = [
-    "sphinx<=8.1.3",
-    "myst-parser<=4.0.1",
-    "pydata-sphinx-theme<=0.16.1",
-    "nbsphinx<=0.9.7",
-    "pandoc<=2.4",
-    "sphinxcontrib-mermaid<=1.0.0",
-    "docformatter<=1.7.7",
-    "sphinx-autobuild<=2024.10.3",
-    "sphinx-copybutton<=0.5.2",
-    "sphinxcontrib-bibtex<=2.64",
-    "jupyter-sphinx<=0.5.3"
+  "sphinx<=8.1.3",
+  "myst-parser<=4.0.1",
+  "pydata-sphinx-theme<=0.16.1",
+  "nbsphinx<=0.9.7",
+  "pandoc<=2.4",
+  "sphinxcontrib-mermaid<=1.0.0",
+  "docformatter<=1.7.7",
+  "sphinx-autobuild<=2024.10.3",
+  "sphinx-copybutton<=0.5.2",
+  "sphinxcontrib-bibtex<=2.64",
+  "jupyter-sphinx<=0.5.3",
 ]
 bench = ["pyinstrument"]
 all = ["tqec[test, dev, doc, bench]"]
@@ -138,7 +150,7 @@ module = ["tqec.interop.pyzx.*"]
 disallow_untyped_calls = false
 
 [tool.coverage.run]
-omit = ["*/*_test.py", "*/simulation/*"]
+omit = ["*/*_test.py", "*/simulation/*", "*/visualisation/*"]
 
 [tool.coverage.report]
 exclude_also = [
@@ -223,12 +235,15 @@ exclude = ["docs/conf.py", "setup.py"]
 
 ignore = [
   "D407", "D203", "D213", "D416", "PLR0912", "PLR0911", "PLR0915", "PLR2004", "PLR0913",  "N802",
-  "D103", "D100", "D101", "D102", "D105", "D104", "D107", "D205", "D301","D400", "D401", "D404", "D415", "D417", "E501",
+  "D100", "D101", "D104", "D105", "D205", "D301","D400", "D401", "D404", "D415", "D417", "E501",
   "PLR1714", "PLC0414", "PLC0105", "PLW2901", "PERF203", "PERF401", "RUF017", "RUF009", "RUF005", "RUF015", "RUF002", "RUF003", "N806", "N817",
   "N818", "N803", "UP038", "UP035", "PLC0415", "PLW1641",
 ]
 # Rules Ignored Permanently
 
+# D100 & D104 - For the moment, we do not require documenting all public modules & packages.
+# D101 - By convention, class docstrings are on the __init__ method, so we do not document classes.
+# D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
 # D407 - Ignored because ==== under a section heading is considered as a missing underline.
 # pydocstyle considers ----- an underline.
 
@@ -251,3 +266,11 @@ ignore = [
 # PLR0915 -- Checks for functions or methods with too many statements. The default number is 50.
 # PLR2004 -- Checks if an equality or an inequality is compared to a variable or a num (prefers variable pre)
 # PLR0913 Too many arguments in function definition
+
+# Specific per-file ignores
+[tool.ruff.lint.per-file-ignores]
+"**/*_test.py" = ["D103"]
+
+
+[tool.pytest.ini_options]
+markers = ["slow: mark a test that takes a long time to run."]

@@ -68,6 +68,11 @@ class WithTemporalFootprint(ABC):
 
     @abstractmethod
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
+        """Return the :class:`.BaseLayer` on the provided ``border``.
+
+        This method can be used to get the temporal extremal layers of a temporal pipe to replace
+        the linked cube temporal extremal layers.
+        """
         pass
 
     @property

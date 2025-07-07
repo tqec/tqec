@@ -31,6 +31,7 @@ class DetectorAnnotation:
             raise TQECException("Expected strictly negative measurement offsets.")
 
     def to_instruction(self) -> stim.CircuitInstruction:
+        """Return the ``DETECTOR`` instruction represented by ``self``."""
         return stim.CircuitInstruction(
             "DETECTOR",
             [stim.target_rec(offset) for offset in self.measurement_offsets],
@@ -54,7 +55,7 @@ class DetectorAnnotation:
 class Polygon:
     """A polygon representing a stabilizer region in Crumble."""
 
-    basis: PauliBasis | None
+    basis: PauliBasis
     qubits: frozenset[GridQubit]
 
     def _sorted_qubits(self) -> list[GridQubit]:
@@ -68,11 +69,8 @@ class Polygon:
     def to_crumble_url_string(self, qubit_map: QubitMap) -> str:
         """Convert the polygon to the representation in a crumble url."""
         # default grey color for polygons with no basis information
-        if self.basis is None:
-            rgba = [0.5, 0.5, 0.5, 0.25]
-        else:
-            rgba = [0, 0, 0, 0.25]
-            rgba["xyz".index(self.basis.value)] = 1
+        rgba = [0, 0, 0, 0.25]
+        rgba["xyz".index(self.basis.value)] = 1
         rgba_str = ",".join(str(i) for i in rgba)
         qubits_idx = [qubit_map[q] for q in self._sorted_qubits()]
         qubits_str = "_".join(str(i) for i in qubits_idx)
@@ -87,6 +85,7 @@ class LayerNodeAnnotations:
     polygons: list[Polygon] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of ``self``."""
         return {
             "circuit_str": (str(self.circuit.get_circuit()) if self.circuit is not None else None),
             "detectors": self.detectors,
@@ -101,9 +100,11 @@ class LayerTreeAnnotations:
 
     @property
     def has_qubit_map(self) -> bool:
+        """Return ``True`` if the qubit map annotation has been set."""
         return self.qubit_map is not None
 
     def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of ``self``."""
         ret: dict[str, Any] = {"qubit_map": None}
         if self.qubit_map is not None:
             ret["qubit_map"] = {i: (q.x, q.y) for i, q in self.qubit_map.i2q.items()}

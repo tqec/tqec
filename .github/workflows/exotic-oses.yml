@@ -29,18 +29,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt -r requirements-dev.txt
-      - name: Analyze code with pylint
-        run: |
-          python -m pip install pylint
-          pylint $(git ls-files '*.py')
-        continue-on-error: true
+          python -m pip install pytest mypy
       - name: Build
         run: python -m pip install '.[all]'
-      - name: Test and coverage
-        run: |
-          python -m pip install pytest pytest-cov
-          python -m pytest --cov=src/tqec $(git ls-files '*_test.py')
+      # Perform type checking before testing because that is quicker.
       - name: Mypy type checking
-        run: |
-          python -m pip install mypy
-          python -m mypy src/tqec/
+        run: python -m mypy src/tqec/
+      # Only perform quick tests to avoid paying too much minutes on that.
+      - name: Partial tests
+        run: python -m pytest $(git ls-files '*_test.py') -m "not slow"

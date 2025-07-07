@@ -10,6 +10,12 @@ class PlaquetteOrientation(Enum):
     UP = auto()
 
     def to_plaquette_side(self) -> PlaquetteSide:
+        """Return the plaquette side corresponding to ``self``.
+
+        If ``self == PlaquetteOrientation.RIGHT`` then
+        ``self.to_plaquette_side() == PlaquetteSide.LEFT`` because a plaquette oriented to the right
+        has 2 data-qubit on its left side.
+        """
         if self == PlaquetteOrientation.RIGHT:
             return PlaquetteSide.LEFT
         elif self == PlaquetteOrientation.LEFT:
@@ -27,6 +33,7 @@ class PlaquetteSide(Enum):
     UP = auto()
 
     def opposite(self) -> PlaquetteSide:
+        """Return the opposite side."""
         if self == PlaquetteSide.RIGHT:
             return PlaquetteSide.LEFT
         elif self == PlaquetteSide.LEFT:

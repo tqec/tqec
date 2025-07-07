@@ -1,10 +1,12 @@
 import pytest
 
 from tqec.compile.observables.fixed_bulk_builder import (
-    _get_bottom_stabilizer_cube_qubits,
-    _get_bottom_stabilizer_spatial_cube_qubits,
-    _get_temporal_hadamard_includes_qubits,
-    _get_top_readout_spatial_cube_qubits,
+    _build_pipe_temporal_hadamard_qubits_impl,
+    build_pipe_top_readout_qubits,
+    build_regular_cube_bottom_stabilizer_qubits,
+    build_regular_cube_top_readout_qubits,
+    build_spatial_cube_bottom_stabilizer_qubits,
+    build_spatial_cube_top_readout_qubits,
 )
 from tqec.compile.specs.enums import SpatialArms
 from tqec.utils.enums import Basis, Orientation
@@ -13,6 +15,21 @@ from tqec.utils.position import (
     PlaquetteShape2D,
     SignedDirection3D,
 )
+
+
+@pytest.mark.parametrize(
+    "orientation, expected",
+    [
+        (Orientation.HORIZONTAL, [(1, 3), (2, 3), (3, 3), (4, 3), (5, 3)]),
+        (Orientation.VERTICAL, [(3, 1), (3, 2), (3, 3), (3, 4), (3, 5)]),
+    ],
+)
+def test_build_regular_cube_top_readout_qubits(
+    orientation: Orientation, expected: list[tuple[int, int]]
+) -> None:
+    shape = PlaquetteShape2D(6, 6)
+    coords = build_regular_cube_top_readout_qubits(shape, orientation)
+    assert coords == expected
 
 
 @pytest.mark.parametrize(
@@ -95,24 +112,16 @@ from tqec.utils.position import (
         ),
     ],
 )
-def test_get_bottom_stabilizer_cube_qubits(
+def test_build_regular_cube_bottom_stabilizer_qubits(
     connect_to: SignedDirection3D,
     stabilizer_basis: Basis,
     expected: list[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(6, 6)
-    coords = sorted(_get_bottom_stabilizer_cube_qubits(shape, connect_to, stabilizer_basis))
+    coords = sorted(
+        build_regular_cube_bottom_stabilizer_qubits(shape, connect_to, stabilizer_basis)
+    )
     assert coords == expected
-
-
-@pytest.mark.parametrize("k", (1, 2, 10))
-@pytest.mark.parametrize("basis", (Basis.X, Basis.Z))
-def test_get_bottom_stabilizer_spatial_cube_qubits(k: int, basis: Basis) -> None:
-    w = 2 * k + 2
-    shape = PlaquetteShape2D(w, w)
-    coords = set(_get_bottom_stabilizer_spatial_cube_qubits(shape, basis))
-    assert len(coords) == w**2 // 2
-    assert all((cs[0] + cs[1]) % 2 == (basis == Basis.Z) for cs in coords)
 
 
 @pytest.mark.parametrize(
@@ -151,14 +160,40 @@ def test_get_bottom_stabilizer_spatial_cube_qubits(k: int, basis: Basis) -> None
         ),
     ],
 )
-def test_get_top_readout_spatial_cube_qubits(
+def test_build_spatial_cube_top_readout_qubits(
     arms: SpatialArms,
     observabel_basis: Basis,
     expected: set[tuple[int, int]],
 ) -> None:
     shape = PlaquetteShape2D(4, 4)
-    coords = set(_get_top_readout_spatial_cube_qubits(shape, arms, observabel_basis))
+    coords = set(build_spatial_cube_top_readout_qubits(shape, arms, observabel_basis))
     assert coords == expected
+
+
+@pytest.mark.parametrize(
+    "direction, expected",
+    [
+        (Direction3D.X, [(6, 3)]),
+        (Direction3D.Y, [(3, 6)]),
+    ],
+)
+def test_build_pipe_top_readout_qubits(
+    direction: Direction3D,
+    expected: list[tuple[int, int]],
+) -> None:
+    shape = PlaquetteShape2D(6, 6)
+    coords = build_pipe_top_readout_qubits(shape, direction)
+    assert coords == expected
+
+
+@pytest.mark.parametrize("k", (1, 2, 10))
+@pytest.mark.parametrize("basis", (Basis.X, Basis.Z))
+def test_build_spatial_cube_bottom_stabilizer_qubits(k: int, basis: Basis) -> None:
+    w = 2 * k + 2
+    shape = PlaquetteShape2D(w, w)
+    coords = set(build_spatial_cube_bottom_stabilizer_qubits(shape, basis))
+    assert len(coords) == w**2 // 2
+    assert all((cs[0] + cs[1]) % 2 == (basis == Basis.Z) for cs in coords)
 
 
 @pytest.mark.parametrize(
@@ -174,12 +209,12 @@ def test_get_top_readout_spatial_cube_qubits(
         (2, Basis.X, Orientation.HORIZONTAL, set()),
     ],
 )
-def test_get_temporal_hadamard_includes(
+def test_build_pipe_temporal_hadamard_qubits_impl(
     k: int,
     obs_basis: Basis,
     z_orientation: Orientation,
     expected: set[tuple[float, float]],
 ) -> None:
     shape = PlaquetteShape2D(2 * k + 2, 2 * k + 2)
-    coords = set(_get_temporal_hadamard_includes_qubits(shape, obs_basis, z_orientation))
+    coords = set(_build_pipe_temporal_hadamard_qubits_impl(shape, obs_basis, z_orientation))
     assert coords == expected

@@ -87,4 +87,5 @@ class WithSpatialFootprint(ABC):
 
     @property
     def trimmed_spatial_borders(self) -> frozenset[SpatialBlockBorder]:
+        """Get the spatial layers that have been trimmed off from ``self``."""
         return self._trimmed_spatial_borders

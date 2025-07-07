@@ -59,6 +59,11 @@ class LookbackInformationList:
         self.infos.append(LookbackInformation(template, plaquettes, measurement_records))
 
     def extend(self, other: LookbackInformationList, repetitions: int = 1) -> None:
+        """Add the provided lookback information to self, potentially repeating it several times.
+
+        This method can be used when exiting a REPEAT block to update the lookback information by
+        taking into account that it might be repeated several times.
+        """
         self.infos.extend(other.infos * repetitions)
 
     def __len__(self) -> int:
@@ -83,18 +88,16 @@ class LookbackStack:
         self._stack: list[LookbackInformationList] = [LookbackInformationList()]
 
     def enter_repeat_block(self) -> None:
+        """Append a new entry to the stack."""
         self._stack.append(LookbackInformationList())
 
     def close_repeat_block(self, repetitions: int) -> None:
+        """Remove the last entry on the stack, repeating it as needed into the new last entry."""
         if len(self._stack) < 2:
             raise TQECException(
                 f"Only got {len(self._stack)} < 2 entries in the stack. That "
                 "means that we are not in a REPEAT block. Cannot call "
                 "close_repeat_block()."
-            )
-        if repetitions < 1:
-            raise TQECException(
-                f"Cannot have a REPEAT block with less than 1 repetitions. Got {repetitions} repetitions."
             )
         self._stack[-2].extend(self._stack[-1], repetitions)
         self._stack.pop(-1)
@@ -198,7 +201,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             )
         self._k = k
         self._manhattan_radius = manhattan_radius
-        self._database = detector_database
+        self._database = detector_database if detector_database is not None else DetectorDatabase()
         self._only_use_database = only_use_database
         self._lookback_size = lookback
         self._lookback_stack = LookbackStack()
