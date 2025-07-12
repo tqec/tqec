@@ -27,26 +27,26 @@ def scalable_qubit_shape_fixture() -> PhysicalQubitScalable2D:
     return PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5))
 
 
-@pytest.fixture(name="XZZ")
-def XZZ_fixture() -> Block:
-    return FIXED_BULK_CUBE_BUILDER(CubeSpec(ZXCube.from_str("XZZ")))
+@pytest.fixture(name="xzz")
+def xzz_fixture() -> Block:
+    return FIXED_BULK_CUBE_BUILDER(CubeSpec(ZXCube.from_str("xzz")))
 
 
-@pytest.fixture(name="XZO")
-def XZO_fixture(XZZ: Block) -> Block:
-    spec = CubeSpec(ZXCube.from_str("XZZ"))
-    first_layer = XZZ.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
+@pytest.fixture(name="xzo")
+def xzo_fixture(xzz: Block) -> Block:
+    spec = CubeSpec(ZXCube.from_str("xzz"))
+    first_layer = xzz.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
     return FIXED_BULK_PIPE_BUILDER(
-        PipeSpec((spec, spec), (template, template), PipeKind.from_str("XZO"))
+        PipeSpec((spec, spec), (template, template), PipeKind.from_str("xzo"))
     )
 
 
-@pytest.fixture(name="OZZ")
-def OZZ_fixture(XZZ: Block) -> Block:
-    spec = CubeSpec(ZXCube.from_str("XZZ"))
-    first_layer = XZZ.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
+@pytest.fixture(name="ozz")
+def ozz_fixture(xzz: Block) -> Block:
+    spec = CubeSpec(ZXCube.from_str("xzz"))
+    first_layer = xzz.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
     return FIXED_BULK_PIPE_BUILDER(
@@ -54,30 +54,30 @@ def OZZ_fixture(XZZ: Block) -> Block:
     )
 
 
-@pytest.fixture(name="XOZ")
-def XOZ_fixture(XZZ: Block) -> Block:
-    spec = CubeSpec(ZXCube.from_str("XZZ"))
-    first_layer = XZZ.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
+@pytest.fixture(name="xoz")
+def xoz_fixture(xzz: Block) -> Block:
+    spec = CubeSpec(ZXCube.from_str("xzz"))
+    first_layer = xzz.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
     return FIXED_BULK_PIPE_BUILDER(
-        PipeSpec((spec, spec), (template, template), PipeKind.from_str("XOZ"))
+        PipeSpec((spec, spec), (template, template), PipeKind.from_str("xoz"))
     )
 
 
 def test_add_temporal_pipe_with_spatial_pipe_existing(
     observable_builder: ObservableBuilder,
     scalable_qubit_shape: PhysicalQubitScalable2D,
-    XZZ: Block,
-    XOZ: Block,
-    XZO: Block,
+    xzz: Block,
+    xoz: Block,
+    xzo: Block,
 ) -> None:
     graph = TopologicalComputationGraph(scalable_qubit_shape, observable_builder)
-    graph.add_cube(BlockPosition3D(0, 0, 0), XZZ)
-    graph.add_cube(BlockPosition3D(0, 1, 0), XZZ)
-    graph.add_cube(BlockPosition3D(0, 1, 1), XZZ)
-    graph.add_pipe(BlockPosition3D(0, 0, 0), BlockPosition3D(0, 1, 0), XOZ)
-    graph.add_pipe(BlockPosition3D(0, 1, 0), BlockPosition3D(0, 1, 1), XZO)
+    graph.add_cube(BlockPosition3D(0, 0, 0), xzz)
+    graph.add_cube(BlockPosition3D(0, 1, 0), xzz)
+    graph.add_cube(BlockPosition3D(0, 1, 1), xzz)
+    graph.add_pipe(BlockPosition3D(0, 0, 0), BlockPosition3D(0, 1, 0), xoz)
+    graph.add_pipe(BlockPosition3D(0, 1, 0), BlockPosition3D(0, 1, 1), xzo)
 
     graph.to_layer_tree()
 
@@ -85,15 +85,15 @@ def test_add_temporal_pipe_with_spatial_pipe_existing(
 def test_sequenced_layers_with_layout_layers_of_different_shapes(
     observable_builder: ObservableBuilder,
     scalable_qubit_shape: PhysicalQubitScalable2D,
-    XZZ: Block,
-    XOZ: Block,
-    XZO: Block,
+    xzz: Block,
+    xoz: Block,
+    xzo: Block,
 ) -> None:
     graph = TopologicalComputationGraph(scalable_qubit_shape, observable_builder)
-    graph.add_cube(BlockPosition3D(0, 0, 0), XZZ)
-    graph.add_cube(BlockPosition3D(0, 0, 1), XZZ)
-    graph.add_cube(BlockPosition3D(0, 1, 1), XZZ)
-    graph.add_pipe(BlockPosition3D(0, 0, 0), BlockPosition3D(0, 0, 1), XZO)
-    graph.add_pipe(BlockPosition3D(0, 0, 1), BlockPosition3D(0, 1, 1), XOZ)
+    graph.add_cube(BlockPosition3D(0, 0, 0), xzz)
+    graph.add_cube(BlockPosition3D(0, 0, 1), xzz)
+    graph.add_cube(BlockPosition3D(0, 1, 1), xzz)
+    graph.add_pipe(BlockPosition3D(0, 0, 0), BlockPosition3D(0, 0, 1), xzo)
+    graph.add_pipe(BlockPosition3D(0, 0, 1), BlockPosition3D(0, 1, 1), xoz)
 
     graph.to_layer_tree()

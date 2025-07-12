@@ -4,7 +4,7 @@ from tqec.gallery.steane_encoding import steane_encoding
 from tqec.utils.enums import Basis
 
 
-def test_steane_encoding_OPEN() -> None:
+def test_steane_encoding_open() -> None:
     g = steane_encoding()
     assert g.num_ports == 7
     assert g.num_cubes == 19

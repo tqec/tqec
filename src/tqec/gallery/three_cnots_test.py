@@ -5,7 +5,7 @@ from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 
 
-def test_three_cnots_OPEN() -> None:
+def test_three_cnots_open() -> None:
     g = three_cnots()
     assert g.num_ports == 6
     assert g.num_cubes == 12
