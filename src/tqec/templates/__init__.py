@@ -1,4 +1,4 @@
-"""Defines several scalable arrays of numbers used to tile plaquettes.
+r"""Defines several scalable arrays of numbers used to tile plaquettes.
 
 This module defines the :py:class:`~tqec.templates.base.Template` interface that
 should be implemented by subclasses implementing different templates.
@@ -51,7 +51,7 @@ It outputs
     8   10  9   10  9   12
     3   13  14  13  14  4
 
-The template instantiation is an array of size :math:`6 \\times 6`, filled with
+The template instantiation is an array of size :math:`6 \times 6`, filled with
 integers. Each unique integer will eventually either be linked to a plaquette or
 be left empty. Let's try to clean up a little bit the array by setting the
 values ``1``, ``2``, ``3``, ``4``, ``5``, ``8``, ``12`` and ``14`` to the value
@@ -83,7 +83,7 @@ most of the papers using the surface code and below!
 .. image:: /media/api/tqec/templates/logical_qubit.png
 
 But that is only a distance
-:math:`5 = 2 \\times 2 + 1 = 2 k + 1` code. Let's try to scale that up:
+:math:`5 = 2 \times 2 + 1 = 2 k + 1` code. Let's try to scale that up:
 
 .. code-block:: python
 
@@ -93,7 +93,7 @@ But that is only a distance
     )
 
 outputs what we would expect: the "template" of plaquettes for a logical qubit
-using a distance :math:`d = 2 k + 1 = 2 \\times 5 + 1 = 11` code:
+using a distance :math:`d = 2 k + 1 = 2 \times 5 + 1 = 11` code:
 
 .. code-block:: text
 

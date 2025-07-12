@@ -239,7 +239,6 @@ ignore = [
   # D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
   "D100", "D101", "D104", "D105",
   "D203", "D205", "D213",
-  "D301",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
   "D400", "D401", "D404", "D407", "D415", "D416", "D417",
   "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR1714", "PLR2004",
