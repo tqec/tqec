@@ -75,9 +75,7 @@ def _matched_detectors_to_detectors(
     """
     ret: list[Detector] = []
     for d in detectors:
-        measurements: list[Measurement] = []
-        for m in d.measurements:
-            measurements.append(measurements_by_offset[m.offset])
+        measurements: list[Measurement] = [measurements_by_offset[m.offset] for m in d.measurements]
         x, y, t = d.coords
         ret.append(Detector(frozenset(measurements), StimCoordinates(x, y, t)))
     return ret
@@ -783,13 +781,13 @@ def compute_detectors_for_fixed_radius(
         for j, subtemplate_indices in enumerate(row):
             if all(i == 0 for i in subtemplate_indices):
                 continue
-            for d in detectors_by_subtemplate[tuple(subtemplate_indices)]:
-                detectors.append(
-                    d.offset_spatially_by(
-                        (j + last_template_origin.x) * increments.x,
-                        (i + last_template_origin.y) * increments.y,
-                    )
+            detectors.extend(
+                d.offset_spatially_by(
+                    (j + last_template_origin.x) * increments.x,
+                    (i + last_template_origin.y) * increments.y,
                 )
+                for d in detectors_by_subtemplate[tuple(subtemplate_indices)]
+            )
     # Second filter, here to catch the duplicated detectors that were not
     # filtered by the _best_effort_filter_detectors function.
     detectors = list(set(detectors))

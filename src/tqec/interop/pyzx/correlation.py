@@ -262,13 +262,13 @@ def _find_spans_with_flood_fill(
             return None
         branches_at_node: list[tuple[set[ZXNode], set[ZXEdge]]] = []
         for n in range(parity, len(edges_left) + 1, 2):
-            for branch_edges in itertools.combinations(edges_left, n):
-                branches_at_node.append(
-                    (
-                        {e.u if e.u != cur else e.v for e in branch_edges},
-                        set(branch_edges),
-                    )
+            branches_at_node.extend(
+                (
+                    {e.u if e.u != cur else e.v for e in branch_edges},
+                    set(branch_edges),
                 )
+                for branch_edges in itertools.combinations(edges_left, n)
+            )
         branches_at_different_nodes.append(branches_at_node)
 
     assert branches_at_different_nodes, "Should not be empty."

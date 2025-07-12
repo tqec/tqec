@@ -306,8 +306,7 @@ def svg_path_enclosing_points(
     center_point: complex = sum(points) / len(points)
     first, *others = _sort_by_angle(center_point, points)
     pathdata: list[svg.PathData] = [svg.M(first.real, first.imag)]
-    for p in others:
-        pathdata.append(svg.L(p.real, p.imag))
+    pathdata.extend(svg.L(p.real, p.imag) for p in others)
     pathdata.append(svg.Z())
     return svg.Path(
         d=pathdata,
