@@ -17,7 +17,7 @@ from tqec.compile.blocks.layers.merge import (
     merge_composed_layers,
 )
 from tqec.compile.blocks.positioning import LayoutPosition2D
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
@@ -58,7 +58,7 @@ class Block(SequencedLayers):
         border is not an atomic layer.
 
         Raises:
-            TQECException: if the layer at the provided temporal ``border`` is not atomic (i.e., an
+            TQECError: if the layer at the provided temporal ``border`` is not atomic (i.e., an
                 instance of :class:`.BaseLayer`).
 
         """
@@ -70,7 +70,7 @@ class Block(SequencedLayers):
                 layer_index = -1
         layer = self.layer_sequence[layer_index]
         if not isinstance(layer, BaseLayer):
-            raise TQECException(
+            raise TQECError(
                 "Expected to recover a temporal **border** (i.e. an atomic "
                 f"layer) but got an instance of {type(layer).__name__} instead."
             )
@@ -136,7 +136,7 @@ def merge_parallel_block_layers(
         provided ``blocks_in_parallel``.
 
     Raises:
-        TQECException: if two items from the provided ``blocks_in_parallel`` do
+        TQECError: if two items from the provided ``blocks_in_parallel`` do
             not have the same temporal footprint.
         NotImplementedError: if the provided blocks cannot be merged due to a
             code branch not being implemented yet (and not due to a logical

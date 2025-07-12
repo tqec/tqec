@@ -28,7 +28,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECError, TQECWarning
 
 
 class _ScheduledCircuits:
@@ -90,7 +90,7 @@ class _ScheduledCircuits:
         """
         ret = self._current_moments[index]
         if ret is None:
-            raise TQECException(
+            raise TQECError(
                 "Trying to pop a Moment instance from a ScheduledCircuit with all its moments already collected."
             )
         self._current_moments[index] = next(self._iterators[index], None)
@@ -204,7 +204,7 @@ def remove_duplicate_instructions(
         circuit.append(instr)
     try:
         Moment.check_is_valid_moment(circuit)
-    except TQECException as e:
+    except TQECError as e:
         warnings.warn(
             "The instructions obtained at the end of the "
             "`remove_duplicate_instructions` function do not form a valid "

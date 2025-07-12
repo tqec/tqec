@@ -21,7 +21,7 @@ import stim
 
 from tqec.circuit.qubit import GridQubit
 from tqec.utils.coordinates import StimCoordinates
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import round_or_fail
 
 
@@ -34,7 +34,7 @@ class QubitMap:
     "bijection") between qubits and their associated indices.
 
     Raises:
-        TQECException: if the provided mapping from indices to qubits is not a
+        TQECError: if the provided mapping from indices to qubits is not a
             bijection (i.e., if at least to values represent the same qubit).
 
     """
@@ -45,7 +45,7 @@ class QubitMap:
         qubit_counter = Counter(self.i2q.values())
         if len(qubit_counter) != len(self.i2q):
             duplicated_qubits = frozenset(q for q in qubit_counter if qubit_counter[q] > 1)
-            raise TQECException(f"Found qubit(s) with more than one index: {duplicated_qubits}.")
+            raise TQECError(f"Found qubit(s) with more than one index: {duplicated_qubits}.")
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
@@ -67,7 +67,7 @@ class QubitMap:
             circuit: instance to get qubit coordinates from.
 
         Raises:
-            TQECException: if any of the final qubits is not defined with exactly 2
+            TQECError: if any of the final qubits is not defined with exactly 2
                 coordinates (we only consider qubits on a 2-dimensional grid).
 
         Returns:
@@ -210,7 +210,7 @@ class QubitMap:
         """Returns the tightest possible bounding box containing all the qubits in ``self``.
 
         Raises:
-            TQECException: if ``self`` is empty.
+            TQECError: if ``self`` is empty.
 
         Returns:
             ``(top_left, bottom_right)`` representing the bounding box of the qubits listed in
@@ -218,7 +218,7 @@ class QubitMap:
 
         """
         if not self.i2q:
-            raise TQECException("Cannot get the bounding box of an empty QubitMap.")
+            raise TQECError("Cannot get the bounding box of an empty QubitMap.")
         qxs, qys = [q.x for q in self.i2q.values()], [q.y for q in self.i2q.values()]
         return GridQubit(min(qxs), min(qys)), GridQubit(max(qxs), max(qys))
 
@@ -236,7 +236,7 @@ def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
         circuit: instance to get qubit coordinates from.
 
     Raises:
-        TQECException: if any of the final qubits is not defined with exactly 2
+        TQECError: if any of the final qubits is not defined with exactly 2
             coordinates (we only consider qubits on a 2-dimensional grid).
 
     Returns:
@@ -247,7 +247,7 @@ def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
     qubits: dict[int, GridQubit] = {}
     for qi, coords in qubit_coordinates.items():
         if len(coords) != 2:
-            raise TQECException(
+            raise TQECError(
                 "Qubits should be defined on exactly 2 spatial dimensions. "
                 f"Found {qi} -> {coords} defined on {len(coords)} spatial dimensions."
             )

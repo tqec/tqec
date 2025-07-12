@@ -83,7 +83,7 @@ def merge_moments(lhs: Moment, rhs: Moment) -> Moment:
     """Merge two :class:`.Moment` instances into a single instance.
 
     Raises:
-        TQECException if the resulting :class:`.Moment` instance is invalid, for example if it
+        TQECError if the resulting :class:`.Moment` instance is invalid, for example if it
             contains two operations using the same qubit at the same time step.
 
     """

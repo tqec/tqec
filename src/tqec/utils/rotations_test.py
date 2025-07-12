@@ -6,7 +6,7 @@ import pytest
 from pytest import raises
 
 from tqec.computation.block_graph import block_kind_from_str
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.rotations import (
     calc_rotation_angles,
@@ -146,7 +146,7 @@ def test_rotate_block_kind() -> None:
 
 
 def test_invalid_y_rotations() -> None:
-    with raises(TQECException):
+    with raises(TQECError):
         for transformation in invalid_y_rotations:
             kind = block_kind_from_str(transformation["kind"])
             rotate_block_kind_by_matrix(kind, transformation["rotate_matrix"])

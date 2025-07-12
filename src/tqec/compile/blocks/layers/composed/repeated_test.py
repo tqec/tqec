@@ -14,7 +14,7 @@ from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates._testing import FixedTemplate
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -64,7 +64,7 @@ def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuit
     RepeatedLayer(plaquette_layer, LinearFunction(0, 1))
     RepeatedLayer(raw_circuit_layer, LinearFunction(1, 90))
     RepeatedLayer(SequencedLayers([plaquette_layer, plaquette_layer]), LinearFunction(1, 0))
-    with pytest.raises(TQECException, match=".*non-linear number of timesteps.*"):
+    with pytest.raises(TQECError, match=".*non-linear number of timesteps.*"):
         RepeatedLayer(RepeatedLayer(plaquette_layer, LinearFunction(1, 0)), LinearFunction(1, 0))
 
 
@@ -149,7 +149,7 @@ def test_to_sequenced_layer_with_schedule_raising(
 ) -> None:
     repeated_layer = RepeatedLayer(plaquette_layer, LinearFunction(2, 2))
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="Cannot transform the RepeatedLayer instance to a SequencedLayers instance with the provided schedule.*",
     ):
         repeated_layer.to_sequenced_layer_with_schedule(

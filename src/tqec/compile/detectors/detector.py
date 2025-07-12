@@ -10,7 +10,7 @@ import stim
 from tqec.circuit.measurement import Measurement
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.utils.coordinates import StimCoordinates
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,7 @@ class Detector:
 
     def __post_init__(self) -> None:
         if not self.measurements:
-            raise TQECException("Trying to create a detector without any measurement.")
+            raise TQECError("Trying to create a detector without any measurement.")
 
     def __hash__(self) -> int:
         return hash(self.measurements)
@@ -51,7 +51,7 @@ class Detector:
                 measurement offsets to global measurement offsets.
 
         Raises:
-            TQECException: if any of the measurements stored in `self` is
+            TQECError: if any of the measurements stored in `self` is
                 performed on a qubit that is not in the provided
                 `measurement_records_map`.
             KeyError: if any of the qubit-local measurement offsets stored in
@@ -66,7 +66,7 @@ class Detector:
         measurement_records: list[stim.GateTarget] = []
         for measurement in self.measurements:
             if measurement.qubit not in measurement_records_map:
-                raise TQECException(
+                raise TQECError(
                     f"Trying to get measurement record for {measurement.qubit} "
                     "but qubit is not in the measurement record map."
                 )

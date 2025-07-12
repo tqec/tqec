@@ -2,7 +2,7 @@ import pytest
 import pyzx as zx
 
 from tqec.gallery.cz import cz
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
 
 
@@ -55,15 +55,15 @@ def test_cz_resolve_ports() -> None:
     assert [str(g[pos].kind) for pos in port_positions] == ["XZZ", "XZZ", "XZZ", "XZZ"]
 
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="Y basis initialization/measurements are not supported yet.",
     ):
         cz("YI -> XZ")
 
-    with pytest.raises(TQECException, match="X_ -> XX is not a valid flow for the CZ gate."):
+    with pytest.raises(TQECError, match="X_ -> XX is not a valid flow for the CZ gate."):
         cz("XI -> XX")
 
-    with pytest.raises(TQECException, match="Port 0 fails to support both X and Z observable."):
+    with pytest.raises(TQECError, match="Port 0 fails to support both X and Z observable."):
         cz(["XI -> XZ", "ZI -> ZI"])
 
 

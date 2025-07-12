@@ -11,7 +11,7 @@ import stim
 from typing_extensions import override
 
 from tqec._cli.subcommands.base import TQECSubCommand
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 def has_program(name: str) -> bool:
@@ -39,11 +39,11 @@ def generate_animation(
             file will not be updated.
 
     Raises:
-        TQECException: if ``ffmpeg`` is not available in the host system.
+        TQECError: if ``ffmpeg`` is not available in the host system.
 
     """
     if not has_program("ffmpeg"):
-        raise TQECException(
+        raise TQECError(
             "ffmpeg is needed to generate an animation, but could not find it. "
             "Make sure you have ffmpeg installed and that it is accessible."
         )

@@ -12,7 +12,7 @@ from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates._testing import FixedTemplate
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -70,7 +70,7 @@ def raw_circuit_fixed_size_layer_fixture() -> RawCircuitLayer:
 def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer) -> None:
     # Invalid sequences due to duration < 1
     err_regex = ".*expected to have at least one layer.*"
-    with pytest.raises(TQECException, match=err_regex):
+    with pytest.raises(TQECError, match=err_regex):
         SequencedLayers([])
 
     SequencedLayers([plaquette_layer for _ in range(10)])
@@ -203,7 +203,7 @@ def test_to_sequenced_layer_with_schedule(plaquette_layer: PlaquetteLayer) -> No
         == layer
     )
     err_regex = "^.*The provided schedule has a duration of .* but the instance to transform has a duration of .*$"
-    with pytest.raises(TQECException, match=err_regex):
+    with pytest.raises(TQECError, match=err_regex):
         layer.to_sequenced_layer_with_schedule((LinearFunction(0, 1), LinearFunction(1, 0)))
     with pytest.raises(NotImplementedError):
         layer.to_sequenced_layer_with_schedule((LinearFunction(0, 1), LinearFunction(2, 0)))

@@ -16,7 +16,7 @@ from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon
 from tqec.utils.coordinates import StimCoordinates
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction
 
 
@@ -66,7 +66,7 @@ class LayerNode:
             return []
         if isinstance(layer, SequencedLayers):
             if not contains_only_layout_or_composed_layers(layer.layer_sequence):
-                raise TQECException(
+                raise TQECError(
                     "Found a leaf node that is not an instance of "
                     f"{LayoutLayer.__name__}. This should not happen and is a "
                     "logical error."
@@ -74,13 +74,13 @@ class LayerNode:
             return [LayerNode(lay) for lay in layer.layer_sequence]
         if isinstance(layer, RepeatedLayer):
             if not isinstance(layer.internal_layer, LayoutLayer | BaseComposedLayer):
-                raise TQECException(
+                raise TQECError(
                     "The layer that is being repeated is not an instance of "
                     f"{LayoutLayer.__name__} or {BaseComposedLayer.__name__}."
                 )
             return [LayerNode(layer.internal_layer)]
         if isinstance(layer, (PlaquetteLayer, RawCircuitLayer)):
-            raise TQECException(
+            raise TQECError(
                 f"Unsupported layer type found: {type(layer).__name__}. Expected "
                 f"ALL leaf nodes to be of type {LayoutLayer.__name__}."
             )
@@ -171,7 +171,7 @@ class LayerNode:
             annotations = self.get_annotations(k)
             base_circuit = annotations.circuit
             if base_circuit is None:
-                raise TQECException(
+                raise TQECError(
                     "Cannot generate the final quantum circuit before annotating "
                     "nodes with their individual circuits. Did you call "
                     "LayerTree.annotate_circuits before?"
@@ -225,7 +225,7 @@ class LayerNode:
                 ret.append(body[0])
             ret.append(body_circuit * self._layer.repetitions.integer_eval(k))
             return ret
-        raise TQECException(f"Unknown layer type found: {type(self._layer).__name__}.")
+        raise TQECError(f"Unknown layer type found: {type(self._layer).__name__}.")
 
     def generate_circuit(self, k: int, global_qubit_map: QubitMap) -> stim.Circuit:
         """Generate the quantum circuit representing the node.

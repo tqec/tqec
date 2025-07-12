@@ -24,7 +24,7 @@ from tqec.interop.pyzx.utils import (
     is_zx_no_phase,
 )
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 def correlation_surface_to_pauli_web(
@@ -127,10 +127,10 @@ def find_correlation_surfaces(
     leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
     if roots is not None:
         if not roots.issubset(leaves):
-            raise TQECException("The roots must all be leaf nodes, i.e. degree 1 nodes.")
+            raise TQECError("The roots must all be leaf nodes, i.e. degree 1 nodes.")
         leaves = roots
     if not leaves:
-        raise TQECException(
+        raise TQECError(
             "The graph must contain at least one leaf node to find correlation surfaces."
         )
     correlation_surfaces: set[CorrelationSurface] = set()
@@ -318,14 +318,14 @@ def _check_spiders_are_supported(g: GraphS) -> None:
         vt = g.type(v)
         phase = g.phase(v)
         if (vt, phase) not in _SUPPORTED_SPIDERS:
-            raise TQECException(f"Unsupported spider type and phase: {vt} and {phase}.")
+            raise TQECError(f"Unsupported spider type and phase: {vt} and {phase}.")
     # 2. Check degree of the spiders
     for v in g.vertices():
         degree = g.vertex_degree(v)
         if is_boundary(g, v) and degree != 1:
-            raise TQECException(f"Boundary spider must be dangling, but got {degree} neighbors.")
+            raise TQECError(f"Boundary spider must be dangling, but got {degree} neighbors.")
         if is_s(g, v) and degree != 1:
-            raise TQECException(f"S spider must be dangling, but got {degree} neighbors.")
+            raise TQECError(f"S spider must be dangling, but got {degree} neighbors.")
 
 
 def reduce_observables_to_minimal_generators(

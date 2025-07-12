@@ -16,7 +16,7 @@ from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.enums import Basis, Orientation
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
 
@@ -44,7 +44,7 @@ def _get_block(
     alternating plaquettes where it handles the alternation correctly even in REPEAT blocks.
 
     Raises:
-        TQECException: if ``repetitions.slope`` is not even. This function requires an even
+        TQECError: if ``repetitions.slope`` is not even. This function requires an even
             repetition slope because 1) the implementation for odd slopes is more complex and
             requires the implementation of more classes and 2) all the repetitions we have at the
             moment have an even slope.
@@ -162,7 +162,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
         """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
         kind = spec.kind
         if isinstance(kind, Port):
-            raise TQECException("Cannot build a block for a Port.")
+            raise TQECError("Cannot build a block for a Port.")
         elif isinstance(kind, YHalfCube):
             raise NotImplementedError("Y cube is not implemented.")
         template, pgen = self._get_template_and_plaquettes_generator(spec)
@@ -255,7 +255,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             spec: pipe specification to get the arm(s) from.
 
         Raises:
-            TQECException: if the provided ``spec`` is not a spatial pipe.
+            TQECError: if the provided ``spec`` is not a spatial pipe.
 
         Returns:
             the :class:`~tqec.compile.specs.enums.SpatialArms` instance
@@ -317,7 +317,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             case Direction3D.Y, True:
                 return self._generator.get_spatial_horizontal_hadamard_raw_template()
             case _:
-                raise TQECException("Spatial pipes cannot have a direction equal to Direction3D.Z.")
+                raise TQECError("Spatial pipes cannot have a direction equal to Direction3D.Z.")
 
     def _get_spatial_regular_non_hadamard_pipe_plaquettes_factory(
         self, spec: PipeSpec

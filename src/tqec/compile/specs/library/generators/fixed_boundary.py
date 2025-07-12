@@ -30,7 +30,7 @@ from tqec.templates.qubit import (
     QubitVerticalBorders,
 )
 from tqec.utils.enums import Basis, Orientation
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Direction3D
 
@@ -806,7 +806,7 @@ class FixedBoundaryConventionGenerator:
                 measurement being applied on data-qubits.
 
         Raises:
-            TQECException: if ``arms`` describes an I-shaped junction (TOP/DOWN
+            TQECError: if ``arms`` describes an I-shaped junction (TOP/DOWN
                 or LEFT/RIGHT).
 
         Returns:
@@ -828,7 +828,7 @@ class FixedBoundaryConventionGenerator:
         #     12   7  15  19  15  19  15  19   8  22
         #      3  23  24  23  24  23  24  23  24   4
         if arms in SpatialArms.I_shaped_arms():
-            raise TQECException(
+            raise TQECError(
                 "I-shaped spatial junctions (i.e., spatial junctions with only two "
                 "arms that are the opposite of each other: LEFT/RIGHT or UP/DOWN) "
                 "should not use get_spatial_cube_qubit_template but rather use "
@@ -1018,8 +1018,8 @@ class FixedBoundaryConventionGenerator:
                 measurement being applied on data-qubits.
 
         Raises:
-            TQECException: if ``arms`` only contains 0 or 1 flag.
-            TQECException: if ``arms`` describes an I-shaped junction (TOP/DOWN
+            TQECError: if ``arms`` only contains 0 or 1 flag.
+            TQECError: if ``arms`` describes an I-shaped junction (TOP/DOWN
                 or LEFT/RIGHT).
 
         Returns:
@@ -1051,7 +1051,7 @@ class FixedBoundaryConventionGenerator:
                 combination cannot be formed by a single arm).
 
         Raises:
-            TQECException: if the provided ``arms`` value does not check the
+            TQECError: if the provided ``arms`` value does not check the
                 documented pre-conditions.
 
         """
@@ -1060,7 +1060,7 @@ class FixedBoundaryConventionGenerator:
             or len(arms) > 2
             or (len(arms) == 2 and arms not in SpatialArms.I_shaped_arms())
         ):
-            raise TQECException(
+            raise TQECError(
                 f"The two provided arms cannot form a spatial pipe. Got {arms} but "
                 f"expected either a single {SpatialArms.__name__} or two but in a "
                 f"line (e.g., {SpatialArms.I_shaped_arms()})."
@@ -1070,7 +1070,7 @@ class FixedBoundaryConventionGenerator:
         elif SpatialArms.UP is arms or SpatialArms.DOWN in arms:
             return QubitHorizontalBorders()
         else:
-            raise TQECException(f"Unrecognized spatial arm(s): {arms}.")
+            raise TQECError(f"Unrecognized spatial arm(s): {arms}.")
 
     def get_spatial_cube_arm_plaquettes(
         self,
@@ -1119,7 +1119,7 @@ class FixedBoundaryConventionGenerator:
                 to no measurement being applied on data-qubits.
 
         Raises:
-            TQECException: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
+            TQECError: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
                 if it contains 0 or 3+ flags).
 
         Returns:
@@ -1128,7 +1128,7 @@ class FixedBoundaryConventionGenerator:
 
         """
         if len(arms) == 2 and arms not in SpatialArms.I_shaped_arms():
-            raise TQECException(
+            raise TQECError(
                 f"The two provided arms cannot form a spatial pipe. Got {arms} but "
                 f"expected either a single {SpatialArms.__name__} or two but in a "
                 f"line (e.g., {SpatialArms.I_shaped_arms()})."
@@ -1158,7 +1158,7 @@ class FixedBoundaryConventionGenerator:
                 reset,
                 measurement,
             )
-        raise TQECException(f"Got an invalid arm: {arms}.")
+        raise TQECError(f"Got an invalid arm: {arms}.")
 
     def _get_left_right_spatial_cube_arm_plaquettes(
         self,

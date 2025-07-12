@@ -24,7 +24,7 @@ from tqec.interop.collada._geometry import (
 )
 from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
 from tqec.utils.rotations import (
     adjust_hadamards_direction,
@@ -76,7 +76,7 @@ def read_block_graph_from_dae_file(
         The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
 
     Raises:
-        TQECException: If the COLLADA model cannot be parsed and converted to a block graph.
+        TQECError: If the COLLADA model cannot be parsed and converted to a block graph.
 
     """
     # Bring the mesh in
@@ -84,11 +84,11 @@ def read_block_graph_from_dae_file(
 
     # Check some invariants about the DAE file
     if mesh.scene is None:
-        raise TQECException("No scene found in the DAE file.")
+        raise TQECError("No scene found in the DAE file.")
     scene: collada.scene.Scene = mesh.scene
 
     if not (len(scene.nodes) == 1 and scene.nodes[0].name == "SketchUp"):
-        raise TQECException(
+        raise TQECError(
             "The <visual_scene> node must have a single child node with the name 'SketchUp'."
         )
 
@@ -146,11 +146,11 @@ def read_block_graph_from_dae_file(
                 if pipe_length is None:
                     pipe_length = scale * 2.0
                 elif not np.isclose(pipe_length, scale * 2.0, atol=1e-9):
-                    raise TQECException("All pipes must have the same length.")
+                    raise TQECError("All pipes must have the same length.")
                 expected_scale = np.ones(3)
                 expected_scale[pipe_direction.value] = scale
                 if not np.allclose(transformation.scale, expected_scale, atol=1e-9):
-                    raise TQECException(
+                    raise TQECError(
                         f"Only the dimension along the pipe can be scaled, which is not the case at {translation}."
                     )
                 # Append
@@ -159,7 +159,7 @@ def read_block_graph_from_dae_file(
             else:
                 # Checks
                 if not np.allclose(transformation.scale, np.ones(3), atol=1e-9):
-                    raise TQECException(f"Cube at {translation} has a non-identity scale.")
+                    raise TQECError(f"Cube at {translation} has a non-identity scale.")
                 # Append
                 parsed_cubes.append((translation, kind, axes_directions))
 
@@ -280,7 +280,7 @@ def read_block_graph_from_json(
         The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
 
     Raises:
-        TQECException: If the JSON file cannot be parsed and converted to a block graph.
+        TQECError: If the JSON file cannot be parsed and converted to a block graph.
 
     """
     # Read JSON file
@@ -288,16 +288,16 @@ def read_block_graph_from_json(
         with open(filepath) as f:
             data = json.load(f)
     except Exception:
-        raise TQECException("JSON file not found.")
+        raise TQECError("JSON file not found.")
 
     # Check JSON file has cubes and pipes
     try:
         cubes = data["cubes"]
         pipes = data["pipes"]
         if not len(cubes) > 0 or not len(pipes) > 0:
-            raise TQECException("No cubes or pipes found.")
+            raise TQECError("No cubes or pipes found.")
     except Exception:
-        raise TQECException("JSON file is not appropriately formatted.")
+        raise TQECError("JSON file is not appropriately formatted.")
 
     # Initialise list of cubes and pipes
     parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
@@ -311,12 +311,12 @@ def read_block_graph_from_json(
 
         # Enforce integers for position and transformation
         if not all([isinstance(i, int) for i in cube["position"]]):
-            raise TQECException(
+            raise TQECError(
                 f"Incorrect positioning for cube at {cube['position']}. All positional information must be composed of integer values."
             )
 
         if not all([isinstance(i, int) for row in cube["transform"] for i in row]):
-            raise TQECException(
+            raise TQECError(
                 f"Incorrect transformation matrix for cube at {cube['position']}. All elements in transformation matrix need to be integers."
             )
 
@@ -344,12 +344,12 @@ def read_block_graph_from_json(
         # Enforce integers for position and transformation
         for pos in [pipe["u"], pipe["v"]]:
             if not all([isinstance(i, int) for i in pos]):
-                raise TQECException(
+                raise TQECError(
                     f"Incorrect positioning for pipe at ({pipe['u']}). All positional information must be composed of integer values."
                 )
 
         if not all([isinstance(i, int) for row in pipe["transform"] for i in row]):
-            raise TQECException(
+            raise TQECError(
                 f"Incorrect transformation for pipe at ({pipe['u']}). All elements in transformation matrix need to be integers."
             )
 

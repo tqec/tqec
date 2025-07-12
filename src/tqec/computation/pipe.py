@@ -8,7 +8,7 @@ from typing import Any
 
 from tqec.computation.cube import Cube, ZXCube
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 
@@ -42,9 +42,9 @@ class PipeKind:
 
     def __post_init__(self) -> None:
         if sum(basis is None for basis in (self.x, self.y, self.z)) != 1:
-            raise TQECException("Exactly one basis must be None for a pipe.")
+            raise TQECError("Exactly one basis must be None for a pipe.")
         if len({self.x, self.y, self.z}) != 3:
-            raise TQECException("Pipe must have different basis walls.")
+            raise TQECError("Pipe must have different basis walls.")
 
     def __str__(self) -> str:
         return "".join(
@@ -179,7 +179,7 @@ class Pipe:
         shift = [0, 0, 0]
         shift[self.kind.direction.value] = 1
         if not p1.shift_by(*shift) == p2 and not p2.shift_by(*shift) == p1:
-            raise TQECException(
+            raise TQECError(
                 f"The pipe must connect two nearby cubes in direction {self.kind.direction}."
             )
 
@@ -200,15 +200,15 @@ class Pipe:
             The pipe connecting the two cubes.
 
         Raises:
-            TQECException: If the cubes are not neighbours or both of them are not ZX cubes.
-            TQECException: If kind of the pipe cannot be inferred from the cubes.
+            TQECError: If the cubes are not neighbours or both of them are not ZX cubes.
+            TQECError: If kind of the pipe cannot be inferred from the cubes.
 
         """
         if not u.is_zx_cube and not v.is_zx_cube:
-            raise TQECException("At least one cube must be a ZX cube to infer the pipe kind.")
+            raise TQECError("At least one cube must be a ZX cube to infer the pipe kind.")
         u, v = (u, v) if u.position < v.position else (v, u)
         if not u.position.is_neighbour(v.position):
-            raise TQECException("The cubes must be neighbours to create a pipe.")
+            raise TQECError("The cubes must be neighbours to create a pipe.")
         direction = next(
             d
             for d in Direction3D.all_directions()
@@ -231,7 +231,7 @@ class Pipe:
             if d != direction
         }
         if len(has_hadamard) == 2:
-            raise TQECException("Cannot infer a valid pipe kind from the cubes.")
+            raise TQECError("Cannot infer a valid pipe kind from the cubes.")
         pipe_kind = PipeKind._from_cube_kind(u.kind, direction, True, has_hadamard.pop())
         return Pipe(u, v, pipe_kind)
 
@@ -246,7 +246,7 @@ class Pipe:
             return True
         if position == self.v.position:
             return False
-        raise TQECException(f"The position {position} is not an endpoint of the pipe.")
+        raise TQECError(f"The position {position} is not an endpoint of the pipe.")
 
     def __iter__(self) -> Generator[Cube]:
         yield self.u

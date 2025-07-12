@@ -9,7 +9,7 @@ from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
@@ -31,7 +31,7 @@ class SequencedLayers(BaseComposedLayer):
                 removed from the layer.
 
         Raises:
-            TQECException: if the provided ``layer_sequence`` is empty.
+            TQECError: if the provided ``layer_sequence`` is empty.
 
         """
         super().__init__(trimmed_spatial_borders)
@@ -45,7 +45,7 @@ class SequencedLayers(BaseComposedLayer):
 
     def _post_init_check(self) -> None:
         if len(self.layer_sequence) < 1:
-            raise TQECException(
+            raise TQECError(
                 f"An instance of {type(self).__name__} is expected to have "
                 f"at least one layer. Found {len(self.layer_sequence)}."
             )
@@ -73,7 +73,7 @@ class SequencedLayers(BaseComposedLayer):
         scalable_shape = self._layer_sequence[0].scalable_shape
         for layer in self._layer_sequence[1:]:
             if layer.scalable_shape != scalable_shape:
-                raise TQECException("Found a different scalable shape.")
+                raise TQECError("Found a different scalable shape.")
         return scalable_shape
 
     def _layers_with_spatial_borders_trimmed(
@@ -140,7 +140,7 @@ class SequencedLayers(BaseComposedLayer):
     ) -> SequencedLayers:
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot transform the {SequencedLayers.__name__} instance to a "
                 f"{SequencedLayers.__name__} instance with the provided schedule. "
                 f"The provided schedule has a duration of {duration} but the "

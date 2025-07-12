@@ -12,7 +12,7 @@ from tqec.computation.correlation import CorrelationSurface, ZXEdge
 from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.pipe import Pipe
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 if TYPE_CHECKING:
@@ -40,7 +40,7 @@ class CubeWithArms:
 
     def __post_init__(self) -> None:
         if self.arms != SpatialArms.NONE and not self.cube.is_spatial:
-            raise TQECException(
+            raise TQECError(
                 "The `arms` attribute should be `SpatialArms.NONE` for non-spatial cubes."
             )
 
@@ -77,7 +77,7 @@ class PipeWithObservableBasis:
 
     def __post_init__(self) -> None:
         if not self.pipe.kind.has_hadamard or self.pipe.direction != Direction3D.Z:
-            raise TQECException("The ``pipe`` should be a temporal Hadamard pipe.")
+            raise TQECError("The ``pipe`` should be a temporal Hadamard pipe.")
 
 
 @dataclass(frozen=True)
@@ -205,7 +205,7 @@ def compile_correlation_surface_to_abstract_observable(
         The abstract observable corresponding to the correlation surface in the block graph.
 
     Raises:
-        TQECException: If the block graph has open ports or the block graph cannot
+        TQECError: If the block graph has open ports or the block graph cannot
             support the correlation surface.
 
     """
@@ -335,7 +335,7 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
     """Check the ZX graph can support the correlation surface."""
     # 1. Check the vertices in the correlation surface are in the graph
     if missing_vertices := (correlation_surface.span_vertices() - g.vertex_set()):
-        raise TQECException(
+        raise TQECError(
             f"The following vertices in the correlation surface are not in the graph: {missing_vertices} "
         )
     # 2. Check the edges in the correlation surface are in the graph
@@ -343,7 +343,7 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
     for edge in correlation_surface.span:
         e = (edge.u.id, edge.v.id)
         if e not in edges and (e[1], e[0]) not in edges:
-            raise TQECException(f"Edge {e} in the correlation surface is not in the graph.")
+            raise TQECError(f"Edge {e} in the correlation surface is not in the graph.")
     # 3. Check parity around each vertex
     for v in correlation_surface.span_vertices():
         if is_boundary(g, v):
@@ -354,17 +354,17 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
         # Y vertex should have Y pauli
         if is_s(g, v):
             if counts[Basis.X] != 1 or counts[Basis.Z] != 1:
-                raise TQECException(
+                raise TQECError(
                     f"Y type vertex should have Pauli Y supported on it, {v} violates the rule."
                 )
             continue
         v_basis = Basis.Z if is_z_no_phase(g, v) else Basis.X
         if counts[v_basis.flipped()] not in [0, len(edges)]:
-            raise TQECException(
+            raise TQECError(
                 f"X (Z) type vertex should have Pauli Z (X) Pauli supported on all or no edges, {v} violates the rule."
             )
         if counts[v_basis] % 2 != 0:
-            raise TQECException(
+            raise TQECError(
                 f"X (Z) type vertex should have even number of Pauli X (Z) supported"
                 f"on the edges, {v} violates the rule."
             )

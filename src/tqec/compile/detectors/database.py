@@ -24,7 +24,7 @@ from tqec.compile.detectors.detector import Detector
 from tqec.compile.generation import generate_circuit_from_instantiation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.subtemplates import SubTemplateType
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
 
 CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 0, 0)
@@ -70,7 +70,7 @@ class _DetectorDatabaseKey:
 
     def __post_init__(self) -> None:
         if len(self.subtemplates) != len(self.plaquettes_by_timestep):
-            raise TQECException(
+            raise TQECError(
                 "DetectorDatabaseKey can only store an equal number of "
                 f"subtemplates and plaquettes. Got {len(self.subtemplates)} "
                 f"subtemplates and {len(self.plaquettes_by_timestep)} plaquettes."
@@ -247,11 +247,11 @@ class DetectorDatabase:
                 top-left plaquette in the provided `subtemplates`.
 
         Raises:
-            TQECException: if this method is called and `self.frozen`.
+            TQECError: if this method is called and `self.frozen`.
 
         """
         if self.frozen:
-            raise TQECException("Cannot add a situation to a frozen database.")
+            raise TQECError("Cannot add a situation to a frozen database.")
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
         self.mapping[key] = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
 
@@ -272,11 +272,11 @@ class DetectorDatabase:
                 `self.subtemplates` and corresponding to one QEC round.
 
         Raises:
-            TQECException: if this method is called and `self.frozen`.
+            TQECError: if this method is called and `self.frozen`.
 
         """
         if self.frozen:
-            raise TQECException("Cannot remove a situation to a frozen database.")
+            raise TQECError("Cannot remove a situation to a frozen database.")
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
         del self.mapping[key]
 
@@ -430,7 +430,7 @@ class DetectorDatabase:
                 data = json.load(f)
                 database = DetectorDatabase.from_dict(data)
         if not isinstance(database, DetectorDatabase):
-            raise TQECException(
+            raise TQECError(
                 f"Found the Python type {type(database).__name__} in the "
                 f"provided file but {type(DetectorDatabase).__name__} was "
                 "expected."

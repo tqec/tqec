@@ -25,7 +25,7 @@ from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -134,7 +134,7 @@ def test_merge_repeated_layers_wrong_duration(
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     with pytest.raises(
-        TQECException,
+        TQECError,
         match=".*Cannot merge RepeatedLayer instances that have different lengths..*",
     ):
         merge_repeated_layers(

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 class CompilationPass(ABC):
@@ -41,11 +41,11 @@ class CompilationPass(ABC):
                 applying the compilation pass.
 
         Raises:
-            TQECException: if the two provided circuits are not functionally
+            TQECError: if the two provided circuits are not functionally
                 equivalent (i.e. ``modified_circuit`` does not have at least
                 one of flow of ``original_circuit``).
 
         """
         original_flows = original_circuit.get_circuit().flow_generators()
         if not modified_circuit.get_circuit().has_all_flows(original_flows):
-            raise TQECException("Modified circuit does not contain")
+            raise TQECError("Modified circuit does not contain")

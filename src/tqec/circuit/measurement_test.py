@@ -5,7 +5,7 @@ from tqec.circuit.measurement import Measurement, get_measurements_from_circuit
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
 
 _grid_qubits: list[GridQubit] = [GridQubit(0, 0), GridQubit(-1, -1)]
@@ -15,9 +15,9 @@ _grid_qubits: list[GridQubit] = [GridQubit(0, 0), GridQubit(-1, -1)]
 def test_measurement_construction(qubit: GridQubit) -> None:
     Measurement(qubit, -1)
     Measurement(qubit, -10)
-    with pytest.raises(TQECException, match="^Measurement.offset should be negative.$"):
+    with pytest.raises(TQECError, match="^Measurement.offset should be negative.$"):
         Measurement(qubit, 0)
-    with pytest.raises(TQECException, match="^Measurement.offset should be negative.$"):
+    with pytest.raises(TQECError, match="^Measurement.offset should be negative.$"):
         Measurement(qubit, 10)
 
 
@@ -34,7 +34,7 @@ def test_measurement_offset(qubit: GridQubit) -> None:
 
     assert Measurement(qubit, -1).offset_temporally_by(-12) == Measurement(qubit, -13)
 
-    with pytest.raises(TQECException, match="^Measurement.offset should be negative.$"):
+    with pytest.raises(TQECError, match="^Measurement.offset should be negative.$"):
         Measurement(qubit, -1).offset_temporally_by(1)
 
 

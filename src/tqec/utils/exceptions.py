@@ -3,7 +3,7 @@ the ``tqec`` library.
 """
 
 
-class TQECException(Exception):
+class TQECError(Exception):
     pass
 
 

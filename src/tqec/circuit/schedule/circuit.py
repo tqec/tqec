@@ -22,7 +22,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap, get_qubit_map
 from tqec.circuit.schedule.exception import ScheduleException
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import is_annotation_instruction
 
 
@@ -60,9 +60,9 @@ class ScheduledCircuit:
 
         Raises:
             ScheduleError: if the provided ``schedule`` is invalid.
-            TQECException: if the provided ``circuit`` contains at least one
+            TQECError: if the provided ``circuit`` contains at least one
                 ``stim.CircuitRepeatBlock`` instance.
-            TQECException: if the provided ``circuit`` contains at least one
+            TQECError: if the provided ``circuit`` contains at least one
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
 
         """
@@ -117,9 +117,9 @@ class ScheduledCircuit:
 
         Raises:
             ScheduleError: if the provided ``schedule`` is invalid.
-            TQECException: if the provided ``circuit`` contains at least one
+            TQECError: if the provided ``circuit`` contains at least one
                 ``stim.CircuitRepeatBlock`` instance.
-            TQECException: if the provided ``circuit`` contains at least one
+            TQECError: if the provided ``circuit`` contains at least one
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
 
         """
@@ -341,7 +341,7 @@ class ScheduledCircuit:
             provided ``schedule``, ``None`` is returned.
 
         Raises:
-            TQECException: if the provided calculated ``schedule`` is negative.
+            TQECError: if the provided calculated ``schedule`` is negative.
 
         """
         if not self._schedule:
@@ -349,7 +349,7 @@ class ScheduledCircuit:
 
         schedule = self._schedule[-1] + 1 + schedule if schedule < 0 else schedule
         if schedule < 0:
-            raise TQECException(
+            raise TQECError(
                 f"Trying to get the index of a Moment instance with a negative schedule {schedule}."
             )
         moment_index = next(
@@ -369,14 +369,12 @@ class ScheduledCircuit:
                 might not be the second to last schedule).
 
         Raises:
-            TQECException: if no moment exist at the provided ``schedule``.
+            TQECError: if no moment exist at the provided ``schedule``.
 
         """
         moment_index = self._get_moment_index_by_schedule(schedule)
         if moment_index is None:
-            raise TQECException(
-                f"No Moment instance scheduled at the provided schedule {schedule}."
-            )
+            raise TQECError(f"No Moment instance scheduled at the provided schedule {schedule}.")
         return self._moments[moment_index]
 
     def append_new_moment(self, moment: Moment) -> None:
@@ -440,11 +438,11 @@ class ScheduledCircuit:
                 ``self``.
 
         Raises:
-            TQECException: if the provided instruction is not an annotation.
+            TQECError: if the provided instruction is not an annotation.
 
         """
         if not is_annotation_instruction(instruction):
-            raise TQECException(
+            raise TQECError(
                 "The provided instruction is not an annotation, which is disallowed by the append_annotation method."
             )
         self._moments[-1].append_annotation(instruction)

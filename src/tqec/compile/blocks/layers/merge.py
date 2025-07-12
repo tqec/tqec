@@ -9,7 +9,7 @@ from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import LayoutPosition2D
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import PhysicalQubitScalable2D, round_or_fail
 
 # Note on the few functions below:
@@ -80,7 +80,7 @@ def merge_composed_layers(
     # First, check that all the provided layers have the same scalable timesteps.
     different_timesteps = frozenset(layer.scalable_timesteps for layer in layers.values())
     if len(different_timesteps) > 1:
-        raise TQECException(
+        raise TQECError(
             "Cannot merged BaseComposedLayer instances that have different lengths. "
             f"Found the following different lengths: {different_timesteps}."
         )
@@ -114,7 +114,7 @@ def merge_repeated_layers(
             valid across the whole domain.
 
     Raises:
-        TQECException: if the provided repeated layers do not all have the same
+        TQECError: if the provided repeated layers do not all have the same
             temporal footprint.
         NotImplementedError: if any of the provided repeated layers have an
             internal layer (i.e., the layer that is being repeated) with a
@@ -128,7 +128,7 @@ def merge_repeated_layers(
     # First, check that all the provided layers have the same scalable timesteps.
     different_timesteps = frozenset(layer.scalable_timesteps for layer in layers.values())
     if len(different_timesteps) > 1:
-        raise TQECException(
+        raise TQECError(
             "Cannot merge RepeatedLayer instances that have different lengths. "
             f"Found the following different lengths: {different_timesteps}."
         )
@@ -266,23 +266,23 @@ def merge_repeated_and_sequenced_layers(
     """Merge composed layers with both RepeatedLayer and SequencedLayers instances.
 
     Raises:
-        TQECException: if there is no layer of type SequencedLayers.
-        TQECException: if there is no layer of type RepeatedLayer.
-        TQECException: if the provided layers have different durations.
+        TQECError: if there is no layer of type SequencedLayers.
+        TQECError: if there is no layer of type RepeatedLayer.
+        TQECError: if the provided layers have different durations.
         NotImplementedError: if the ScheduledLayers instances in ``layers`` have
             different schedules.
 
     """
     layer_types = frozenset(type(layer) for layer in layers.values())
     if layer_types != frozenset((RepeatedLayer, SequencedLayers)):
-        raise TQECException(
+        raise TQECError(
             "Wrong layer types: expecting at least one layer for each of the "
             f"expected types ({RepeatedLayer.__name__} and {SequencedLayers.__name__}) "
             "but got the following types: " + ",".join(t.__name__ for t in layer_types)
         )
     different_timesteps = frozenset(layer.scalable_timesteps for layer in layers.values())
     if len(different_timesteps) > 1:
-        raise TQECException(
+        raise TQECError(
             f"Cannot merge {RepeatedLayer.__name__} and {SequencedLayers.__name__} "
             "instances that have different durations. Found the following "
             f"different durations: {different_timesteps}."

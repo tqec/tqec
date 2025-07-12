@@ -14,7 +14,7 @@ from tqec.compile.detectors.detector import Detector
 from tqec.compile.observables.builder import Observable
 from tqec.plaquette.rpng.rpng import PauliBasis
 from tqec.utils.coordinates import StimCoordinates
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 @dataclass(frozen=True)
@@ -28,7 +28,7 @@ class DetectorAnnotation:
 
     def __post_init__(self) -> None:
         if any(m >= 0 for m in self.measurement_offsets):
-            raise TQECException("Expected strictly negative measurement offsets.")
+            raise TQECError("Expected strictly negative measurement offsets.")
 
     def to_instruction(self) -> stim.CircuitInstruction:
         """Return the ``DETECTOR`` instruction represented by ``self``."""

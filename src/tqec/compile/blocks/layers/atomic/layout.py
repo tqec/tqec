@@ -19,7 +19,7 @@ from tqec.compile.generation import generate_circuit
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.enums import TemplateBorder
 from tqec.templates.layout import LayoutTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition2D, Direction3D, Shift2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -51,8 +51,8 @@ class LayoutLayer(BaseLayer):
                 in the provided ``layers``.
 
         Raises:
-            TQECException: if ``layers`` is empty.
-            TQECException: if ``trimmed_spatial_borders`` is not empty.
+            TQECError: if ``layers`` is empty.
+            TQECError: if ``trimmed_spatial_borders`` is not empty.
 
         """
         super().__init__(frozenset())
@@ -62,11 +62,9 @@ class LayoutLayer(BaseLayer):
 
     def _post_init_check(self) -> None:
         if not self.layers:
-            raise TQECException(
-                f"An instance of {type(self).__name__} should have at least one layer."
-            )
+            raise TQECError(f"An instance of {type(self).__name__} should have at least one layer.")
         if self.trimmed_spatial_borders:
-            raise TQECException(f"{LayoutLayer.__name__} cannot have trimmed spatial borders.")
+            raise TQECError(f"{LayoutLayer.__name__} cannot have trimmed spatial borders.")
 
     @property
     def layers(self) -> dict[LayoutPosition2D, BaseLayer]:
@@ -113,7 +111,7 @@ class LayoutLayer(BaseLayer):
 
     @override
     def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> LayoutLayer:
-        raise TQECException(f"Cannot trim spatial borders of a {type(self).__name__} instance.")
+        raise TQECError(f"Cannot trim spatial borders of a {type(self).__name__} instance.")
 
     def __eq__(self, value: object) -> bool:
         return (
@@ -167,7 +165,7 @@ class LayoutLayer(BaseLayer):
                 case Direction3D.Y:
                     u_border, v_border = TemplateBorder.BOTTOM, TemplateBorder.TOP
                 case Direction3D.Z:
-                    raise TQECException("Should not happen. This is a logical error.")
+                    raise TQECError("Should not happen. This is a logical error.")
 
             # Updating plaquettes in plaquettes_dict
             for pos, (cube_border, pipe_border) in [

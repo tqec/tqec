@@ -18,7 +18,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube
 from tqec.templates.base import RectangularTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition3D, Direction3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -35,10 +35,10 @@ def _get_template_from_layer(
     This helper function try its best to recover the template a given layer uses.
 
     Raises:
-        TQECException: if an instance of :class:`.BaseLayer` is something else than an instance of
+        TQECError: if an instance of :class:`.BaseLayer` is something else than an instance of
             :class:`.PlaquetteLayer`, because :class:`.PlaquetteLayer` is the only class from which
             we can recover a template instance.
-        TQECException: if an instance of :class:`.SequencedLayers` contains sub-layers with
+        TQECError: if an instance of :class:`.SequencedLayers` contains sub-layers with
             different templates.
         NotImplementedError: if an unknown layer is found.
 
@@ -48,7 +48,7 @@ def _get_template_from_layer(
     """
     if isinstance(root, BaseLayer):
         if not isinstance(root, PlaquetteLayer):
-            raise TQECException(
+            raise TQECError(
                 f"Trying to get the Template from a {type(root).__name__} "
                 "instance that does not have any Template."
             )
@@ -56,7 +56,7 @@ def _get_template_from_layer(
     elif isinstance(root, SequencedLayers):
         possible_templates = {_get_template_from_layer(layer) for layer in root.layer_sequence}
         if len(possible_templates) > 1:
-            raise TQECException(
+            raise TQECError(
                 "Multiple possible Template found:\n  -"
                 + "\n  -".join(type(t).__name__ for t in possible_templates)
                 + "\nWhich is not supported at the moment."
@@ -93,7 +93,7 @@ def compile_block_graph(
     """
     # All the ports should be filled before compiling the block graph.
     if block_graph.num_ports != 0:
-        raise TQECException(
+        raise TQECError(
             "Can not compile a block graph with open ports into circuits. "
             "You might want to call `fill_ports` or `fill_ports_for_minimal_simulation` "
             "on the block graph before compiling it."

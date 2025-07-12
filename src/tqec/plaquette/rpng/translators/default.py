@@ -11,7 +11,7 @@ from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
 from tqec.plaquette.rpng import ExtendedBasis, PauliBasis, RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import (
     MEASUREMENT_INSTRUCTION_NAMES,
     RESET_INSTRUCTION_NAMES,
@@ -64,11 +64,11 @@ class DefaultRPNGTranslator(RPNGTranslator):
 
         data_qubit_indices = list(qubits.data_qubits_indices)
         if len(data_qubit_indices) != 4:
-            raise TQECException("Expected 4 data-qubits, got", len(data_qubit_indices))
+            raise TQECError("Expected 4 data-qubits, got", len(data_qubit_indices))
         used_data_qubit_indices: set[int] = set()
         syndrome_qubit_indices = list(qubits.syndrome_qubits_indices)
         if len(syndrome_qubit_indices) != 1:
-            raise TQECException("Expected 1 syndrome qubit, got", len(syndrome_qubit_indices))
+            raise TQECError("Expected 1 syndrome qubit, got", len(syndrome_qubit_indices))
         syndrome_qubit_index = syndrome_qubit_indices[0]
 
         # Handling syndrome qubit reset/measurement

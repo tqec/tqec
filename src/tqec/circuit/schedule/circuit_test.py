@@ -5,7 +5,7 @@ from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import Schedule, ScheduledCircuit, ScheduleException
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 _VALID_SCHEDULED_CIRCUITS = [
     stim.Circuit(""),
@@ -168,9 +168,9 @@ def test_scheduled_circuit_moment_at_schedule() -> None:
     assert circuit.moment_at_schedule(1).circuit == stim.Circuit("H 2 1 0")
     assert circuit.moment_at_schedule(-1).circuit == stim.Circuit("H 2 1 0")
     assert circuit.moment_at_schedule(-2).circuit == stim.Circuit("H 0 1 2")
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         circuit.moment_at_schedule(2)
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         circuit.moment_at_schedule(-3)
 
 
@@ -204,7 +204,7 @@ def test_scheduled_circuit_append_annotation() -> None:
     circuit.append_annotation(stim.CircuitInstruction("DETECTOR", [stim.target_rec(-1)], [0, 0]))
     circuit.append_observable(0, [stim.target_rec(-1)])
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^The provided instruction is not an annotation, which is disallowed by the append_annotation method.$",
     ):
         circuit.append_annotation(stim.CircuitInstruction("H", [0, 1], []))

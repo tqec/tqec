@@ -9,7 +9,7 @@ from tqec.computation.pipe import PipeKind
 from tqec.gallery import cnot, memory
 from tqec.interop.collada.read_write_test import rotated_cnot
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 
@@ -28,7 +28,7 @@ def test_block_graph_add_cube() -> None:
     assert g[v].kind == ZXCube.from_str("ZXZ")
     assert v in g
 
-    with pytest.raises(TQECException, match="Cube already exists at position .*"):
+    with pytest.raises(TQECError, match="Cube already exists at position .*"):
         g.add_cube(Position3D(0, 0, 0), "XZX")
 
     v = g.add_cube(Position3D(1, 0, 0), "PORT", "P")
@@ -37,13 +37,13 @@ def test_block_graph_add_cube() -> None:
     assert g.spacetime_volume == 1
     assert g[v].is_port
 
-    with pytest.raises(TQECException, match=".* port with the same label .*"):
+    with pytest.raises(TQECError, match=".* port with the same label .*"):
         g.add_cube(Position3D(10, 0, 0), "P", "P")
 
 
 def test_block_graph_add_pipe() -> None:
     g = BlockGraph()
-    with pytest.raises(TQECException, match="No cube at position .*"):
+    with pytest.raises(TQECError, match="No cube at position .*"):
         g.add_pipe(
             Position3D(0, 0, 0),
             Position3D(1, 0, 0),
@@ -58,14 +58,14 @@ def test_block_graph_add_pipe() -> None:
     assert g.get_degree(u) == 1
     assert len(g.pipes_at(u)) == 1
 
-    with pytest.raises(TQECException, match=".* already a pipe between .*"):
+    with pytest.raises(TQECError, match=".* already a pipe between .*"):
         g.add_pipe(
             Position3D(0, 0, 0),
             Position3D(0, 0, 1),
         )
 
     g.add_cube(Position3D(1, 0, 0), "ZXZ")
-    with pytest.raises(TQECException, match=r"No pipe between .*"):
+    with pytest.raises(TQECError, match=r"No pipe between .*"):
         g.get_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
 
 
@@ -97,18 +97,18 @@ def test_block_graph_validate_y_cube() -> None:
     u = g.add_cube(Position3D(0, 0, 0), "ZXZ")
     v = g.add_cube(Position3D(1, 0, 0), "Y")
     g.add_pipe(u, v)
-    with pytest.raises(TQECException, match="has non-timelike pipes connected"):
+    with pytest.raises(TQECError, match="has non-timelike pipes connected"):
         g.validate()
 
     g = BlockGraph()
     n1 = g.add_cube(Position3D(0, 0, 1), "Y")
-    with pytest.raises(TQECException, match="does not have exactly one pipe connected"):
+    with pytest.raises(TQECError, match="does not have exactly one pipe connected"):
         g.validate()
     n2 = g.add_cube(Position3D(0, 0, 0), "ZXZ")
     n3 = g.add_cube(Position3D(0, 0, 2), "ZXZ")
     g.add_pipe(n1, n2)
     g.add_pipe(n1, n3)
-    with pytest.raises(TQECException, match="does not have exactly one pipe connected"):
+    with pytest.raises(TQECError, match="does not have exactly one pipe connected"):
         g.validate()
 
 
@@ -122,7 +122,7 @@ def test_block_graph_validate_3d_corner() -> None:
     g.add_pipe(n2, n3)
     g.add_pipe(n2, n4, "XOZ")
 
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         g.validate()
 
 
@@ -222,7 +222,7 @@ def test_graph_rotation() -> None:
 
     g = BlockGraph()
     g.add_cube(Position3D(0, 0, 0), "Y")
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         g.rotate(Direction3D.X)
     rg = g.rotate(Direction3D.Z)
     assert Position3D(-1, 0, 0) in rg

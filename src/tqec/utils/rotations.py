@@ -37,7 +37,7 @@ import numpy.typing as npt
 from scipy.spatial.transform import Rotation
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
 
@@ -130,7 +130,7 @@ def rotate_block_kind_by_matrix(
 
     # Reject state cultivation blocks if rotated_name not ends in "!" or axes_directions["Z"] is negative
     if "!" in rotated_name and (not rotated_name.endswith("!") or axes_directions["Z"] < 0):
-        raise TQECException(
+        raise TQECError(
             f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} block.",
             "Cultivation and Y blocks should only allow rotation around Z axis.",
         )
@@ -187,7 +187,7 @@ def rotate_position_by_matrix(
         The rotated position.
 
     Raises:
-        TQECException: if the rotated position is not integer.
+        TQECError: if the rotated position is not integer.
 
     """
     rotation = Rotation.from_matrix(rotation_matrix)
@@ -213,7 +213,7 @@ def rotate_on_import(
         kind: kind of the original block that was rotated / requires rotation.
 
     Raises:
-        TQECException: if an invalid rotation is provided.
+        TQECError: if an invalid rotation is provided.
 
     Returns:
         A tuple containing two entries:
@@ -233,7 +233,7 @@ def rotate_on_import(
         # (A single 90-deg rotation would put the rotated vector on the plane made by the other two axes)
         or sum([angle for angle in rotation_angles]) < 180
     ):
-        raise TQECException(
+        raise TQECError(
             f"There is an invalid rotation for {kind} block at position {FloatPosition3D(*translation_matrix)}."
         )
 
