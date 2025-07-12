@@ -35,7 +35,8 @@ def test_measurement_records_map_creation() -> None:
     q2 = GridQubit(1, 1)
     with pytest.raises(
         TQECError,
-        match="^At least one measurement record offset has been found twice in the provided offsets.$",
+        match="^At least one measurement record offset has been found "
+        "twice in the provided offsets.$",
     ):
         MeasurementRecordsMap({q: [-1], q2: [-1]})
 

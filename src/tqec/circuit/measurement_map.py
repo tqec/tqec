@@ -68,7 +68,8 @@ class MeasurementRecordsMap:
         deduplicated_indices = numpy.unique(all_measurement_records_indices)
         if len(deduplicated_indices) != len(all_measurement_records_indices):
             raise TQECError(
-                "At least one measurement record offset has been found twice in the provided offsets."
+                "At least one measurement record offset has been found "
+                "twice in the provided offsets."
             )
 
     @staticmethod

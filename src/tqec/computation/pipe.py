@@ -164,7 +164,8 @@ class Pipe:
 
     Attributes:
         u: The cube at the head of the pipe. The position of u will be guaranteed to be less than v.
-        v: The cube at the tail of the pipe. The position of v will be guaranteed to be greater than u.
+        v: The cube at the tail of the pipe. The position of v will be guaranteed to be greater
+            than u.
         kind: The kind of the pipe.
 
     """

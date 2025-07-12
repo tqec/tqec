@@ -137,7 +137,9 @@ class LayerNode:
         return self._annotations.setdefault(k, LayerNodeAnnotations())
 
     def set_circuit_annotation(self, k: int, circuit: ScheduledCircuit) -> None:
-        """Set the circuit annotation associated with the provided scaling parameter ``k`` to ``circuit``."""
+        """Set the circuit annotation associated with the provided scaling parameter ``k`` to
+        ``circuit``.
+        """
         self.get_annotations(k).circuit = circuit
 
     def generate_circuits_with_potential_polygons(

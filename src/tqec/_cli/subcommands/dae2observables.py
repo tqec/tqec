@@ -34,7 +34,8 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
         )
         parser.add_argument(
             "--out-dir",
-            help="An optional argument providing the directory in which to export images representing the observables found.",
+            help="An optional argument providing the directory in which to "
+            "export images representing the observables found.",
             type=Path,
         )
         parser.set_defaults(func=Dae2ObservablesTQECSubCommand.execute)

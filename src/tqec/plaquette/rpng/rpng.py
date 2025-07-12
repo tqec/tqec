@@ -118,7 +118,11 @@ class RPNG:
         return str(self) == "----"
 
     def __str__(self) -> str:
-        return f"{'-' if self.r is None else self.r.value}{'-' if self.p is None else self.p.value}{'-' if self.n is None else self.n}{'-' if self.g is None else self.g.value}"
+        r = "-" if self.r is None else self.r.value
+        p = "-" if self.p is None else self.p.value
+        n = "-" if self.n is None else self.n
+        g = "-" if self.g is None else self.g.value
+        return f"{r}{p}{n}{g}"
 
 
 @dataclass(frozen=True)

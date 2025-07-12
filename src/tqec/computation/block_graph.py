@@ -406,7 +406,8 @@ class BlockGraph:
         """Convert the block graph to a positioned PyZX graph.
 
         Returns:
-            A :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` object converted from the block graph.
+            A :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` object
+            converted from the block graph.
 
         """
         from tqec.interop.pyzx.positioned import PositionedZX
@@ -426,8 +427,10 @@ class BlockGraph:
             file_path: The output file path.
             pipe_length: The length of the pipes. Default is 2.0.
             pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
-                This is useful for visualizing the internal structure of the blocks. Default is None.
-            show_correlation_surface: The correlation surface to show in the block graph. Default is None.
+                This is useful for visualizing the internal structure of the blocks.
+                Default is None.
+            show_correlation_surface: The correlation surface to show in the block graph.
+                Default is None.
 
         """
         from tqec.interop.collada.read_write import write_block_graph_to_dae_file
@@ -449,7 +452,8 @@ class BlockGraph:
             graph_name: The name of the block graph. Default is an empty string.
 
         Returns:
-            The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.
+            The :py:class:`~tqec.computation.block_graph.BlockGraph` object
+            constructed from the DAE file.
 
         """
         from tqec.interop.collada.read_write import read_block_graph_from_dae_file
@@ -472,8 +476,10 @@ class BlockGraph:
                 if provided. Default is None.
             pipe_length: The length of the pipes. Default is 2.0.
             pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
-                This is useful for visualizing the internal structure of the blocks. Default is None.
-            show_correlation_surface: The correlation surface to show in the block graph. Default is None.
+                This is useful for visualizing the internal structure of the blocks.
+                Default is None.
+            show_correlation_surface: The correlation surface to show in the block graph.
+                Default is None.
 
         Returns:
             A helper class to display the 3D model, which implements the ``_repr_html_`` method and
@@ -649,7 +655,8 @@ class BlockGraph:
                 b2 = pipe2.kind.get_basis_along(d, pipe2.at_head(port))
                 if b1 is not None and b2 is not None and b1 != b2:
                     raise TQECError(
-                        f"Port at {port} cannot be filled with a cube that has valid boundary conditions."
+                        f"Port at {port} cannot be filled with a cube that has "
+                        "valid boundary conditions."
                     )
                 # choose Z basis boundary for the walls that can have arbitrary boundary
                 bases.append(b1 or b2 or Basis.Z)
@@ -883,7 +890,8 @@ class BlockGraph:
             graph_name: The name of the block graph. Default is an empty string.
 
         Returns:
-            The :py:class:`~tqec.computation.block_graph.BlockGraph` object constructed from the DAE file.
+            The :py:class:`~tqec.computation.block_graph.BlockGraph` object
+            constructed from the DAE file.
 
         """
         from tqec.interop.collada.read_write import read_block_graph_from_json
@@ -934,7 +942,8 @@ class BlockGraph:
                 assigned_new_labels.add(new_label)
             elif new_label in port_labels:
                 raise TQECError(
-                    f"The label '{new_label}' belongs to a port and cannot be reused by a non-port cube."
+                    f"The label '{new_label}' belongs to a port and "
+                    "cannot be reused by a non-port cube."
                 )
 
             for cube in matching_cubes:

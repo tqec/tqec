@@ -135,7 +135,8 @@ class VisualisationTQECSubCommand(TQECSubCommand):
             type=int,
             default=5,
             help=(
-                "Number of TICKS per seconds in the returned animation. Only has effect when '--anim' is provided."
+                "Number of TICKS per seconds in the returned animation. Only "
+                "has effect when '--anim' is provided."
             ),
         )
         parser.set_defaults(func=VisualisationTQECSubCommand.execute)

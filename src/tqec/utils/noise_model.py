@@ -210,7 +210,8 @@ class NoiseModel:
         As defined in "A Fault-Tolerant Honeycomb Memory":
         https://arxiv.org/abs/2108.10457
 
-        Small tweak from the paper: The measurement result is probabilistically flipped instead of the input qubit.
+        Small tweak from the paper: The measurement result is probabilistically flipped instead of
+        the input qubit.
         """
         return NoiseModel(
             idle_depolarization=p / 10,
@@ -373,7 +374,8 @@ class NoiseModel:
 
         Args:
             circuit: The circuit to layer noise over.
-            system_qubits: All qubits used by the circuit. These are the qubits eligible for idling noise.
+            system_qubits: All qubits used by the circuit. These are the qubits eligible for idling
+                noise.
             immune_qubits: Qubits to not apply noise to, even if they are operated on.
 
         Returns:
@@ -506,13 +508,14 @@ def _iter_split_op_moments(
 ) -> Iterator[stim.CircuitRepeatBlock | list[stim.CircuitInstruction]]:
     """Splits a circuit into moments and some operations into pieces.
 
-    Classical control system operations like CX rec[-1] 0 are split from quantum operations like CX 1 0.
+    Classical control system operations like ``CX rec[-1] 0`` are split from quantum operations
+    like ``CX 1 0``.
 
     MPP operations are split into one operation per Pauli product.
 
     Yields:
-        Lists of operations corresponding to one moment in the circuit, with any problematic operations
-        like MPPs split into pieces.
+        Lists of operations corresponding to one moment in the circuit, with any problematic
+        operations like MPPs split into pieces.
 
         (A moment is the time between two TICKs.)
 

@@ -175,10 +175,11 @@ class LayoutLayer(BaseLayer):
                 plaquette_indices_mapping = pipe_layer.template.get_border_indices(pipe_border).to(
                     template_dict[pos].get_border_indices(cube_border)
                 )
+                pipe_plaquette_collection = pipe_layer.plaquettes.collection
                 plaquettes_dict[pos] = plaquettes_dict[pos].with_updated_plaquettes(
                     {
                         plaquette_indices_mapping[pipe_plaquette_index]: plaquette
-                        for pipe_plaquette_index, plaquette in pipe_layer.plaquettes.collection.items()
+                        for pipe_plaquette_index, plaquette in pipe_plaquette_collection.items()
                         # Filtering only plaquette indices that are on the side we are
                         # interested in.
                         if pipe_plaquette_index in plaquette_indices_mapping

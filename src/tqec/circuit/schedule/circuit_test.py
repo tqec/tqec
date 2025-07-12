@@ -205,7 +205,8 @@ def test_scheduled_circuit_append_annotation() -> None:
     circuit.append_observable(0, [stim.target_rec(-1)])
     with pytest.raises(
         TQECError,
-        match="^The provided instruction is not an annotation, which is disallowed by the append_annotation method.$",
+        match="^The provided instruction is not an annotation, which is "
+        "disallowed by the append_annotation method.$",
     ):
         circuit.append_annotation(stim.CircuitInstruction("H", [0, 1], []))
 

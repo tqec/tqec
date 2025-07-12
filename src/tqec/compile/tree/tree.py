@@ -329,7 +329,8 @@ class LayerTree:
                     warnings.warn(
                         f"The default detector database that you have saved on your system is out "
                         f"of date (version {loaded_version}). The version in the TQEC code you are "
-                        f"running is newer (version {current_version}). The database will be regenerated.",
+                        f"running is newer (version {current_version}). The database will be "
+                        "regenerated.",
                         TQECWarning,
                     )
                     detector_database = DetectorDatabase()
@@ -407,9 +408,9 @@ class LayerTree:
         # Note: if the top-left and bottom-right qubits are not None, we just computed them from
         # the resulting circuit. We want to stick to the regular plaquette grid, and that might not
         # be the case here because boundary plaquettes might not use the extremal data-qubits.
-        # As data-qubits are located on odd coordinates, we just ensure that the boundary coordinates
-        # are odd, flooring or ceiling to the closest odd coordinates depending on the boundary to
-        # make sure we extended the viewport (and not reduce it).
+        # As data-qubits are located on odd coordinates, we just ensure that the boundary
+        # coordinates are odd, flooring or ceiling to the closest odd coordinates depending on the
+        # boundary to make sure we extended the viewport (and not reduce it).
         if tl is not None:
             tl = GridQubit(tl.x - 1 if tl.x % 2 == 0 else tl.x, tl.y - 1 if tl.y % 2 == 0 else tl.y)
         if br is not None:

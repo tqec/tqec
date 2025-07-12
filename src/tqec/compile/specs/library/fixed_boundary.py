@@ -40,8 +40,8 @@ def _get_block(
     ``plaquettes_generator``.
 
     This helper function handles all the complexity linked to generating a :class:`.Block` instance
-    for the fixed boundary convention, especially when a spatial junction needs to be implemented with
-    alternating plaquettes where it handles the alternation correctly even in REPEAT blocks.
+    for the fixed boundary convention, especially when a spatial junction needs to be implemented
+    with alternating plaquettes where it handles the alternation correctly even in REPEAT blocks.
 
     Raises:
         TQECError: if ``repetitions.slope`` is not even. This function requires an even

@@ -336,7 +336,8 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
     # 1. Check the vertices in the correlation surface are in the graph
     if missing_vertices := (correlation_surface.span_vertices() - g.vertex_set()):
         raise TQECError(
-            f"The following vertices in the correlation surface are not in the graph: {missing_vertices} "
+            "The following vertices in the correlation surface are "
+            f"not in the graph: {missing_vertices} "
         )
     # 2. Check the edges in the correlation surface are in the graph
     edges = g.edge_set()  # type: ignore
@@ -361,7 +362,8 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
         v_basis = Basis.Z if is_z_no_phase(g, v) else Basis.X
         if counts[v_basis.flipped()] not in [0, len(edges)]:
             raise TQECError(
-                f"X (Z) type vertex should have Pauli Z (X) Pauli supported on all or no edges, {v} violates the rule."
+                "X (Z) type vertex should have Pauli Z (X) Pauli supported on "
+                f"all or no edges, {v} violates the rule."
             )
         if counts[v_basis] % 2 != 0:
             raise TQECError(

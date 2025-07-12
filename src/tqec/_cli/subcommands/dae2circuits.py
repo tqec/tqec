@@ -22,7 +22,8 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
         parser: argparse.ArgumentParser = main_parser.add_parser(
             "dae2circuits",
             description=(
-                "Convert a .dae file representing a logical computation into concrete stim circuits."
+                "Convert a .dae file representing a logical computation "
+                "into concrete stim circuits."
             ),
         )
         parser.add_argument(
@@ -84,7 +85,8 @@ class Dae2CircuitsTQECSubCommand(TQECSubCommand):
             obs_indices = list(range(len(correlation_surfaces)))
         if max(obs_indices) >= len(correlation_surfaces):
             raise ValueError(
-                f"Found {len(correlation_surfaces)} observables, but requested indices up to {max(obs_indices)}."
+                f"Found {len(correlation_surfaces)} observables, but requested "
+                f"indices up to {max(obs_indices)}."
             )
 
         save_correlation_surfaces_to(
