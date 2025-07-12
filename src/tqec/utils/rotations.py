@@ -34,7 +34,7 @@ name equivalences can be calculated algebraically using the transformation matri
 
 import numpy as np
 import numpy.typing as npt
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
 from tqec.utils.exceptions import TQECException
@@ -166,7 +166,7 @@ def get_rotation_matrix(
     """
     rot_vec = np.array([0, 0, 0])
     rot_vec[rotation_axis.value] = 1 if counterclockwise else -1
-    return np.array(R.from_rotvec(rot_vec * angle).as_matrix(), dtype=np.float32)
+    return np.array(Rotation.from_rotvec(rot_vec * angle).as_matrix(), dtype=np.float32)
 
 
 def rotate_position_by_matrix(
@@ -190,7 +190,7 @@ def rotate_position_by_matrix(
         TQECException: if the rotated position is not integer.
 
     """
-    rotation = R.from_matrix(rotation_matrix)
+    rotation = Rotation.from_matrix(rotation_matrix)
     center_pos = [i + 0.5 for i in position.as_tuple()]
     rotated_center = rotation.apply(center_pos)
     rotated_corner = [round_or_fail(float(i) - 0.5) for i in rotated_center]
