@@ -68,9 +68,7 @@ def make_fixed_bulk_realignment_plaquette(
         scheduled_circuit,
         mergeable_instructions=frozenset({"H"}),
         debug_information=PlaquetteDebugInformation(
-            draw_polygons=(
-                DrawPolygon(debug_basis) if debug_basis is not None else None
-            )
+            draw_polygons=(DrawPolygon(debug_basis) if debug_basis is not None else None)
         ),
     )
 
@@ -227,19 +225,18 @@ class FixedBulkConventionGenerator:
             ``RIGHT``).
 
         """
-        PO = PlaquetteOrientation
         return {
             Basis.X: {
-                PO.DOWN: RPNGDescription.from_string("-x1- -x2- ---- ----"),
-                PO.LEFT: RPNGDescription.from_string("---- -x2- ---- -x5-"),
-                PO.UP: RPNGDescription.from_string("---- ---- -x3- -x5-"),
-                PO.RIGHT: RPNGDescription.from_string("-x1- ---- -x3- ----"),
+                PlaquetteOrientation.DOWN: RPNGDescription.from_string("-x1- -x2- ---- ----"),
+                PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -x2- ---- -x5-"),
+                PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -x3- -x5-"),
+                PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-x1- ---- -x3- ----"),
             },
             Basis.Z: {
-                PO.DOWN: RPNGDescription.from_string("-z1- -z2- ---- ----"),
-                PO.LEFT: RPNGDescription.from_string("---- -z2- ---- -z5-"),
-                PO.UP: RPNGDescription.from_string("---- ---- -z3- -z5-"),
-                PO.RIGHT: RPNGDescription.from_string("-z1- ---- -z3- ----"),
+                PlaquetteOrientation.DOWN: RPNGDescription.from_string("-z1- -z2- ---- ----"),
+                PlaquetteOrientation.LEFT: RPNGDescription.from_string("---- -z2- ---- -z5-"),
+                PlaquetteOrientation.UP: RPNGDescription.from_string("---- ---- -z3- -z5-"),
+                PlaquetteOrientation.RIGHT: RPNGDescription.from_string("-z1- ---- -z3- ----"),
             },
         }
 
@@ -291,28 +288,27 @@ class FixedBulkConventionGenerator:
 
         """
         # Border plaquette indices
-        UP, DOWN, LEFT, RIGHT = (
+        up, down, left, right = (
             (6, 13, 7, 12) if z_orientation == Orientation.VERTICAL else (5, 14, 8, 11)
         )
         # Basis for top/bottom and left/right boundary plaquettes
-        HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
-        VBASIS = HBASIS.flipped()
+        hbasis = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+        vbasis = hbasis.flipped()
         # Hook errors orientations
-        ZHOOK = z_orientation.flip()
-        XHOOK = ZHOOK.flip()
-        # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(reset, measurement)
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        zhook = z_orientation.flip()
+        xhook = zhook.flip()
+        # Get plaquette descriptions we will need later
+        bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement)
+        two_body_descriptions = self.get_2_body_rpng_descriptions()
         return FrozenDefaultDict(
             {
-                UP: TBPs[VBASIS][PlaquetteOrientation.UP],
-                LEFT: TBPs[HBASIS][PlaquetteOrientation.LEFT],
+                up: two_body_descriptions[vbasis][PlaquetteOrientation.UP],
+                left: two_body_descriptions[hbasis][PlaquetteOrientation.LEFT],
                 # Bulk
-                9: BPs[Basis.Z][ZHOOK],
-                10: BPs[Basis.X][XHOOK],
-                RIGHT: TBPs[HBASIS][PlaquetteOrientation.RIGHT],
-                DOWN: TBPs[VBASIS][PlaquetteOrientation.DOWN],
+                9: bulk_descriptions[Basis.Z][zhook],
+                10: bulk_descriptions[Basis.X][xhook],
+                right: two_body_descriptions[hbasis][PlaquetteOrientation.RIGHT],
+                down: two_body_descriptions[vbasis][PlaquetteOrientation.DOWN],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -408,28 +404,27 @@ class FixedBulkConventionGenerator:
 
         """
         # Border plaquette indices
-        UP, DOWN = (2, 3) if z_orientation == Orientation.VERTICAL else (1, 4)
+        up, down = (2, 3) if z_orientation == Orientation.VERTICAL else (1, 4)
         # Basis for top/bottom boundary plaquettes
-        VBASIS = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
+        vbasis = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
         # Hook errors orientations
-        ZHOOK = z_orientation.flip()
-        XHOOK = ZHOOK.flip()
-        # BPs: Bulk Plaquettes.
-        BPs_LEFT = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
-        BPs_RIGHT = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        zhook = z_orientation.flip()
+        xhook = zhook.flip()
+        # Generating the plaquette descriptions we will need later
+        left_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
+        right_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
+        two_body_descriptions = self.get_2_body_rpng_descriptions()
 
         return FrozenDefaultDict(
             {
-                UP: TBPs[VBASIS][PlaquetteOrientation.UP],
-                DOWN: TBPs[VBASIS][PlaquetteOrientation.DOWN],
+                up: two_body_descriptions[vbasis][PlaquetteOrientation.UP],
+                down: two_body_descriptions[vbasis][PlaquetteOrientation.DOWN],
                 # LEFT bulk
-                5: BPs_LEFT[Basis.Z][ZHOOK],
-                6: BPs_LEFT[Basis.X][XHOOK],
+                5: left_bulk_descriptions[Basis.Z][zhook],
+                6: left_bulk_descriptions[Basis.X][xhook],
                 # RIGHT bulk
-                7: BPs_RIGHT[Basis.X][XHOOK],
-                8: BPs_RIGHT[Basis.Z][ZHOOK],
+                7: right_bulk_descriptions[Basis.X][xhook],
+                8: right_bulk_descriptions[Basis.Z][zhook],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -533,28 +528,27 @@ class FixedBulkConventionGenerator:
 
         """
         # Border plaquette indices
-        LEFT, RIGHT = (1, 4) if z_orientation == Orientation.VERTICAL else (3, 2)
+        left, right = (1, 4) if z_orientation == Orientation.VERTICAL else (3, 2)
         # Basis for left/right boundary plaquettes
-        HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+        hbasis = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
         # Hook errors orientations
-        ZHOOK = z_orientation.flip()
-        XHOOK = ZHOOK.flip()
-        # BPs: Bulk Plaquettes.
-        BPs_UP = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
-        BPs_DOWN = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        zhook = z_orientation.flip()
+        xhook = zhook.flip()
+        # Generating the plaquette descriptions we will need later
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
+        two_body_descriptions = self.get_2_body_rpng_descriptions()
 
         return FrozenDefaultDict(
             {
-                LEFT: TBPs[HBASIS][PlaquetteOrientation.LEFT],
-                RIGHT: TBPs[HBASIS][PlaquetteOrientation.RIGHT],
+                left: two_body_descriptions[hbasis][PlaquetteOrientation.LEFT],
+                right: two_body_descriptions[hbasis][PlaquetteOrientation.RIGHT],
                 # TOP bulk
-                5: BPs_UP[Basis.Z][ZHOOK],
-                6: BPs_UP[Basis.X][XHOOK],
+                5: up_bulk_descriptions[Basis.Z][zhook],
+                6: up_bulk_descriptions[Basis.X][xhook],
                 # BOTTOM bulk
-                7: BPs_DOWN[Basis.X][XHOOK],
-                8: BPs_DOWN[Basis.Z][ZHOOK],
+                7: down_bulk_descriptions[Basis.X][xhook],
+                8: down_bulk_descriptions[Basis.Z][zhook],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -694,11 +688,10 @@ class FixedBulkConventionGenerator:
             )
         # Get parity information in a more convenient format.
         boundary_is_z = spatial_boundary_basis == Basis.Z
-        # Pre-define some collection of plaquettes
-        # CSs: Corner Stabilizers (3-body stabilizers).
-        CSs = self.get_3_body_rpng_descriptions(reset, measurement)
-        # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(reset, measurement)
+        # Pre-define some collection of plaquette descriptions
+        corner_descriptions = self.get_3_body_rpng_descriptions(reset, measurement)
+        bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement)
+        two_body_descriptions = self.get_2_body_rpng_descriptions()
 
         mapping: dict[int, RPNGDescription] = {}
 
@@ -712,35 +705,33 @@ class FixedBulkConventionGenerator:
         # remove the description on 1, 2, 3 or 4 if needed, so we do not have
         # to account for those cases here.
         # Note that resets and measurements are included on all data-qubits here.
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
-        # SBB: Spatial Boundary Basis.
-        SBB = spatial_boundary_basis
+        # Alias for readability: _sbb <=> Spatial Boundary Basis.
+        _sbb = spatial_boundary_basis
         if SpatialArms.UP not in arms:
-            CORNER, BULK = (1, 10) if boundary_is_z else (2, 9)
-            mapping[CORNER] = mapping[BULK] = TBPs[SBB][PlaquetteOrientation.UP]
+            corner, bulk = (1, 10) if boundary_is_z else (2, 9)
+            mapping[corner] = mapping[bulk] = two_body_descriptions[_sbb][PlaquetteOrientation.UP]
         if SpatialArms.RIGHT not in arms:
-            CORNER, BULK = (4, 21) if boundary_is_z else (2, 22)
-            mapping[CORNER] = mapping[BULK] = TBPs[SBB][PlaquetteOrientation.RIGHT]
+            corner, bulk = (4, 21) if boundary_is_z else (2, 22)
+            mapping[corner] = mapping[bulk] = two_body_descriptions[_sbb][
+                PlaquetteOrientation.RIGHT
+            ]
         if SpatialArms.DOWN not in arms:
-            CORNER, BULK = (4, 23) if boundary_is_z else (3, 24)
-            mapping[CORNER] = mapping[BULK] = TBPs[SBB][PlaquetteOrientation.DOWN]
+            corner, bulk = (4, 23) if boundary_is_z else (3, 24)
+            mapping[corner] = mapping[bulk] = two_body_descriptions[_sbb][PlaquetteOrientation.DOWN]
         if SpatialArms.LEFT not in arms:
-            CORNER, BULK = (1, 12) if boundary_is_z else (3, 11)
-            mapping[CORNER] = mapping[BULK] = TBPs[SBB][PlaquetteOrientation.LEFT]
+            corner, bulk = (1, 12) if boundary_is_z else (3, 11)
+            mapping[corner] = mapping[bulk] = two_body_descriptions[_sbb][PlaquetteOrientation.LEFT]
 
         # For each corner, if the two arms around the corner are not present, the
         # corner plaquette should be removed from the mapping (this is the case
         # where it has been set twice in the ifs above).
-        # Alias to reduce clutter in the implementation for corners
-        SA = SpatialArms
-        if SA.LEFT not in arms and SA.UP not in arms and boundary_is_z:
+        if SpatialArms.LEFT not in arms and SpatialArms.UP not in arms and boundary_is_z:
             del mapping[1]
-        if SA.UP not in arms and SA.RIGHT not in arms and not boundary_is_z:
+        if SpatialArms.UP not in arms and SpatialArms.RIGHT not in arms and not boundary_is_z:
             del mapping[2]
-        if SA.DOWN not in arms and SA.LEFT not in arms and not boundary_is_z:
+        if SpatialArms.DOWN not in arms and SpatialArms.LEFT not in arms and not boundary_is_z:
             del mapping[3]
-        if SA.RIGHT not in arms and SA.DOWN not in arms and boundary_is_z:
+        if SpatialArms.RIGHT not in arms and SpatialArms.DOWN not in arms and boundary_is_z:
             del mapping[4]
 
         ####################
@@ -752,32 +743,27 @@ class FixedBulkConventionGenerator:
         # If these need to be changed, it will be done afterwards.
         # Setting the orientations for Z plaquettes for each of the four portions of
         # the template bulk.
-        ZUP = ZDOWN = Orientation.VERTICAL if boundary_is_z else Orientation.HORIZONTAL
-        ZRIGHT = ZLEFT = ZUP.flip()
+        zup = zdown = Orientation.VERTICAL if boundary_is_z else Orientation.HORIZONTAL
+        zright = zleft = zup.flip()
         # If the corresponding arm is missing, the Z plaquette hook error orientation
         # should flip to avoid shortcuts due to hook errors.
-        ZUP = ZUP if SpatialArms.UP in arms else ZUP.flip()
-        ZDOWN = ZDOWN if SpatialArms.DOWN in arms else ZDOWN.flip()
-        ZRIGHT = ZRIGHT if SpatialArms.RIGHT in arms else ZRIGHT.flip()
-        ZLEFT = ZLEFT if SpatialArms.LEFT in arms else ZLEFT.flip()
+        zup = zup if SpatialArms.UP in arms else zup.flip()
+        zdown = zdown if SpatialArms.DOWN in arms else zdown.flip()
+        zright = zright if SpatialArms.RIGHT in arms else zright.flip()
+        zleft = zleft if SpatialArms.LEFT in arms else zleft.flip()
         # The X orientations are the opposite of the Z orientation
-        XUP, XDOWN, XRIGHT, XLEFT = (
-            ZUP.flip(),
-            ZDOWN.flip(),
-            ZRIGHT.flip(),
-            ZLEFT.flip(),
-        )
+        xup, xdown, xright, xleft = (zup.flip(), zdown.flip(), zright.flip(), zleft.flip())
 
         # Setting the Z plaquettes
-        mapping[5] = mapping[13] = BPs[Basis.Z][ZUP]
-        mapping[8] = mapping[15] = BPs[Basis.Z][ZDOWN]
-        mapping[14] = BPs[Basis.Z][ZRIGHT]
-        mapping[16] = BPs[Basis.Z][ZLEFT]
+        mapping[5] = mapping[13] = bulk_descriptions[Basis.Z][zup]
+        mapping[8] = mapping[15] = bulk_descriptions[Basis.Z][zdown]
+        mapping[14] = bulk_descriptions[Basis.Z][zright]
+        mapping[16] = bulk_descriptions[Basis.Z][zleft]
         # Setting the X plaquettes
-        mapping[6] = mapping[17] = BPs[Basis.X][XUP]
-        mapping[7] = mapping[19] = BPs[Basis.X][XDOWN]
-        mapping[18] = BPs[Basis.X][XRIGHT]
-        mapping[20] = BPs[Basis.X][XLEFT]
+        mapping[6] = mapping[17] = bulk_descriptions[Basis.X][xup]
+        mapping[7] = mapping[19] = bulk_descriptions[Basis.X][xdown]
+        mapping[18] = bulk_descriptions[Basis.X][xright]
+        mapping[20] = bulk_descriptions[Basis.X][xleft]
 
         # For each corner, if the two arms around the corner are not present, the
         # corner plaquette has been removed from the mapping. The corner **within
@@ -785,14 +771,14 @@ class FixedBulkConventionGenerator:
         # Note that this is not done when deleting the external corners before because
         # the bulk plaquettes are set just above, and so we should override the
         # plaquettes after.
-        if SA.LEFT not in arms and SA.UP not in arms and boundary_is_z:
-            mapping[5] = CSs[0]
-        if SA.UP not in arms and SA.RIGHT not in arms and not boundary_is_z:
-            mapping[6] = CSs[1]
-        if SA.DOWN not in arms and SA.LEFT not in arms and not boundary_is_z:
-            mapping[7] = CSs[2]
-        if SA.RIGHT not in arms and SA.DOWN not in arms and boundary_is_z:
-            mapping[8] = CSs[3]
+        if SpatialArms.LEFT not in arms and SpatialArms.UP not in arms and boundary_is_z:
+            mapping[5] = corner_descriptions[0]
+        if SpatialArms.UP not in arms and SpatialArms.RIGHT not in arms and not boundary_is_z:
+            mapping[6] = corner_descriptions[1]
+        if SpatialArms.DOWN not in arms and SpatialArms.LEFT not in arms and not boundary_is_z:
+            mapping[7] = corner_descriptions[2]
+        if SpatialArms.RIGHT not in arms and SpatialArms.DOWN not in arms and boundary_is_z:
+            mapping[8] = corner_descriptions[3]
 
         ####################
         #  Sanity checks   #
@@ -1028,51 +1014,49 @@ class FixedBulkConventionGenerator:
         # qubits. Plaquettes that should go on the LEFT part of the pipe should
         # measure right qubits (i.e., indices 1 and 3) and conversely for the RIGHT
         # part.
-        # BPs: Bulk Plaquettes
-        BPs_LEFT = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
-        BPs_RIGHT = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        # Generating plaquette descriptions we will need later.
+        left_boundary_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (1, 3))
+        right_boundary_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 2))
+        two_body_descriptions = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
-        ZHOOK = (
+        zhook = (
             Orientation.HORIZONTAL if spatial_boundary_basis == Basis.Z else Orientation.VERTICAL
         )
-        XHOOK = ZHOOK.flip()
+        xhook = zhook.flip()
         # List the plaquettes used. This mapping might be corrected afterwards to
         # avoid overwriting 3-body stabilizers introduced by the spatial cube.
-        UP = 2 if spatial_boundary_basis == Basis.Z else 1
-        DOWN = 3 if spatial_boundary_basis == Basis.Z else 4
+        up = 2 if spatial_boundary_basis == Basis.Z else 1
+        down = 3 if spatial_boundary_basis == Basis.Z else 4
 
         mapping = {
             # Boundaries
             # For convenience of definition here, the 2-body stabilizers never reset
             # or measure their data-qubits. If a reset/measurement is needed, it is
             # already included in the plaquettes in the bulk.
-            UP: TBPs[spatial_boundary_basis][PlaquetteOrientation.UP],
-            DOWN: TBPs[spatial_boundary_basis][PlaquetteOrientation.DOWN],
+            up: two_body_descriptions[spatial_boundary_basis][PlaquetteOrientation.UP],
+            down: two_body_descriptions[spatial_boundary_basis][PlaquetteOrientation.DOWN],
             # LEFT bulk
-            5: BPs_LEFT[Basis.Z][ZHOOK],
-            6: BPs_LEFT[Basis.X][XHOOK],
+            5: left_boundary_descriptions[Basis.Z][zhook],
+            6: left_boundary_descriptions[Basis.X][xhook],
             # RIGHT bulk
-            7: BPs_RIGHT[Basis.X][XHOOK],
-            8: BPs_RIGHT[Basis.Z][ZHOOK],
+            7: right_boundary_descriptions[Basis.X][xhook],
+            8: right_boundary_descriptions[Basis.Z][zhook],
         }
 
-        CORNERS = self.get_3_body_rpng_descriptions()
+        _corners = self.get_3_body_rpng_descriptions()
         u, v = linked_cubes
-        # Aliases to reduce clutter in the implementation for corners
-        SA = SpatialArms
-        SBB = spatial_boundary_basis
+        # Alias to reduce clutter in the implementation for corners
+        _sbb = spatial_boundary_basis
         # Replaces the top plaquette if it should be a 3-body stabilizer.
-        if SA.LEFT in arms and SBB == Basis.Z and SA.UP in v.spatial_arms:
-            mapping[UP] = CORNERS[0]
-        if SA.RIGHT in arms and SBB == Basis.X and SA.UP in u.spatial_arms:
-            mapping[UP] = CORNERS[1]
+        if SpatialArms.LEFT in arms and _sbb == Basis.Z and SpatialArms.UP in v.spatial_arms:
+            mapping[up] = _corners[0]
+        if SpatialArms.RIGHT in arms and _sbb == Basis.X and SpatialArms.UP in u.spatial_arms:
+            mapping[up] = _corners[1]
         # Replaces the bottom plaquette if it should be a 3-body stabilizer.
-        if SA.LEFT in arms and SBB == Basis.X and SA.DOWN in v.spatial_arms:
-            mapping[DOWN] = CORNERS[2]
-        if SA.RIGHT in arms and SBB == Basis.Z and SA.DOWN in u.spatial_arms:
-            mapping[DOWN] = CORNERS[3]
+        if SpatialArms.LEFT in arms and _sbb == Basis.X and SpatialArms.DOWN in v.spatial_arms:
+            mapping[down] = _corners[2]
+        if SpatialArms.RIGHT in arms and _sbb == Basis.Z and SpatialArms.DOWN in u.spatial_arms:
+            mapping[down] = _corners[3]
 
         return FrozenDefaultDict(mapping, default_value=RPNGDescription.empty())
 
@@ -1088,50 +1072,49 @@ class FixedBulkConventionGenerator:
         # To do so, we have two sets of bulk plaquettes with different reset/measured
         # qubits. Plaquettes that should go on the UP part of the pipe should measure
         # bottom qubits (i.e., indices 2 and 3) and conversely for the DOWN part.
-        BPs_UP = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
-        BPs_DOWN = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions()
+        # Generating plaquette descriptions we will need later.
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (2, 3))
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(reset, measurement, (0, 1))
+        two_body_description = self.get_2_body_rpng_descriptions()
         # The hook errors also need to be adapted to the boundary basis.
-        ZHOOK = (
+        zhook = (
             Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
         )
-        XHOOK = ZHOOK.flip()
+        xhook = zhook.flip()
         # List the plaquettes used. This mapping might be corrected afterwards to
         # avoid overwriting 3-body stabilizers introduced by the spatial cube.
-        LEFT = 3 if spatial_boundary_basis == Basis.Z else 1
-        RIGHT = 2 if spatial_boundary_basis == Basis.Z else 4
+        left = 3 if spatial_boundary_basis == Basis.Z else 1
+        right = 2 if spatial_boundary_basis == Basis.Z else 4
 
         mapping = {
             # Boundaries
             # For convenience of definition here, the 2-body stabilizers never reset
             # or measure their data-qubits. If a reset/measurement is needed, it is
             # already included in the plaquettes in the bulk.
-            LEFT: TBPs[spatial_boundary_basis][PlaquetteOrientation.LEFT],
-            RIGHT: TBPs[spatial_boundary_basis][PlaquetteOrientation.RIGHT],
+            left: two_body_description[spatial_boundary_basis][PlaquetteOrientation.LEFT],
+            right: two_body_description[spatial_boundary_basis][PlaquetteOrientation.RIGHT],
             # TOP bulk
-            5: BPs_UP[Basis.Z][ZHOOK],
-            6: BPs_UP[Basis.X][XHOOK],
+            5: up_bulk_descriptions[Basis.Z][zhook],
+            6: up_bulk_descriptions[Basis.X][xhook],
             # BOTTOM bulk
-            7: BPs_DOWN[Basis.X][XHOOK],
-            8: BPs_DOWN[Basis.Z][ZHOOK],
+            7: down_bulk_descriptions[Basis.X][xhook],
+            8: down_bulk_descriptions[Basis.Z][zhook],
         }
 
-        CORNERS = self.get_3_body_rpng_descriptions()
+        corners = self.get_3_body_rpng_descriptions()
         u, v = linked_cubes
         # Aliases to reduce clutter in the implementation for corners
-        SA = SpatialArms
-        SBB = spatial_boundary_basis
+        _sbb = spatial_boundary_basis
         # Replaces the top plaquette if it should be a 3-body stabilizer.
-        if SA.UP in arms and SBB == Basis.Z and SA.LEFT in v.spatial_arms:
-            mapping[LEFT] = CORNERS[0]
-        if SA.UP in arms and SBB == Basis.X and SA.RIGHT in v.spatial_arms:
-            mapping[RIGHT] = CORNERS[1]
+        if SpatialArms.UP in arms and _sbb == Basis.Z and SpatialArms.LEFT in v.spatial_arms:
+            mapping[left] = corners[0]
+        if SpatialArms.UP in arms and _sbb == Basis.X and SpatialArms.RIGHT in v.spatial_arms:
+            mapping[right] = corners[1]
         # Replaces the bottom plaquette if it should be a 3-body stabilizer.
-        if SA.DOWN in arms and SBB == Basis.X and SA.LEFT in u.spatial_arms:
-            mapping[LEFT] = CORNERS[2]
-        if SA.DOWN in arms and SBB == Basis.Z and SA.RIGHT in u.spatial_arms:
-            mapping[RIGHT] = CORNERS[3]
+        if SpatialArms.DOWN in arms and _sbb == Basis.X and SpatialArms.LEFT in u.spatial_arms:
+            mapping[left] = corners[2]
+        if SpatialArms.DOWN in arms and _sbb == Basis.Z and SpatialArms.RIGHT in u.spatial_arms:
+            mapping[right] = corners[3]
 
         return FrozenDefaultDict(mapping, default_value=RPNGDescription.empty())
 
@@ -1157,14 +1140,14 @@ class FixedBulkConventionGenerator:
         stabilizer basis of the code to the original one.
         """
         # plaquettes at the bulk
-        X_BULK = make_fixed_bulk_realignment_plaquette(
+        x_bulk = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.X,
             z_orientation=z_orientation,
             mq_reset=Basis.X,
             mq_measurement=Basis.Z,
             debug_basis=PauliBasis.X,
         )
-        Z_BULK = make_fixed_bulk_realignment_plaquette(
+        z_bulk = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.Z,
             z_orientation=z_orientation,
             mq_reset=Basis.Z,
@@ -1173,14 +1156,14 @@ class FixedBulkConventionGenerator:
         )
         # plaquettes at the right boundary of the template
         right_boundary_basis = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
-        X_RIGHT = make_fixed_bulk_realignment_plaquette(
+        x_right = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.X,
             z_orientation=z_orientation,
             mq_reset=right_boundary_basis,
             mq_measurement=right_boundary_basis,
             debug_basis=PauliBasis.X if z_orientation == Orientation.VERTICAL else None,
         ).project_on_boundary(PlaquetteOrientation.RIGHT)
-        Z_RIGHT = make_fixed_bulk_realignment_plaquette(
+        z_right = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.Z,
             z_orientation=z_orientation,
             mq_reset=right_boundary_basis,
@@ -1188,14 +1171,14 @@ class FixedBulkConventionGenerator:
             debug_basis=PauliBasis.Z if z_orientation == Orientation.HORIZONTAL else None,
         ).project_on_boundary(PlaquetteOrientation.RIGHT)
         down_boundary_basis = right_boundary_basis.flipped()
-        X_DOWN = make_fixed_bulk_realignment_plaquette(
+        x_down = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.X,
             z_orientation=z_orientation,
             mq_reset=down_boundary_basis,
             mq_measurement=down_boundary_basis,
             debug_basis=PauliBasis.X if z_orientation == Orientation.HORIZONTAL else None,
         ).project_on_boundary(PlaquetteOrientation.DOWN)
-        Z_DOWN = make_fixed_bulk_realignment_plaquette(
+        z_down = make_fixed_bulk_realignment_plaquette(
             stabilizer_basis=Basis.Z,
             z_orientation=z_orientation,
             mq_reset=down_boundary_basis,
@@ -1203,14 +1186,7 @@ class FixedBulkConventionGenerator:
             debug_basis=PauliBasis.Z if z_orientation == Orientation.VERTICAL else None,
         ).project_on_boundary(PlaquetteOrientation.DOWN)
         realign_mapping = FrozenDefaultDict(
-            {
-                9: Z_BULK,
-                10: X_BULK,
-                11: Z_RIGHT,
-                12: X_RIGHT,
-                13: Z_DOWN,
-                14: X_DOWN,
-            },
+            {9: z_bulk, 10: x_bulk, 11: z_right, 12: x_right, 13: z_down, 14: x_down},
             default_value=self._mapper.get_plaquette(RPNGDescription.empty()),
         )
         return Plaquettes(realign_mapping)

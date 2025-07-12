@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from functools import reduce
 from itertools import combinations
+from typing import Final
 
 import networkx as nx
 
@@ -80,8 +81,8 @@ def fill_ports_for_minimal_simulation(
     if num_ports == 0:
         raise TQECException("The provided graph has no open ports.")
     # heuristic threshold for large number of ports
-    HEURISTIC_THRESHOLD = 16
-    if search_small_area_observables and num_ports > HEURISTIC_THRESHOLD:
+    _heuristic_threshold: Final[int] = 16
+    if search_small_area_observables and num_ports > _heuristic_threshold:
         warnings.warn(
             "The algorithm will construct all exponentially many correlation "
             "surfaces, which can be slow for graphs with large number of ports. "

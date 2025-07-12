@@ -47,10 +47,10 @@ def test_scalable_2d_shape() -> None:
 
 
 def test_scalable_2d_add() -> None:
-    A = Scalable2D(LinearFunction(0, 0), LinearFunction(1, 0))
-    B = Scalable2D(LinearFunction(-12, 0), LinearFunction(1, 5))
-    C = Scalable2D(LinearFunction(-12, 0), LinearFunction(2, 5))
-    assert A + B == C
+    a = Scalable2D(LinearFunction(0, 0), LinearFunction(1, 0))
+    b = Scalable2D(LinearFunction(-12, 0), LinearFunction(1, 5))
+    c = Scalable2D(LinearFunction(-12, 0), LinearFunction(2, 5))
+    assert a + b == c
 
 
 def test_round_or_fail() -> None:

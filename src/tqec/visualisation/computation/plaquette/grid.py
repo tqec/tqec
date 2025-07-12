@@ -64,9 +64,9 @@ def plaquette_grid_to_svg(
     """
     if not grid:
         return svg.G()
-    N, M = len(grid[0]), len(grid)
+    n, m = len(grid[0]), len(grid)
     xborder, yborder = borders
-    pw, ph = (width - 2 * xborder) / N, (height - 2 * yborder) / M
+    pw, ph = (width - 2 * xborder) / n, (height - 2 * yborder) / m
     # Start by constructing an index of drawings that will be re-used.
     element_id_template = "plaquette_drawing_{}"
     drawing_lines: list[svg.Element] = [

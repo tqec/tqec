@@ -127,15 +127,15 @@ invalid_y_rotations: list[RotDict] = [
 
 
 def test_calc_rotation_angles() -> None:
-    for i, M in enumerate(rotation_matrices_for_testing):
-        R = calc_rotation_angles(M)
-        assert R.all() == confirm_angles[i].all()
+    for i, matrix in enumerate(rotation_matrices_for_testing):
+        rotation_angles = calc_rotation_angles(matrix)
+        assert rotation_angles.all() == confirm_angles[i].all()
 
 
 def test_get_axes_directions() -> None:
-    for i, M in enumerate(rotation_matrices_for_testing):
-        R = get_axes_directions(M)
-        assert R == confirm_directions[i]
+    for i, matrix in enumerate(rotation_matrices_for_testing):
+        rotation_angles = get_axes_directions(matrix)
+        assert rotation_angles == confirm_directions[i]
 
 
 def test_rotate_block_kind() -> None:

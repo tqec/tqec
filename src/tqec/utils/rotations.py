@@ -58,14 +58,14 @@ def calc_rotation_angles(
     rotations = np.array([])
 
     # Define matrix for an unrotated object
-    ID = np.identity(3, dtype=int)
+    identity = np.identity(3, dtype=int)
 
     # Calculate rotations
     # ! I think that, technically, this should be done per column (aka column-major)
     # ! but this function is only to confirm rotation validity rather than to transform objects
     # ! per row (aka. row-major) is fine for this
     for i, row in enumerate(rotation_matrix):
-        cos_theta = np.dot(ID[i], row) / (np.linalg.norm(ID[i]) * np.linalg.norm(row))
+        cos_theta = np.dot(identity[i], row) / (np.linalg.norm(identity[i]) * np.linalg.norm(row))
         angle_rad = np.arccos(np.clip(cos_theta, -1.0, 1.0))
         angle_deg = np.degrees(angle_rad)
         rotations = np.append(rotations, [round(angle_deg)])
