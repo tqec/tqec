@@ -3,7 +3,7 @@
 from tqec.utils.exceptions import TQECError
 
 
-class TQECDrawingException(TQECError):
+class TQECDrawingError(TQECError):
     """Exception raised when an error is encountered during drawing."""
 
     pass

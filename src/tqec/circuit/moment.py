@@ -21,7 +21,7 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import is_annotation_instruction
 
 
-class MultipleOperationsOnSameQubitException(TQECError):
+class MultipleOperationsOnSameQubitError(TQECError):
     def __init__(self, qubits: Sequence[int]):
         """Create a new instance of the exception.
 
@@ -137,7 +137,7 @@ class Moment:
         qubit_usage = count_qubit_accesses(circuit)
         multi_used_qubits = [qi for qi, usage_count in qubit_usage.items() if usage_count > 1]
         if multi_used_qubits:
-            raise MultipleOperationsOnSameQubitException(multi_used_qubits)
+            raise MultipleOperationsOnSameQubitError(multi_used_qubits)
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
             raise TQECError(
                 "Moment instances should no contain any instance of stim.CircuitRepeatBlock."

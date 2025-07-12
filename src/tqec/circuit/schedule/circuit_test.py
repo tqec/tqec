@@ -4,7 +4,7 @@ import stim
 from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
-from tqec.circuit.schedule import Schedule, ScheduledCircuit, ScheduleException
+from tqec.circuit.schedule import Schedule, ScheduledCircuit, ScheduleError
 from tqec.utils.exceptions import TQECError
 
 _VALID_SCHEDULED_CIRCUITS = [
@@ -31,13 +31,13 @@ def test_scheduled_circuit_construction() -> None:
         stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), Schedule.from_offsets([0, 3])
     )
 
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), -1)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), [1])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), [1, 2, 3])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("REPEAT 10{\nH 0 1 2\n}"), [1])
 
     ScheduledCircuit([], 0, QubitMap())
@@ -46,20 +46,20 @@ def test_scheduled_circuit_construction() -> None:
     ScheduledCircuit(moments, 0, i2q)
     ScheduledCircuit(moments, [0, 1], i2q)
     ScheduledCircuit(moments, Schedule.from_offsets([0, 1]), i2q)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, -1, i2q)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, [0], i2q)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, [0, 1, 2], i2q)
 
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nQUBIT_COORDS(0, 0) 0\nH 0 1 2"))
     moments = [
         Moment(stim.Circuit("H 0 1 2")),
         Moment(stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0 1 2")),
     ]
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, 0, i2q)
 
 

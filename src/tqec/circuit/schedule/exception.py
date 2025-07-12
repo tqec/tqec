@@ -1,7 +1,7 @@
-"""Defines :class:`~tqec.circuit.schedule.exception.ScheduleException`."""
+"""Defines :class:`~tqec.circuit.schedule.exception.ScheduleError`."""
 
 from tqec.utils.exceptions import TQECError
 
 
-class ScheduleException(TQECError):
+class ScheduleError(TQECError):
     pass

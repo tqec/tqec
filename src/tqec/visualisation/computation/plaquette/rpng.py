@@ -7,7 +7,7 @@ from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng.rpng import RPNG, ExtendedBasis, PauliBasis, RPNGDescription
 from tqec.visualisation.computation.plaquette.base import PlaquetteCorner, SVGPlaquetteDrawer, lerp
 from tqec.visualisation.configuration import DrawerConfiguration
-from tqec.visualisation.exception import TQECDrawingException
+from tqec.visualisation.exception import TQECDrawingError
 
 
 def _get_bounding_box(coords: Iterable[complex]) -> tuple[complex, complex]:
@@ -127,7 +127,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
                     case [2, 3]:
                         orientation = PlaquetteOrientation.UP
                     case _:
-                        raise TQECDrawingException(
+                        raise TQECDrawingError(
                             "Could not find the orientation of a plaquette containing the "
                             f"corner indices {self._sorted_corner_indices}."
                         )
@@ -147,7 +147,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
                     case [0, 1, 2]:
                         place = PlaquetteCorner.BOTTOM_RIGHT
                     case _:
-                        raise TQECDrawingException(
+                        raise TQECDrawingError(
                             "Could not find the placement of a plaquette containing the "
                             f"corner indices {self._sorted_corner_indices}."
                         )
@@ -155,7 +155,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
             case 4:
                 return self.get_square_shape(fill, configuration)
             case num:
-                raise TQECDrawingException(
+                raise TQECDrawingError(
                     f"Got a plaquette with {num} corners. Only 2, 3 or 4 corners are supported."
                 )
 
@@ -284,7 +284,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
             if not r_is_basis and not m_is_basis:
                 continue
             if r_is_basis and m_is_basis:
-                raise TQECDrawingException(
+                raise TQECDrawingError(
                     "Found an RPNG with both reset and measurement. That is not "
                     "supported in the drawer."
                 )

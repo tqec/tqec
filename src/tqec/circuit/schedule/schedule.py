@@ -8,7 +8,7 @@ from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import ClassVar
 
-from tqec.circuit.schedule.exception import ScheduleException
+from tqec.circuit.schedule.exception import ScheduleError
 
 
 @dataclass
@@ -45,7 +45,7 @@ class Schedule:
             not all(schedule[i] < schedule[i + 1] for i in range(len(schedule) - 1))
             or schedule[0] < Schedule._INITIAL_SCHEDULE
         ):
-            raise ScheduleException(
+            raise ScheduleError(
                 f"The provided schedule {schedule} is not a sorted list of positive "
                 "integers. You should only provide sorted schedules with positive "
                 "entries."
@@ -65,21 +65,21 @@ class Schedule:
 
         If inserting the integer results in an invalid schedule, the schedule is
         brought back to its (valid) original state before calling this function
-        and a :py:exc:`~.schedule.exception.ScheduleException` is raised.
+        and a :py:exc:`~.schedule.exception.ScheduleError` is raised.
 
         Args:
             i: index at which the provided value should be inserted.
             value: value to insert.
 
         Raises:
-            ScheduleException: if the inserted integer makes the schedule
+            ScheduleError: if the inserted integer makes the schedule
                 invalid.
 
         """
         self.schedule.insert(i, value)
         try:
             Schedule._check_schedule(self.schedule)
-        except ScheduleException as e:
+        except ScheduleError as e:
             self.schedule.pop(i)
             raise e
 
@@ -88,20 +88,20 @@ class Schedule:
 
         If appending the integer results in an invalid schedule, the schedule is
         brought back to its (valid) original state before calling this function
-        and a :py:exc:`~.schedule.exception.ScheduleException` is raised.
+        and a :py:exc:`~.schedule.exception.ScheduleError` is raised.
 
         Args:
             value: value to insert.
 
         Raises:
-            ScheduleException: if the inserted integer makes the schedule
+            ScheduleError: if the inserted integer makes the schedule
                 invalid.
 
         """
         self.schedule.append(value)
         try:
             Schedule._check_schedule(self.schedule)
-        except ScheduleException as e:
+        except ScheduleError as e:
             self.schedule.pop(-1)
             raise e
 

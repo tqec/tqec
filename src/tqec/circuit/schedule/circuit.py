@@ -20,7 +20,7 @@ import stim
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap, get_qubit_map
-from tqec.circuit.schedule.exception import ScheduleException
+from tqec.circuit.schedule.exception import ScheduleError
 from tqec.circuit.schedule.schedule import Schedule
 from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import is_annotation_instruction
@@ -72,12 +72,12 @@ class ScheduledCircuit:
             schedule = Schedule(schedule)
 
         if len(moments) != len(schedule):
-            raise ScheduleException(
+            raise ScheduleError(
                 "ScheduledCircuit expects all the provided moments to be scheduled. "
                 f"Got {len(moments)} moments but {len(schedule)} schedules."
             )
         if not _avoid_checks and any(m.contains_instruction("QUBIT_COORDS") for m in moments):
-            raise ScheduleException(
+            raise ScheduleError(
                 "ScheduledCircuit instance expects the input `stim.Circuit` to "
                 "not contain any QUBIT_COORDS instruction. Found at least one "
                 "moment with a QUBIT_COORDS instruction."
@@ -131,7 +131,7 @@ class ScheduledCircuit:
         # Ensure that the provided circuit does not contain any
         # `stim.CircuitRepeatBlock` instance.
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
-            raise ScheduleException(
+            raise ScheduleError(
                 "stim.CircuitRepeatBlock instances are not supported in a ScheduledCircuit instance."
             )
         moments: list[Moment] = list(
@@ -141,7 +141,7 @@ class ScheduledCircuit:
             return ScheduledCircuit.empty()
 
         if any(m.contains_instruction("QUBIT_COORDS") for m in moments[1:]):
-            raise ScheduleException(
+            raise ScheduleError(
                 "ScheduledCircuit instance expects the input `stim.Circuit` to "
                 "only contain QUBIT_COORDS instructions before the first TICK."
             )
