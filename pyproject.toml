@@ -234,12 +234,18 @@ select = ["I", "E", "W", "D", "F", "PL", "NPY", "N", "PERF", "RUF", "UP"]
 exclude = ["docs/conf.py", "setup.py"]
 
 ignore = [
+  # D100 & D104 - For the moment, we do not require documenting all public modules & packages.
+  # D101 - By convention, class docstrings are on the __init__ method, so we do not document classes.
+  # D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
   "D100", "D101", "D104", "D105",
   "D203", "D205", "D213",
   "D301",
+  # D407 - Ignored because ==== under a section heading is considered as a missing underline.
   "D400", "D401", "D404", "D407", "D415", "D416", "D417",
   "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR1714", "PLR2004",
-  "N802", "N803", "N806", "N817", "N818",
+  # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
+  # N818 - Renaming TQECException to TQECError is a user-facing breaking change, keeping that for a major version bump.
+  "N802", "N818",
   "E501",
   "PLC0414", "PLC0105",
   "PLW2901",
@@ -249,10 +255,6 @@ ignore = [
 ]
 # Rules Ignored Permanently
 
-# D100 & D104 - For the moment, we do not require documenting all public modules & packages.
-# D101 - By convention, class docstrings are on the __init__ method, so we do not document classes.
-# D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
-# D407 - Ignored because ==== under a section heading is considered as a missing underline.
 # pydocstyle considers ----- an underline.
 
 # D212 and D211 specially selected due to following incompatibilities
