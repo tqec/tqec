@@ -166,7 +166,7 @@ class SVGPlaquetteDrawer(ABC):
         fill: str = "none",
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Rect:
-        """Returns a small square with its origin at the opposite of ``place``.
+        """Return a small square with its origin at the opposite of ``place``.
 
         Args:
             place: the plaquette corner the reset is located on.
@@ -195,7 +195,7 @@ class SVGPlaquetteDrawer(ABC):
         fill: str = "none",
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
-        """Returns a small quarter circle with its origin at the opposite of ``place``.
+        """Return a small quarter circle with its origin at the opposite of ``place``.
 
         Args:
             place: the plaquette corner the measurement is located on.
@@ -233,7 +233,7 @@ class SVGPlaquetteDrawer(ABC):
 
     @staticmethod
     def get_colour(basis: Basis | PauliBasis | ExtendedBasis) -> str:
-        """Helper to get a SVG-compatible hexadecimal color from a basis."""
+        """Get a SVG-compatible hexadecimal color from a basis."""
         match basis.value.upper():
             case "X":
                 return TQECColor.X.rgba.to_hex()

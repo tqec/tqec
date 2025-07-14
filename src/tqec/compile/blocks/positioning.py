@@ -11,7 +11,7 @@ from tqec.utils.position import BlockPosition2D, BlockPosition3D, SignedDirectio
 
 class LayoutPosition2D(ABC):
     def __init__(self, x: int, y: int) -> None:
-        """Internal class to represent the local indexing used to represent both cubes and pipes.
+        """Represent the local indexing used to represent both cubes and pipes.
 
         Args:
             x: first coordinate.
@@ -55,7 +55,7 @@ class LayoutPosition2D(ABC):
 
 class LayoutCubePosition2D(LayoutPosition2D):
     def __init__(self, x: int, y: int) -> None:
-        """Internal class to represent the position of a cube on the grid.
+        """Represent the position of a cube on the grid.
 
         For the moment, only 2 entities have to appear on the grid: cubes and pipes.
         For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
@@ -75,7 +75,7 @@ class LayoutCubePosition2D(LayoutPosition2D):
 
 class LayoutPipePosition2D(LayoutPosition2D):
     def __init__(self, x: int, y: int) -> None:
-        """Internal class to represent the position of a cube on the grid.
+        """Represent the position of a cube on the grid.
 
         For the moment, only 2 entities have to appear on the grid: cubes and pipes.
         For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
@@ -104,7 +104,7 @@ T_co = TypeVar("T_co", bound=LayoutPosition2D, covariant=True, default=LayoutPos
 
 class LayoutPosition3D(ABC, Generic[T_co]):
     def __init__(self, spatial_position: T_co, z: int) -> None:
-        """Internal class to represent the local indexing used to represent both 3D cubes and pipes.
+        """Represent the local indexing used to represent both 3D cubes and pipes.
 
         This class simply wraps a :class:`LayoutPosition2D` instance with an
         integer-valued z coordinate.
@@ -171,7 +171,7 @@ class LayoutPosition3D(ABC, Generic[T_co]):
 
     @property
     def z(self) -> int:
-        """Returns the z-coordinate."""
+        """Return the z-coordinate."""
         return self._z
 
     def __repr__(self) -> str:

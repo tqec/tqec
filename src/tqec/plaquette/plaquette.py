@@ -294,7 +294,7 @@ class Plaquettes:
         return isinstance(rhs, Plaquettes) and self.collection == rhs.collection
 
     def __hash__(self) -> int:
-        """Implementation for Python's hash().
+        """Implement hashing for Python's hash().
 
         The returned value is reliable across runs, interpreters and OSes.
 

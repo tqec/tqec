@@ -438,11 +438,7 @@ class _BaseColladaData:
         self,
         pop_faces_at_direction: SignedDirection3D | None = None,
     ) -> None:
-        """Base model template.
-
-        This class includes the definition of all the library nodes and the necessary material,
-        geometry definitions.
-        """
+        """Include the definition of all the library nodes and the necessary material."""
         self.mesh = collada.Collada()
         self.geometries = BlockGeometries()
 

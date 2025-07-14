@@ -10,7 +10,7 @@ from tqec.compile.tree.node import LayerNode
 
 
 def _get_ordered_leaves(root: LayerNode) -> list[LayerNode]:
-    """Returns the leaves of the tree in time order."""
+    """Return the leaves of the tree in time order."""
     if root.is_leaf:
         return [root]
     return [n for child in root.children for n in _get_ordered_leaves(child)]

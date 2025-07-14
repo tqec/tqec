@@ -222,7 +222,7 @@ class QubitVerticalBorders(RectangularTemplate):
     @property
     @override
     def scalable_shape(self) -> PlaquetteScalable2D:
-        """Returns a scalable version of the template shape."""
+        """Return a scalable version of the template shape."""
         return PlaquetteScalable2D(LinearFunction(0, 2), LinearFunction(2, 2))
 
     @property

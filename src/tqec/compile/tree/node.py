@@ -24,21 +24,21 @@ from tqec.utils.scale import LinearFunction
 def contains_only_layout_or_composed_layers(
     layers: Sequence[BaseLayer | BaseComposedLayer],
 ) -> TypeGuard[Sequence[LayoutLayer | BaseComposedLayer]]:
-    """Helper function to ensure correct typing."""
+    """Ensure correct typing after using that function in a condition."""
     return all(isinstance(layer, (LayoutLayer, BaseComposedLayer)) for layer in layers)
 
 
 class NodeWalker:
     def visit_node(self, node: LayerNode) -> None:
-        """Called when ``node`` is visited, before recursing in children."""
+        """Interface called when ``node`` is visited, before recursing in children."""
         pass
 
     def enter_node(self, node: LayerNode) -> None:
-        """Called when entering ``node``."""
+        """Interface called when entering ``node``."""
         pass
 
     def exit_node(self, node: LayerNode) -> None:
-        """Called when exiting ``node``."""
+        """Interface called when exiting ``node``."""
         pass
 
 
@@ -48,7 +48,7 @@ class LayerNode:
         layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
     ) -> None:
-        """Represents a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
+        """Represent a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
 
         Args:
             layer: layer being represented by the node.
@@ -89,17 +89,17 @@ class LayerNode:
 
     @property
     def is_leaf(self) -> bool:
-        """Returns ``True`` if ``self`` does not have any children and so is a leaf node."""
+        """Return ``True`` if ``self`` does not have any children and so is a leaf node."""
         return isinstance(self._layer, LayoutLayer)
 
     @property
     def is_repeated(self) -> bool:
-        """Returns ``True`` if ``self`` stores a RepeatedLayer."""
+        """Return ``True`` if ``self`` stores a RepeatedLayer."""
         return isinstance(self._layer, RepeatedLayer)
 
     @property
     def repetitions(self) -> LinearFunction | None:
-        """Returns the number of repetitions of the node if ``self.is_repeated`` else ``None``."""
+        """Return the number of repetitions of the node if ``self.is_repeated`` else ``None``."""
         return self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
 
     def to_dict(self) -> dict[str, Any]:

@@ -252,7 +252,7 @@ class Pipe:
         return f"{self.u}--({self.kind})--{self.v}"
 
     def to_dict(self) -> dict[str, Any]:
-        """Returns the dictionary representation of the pipe."""
+        """Return the dictionary representation of the pipe."""
         return {
             "u": self.u.position.as_tuple(),
             "v": self.v.position.as_tuple(),

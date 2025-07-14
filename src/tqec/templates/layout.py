@@ -89,7 +89,7 @@ class LayoutTemplate(Template):
         element_layout: dict[BlockPosition2D, RectangularTemplate],
         default_increments: Shift2D | None = None,
     ) -> None:
-        """A template representing a layout of other templates.
+        """Implement a template representing a layout of other templates.
 
         Each element template in the layout is placed at a specific position in
         the 2D grid.
@@ -171,7 +171,7 @@ class LayoutTemplate(Template):
     def get_global_plaquettes(
         self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]
     ) -> Plaquettes:
-        """Merges ``individual_plaquettes`` into a single :class:`.Plaquettes` instance.
+        """Merge ``individual_plaquettes`` into a single :class:`.Plaquettes` instance.
 
         The returned :class:`.Plaquettes` instance can then be used to instantiate ``self``.
 
@@ -222,7 +222,7 @@ class LayoutTemplate(Template):
     @property
     @override
     def scalable_shape(self) -> PlaquetteScalable2D:
-        """Returns a scalable version of the template shape."""
+        """Return a scalable version of the template shape."""
         return PlaquetteScalable2D(
             self._nx * self._element_scalable_shape.x,
             self._ny * self._element_scalable_shape.y,
@@ -235,7 +235,7 @@ class LayoutTemplate(Template):
     @property
     @override
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the `instantiate` method.
+        """Return the number of plaquettes expected from the `instantiate` method.
 
         Returns:
             the number of plaquettes expected from the `instantiate` method.
