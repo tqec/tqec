@@ -25,8 +25,9 @@ Modifications to the original code:
    REPEAT blocks (not before the block, the first instruction in the repeated
    inner block, and after the block).
 6. Re-phrase slightly the docstrings.
-7. Replace typing.AbstractSet by collection.abc.Set
-
+7. Replace ``typing.AbstractSet`` by ``collection.abc.Set``
+8. Replace several equalities by inclusion in set (``obj == A or obj == B`` becomes
+   ``obj in {A, B}``)
 """
 
 from collections import Counter, defaultdict
@@ -123,9 +124,7 @@ OP_MEASURE_BASES = {
     "MPP": "",
 }
 COLLAPSING_OPS = {
-    op
-    for op, t in OP_TYPES.items()
-    if t == JUST_RESET_1Q or t == JUST_MEASURE_1Q or t == MPP or t == MEASURE_RESET_1Q
+    op for op, t in OP_TYPES.items() if t in {JUST_RESET_1Q, JUST_MEASURE_1Q, MPP, MEASURE_RESET_1Q}
 }
 
 
@@ -175,7 +174,7 @@ class NoiseRule:
         args = split_op.gate_args_copy()
         if self.flip_result:
             t = OP_TYPES[split_op.name]
-            assert t == MPP or t == JUST_MEASURE_1Q or t == MEASURE_RESET_1Q
+            assert t in {MPP, JUST_MEASURE_1Q, MEASURE_RESET_1Q}
             assert len(args) == 0
             args = [self.flip_result]
 
