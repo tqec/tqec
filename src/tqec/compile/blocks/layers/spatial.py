@@ -30,8 +30,7 @@ class WithSpatialFootprint(ABC):
         """Initialise the instance.
 
         Args:
-            removed_spatial_borders: all the spatial borders that have been
-                trimmed from the layer.
+            trimmed_spatial_borders: all the spatial borders that have been trimmed from the layer.
 
         """
         super().__init__()

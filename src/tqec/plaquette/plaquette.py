@@ -90,8 +90,7 @@ class Plaquette:
         plaquette.
 
         Args:
-            data_qubits: data-qubit indices that will be kept in the returned
-                plaquette.
+            data_qubits_indices: data-qubit indices that will be kept in the returned plaquette.
 
         Returns:
             A new plaquette with projected qubits and circuit. The qubits are
@@ -360,6 +359,9 @@ class Plaquettes:
 
         Args:
             data: dictionary with the keys ``plaquettes`` and ``default``.
+            plaquettes: list of :class:`Plaquette` instances to use to build the
+                :class:`Plaquettes` instances. Each plaquette is represented by
+                its index in the list of unique plaquettes to save space.
 
         Returns:
             a new instance of :class:`Plaquettes` with the provided

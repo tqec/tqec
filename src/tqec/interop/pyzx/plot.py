@@ -101,7 +101,7 @@ def draw_correlation_surface_on(
 
     Args:
         correlation_surface: The correlation surface to draw.
-        positioned_graph: The positioned ZX graph to draw the correlation surface on.
+        graph: The positioned ZX graph to draw the correlation surface on.
         ax: The 3-dimensional ax to draw on.
         correlation_edge_width: The width of the correlation edges. Default is 3.
 
