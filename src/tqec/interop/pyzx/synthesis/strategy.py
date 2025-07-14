@@ -35,8 +35,7 @@ def block_synthesis(
     positions: Mapping[int, Position3D] | None = None,
     **_kwargs: dict[str, Any],
 ) -> BlockGraph:
-    """Perform block synthesis, translating an instance of ``pyzx.GraphS`` to a
-    :class:`.BlockGraph`.
+    """Perform block synthesis translating an instance of ``pyzx.GraphS`` to a :class:`.BlockGraph`.
 
     Args:
         zx_graph: a ZX graph to transform into a :class:`.BlockGraph`.

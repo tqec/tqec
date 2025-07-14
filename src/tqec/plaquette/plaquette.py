@@ -83,8 +83,7 @@ class Plaquette:
         return self.name
 
     def project_on_data_qubit_indices(self, data_qubits_indices: list[int]) -> Plaquette:
-        """Project the plaquette on the provided qubits and return a new
-        plaquette with the remaining qubits and circuit.
+        """Project the plaquette on the provided qubit indices.
 
         This method is useful for deriving a boundary plaquette from a integral
         plaquette.
@@ -106,8 +105,7 @@ class Plaquette:
         return self.project_on_data_qubits(kept_qubits)
 
     def project_on_data_qubits(self, data_qubits: list[GridQubit]) -> Plaquette:
-        """Project the plaquette on the provided qubits and return a new
-        plaquette with the remaining qubits and circuit.
+        """Project the plaquette on the provided qubits.
 
         This method is useful for deriving a boundary plaquette from a integral
         plaquette.
@@ -140,8 +138,7 @@ class Plaquette:
         )
 
     def project_on_boundary(self, projected_orientation: PlaquetteOrientation) -> Plaquette:
-        """Project the plaquette on boundary and return a new plaquette with
-        the remaining qubits and circuit.
+        """Project the plaquette on a boundary and returns the projected version.
 
         This method is useful for deriving a boundary plaquette from a integral
         plaquette.
@@ -200,9 +197,7 @@ class Plaquette:
         return bool(self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit())
 
     def with_debug_information(self, debug_information: PlaquetteDebugInformation) -> Plaquette:
-        """Create a copy of ``self`` with its debug information replaced by the provided
-        ``debug_information``.
-        """
+        """Create a copy of ``self`` with the provided ``debug_information``."""
         return Plaquette(
             self.name,
             self.qubits,
@@ -248,8 +243,7 @@ class Plaquette:
 
 @dataclass(frozen=True)
 class Plaquettes:
-    """Represent a collection of plaquettes that might be applied to a
-    :class:`Template` instance.
+    """Represent a collection of plaquettes that might be applied to a :class:`Template` instance.
 
     The goal of this class is to abstract away how a "collection of
     plaquettes" is represented and to provide a unique interface in
@@ -318,9 +312,7 @@ class Plaquettes:
         return d
 
     def without_plaquettes(self, indices: Collection[int]) -> Plaquettes:
-        """Remove the plaquettes associated with the provided ``indices`` from a copy of ``self``
-        and return the new instance.
-        """
+        """Remove the plaquettes at the provided ``indices`` from a copy of ``self``."""
         return Plaquettes(
             FrozenDefaultDict(
                 {k: v for k, v in self.collection.items() if k not in indices},

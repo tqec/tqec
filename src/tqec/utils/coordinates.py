@@ -1,6 +1,4 @@
-"""Implements a wrapper to standardise stim coordinate system across the code
-base.
-"""
+"""Implements a wrapper to standardise stim coordinate system across the code base."""
 
 from __future__ import annotations
 
@@ -75,8 +73,7 @@ class StimCoordinates:
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> StimCoordinates:
-        """Return a new instance of :class:`StimCoordinates` from its dictionary
-        representation.
+        """Return a new instance of :class:`StimCoordinates` from its dictionary representation.
 
         Args:
             data: dictionary with the keys ``x``, ``y`` and ``t``.

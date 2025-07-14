@@ -79,8 +79,7 @@ def binary_search_threshold(
     max_errors: int = 5_000,
     decoders: Iterable[str] = ("pymatching",),
 ) -> tuple[float, dict[int, list[tuple[float, sinter.Fit]]]]:
-    """Search the threshold value for the provided ``observable`` on the provided
-    ``block_graph``, with the noise model obtained from the ``noise_model_factory``.
+    """Search the threshold value for the provided ``observable`` on the provided ``block_graph``.
 
     This function performs a binary search on the noise strength (called ``p`` in
     the following explanation) that is commonly called "threshold" in quantum

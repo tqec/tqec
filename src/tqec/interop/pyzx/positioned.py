@@ -114,8 +114,7 @@ class PositionedZX:
 
     @staticmethod
     def from_block_graph(block_graph: BlockGraph) -> PositionedZX:
-        """Convert a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
-        ZX graph with 3D positions.
+        """Convert a :py:class:`.BlockGraph` to a ZX graph with 3D positions.
 
         The conversion process is as follows:
 
@@ -162,8 +161,7 @@ class PositionedZX:
         hadamard_size: int = 200,
         edge_width: int = 1,
     ) -> tuple[Figure, Axes3D]:
-        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX`
-        using matplotlib.
+        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.
 
         Args:
             graph: The ZX graph to plot.

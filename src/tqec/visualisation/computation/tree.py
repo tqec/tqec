@@ -20,7 +20,9 @@ from tqec.visualisation.computation.plaquette.grid import plaquette_grid_svg_vie
 
 @dataclass(frozen=True)
 class VisualisationData:
-    """Holds data that will then be used to visualise one layer of the visualised
+    """Holds visualisation data for one layer.
+
+    This dataclass holds data that will then be used to visualise one layer of the visualised
     :class:`~tqec.compile.tree.tree.LayerTree` instance.
     """
 
@@ -153,8 +155,7 @@ class LayerVisualiser(NodeWalker):
             return 0
 
     def get_moment_text(self, start: int, end: int) -> svg.Text:
-        """Returns an SVG representation of a text indicating the moments covererd by
-        ``[start, end]``.
+        """Returns an SVG representation of a text indicating the moments covered by [start, end].
 
         Args:
             start: initial moment.

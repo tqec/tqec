@@ -51,8 +51,7 @@ def get_errors_svg(
     size: float = 1,
     add_detectors_from_errors: bool = True,
 ) -> svg.G:
-    """Returns an SVG element with the provided ``errors`` drawn and a transparent
-    background.
+    """Returns an SVG element with the provided ``errors`` drawn and a transparent background.
 
     Args:
         errors: a sequence of errors to plot. It is often desirable to filter

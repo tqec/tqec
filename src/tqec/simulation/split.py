@@ -9,8 +9,10 @@ from tqec.computation.correlation import CorrelationSurface
 
 
 def split_counts_for_observables(counts: Mapping[str, int], num_observables: int) -> list[int]:
-    """Split the error counts for each individual observable when
-    specifying ``count_observable_error_combos=True`` for ``sinter``.
+    """Split the error counts for each individual observable.
+
+    This function should only be used when specifying ``count_observable_error_combos=True`` to
+    ``sinter`` functions.
 
     Args:
         counts: The error counts for different observable error combinations.
@@ -36,8 +38,10 @@ def split_stats_for_observables(
     stats: list[sinter.TaskStats],
     num_observables: int,
 ) -> list[list[sinter.TaskStats]]:
-    """Split the statistics for each individual observable when specifying
-    ``count_observable_error_combos=True`` for ``sinter``.
+    """Split the statistics for each individual observable.
+
+    This function should only be used when specifying ``count_observable_error_combos=True`` to
+    ``sinter`` functions.
 
     Args:
         stats: The statistics for different observable error combinations.
