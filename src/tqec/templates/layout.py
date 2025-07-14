@@ -177,10 +177,10 @@ class LayoutTemplate(Template):
         to instantiate ``self``.
 
         Raises:
-            TQECException: if the provided ``individual_plaquettes`` does not
+            TQECError: if the provided ``individual_plaquettes`` does not
                 cover all the :class:`~tqec.utils.position.BlockPosition2D` where
                 there is a template in ``self``.
-            TQECException: if the provided ``individual_plaquettes`` have
+            TQECError: if the provided ``individual_plaquettes`` have
                 different values for their ``default_factory``.
 
         Args:
