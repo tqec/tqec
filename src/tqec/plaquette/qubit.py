@@ -28,8 +28,9 @@ class PlaquetteQubits:
         self,
         orientation: Orientation = Orientation.HORIZONTAL,
     ) -> list[GridQubit]:
-        """Return the data qubits on the edge of the plaquette. By convention,
-        the edge is the one with the highest index in the relevant axis.
+        """Return the data qubits on the edge of the plaquette.
+
+        By convention, the edge is the one with the highest index in the relevant axis.
 
         Args:
             orientation (TemplateOrientation, optional): Whether to use horizontal or

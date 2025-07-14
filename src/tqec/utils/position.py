@@ -66,9 +66,7 @@ class Position2D(Vec2D):
         return BlockPosition2D(self.x, self.y)
 
     def is_neighbour(self, other: Position2D) -> bool:
-        """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1.
-        """
+        """Check if the other position is near to this position, i.e. Manhattan distance is 1."""
         return abs(self.x - other.x) + abs(self.y - other.y) == 1
 
     def to_3d(self, z: int = 0) -> Position3D:
@@ -145,9 +143,7 @@ class Position3D(Vec3D):
             return self.shift_by(dz=shift)
 
     def is_neighbour(self, other: Position3D) -> bool:
-        """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1.
-        """
+        """Check if the other position is near to this position, i.e. Manhattan distance is 1."""
         return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z) == 1
 
     def as_tuple(self) -> tuple[int, int, int]:

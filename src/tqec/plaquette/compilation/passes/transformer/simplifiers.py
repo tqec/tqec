@@ -19,9 +19,7 @@ class InstructionSimplifier(ABC):
     def simplify(
         self, instructions: Sequence[stim.CircuitInstruction]
     ) -> list[stim.CircuitInstruction]:
-        """Simplify a list of instructions that are happening at the same moment
-        in the circuit.
-        """
+        """Simplify a list of instructions that are happening at the same moment in the circuit."""
         pass
 
 

@@ -1,6 +1,4 @@
-"""Introduces :class:`~tqec.plaquette.compilation.base.PlaquetteCompiler`, the class
-used to implement a plaquette compiler.
-"""
+"""Introduces :class:`.PlaquetteCompiler`, the class used to implement a plaquette compiler."""
 
 from collections.abc import Callable, Iterable
 from typing import Final
@@ -20,16 +18,13 @@ class PlaquetteCompiler:
         passes: Iterable[CompilationPass],
         mergeable_instructions_modifier: Callable[[frozenset[str]], frozenset[str]],
     ):
-        """A wrapper around a list of
-        :class:`~tqec.plaquette.compilation.passes.base.CompilationPass` instances.
-        """
+        """A wrapper around a list of :class:`.CompilationPass` instances."""
         self._name = name
         self._passes = passes
         self._mergeable_instructions_modifier = mergeable_instructions_modifier
 
     def compile(self, plaquette: Plaquette) -> Plaquette:
-        """Apply in order all the stored compilation passes and returns the
-        resulting plaquette.
+        """Apply in order all the stored compilation passes and returns the resulting plaquette.
 
         Args:
             plaquette: plaquette to compile.

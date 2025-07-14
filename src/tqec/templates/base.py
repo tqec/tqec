@@ -1,6 +1,4 @@
-"""Defines the base classes for templates: :class:`Template` and
-:class:`RectangularTemplate`.
-"""
+"""Defines the base classes for templates: :class:`Template` and :class:`RectangularTemplate`."""
 
 from __future__ import annotations
 
@@ -112,8 +110,7 @@ class Template(ABC):
     @property
     @abstractmethod
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the
-        :py:meth:`instantiate` method.
+        """Returns the number of plaquettes expected from the :py:meth:`instantiate` method.
 
         Returns:
             the number of plaquettes expected from the :py:meth:`instantiate` method.
@@ -132,8 +129,7 @@ class Template(ABC):
     def get_spatially_distinct_subtemplates(
         self, k: int, manhattan_radius: int = 1, avoid_zero_plaquettes: bool = True
     ) -> UniqueSubTemplates:
-        """Returns a representation of all the distinct sub-templates of the
-        provided manhattan radius.
+        """Returns a representation of the distinct sub-templates of the provided Manhattan radius.
 
         Note:
             This method will likely be inefficient for large templates (i.e., large
