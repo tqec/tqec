@@ -1,5 +1,4 @@
-"""Defines classes and functions to automatically and efficiently compute detectors in a given time
-slice.
+"""Defines code to automatically and efficiently compute detectors in a given time slice.
 
 This module is crucial for ``tqec`` as it implements scalable functions to
 automatically compute detectors in a provided time slice.

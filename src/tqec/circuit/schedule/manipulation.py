@@ -1,5 +1,4 @@
-"""Defines functions to modify or merge :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`
-instances.
+"""Defines functions to modify or merge :class:`.ScheduledCircuit` instances.
 
 This module implement a few central functions for the :mod:`tqec` library:
 
@@ -34,8 +33,7 @@ from tqec.utils.exceptions import TQECError, TQECWarning
 
 class _ScheduledCircuits:
     def __init__(self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap) -> None:
-        """Represents a collection of :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`
-        instances.
+        """Represents a collection of :class:`.ScheduledCircuit` instances.
 
         This class aims at providing accessors for several compatible instances
         of :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`. It allows
@@ -72,9 +70,7 @@ class _ScheduledCircuits:
         return self._current_moments[index] is not None
 
     def _peek_scheduled_moment(self, index: int) -> tuple[int, Moment]:
-        """Recover **without collecting** the pending operation for the instance at the given
-        index.
-        """
+        """Recover **without collecting** pending operations for the instance at the given index."""
         ret = self._current_moments[index]
         assert ret is not None
         return ret
@@ -242,8 +238,7 @@ def merge_scheduled_circuits(
     global_qubit_map: QubitMap,
     mergeable_instructions: Iterable[str] = (),
 ) -> ScheduledCircuit:
-    """Merge several :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instances into one
-    instance.
+    """Merge several :class:`.ScheduledCircuit` instances into one instance.
 
     This function takes several **compatible** scheduled circuits as input and
     merge them, respecting their schedules, into a unique

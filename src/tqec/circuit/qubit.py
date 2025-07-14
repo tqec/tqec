@@ -40,9 +40,7 @@ class GridQubit:
         return self._y
 
     def to_qubit_coords_instruction(self, index: int) -> stim.CircuitInstruction:
-        """Return the ``QUBIT_COORDS`` ``stim.CircuitInstruction`` needed to define ``self`` in a
-        ``stim.Circuit``.
-        """
+        """Return the ``QUBIT_COORDS`` instruction defining ``self`` in a ``stim.Circuit``."""
         return stim.CircuitInstruction(
             "QUBIT_COORDS",
             [index],

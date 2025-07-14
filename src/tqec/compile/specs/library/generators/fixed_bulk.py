@@ -75,8 +75,7 @@ def make_fixed_bulk_realignment_plaquette(
 
 class FixedBulkConventionGenerator:
     def __init__(self, translator: RPNGTranslator, compiler: PlaquetteCompiler):
-        """Helper class containing all the plaquette generation to implement the fixed bulk
-        convention.
+        """Helper class containing the plaquette generation to implement the fixed bulk convention.
 
         Args:
             translator: instance used to translate :class:`.RPNGDescription` instances into
@@ -248,9 +247,7 @@ class FixedBulkConventionGenerator:
     #             Regular qubit            #
     ########################################
     def get_memory_qubit_raw_template(self) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
-        implement a single logical qubit.
-        """
+        """Returns the template instance needed to implement a single logical qubit."""
         return QubitTemplate()
 
     def get_memory_qubit_rpng_descriptions(

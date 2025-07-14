@@ -1,5 +1,4 @@
-"""Defines :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` that represents a quantum
-circuit with a specific schedule.
+"""Defines :class:`.ScheduledCircuit` that represents a quantum circuit with a specific schedule.
 
 This module defines the class used to represent a quantum circuit. It is a
 "scheduled" circuit. Such circuits are composed of a finite number of ordered
@@ -376,8 +375,9 @@ class ScheduledCircuit:
         return self._moments[moment_index]
 
     def append_new_moment(self, moment: Moment) -> None:
-        """Schedule the provided :class:`~tqec.circuit.moment.Moment` instance at the end of the
-        circuit. The new schedule will be the last schedule plus one.
+        """Schedule the provided :class:`.Moment` instance at the end of the circuit.
+
+        The new schedule will be the last schedule plus one.
 
         Args:
             moment: the moment to schedule.
@@ -451,6 +451,7 @@ class ScheduledCircuit:
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[GridQubit]) -> ScheduledCircuit:
         """Filter the circuit to keep only the instructions that are applied on the provided qubits.
+
         If an instruction is applied on a qubit that is not in the provided list, it is removed.
 
         After filtering, the empty moments as well as the corresponding schedules

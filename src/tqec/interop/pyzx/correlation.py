@@ -1,6 +1,4 @@
-"""Defines the ``CorrelationSurface`` class and the functions to find the correlation surfaces in
-the ZX graph.
-"""
+"""Defines the :class:`.CorrelationSurface` class and functions to find them in a ZX graph."""
 
 from __future__ import annotations
 
@@ -332,8 +330,7 @@ def reduce_observables_to_minimal_generators(
     stabilizers_to_surfaces: dict[str, CorrelationSurface],
     hint_num_generators: int | None = None,
 ) -> dict[str, CorrelationSurface]:
-    """Reduce a set of observables to a set of genetrators with the smallest correlation surface
-    area.
+    """Reduce a set of observables to generators with the smallest correlation surface area.
 
     Args:
         stabilizers_to_surfaces: The mapping from the stabilizer to the correlation surface.

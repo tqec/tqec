@@ -24,9 +24,7 @@ various errors in the code base.
 
 
 class WithSpatialFootprint(ABC):
-    """Base class providing the interface that should be implemented by objects that have a spatial
-    footprint.
-    """
+    """Base class providing the interface implemented by objects that have a spatial footprint."""
 
     def __init__(self, trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset()):
         """Initialise the instance.
@@ -42,8 +40,7 @@ class WithSpatialFootprint(ABC):
     @property
     @abstractmethod
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        """Returns the 2-dimensional shape of the object as an exact expression that can then be
-        used to compute the shape for any value of ``k``.
+        """Returns the 2-dimensional shape of the object.
 
         Note:
             This method should return the shape in qubit-coordinates. That means

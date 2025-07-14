@@ -1,5 +1,4 @@
-"""Provides classes and functions to compile a :class:`~tqec.computation.block_graph.BlockGraph`
-instance into a ``stim.Circuit``.
+"""Provides code to compile a block graph instance into a ``stim.Circuit``.
 
 This module defines the needed classes and functions to transform a
 :class:`~tqec.computation.block_graph.BlockGraph` instance into a fully annotated

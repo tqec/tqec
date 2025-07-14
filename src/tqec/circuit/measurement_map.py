@@ -1,5 +1,4 @@
-"""Defines :class:`~tqec.circuit.measurement_map.MeasurementRecordsMap`, the class used to represent
-and query measurement offsets in a circuit.
+"""Defines :class:`.MeasurementRecordsMap` used to query measurement offsets in a circuit.
 
 This module defines :class:`MeasurementRecordsMap`. This class implements the
 necessary interface to register, modify and query measurement offsets from a
@@ -164,8 +163,9 @@ class MeasurementRecordsMap:
     def with_added_measurements(
         self, mrecords_map: MeasurementRecordsMap, repetitions: int = 1
     ) -> MeasurementRecordsMap:
-        """Build a new :class:`MeasurementRecordsMap` with measurements from ``self`` appearing
-        before measurements from the provided ``mrecords_map``.
+        """Build a new instance with measurements from ``self`` and ``mrecords_map``.
+
+        Measurements from ``self`` appear before measurements from the provided ``mrecords_map``.
 
         Args:
             mrecords_map: records of measurements happening after the measurements

@@ -1,6 +1,4 @@
-"""Defines the ``CorrelationSurface`` class and the functions to find the correlation surfaces in
-the ZX graph.
-"""
+"""Defines :class:`CorrelationSurface` and functions to find and build them from a ZX graph."""
 
 from __future__ import annotations
 
@@ -82,7 +80,9 @@ class ZXEdge:
 
 @dataclass(frozen=True)
 class CorrelationSurface:
-    """A correlation surface in a computation is a set of measurements whose values determine the
+    """Represents a set of measurements whose values determine the parity of the logical operators.
+
+    A correlation surface in a computation is a set of measurements whose values determine the
     parity of the logical operators at the inputs and outputs associated with the surface.
 
     Note:
