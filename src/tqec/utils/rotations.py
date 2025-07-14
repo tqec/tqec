@@ -117,7 +117,7 @@ def rotate_block_kind_by_matrix(
     # Placeholder for results
     rotated_name = ""
 
-    # State cultivation blocks: special case – added chars needed to clear loop
+    # State cultivation blocks: special case - added chars needed to clear loop
     original_name = str(block_kind)[:3] if len(str(block_kind)) > 1 else str(block_kind) + "-!"
 
     # Loop:
