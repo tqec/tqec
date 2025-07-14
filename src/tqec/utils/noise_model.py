@@ -25,12 +25,12 @@ Modifications to the original code:
    REPEAT blocks (not before the block, the first instruction in the repeated
    inner block, and after the block).
 6. Re-phrase slightly the docstrings.
+7. Replace typing.AbstractSet by collection.abc.Set
 
 """
 
 from collections import Counter, defaultdict
-from collections.abc import Iterator
-from typing import AbstractSet
+from collections.abc import Iterator, Set
 
 import stim
 
@@ -161,7 +161,7 @@ class NoiseRule:
         split_op: stim.CircuitInstruction,
         out_during_moment: stim.Circuit,
         after_moments: defaultdict[tuple[str, float], stim.Circuit],
-        immune_qubits: AbstractSet[int],
+        immune_qubits: Set[int],
     ) -> None:
         targets = split_op.targets_copy()
         if immune_qubits and any(
@@ -291,8 +291,8 @@ class NoiseModel:
         *,
         moment_split_ops: list[stim.CircuitInstruction],
         out: stim.Circuit,
-        system_qubits: AbstractSet[int],
-        immune_qubits: AbstractSet[int],
+        system_qubits: Set[int],
+        immune_qubits: Set[int],
     ) -> None:
         collapse_qubits: list[int] = []
         clifford_qubits: list[int] = []
@@ -340,8 +340,8 @@ class NoiseModel:
         *,
         moment_split_ops: list[stim.CircuitInstruction],
         out: stim.Circuit,
-        system_qubits: AbstractSet[int],
-        immune_qubits: AbstractSet[int],
+        system_qubits: Set[int],
+        immune_qubits: Set[int],
     ) -> None:
         after: defaultdict[tuple[str, float], stim.Circuit] = defaultdict(stim.Circuit)
         for split_op in moment_split_ops:
@@ -440,7 +440,7 @@ def occurs_in_classical_control_system(op: stim.CircuitInstruction) -> bool:
 
 
 def _split_targets_if_needed(
-    op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
+    op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
     """Splits operations into pieces as needed.
 
@@ -460,7 +460,7 @@ def _split_targets_if_needed(
 
 
 def _split_targets_if_needed_clifford_1q(
-    op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
+    op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
     if immune_qubits:
         args = op.gate_args_copy()
@@ -471,7 +471,7 @@ def _split_targets_if_needed_clifford_1q(
 
 
 def _split_targets_if_needed_clifford_2q(
-    op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
+    op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
     """Splits classical control system operations away from quantum operations."""
     assert OP_TYPES[op.name] == CLIFFORD_2Q
@@ -485,7 +485,7 @@ def _split_targets_if_needed_clifford_2q(
 
 
 def _split_targets_if_needed_m_basis(
-    op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
+    op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
     """Splits an MPP operation into one operation for each Pauli product it measures."""
     targets = op.targets_copy()
@@ -503,7 +503,7 @@ def _split_targets_if_needed_m_basis(
 
 
 def _iter_split_op_moments(
-    circuit: stim.Circuit, *, immune_qubits: AbstractSet[int]
+    circuit: stim.Circuit, *, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitRepeatBlock | list[stim.CircuitInstruction]]:
     """Splits a circuit into moments and some operations into pieces.
 

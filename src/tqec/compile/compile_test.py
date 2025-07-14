@@ -13,8 +13,9 @@ Warning:
 """
 
 import itertools
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 import pytest
 from typing_extensions import TypeVarTuple, Unpack
