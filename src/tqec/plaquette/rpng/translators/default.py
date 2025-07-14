@@ -36,6 +36,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
       then ``Y``, and finally ``Z``),
     - hadamard gates are always after resets and measurements,
     - targets of reset, measurement and hadamard are always ordered.
+
     """
 
     QUBITS: Final[PlaquetteQubits] = SquarePlaquetteQubits()

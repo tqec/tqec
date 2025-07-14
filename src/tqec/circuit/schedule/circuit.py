@@ -1,11 +1,12 @@
-"""Defines :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` that
-represents a quantum circuit with a specific schedule.
+"""Defines :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` that represents a quantum
+circuit with a specific schedule.
 
 This module defines the class used to represent a quantum circuit. It is a
 "scheduled" circuit. Such circuits are composed of a finite number of ordered
 :class:`~tqec.circuit.moment.Moment` instances that are each associated to an
 integer in a strictly increasing list of integers (called "schedule" and
 represented by instances of :class:`~.schedule.schedule.Schedule`).
+
 """
 
 from __future__ import annotations
@@ -99,8 +100,7 @@ class ScheduledCircuit:
         schedule: Schedule | list[int] | int = 0,
         qubit_map: QubitMap | None = None,
     ) -> ScheduledCircuit:
-        """Build a :class:`ScheduledCircuit` instance from a circuit and a
-        schedule.
+        """Build a :class:`ScheduledCircuit` instance from a circuit and a schedule.
 
         Args:
             circuit: the instance of ``stim.Circuit`` that is scheduled. Should
@@ -175,8 +175,7 @@ class ScheduledCircuit:
     def get_circuit(
         self, include_qubit_coords: bool = True, shift_to_positive: bool = False
     ) -> stim.Circuit:
-        """Build and return the ``stim.Circuit`` instance represented by
-        ``self``.
+        """Build and return the ``stim.Circuit`` instance represented by ``self``.
 
         Args:
             include_qubit_coords: if ``True``, ``QUBIT_COORDS`` annotations are
@@ -219,8 +218,7 @@ class ScheduledCircuit:
     def map_qubit_indices(
         self, qubit_index_map: dict[int, int], inplace: bool = False
     ) -> ScheduledCircuit:
-        """Map the qubits **indices** the :class:`ScheduledCircuit` instance is
-        applied on.
+        """Map the qubits **indices** the :class:`ScheduledCircuit` instance is applied on.
 
         Note:
             This method differs from :meth:`~ScheduledCircuit.map_to_qubits`
@@ -306,12 +304,12 @@ class ScheduledCircuit:
 
     @property
     def scheduled_moments(self) -> Iterator[tuple[int, Moment]]:
-        """Yields ``stim.Circuit`` instances representing a moment with their
-        computed schedule.
+        """Yields ``stim.Circuit`` instances representing a moment with their computed schedule.
 
         This property yields all the scheduled moments.
 
         The yielded elements are sorted with respect to their schedule.
+
         """
         yield from zip(self._schedule, self._moments)
 
@@ -359,8 +357,7 @@ class ScheduledCircuit:
         return moment_index
 
     def moment_at_schedule(self, schedule: int) -> Moment:
-        """Get the :class:`~tqec.circuit.moment.Moment` instance scheduled at
-        the provided schedule.
+        """Get the :class:`~tqec.circuit.moment.Moment` instance scheduled at the provided schedule.
 
         Args:
             schedule: the schedule at which the :class:`~tqec.circuit.moment.Moment`
@@ -379,9 +376,8 @@ class ScheduledCircuit:
         return self._moments[moment_index]
 
     def append_new_moment(self, moment: Moment) -> None:
-        """Schedule the provided :class:`~tqec.circuit.moment.Moment` instance
-        at the end of the circuit. The new schedule will be the last schedule
-        plus one.
+        """Schedule the provided :class:`~tqec.circuit.moment.Moment` instance at the end of the
+        circuit. The new schedule will be the last schedule plus one.
 
         Args:
             moment: the moment to schedule.
@@ -397,8 +393,7 @@ class ScheduledCircuit:
         self.add_to_schedule_index(schedule, moment)
 
     def add_to_schedule_index(self, schedule: int, moment: Moment) -> None:
-        """Add the operations contained in the provided ``moment`` to the
-        provided schedule.
+        """Add the operations contained in the provided ``moment`` to the provided schedule.
 
         Args:
             schedule: schedule at which operations in ``moment`` should be added.
@@ -455,9 +450,8 @@ class ScheduledCircuit:
         return sum(m.num_measurements for m in self._moments)
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[GridQubit]) -> ScheduledCircuit:
-        """Filter the circuit to keep only the instructions that are applied on
-        the provided qubits. If an instruction is applied on a qubit that is
-        not in the provided list, it is removed.
+        """Filter the circuit to keep only the instructions that are applied on the provided qubits.
+        If an instruction is applied on a qubit that is not in the provided list, it is removed.
 
         After filtering, the empty moments as well as the corresponding schedules
         are removed.

@@ -1,11 +1,12 @@
-"""Defines core data-structures to handle the mapping between qubit coordinates
-(as :class:`~tqec.circuit.qubit.GridQubit` instances) and qubit indices.
+"""Defines core data-structures to handle the mapping between qubit coordinates (as
+:class:`~tqec.circuit.qubit.GridQubit` instances) and qubit indices.
 
 A bijection from qubit coordinates to qubit indices is represented by
 :class:`QubitMap` defined in this module.
 
 This bijection can be obtained from a ``stim.Circuit`` instance by using
 :func:`get_qubit_map`.
+
 """
 
 from __future__ import annotations
@@ -27,8 +28,7 @@ from tqec.utils.scale import round_or_fail
 
 @dataclass(frozen=True)
 class QubitMap:
-    """Represent a bijection between :class:`~tqec.circuit.qubit.GridQubit`
-    instances and indices.
+    """Represent a bijection between :class:`~tqec.circuit.qubit.GridQubit` instances and indices.
 
     This class aims at representing a bidirectional mapping (hence the
     "bijection") between qubits and their associated indices.
@@ -49,8 +49,8 @@ class QubitMap:
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
-        """Creates a qubit map from the provided ``qubits``, associating
-        indices using the order in which qubits are provided.
+        """Creates a qubit map from the provided ``qubits``, associating indices using the order in
+        which qubits are provided.
         """
         return QubitMap(dict(enumerate(qubits)))
 
@@ -93,8 +93,7 @@ class QubitMap:
         return self.i2q.values()
 
     def with_mapped_qubits(self, qubit_map: Callable[[GridQubit], GridQubit]) -> QubitMap:
-        """Change the qubits involved in ``self`` without changing the
-        associated indices.
+        """Change the qubits involved in ``self`` without changing the associated indices.
 
         Args:
             qubit_map: a map from qubits to qubits that should associate a qubit
@@ -115,8 +114,7 @@ class QubitMap:
         return self.i2q.items()
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[GridQubit]) -> QubitMap:
-        """Filter the qubit map to only keep qubits present in the provided
-        ``qubits_to_keep``.
+        """Filter the qubit map to only keep qubits present in the provided ``qubits_to_keep``.
 
         Args:
             qubits_to_keep: the qubits to keep in the circuit.
@@ -144,8 +142,7 @@ class QubitMap:
         return QubitMap({i: q for i, q in self.i2q.items() if i in kept_qubit_indices})
 
     def to_circuit(self, shift_to_positive: bool = False) -> stim.Circuit:
-        """Get a circuit with only ``QUBIT_COORDS`` instructions representing
-        ``self``.
+        """Get a circuit with only ``QUBIT_COORDS`` instructions representing ``self``.
 
         Args:
             shift_to_positive: if ``True``, the qubit coordinates are shift such
@@ -189,6 +186,7 @@ class QubitMap:
         """Return a dictionary representation of the qubit map.
 
         The dictionary is intended to be used as a JSON object.
+
         """
         return {"i2q": [[qi, q.to_dict()] for qi, q in self.i2q.items()]}
 
@@ -225,8 +223,7 @@ class QubitMap:
 
 
 def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
-    """Returns the existing qubits and their coordinates at the end of the
-    provided ``circuit``.
+    """Returns the existing qubits and their coordinates at the end of the provided ``circuit``.
 
     Warning:
         This function, just like

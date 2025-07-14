@@ -13,6 +13,7 @@ class InstructionSimplifier(ABC):
     moment (which is often the case for the ``H`` gate). This class offers an
     interface to try to simplify those gates when it is possible, before raising
     an exception because the moment is invalid.
+
     """
 
     @abstractmethod

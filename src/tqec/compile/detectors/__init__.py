@@ -1,5 +1,5 @@
-"""Defines classes and functions to automatically and efficiently compute
-detectors in a given time slice.
+"""Defines classes and functions to automatically and efficiently compute detectors in a given time
+slice.
 
 This module is crucial for ``tqec`` as it implements scalable functions to
 automatically compute detectors in a provided time slice.
@@ -25,6 +25,7 @@ as a database for detectors and that can be used to:
 
 Implementation details can be found in the respective function/class
 documentation.
+
 """
 
 from .compute import (

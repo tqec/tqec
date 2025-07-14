@@ -1,4 +1,6 @@
-"""Defines functions to plot positioned ZX graphs and correlation surfaces on 3D axes with ``matplotlib``."""
+"""Defines functions to plot positioned ZX graphs and correlation surfaces on 3D axes with
+``matplotlib``.
+"""
 
 from dataclasses import astuple
 from typing import cast

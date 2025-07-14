@@ -3,6 +3,7 @@
 This module defines :class:`Measurement` to represent a unique measurement in
 a quantum circuit and :class:`RepeatedMeasurement` to represent a unique
 measurement within a `REPEAT` instruction in a quantum circuit.
+
 """
 
 from __future__ import annotations
@@ -59,8 +60,8 @@ class AbstractMeasurement(ABC):
 
     @abstractmethod
     def map_qubit(self, qubit_map: Mapping[GridQubit, GridQubit]) -> AbstractMeasurement:
-        """Returns a new instance representing a measurement on the qubit
-        obtained from ``self.qubit`` and the provided ``qubit_map``.
+        """Returns a new instance representing a measurement on the qubit obtained from
+        ``self.qubit`` and the provided ``qubit_map``.
 
         Args:
             qubit_map: a correspondence map for qubits.

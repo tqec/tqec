@@ -24,6 +24,7 @@ class VisualisationData:
 
     This dataclass holds data that will then be used to visualise one layer of the visualised
     :class:`~tqec.compile.tree.tree.LayerTree` instance.
+
     """
 
     layer: LayoutLayer
@@ -45,6 +46,7 @@ class VisualisationData:
 
         This method is used to get a new instance of :class:`.VisualisationData` with a modified
         offset in time, for example when visualising each repetitions in a REPEAT loop.
+
         """
         return VisualisationData(
             self.layer,

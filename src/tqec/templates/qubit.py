@@ -23,6 +23,7 @@ class QubitTemplate(RectangularTemplate):
         7  9 10  9 10 11
         8 10  9 10  9 12
         3 13 14 13 14  4
+
     """
 
     @override
@@ -195,6 +196,7 @@ class QubitVerticalBorders(RectangularTemplate):
         5 7
         6 8
         3 4
+
     """
 
     @override
@@ -248,6 +250,7 @@ class QubitHorizontalBorders(RectangularTemplate):
     The below text represents this template for an input ``k == 2`` ::
         1 5 6 5 6 2
         3 7 8 7 8 4
+
     """
 
     @override

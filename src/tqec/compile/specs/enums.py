@@ -62,6 +62,7 @@ class SpatialArms(Flag):
         """Return the 2 arm combinations that form a I-shape.
 
         The 2 combinations are UP | DOWN and LEFT | RIGHT.
+
         """
         return [
             SpatialArms.DOWN | SpatialArms.UP,
@@ -73,6 +74,7 @@ class SpatialArms(Flag):
         """Return the 4 arm combinations that form a L-shape.
 
         The 4 combinations are DOWN | LEFT, DOWN | RIGHT, UP | LEFT and UP | RIGHT.
+
         """
         return [
             SpatialArms.DOWN | SpatialArms.LEFT,

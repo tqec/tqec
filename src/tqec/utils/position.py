@@ -22,6 +22,7 @@ we have
 This is particularly useful when we, as humans, are mostly used to always have
 (x, y) coordinates but some libraries (such as numpy) reverse that order for
 indexing.
+
 """
 
 from __future__ import annotations
@@ -98,10 +99,10 @@ class Shape2D(Vec2D):
     def to_numpy_shape(self) -> tuple[int, int]:
         """Returns the shape according to numpy indexing.
 
-        In the coordinate system used in this library, numpy indexes
-        arrays using (y, x) coordinates. This method is here to
-        translate a Shape instance to a numpy shape transparently for
-        the user.
+        In the coordinate system used in this library, numpy indexes arrays using (y, x)
+        coordinates. This method is here to translate a Shape instance to a numpy shape
+        transparently for the user.
+
         """
         return (self.y, self.x)
 

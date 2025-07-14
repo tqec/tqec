@@ -20,6 +20,7 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
     such, composed layers are expected to have either a scalable time footprint
     (i.e., that grows with ``k``) or a constant time footprint that is strictly
     greater than ``1``.
+
     """
 
     @abstractmethod
