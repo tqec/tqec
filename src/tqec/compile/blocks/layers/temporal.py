@@ -49,9 +49,8 @@ class WithTemporalFootprint(ABC):
         """Return ``self`` with the provided temporal borders replaced.
 
         Args:
-            borders: a mapping from temporal borders to replace to their
-                replacement. A value of ``None`` as a replacement means that the
-                border is removed.
+            border_replacements: a mapping from temporal borders to replace to their replacement. A
+                value of ``None`` as a replacement means that the border is removed.
 
         Returns:
             a copy of ``self`` with the provided ``borders`` replaced, or ``None``

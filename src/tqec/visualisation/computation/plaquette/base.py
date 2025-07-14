@@ -289,6 +289,7 @@ def svg_path_enclosing_points(
 
     Args:
         points: a list of points that will be linked together.
+        fill: hexadecimal colour used to fill the produced path.
         configuration: drawing configuration.
 
     Warning:

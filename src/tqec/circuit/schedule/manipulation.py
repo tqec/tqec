@@ -256,7 +256,7 @@ def merge_scheduled_circuits(
 
     Args:
         circuits: **compatible** circuits to merge.
-        qubit_map: global qubit map for all the provided ``circuits``.
+        global_qubit_map: global qubit map for all the provided ``circuits``.
         mergeable_instructions: a list of instruction names that are considered
             mergeable. Duplicate instructions with a name in this list will be
             merged into a single instruction.

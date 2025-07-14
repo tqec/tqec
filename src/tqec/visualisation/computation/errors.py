@@ -62,6 +62,7 @@ def get_errors_svg(
         plaquette_width: width (in SVG dimensions) of a regular square plaquette.
         plaquette_height: height (in SVG dimensions) of a regular square plaquette.
         size: size (in SVG dimensions) of the crosses used to mark errors.
+        add_detectors_from_errors: add a visualisation of detectors from the provided errors.
 
     Returns:
         a SVG element containing as many sub-elements as there are errors in the
