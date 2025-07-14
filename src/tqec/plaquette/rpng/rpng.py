@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
@@ -187,7 +187,7 @@ class RPNGDescription:
     """
 
     corners: tuple[RPNG, RPNG, RPNG, RPNG]
-    ancilla: RG = RG(PauliBasis.X, PauliBasis.X)
+    ancilla: RG = field(default=RG(PauliBasis.X, PauliBasis.X))
 
     def __post_init__(self) -> None:
         """Validation of the initialization arguments.
