@@ -15,7 +15,7 @@ from tqec.compile.observables.abstract_observable import (
     PipeWithObservableBasis,
 )
 from tqec.templates.layout import LayoutTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import PlaquetteShape2D, Position3D
 from tqec.utils.scale import round_or_fail
 
@@ -40,11 +40,11 @@ class Observable:
 
     def __post_init__(self) -> None:
         if len(self.measured_qubits) != len(self.measurement_offsets):
-            raise TQECException(
+            raise TQECError(
                 "The number of measured qubits and measurement offsets must be the same."
             )
         if any(m >= 0 for m in self.measurement_offsets):
-            raise TQECException("Expected strictly negative measurement offsets.")
+            raise TQECError("Expected strictly negative measurement offsets.")
 
     def to_instruction(self) -> stim.CircuitInstruction:
         """Return the ``stim`` instruction reprensented by ``self``."""
@@ -259,7 +259,7 @@ def get_observable_with_measurement_records(
     if not ignore_qubits_with_no_measurement and any(
         len(measurement_records.mapping.get(q, [])) == 0 for q in qubits
     ):
-        raise TQECException(
+        raise TQECError(
             "Some qubits are not measured in the circuit. Set ignore_qubits_with_no_measurement to True to ignore them."
         )
 

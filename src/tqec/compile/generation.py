@@ -109,7 +109,7 @@ def generate_circuit_from_instantiation(
         provided inputs.
 
     Raises:
-        TQECException: if any index in ``plaquette_array`` is not correctly
+        TQECError: if any index in ``plaquette_array`` is not correctly
             associated to a plaquette in ``plaquettes``.
 
     """

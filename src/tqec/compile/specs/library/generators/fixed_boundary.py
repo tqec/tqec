@@ -30,7 +30,7 @@ from tqec.templates.qubit import (
     QubitVerticalBorders,
 )
 from tqec.utils.enums import Basis, Orientation
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Direction3D
 
@@ -196,7 +196,7 @@ class FixedBoundaryConventionGenerator:
             ``RIGHT``).
 
         """
-        PO = PlaquetteOrientation
+        _po = PlaquetteOrientation
         h = "h" if hadamard else "-"
         ret: dict[Basis, dict[PlaquetteOrientation, RPNGDescription]] = {}
         # Note: the schedule of CNOT gates in weight-2 plaquettes is less
@@ -206,10 +206,10 @@ class FixedBoundaryConventionGenerator:
         for basis in Basis:
             b = basis.value.lower()
             ret[basis] = {
-                PO.DOWN: RPNGDescription.from_string(f"-{b}{s[0]}{h} -{b}{s[1]}{h} ---- ----"),
-                PO.LEFT: RPNGDescription.from_string(f"---- -{b}{s[1]}{h} ---- -{b}{s[3]}{h}"),
-                PO.UP: RPNGDescription.from_string(f"---- ---- -{b}{s[2]}{h} -{b}{s[3]}{h}"),
-                PO.RIGHT: RPNGDescription.from_string(f"-{b}{s[0]}{h} ---- -{b}{s[2]}{h} ----"),
+                _po.DOWN: RPNGDescription.from_string(f"-{b}{s[0]}{h} -{b}{s[1]}{h} ---- ----"),
+                _po.LEFT: RPNGDescription.from_string(f"---- -{b}{s[1]}{h} ---- -{b}{s[3]}{h}"),
+                _po.UP: RPNGDescription.from_string(f"---- ---- -{b}{s[2]}{h} -{b}{s[3]}{h}"),
+                _po.RIGHT: RPNGDescription.from_string(f"-{b}{s[0]}{h} ---- -{b}{s[2]}{h} ----"),
             }
         return ret
 
@@ -418,21 +418,20 @@ class FixedBoundaryConventionGenerator:
 
         """
         # Basis for top/bottom and left/right boundary plaquettes
-        HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
-        VBASIS = HBASIS.flipped()
-        # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+        hbasis = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+        vbasis = hbasis.flipped()
+        # Generating plaquette descriptions we will need later
+        bulk_descriptions = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
         return FrozenDefaultDict(
             {
-                6: TBPs[VBASIS][PlaquetteOrientation.UP],
-                7: TBPs[HBASIS][PlaquetteOrientation.LEFT],
+                6: two_body_descriptions[vbasis][PlaquetteOrientation.UP],
+                7: two_body_descriptions[hbasis][PlaquetteOrientation.LEFT],
                 # Bulk
-                9: BPs[VBASIS][Orientation.HORIZONTAL],
-                10: BPs[HBASIS][Orientation.VERTICAL],
-                12: TBPs[HBASIS][PlaquetteOrientation.RIGHT],
-                13: TBPs[VBASIS][PlaquetteOrientation.DOWN],
+                9: bulk_descriptions[vbasis][Orientation.HORIZONTAL],
+                10: bulk_descriptions[hbasis][Orientation.VERTICAL],
+                12: two_body_descriptions[hbasis][PlaquetteOrientation.RIGHT],
+                13: two_body_descriptions[vbasis][PlaquetteOrientation.DOWN],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -534,24 +533,27 @@ class FixedBoundaryConventionGenerator:
 
         """
         # Basis for top/bottom boundary plaquettes
-        VBASIS = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
-        HBASIS = VBASIS.flipped()
-        # BPs: Bulk Plaquettes.
-        BPs_LEFT = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement, (1, 3))
-        BPs_RIGHT = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement, (0, 2))
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+        vbasis = Basis.Z if z_orientation == Orientation.VERTICAL else Basis.X
+        hbasis = vbasis.flipped()
+        # Generating plaquette descriptions we will need
+        left_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (1, 3)
+        )
+        right_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (0, 2)
+        )
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
 
         return FrozenDefaultDict(
             {
-                2: TBPs[VBASIS][PlaquetteOrientation.UP],
-                3: TBPs[VBASIS][PlaquetteOrientation.DOWN],
+                2: two_body_descriptions[vbasis][PlaquetteOrientation.UP],
+                3: two_body_descriptions[vbasis][PlaquetteOrientation.DOWN],
                 # LEFT bulk
-                5: BPs_LEFT[VBASIS][Orientation.HORIZONTAL],
-                6: BPs_LEFT[HBASIS][Orientation.VERTICAL],
+                5: left_bulk_descriptions[vbasis][Orientation.HORIZONTAL],
+                6: left_bulk_descriptions[hbasis][Orientation.VERTICAL],
                 # RIGHT bulk
-                7: BPs_RIGHT[HBASIS][Orientation.VERTICAL],
-                8: BPs_RIGHT[VBASIS][Orientation.HORIZONTAL],
+                7: right_bulk_descriptions[hbasis][Orientation.VERTICAL],
+                8: right_bulk_descriptions[vbasis][Orientation.HORIZONTAL],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -665,24 +667,27 @@ class FixedBoundaryConventionGenerator:
 
         """
         # Basis for left/right boundary plaquettes
-        HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
-        VBASIS = HBASIS.flipped()
-        # BPs: Bulk Plaquettes.
-        BPs_UP = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement, (2, 3))
-        BPs_DOWN = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement, (0, 1))
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+        hbasis = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+        vbasis = hbasis.flipped()
+        # Generating plaquette descriptions we will need later
+        up_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (2, 3)
+        )
+        down_bulk_descriptions = self.get_bulk_rpng_descriptions(
+            is_reversed, reset, measurement, (0, 1)
+        )
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
 
         return FrozenDefaultDict(
             {
-                1: TBPs[HBASIS][PlaquetteOrientation.LEFT],
-                4: TBPs[HBASIS][PlaquetteOrientation.RIGHT],
+                1: two_body_descriptions[hbasis][PlaquetteOrientation.LEFT],
+                4: two_body_descriptions[hbasis][PlaquetteOrientation.RIGHT],
                 # TOP bulk
-                5: BPs_UP[VBASIS][Orientation.HORIZONTAL],
-                6: BPs_UP[HBASIS][Orientation.VERTICAL],
+                5: up_bulk_descriptions[vbasis][Orientation.HORIZONTAL],
+                6: up_bulk_descriptions[hbasis][Orientation.VERTICAL],
                 # BOTTOM bulk
-                7: BPs_DOWN[HBASIS][Orientation.VERTICAL],
-                8: BPs_DOWN[VBASIS][Orientation.HORIZONTAL],
+                7: down_bulk_descriptions[hbasis][Orientation.VERTICAL],
+                8: down_bulk_descriptions[vbasis][Orientation.HORIZONTAL],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -801,7 +806,7 @@ class FixedBoundaryConventionGenerator:
                 measurement being applied on data-qubits.
 
         Raises:
-            TQECException: if ``arms`` describes an I-shaped junction (TOP/DOWN
+            TQECError: if ``arms`` describes an I-shaped junction (TOP/DOWN
                 or LEFT/RIGHT).
 
         Returns:
@@ -823,42 +828,41 @@ class FixedBoundaryConventionGenerator:
         #     12   7  15  19  15  19  15  19   8  22
         #      3  23  24  23  24  23  24  23  24   4
         if arms in SpatialArms.I_shaped_arms():
-            raise TQECException(
+            raise TQECError(
                 "I-shaped spatial junctions (i.e., spatial junctions with only two "
                 "arms that are the opposite of each other: LEFT/RIGHT or UP/DOWN) "
                 "should not use get_spatial_cube_qubit_template but rather use "
                 "a conventional memory logical qubit with get_memory_qubit_template."
             )
-        # SBB: Spatial Boundary Basis.
-        SBB = spatial_boundary_basis
-        # Pre-define some collection of plaquettes
-        # CSs: Corner Stabilizers (3-body stabilizers).
-        CSs = self.get_3_body_rpng_descriptions(SBB, is_reversed, reset, measurement)
-        # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
-        # TBPs: Two-Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+        # _sbb: Spatial Boundary Basis.
+        _sbb = spatial_boundary_basis
+        # Pre-define some collection of plaquette descriptions
+        corner_descriptions = self.get_3_body_rpng_descriptions(
+            _sbb, is_reversed, reset, measurement
+        )
+        bulk_descriptions = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
 
         if arms == SpatialArms.NONE:
             # Stability experiment
             return FrozenDefaultDict(
                 {
-                    5: CSs[0],
-                    6: BPs[SBB.flipped()][Orientation.VERTICAL],
-                    7: BPs[SBB.flipped()][Orientation.VERTICAL],
-                    8: CSs[3],
-                    10: TBPs[SBB][PlaquetteOrientation.UP],
-                    12: TBPs[SBB][PlaquetteOrientation.LEFT],
-                    13: BPs[SBB][Orientation.HORIZONTAL],
-                    14: BPs[SBB][Orientation.VERTICAL],
-                    15: BPs[SBB][Orientation.HORIZONTAL],
-                    16: BPs[SBB][Orientation.VERTICAL],
-                    17: BPs[SBB.flipped()][Orientation.VERTICAL],
-                    18: BPs[SBB.flipped()][Orientation.HORIZONTAL],
-                    19: BPs[SBB.flipped()][Orientation.VERTICAL],
-                    20: BPs[SBB.flipped()][Orientation.HORIZONTAL],
-                    21: TBPs[SBB][PlaquetteOrientation.RIGHT],
-                    23: TBPs[SBB][PlaquetteOrientation.DOWN],
+                    5: corner_descriptions[0],
+                    6: bulk_descriptions[_sbb.flipped()][Orientation.VERTICAL],
+                    7: bulk_descriptions[_sbb.flipped()][Orientation.VERTICAL],
+                    8: corner_descriptions[3],
+                    10: two_body_descriptions[_sbb][PlaquetteOrientation.UP],
+                    12: two_body_descriptions[_sbb][PlaquetteOrientation.LEFT],
+                    13: bulk_descriptions[_sbb][Orientation.HORIZONTAL],
+                    14: bulk_descriptions[_sbb][Orientation.VERTICAL],
+                    15: bulk_descriptions[_sbb][Orientation.HORIZONTAL],
+                    16: bulk_descriptions[_sbb][Orientation.VERTICAL],
+                    17: bulk_descriptions[_sbb.flipped()][Orientation.VERTICAL],
+                    18: bulk_descriptions[_sbb.flipped()][Orientation.HORIZONTAL],
+                    19: bulk_descriptions[_sbb.flipped()][Orientation.VERTICAL],
+                    20: bulk_descriptions[_sbb.flipped()][Orientation.HORIZONTAL],
+                    21: two_body_descriptions[_sbb][PlaquetteOrientation.RIGHT],
+                    23: two_body_descriptions[_sbb][PlaquetteOrientation.DOWN],
                 },
                 default_value=RPNGDescription.empty(),
             )
@@ -877,7 +881,7 @@ class FixedBoundaryConventionGenerator:
         # general rule (the boundaries in the X axis do not follow the
         # convention), so we only have to test if we have a dead-end in the Y
         # dimension.
-        ODD_BOUNDARY_DIMENSION: Final[Literal[Direction3D.X, Direction3D.Y]] = (
+        odd_boundary_dimension: Final[Literal[Direction3D.X, Direction3D.Y]] = (
             Direction3D.Y if arms in [SpatialArms.UP, SpatialArms.DOWN] else Direction3D.X
         )
 
@@ -888,17 +892,17 @@ class FixedBoundaryConventionGenerator:
         ####################
         # Fill the boundaries that should be filled in the returned template
         # because they have no arms, and so will not be filled later.
-        TOP, BOTTOM, LEFT, RIGHT = (
-            (10, 23, 12, 21) if ODD_BOUNDARY_DIMENSION == Direction3D.X else (9, 24, 11, 22)
+        top, bottom, left, right = (
+            (10, 23, 12, 21) if odd_boundary_dimension == Direction3D.X else (9, 24, 11, 22)
         )
         if SpatialArms.UP not in arms:
-            mapping[TOP] = TBPs[SBB][PlaquetteOrientation.UP]
+            mapping[top] = two_body_descriptions[_sbb][PlaquetteOrientation.UP]
         if SpatialArms.RIGHT not in arms:
-            mapping[RIGHT] = TBPs[SBB][PlaquetteOrientation.RIGHT]
+            mapping[right] = two_body_descriptions[_sbb][PlaquetteOrientation.RIGHT]
         if SpatialArms.DOWN not in arms:
-            mapping[BOTTOM] = TBPs[SBB][PlaquetteOrientation.DOWN]
+            mapping[bottom] = two_body_descriptions[_sbb][PlaquetteOrientation.DOWN]
         if SpatialArms.LEFT not in arms:
-            mapping[LEFT] = TBPs[SBB][PlaquetteOrientation.LEFT]
+            mapping[left] = two_body_descriptions[_sbb][PlaquetteOrientation.LEFT]
 
         ####################
         #       Bulk       #
@@ -906,57 +910,57 @@ class FixedBoundaryConventionGenerator:
         # Bulk plaquettes basis might change according to the odd boundary
         # dimension to avoid having 2 plaquettes measuring the same basis side
         # by side.
-        # TLB, OTB: Top-Left (plaquette) Basis, Other Basis (for the bulk)
-        TLB = SBB if ODD_BOUNDARY_DIMENSION == Direction3D.X else SBB.flipped()
-        OTB = TLB.flipped()
+        # tlb, otb: Top-Left (plaquette) Basis, Other Basis (for the bulk)
+        tlb = _sbb if odd_boundary_dimension == Direction3D.X else _sbb.flipped()
+        otb = tlb.flipped()
         # Assigning plaquette description to the bulk, considering that the bulk
         # corners (i.e. indices {5, 6, 7, 8}) should be assigned "regular" plaquettes
         # (i.e. 6 is assigned the same plaquette as 17, 7 -> 19, 5 -> 13, 8 -> 15).
         # If these need to be changed, it will be done afterwards.
         # Setting the orientations for SBB plaquettes for each of the four
         # portions of the template bulk.
-        SBB_UP = SBB_DOWN = Orientation.VERTICAL
-        SBB_RIGHT = SBB_LEFT = Orientation.HORIZONTAL
+        sbb_up = sbb_down = Orientation.VERTICAL
+        sbb_right = sbb_left = Orientation.HORIZONTAL
         # If the corresponding arm is missing, the SBB plaquette hook error
         # orientation should flip to avoid shortcuts due to hook errors.
-        SBB_UP = SBB_UP if SpatialArms.UP in arms else SBB_UP.flip()
-        SBB_DOWN = SBB_DOWN if SpatialArms.DOWN in arms else SBB_DOWN.flip()
-        SBB_RIGHT = SBB_RIGHT if SpatialArms.RIGHT in arms else SBB_RIGHT.flip()
-        SBB_LEFT = SBB_LEFT if SpatialArms.LEFT in arms else SBB_LEFT.flip()
+        sbb_up = sbb_up if SpatialArms.UP in arms else sbb_up.flip()
+        sbb_down = sbb_down if SpatialArms.DOWN in arms else sbb_down.flip()
+        sbb_right = sbb_right if SpatialArms.RIGHT in arms else sbb_right.flip()
+        sbb_left = sbb_left if SpatialArms.LEFT in arms else sbb_left.flip()
         # The OTH (other basis) orientations are the opposite of the SBB
         # orientation.
-        OTH_UP, OTH_DOWN = SBB_UP.flip(), SBB_DOWN.flip()
-        OTH_RIGHT, OTH_LEFT = SBB_RIGHT.flip(), SBB_LEFT.flip()
+        oth_up, oth_down = sbb_up.flip(), sbb_down.flip()
+        oth_right, oth_left = sbb_right.flip(), sbb_left.flip()
 
         # Setting the SBB plaquettes
-        mapping[5] = mapping[13] = BPs[TLB][SBB_UP]
-        mapping[8] = mapping[15] = BPs[TLB][SBB_DOWN]
-        mapping[14] = BPs[TLB][SBB_RIGHT]
-        mapping[16] = BPs[TLB][SBB_LEFT]
+        mapping[5] = mapping[13] = bulk_descriptions[tlb][sbb_up]
+        mapping[8] = mapping[15] = bulk_descriptions[tlb][sbb_down]
+        mapping[14] = bulk_descriptions[tlb][sbb_right]
+        mapping[16] = bulk_descriptions[tlb][sbb_left]
         # Setting the OTH plaquettes
-        mapping[6] = mapping[17] = BPs[OTB][OTH_UP]
-        mapping[7] = mapping[19] = BPs[OTB][OTH_DOWN]
-        mapping[18] = BPs[OTB][OTH_RIGHT]
-        mapping[20] = BPs[OTB][OTH_LEFT]
+        mapping[6] = mapping[17] = bulk_descriptions[otb][oth_up]
+        mapping[7] = mapping[19] = bulk_descriptions[otb][oth_down]
+        mapping[18] = bulk_descriptions[otb][oth_right]
+        mapping[20] = bulk_descriptions[otb][oth_left]
 
         # For the in-bulk corners, if the two arms around the corner are not
         # present, the corner plaquette has been removed from the mapping. The
         # corner **within the bulk** should be overwritten to become a 3-body
         # stabilizer measurement.
         if arms == SpatialArms.RIGHT:
-            mapping[5] = CSs[0]
+            mapping[5] = corner_descriptions[0]
         elif arms == SpatialArms.DOWN:
-            mapping[6] = CSs[1]
+            mapping[6] = corner_descriptions[1]
         elif arms == SpatialArms.UP:
-            mapping[7] = CSs[2]
+            mapping[7] = corner_descriptions[2]
         elif arms == SpatialArms.LEFT:
-            mapping[8] = CSs[3]
+            mapping[8] = corner_descriptions[3]
         # At this point, we are sure that len(arms) >= 2. The only cases left
         # where a 3-body stabilizer is needed are the following:
         if arms == SpatialArms.RIGHT | SpatialArms.DOWN:
-            mapping[5] = CSs[0]
+            mapping[5] = corner_descriptions[0]
         if arms == SpatialArms.LEFT | SpatialArms.UP:
-            mapping[8] = CSs[3]
+            mapping[8] = corner_descriptions[3]
 
         ####################
         #  Sanity checks   #
@@ -1014,8 +1018,8 @@ class FixedBoundaryConventionGenerator:
                 measurement being applied on data-qubits.
 
         Raises:
-            TQECException: if ``arms`` only contains 0 or 1 flag.
-            TQECException: if ``arms`` describes an I-shaped junction (TOP/DOWN
+            TQECError: if ``arms`` only contains 0 or 1 flag.
+            TQECError: if ``arms`` describes an I-shaped junction (TOP/DOWN
                 or LEFT/RIGHT).
 
         Returns:
@@ -1047,7 +1051,7 @@ class FixedBoundaryConventionGenerator:
                 combination cannot be formed by a single arm).
 
         Raises:
-            TQECException: if the provided ``arms`` value does not check the
+            TQECError: if the provided ``arms`` value does not check the
                 documented pre-conditions.
 
         """
@@ -1056,7 +1060,7 @@ class FixedBoundaryConventionGenerator:
             or len(arms) > 2
             or (len(arms) == 2 and arms not in SpatialArms.I_shaped_arms())
         ):
-            raise TQECException(
+            raise TQECError(
                 f"The two provided arms cannot form a spatial pipe. Got {arms} but "
                 f"expected either a single {SpatialArms.__name__} or two but in a "
                 f"line (e.g., {SpatialArms.I_shaped_arms()})."
@@ -1066,7 +1070,7 @@ class FixedBoundaryConventionGenerator:
         elif SpatialArms.UP is arms or SpatialArms.DOWN in arms:
             return QubitHorizontalBorders()
         else:
-            raise TQECException(f"Unrecognized spatial arm(s): {arms}.")
+            raise TQECError(f"Unrecognized spatial arm(s): {arms}.")
 
     def get_spatial_cube_arm_plaquettes(
         self,
@@ -1115,7 +1119,7 @@ class FixedBoundaryConventionGenerator:
                 to no measurement being applied on data-qubits.
 
         Raises:
-            TQECException: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
+            TQECError: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
                 if it contains 0 or 3+ flags).
 
         Returns:
@@ -1124,7 +1128,7 @@ class FixedBoundaryConventionGenerator:
 
         """
         if len(arms) == 2 and arms not in SpatialArms.I_shaped_arms():
-            raise TQECException(
+            raise TQECError(
                 f"The two provided arms cannot form a spatial pipe. Got {arms} but "
                 f"expected either a single {SpatialArms.__name__} or two but in a "
                 f"line (e.g., {SpatialArms.I_shaped_arms()})."
@@ -1154,7 +1158,7 @@ class FixedBoundaryConventionGenerator:
                 reset,
                 measurement,
             )
-        raise TQECException(f"Got an invalid arm: {arms}.")
+        raise TQECError(f"Got an invalid arm: {arms}.")
 
     def _get_left_right_spatial_cube_arm_plaquettes(
         self,
@@ -1245,9 +1249,9 @@ class FixedBoundaryConventionGenerator:
                 spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
             )
         # General case, need extended stabilizers.
-        SBB, OTB = spatial_boundary_basis, spatial_boundary_basis.flipped()
+        sbb, otb = spatial_boundary_basis, spatial_boundary_basis.flipped()
         # EPs: extended plaquettes
-        EPs = self.get_extended_plaquettes(reset, measurement, is_reversed)
+        extended_plaquettes = self.get_extended_plaquettes(reset, measurement, is_reversed)
         # Dictionary that will be filled with plaquettes
         plaquettes: dict[int, Plaquette] = {}
         # Getting the extended plaquettes for the bulk and filling the dictionary
@@ -1256,12 +1260,12 @@ class FixedBoundaryConventionGenerator:
                 linked_cubes
             )
         )
-        bulk1 = EPs[OTB if has_left_boundary else SBB].bulk
-        bulk2 = EPs[SBB if has_left_boundary else OTB].bulk
+        bulk1 = extended_plaquettes[otb if has_left_boundary else sbb].bulk
+        bulk2 = extended_plaquettes[sbb if has_left_boundary else otb].bulk
         plaquettes |= {5: bulk1.top, 6: bulk2.top, 7: bulk1.bottom, 8: bulk2.bottom}
         # Getting the extended plaquette, either for the left or the right
         # boundary depending on the spatial arm that is being asked for.
-        boundary_collection = EPs[SBB]
+        boundary_collection = extended_plaquettes[sbb]
         u, v = linked_cubes
         if has_left_boundary:
             boundary = (
@@ -1328,14 +1332,12 @@ class FixedBoundaryConventionGenerator:
         """
         # Aliases to shorten line length.
         r, m = reset, measurement
-        SBB = spatial_boundary_basis
-        # BPs: Bulk Plaquettes.
-        BPs_UP = self.get_bulk_rpng_descriptions(is_reversed, r, m, (2, 3))
-        BPs_DOWN = self.get_bulk_rpng_descriptions(is_reversed, r, m, (0, 1))
-        # CSs: Corner Stabilizers (3-body stabilizers).
-        CSs = self.get_3_body_rpng_descriptions(SBB, is_reversed, r, m)
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+        _sbb = spatial_boundary_basis
+        # Generating the plaquette descriptions we will need later
+        up_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, (2, 3))
+        down_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, (0, 1))
+        corner_descriptions = self.get_3_body_rpng_descriptions(_sbb, is_reversed, r, m)
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
         # Here, depending on the linked cubes, we might insert regular two-body
         # plaquettes or three-body plaquettes.
         u, v = linked_cubes
@@ -1343,23 +1345,27 @@ class FixedBoundaryConventionGenerator:
             u.has_spatial_pipe_in_both_dimensions and v.has_spatial_pipe_in_both_dimensions
         )
         right_plaquette = (
-            CSs[3] if SpatialArms.RIGHT in u.spatial_arms else TBPs[SBB][PlaquetteOrientation.RIGHT]
+            corner_descriptions[3]
+            if SpatialArms.RIGHT in u.spatial_arms
+            else two_body_descriptions[_sbb][PlaquetteOrientation.RIGHT]
         )
         left_plaquette = (
-            CSs[0] if SpatialArms.LEFT in v.spatial_arms else TBPs[SBB][PlaquetteOrientation.LEFT]
+            corner_descriptions[0]
+            if SpatialArms.LEFT in v.spatial_arms
+            else two_body_descriptions[_sbb][PlaquetteOrientation.LEFT]
         )
-        # TLB, OTB: Top-Left Basis, Other Basis
-        TLB = SBB if both_cubes_have_spatial_pipes_in_both_dimensions else SBB.flipped()
-        OTB = TLB.flipped()
-        LEFT, RIGHT = (3, 2) if both_cubes_have_spatial_pipes_in_both_dimensions else (1, 4)
+        # tlb, otb: Top-Left Basis, Other Basis
+        tlb = _sbb if both_cubes_have_spatial_pipes_in_both_dimensions else _sbb.flipped()
+        otb = tlb.flipped()
+        left, right = (3, 2) if both_cubes_have_spatial_pipes_in_both_dimensions else (1, 4)
         return FrozenDefaultDict(
             {
-                RIGHT: right_plaquette,
-                LEFT: left_plaquette,
-                5: BPs_UP[TLB][Orientation.VERTICAL],
-                6: BPs_UP[OTB][Orientation.HORIZONTAL],
-                7: BPs_DOWN[OTB][Orientation.HORIZONTAL],
-                8: BPs_DOWN[TLB][Orientation.VERTICAL],
+                right: right_plaquette,
+                left: left_plaquette,
+                5: up_bulk_plaquettes[tlb][Orientation.VERTICAL],
+                6: up_bulk_plaquettes[otb][Orientation.HORIZONTAL],
+                7: down_bulk_plaquettes[otb][Orientation.HORIZONTAL],
+                8: down_bulk_plaquettes[tlb][Orientation.VERTICAL],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -1411,20 +1417,19 @@ class FixedBoundaryConventionGenerator:
             Hadamard gate applied on one logical qubit.
 
         """
-        # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_hadamard_rpng_descriptions(is_reversed)
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions(is_reversed, hadamard=True)
-        HBASIS = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
-        VBASIS = HBASIS.flipped()
+        # Generating plaquette descriptions we will need later.
+        bulk_descriptions = self.get_bulk_hadamard_rpng_descriptions(is_reversed)
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed, hadamard=True)
+        hbasis = Basis.Z if z_orientation == Orientation.HORIZONTAL else Basis.X
+        vbasis = hbasis.flipped()
         return FrozenDefaultDict(
             {
-                6: TBPs[VBASIS][PlaquetteOrientation.UP],
-                7: TBPs[HBASIS][PlaquetteOrientation.LEFT],
-                9: BPs[VBASIS][Orientation.HORIZONTAL],
-                10: BPs[HBASIS][Orientation.VERTICAL],
-                12: TBPs[HBASIS][PlaquetteOrientation.RIGHT],
-                13: TBPs[VBASIS][PlaquetteOrientation.DOWN],
+                6: two_body_descriptions[vbasis][PlaquetteOrientation.UP],
+                7: two_body_descriptions[hbasis][PlaquetteOrientation.LEFT],
+                9: bulk_descriptions[vbasis][Orientation.HORIZONTAL],
+                10: bulk_descriptions[hbasis][Orientation.VERTICAL],
+                12: two_body_descriptions[hbasis][PlaquetteOrientation.RIGHT],
+                13: two_body_descriptions[vbasis][PlaquetteOrientation.DOWN],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -1522,10 +1527,9 @@ class FixedBoundaryConventionGenerator:
             on the ``X`` axis.
 
         """
-        # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+        # Generating plaquette descriptions we will need later.
+        bulk_descriptions = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
         bulk1, bulk2, bottom = self.get_spatial_x_hadamard_rpng_descriptions(
             top_left_basis, is_reversed, reset, measurement
         )
@@ -1533,12 +1537,12 @@ class FixedBoundaryConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         return FrozenDefaultDict(
             {
-                2: TBPs[otb][PlaquetteOrientation.UP],
+                2: two_body_descriptions[otb][PlaquetteOrientation.UP],
                 3: bottom,
                 5: bulk1,
                 6: bulk2,
-                7: BPs[tlb][Orientation.VERTICAL],
-                8: BPs[otb][Orientation.HORIZONTAL],
+                7: bulk_descriptions[tlb][Orientation.VERTICAL],
+                8: bulk_descriptions[otb][Orientation.HORIZONTAL],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -1647,10 +1651,9 @@ class FixedBoundaryConventionGenerator:
             on the ``Y`` axis.
 
         """
-        # BPs: Bulk Plaquettes.
-        BPs = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
-        # TBPs: Two Body Plaquettes.
-        TBPs = self.get_2_body_rpng_descriptions(is_reversed)
+        # Generating plaquette descriptions we will need later.
+        bulk_descriptions = self.get_bulk_rpng_descriptions(is_reversed, reset, measurement)
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
         bulk1, bulk2, left = self.get_spatial_y_hadamard_rpng_descriptions(
             top_left_basis, is_reversed, reset, measurement
         )
@@ -1659,11 +1662,11 @@ class FixedBoundaryConventionGenerator:
         return FrozenDefaultDict(
             {
                 1: left,
-                4: TBPs[otb][PlaquetteOrientation.RIGHT],
+                4: two_body_descriptions[otb][PlaquetteOrientation.RIGHT],
                 5: bulk1,
                 6: bulk2,
-                7: BPs[otb][Orientation.VERTICAL],
-                8: BPs[tlb][Orientation.HORIZONTAL],
+                7: bulk_descriptions[otb][Orientation.VERTICAL],
+                8: bulk_descriptions[tlb][Orientation.HORIZONTAL],
             },
             default_value=RPNGDescription.empty(),
         )

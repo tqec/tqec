@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from tqec.templates.base import BorderIndices, RectangularTemplate
 from tqec.templates.enums import TemplateBorder
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
@@ -233,7 +233,7 @@ class QubitVerticalBorders(RectangularTemplate):
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
         match border:
             case TemplateBorder.TOP | TemplateBorder.BOTTOM:
-                raise TQECException(
+                raise TQECError(
                     f"Template {self.__class__.__name__} does not have repeating elements on the {border.name} border."
                 )
             case TemplateBorder.LEFT:
@@ -289,6 +289,6 @@ class QubitHorizontalBorders(RectangularTemplate):
             case TemplateBorder.BOTTOM:
                 return BorderIndices(3, 7, 8, 4)
             case TemplateBorder.LEFT | TemplateBorder.RIGHT:
-                raise TQECException(
+                raise TQECError(
                     f"Template {self.__class__.__name__} does not have repeating elements on the {border.name} border."
                 )

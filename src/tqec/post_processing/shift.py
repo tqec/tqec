@@ -21,7 +21,7 @@ def shift_qubits(
             number of dimensions in the arguments.
 
     Raises:
-        TQECException: if any ``QUBIT_COORDS`` instruction in the provided
+        TQECError: if any ``QUBIT_COORDS`` instruction in the provided
             ``circuit`` has a number of arguments (i.e., dimensions) that is
             different from the provided number of ``shifts``.
 

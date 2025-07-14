@@ -4,7 +4,7 @@ import stim
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
 
 
@@ -28,7 +28,7 @@ def cz(support_flows: str | list[str] | None = None) -> BlockGraph:
         logical CZ gate.
 
     Raises:
-        TQECException: If there is Y Pauli operator in the stabilizer flows, or
+        TQECError: If there is Y Pauli operator in the stabilizer flows, or
             if provided stabilizer flows are not valid for the CZ gate, or
             if no valid graph can be found for the given stabilizer flows.
 
@@ -62,13 +62,13 @@ def cz(support_flows: str | list[str] | None = None) -> BlockGraph:
 
 def _resolve_ports(flows: list[str]) -> list[ZXCube]:
     if any("Y" in f for f in flows):
-        raise TQECException("Y basis initialization/measurements are not supported yet.")
+        raise TQECError("Y basis initialization/measurements are not supported yet.")
 
     stim_flows = [stim.Flow(f) for f in flows]
     cz = stim.Circuit("CZ 0 1")
     for f in stim_flows:
         if not cz.has_flow(f):
-            raise TQECException(f"{f} is not a valid flow for the CZ gate.")
+            raise TQECError(f"{f} is not a valid flow for the CZ gate.")
 
     ports = ["_"] * 4
     for f in stim_flows:
@@ -76,9 +76,7 @@ def _resolve_ports(flows: list[str]) -> list[ZXCube]:
             if ports[i] == "_":
                 ports[i] = p
             elif p != "_" and p != ports[i]:
-                raise TQECException(
-                    f"Port {i} fails to support both {ports[i]} and {p} observable."
-                )
+                raise TQECError(f"Port {i} fails to support both {ports[i]} and {p} observable.")
     # If there are left "I" in the ports, we choose fill them with "Z" ("X" should also work).
     for i in range(4):
         if ports[i] == "_":

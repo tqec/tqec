@@ -17,11 +17,11 @@ from typing import Any, cast
 import stim
 
 from tqec.circuit.qubit import count_qubit_accesses, get_used_qubit_indices
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import is_annotation_instruction
 
 
-class MultipleOperationsOnSameQubitException(TQECException):
+class MultipleOperationsOnSameQubitError(TQECError):
     def __init__(self, qubits: Sequence[int]):
         """Create a new instance of the exception.
 
@@ -90,12 +90,12 @@ class Moment:
                 ``circuit`` is not a valid moment.
 
         Raises:
-            TQECException: if the provided ``circuit`` contains one or more
+            TQECError: if the provided ``circuit`` contains one or more
                 ``TICK`` instruction.
-            TQECException: if the provided ``circuit`` contains at least 2
+            TQECError: if the provided ``circuit`` contains at least 2
                 non-annotation instructions that are applied on the same qubit
                 target.
-            TQECException: if the provided ``circuit`` contains a ``REPEAT``
+            TQECError: if the provided ``circuit`` contains a ``REPEAT``
                 block instruction.
 
         """
@@ -121,25 +121,25 @@ class Moment:
             circuit: instance to check.
 
         Raises:
-            TQECException: if the provided ``circuit`` contains one or more
+            TQECError: if the provided ``circuit`` contains one or more
                 ``TICK`` instruction.
-            TQECException: if the provided ``circuit`` contains at least 2
+            TQECError: if the provided ``circuit`` contains at least 2
                 non-annotation instructions that are applied on the same qubit
                 target.
-            TQECException: if the provided ``circuit`` contains a ``REPEAT``
+            TQECError: if the provided ``circuit`` contains a ``REPEAT``
                 block instruction.
 
         """
         if circuit.num_ticks > 0:
-            raise TQECException(
+            raise TQECError(
                 "Cannot initialize a Moment with a stim.Circuit instance containing at least one TICK instruction."
             )
         qubit_usage = count_qubit_accesses(circuit)
         multi_used_qubits = [qi for qi, usage_count in qubit_usage.items() if usage_count > 1]
         if multi_used_qubits:
-            raise MultipleOperationsOnSameQubitException(multi_used_qubits)
+            raise MultipleOperationsOnSameQubitError(multi_used_qubits)
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
-            raise TQECException(
+            raise TQECError(
                 "Moment instances should no contain any instance of stim.CircuitRepeatBlock."
             )
 
@@ -187,9 +187,7 @@ class Moment:
         """Add instructions in-place in ``self``."""
         both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
         if both_sides_used_qubits:
-            raise TQECException(
-                "Trying to add an overlapping quantum circuit to a Moment instance."
-            )
+            raise TQECError("Trying to add an overlapping quantum circuit to a Moment instance.")
         self._circuit += other._circuit
         return self
 
@@ -197,9 +195,7 @@ class Moment:
         """Add instructions of ``self`` and ``other`` in a new instance."""
         both_sides_used_qubits = self._used_qubits.intersection(other._used_qubits)
         if both_sides_used_qubits:
-            raise TQECException(
-                "Trying to add an overlapping quantum circuit to a Moment instance."
-            )
+            raise TQECError("Trying to add an overlapping quantum circuit to a Moment instance.")
         cpy = deepcopy(self)
         cpy += other
         return cpy
@@ -265,7 +261,7 @@ class Moment:
         )
         overlapping_qubits = self._used_qubits.intersection(instruction_qubits)
         if overlapping_qubits:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot add {instruction} to the Moment due to qubit(s) {overlapping_qubits} being already in use."
             )
         self._used_qubits.update(instruction_qubits)
@@ -284,11 +280,11 @@ class Moment:
                 represented by ``self``.
 
         Raises:
-            TQECException: if ``not is_annotation_instruction(annotation_instruction)``.
+            TQECError: if ``not is_annotation_instruction(annotation_instruction)``.
 
         """
         if not is_annotation_instruction(annotation_instruction):
-            raise TQECException(
+            raise TQECError(
                 "The method append_annotation only supports appending "
                 f"annotations. Found instruction {annotation_instruction.name} "
                 "That is not a valid annotation. Call append_instruction for "
@@ -450,9 +446,9 @@ def iter_stim_circuit_without_repeat_by_moments(
         :class`Moment` instances.
 
     Raises:
-        TQECException: if the provided ``circuit`` contains at least one
+        TQECError: if the provided ``circuit`` contains at least one
             ``stim.CircuitRepeatBlock`` instance.
-        TQECException: if the provided ``circuit`` ``TICK`` instructions are not
+        TQECError: if the provided ``circuit`` ``TICK`` instructions are not
             inserted such that instructions between two ``TICK`` instructions
             are always applied on disjoint sets of qubits.
 
@@ -463,7 +459,7 @@ def iter_stim_circuit_without_repeat_by_moments(
     cur_moment = stim.Circuit()
     for inst in circuit:
         if isinstance(inst, stim.CircuitRepeatBlock):
-            raise TQECException(
+            raise TQECError(
                 "Found an instance of stim.CircuitRepeatBlock which is explicitly not supported by this method."
             )
         elif inst.name == "TICK":

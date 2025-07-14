@@ -316,26 +316,26 @@ class ExtendedPlaquetteCollection:
         # |   s2   |
         # |        |
         # d0 ---- d1
-        EPT = ExtendedPlaquetteType
+        _ept = ExtendedPlaquetteType
         return ExtendedPlaquetteCollection(
             bulk=ExtendedPlaquette(
-                up_plaquettes[EPT.BULK],
-                down_plaquettes[EPT.BULK],
+                up_plaquettes[_ept.BULK],
+                down_plaquettes[_ept.BULK],
             ),
             left_with_arm=ExtendedPlaquette(
-                up_plaquettes[EPT.LEFT_WITH_ARM].project_on_data_qubit_indices([1]),
-                down_plaquettes[EPT.LEFT_WITH_ARM],
+                up_plaquettes[_ept.LEFT_WITH_ARM].project_on_data_qubit_indices([1]),
+                down_plaquettes[_ept.LEFT_WITH_ARM],
             ),
             left_without_arm=ExtendedPlaquette(
-                up_plaquettes[EPT.LEFT_WITHOUT_ARM].project_on_data_qubit_indices([1]),
-                down_plaquettes[EPT.LEFT_WITHOUT_ARM].project_on_data_qubit_indices([1]),
+                up_plaquettes[_ept.LEFT_WITHOUT_ARM].project_on_data_qubit_indices([1]),
+                down_plaquettes[_ept.LEFT_WITHOUT_ARM].project_on_data_qubit_indices([1]),
             ),
             right_with_arm=ExtendedPlaquette(
-                up_plaquettes[EPT.RIGHT_WITH_ARM],
-                down_plaquettes[EPT.RIGHT_WITH_ARM].project_on_data_qubit_indices([0]),
+                up_plaquettes[_ept.RIGHT_WITH_ARM],
+                down_plaquettes[_ept.RIGHT_WITH_ARM].project_on_data_qubit_indices([0]),
             ),
             right_without_arm=ExtendedPlaquette(
-                up_plaquettes[EPT.RIGHT_WITHOUT_ARM].project_on_data_qubit_indices([0]),
-                down_plaquettes[EPT.RIGHT_WITHOUT_ARM].project_on_data_qubit_indices([0]),
+                up_plaquettes[_ept.RIGHT_WITHOUT_ARM].project_on_data_qubit_indices([0]),
+                down_plaquettes[_ept.RIGHT_WITHOUT_ARM].project_on_data_qubit_indices([0]),
             ),
         )

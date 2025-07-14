@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from typing_extensions import Self
 
 from tqec.circuit.qubit import GridQubit
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import PhysicalQubitShape2D, PlaquetteShape2D, Shape2D, Shift2D
 
 
@@ -138,7 +138,7 @@ class LinearFunction:
         """Evaluate the linear function on ``x`` and return the result as an integer.
 
         Raises:
-            TQECException: if the result is not an integer.
+            TQECError: if the result is not an integer.
 
         Returns:
             ``int(self(x))``.
@@ -151,7 +151,7 @@ class LinearFunction:
 
         Raises:
             ZeroDivisionError: if ``div == 0``.
-            TQECException: if ``self.slope`` or ``self.offset`` are not divisible by ``div``.
+            TQECError: if ``self.slope`` or ``self.offset`` are not divisible by ``div``.
 
         Returns:
             a new linear function such that ``div * ret == self``.
@@ -161,12 +161,12 @@ class LinearFunction:
             raise ZeroDivisionError()
         slope, offset = round_or_fail(self.slope), round_or_fail(self.offset)
         if slope % div != 0:
-            raise TQECException(
+            raise TQECError(
                 "Trying to divide exactly a LinearFunction by an integer that "
                 f"is not a multiple of the slope. Divisor: {div}. Slope: {slope}."
             )
         if offset % div != 0:
-            raise TQECException(
+            raise TQECError(
                 "Trying to divide exactly a LinearFunction by an integer that "
                 f"is not a multiple of the offset. Divisor: {div}. Offset: "
                 f"{offset}."
@@ -202,7 +202,7 @@ class LinearFunction:
                 ``None`` which is internally translated to ``LinearFunction(0, 0)``.
 
         Raises:
-            TQECException: if the maximum found is ambiguous.
+            TQECError: if the maximum found is ambiguous.
 
         Returns:
             the unambiguous maximum in ``fs``.
@@ -224,7 +224,7 @@ class LinearFunction:
 
         for f in fs:
             if f.offset > res.offset or f.slope > res.slope:
-                raise TQECException(
+                raise TQECError(
                     "Could not find a unambiguous maximum in the provided linear functions. "
                     f"{res} could be the maximum, but is ambiguous with {f}."
                 )
@@ -235,11 +235,11 @@ class LinearFunction:
         """Return ``lhs * rhs``, checking that the result is a linear function.
 
         Raises:
-            TQECException: if both ``lhs.slope`` and ``rhs.slope`` are non-zero.
+            TQECError: if both ``lhs.slope`` and ``rhs.slope`` are non-zero.
 
         """
         if lhs.slope != 0 and rhs.slope != 0:
-            raise TQECException(f"The result of ({lhs}) * ({rhs}) is not a linear function.")
+            raise TQECError(f"The result of ({lhs}) * ({rhs}) is not a linear function.")
         return LinearFunction(
             lhs.slope * rhs.offset + rhs.slope * lhs.offset, lhs.offset * rhs.offset
         )
@@ -256,7 +256,7 @@ def round_or_fail(f: float, atol: float = 1e-8) -> int:
             is acceptable.
 
     Raises:
-        TQECException: if abs(f - round(f)) > atol
+        TQECError: if abs(f - round(f)) > atol
 
     Returns:
         ``int(round(f))``
@@ -264,7 +264,7 @@ def round_or_fail(f: float, atol: float = 1e-8) -> int:
     """
     rounded_value = round(f)
     if abs(f - rounded_value) > atol:
-        raise TQECException(f"Rounding from {f} to integer failed.")
+        raise TQECError(f"Rounding from {f} to integer failed.")
     return rounded_value
 
 
@@ -289,7 +289,7 @@ class Scalable2D:
                 quantities stored in ``self``.
 
         Raises:
-            TQECException: if any of ``self.x(k)`` or ``self.y(k)`` returns a
+            TQECError: if any of ``self.x(k)`` or ``self.y(k)`` returns a
                 number that is not an integer (or very close to an integer).
 
         Returns:
@@ -302,7 +302,7 @@ class Scalable2D:
         """Get a tuple of coordinates in ``numpy``-coordinates.
 
         Raises:
-            TQECException: if any of ``self.x(k)`` or ``self.y(k)`` returns a
+            TQECError: if any of ``self.x(k)`` or ``self.y(k)`` returns a
                 number that is not an integer (or very close to an integer).
 
         Returns:

@@ -12,7 +12,7 @@ from tqec.plaquette.plaquette import Plaquettes
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -51,12 +51,12 @@ def test_creation(plaquette_layer: PlaquetteLayer, layout_layer: LayoutLayer) ->
     LayerNode(RepeatedLayer(layout_layer, LinearFunction(2, 0)))
     LayerNode(SequencedLayers([layout_layer for _ in range(3)]))
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="The layer that is being repeated is not an instance of LayoutLayer or BaseComposedLayer.",
     ):
         LayerNode(RepeatedLayer(plaquette_layer, LinearFunction(2, 0)))
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="Found a leaf node that is not an instance of LayoutLayer..*",
     ):
         LayerNode(SequencedLayers([plaquette_layer for _ in range(4)]))

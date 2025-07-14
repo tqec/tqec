@@ -5,7 +5,7 @@ import stim
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap, get_qubit_map
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 def test_qubit_map_creation() -> None:
@@ -16,7 +16,7 @@ def test_qubit_map_creation() -> None:
 
     qset_str = re.escape(str(frozenset([q])))
     with pytest.raises(
-        TQECException,
+        TQECError,
         match=f"^Found qubit\\(s\\) with more than one index: {qset_str}.$",
     ):
         QubitMap({0: q, 1: q})
@@ -24,7 +24,7 @@ def test_qubit_map_creation() -> None:
     QubitMap.from_qubits([])
     QubitMap.from_qubits([GridQubit(0, 0)])
     with pytest.raises(
-        TQECException,
+        TQECError,
         match=f"^Found qubit\\(s\\) with more than one index: {qset_str}.$",
     ):
         QubitMap.from_qubits([q, q])
@@ -33,7 +33,7 @@ def test_qubit_map_creation() -> None:
     QubitMap.from_circuit(stim.Circuit("H 0"))
     QubitMap.from_circuit(stim.Circuit("QUBIT_COORDS(0, 0) 0"))
     with pytest.raises(
-        TQECException,
+        TQECError,
         match=f"^Found qubit\\(s\\) with more than one index: {qset_str}.$",
     ):
         QubitMap.from_circuit(stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(0, 0) 1"))
@@ -84,7 +84,7 @@ def test_get_final_qubits() -> None:
     )
 
     with pytest.raises(
-        TQECException,
+        TQECError,
         match=re.escape(
             "Qubits should be defined on exactly 2 spatial dimensions. "
             f"Found {0} -> [0.0, 0.0, 1.0] defined on 3 spatial dimensions."
@@ -114,7 +114,7 @@ def test_qubit_map_getitem() -> None:
 
 
 def test_qubit_map_qubit_bounds() -> None:
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         QubitMap({}).qubit_bounds()
     assert QubitMap({0: GridQubit(9, 45)}).qubit_bounds() == (GridQubit(9, 45), GridQubit(9, 45))
     assert QubitMap({i: GridQubit(i, -i) for i in range(10)}).qubit_bounds() == (

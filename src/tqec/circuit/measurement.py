@@ -17,7 +17,7 @@ from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import (
     is_multi_qubit_measurement_instruction,
     is_single_qubit_measurement_instruction,
@@ -90,7 +90,7 @@ class Measurement(AbstractMeasurement):
             last one applied on ``qubit``.
 
     Raises:
-        TQECException: if the provided ``offset`` is not strictly negative.
+        TQECError: if the provided ``offset`` is not strictly negative.
 
     """
 
@@ -99,7 +99,7 @@ class Measurement(AbstractMeasurement):
 
     def __post_init__(self) -> None:
         if self.offset >= 0:
-            raise TQECException("Measurement.offset should be negative.")
+            raise TQECError("Measurement.offset should be negative.")
 
     @override
     def offset_spatially_by(self, x: int, y: int) -> Measurement:
@@ -154,10 +154,10 @@ def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
         circuit: circuit to extract measurements from.
 
     Raises:
-        TQECException: if the provided circuit contains a ``REPEAT`` block.
-        TQECException: if the provided circuit contains a multi-qubit measurement
+        TQECError: if the provided circuit contains a ``REPEAT`` block.
+        TQECError: if the provided circuit contains a multi-qubit measurement
             gate such as ``MXX`` or ``MPP``.
-        TQECException: if the provided circuit contains a single-qubit
+        TQECError: if the provided circuit contains a single-qubit
             measurement gate with a non-qubit target.
 
     Returns:
@@ -170,18 +170,18 @@ def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
     measurements_reverse_order: list[Measurement] = []
     for instruction in reversed(circuit):
         if isinstance(instruction, stim.CircuitRepeatBlock):
-            raise TQECException(
+            raise TQECError(
                 "Found a REPEAT block in get_measurements_from_circuit. This is not supported."
             )
         if is_multi_qubit_measurement_instruction(instruction):
-            raise TQECException(
+            raise TQECError(
                 f"Got a multi-qubit measurement instruction ({instruction.name}) "
                 "but multi-qubit measurements are not supported yet."
             )
         if is_single_qubit_measurement_instruction(instruction):
             for (target,) in reversed(instruction.target_groups()):
                 if not target.is_qubit_target:
-                    raise TQECException(
+                    raise TQECError(
                         f"Found a measurement instruction with a target that is not a qubit target: {instruction}."
                     )
                 qi: int = cast(int, target.qubit_value)

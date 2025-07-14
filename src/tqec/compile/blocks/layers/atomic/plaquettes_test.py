@@ -10,7 +10,7 @@ from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates._testing import FixedTemplate
 from tqec.templates.qubit import QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -34,7 +34,7 @@ def test_creation() -> None:
         trimmed_spatial_borders=frozenset(SpatialBlockBorder),
     )
 
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         PlaquetteLayer(
             template,
             plaquettes,
@@ -112,7 +112,7 @@ def test_with_temporal_borders_replaced() -> None:
             layer.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: replacement})
             == replacement
         )
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         layer.with_temporal_borders_replaced(
             {
                 TemporalBlockBorder.Z_NEGATIVE: None,

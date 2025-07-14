@@ -31,7 +31,7 @@ from tqec.templates.qubit import QubitTemplate
 from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D, Shift2D
 
@@ -277,13 +277,13 @@ def test_public_compute_detectors_at_end_of_situation(
         [alternating_subtemplate], [init_plaquettes], increments, None, False
     )
     assert len(detectors) == 1
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         compute_detectors_at_end_of_situation(
             [alternating_subtemplate], [init_plaquettes], increments, None, True
         )
     # With a database
     assert len(database) == 0
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         compute_detectors_at_end_of_situation(
             [alternating_subtemplate],
             [init_plaquettes],
@@ -325,7 +325,7 @@ def test_get_or_default() -> None:
         _get_or_default(array, [(-1, 1), (0, 2)], default=42),
         [[42, 42], [0, 1]],
     )
-    with pytest.raises(TQECException, match="^The provided slices should be non-empty.$"):
+    with pytest.raises(TQECError, match="^The provided slices should be non-empty.$"):
         _get_or_default(array, [(10, 5)], default=34)
 
 

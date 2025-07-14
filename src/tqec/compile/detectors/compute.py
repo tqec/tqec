@@ -27,7 +27,7 @@ from tqec.templates.subtemplates import (
     get_spatially_distinct_3d_subtemplates,
 )
 from tqec.utils.coordinates import StimCoordinates
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import PlaquettePosition2D, Shift2D
 
 
@@ -251,7 +251,7 @@ def _compute_detectors_at_end_of_situation(
     increments: Shift2D,
 ) -> frozenset[Detector]:
     if len(plaquettes) != len(subtemplates):
-        raise TQECException(
+        raise TQECError(
             "Unsupported input: you should provide as many subtemplates as there are plaquettes."
         )
     # Note: if the center plaquette of the last entry of `subtemplates` does not
@@ -327,16 +327,14 @@ def _compute_detectors_at_end_of_situation(
     detectors = _matched_detectors_to_detectors(matched_detectors, measurements_by_offset)
 
     # Filter out detectors and return the left ones.
-    return _best_effort_filter_detectors(
-        detectors, subtemplates, plaquettes, increments
-    )
+    return _best_effort_filter_detectors(detectors, subtemplates, plaquettes, increments)
 
 
 def _get_database_access_exception(
     subtemplates: Sequence[SubTemplateType],
     plaquettes_by_timestep: Sequence[Plaquettes],
-) -> TQECException:
-    return TQECException(
+) -> TQECError:
+    return TQECError(
         "Failed to retrieve a situation from the provided database but "
         "only_use_database was True. Failing instead of computing "
         "automatically detectors. You might want to populate the "
@@ -399,7 +397,7 @@ def compute_detectors_at_end_of_situation(
         represented by the provided `subtemplates` and `plaquettes_at_timestep`.
 
     Raises:
-        TQECException: if `len(subtemplates) != len(plaquettes_at_timestep)`.
+        TQECError: if `len(subtemplates) != len(plaquettes_at_timestep)`.
 
     """
     # Try to recover the result from the database.
@@ -468,8 +466,8 @@ def _get_or_default(
             out-of-bound for the provided `array`. Defaults to 0.
 
     Raises:
-        TQECException: if any of the provided slice has `start > stop`.
-        TQECException: if the number of provided slices does not exactly match
+        TQECError: if any of the provided slice has `start > stop`.
+        TQECError: if the number of provided slices does not exactly match
             the number of dimensions of the provided array.
 
     Returns:
@@ -478,9 +476,9 @@ def _get_or_default(
 
     """
     if any(start > stop for start, stop in slices):
-        raise TQECException("The provided slices should be non-empty.")
+        raise TQECError("The provided slices should be non-empty.")
     if len(slices) != len(array.shape):
-        raise TQECException(
+        raise TQECError(
             f"Expected one slice per array dimension. Got {len(slices)} slices "
             f"but {len(array.shape)} dimensions to the provided array."
         )
@@ -704,14 +702,14 @@ def compute_detectors_for_fixed_radius(
     """
     all_increments = frozenset(t.get_increments() for t in templates)
     if len(all_increments) != 1:
-        raise TQECException(
+        raise TQECError(
             "Expected all the provided templates to have the same increments. "
             f"Found the following different increments: {all_increments}."
         )
     increments = next(iter(all_increments))
 
     if len(templates) != len(plaquettes):
-        raise TQECException("Expecting the same number of entries in templates and plaquettes.")
+        raise TQECError("Expecting the same number of entries in templates and plaquettes.")
 
     template_instantiations = _compute_superimposed_template_instantiations(templates, k)
     unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(
@@ -762,7 +760,7 @@ def compute_detectors_for_fixed_radius(
         }
     # Else, invalid parallel_process_count
     else:
-        raise TQECException(
+        raise TQECError(
             f"Invalid parallel_process_count: {parallel_process_count}. "
             "Expected a positive integer or -1 for using all available CPU cores."
         )

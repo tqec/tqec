@@ -12,7 +12,7 @@ from tqec.compile.tree.annotations import DetectorAnnotation
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 @dataclass(frozen=True)
@@ -94,7 +94,7 @@ class LookbackStack:
     def close_repeat_block(self, repetitions: int) -> None:
         """Remove the last entry on the stack, repeating it as needed into the new last entry."""
         if len(self._stack) < 2:
-            raise TQECException(
+            raise TQECError(
                 f"Only got {len(self._stack)} < 2 entries in the stack. That "
                 "means that we are not in a REPEAT block. Cannot call "
                 "close_repeat_block()."
@@ -115,7 +115,7 @@ class LookbackStack:
         self, n: int
     ) -> tuple[list[Template], list[Plaquettes], list[MeasurementRecordsMap]]:
         if n < 0:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot look back a negative number of rounds. Got a lookback value of {n}."
             )
         if n == 0:
@@ -148,7 +148,7 @@ class LookbackStack:
 
     def __len__(self) -> int:
         if len(self._stack) > 1:
-            raise TQECException(
+            raise TQECError(
                 "Cannot get a meaningful stack length when a REPEAT block is in construction."
             )
         return len(self._stack[0])
@@ -195,7 +195,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
 
         """
         if lookback < 1:
-            raise TQECException(
+            raise TQECError(
                 "Cannot compute detectors without any layer. The `lookback` "
                 f"parameter should be >= 1 but got {lookback}."
             )
@@ -213,7 +213,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             return
         annotations = node.get_annotations(self._k)
         if annotations.circuit is None:
-            raise TQECException("Cannot compute detectors without the circuit annotation.")
+            raise TQECError("Cannot compute detectors without the circuit annotation.")
         self._lookback_stack.append(
             *node._layer.to_template_and_plaquettes(),
             MeasurementRecordsMap.from_scheduled_circuit(annotations.circuit),

@@ -7,7 +7,7 @@ from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 def test_measurement_records_map_creation() -> None:
@@ -19,7 +19,7 @@ def test_measurement_records_map_creation() -> None:
     MeasurementRecordsMap({q: [-2, -1]})
 
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^Invalid mapping from qubit offsets to measurement record "
         f"offsets. Found positive offsets \\({re.escape(str([0]))}\\) for qubit "
         f"{re.escape(str(q))}.$",
@@ -27,14 +27,14 @@ def test_measurement_records_map_creation() -> None:
         MeasurementRecordsMap({q: [-2, 0]})
 
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^Got measurement record offsets that are not in sorted order.*",
     ):
         MeasurementRecordsMap({q: [-1, -2]})
 
     q2 = GridQubit(1, 1)
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^At least one measurement record offset has been found twice in the provided offsets.$",
     ):
         MeasurementRecordsMap({q: [-1], q2: [-1]})

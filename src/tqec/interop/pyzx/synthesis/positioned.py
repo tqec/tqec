@@ -11,7 +11,7 @@ from tqec.computation.pipe import PipeKind
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.interop.pyzx.utils import is_boundary, is_zx_no_phase
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
 
 
@@ -41,7 +41,7 @@ def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
         converted from the ZX graph.
 
     Raises:
-        TQECException: A valid block graph cannot be constructed.
+        TQECError: A valid block graph cannot be constructed.
 
     """
     nodes_to_handle = set(g.g.vertices())
@@ -150,7 +150,7 @@ def _try_to_handle_edges(
             if other_node not in nodes_to_handle:
                 existing_kind = bg[opos].kind
                 if not other_cube_kind == existing_kind:
-                    raise TQECException(f"Encounter conflicting cube kinds at {opos}: ")
+                    raise TQECError(f"Encounter conflicting cube kinds at {opos}: ")
             other_cube = Cube(opos, other_cube_kind)
         else:
             other_cube = _port_or_y_cube(pg, other_node)

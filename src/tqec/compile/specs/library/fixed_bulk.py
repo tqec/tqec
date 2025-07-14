@@ -25,7 +25,7 @@ from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.enums import Basis, Orientation
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
 
@@ -81,7 +81,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
     def __call__(self, spec: CubeSpec) -> Block:
         kind = spec.kind
         if isinstance(kind, Port):
-            raise TQECException("Cannot build a block for a Port.")
+            raise TQECError("Cannot build a block for a Port.")
         elif isinstance(kind, YHalfCube):
             raise NotImplementedError("Y cube is not implemented.")
         # else
@@ -230,7 +230,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
             spec: pipe specification to get the arm(s) from.
 
         Raises:
-            TQECException: if the provided ``spec`` is not a spatial pipe.
+            TQECError: if the provided ``spec`` is not a spatial pipe.
 
         Returns:
             the :class:`~tqec.compile.specs.enums.SpatialArms` instance
@@ -294,7 +294,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
             case Direction3D.Y, True:
                 return self._generator.get_spatial_horizontal_hadamard_raw_template()
             case _:
-                raise TQECException("Spatial pipes cannot have a direction equal to Direction3D.Z.")
+                raise TQECError("Spatial pipes cannot have a direction equal to Direction3D.Z.")
 
     def _get_spatial_regular_pipe_plaquettes_factory(
         self, spec: PipeSpec
@@ -331,7 +331,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
                     top_left_basis == Basis.Z, r, m
                 )
             case _:
-                raise TQECException("Spatial pipes cannot have a direction equal to Direction3D.Z.")
+                raise TQECError("Spatial pipes cannot have a direction equal to Direction3D.Z.")
 
     def _get_spatial_regular_pipe_block(self, spec: PipeSpec) -> Block:
         assert all(not spec.is_spatial for spec in spec.cube_specs)

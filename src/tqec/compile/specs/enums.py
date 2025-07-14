@@ -5,7 +5,7 @@ from enum import Flag, auto
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 class SpatialArms(Flag):
@@ -22,7 +22,7 @@ class SpatialArms(Flag):
             return SpatialArms.NONE
         pos = cube.position
         if pos not in graph or graph[pos] != cube:
-            raise TQECException(f"Cube {cube} is not in the graph.")
+            raise TQECError(f"Cube {cube} is not in the graph.")
         spatial_arms = SpatialArms.NONE
         for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
             if graph.has_pipe_between(pos, pos.shift_by(*shift)):

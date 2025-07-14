@@ -34,10 +34,10 @@ name equivalences can be calculated algebraically using the transformation matri
 
 import numpy as np
 import numpy.typing as npt
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation
 
 from tqec.computation.block_graph import BlockKind, block_kind_from_str
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 from tqec.utils.scale import round_or_fail
 
@@ -58,14 +58,14 @@ def calc_rotation_angles(
     rotations = np.array([])
 
     # Define matrix for an unrotated object
-    ID = np.identity(3, dtype=int)
+    identity = np.identity(3, dtype=int)
 
     # Calculate rotations
     # ! I think that, technically, this should be done per column (aka column-major)
     # ! but this function is only to confirm rotation validity rather than to transform objects
     # ! per row (aka. row-major) is fine for this
     for i, row in enumerate(rotation_matrix):
-        cos_theta = np.dot(ID[i], row) / (np.linalg.norm(ID[i]) * np.linalg.norm(row))
+        cos_theta = np.dot(identity[i], row) / (np.linalg.norm(identity[i]) * np.linalg.norm(row))
         angle_rad = np.arccos(np.clip(cos_theta, -1.0, 1.0))
         angle_deg = np.degrees(angle_rad)
         rotations = np.append(rotations, [round(angle_deg)])
@@ -130,7 +130,7 @@ def rotate_block_kind_by_matrix(
 
     # Reject state cultivation blocks if rotated_name not ends in "!" or axes_directions["Z"] is negative
     if "!" in rotated_name and (not rotated_name.endswith("!") or axes_directions["Z"] < 0):
-        raise TQECException(
+        raise TQECError(
             f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} block.",
             "Cultivation and Y blocks should only allow rotation around Z axis.",
         )
@@ -166,7 +166,7 @@ def get_rotation_matrix(
     """
     rot_vec = np.array([0, 0, 0])
     rot_vec[rotation_axis.value] = 1 if counterclockwise else -1
-    return np.array(R.from_rotvec(rot_vec * angle).as_matrix(), dtype=np.float32)
+    return np.array(Rotation.from_rotvec(rot_vec * angle).as_matrix(), dtype=np.float32)
 
 
 def rotate_position_by_matrix(
@@ -187,10 +187,10 @@ def rotate_position_by_matrix(
         The rotated position.
 
     Raises:
-        TQECException: if the rotated position is not integer.
+        TQECError: if the rotated position is not integer.
 
     """
-    rotation = R.from_matrix(rotation_matrix)
+    rotation = Rotation.from_matrix(rotation_matrix)
     center_pos = [i + 0.5 for i in position.as_tuple()]
     rotated_center = rotation.apply(center_pos)
     rotated_corner = [round_or_fail(float(i) - 0.5) for i in rotated_center]
@@ -213,7 +213,7 @@ def rotate_on_import(
         kind: kind of the original block that was rotated / requires rotation.
 
     Raises:
-        TQECException: if an invalid rotation is provided.
+        TQECError: if an invalid rotation is provided.
 
     Returns:
         A tuple containing two entries:
@@ -233,7 +233,7 @@ def rotate_on_import(
         # (A single 90-deg rotation would put the rotated vector on the plane made by the other two axes)
         or sum([angle for angle in rotation_angles]) < 180
     ):
-        raise TQECException(
+        raise TQECError(
             f"There is an invalid rotation for {kind} block at position {FloatPosition3D(*translation_matrix)}."
         )
 

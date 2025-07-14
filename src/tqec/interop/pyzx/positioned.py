@@ -12,7 +12,7 @@ from pyzx.utils import EdgeType, VertexType
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.interop.pyzx.utils import cube_kind_to_zx
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 
@@ -34,7 +34,7 @@ class PositionedZX:
             positions: A dictionary mapping vertex IDs to their 3D positions.
 
         Raises:
-            TQECException: If the constraints are not satisfied.
+            TQECError: If the constraints are not satisfied.
 
         """
         self.check_preconditions(g, positions)
@@ -47,12 +47,12 @@ class PositionedZX:
         """Check the preconditions for the ZX graph with 3D positions."""
         # 1. Check the vertex IDs in the graph match the positions
         if g.vertex_set() != set(positions.keys()):
-            raise TQECException("The vertex IDs in the ZX graph and the positions do not match.")
+            raise TQECError("The vertex IDs in the ZX graph and the positions do not match.")
         # 2. Check the neighbors are all shifted by 1 in the 3D positions
         for s, t in g.edge_set():
             ps, pt = positions[s], positions[t]
             if not ps.is_neighbour(pt):
-                raise TQECException(
+                raise TQECError(
                     f"The 3D positions of the endpoints of the edge {s}--{t} must be neighbors, but got {ps} and {pt}."
                 )
         # 3. Check all the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders
@@ -65,26 +65,26 @@ class PositionedZX:
                 (VertexType.Z, Fraction(1, 2)),
                 (VertexType.BOUNDARY, 0),
             ]:
-                raise TQECException(f"Unsupported vertex type and phase: {vt} and {phase}.")
+                raise TQECError(f"Unsupported vertex type and phase: {vt} and {phase}.")
             # 4. Check Boundary and Z(1/2) spiders are dangling, additionally
             # Z(1/2) connects to time direction
             if vt == VertexType.BOUNDARY or phase == Fraction(1, 2):
                 if g.vertex_degree(v) != 1:
-                    raise TQECException(
+                    raise TQECError(
                         f"Boundary or Z(1/2) spider must be dangling, but got {len(g.neighbors(v))} neighbors."
                     )
                 if phase == Fraction(1, 2):
                     nb = next(iter(g.neighbors(v)))
                     vp, nbp = positions[v], positions[nb]
                     if abs(nbp.z - vp.z) != 1:
-                        raise TQECException(
+                        raise TQECError(
                             f"Z(1/2) spider must connect to the time direction, but Z(1/2) at {vp} connects to {nbp}."
                         )
         # 5. Check there are no 3D corners
         for v in g.vertices():
             vp = positions[v]
             if len({_get_direction(vp, positions[u]) for u in g.neighbors(v)}) == 3:
-                raise TQECException(f"ZX graph has a 3D corner at node {v}.")
+                raise TQECError(f"ZX graph has a 3D corner at node {v}.")
 
     def __getitem__(self, v: int) -> Position3D:
         return self._positions[v]

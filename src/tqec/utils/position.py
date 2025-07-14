@@ -34,7 +34,7 @@ import numpy as np
 import numpy.typing as npt
 from typing_extensions import Self
 
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 @dataclass(frozen=True, order=True)
@@ -204,7 +204,7 @@ class Direction3D(Enum):
         ):
             if source_coord != sink_coord:
                 return direction
-        raise TQECException(
+        raise TQECError(
             f"Could not find the direction from two neighbouring positions {source:=} and {sink:=}."
         )
 
@@ -241,12 +241,12 @@ class SignedDirection3D:
             The signed direction.
 
         Raises:
-            TQECException: If the string does not match the expected format.
+            TQECError: If the string does not match the expected format.
 
         """
         match = re.match(r"([+-])([XYZ])", s)
         if match is None:
-            raise TQECException(f"Invalid signed direction: {s}, expected format: [+/-][XYZ]")
+            raise TQECError(f"Invalid signed direction: {s}, expected format: [+/-][XYZ]")
         sign, direction = match.groups()
         return SignedDirection3D(Direction3D("XYZ".index(direction)), sign == "+")
 

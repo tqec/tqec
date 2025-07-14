@@ -24,7 +24,7 @@ from tqec.templates.subtemplates import (
 )
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.enums import Basis, Orientation
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 GENERATOR = FixedBulkConventionGenerator(DefaultRPNGTranslator(), IdentityPlaquetteCompiler)
 # Pre-computing Plaquettes and SubTemplateType instances to be able to re-use them
@@ -94,7 +94,7 @@ def test_detector_database_key_creation() -> None:
     _DetectorDatabaseKey((SUBTEMPLATES[0],), (PLAQUETTE_COLLECTIONS[0],))
     _DetectorDatabaseKey(SUBTEMPLATES[1:5], PLAQUETTE_COLLECTIONS[1:5])
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^DetectorDatabaseKey can only store an equal number of "
         "subtemplates and plaquettes. Got 4 subtemplates and 3 plaquettes.$",
     ):
@@ -131,7 +131,7 @@ def test_detector_database_mutation() -> None:
     db.add_situation(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1], DETECTORS[0])
     db.add_situation(SUBTEMPLATES[:2], PLAQUETTE_COLLECTIONS[:2], DETECTORS[1])
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^DetectorDatabaseKey can only store an equal number of "
         "subtemplates and plaquettes. Got 1 subtemplates and 2 plaquettes.$",
     ):
@@ -159,9 +159,9 @@ def test_detector_database_freeze() -> None:
     db.add_situation(SUBTEMPLATES[:2], PLAQUETTE_COLLECTIONS[:2], DETECTORS[1])
 
     db.freeze()
-    with pytest.raises(TQECException, match="^Cannot remove a situation to a frozen database.$"):
+    with pytest.raises(TQECError, match="^Cannot remove a situation to a frozen database.$"):
         db.remove_situation(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])
-    with pytest.raises(TQECException, match="^Cannot add a situation to a frozen database.$"):
+    with pytest.raises(TQECError, match="^Cannot add a situation to a frozen database.$"):
         db.add_situation(SUBTEMPLATES[:4], PLAQUETTE_COLLECTIONS[:4], DETECTORS[1])
 
     detectors = db.get_detectors(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])

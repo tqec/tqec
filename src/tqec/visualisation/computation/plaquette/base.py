@@ -98,10 +98,10 @@ class SVGPlaquetteDrawer(ABC):
 
         """
         # Draw a TOP_LEFT corner 3-qubit triangular plaquette by default.
-        _CORNS: Final = SVGPlaquetteDrawer._CORNERS
-        default_corners = [_CORNS[i] for i in [1, 2, 3]]
+        _corners: Final[list[complex]] = SVGPlaquetteDrawer._CORNERS
+        default_corners = [_corners[i] for i in [1, 2, 3]]
         t = configuration.plaquette_overflow_lerp_coefficient
-        shoulders = [lerp(_CORNS[1], _CORNS[0], t), lerp(_CORNS[2], _CORNS[0], t)]
+        shoulders = [lerp(_corners[1], _corners[0], t), lerp(_corners[2], _corners[0], t)]
         default_triangular_path = svg_path_enclosing_points(
             default_corners + shoulders, fill, configuration
         )
@@ -178,10 +178,9 @@ class SVGPlaquetteDrawer(ABC):
 
         """
         r = configuration.reset_square_radius
-        PC = PlaquetteCorner
         return svg.Rect(
-            x=0 if place in [PC.TOP_LEFT, PC.BOTTOM_LEFT] else -r,
-            y=0 if place in [PC.TOP_LEFT, PC.TOP_RIGHT] else -r,
+            x=0 if place in [PlaquetteCorner.TOP_LEFT, PlaquetteCorner.BOTTOM_LEFT] else -r,
+            y=0 if place in [PlaquetteCorner.TOP_LEFT, PlaquetteCorner.TOP_RIGHT] else -r,
             width=r,
             height=r,
             fill=fill,

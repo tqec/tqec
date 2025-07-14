@@ -10,7 +10,7 @@ from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
 
 
@@ -192,7 +192,7 @@ def binary_search_threshold(
             computed_logical_errors[k].append((midp, logical_errors_fits[i]))
         logical_errors: list[float | None] = [lerr_fit.best for lerr_fit in logical_errors_fits]
         if not _is_only_floats(logical_errors):
-            raise TQECException(
+            raise TQECError(
                 "One of the computed logical errors is None. That likely means "
                 "that you need more shots in order to have at least a few errors "
                 "on all the simulations."

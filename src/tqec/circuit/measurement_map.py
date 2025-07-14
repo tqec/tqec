@@ -17,7 +17,7 @@ import stim
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule import ScheduledCircuit
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import (
     is_multi_qubit_measurement_instruction,
     is_single_qubit_measurement_instruction,
@@ -36,11 +36,11 @@ class MeasurementRecordsMap:
     instance at hand is valid.
 
     Raises:
-        TQECException: if at least one of the provided measurement record offsets
+        TQECError: if at least one of the provided measurement record offsets
             is non-negative (``>=0``).
-        TQECException: if, for any of the provided qubits, the provided offsets
+        TQECError: if, for any of the provided qubits, the provided offsets
             are not sorted.
-        TQECException: if any measurement offset is duplicated.
+        TQECError: if any measurement offset is duplicated.
 
     """
 
@@ -52,14 +52,14 @@ class MeasurementRecordsMap:
             # Check that the provided measurement record offsets are negative.
             nonnegative_offsets = [offset for offset in measurement_record_offsets if offset >= 0]
             if nonnegative_offsets:
-                raise TQECException(
+                raise TQECError(
                     "Invalid mapping from qubit offsets to measurement record "
                     f"offsets. Found positive offsets ({nonnegative_offsets}) for "
                     f"qubit {qubit}."
                 )
             # Check that measurement record offsets are sorted
             if measurement_record_offsets != sorted(measurement_record_offsets):
-                raise TQECException(
+                raise TQECError(
                     "Got measurement record offsets that are not in sorted "
                     f"order: {measurement_record_offsets}. This is not supported."
                 )
@@ -67,7 +67,7 @@ class MeasurementRecordsMap:
         # Check that a given measurement record offset only appears once.
         deduplicated_indices = numpy.unique(all_measurement_records_indices)
         if len(deduplicated_indices) != len(all_measurement_records_indices):
-            raise TQECException(
+            raise TQECError(
                 "At least one measurement record offset has been found twice in the provided offsets."
             )
 
@@ -79,12 +79,12 @@ class MeasurementRecordsMap:
             circuit: circuit containing the measurements to map.
 
         Raises:
-            TQECException: if the provided ``circuit`` contains a ``REPEAT`` block.
-            TQECException: if the provided ``circuit`` contains an unsupported
+            TQECError: if the provided ``circuit`` contains a ``REPEAT`` block.
+            TQECError: if the provided ``circuit`` contains an unsupported
                 measurement instruction. Currently, this method supports all
                 single-qubit measurement instructions (see the value of
                 ``SINGLE_QUBIT_MEASUREMENT_INSTRUCTION_NAMES``).
-            TQECException: if one of the measurement counted in
+            TQECError: if one of the measurement counted in
                 ``circuit.num_measurements`` was not processed (this should never
                 raise, but the post-condition is easy to check so this method
                 performs the check just in case).
@@ -111,12 +111,12 @@ class MeasurementRecordsMap:
                 ``None``.
 
         Raises:
-            TQECException: if the provided ``circuit`` contains a ``REPEAT`` block.
-            TQECException: if the provided ``circuit`` contains an unsupported
+            TQECError: if the provided ``circuit`` contains a ``REPEAT`` block.
+            TQECError: if the provided ``circuit`` contains an unsupported
                 measurement instruction. Currently, this method supports all
                 single-qubit measurement instructions (see the value of
                 ``SINGLE_QUBIT_MEASUREMENT_INSTRUCTION_NAMES``).
-            TQECException: if one of the measurement counted in
+            TQECError: if one of the measurement counted in
                 ``circuit.num_measurements`` was not processed (this should never
                 raise, but the post-condition is easy to check so this method
                 performs the check just in case).
@@ -137,18 +137,16 @@ class MeasurementRecordsMap:
         measurement_records: dict[GridQubit, list[int]] = {}
         for instruction in circuit:
             if isinstance(instruction, stim.CircuitRepeatBlock):
-                raise TQECException(
-                    "Found a REPEAT instruction. This is not supported for the moment."
-                )
+                raise TQECError("Found a REPEAT instruction. This is not supported for the moment.")
             if is_multi_qubit_measurement_instruction(instruction):
-                raise TQECException(f"Found a non-supported measurement instruction: {instruction}")
+                raise TQECError(f"Found a non-supported measurement instruction: {instruction}")
             if is_single_qubit_measurement_instruction(instruction):
                 for (qi,) in instruction.target_groups():
                     qubit = qubit_map.i2q[qi.value]
                     measurement_records.setdefault(qubit, []).append(current_measurement_record)
                     current_measurement_record += 1
         if current_measurement_record != 0:
-            raise TQECException(
+            raise TQECError(
                 "Failed post-condition check. Expected a final measurement record of "
                 f"-1 but got {current_measurement_record - 1}. Did we miss a "
                 f"measurement? Circuit:\n{circuit}"

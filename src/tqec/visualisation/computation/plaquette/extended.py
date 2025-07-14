@@ -14,7 +14,7 @@ from tqec.visualisation.computation.plaquette.base import (
     svg_path_enclosing_points,
 )
 from tqec.visualisation.configuration import DrawerConfiguration
-from tqec.visualisation.exception import TQECDrawingException
+from tqec.visualisation.exception import TQECDrawingError
 
 
 class ExtendedPlaquettePosition(Enum):
@@ -328,7 +328,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         if self._reset is None and self._measurement is None:
             return svg.G()
         if self._reset is not None and self._measurement is not None:
-            raise TQECDrawingException("Cannot draw both reset and measurement.")
+            raise TQECDrawingError("Cannot draw both reset and measurement.")
         basis = self._reset if self._reset is not None else cast(Basis, self._measurement)
         fill = SVGPlaquetteDrawer.get_colour(basis)
         match self._plaquette_type:

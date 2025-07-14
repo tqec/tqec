@@ -73,7 +73,7 @@ from typing_extensions import override
 
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.base import RectangularTemplate, Template
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import (
     BlockPosition2D,
@@ -111,11 +111,11 @@ class LayoutTemplate(Template):
         """
         super().__init__(default_increments)
         if not element_layout:
-            raise TQECException("Cannot create a layout with an empty template map.")
+            raise TQECError("Cannot create a layout with an empty template map.")
 
         scalable_shapes = {template.scalable_shape for template in element_layout.values()}
         if len(scalable_shapes) != 1:
-            raise TQECException("All templates in the layout should have the same scalable shape.")
+            raise TQECError("All templates in the layout should have the same scalable shape.")
         self._element_scalable_shape = scalable_shapes.pop()
 
         all_positions = list(element_layout.keys())
@@ -177,10 +177,10 @@ class LayoutTemplate(Template):
         to instantiate ``self``.
 
         Raises:
-            TQECException: if the provided ``individual_plaquettes`` does not
+            TQECError: if the provided ``individual_plaquettes`` does not
                 cover all the :class:`~tqec.utils.position.BlockPosition2D` where
                 there is a template in ``self``.
-            TQECException: if the provided ``individual_plaquettes`` have
+            TQECError: if the provided ``individual_plaquettes`` have
                 different values for their ``default_factory``.
 
         Args:
@@ -196,7 +196,7 @@ class LayoutTemplate(Template):
         """
         missing_positions = frozenset(self._layout.keys()) - frozenset(individual_plaquettes.keys())
         if missing_positions:
-            raise TQECException(
+            raise TQECError(
                 "The following expected positions were not found in the "
                 f"provided individual_plaquettes: {missing_positions}."
             )
@@ -211,7 +211,7 @@ class LayoutTemplate(Template):
             default_values.append(individual_plaquettes[position].collection.default_value)
         unique_default_values = frozenset(default_values)
         if len(unique_default_values) != 1:
-            raise TQECException(
+            raise TQECError(
                 "Found several different default factories: "
                 f"{unique_default_values}. Cannot pick one for the merged "
                 f"{Plaquettes.__name__} instance."

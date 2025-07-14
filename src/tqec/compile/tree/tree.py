@@ -22,7 +22,7 @@ from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
-from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 from tqec.visualisation.computation.tree import LayerVisualiser
 
@@ -45,7 +45,7 @@ class QubitLister(NodeWalker):
             return
         annotations = node.get_annotations(self._k)
         if annotations.circuit is None:
-            raise TQECException("Cannot list qubits without the circuit annotation.")
+            raise TQECError("Cannot list qubits without the circuit annotation.")
         self._seen_qubits |= annotations.circuit.qubits
 
     @property
@@ -319,7 +319,7 @@ class LayerTree:
             current_version = CURRENT_DATABASE_VERSION
             if loaded_version != current_version:
                 if user_defined:
-                    raise TQECException(
+                    raise TQECError(
                         f"The detector database on disk you have specified is incompatible with"
                         f" the version in the TQEC code you are running. The version of the disk"
                         f" database is {loaded_version}, while the version in the TQEC code is "
@@ -394,7 +394,7 @@ class LayerTree:
 
         """
         if show_observable is not None and show_observable >= len(self._abstract_observables):
-            raise TQECException(
+            raise TQECError(
                 f"{show_observable:=} is out of range for the number of "
                 f"abstract observables ({len(self._abstract_observables)})."
             )

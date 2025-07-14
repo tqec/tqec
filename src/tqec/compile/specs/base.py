@@ -9,7 +9,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, CubeKind, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.templates.base import RectangularTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
 
 
@@ -40,7 +40,7 @@ class CubeSpec:
     def __post_init__(self) -> None:
         if self.spatial_arms != SpatialArms.NONE:
             if not self.is_spatial:
-                raise TQECException(
+                raise TQECError(
                     "The `spatial_arms` attribute should be `SpatialArms.NONE` for non-spatial cubes."
                 )
 

@@ -16,7 +16,7 @@ from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 
 P = ParamSpec("P")
@@ -59,7 +59,7 @@ class PlaquetteMapper:
         wrapped_func_name = f.__name__
         expected_end = "_rpng_descriptions"
         if not wrapped_func_name.endswith(expected_end):
-            raise TQECException(
+            raise TQECError(
                 f"Cannot wrap function {f.__module__}.{f.__name__}: its name does not end with '{expected_end}'."
             )
         wrapped_name = wrapped_func_name[: -len(expected_end)] + "_plaquettes"

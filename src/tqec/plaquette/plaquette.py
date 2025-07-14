@@ -12,7 +12,7 @@ from tqec.circuit.schedule import ScheduledCircuit
 from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.qubit import PlaquetteQubits
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import PhysicalQubitPosition2D
 
@@ -43,7 +43,7 @@ class Plaquette:
             circuits together to remove duplicate instructions.
 
     Raises:
-        TQECException: if the provided `circuit` uses qubits not listed in
+        TQECError: if the provided `circuit` uses qubits not listed in
             `qubits`.
 
     """
@@ -59,7 +59,7 @@ class Plaquette:
         circuit_qubits = set(self.circuit.qubits)
         if not circuit_qubits.issubset(plaquette_qubits):
             wrong_qubits = circuit_qubits.difference(plaquette_qubits)
-            raise TQECException(
+            raise TQECError(
                 f"The following qubits ({wrong_qubits}) are in the provided circuit "
                 "but not in the provided list of qubits."
             )
@@ -264,7 +264,7 @@ class Plaquettes:
 
     def __post_init__(self) -> None:
         if 0 in self.collection:
-            raise TQECException(
+            raise TQECError(
                 "Found a Plaquette with index 0. This index is reserved to express "
                 '"no plaquette". Please re-number your plaquettes starting from 1.'
             )

@@ -14,7 +14,7 @@ from tqec.circuit.qubit import GridQubit
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.observables.builder import Observable
 from tqec.compile.tree.node import LayerNode, NodeWalker
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.visualisation.computation.plaquette.grid import plaquette_grid_svg_viewer
 
 
@@ -103,7 +103,7 @@ class LayerVisualiser(NodeWalker):
         if not node.is_repeated:
             return
         if len(self._stack) < 2:
-            raise TQECException(
+            raise TQECError(
                 "Logical error: exiting a repeated node with less than 2 entries in the stack."
             )
         assert node.repetitions is not None
@@ -193,7 +193,7 @@ class LayerVisualiser(NodeWalker):
                 "element. You may get incorrect results. Did you forget to close a REPEAT block?"
             )
         if self._observable_index and not any(data.observable for data in self._stack[0]):
-            raise TQECException(
+            raise TQECError(
                 f"Observable index {self._observable_index} requested, but no observable "
                 "with this index was found to be annotated in the layer visualisation data."
             )

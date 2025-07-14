@@ -10,7 +10,7 @@ from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.spatial import EXPECTED_SPATIAL_BORDER_WIDTH
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import RectangularTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
 from tqec.utils.scale import (
     LinearFunction,
@@ -40,9 +40,9 @@ class PlaquetteLayer(BaseLayer):
                 removed from the layer.
 
         Raises:
-            TQECException: if the provided ``template`` increments do not match
+            TQECError: if the provided ``template`` increments do not match
                 with the expected spatial border width.
-            TQECException: if the provided ``template`` and
+            TQECError: if the provided ``template`` and
                 ``trimmed_spatial_borders`` can lead to empty instantiations for
                 ``k >= 1``.
 
@@ -54,13 +54,13 @@ class PlaquetteLayer(BaseLayer):
 
     def _post_init_check(self) -> None:
         # Shortening variable name for convenience
-        EW: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
-        expected_shifts = Shift2D(EW, EW)
+        _ew: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
+        expected_shifts = Shift2D(_ew, _ew)
         if (shifts := self._template.get_increments()) != expected_shifts:
-            raise TQECException(
-                f"Spatial borders are expected to be {EW} qubits large. Got a "
+            raise TQECError(
+                f"Spatial borders are expected to be {_ew} qubits large. Got a "
                 f"Template instance with {shifts:=}. Removing a border from "
-                f"such a template instance would remove more than {EW} qubits, "
+                f"such a template instance would remove more than {_ew} qubits, "
                 "which is not supported."
             )
         # We require the template shape to be strictly positive for any value of
@@ -69,7 +69,7 @@ class PlaquetteLayer(BaseLayer):
         shape1 = shape.to_numpy_shape(1)
         # Check that the shape is valid (i.e., strictly positive) for k == 1.
         if not all(coord > 0 for coord in shape1):
-            raise TQECException(
+            raise TQECError(
                 "The provided template/trimmed_spatial_borders combo leads to an "
                 f"invalid template shape ({shape1}) for k == 1. "
                 f"{PlaquetteLayer.__name__} instances do not support empty templates."
@@ -77,7 +77,7 @@ class PlaquetteLayer(BaseLayer):
         # Check that the shape is either increasing or is constant for both
         # coordinates.
         if shape.x.slope < 0 or shape.y.slope < 0:
-            raise TQECException(
+            raise TQECError(
                 "The provided template does have a strictly decreasing shape, "
                 "which will eventually lead to an empty instantiation, which is "
                 f"not supported by {PlaquetteLayer.__name__} instances."
@@ -86,15 +86,15 @@ class PlaquetteLayer(BaseLayer):
     @staticmethod
     def _get_number_of_plaquettes(axis: Literal["X", "Y"], increments: int) -> int:
         # Shortening variable name for convenience
-        EW: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
-        if EW % increments != 0:
-            raise TQECException(
-                f"Trying to remove {EW} qubits from the {axis} border of a template "
-                f"with increments {increments} in that axis. {EW} % {increments} "
+        _ew: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
+        if _ew % increments != 0:
+            raise TQECError(
+                f"Trying to remove {_ew} qubits from the {axis} border of a template "
+                f"with increments {increments} in that axis. {_ew} % {increments} "
                 "!= 0, which means that we would remove a non-integer number of "
                 "plaquettes, which is not supported."
             )
-        return EW // increments
+        return _ew // increments
 
     @staticmethod
     def _get_template_shape(

@@ -5,7 +5,7 @@ from typing import Generic
 
 from typing_extensions import Self, TypeVar
 
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition2D, BlockPosition3D, SignedDirection3D
 
 
@@ -65,7 +65,7 @@ class LayoutCubePosition2D(LayoutPosition2D):
         """
         if (x % 2 == 1) or (y % 2 == 1):
             clsname = self.__class__.__name__
-            raise TQECException(f"{clsname} cannot contain any odd coordinate.")
+            raise TQECError(f"{clsname} cannot contain any odd coordinate.")
         super().__init__(x, y)
 
     def to_block_position(self) -> BlockPosition2D:
@@ -84,7 +84,7 @@ class LayoutPipePosition2D(LayoutPosition2D):
         """
         if not ((x % 2 == 1) ^ (y % 2 == 1)):
             clsname = self.__class__.__name__
-            raise TQECException(f"{clsname} should contain one odd and one even coordinate.")
+            raise TQECError(f"{clsname} should contain one odd and one even coordinate.")
         super().__init__(x, y)
 
     def to_pipe(self) -> tuple[BlockPosition2D, BlockPosition2D]:

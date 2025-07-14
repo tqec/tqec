@@ -67,7 +67,7 @@ from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
 from tqec.utils.position import BlockPosition3D, Direction3D, SignedDirection3D
@@ -131,13 +131,13 @@ class TopologicalComputationGraph:
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         """Add a new cube at ``position`` implemented by the provided ``block``."""
         if not block.is_cube:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot add the block as a cube. The provided block({block}) has at least one non-scalable dimension."
             )
         self._check_block_spatial_shape(block)
         layout_position = LayoutPosition3D.from_block_position(position)
         if layout_position in self._blocks:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot override a block with ``add_cube``. There is already an entry at {layout_position}."
             )
         self._blocks[layout_position] = block
@@ -166,31 +166,31 @@ class TopologicalComputationGraph:
             sink: destination of the pipe. Should be the "largest" position.
 
         Raises:
-            TQECException: if ``source`` and ``sink`` are not neighbouring
+            TQECError: if ``source`` and ``sink`` are not neighbouring
                 positions.
-            TQECException: if ``not source < sink``.
-            TQECException: if either ``source`` or ``sink`` has not been added
+            TQECError: if ``not source < sink``.
+            TQECError: if either ``source`` or ``sink`` has not been added
                 to the graph.
 
         """
         if not source.is_neighbour(sink):
-            raise TQECException(
+            raise TQECError(
                 f"Trying to add a pipe between {source} and {sink} that are not neighbouring positions."
             )
         if not source < sink:
-            raise TQECException(
+            raise TQECError(
                 f"Trying to add a pipe between {source:=} and {sink:=} that "
                 "are not correctly ordered. The following should be verified: "
                 "source < sink."
             )
         source_layout_position = LayoutPosition3D.from_block_position(source)
         if source_layout_position not in self._blocks:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot add a pipe between {source:=} and {sink:=}: the source is not in the graph."
             )
         sink_layout_position = LayoutPosition3D.from_block_position(sink)
         if sink_layout_position not in self._blocks:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot add a pipe between {source:=} and {sink:=}: the sink is not in the graph."
             )
 
@@ -203,25 +203,25 @@ class TopologicalComputationGraph:
             sink: destination of the pipe. Should be the "largest" position.
 
         Raises:
-            TQECException: if ``source`` and ``sink`` are not neighbouring
+            TQECError: if ``source`` and ``sink`` are not neighbouring
                 positions.
-            TQECException: if ``not source < sink``.
-            TQECException: if either ``source`` or ``sink`` has not been added
+            TQECError: if ``not source < sink``.
+            TQECError: if either ``source`` or ``sink`` has not been added
                 to the graph.
-            TQECException: if there is already a pipe between ``source`` and
+            TQECError: if there is already a pipe between ``source`` and
                 ``sink``.
 
         """
         self._check_any_pipe(source, sink)
         layout_position = LayoutPosition3D.from_pipe_position((source, sink))
         if layout_position in self._blocks:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot override a pipe with ``add_pipe``. There is already a pipe at {layout_position}."
             )
 
     def _check_block_spatial_shape(self, block: Block) -> None:
         if block.scalable_shape != self._scalable_qubit_shape:
-            raise TQECException(
+            raise TQECError(
                 f"Expected a block shaped like a logical qubit "
                 f"({self._scalable_qubit_shape}) but got {block.scalable_shape}."
             )
@@ -237,19 +237,19 @@ class TopologicalComputationGraph:
             sink: destination of the pipe. Should be the "largest" position.
 
         Raises:
-            TQECException: if ``source`` and ``sink`` are not neighbouring
+            TQECError: if ``source`` and ``sink`` are not neighbouring
                 positions.
-            TQECException: if ``not source < sink``.
-            TQECException: if either ``source`` or ``sink`` has not been added
+            TQECError: if ``not source < sink``.
+            TQECError: if either ``source`` or ``sink`` has not been added
                 to the graph.
-            TQECException: if there is already a pipe between ``source`` and
+            TQECError: if there is already a pipe between ``source`` and
                 ``sink``.
 
         """
         self._check_spatial_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
         if juncdir not in Direction3D.spatial_directions():
-            raise TQECException(
+            raise TQECError(
                 f"The provided {source:=} and {sink:=} are not describing a "
                 "valid spatial pipe. Spatial and temporal pipes should "
                 "be handled separately."
@@ -358,7 +358,7 @@ class TopologicalComputationGraph:
         self._check_any_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
         if juncdir not in Direction3D.temporal_directions():
-            raise TQECException(
+            raise TQECError(
                 f"The provided {source:=} and {sink:=} are not describing a "
                 "valid temporal pipe. Spatial and temporal pipes should "
                 "be handled separately."
@@ -380,17 +380,17 @@ class TopologicalComputationGraph:
         """Add the provided block as a pipe between ``source`` and ``sink``.
 
         Raises:
-            TQECException: if ``source`` and ``sink`` are not neighbouring
+            TQECError: if ``source`` and ``sink`` are not neighbouring
                 positions.
-            TQECException: if ``not source < sink``.
-            TQECException: if there is already a pipe between ``source`` and
+            TQECError: if ``not source < sink``.
+            TQECError: if there is already a pipe between ``source`` and
                 ``sink``.
-            TQECException: if ``block`` is not a valid pipe (i.e., has not
+            TQECError: if ``block`` is not a valid pipe (i.e., has not
                 exactly 2 scalable dimensions).
 
         """
         if not block.is_pipe:
-            raise TQECException(
+            raise TQECError(
                 "Cannot add as a pipe a block that is not a pipe. The provided "
                 f"block ({block}) is not a pipe (i.e., does not have exactly 2 "
                 "scalable dimensions)."

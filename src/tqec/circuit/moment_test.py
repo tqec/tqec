@@ -2,7 +2,7 @@ import pytest
 import stim
 
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 _VALID_MOMENT_CIRCUITS: list[stim.Circuit] = [
     stim.Circuit("H 0 1 2 3"),
@@ -30,7 +30,7 @@ def test_moment_creation(circuit: stim.Circuit) -> None:
 
 @pytest.mark.parametrize("circuit", _INVALID_MOMENT_CIRCUITS)
 def test_moment_invalid_creation(circuit: stim.Circuit) -> None:
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         Moment(circuit)
 
 
@@ -99,7 +99,7 @@ def test_moment_iadd() -> None:
     assert moment.circuit == stim.Circuit("H 0 1 2\nQUBIT_COORDS(0, 0) 0")
 
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^Trying to add an overlapping quantum circuit to a Moment instance.$",
     ):
         moment += Moment(stim.Circuit("H 0"))
@@ -114,7 +114,7 @@ def test_moment_append() -> None:
     assert moment.circuit == stim.Circuit("H 0 1 2\nQUBIT_COORDS(0, 0) 0")
 
     with pytest.raises(
-        TQECException,
+        TQECError,
         match=r"^Cannot add H 0 to the Moment due to qubit\(s\) \{0\} being already in use.$",
     ):
         moment.append("H", [stim.GateTarget(0)], [])
@@ -129,7 +129,7 @@ def test_moment_append_instruction() -> None:
     assert moment.circuit == stim.Circuit("H 0 1 2\nQUBIT_COORDS(0, 0) 0")
 
     with pytest.raises(
-        TQECException,
+        TQECError,
         match=r"^Cannot add H 0 to the Moment due to qubit\(s\) \{0\} being already in use.$",
     ):
         moment.append(stim.CircuitInstruction("H", [stim.GateTarget(0)], []))
@@ -145,7 +145,7 @@ def test_moment_append_annotation() -> None:
         "H 0\nDETECTOR(0, 0, 1) rec[-1]\nOBSERVABLE_INCLUDE(1) rec[-1]"
     )
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^The method append_annotation only supports appending annotations.*",
     ):
         moment.append_annotation(stim.CircuitInstruction("H", [stim.GateTarget(0)], []))
@@ -201,14 +201,14 @@ def test_iterate_circuit_by_moment() -> None:
     for moment in moments:
         assert moment.circuit == stim.Circuit("H 0 1 2 3")
 
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         list(
             iter_stim_circuit_without_repeat_by_moments(
                 stim.Circuit("H 0 1 2 3\nH 0 1 2 3\nTICK\nH 0 1 2 3")
             )
         )
 
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         list(
             iter_stim_circuit_without_repeat_by_moments(
                 stim.Circuit("REPEAT 10 {\n    H 0 1 2 3\n}")

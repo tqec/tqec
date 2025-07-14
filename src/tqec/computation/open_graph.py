@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from functools import reduce
 from itertools import combinations
+from typing import Final
 
 import networkx as nx
 
@@ -13,7 +14,7 @@ from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import YHalfCube, ZXCube
 from tqec.interop.pyzx.correlation import reduce_observables_to_minimal_generators
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.position import Direction3D
 
 
@@ -36,9 +37,9 @@ class FilledGraph:
 
     def __post_init__(self) -> None:
         if self.graph.num_ports != 0:
-            raise TQECException("The filled graph should not have open ports.")
+            raise TQECError("The filled graph should not have open ports.")
         if len(self.stabilizers) != len(self.observables):
-            raise TQECException("The number of stabilizers and observables should match.")
+            raise TQECError("The number of stabilizers and observables should match.")
 
     def get_external_stabilizers(self) -> list[str]:
         """Return the external stabilizers of the correlation surfaces."""
@@ -78,10 +79,10 @@ def fill_ports_for_minimal_simulation(
     """
     num_ports = graph.num_ports
     if num_ports == 0:
-        raise TQECException("The provided graph has no open ports.")
+        raise TQECError("The provided graph has no open ports.")
     # heuristic threshold for large number of ports
-    HEURISTIC_THRESHOLD = 16
-    if search_small_area_observables and num_ports > HEURISTIC_THRESHOLD:
+    _heuristic_threshold: Final[int] = 16
+    if search_small_area_observables and num_ports > _heuristic_threshold:
         warnings.warn(
             "The algorithm will construct all exponentially many correlation "
             "surfaces, which can be slow for graphs with large number of ports. "

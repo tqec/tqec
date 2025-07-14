@@ -24,7 +24,7 @@ from tqec.computation.cube import (
 )
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D, SignedDirection3D
 
 if TYPE_CHECKING:
@@ -179,12 +179,12 @@ class BlockGraph:
     def _check_cube_exists(self, position: Position3D) -> None:
         """Check if a cube exists at the given position."""
         if position not in self:
-            raise TQECException(f"No cube at position {position}.")
+            raise TQECError(f"No cube at position {position}.")
 
     def _check_pipe_exists(self, pos1: Position3D, pos2: Position3D) -> None:
         """Check if a pipe exists between the given positions."""
         if not self.has_pipe_between(pos1, pos2):
-            raise TQECException(f"No pipe between {pos1} and {pos2}.")
+            raise TQECError(f"No pipe between {pos1} and {pos2}.")
 
     def add_cube(self, position: Position3D, kind: CubeKind | str, label: str = "") -> Position3D:
         """Add a cube to the graph.
@@ -199,19 +199,17 @@ class BlockGraph:
             The position of the cube added to the graph.
 
         Raises:
-            TQECException: If there is already a cube at the same position, or
+            TQECError: If there is already a cube at the same position, or
                 if the cube kind is not recognized, or if the cube is a port and
                 there is already a port with the same label in the graph.
 
         """
         if position in self:
-            raise TQECException(f"Cube already exists at position {position}.")
+            raise TQECError(f"Cube already exists at position {position}.")
         if isinstance(kind, str):
             kind = cube_kind_from_string(kind)
         if kind == Port() and label in self._ports:
-            raise TQECException(
-                f"There is already a port with the same label {label} in the graph."
-            )
+            raise TQECError(f"There is already a port with the same label {label} in the graph.")
 
         self._graph.add_node(position, **{self._NODE_DATA_KEY: Cube(position, kind, label)})
         if kind == Port():
@@ -237,14 +235,14 @@ class BlockGraph:
                 boundary conditions consistent. Default is None.
 
         Raises:
-            TQECException: If any of the positions do not have a cube in the graph, or
+            TQECError: If any of the positions do not have a cube in the graph, or
                 if there is already an pipe between the given positions, or
                 if the pipe is not compatible with the cubes it connects.
 
         """
         u, v = self[pos1], self[pos2]
         if self.has_pipe_between(pos1, pos2):
-            raise TQECException("There is already a pipe between the given positions in the graph.")
+            raise TQECError("There is already a pipe between the given positions in the graph.")
         if kind is None:
             pipe = Pipe.from_cubes(u, v)
         else:
@@ -259,7 +257,7 @@ class BlockGraph:
         Args:
             position: The position of the cube to be removed.
 
-        Raises: TQECException: If there is no cube at the given position.
+        Raises: TQECError: If there is no cube at the given position.
 
         """
         self._check_cube_exists(position)
@@ -276,7 +274,7 @@ class BlockGraph:
             pos2: The position of the other end of the pipe.
 
         Raises:
-            TQECException: If there is no pipe between the given positions.
+            TQECError: If there is no pipe between the given positions.
 
         """
         self._check_pipe_exists(pos1, pos2)
@@ -307,7 +305,7 @@ class BlockGraph:
             The pipe between the two positions.
 
         Raises:
-            TQECException: If there is no pipe between the given positions.
+            TQECError: If there is no pipe between the given positions.
 
         """
         self._check_pipe_exists(pos1, pos2)
@@ -316,7 +314,7 @@ class BlockGraph:
     def pipes_at(self, position: Position3D) -> list[Pipe]:
         """Get the pipes incident to a position."""
         if position not in self:
-            raise TQECException(f"No cube at position {position}.")
+            raise TQECError(f"No cube at position {position}.")
         return [
             cast(Pipe, data[self._EDGE_DATA_KEY])
             for _, _, data in self._graph.edges(position, data=True)
@@ -360,7 +358,7 @@ class BlockGraph:
           faces that are touching.
 
         Raises:
-            TQECException: If the above conditions are not satisfied.
+            TQECError: If the above conditions are not satisfied.
 
         """
         for cube in self.cubes:
@@ -372,20 +370,18 @@ class BlockGraph:
         # no fanout at ports
         if cube.is_port:
             if len(pipes) != 1:
-                raise TQECException(
+                raise TQECError(
                     f"Port at {cube.position} does not have exactly one pipe connected."
                 )
             return
         # time-like Y
         if cube.is_y_cube:
             if len(pipes) != 1:
-                raise TQECException(
+                raise TQECError(
                     f"Y Half Cube at {cube.position} does not have exactly one pipe connected."
                 )
             if not pipes[0].direction == Direction3D.Z:
-                raise TQECException(
-                    f"Y Half Cube at {cube.position} has non-timelike pipes connected."
-                )
+                raise TQECError(f"Y Half Cube at {cube.position} has non-timelike pipes connected.")
             return
 
         assert isinstance(cube.kind, ZXCube)
@@ -404,7 +400,7 @@ class BlockGraph:
                 for pipe in pipes_by_direction.get(ortho_dir, []):
                     pipe_color = pipe.kind.get_basis_along(direction, pipe.at_head(cube.position))
                     if pipe_color != cube_color:
-                        raise TQECException(f"Cube {cube} has mismatched colors with pipe {pipe}.")
+                        raise TQECError(f"Cube {cube} has mismatched colors with pipe {pipe}.")
 
     def to_zx_graph(self) -> PositionedZX:
         """Convert the block graph to a positioned PyZX graph.
@@ -559,14 +555,14 @@ class BlockGraph:
                 same kind.
 
         Raises:
-            TQECException: if there is no port with the given label.
+            TQECError: if there is no port with the given label.
 
         """
         if isinstance(fill, CubeKind):
             fill = {label: fill for label in self._ports}
         for label, kind in fill.items():
             if label not in self._ports:
-                raise TQECException(f"There is no port with label {label}.")
+                raise TQECError(f"There is no port with label {label}.")
             pos = self._ports[label]
             fill_node = Cube(pos, kind)
             # Overwrite the node at the port position
@@ -616,15 +612,15 @@ class BlockGraph:
             A new graph that is the composition of the current graph with the other graph.
 
         Raises:
-            TQECException: If the ports are not in the graphs, or if the two graphs
+            TQECError: If the ports are not in the graphs, or if the two graphs
                 cannot be composed because overlapping spacetime extents or incompatible
                 cube kinds.
 
         """
         if self_port not in self.ports:
-            raise TQECException(f"Port {self_port} is not in the current graph.")
+            raise TQECError(f"Port {self_port} is not in the current graph.")
         if other_port not in other.ports:
-            raise TQECException(f"Port {other_port} is not in the other graph.")
+            raise TQECError(f"Port {other_port} is not in the other graph.")
 
         p1, p2 = self.ports[self_port], other.ports[other_port]
         shift = (p1.x - p2.x, p1.y - p2.y, p1.z - p2.z)
@@ -638,7 +634,7 @@ class BlockGraph:
                 if cube.is_port and shifted_g[pos].is_port:
                     ports_need_fill[cube.label] = pos
                     continue
-                raise TQECException(
+                raise TQECError(
                     f"Cube at position {cube.position} is overlapping between the two graphs."
                 )
         composed_g = self.clone()
@@ -652,7 +648,7 @@ class BlockGraph:
                 b1 = pipe1.kind.get_basis_along(d, pipe1.at_head(port))
                 b2 = pipe2.kind.get_basis_along(d, pipe2.at_head(port))
                 if b1 is not None and b2 is not None and b1 != b2:
-                    raise TQECException(
+                    raise TQECError(
                         f"Port at {port} cannot be filled with a cube that has valid boundary conditions."
                     )
                 # choose Z basis boundary for the walls that can have arbitrary boundary
@@ -905,7 +901,7 @@ class BlockGraph:
                 to the new label to assign.
 
         Raises:
-            TQECException: If a cube is not found for the given key, if a port label
+            TQECError: If a cube is not found for the given key, if a port label
                 is reused, or if the new label conflicts with existing port labels.
 
         """
@@ -914,30 +910,30 @@ class BlockGraph:
 
         for key, new_label in label_mapping.items():
             if not new_label:
-                raise TQECException("New label must be non-empty.")
+                raise TQECError("New label must be non-empty.")
 
             if isinstance(key, Position3D):
                 matching_cubes = [cube for cube in self.cubes if cube.position == key]
             elif isinstance(key, str):
                 matching_cubes = [cube for cube in self.cubes if cube.label == key]
             else:
-                raise TQECException(f"Invalid identifier '{key}'. Must be Position3D or str.")
+                raise TQECError(f"Invalid identifier '{key}'. Must be Position3D or str.")
 
             if not matching_cubes:
-                raise TQECException(f"No cube found for identifier '{key}'.")
+                raise TQECError(f"No cube found for identifier '{key}'.")
 
             is_port_relabel = any(cube.is_port for cube in matching_cubes)
 
             if is_port_relabel:
                 if new_label in port_labels:
-                    raise TQECException(
+                    raise TQECError(
                         f"Port label '{new_label}' is already assigned to another port."
                     )
                 if new_label in assigned_new_labels:
-                    raise TQECException(f"Port label '{new_label}' is reused multiple times.")
+                    raise TQECError(f"Port label '{new_label}' is reused multiple times.")
                 assigned_new_labels.add(new_label)
             elif new_label in port_labels:
-                raise TQECException(
+                raise TQECError(
                     f"The label '{new_label}' belongs to a port and cannot be reused by a non-port cube."
                 )
 

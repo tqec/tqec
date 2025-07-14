@@ -6,7 +6,7 @@ from dataclasses import astuple, dataclass
 from typing import Any
 
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 
@@ -27,7 +27,7 @@ class ZXCube:
 
     def __post_init__(self) -> None:
         if self.x == self.y == self.z:
-            raise TQECException("The cube with the same basis along all axes is not allowed.")
+            raise TQECError("The cube with the same basis along all axes is not allowed.")
 
     def as_tuple(self) -> tuple[Basis, Basis, Basis]:
         """Return a tuple of ``(self.x, self.y, self.z)``.
@@ -213,7 +213,7 @@ class Cube:
 
     def __post_init__(self) -> None:
         if self.is_port and not self.label:
-            raise TQECException("A port cube must have a non-empty port label.")
+            raise TQECError("A port cube must have a non-empty port label.")
 
     def __str__(self) -> str:
         return f"{self.kind}{self.position}"

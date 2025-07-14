@@ -5,7 +5,7 @@ import svg
 
 from tqec.circuit.qubit import GridQubit
 from tqec.interop.color import TQECColor
-from tqec.visualisation.exception import TQECDrawingException
+from tqec.visualisation.exception import TQECDrawingError
 
 
 def _get_error_cross_svg(
@@ -36,9 +36,9 @@ def _get_coordinates(
             qx2, qy2 = targets[1].coords
             return qx, qy, qx2, qy2
         case 0:
-            raise TQECDrawingException("Could not extract coordinates from an empty list.")
+            raise TQECDrawingError("Could not extract coordinates from an empty list.")
         case _:
-            raise TQECDrawingException(
+            raise TQECDrawingError(
                 f"Could not extract coordinates from a list with {len(targets)}."
             )
 
@@ -135,7 +135,7 @@ def get_errors_svg(
             qx, qy, qx2, qy2 = _get_coordinates(flipped_measurement.observable)
             basis = flipped_measurement.observable[0].gate_target.pauli_type
         else:
-            raise TQECDrawingException("Could not draw the following error:\n" + str(error))
+            raise TQECDrawingError("Could not draw the following error:\n" + str(error))
         color = TQECColor(f"{basis}_CORRELATION").rgba.to_hex()
         # Make the coordinates relative to the top-left qubit.
         qx -= top_left_qubit.x

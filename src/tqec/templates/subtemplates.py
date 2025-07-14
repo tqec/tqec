@@ -9,7 +9,7 @@ from dataclasses import dataclass
 import numpy
 import numpy.typing as npt
 
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 SubTemplateType = npt.NDArray[numpy.int_]
 
@@ -74,11 +74,11 @@ class UniqueSubTemplates:
             template instantiation thanks to ``subtemplate_indices``.
 
     Raises:
-        TQECException: if any index in ``self.subtemplate_indices`` is
+        TQECError: if any index in ``self.subtemplate_indices`` is
             not present in ``self.subtemplates.keys()``.
-        TQECException: if any of the sub-template shapes is non-square
+        TQECError: if any of the sub-template shapes is non-square
             or of even width or length.
-        TQECException: if not all the sub-template shapes in
+        TQECError: if not all the sub-template shapes in
             ``self.subtemplates.values()`` are equal.
 
     """
@@ -90,20 +90,20 @@ class UniqueSubTemplates:
         # We do not need a valid subtemplate for the 0 index.
         indices = frozenset(numpy.unique(self.subtemplate_indices)) - {typing.cast(numpy.int_, 0)}
         if not indices.issubset(self.subtemplates.keys()):
-            raise TQECException(
+            raise TQECError(
                 "Found an index in subtemplate_indices that does not correspond to a valid subtemplate."
             )
         shape = next(iter(self.subtemplates.values())).shape
         if shape[0] != shape[1]:
-            raise TQECException(
+            raise TQECError(
                 f"Subtemplate shapes are expected to be square. Found the shape {shape} that is not a square."
             )
         if shape[0] % 2 == 0:
-            raise TQECException(
+            raise TQECError(
                 f"Subtemplate shapes are expected to be squares with an odd size length. Found size length {shape[0]}."
             )
         if not all(subtemplate.shape == shape for subtemplate in self.subtemplates.values()):
-            raise TQECException(
+            raise TQECError(
                 "All the subtemplates should have the exact same shape. Found one with a differing shape."
             )
 
@@ -269,7 +269,7 @@ class Unique3DSubTemplates:
         # Check that we have a 3-dimensional subtemplate_indices.
         shape = self.subtemplate_indices.shape
         if len(shape) != 3:
-            raise TQECException(
+            raise TQECError(
                 f"Expecting a 3-dimensional array but got the shape {shape} "
                 f"that represents a {len(shape)}-dimensional array."
             )
@@ -277,7 +277,7 @@ class Unique3DSubTemplates:
         # subtemplates keys contain exactly the right number of entries.
         n, m, t = shape
         if any(len(k) != t for k in self.subtemplates.keys()):
-            raise TQECException(
+            raise TQECError(
                 f"Found {t} time slices in subtemplate_indices but got a key "
                 f"in self.subtemplates that do not contain {t} entries."
             )
@@ -288,7 +288,7 @@ class Unique3DSubTemplates:
             tuple(arr) for arr in numpy.unique(self.subtemplate_indices.reshape(n * m, t), axis=0)
         ) - {zero}
         if not indices.issubset(self.subtemplates.keys()):
-            raise TQECException(
+            raise TQECError(
                 "Found an index in subtemplate_indices that does not correspond to a valid subtemplate."
             )
         # Check that the provided subtemplate shapes are valid:
@@ -297,19 +297,19 @@ class Unique3DSubTemplates:
         # - all equal
         shape = next(iter(self.subtemplates.values())).shape
         if shape[0] != shape[1]:
-            raise TQECException(
+            raise TQECError(
                 f"Subtemplate shapes are expected to be square. Found the shape {shape} that is not a square."
             )
         if shape[0] % 2 == 0:
-            raise TQECException(
+            raise TQECError(
                 f"Subtemplate shapes are expected to be squares with an odd size length. Found size length {shape[0]}."
             )
         if len(shape) != 3:
-            raise TQECException(
+            raise TQECError(
                 f"Expecting 3-dimensional subtemplates but got a template with {len(shape)} dimensions."
             )
         if not all(subtemplate.shape == shape for subtemplate in self.subtemplates.values()):
-            raise TQECException(
+            raise TQECError(
                 "All the subtemplates should have the exact same shape. Found one with a differing shape."
             )
 
