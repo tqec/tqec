@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import astuple, dataclass
+from dataclasses import astuple, dataclass, field
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -39,7 +39,7 @@ class Face:
     width: float
     height: float
     normal_direction: SignedDirection3D
-    position: FloatPosition3D = FloatPosition3D(0.0, 0.0, 0.0)
+    position: FloatPosition3D = field(default=FloatPosition3D(0.0, 0.0, 0.0))
 
     @staticmethod
     def get_triangle_indices() -> npt.NDArray[np.int_]:

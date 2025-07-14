@@ -17,7 +17,9 @@ This module implement a few central functions for the :mod:`tqec` library:
 
 from __future__ import annotations
 
+import functools
 import itertools
+import operator
 import warnings
 from collections.abc import Iterable, Sequence
 
@@ -187,7 +189,7 @@ def remove_duplicate_instructions(
     final_operations.extend(
         stim.CircuitInstruction(
             name,
-            sum(_sort_target_groups([list(t) for t in targets]), start=[]),
+            functools.reduce(operator.iadd, _sort_target_groups([list(t) for t in targets]), []),
             args,
         )
         for (name, args), targets in mergeable_operations.items()
@@ -228,7 +230,7 @@ def merge_instructions(
             instruction.target_groups()
         )
     return [
-        stim.CircuitInstruction(name, sum(targets, start=[]), args)
+        stim.CircuitInstruction(name, functools.reduce(operator.iadd, targets, []), args)
         for (name, args), targets in instructions_merger.items()
     ]
 
@@ -272,8 +274,8 @@ def merge_scheduled_circuits(
     while scheduled_circuits.has_pending_moment():
         schedule, moments = scheduled_circuits.collect_moments_at_minimum_schedule()
         # Flatten the moments into a list of operations to perform some modifications
-        instructions: list[stim.CircuitInstruction] = sum(
-            (list(moment.instructions) for moment in moments), start=[]
+        instructions: list[stim.CircuitInstruction] = functools.reduce(
+            operator.iadd, (list(moment.instructions) for moment in moments), []
         )
         # Avoid duplicated operations. Any operation that have the Plaquette.get_mergeable_tag() tag
         # is considered mergeable, and can be removed if another operation in the list
@@ -287,7 +289,7 @@ def merge_scheduled_circuits(
         for inst in merged_instructions:
             circuit.append(
                 inst.name,
-                sum(_sort_target_groups(inst.target_groups()), start=[]),
+                functools.reduce(operator.iadd, _sort_target_groups(inst.target_groups()), []),
                 inst.gate_args_copy(),
             )
         all_moments.append(Moment(circuit))
