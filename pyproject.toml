@@ -249,7 +249,7 @@ ignore = [
   "PLR0912", "PLR0913", "PLR0915", "PLR2004",
   # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
   "N802",
-  "PLC0414", "PLC0105",
+  "PLC0414",
   # UP038 - Soon-to-be-deprecated rule, we prefer using isinstance(obj, (A, B)).
   "UP038"
 ]
