@@ -110,8 +110,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
     def __init__(
         self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
-        """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder` interface for the
-        fixed boundary convention.
+        """Implementation of the :class:`.CubeBuilder` interface for the fixed boundary convention.
 
         This class provides an implementation following the fixed-boundary convention.
         This convention consists in the fact that 2-body stabilizers on the boundary
@@ -178,8 +177,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
     def __init__(
         self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
-        """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder` interface for the
-        fixed boundary convention.
+        """Implementation of the :class:`.PipeBuilder` interface for the fixed boundary convention.
 
         This class provides an implementation following the fixed-boundary convention.
         This convention consists in the fact that 2-body stabilizers on the boundary
@@ -301,9 +299,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         )
 
     def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
-        """Returns the ``Template`` instance needed to implement the pipe representing the provided
-        ``spec``.
-        """
+        """Returns the template needed to implement the pipe representing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
             case Direction3D.X, False:

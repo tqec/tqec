@@ -98,9 +98,7 @@ class LayerNode:
 
     @property
     def repetitions(self) -> LinearFunction | None:
-        """Returns the number of repetitions of the repeated block if ``self.is_repeated`` else
-        ``None``.
-        """
+        """Returns the number of repetitions of the node if ``self.is_repeated`` else ``None``."""
         return self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
 
     def to_dict(self) -> dict[str, Any]:
@@ -134,9 +132,7 @@ class LayerNode:
         return self._annotations.setdefault(k, LayerNodeAnnotations())
 
     def set_circuit_annotation(self, k: int, circuit: ScheduledCircuit) -> None:
-        """Set the circuit annotation associated with the provided scaling parameter ``k`` to
-        ``circuit``.
-        """
+        """Set the circuit annotation associated with the provided ``k`` to ``circuit``."""
         self.get_annotations(k).circuit = circuit
 
     def generate_circuits_with_potential_polygons(

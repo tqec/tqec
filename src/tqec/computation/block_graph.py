@@ -292,8 +292,7 @@ class BlockGraph:
         return self._graph.has_edge(pos1, pos2)
 
     def get_pipe(self, pos1: Position3D, pos2: Position3D) -> Pipe:
-        """Get the pipe by its endpoint positions. If there is no pipe between the given positions,
-        an exception will be raised.
+        """Get the pipe by its endpoint positions.
 
         Args:
             pos1: The first endpoint position.
@@ -500,8 +499,7 @@ class BlockGraph:
         )
 
     def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> BlockGraph:
-        """Shift the whole graph by the given offset in the x, y, z directions and creat a new graph
-        with the shifted positions.
+        """Shift a copy of ``self`` by the given offset in the x, y, z directions and returns it.
 
         Args:
             dx: The offset in the x direction.
@@ -582,7 +580,9 @@ class BlockGraph:
             self._ports.pop(label)
 
     def fill_ports_for_minimal_simulation(self) -> list[FilledGraph]:
-        """Given a block graph with open ports, fill in the ports with the appropriate cubes that
+        """Fill the ports of the provided ``graph`` to minimize the number of simulation runs.
+
+        Given a block graph with open ports, fill in the ports with the appropriate cubes that
         will minimize the number of simulation runs needed for the complete logical observable set.
 
         Returns:
@@ -672,8 +672,9 @@ class BlockGraph:
         return composed_g
 
     def is_single_connected(self) -> bool:
-        """Check if the graph is single connected, i.e. there is only one connected component in the
-        graph.
+        """Check if the graph is single connected.
+
+        A block graph is single-connected if there is only one connected component in the graph.
         """
         return bool(is_connected(self._graph))
 
@@ -683,8 +684,7 @@ class BlockGraph:
         counterclockwise: bool = True,
         num_90_degree_rotation: int = 1,
     ) -> BlockGraph:
-        """Rotate the graph around an axis by 0, 90, 180, or 270 degrees and create a new graph with
-        the rotated positions.
+        """Rotate a copy of ``self`` around an axis by a multiple of 90 degrees and returns it.
 
         Args:
             rotation_axis: The axis to rotate around.

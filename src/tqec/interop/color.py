@@ -36,8 +36,7 @@ class RGBA:
         return RGBA(self.r, self.g, self.b, a)
 
     def as_floats(self) -> tuple[float, float, float, float]:
-        """Returns the color as a tuple of floats. The RGB values are normalized to the range [0,
-        1].
+        """Returns the color as a tuple of floats. RGB values are normalized to the range [0, 1].
 
         Returns:
             Length 4 tuple of floats representing the color.

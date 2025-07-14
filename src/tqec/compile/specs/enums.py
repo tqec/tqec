@@ -38,8 +38,10 @@ class SpatialArms(Flag):
 
     @classmethod
     def get_map_from_arm_to_shift(cls) -> dict[SpatialArms, tuple[int, int]]:
-        """Return a mapping from any **single** arm to the shift needed to get the cube at the other
-        end of that arm.
+        """Return a mapping from any single arm to 2-dimensional shifts.
+
+        The returned shifts are the shift needed to get the cube at the other end of the associated
+        single arm.
 
         If a block ``B`` has a LEFT arm, the other end of the arm is the coordinates of ``B``
         shifted by ``(-1, 0)``. Hence,
@@ -48,6 +50,10 @@ class SpatialArms(Flag):
         Warning:
             In TQEC convention, the ``Y`` axis is pointing **downwards**. That means that UP is
             linked to ``(0, -1)`` in the returned dictionary.
+
+        Returns:
+            a mapping from any single arm to the shift needed to get the cube at the other end of
+            that arm.
 
         """
         return {

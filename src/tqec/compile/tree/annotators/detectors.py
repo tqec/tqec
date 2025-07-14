@@ -53,8 +53,10 @@ class LookbackInformationList:
         plaquettes: Plaquettes,
         measurement_records: MeasurementRecordsMap,
     ) -> None:
-        """Add the provided parameters to the lookback window, potentially removing older items that
-        should not be considered anymore.
+        """Add the provided parameters to the lookback window.
+
+        This method might remove older items that should not be considered anymore from the lookback
+        stack.
         """
         self.infos.append(LookbackInformation(template, plaquettes, measurement_records))
 
@@ -76,15 +78,15 @@ class LookbackInformationList:
 
 class LookbackStack:
     def __init__(self) -> None:
-        """Initialise the lookback stack that can be used to query the current state for detector
-        computation.
+        """Initialise the lookback stack.
 
-        This data-structure keeps information about the past QEC rounds in order
-        to be able to query them and help in detector computation by only
-        considering the ``N`` last rounds.
+        The lookback stack can be used to query the current state for detector computation.
 
-        In particular, this data-structure is useful to keep track of previous
-        rounds in the presence of ``REPEAT`` blocks.
+        This data-structure keeps information about the past QEC rounds in order to be able to query
+        them and help in detector computation by only considering the ``N`` last rounds.
+
+        In particular, this data-structure is useful to keep track of previous rounds in the
+        presence of ``REPEAT`` blocks.
 
         """
         self._stack: list[LookbackInformationList] = [LookbackInformationList()]

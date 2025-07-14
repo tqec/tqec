@@ -1,5 +1,4 @@
-"""Defines core data-structures to handle the mapping between qubit coordinates (as
-:class:`~tqec.circuit.qubit.GridQubit` instances) and qubit indices.
+"""Defines core data-structures to handle the mapping between qubit coordinates and qubit indices.
 
 A bijection from qubit coordinates to qubit indices is represented by
 :class:`QubitMap` defined in this module.
@@ -49,15 +48,16 @@ class QubitMap:
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
-        """Creates a qubit map from the provided ``qubits``, associating indices using the order in
-        which qubits are provided.
+        """Creates a qubit map from the provided ``qubits``.
+
+        Qubit indices are associated in the order in which ``qubits`` are provided: the first qubit
+        will have index ``0``, the second index ``1``, ...
         """
         return QubitMap(dict(enumerate(qubits)))
 
     @staticmethod
     def from_circuit(circuit: stim.Circuit) -> QubitMap:
-        """Returns a qubit map with all the qubits and their coordinates at the end of the provided
-        ``circuit``.
+        """Returns a qubit map from the qubit coordinates at the end of the provided ``circuit``.
 
         Warning:
             This function, just like
@@ -127,8 +127,7 @@ class QubitMap:
         return self.filter_by_qubit_indices(self.q2i[q] for q in qubits_to_keep if q in self.q2i)
 
     def filter_by_qubit_indices(self, qubit_indices_to_keep: Iterable[int]) -> QubitMap:
-        """Filter the qubit map to only keep qubits present in the provided
-        ``qubit_indices_to_keep``.
+        """Filter the qubit map to only keep qubits present in ``qubit_indices_to_keep``.
 
         Args:
             qubit_indices_to_keep: the qubits to keep in the circuit.

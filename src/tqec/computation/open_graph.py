@@ -50,7 +50,9 @@ def fill_ports_for_minimal_simulation(
     graph: BlockGraph,
     search_small_area_observables: bool = False,
 ) -> list[FilledGraph]:
-    """Given a block graph with open ports, fill in the ports with the appropriate cubes that will
+    """Fill the ports of the provided ``graph`` to minimize the number of simulation runs.
+
+    Given a block graph with open ports, fill in the ports with the appropriate cubes that will
     minimize the number of simulation runs needed for the complete logical observable set.
 
     The key idea is that stabilizers within the same clique should have compatible

@@ -174,9 +174,7 @@ class Moment:
         return any(instr.name == instruction_name for instr in self._circuit)
 
     def remove_all_instructions_inplace(self, instructions_to_remove: frozenset[str]) -> None:
-        """Remove in-place all the instructions that have their name in the provided
-        ``instructions_to_remove``.
-        """
+        """Remove in-place all the instructions with a name in ``instructions_to_remove``."""
         new_circuit = stim.Circuit()
         for inst in self._circuit:
             if inst.name in instructions_to_remove:
@@ -317,8 +315,10 @@ class Moment:
         return self._circuit.num_measurements  # type: ignore
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[int]) -> Moment:
-        """Return a new :class:`Moment` instance containing only the instructions that are applied
-        on the provided qubits.
+        """Return a new instance containing only the instructions applied on the provided qubits.
+
+        Any operation from ``self`` that is applied to at least one qubit that is not in the
+        provided ``qubits_to_keep`` will not be present in the returned :class:`Moment` instance.
         """
         qubits = frozenset(qubits_to_keep)
         used_qubits: set[int] = set()

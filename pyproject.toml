@@ -239,7 +239,7 @@ ignore = [
   # D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
   "D100", "D101", "D104", "D105",
   # D203 - Requires a blank line between class declaration and its docstring. Incompatible with D211. We prefer D211.
-  "D203", "D205", "D213",
+  "D203", "D213",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
   "D400", "D401", "D404", "D407", "D415", "D416", "D417",
   "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR1714", "PLR2004",
@@ -276,8 +276,12 @@ ignore = [
 
 # Specific per-file ignores
 [tool.ruff.lint.per-file-ignores]
+# We do not need tests functions to have a valid docstring
 "**/*_test.py" = ["D103"]
-
+# Some summary lines are long and hard to condense to a single line without loosing the precision and expressivity here.
+# Disabling for the moment, will see in the future if these warnings can be re-enabled without hurting the documentation.
+"src/tqec/compile/specs/library/generators/*" = ["D205"]
+"src/tqec/compile/observables/*" = ["D205"]
 
 [tool.pytest.ini_options]
 markers = ["slow: mark a test that takes a long time to run."]

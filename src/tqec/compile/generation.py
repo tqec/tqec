@@ -1,5 +1,4 @@
-"""Defines :meth:`~tqec.compile.generation.generate_circuit`, one of the core method of the
-:mod:`tqec` package.
+"""Defines :meth:`.generate_circuit`, one of the core method of the :mod:`tqec` package.
 
 This module defines two of core methods of the :mod:`tqec` package:
 

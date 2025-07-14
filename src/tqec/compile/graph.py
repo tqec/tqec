@@ -114,9 +114,7 @@ class TopologicalComputationGraph:
         observable_builder: ObservableBuilder,
         observables: list[AbstractObservable] | None = None,
     ) -> None:
-        """Represents a topological computation with :class:`~tqec.compile.blocks.block.Block`
-        instances.
-        """
+        """Represents a topological computation with :class:`.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
         # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
         # extent. We need to keep track of the temporal pipes that are at the
@@ -276,8 +274,7 @@ class TopologicalComputationGraph:
         spatial_block_border: SpatialBlockBorder,
         temporal_pipe_border: TemporalBlockBorder,
     ) -> None:
-        """Substitutes the plaquettes of the pipe in ``pipe_pos`` using
-        ``neighbouring_block_layer``.
+        """Substitutes the plaquettes of the pipe at ``pipe_pos`` using ``neighbouring_block_layer``
 
         The pipe in ``pipe_pos`` is modified in-line.
 
