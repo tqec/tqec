@@ -98,19 +98,19 @@ class Template(ABC):
         return ret
 
     def shape(self, k: int) -> PlaquetteShape2D:
-        """Returns the current template shape."""
+        """Return the current template shape."""
         sshape = self.scalable_shape
         return PlaquetteShape2D(round_or_fail(sshape.x(k)), round_or_fail(sshape.y(k)))
 
     @property
     @abstractmethod
     def scalable_shape(self) -> PlaquetteScalable2D:
-        """Returns a scalable version of the template shape."""
+        """Return a scalable version of the template shape."""
 
     @property
     @abstractmethod
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the :py:meth:`instantiate` method.
+        """Return the number of plaquettes expected from the :py:meth:`instantiate` method.
 
         Returns:
             the number of plaquettes expected from the :py:meth:`instantiate` method.
@@ -129,7 +129,7 @@ class Template(ABC):
     def get_spatially_distinct_subtemplates(
         self, k: int, manhattan_radius: int = 1, avoid_zero_plaquettes: bool = True
     ) -> UniqueSubTemplates:
-        """Returns a representation of the distinct sub-templates of the provided Manhattan radius.
+        """Return a representation of the distinct sub-templates of the provided Manhattan radius.
 
         Note:
             This method will likely be inefficient for large templates (i.e., large
@@ -203,7 +203,7 @@ class BorderIndices:
     bottom_right_corner: int
 
     def to(self, other: BorderIndices) -> dict[int, int]:
-        """Returns a mapping from ``self`` to ``other``.
+        """Return a mapping from ``self`` to ``other``.
 
         This method returns a mapping from the indices stored in ``self`` to the
         indices stored in ``other``.
@@ -232,7 +232,7 @@ class RectangularTemplate(Template):
 
     @abstractmethod
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
-        """Returns the indices on the provided ``border``.
+        """Return the indices on the provided ``border``.
 
         Args:
             border: side of the template instance for which the indices are

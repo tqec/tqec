@@ -48,7 +48,7 @@ class QubitMap:
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
-        """Creates a qubit map from the provided ``qubits``.
+        """Create a qubit map from the provided ``qubits``.
 
         Qubit indices are associated in the order in which ``qubits`` are provided: the first qubit
         will have index ``0``, the second index ``1``, ...
@@ -57,7 +57,7 @@ class QubitMap:
 
     @staticmethod
     def from_circuit(circuit: stim.Circuit) -> QubitMap:
-        """Returns a qubit map from the qubit coordinates at the end of the provided ``circuit``.
+        """Return a qubit map from the qubit coordinates at the end of the provided ``circuit``.
 
         Warning:
             This function, just like
@@ -205,7 +205,7 @@ class QubitMap:
         return QubitMap(i2q)
 
     def qubit_bounds(self) -> tuple[GridQubit, GridQubit]:
-        """Returns the tightest possible bounding box containing all the qubits in ``self``.
+        """Return the tightest possible bounding box containing all the qubits in ``self``.
 
         Raises:
             TQECError: if ``self`` is empty.
@@ -222,7 +222,7 @@ class QubitMap:
 
 
 def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
-    """Returns the existing qubits and their coordinates at the end of the provided ``circuit``.
+    """Return the existing qubits and their coordinates at the end of the provided ``circuit``.
 
     Warning:
         This function, just like

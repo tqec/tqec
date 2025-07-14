@@ -369,7 +369,7 @@ def compute_detectors_at_end_of_situation(
     only_use_database: bool = False,
     parallel_process_count: int = 1,
 ) -> frozenset[Detector]:
-    """Returns detectors that should be added at the end of the provided situation.
+    """Return detectors that should be added at the end of the provided situation.
 
     Args:
         subtemplates: a sequence of sub-template(s), each entry consisting of
@@ -626,7 +626,7 @@ def _compute_detector_for_subtemplate(
         int,  # parallel_process_count
     ],
 ) -> tuple[tuple[int, ...], frozenset[Detector]]:
-    """Helper function for parallel processing of detector computation.
+    """Wrap :func:`compute_detectors_at_end_of_situation` for parallel processing of detectors.
 
     Args:
         args: A tuple containing:

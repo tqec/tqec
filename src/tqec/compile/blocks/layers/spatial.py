@@ -40,7 +40,7 @@ class WithSpatialFootprint(ABC):
     @property
     @abstractmethod
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        """Returns the 2-dimensional shape of the object.
+        """Return the 2-dimensional shape of the object.
 
         Note:
             This method should return the shape in qubit-coordinates. That means
@@ -58,7 +58,7 @@ class WithSpatialFootprint(ABC):
         pass
 
     def shape(self, k: int) -> PhysicalQubitShape2D:
-        """Returns the 2-dimensional shape of the object for the given ``k``.
+        """Return the 2-dimensional shape of the object for the given ``k``.
 
         Args:
             k: scaling parameter.
@@ -71,7 +71,7 @@ class WithSpatialFootprint(ABC):
 
     @abstractmethod
     def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> Self:
-        """Returns ``self`` with the provided spatial borders removed.
+        """Return ``self`` with the provided spatial borders removed.
 
         Args:
             borders: spatial borders to remove.

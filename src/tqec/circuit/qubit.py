@@ -160,7 +160,7 @@ def count_qubit_accesses(circuit: stim.Circuit) -> dict[int, int]:
 
 
 def get_used_qubit_indices(circuit: stim.Circuit) -> set[int]:
-    """Returns the indices of qubits that are used by at least one non- annotation instruction.
+    """Return the indices of qubits that are used by at least one non- annotation instruction.
 
     Args:
         circuit: circuit containing the gates.

@@ -35,7 +35,7 @@ from tqec.utils.exceptions import TQECError, TQECWarning
 
 class _ScheduledCircuits:
     def __init__(self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap) -> None:
-        """Represents a collection of :class:`.ScheduledCircuit` instances.
+        """Represent a collection of :class:`.ScheduledCircuit` instances.
 
         This class aims at providing accessors for several compatible instances
         of :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`. It allows
@@ -60,7 +60,7 @@ class _ScheduledCircuits:
         self._current_moments = [next(it, None) for it in self._iterators]
 
     def has_pending_moment(self) -> bool:
-        """Checks if any of the managed instances has a pending moment.
+        """Check if any of the managed instances has a pending moment.
 
         Any moment that has not been collected by using collect_moment is considered to be pending.
 
@@ -141,7 +141,7 @@ def remove_duplicate_instructions(
     instructions: list[stim.CircuitInstruction],
     mergeable_instruction_names: frozenset[str],
 ) -> list[stim.CircuitInstruction]:
-    """Removes all the duplicate instructions from the given list.
+    """Remove all the duplicate instructions from the given list.
 
     Note:
         This function guarantees the following post-conditions on the returned

@@ -29,35 +29,35 @@ from tqec.utils.scale import PhysicalQubitScalable2D, round_or_fail
 def contains_only_base_layers(
     layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, BaseLayer]]:
-    """Helper function to ensure correct typing."""
+    """Ensure correct typing when used in a conditional block."""
     return all(isinstance(layer, BaseLayer) for layer in layers.values())
 
 
 def contains_only_composed_layers(
     layers: dict[LayoutPosition2D, BaseLayer | BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, BaseComposedLayer]]:
-    """Helper function to ensure correct typing."""
+    """Ensure correct typing when used in a conditional block."""
     return all(isinstance(layer, BaseComposedLayer) for layer in layers.values())
 
 
 def contains_only_repeated_layers(
     layers: dict[LayoutPosition2D, BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, RepeatedLayer]]:
-    """Helper function to ensure correct typing."""
+    """Ensure correct typing when used in a conditional block."""
     return all(isinstance(layer, RepeatedLayer) for layer in layers.values())
 
 
 def contains_only_sequenced_layers(
     layers: dict[LayoutPosition2D, BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, SequencedLayers]]:
-    """Helper function to ensure correct typing."""
+    """Ensure correct typing when used in a conditional block."""
     return all(isinstance(layer, SequencedLayers) for layer in layers.values())
 
 
 def contains_only_repeated_or_sequenced_layers(
     layers: dict[LayoutPosition2D, BaseComposedLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, SequencedLayers | RepeatedLayer]]:
-    """Helper function to ensure correct typing."""
+    """Ensure correct typing when used in a conditional block."""
     return all(isinstance(layer, (SequencedLayers, RepeatedLayer)) for layer in layers.values())
 
 

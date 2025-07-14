@@ -49,7 +49,7 @@ def _can_be_merged(lhs: Moment, rhs: Moment) -> bool:
 def _merge_internal_adjacent_moments_inline(
     moments: list[Moment | RepeatedMoments],
 ) -> bool:
-    """Merges adjacent moments without considering REPEAT block boundaries.
+    """Merge adjacent moments without considering REPEAT block boundaries.
 
     Returns:
         ``True`` if the provided ``moments`` have been modified, else ``False``.

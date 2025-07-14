@@ -47,7 +47,7 @@ from tqec.utils.scale import round_or_fail
 def calc_rotation_angles(
     rotation_matrix: npt.NDArray[np.float32],
 ) -> npt.NDArray[np.float32]:
-    """Calculates the rotation angles of the three rows of matrix (M) from the original X/Y/Z axes.
+    """Compute the rotation angles of the three rows of matrix (M) from the original X/Y/Z axes.
 
     Args:
         rotation_matrix: rotation matrix for node, extracted from `.dae` file.
@@ -76,7 +76,7 @@ def calc_rotation_angles(
 
 
 def get_axes_directions(rotation_matrix: npt.NDArray[np.float32]) -> dict[str, int]:
-    """Gets up/down multipliers for each row of a rotation matrix.
+    """Get up/down multipliers for each row of a rotation matrix.
 
     Args:
         rotation_matrix: rotation matrix for node.
@@ -157,7 +157,7 @@ def get_rotation_matrix(
     counterclockwise: bool = True,
     angle: float = np.pi / 2,
 ) -> npt.NDArray[np.float32]:
-    """Gets the rotation matrix for a given axis and rotation.
+    """Get the rotation matrix for a given axis and rotation.
 
     Args:
         rotation_axis: axis to rotate around.
@@ -207,7 +207,7 @@ def rotate_on_import(
     scale_matrix: npt.NDArray[np.float32],
     kind: BlockKind,
 ) -> tuple[FloatPosition3D, BlockKind]:
-    """Updates the kind of an incoming block when rotated.
+    """Update the kind of an incoming block when rotated.
 
     The block kind is only updated when its translation matrix indicates the original block has been
     rotated, rejecting any invalid rotation in the process.

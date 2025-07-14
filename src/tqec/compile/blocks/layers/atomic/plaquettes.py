@@ -26,7 +26,7 @@ class PlaquetteLayer(BaseLayer):
         plaquettes: Plaquettes,
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
     ) -> None:
-        """Represents a layer with a template and some plaquettes.
+        """Represent a layer with a template and some plaquettes.
 
         This class implements the layer interface by using a template and some
         plaquettes. This is the preferred way of representing a layer.

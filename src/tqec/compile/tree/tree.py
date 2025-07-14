@@ -29,7 +29,7 @@ from tqec.visualisation.computation.tree import LayerVisualiser
 
 class QubitLister(NodeWalker):
     def __init__(self, k: int):
-        """Keeps in memory all the qubits used by the nodes explored.
+        """Keep in memory all the qubits used by the nodes explored.
 
         Args:
             k: scaling factor used to explore the quantum circuits.
@@ -50,7 +50,7 @@ class QubitLister(NodeWalker):
 
     @property
     def seen_qubits(self) -> set[GridQubit]:
-        """Returns all the qubits seen when exploring."""
+        """Return all the qubits seen when exploring."""
         return self._seen_qubits
 
 
@@ -62,7 +62,7 @@ class LayerTree:
         abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
     ):
-        """Represents a computation as a tree.
+        """Represent a computation as a tree.
 
         Note:
             It is expected that the root is a

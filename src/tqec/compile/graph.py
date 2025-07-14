@@ -114,7 +114,7 @@ class TopologicalComputationGraph:
         observable_builder: ObservableBuilder,
         observables: list[AbstractObservable] | None = None,
     ) -> None:
-        """Represents a topological computation with :class:`.Block` instances."""
+        """Represent a topological computation with :class:`.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
         # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
         # extent. We need to keep track of the temporal pipes that are at the
