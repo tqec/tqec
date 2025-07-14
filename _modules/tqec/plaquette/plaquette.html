@@ -414,6 +414,7 @@ window.addEventListener("load", () => mermaid.run());
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
@@ -425,7 +426,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.debug</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteDebugInformation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteOrientation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.qubit</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteQubits</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECError</span><span class="p">,</span> <span class="n">TQECWarning</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.frozendefaultdict</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenDefaultDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalQubitPosition2D</span>
 
@@ -770,8 +771,8 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="Plaquettes.without_plaquettes">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes.without_plaquettes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">without_plaquettes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Plaquettes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove the plaquettes associated with the provided ``indices`` from a copy of ``self`` and return the new</span>
-<span class="sd">        instance.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove the plaquettes associated with the provided ``indices`` from a copy of ``self``</span>
+<span class="sd">        and return the new instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Plaquettes</span><span class="p">(</span>
             <span class="n">FrozenDefaultDict</span><span class="p">(</span>
@@ -847,11 +848,12 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="k">else</span> <span class="p">(</span><span class="n">plaquettes</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]]</span> <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
             <span class="p">),</span>
         <span class="p">)</span>
-        <span class="c1"># If the default value is None, print a WARNING</span>
-        <span class="c1"># (this should not happen in practice)</span>
+        <span class="c1"># If the default value is None, print a WARNING (this should not happen in practice)</span>
         <span class="k">if</span> <span class="n">collection</span><span class="o">.</span><span class="n">default_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;WARNING: The default value of the plaquettes collection is None. This should not happen in practice.&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The default value of the plaquettes collection is None. &quot;</span>
+                <span class="s2">&quot;This should not happen in practice.&quot;</span><span class="p">,</span>
+                <span class="n">TQECWarning</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">Plaquettes</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span></div>
 </div>

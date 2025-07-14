@@ -445,8 +445,10 @@ window.addEventListener("load", () => mermaid.run());
 <span class="s2">&lt;/head&gt;</span>
 
 <span class="s2">&lt;body&gt;</span>
-<span class="s2">  &lt;a download=&quot;model.dae&quot; id=&quot;model-download-link&quot; href=&quot;data:text/plain;base64,$MODEL_BASE64_PLACEHOLDER&quot;&gt;Download 3D</span>
-<span class="s2">    Model as .dae File&lt;/a&gt;</span>
+<span class="s2">  &lt;a download=&quot;model.dae&quot; id=&quot;model-download-link&quot; </span><span class="se">\</span>
+<span class="s2">     href=&quot;data:text/plain;base64,$MODEL_BASE64_PLACEHOLDER&quot;&gt;</span>
+<span class="s2">    Download 3D Model as .dae File</span>
+<span class="s2">  &lt;/a&gt;</span>
 <span class="s2">  &lt;br /&gt;Mouse Wheel = Zoom. Left Drag = Orbit. Right Drag = Strafe.</span>
 <span class="s2">  &lt;div id=&quot;scene-container&quot; style=&quot;width: calc(100vw - 32px); height: calc(100vh - 64px)&quot;&gt;</span>
 <span class="s2">    JavaScript Blocked?</span>
@@ -656,7 +658,9 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">html_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HTML_TEMPLATE</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">MODEL_BASE64_PLACEHOLDER</span><span class="o">=</span><span class="n">collada_base64</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">framed</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;iframe style=&quot;width: 100%; height: 300px; overflow: hidden; resize: both; border: 1px dashed gray;&quot; frameBorder=&quot;0&quot; srcdoc=&quot;</span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html_str</span><span class="p">,</span><span class="w"> </span><span class="n">quote</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&gt;&lt;/iframe&gt;&quot;&quot;&quot;</span>
+        <span class="n">framed</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;&lt;iframe style=&quot;width: 100%; height: 300px; overflow: hidden; resize: both; &quot;&quot;&quot;</span>
+        <span class="n">framed</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;border: 1px dashed gray;&quot; frameBorder=&quot;0&quot; &quot;&quot;&quot;</span>
+        <span class="n">framed</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;srcdoc=&quot;</span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html_str</span><span class="p">,</span><span class="w"> </span><span class="n">quote</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&gt;&lt;/iframe&gt;&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">framed</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -672,7 +676,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Display the 3D COLLADA model from a Collada DAE file in IPython</span>
 <span class="sd">    compatible environments, or write the generated HTML content to a file.</span>
 
-<span class="sd">    The implementation of this function references the code snippet from the ``stim.Circuit().diagram()`` method.</span>
+<span class="sd">    The implementation of this function references the code snippet from the</span>
+<span class="sd">    ``stim.Circuit().diagram()`` method.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        filepath_or_bytes: The input dae file path or bytes of the dae file.</span>

@@ -630,7 +630,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        As defined in &quot;A Fault-Tolerant Honeycomb Memory&quot;:</span>
 <span class="sd">        https://arxiv.org/abs/2108.10457</span>
 
-<span class="sd">        Small tweak from the paper: The measurement result is probabilistically flipped instead of the input qubit.</span>
+<span class="sd">        Small tweak from the paper: The measurement result is probabilistically flipped instead of</span>
+<span class="sd">        the input qubit.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">NoiseModel</span><span class="p">(</span>
             <span class="n">idle_depolarization</span><span class="o">=</span><span class="n">p</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span>
@@ -799,7 +800,8 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">        Args:</span>
 <span class="sd">            circuit: The circuit to layer noise over.</span>
-<span class="sd">            system_qubits: All qubits used by the circuit. These are the qubits eligible for idling noise.</span>
+<span class="sd">            system_qubits: All qubits used by the circuit. These are the qubits eligible for idling</span>
+<span class="sd">                noise.</span>
 <span class="sd">            immune_qubits: Qubits to not apply noise to, even if they are operated on.</span>
 
 <span class="sd">        Returns:</span>
@@ -934,13 +936,14 @@ window.addEventListener("load", () => mermaid.run());
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits a circuit into moments and some operations into pieces.</span>
 
-<span class="sd">    Classical control system operations like CX rec[-1] 0 are split from quantum operations like CX 1 0.</span>
+<span class="sd">    Classical control system operations like ``CX rec[-1] 0`` are split from quantum operations</span>
+<span class="sd">    like ``CX 1 0``.</span>
 
 <span class="sd">    MPP operations are split into one operation per Pauli product.</span>
 
 <span class="sd">    Yields:</span>
-<span class="sd">        Lists of operations corresponding to one moment in the circuit, with any problematic operations</span>
-<span class="sd">        like MPPs split into pieces.</span>
+<span class="sd">        Lists of operations corresponding to one moment in the circuit, with any problematic</span>
+<span class="sd">        operations like MPPs split into pieces.</span>
 
 <span class="sd">        (A moment is the time between two TICKs.)</span>
 

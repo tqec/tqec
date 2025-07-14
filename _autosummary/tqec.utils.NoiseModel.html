@@ -544,7 +544,8 @@ receiving noise model.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>circuit</strong> (<em>Circuit</em>) – The circuit to layer noise over.</p></li>
-<li><p><strong>system_qubits</strong> (<em>set</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – All qubits used by the circuit. These are the qubits eligible for idling noise.</p></li>
+<li><p><strong>system_qubits</strong> (<em>set</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – All qubits used by the circuit. These are the qubits eligible for idling
+noise.</p></li>
 <li><p><strong>immune_qubits</strong> (<em>set</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – Qubits to not apply noise to, even if they are operated on.</p></li>
 </ul>
 </dd>
@@ -563,7 +564,8 @@ receiving noise model.</p>
 <dd><p>Superconducting inspired noise.</p>
 <p>As defined in “A Fault-Tolerant Honeycomb Memory”:
 <a class="reference external" href="https://arxiv.org/abs/2108.10457">https://arxiv.org/abs/2108.10457</a></p>
-<p>Small tweak from the paper: The measurement result is probabilistically flipped instead of the input qubit.</p>
+<p>Small tweak from the paper: The measurement result is probabilistically flipped instead of
+the input qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>p</strong> (<em>float</em>)</p>
