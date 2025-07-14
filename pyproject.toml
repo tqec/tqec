@@ -249,7 +249,7 @@ ignore = [
   "N802",
   "PLC0414", "PLC0105",
   "PLW2901",
-  "RUF009", "RUF015",
+  "RUF015",
   # UP038 - Soon-to-be-deprecated rule, we prefer using isinstance(obj, (A, B)).
   "UP038"
 ]
