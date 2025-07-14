@@ -246,9 +246,9 @@ class ScheduledCircuit:
         mapped_final_qubits = QubitMap(
             {qubit_index_map[qi]: q for qi, q in self._qubit_map.items()}
         )
-        mapped_moments: list[Moment] = []
-        for moment in self._moments:
-            mapped_moments.append(moment.with_mapped_qubit_indices(qubit_index_map))
+        mapped_moments: list[Moment] = [
+            moment.with_mapped_qubit_indices(qubit_index_map) for moment in self._moments
+        ]
 
         if inplace:
             self._qubit_map = mapped_final_qubits
