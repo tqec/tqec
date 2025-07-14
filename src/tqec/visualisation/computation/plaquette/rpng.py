@@ -1,4 +1,5 @@
-from typing import Iterable, cast
+from collections.abc import Iterable
+from typing import cast
 
 import svg
 from typing_extensions import override

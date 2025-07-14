@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from tqec.compile.observables.abstract_observable import CubeWithArms, PipeWithArms
 from tqec.compile.observables.builder import Coordinates2D, ObservableBuilder
