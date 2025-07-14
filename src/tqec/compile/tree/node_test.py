@@ -52,7 +52,8 @@ def test_creation(plaquette_layer: PlaquetteLayer, layout_layer: LayoutLayer) ->
     LayerNode(SequencedLayers([layout_layer for _ in range(3)]))
     with pytest.raises(
         TQECError,
-        match="The layer that is being repeated is not an instance of LayoutLayer or BaseComposedLayer.",
+        match="The layer that is being repeated is not an instance of "
+        "LayoutLayer or BaseComposedLayer.",
     ):
         LayerNode(RepeatedLayer(plaquette_layer, LinearFunction(2, 0)))
     with pytest.raises(

@@ -182,7 +182,8 @@ def get_measurements_from_circuit(circuit: stim.Circuit) -> list[Measurement]:
             for (target,) in reversed(instruction.target_groups()):
                 if not target.is_qubit_target:
                     raise TQECError(
-                        f"Found a measurement instruction with a target that is not a qubit target: {instruction}."
+                        "Found a measurement instruction with a target that is "
+                        f"not a qubit target: {instruction}."
                     )
                 qi: int = cast(int, target.qubit_value)
                 qubit = qubit_map.i2q[qi]

@@ -132,7 +132,8 @@ class Moment:
         """
         if circuit.num_ticks > 0:
             raise TQECError(
-                "Cannot initialize a Moment with a stim.Circuit instance containing at least one TICK instruction."
+                "Cannot initialize a Moment with a stim.Circuit instance "
+                "containing at least one TICK instruction."
             )
         qubit_usage = count_qubit_accesses(circuit)
         multi_used_qubits = [qi for qi, usage_count in qubit_usage.items() if usage_count > 1]
@@ -262,7 +263,8 @@ class Moment:
         overlapping_qubits = self._used_qubits.intersection(instruction_qubits)
         if overlapping_qubits:
             raise TQECError(
-                f"Cannot add {instruction} to the Moment due to qubit(s) {overlapping_qubits} being already in use."
+                f"Cannot add {instruction} to the Moment due to qubit(s) "
+                f"{overlapping_qubits} being already in use."
             )
         self._used_qubits.update(instruction_qubits)
         self._circuit.append(instruction)
@@ -460,7 +462,8 @@ def iter_stim_circuit_without_repeat_by_moments(
     for inst in circuit:
         if isinstance(inst, stim.CircuitRepeatBlock):
             raise TQECError(
-                "Found an instance of stim.CircuitRepeatBlock which is explicitly not supported by this method."
+                "Found an instance of stim.CircuitRepeatBlock which is "
+                "explicitly not supported by this method."
             )
         elif inst.name == "TICK":
             yield Moment(copy_func(cur_moment))

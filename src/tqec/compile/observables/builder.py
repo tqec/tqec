@@ -118,7 +118,8 @@ class ObservableBuilder:
 
     The builders can include the qubits that are not in the circuit like qubits in the
     scretched stabilizers to simplify the calculation. The qubits that are not
-    measured in the circuit will be ignored when calling ``get_observable_with_measurement_records``.
+    measured in the circuit will be ignored when calling
+    ``get_observable_with_measurement_records``.
     """
 
     cube_top_readouts_builder: CubeObservableQubitsBuilder
@@ -150,7 +151,8 @@ class ObservableBuilder:
         shape = template.element_shape(k)
         obs_qubits: set[GridQubit] = set()
 
-        # The stabilizer measurements that will be added to the end of the first layer of circuits at z.
+        # The stabilizer measurements that will be added to the end of the
+        # first layer of circuits at z.
         if component == ObservableComponent.BOTTOM_STABILIZERS:
             for cube in observable.bottom_stabilizer_cubes:
                 obs_qubits.update(
@@ -260,7 +262,8 @@ def get_observable_with_measurement_records(
         len(measurement_records.mapping.get(q, [])) == 0 for q in qubits
     ):
         raise TQECError(
-            "Some qubits are not measured in the circuit. Set ignore_qubits_with_no_measurement to True to ignore them."
+            "Some qubits are not measured in the circuit. Set "
+            "ignore_qubits_with_no_measurement to True to ignore them."
         )
 
     measured_qubits = [

@@ -275,7 +275,9 @@ class ExtendedPlaquetteCollection:
     def from_args(
         basis: Basis, reset: Basis | None, measurement: Basis | None, is_reverse: bool
     ) -> ExtendedPlaquetteCollection:
-        """Build an instance of :class:`.ExtendedPlaquetteCollection` from the provided arguments."""
+        """Build an instance of :class:`.ExtendedPlaquetteCollection` from the provided
+        arguments.
+        """
         up, down = make_spatial_cube_arm_plaquettes(basis, reset, measurement, is_reverse)
         up_plaquette_polygons = ExtendedPlaquetteCollection._up_plaquette_polygons(
             PauliBasis(basis.value.lower())

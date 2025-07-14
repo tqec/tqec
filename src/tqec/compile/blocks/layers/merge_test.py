@@ -220,7 +220,8 @@ def test_merge_sequenced_layers_composed_different_schedules(
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     with pytest.raises(
         NotImplementedError,
-        match=".*_merge_sequenced_layers only supports merging sequences that have layers with a matching temporal schedule..*",
+        match=".*_merge_sequenced_layers only supports merging sequences that "
+        "have layers with a matching temporal schedule..*",
     ):
         merge_sequenced_layers(
             {

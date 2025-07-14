@@ -132,7 +132,8 @@ class ScheduledCircuit:
         # `stim.CircuitRepeatBlock` instance.
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
             raise ScheduleError(
-                "stim.CircuitRepeatBlock instances are not supported in a ScheduledCircuit instance."
+                "stim.CircuitRepeatBlock instances are not supported in a "
+                "ScheduledCircuit instance."
             )
         moments: list[Moment] = list(
             iter_stim_circuit_without_repeat_by_moments(circuit, collected_before_use=True)
@@ -443,7 +444,8 @@ class ScheduledCircuit:
         """
         if not is_annotation_instruction(instruction):
             raise TQECError(
-                "The provided instruction is not an annotation, which is disallowed by the append_annotation method."
+                "The provided instruction is not an annotation, which is "
+                "disallowed by the append_annotation method."
             )
         self._moments[-1].append_annotation(instruction)
 

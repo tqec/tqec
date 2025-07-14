@@ -37,18 +37,15 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
     def to_sequenced_layer_with_schedule(
         self, schedule: tuple[LinearFunction, ...]
     ) -> SequencedLayers:
-        """Splits ``self`` into a :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
-        instance with the provided schedule.
+        """Splits ``self`` into a :class:`.SequencedLayers` instance with the provided schedule.
 
         Args:
-            schedule: duration of each of the layers in the returned
-                :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
+            schedule: duration of each of the layers in the returned :class:`.SequencedLayers`
                 instance.
 
         Returns:
-            an instance of :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
-            that is equivalent to ``self`` (same duration, same layers applied,
-            ...) and that has the provided ``schedule``.
+            an instance of :class:`.SequencedLayers` that is equivalent to ``self`` (same duration,
+            same layers applied, ...) and that has the provided ``schedule``.
 
         """
         pass

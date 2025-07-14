@@ -17,7 +17,8 @@ class CheckDaeTQECSubCommand(TQECSubCommand):
     ) -> None:
         parser: argparse.ArgumentParser = main_parser.add_parser(
             "check_dae",
-            description="Takes a .dae file in and check that it is correctly recognized by the tqec library.",
+            description="Takes a .dae file in and check that it is correctly "
+            "recognized by the tqec library.",
         )
         parser.add_argument("dae_file", help="The .dae file to check.", type=Path)
         parser.set_defaults(func=CheckDaeTQECSubCommand.execute)

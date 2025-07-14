@@ -32,8 +32,10 @@ class _ColladaHTMLViewer:
 </head>
 
 <body>
-  <a download="model.dae" id="model-download-link" href="data:text/plain;base64,$MODEL_BASE64_PLACEHOLDER">Download 3D
-    Model as .dae File</a>
+  <a download="model.dae" id="model-download-link" \
+     href="data:text/plain;base64,$MODEL_BASE64_PLACEHOLDER">
+    Download 3D Model as .dae File
+  </a>
   <br />Mouse Wheel = Zoom. Left Drag = Orbit. Right Drag = Strafe.
   <div id="scene-container" style="width: calc(100vw - 32px); height: calc(100vh - 64px)">
     JavaScript Blocked?
@@ -243,7 +245,9 @@ class _ColladaHTMLViewer:
         self.html_str = self.HTML_TEMPLATE.substitute(MODEL_BASE64_PLACEHOLDER=collada_base64)
 
     def _repr_html_(self) -> str:
-        framed = f"""<iframe style="width: 100%; height: 300px; overflow: hidden; resize: both; border: 1px dashed gray;" frameBorder="0" srcdoc="{html.escape(self.html_str, quote=True)}"></iframe>"""
+        framed = """<iframe style="width: 100%; height: 300px; overflow: hidden; resize: both; """
+        framed += """border: 1px dashed gray;" frameBorder="0" """
+        framed += f"""srcdoc="{html.escape(self.html_str, quote=True)}"></iframe>"""
         return framed
 
     def __str__(self) -> str:
@@ -257,7 +261,8 @@ def display_collada_model(
     """Display the 3D COLLADA model from a Collada DAE file in IPython
     compatible environments, or write the generated HTML content to a file.
 
-    The implementation of this function references the code snippet from the ``stim.Circuit().diagram()`` method.
+    The implementation of this function references the code snippet from the
+    ``stim.Circuit().diagram()`` method.
 
     Args:
         filepath_or_bytes: The input dae file path or bytes of the dae file.

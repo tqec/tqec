@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import warnings
 from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
@@ -12,7 +13,7 @@ from tqec.circuit.schedule import ScheduledCircuit
 from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.qubit import PlaquetteQubits
-from tqec.utils.exceptions import TQECError
+from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import PhysicalQubitPosition2D
 
@@ -317,8 +318,8 @@ class Plaquettes:
         return d
 
     def without_plaquettes(self, indices: Collection[int]) -> Plaquettes:
-        """Remove the plaquettes associated with the provided ``indices`` from a copy of ``self`` and return the new
-        instance.
+        """Remove the plaquettes associated with the provided ``indices`` from a copy of ``self``
+        and return the new instance.
         """
         return Plaquettes(
             FrozenDefaultDict(
@@ -385,10 +386,11 @@ class Plaquettes:
                 else (plaquettes[data["default"]] if data["default"] is not None else None)
             ),
         )
-        # If the default value is None, print a WARNING
-        # (this should not happen in practice)
+        # If the default value is None, print a WARNING (this should not happen in practice)
         if collection.default_value is None:
-            print(
-                "WARNING: The default value of the plaquettes collection is None. This should not happen in practice."
+            warnings.warn(
+                "The default value of the plaquettes collection is None. "
+                "This should not happen in practice.",
+                TQECWarning,
             )
         return Plaquettes(collection)

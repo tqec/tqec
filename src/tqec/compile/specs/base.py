@@ -41,7 +41,8 @@ class CubeSpec:
         if self.spatial_arms != SpatialArms.NONE:
             if not self.is_spatial:
                 raise TQECError(
-                    "The `spatial_arms` attribute should be `SpatialArms.NONE` for non-spatial cubes."
+                    "The `spatial_arms` attribute should be `SpatialArms.NONE` "
+                    "for non-spatial cubes."
                 )
 
     @property

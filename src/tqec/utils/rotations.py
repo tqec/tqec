@@ -15,15 +15,17 @@ matrix that looks as follows:
 - RT: Vector starting at POSITION and shooting RIGHT
 - BK: Vector starting at POSITION and shooting BACKWARDS
 - UP: Vector starting at POSITION and shooting UP
-- US (let's ignore this – won't be using it here): Uniform scaling vector
+- US (let's ignore this - won't be using it here): Uniform scaling vector
 
 [RT.x] [UP.x] [BK.x] [POS.x]
 [RT.y] [UP.y] [BK.y] [POS.y]
 [RT.z] [UP.z] [BK.z] [POS.Z]
 [    ] [    ] [    ] [US   ]
 
-The 3x3 submatrix containing RT, UP, BK information will be an identity matrix if object is unrotated.
-Any rotation an user inputs in a software like SketchUp is applied by rotating this matrix algebraically.
+The 3x3 submatrix containing RT, UP, BK information will be an identity matrix if object is
+unrotated.
+Any rotation an user inputs in a software like SketchUp is applied by rotating this matrix
+algebraically.
 As a result, it is possible to know how much a cube/pipe can be rotated by comparing its
 transformation matrix against the original identity matrix (see notes in functions: !).
 
@@ -45,7 +47,8 @@ from tqec.utils.scale import round_or_fail
 def calc_rotation_angles(
     rotation_matrix: npt.NDArray[np.float32],
 ) -> npt.NDArray[np.float32]:
-    """Calculates the rotation angles of the three row vectors of matrix (M) from the original X/Y/Z axis (given by an identity matrix)).
+    """Calculates the rotation angles of the three row vectors of matrix (M) from the original X/Y/Z
+    axis (given by an identity matrix)).
 
     Args:
         rotation_matrix: rotation matrix for node, extracted from `.dae` file.
@@ -128,11 +131,12 @@ def rotate_block_kind_by_matrix(
     # Fails & re-writes for special blocks
     axes_directions = get_axes_directions(rotation_matrix)
 
-    # Reject state cultivation blocks if rotated_name not ends in "!" or axes_directions["Z"] is negative
+    # Reject state cultivation blocks if rotated_name not ends in "!" or axes_directions["Z"]
+    # is negative
     if "!" in rotated_name and (not rotated_name.endswith("!") or axes_directions["Z"] < 0):
         raise TQECError(
-            f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} block.",
-            "Cultivation and Y blocks should only allow rotation around Z axis.",
+            f"There is an invalid rotation for {rotated_name.replace('!', '').replace('-', '')} "
+            "block.\nCultivation and Y blocks should only allow rotation around Z axis.",
         )
     # Clean kind names for special names
     # State cultivation
@@ -227,14 +231,17 @@ def rotate_on_import(
 
     # Reject invalid rotations for all other cubes/pipes:
     if (
-        # Any rotation with angle not an integer multiply of 90 degrees: partially rotated block/pipe
+        # Any rotation with angle not an integer multiply of 90 degrees: partially rotated
+        # block/pipe
         any([int(angle) not in [0, 90, 180] for angle in rotation_angles])
         # At least 1 * 180-deg or 2 * 90-deg rotation to avoid dimensional collapse
-        # (A single 90-deg rotation would put the rotated vector on the plane made by the other two axes)
+        # (A single 90-deg rotation would put the rotated vector on the plane made by the other
+        # two axes)
         or sum([angle for angle in rotation_angles]) < 180
     ):
         raise TQECError(
-            f"There is an invalid rotation for {kind} block at position {FloatPosition3D(*translation_matrix)}."
+            f"There is an invalid rotation for {kind} block at "
+            f"position {FloatPosition3D(*translation_matrix)}."
         )
 
     # Rotate node name

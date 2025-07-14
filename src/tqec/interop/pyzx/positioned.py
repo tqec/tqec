@@ -53,7 +53,8 @@ class PositionedZX:
             ps, pt = positions[s], positions[t]
             if not ps.is_neighbour(pt):
                 raise TQECError(
-                    f"The 3D positions of the endpoints of the edge {s}--{t} must be neighbors, but got {ps} and {pt}."
+                    f"The 3D positions of the endpoints of the edge {s}--{t} "
+                    f"must be neighbors, but got {ps} and {pt}."
                 )
         # 3. Check all the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders
         for v in g.vertices():
@@ -71,14 +72,16 @@ class PositionedZX:
             if vt == VertexType.BOUNDARY or phase == Fraction(1, 2):
                 if g.vertex_degree(v) != 1:
                     raise TQECError(
-                        f"Boundary or Z(1/2) spider must be dangling, but got {len(g.neighbors(v))} neighbors."
+                        "Boundary or Z(1/2) spider must be dangling, but "
+                        f"got {len(g.neighbors(v))} neighbors."
                     )
                 if phase == Fraction(1, 2):
                     nb = next(iter(g.neighbors(v)))
                     vp, nbp = positions[v], positions[nb]
                     if abs(nbp.z - vp.z) != 1:
                         raise TQECError(
-                            f"Z(1/2) spider must connect to the time direction, but Z(1/2) at {vp} connects to {nbp}."
+                            "Z(1/2) spider must connect to the time direction, "
+                            f"but Z(1/2) at {vp} connects to {nbp}."
                         )
         # 5. Check there are no 3D corners
         for v in g.vertices():
@@ -117,14 +120,15 @@ class PositionedZX:
         The conversion process is as follows:
 
         1. For each cube in the block graph, convert it to a ZX vertex.
-        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.
+        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding
+           endpoints and Hadamard flag.
 
         Args:
             block_graph: The block graph to be converted to a ZX graph.
 
         Returns:
-            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from the block
-            graph.
+            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from
+            the block graph.
 
         """
         v2p: dict[int, Position3D] = {}

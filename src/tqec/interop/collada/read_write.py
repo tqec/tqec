@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import pathlib
 from collections.abc import Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import BinaryIO, cast
 
 import collada
@@ -151,7 +151,8 @@ def read_block_graph_from_dae_file(
                 expected_scale[pipe_direction.value] = scale
                 if not np.allclose(transformation.scale, expected_scale, atol=1e-9):
                     raise TQECError(
-                        f"Only the dimension along the pipe can be scaled, which is not the case at {translation}."
+                        "Only the dimension along the pipe can be scaled, "
+                        f"which is not the case at {translation}."
                     )
                 # Append
                 parsed_pipes.append((translation, kind, axes_directions))
@@ -178,7 +179,8 @@ def read_block_graph_from_dae_file(
 
     # Add pipes
     for pos, pipe_kind, axes_directions in parsed_pipes:
-        # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers from previous operations
+        # Draw pipes in +1/-1 direction using position, kind of pipe, and directional pointers
+        # from previous operations
         directional_multiplier = axes_directions[str(pipe_kind.direction)]
         head_pos = _int_position_before_scale(
             pos.shift_in_direction(pipe_kind.direction, -1 * directional_multiplier),
@@ -214,7 +216,8 @@ def write_block_graph_to_dae_file(
         pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.
         pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
             This is useful for visualizing the internal structure of the blocks. Default is None.
-        show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface` to show in the block graph. Default is None.
+        show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface`
+            to show in the block graph. Default is None.
 
     """
     if isinstance(pop_faces_at_direction, str):
@@ -312,12 +315,14 @@ def read_block_graph_from_json(
         # Enforce integers for position and transformation
         if not all([isinstance(i, int) for i in cube["position"]]):
             raise TQECError(
-                f"Incorrect positioning for cube at {cube['position']}. All positional information must be composed of integer values."
+                f"Incorrect positioning for cube at {cube['position']}. All positional "
+                "information must be composed of integer values."
             )
 
         if not all([isinstance(i, int) for row in cube["transform"] for i in row]):
             raise TQECError(
-                f"Incorrect transformation matrix for cube at {cube['position']}. All elements in transformation matrix need to be integers."
+                f"Incorrect transformation matrix for cube at {cube['position']}. All "
+                "elements in transformation matrix need to be integers."
             )
 
         # Get key spatial info
@@ -345,12 +350,14 @@ def read_block_graph_from_json(
         for pos in [pipe["u"], pipe["v"]]:
             if not all([isinstance(i, int) for i in pos]):
                 raise TQECError(
-                    f"Incorrect positioning for pipe at ({pipe['u']}). All positional information must be composed of integer values."
+                    f"Incorrect positioning for pipe at ({pipe['u']}). All positional "
+                    "information must be composed of integer values."
                 )
 
         if not all([isinstance(i, int) for row in pipe["transform"] for i in row]):
             raise TQECError(
-                f"Incorrect transformation for pipe at ({pipe['u']}). All elements in transformation matrix need to be integers."
+                f"Incorrect transformation for pipe at ({pipe['u']}). All elements in "
+                "transformation matrix need to be integers."
             )
 
         # Get key spatial info
@@ -634,10 +641,3 @@ class _GraphItem:
     position_in_blockgraph: Position3D
     kind: BlockKind
     transformation_matrix: _Transformation
-
-
-@dataclass
-class _GraphItems:
-    """Data class to join _GraphItem into a single object that can be populated with cubes, pipes, or cubes and pipes."""
-
-    items: list[_GraphItem] = field(default_factory=list)

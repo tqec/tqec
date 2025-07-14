@@ -202,7 +202,10 @@ def test_to_sequenced_layer_with_schedule(plaquette_layer: PlaquetteLayer) -> No
         layer.to_sequenced_layer_with_schedule((LinearFunction(2, 0), LinearFunction(0, 1)))
         == layer
     )
-    err_regex = "^.*The provided schedule has a duration of .* but the instance to transform has a duration of .*$"
+    err_regex = (
+        "^.*The provided schedule has a duration of .* but the "
+        "instance to transform has a duration of .*$"
+    )
     with pytest.raises(TQECError, match=err_regex):
         layer.to_sequenced_layer_with_schedule((LinearFunction(0, 1), LinearFunction(1, 0)))
     with pytest.raises(NotImplementedError):
