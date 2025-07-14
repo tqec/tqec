@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import functools
+import operator
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 
@@ -92,12 +94,13 @@ def merge_moments(lhs: Moment, rhs: Moment) -> Moment:
     for inst in instructions:
         circuit.append(
             inst.name,
-            sum(
+            functools.reduce(
+                operator.iadd,
                 sorted(
                     inst.target_groups(),
                     key=lambda group: tuple(t.value for t in group),
                 ),
-                start=[],
+                [],
             ),
             inst.gate_args_copy(),
         )
