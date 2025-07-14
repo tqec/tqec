@@ -1,4 +1,5 @@
-from typing import Callable, Final, Protocol
+from collections.abc import Callable
+from typing import Final, Protocol
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
