@@ -126,7 +126,7 @@ def get_spatially_distinct_subtemplates(
     manhattan_radius: int = 1,
     avoid_zero_plaquettes: bool = True,
 ) -> UniqueSubTemplates:
-    """Returns a representation of all the distinct sub-templates of the
+    r"""Returns a representation of all the distinct sub-templates of the
     provided manhattan radius.
 
     Note:
@@ -143,7 +143,7 @@ def get_spatially_distinct_subtemplates(
         it takes of the order of :math:`n m (2r+1)^2` memory and has to sort an
         array of :math:`nm` elements of size :math:`(2r+1)^2` in lexicographic
         order so require, in the worst case,
-        :math:`O\\left(nm\\log(nm) (2r+1)^2\\right)` runtime.
+        :math:`O\left(nm\log(nm) (2r+1)^2\right)` runtime.
 
         Subclasses are invited to reimplement that method using a specialized
         algorithm (or hard-coded values) to speed things up.
@@ -335,7 +335,7 @@ class Unique3DSubTemplates:
 def get_spatially_distinct_3d_subtemplates(
     instantiations: Sequence[npt.NDArray[numpy.int_]], manhattan_radius: int = 1
 ) -> Unique3DSubTemplates:
-    """Returns a representation of all the distinct 3-dimensional sub-templates
+    r"""Returns a representation of all the distinct 3-dimensional sub-templates
     of the provided manhattan radius.
 
     Note:
@@ -353,7 +353,7 @@ def get_spatially_distinct_3d_subtemplates(
         it takes of the order of up to :math:`nmt(2r+1)^2` memory, has to sort
         :math:`t` arrays of :math:`nm` elements of size :math:`(2r+1)^2` in
         lexicographic order, so require, in the worst case,
-        :math:`O\\left(tnm\\log(nm)(2r+1)^2\\right)` runtime.
+        :math:`O\left(tnm\log(nm)(2r+1)^2\right)` runtime.
 
     Warning:
         This function assumes that the provided ``instantiations`` are compatible

@@ -1,4 +1,4 @@
-"""Defines a high-level template composing several sub-templates:
+r"""Defines a high-level template composing several sub-templates:
 :class:`LayoutTemplate`.
 
 This module defines a :class:`~tqec.templates.base.Template` child class that
@@ -9,7 +9,7 @@ instances with the same scalable shape. Each of the managed
 
 Example
 -------
-A grid of :math:`2 \\times 2` logical qubits can be represented with
+A grid of :math:`2 \times 2` logical qubits can be represented with
 
 .. code-block:: python
 
