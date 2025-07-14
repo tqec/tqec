@@ -425,7 +425,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.debug</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteDebugInformation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteOrientation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.plaquette.qubit</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlaquetteQubits</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.frozendefaultdict</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrozenDefaultDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicalQubitPosition2D</span>
 
@@ -458,7 +458,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            circuits together to remove duplicate instructions.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        TQECException: if the provided `circuit` uses qubits not listed in</span>
+<span class="sd">        TQECError: if the provided `circuit` uses qubits not listed in</span>
 <span class="sd">            `qubits`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -474,7 +474,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">circuit_qubits</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">circuit_qubits</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">plaquette_qubits</span><span class="p">):</span>
             <span class="n">wrong_qubits</span> <span class="o">=</span> <span class="n">circuit_qubits</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">plaquette_qubits</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;The following qubits (</span><span class="si">{</span><span class="n">wrong_qubits</span><span class="si">}</span><span class="s2">) are in the provided circuit &quot;</span>
                 <span class="s2">&quot;but not in the provided list of qubits.&quot;</span>
             <span class="p">)</span>
@@ -706,7 +706,7 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
                 <span class="s2">&quot;Found a Plaquette with index 0. This index is reserved to express &quot;</span>
                 <span class="s1">&#39;&quot;no plaquette&quot;. Please re-number your plaquettes starting from 1.&#39;</span>
             <span class="p">)</span>

@@ -424,7 +424,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositionedZX</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_boundary</span><span class="p">,</span> <span class="n">is_zx_no_phase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Basis</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Direction3D</span>
 
 
@@ -456,7 +456,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        converted from the ZX graph.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        TQECException: A valid block graph cannot be constructed.</span>
+<span class="sd">        TQECError: A valid block graph cannot be constructed.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nodes_to_handle</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">vertices</span><span class="p">())</span>
@@ -566,7 +566,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">if</span> <span class="n">other_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nodes_to_handle</span><span class="p">:</span>
                 <span class="n">existing_kind</span> <span class="o">=</span> <span class="n">bg</span><span class="p">[</span><span class="n">opos</span><span class="p">]</span><span class="o">.</span><span class="n">kind</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">other_cube_kind</span> <span class="o">==</span> <span class="n">existing_kind</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Encounter conflicting cube kinds at </span><span class="si">{</span><span class="n">opos</span><span class="si">}</span><span class="s2">: &quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Encounter conflicting cube kinds at </span><span class="si">{</span><span class="n">opos</span><span class="si">}</span><span class="s2">: &quot;</span><span class="p">)</span>
             <span class="n">other_cube</span> <span class="o">=</span> <span class="n">Cube</span><span class="p">(</span><span class="n">opos</span><span class="p">,</span> <span class="n">other_cube_kind</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">other_cube</span> <span class="o">=</span> <span class="n">_port_or_y_cube</span><span class="p">(</span><span class="n">pg</span><span class="p">,</span> <span class="n">other_node</span><span class="p">)</span>

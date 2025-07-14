@@ -417,7 +417,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.block_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockGraph</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZXCube</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">Position3D</span>
 
 
@@ -443,7 +443,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        logical CZ gate.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        TQECException: If there is Y Pauli operator in the stabilizer flows, or</span>
+<span class="sd">        TQECError: If there is Y Pauli operator in the stabilizer flows, or</span>
 <span class="sd">            if provided stabilizer flows are not valid for the CZ gate, or</span>
 <span class="sd">            if no valid graph can be found for the given stabilizer flows.</span>
 
@@ -478,13 +478,13 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_ports</span><span class="p">(</span><span class="n">flows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ZXCube</span><span class="p">]:</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;Y&quot;</span> <span class="ow">in</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">flows</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="s2">&quot;Y basis initialization/measurements are not supported yet.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span><span class="s2">&quot;Y basis initialization/measurements are not supported yet.&quot;</span><span class="p">)</span>
 
     <span class="n">stim_flows</span> <span class="o">=</span> <span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">Flow</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">flows</span><span class="p">]</span>
     <span class="n">cz</span> <span class="o">=</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">(</span><span class="s2">&quot;CZ 0 1&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">stim_flows</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cz</span><span class="o">.</span><span class="n">has_flow</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2"> is not a valid flow for the CZ gate.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2"> is not a valid flow for the CZ gate.&quot;</span><span class="p">)</span>
 
     <span class="n">ports</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span>
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">stim_flows</span><span class="p">:</span>
@@ -492,9 +492,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">if</span> <span class="n">ports</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>
                 <span class="n">ports</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
             <span class="k">elif</span> <span class="n">p</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span> <span class="ow">and</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">ports</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Port </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> fails to support both </span><span class="si">{</span><span class="n">ports</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> observable.&quot;</span>
-                <span class="p">)</span>
+                <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Port </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> fails to support both </span><span class="si">{</span><span class="n">ports</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> observable.&quot;</span><span class="p">)</span>
     <span class="c1"># If there are left &quot;I&quot; in the ports, we choose fill them with &quot;Z&quot; (&quot;X&quot; should also work).</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">ports</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>

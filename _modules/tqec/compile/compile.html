@@ -431,7 +431,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.cube</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cube</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.templates.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangularTemplate</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TQECError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.position</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockPosition3D</span><span class="p">,</span> <span class="n">Direction3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.utils.scale</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearFunction</span><span class="p">,</span> <span class="n">PhysicalQubitScalable2D</span>
 
@@ -448,10 +448,10 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    This helper function try its best to recover the template a given layer uses.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        TQECException: if an instance of :class:`.BaseLayer` is something else than an instance of</span>
+<span class="sd">        TQECError: if an instance of :class:`.BaseLayer` is something else than an instance of</span>
 <span class="sd">            :class:`.PlaquetteLayer`, because :class:`.PlaquetteLayer` is the only class from which</span>
 <span class="sd">            we can recover a template instance.</span>
-<span class="sd">        TQECException: if an instance of :class:`.SequencedLayers` contains sub-layers with</span>
+<span class="sd">        TQECError: if an instance of :class:`.SequencedLayers` contains sub-layers with</span>
 <span class="sd">            different templates.</span>
 <span class="sd">        NotImplementedError: if an unknown layer is found.</span>
 
@@ -461,7 +461,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">BaseLayer</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">PlaquetteLayer</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Trying to get the Template from a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span>
                 <span class="s2">&quot;instance that does not have any Template.&quot;</span>
             <span class="p">)</span>
@@ -469,7 +469,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">SequencedLayers</span><span class="p">):</span>
         <span class="n">possible_templates</span> <span class="o">=</span> <span class="p">{</span><span class="n">_get_template_from_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">layer_sequence</span><span class="p">}</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possible_templates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
                 <span class="s2">&quot;Multiple possible Template found:</span><span class="se">\n</span><span class="s2">  -&quot;</span>
                 <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  -&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">possible_templates</span><span class="p">)</span>
                 <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Which is not supported at the moment.&quot;</span>
@@ -508,7 +508,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># All the ports should be filled before compiling the block graph.</span>
     <span class="k">if</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">num_ports</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">TQECException</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
             <span class="s2">&quot;Can not compile a block graph with open ports into circuits. &quot;</span>
             <span class="s2">&quot;You might want to call `fill_ports` or `fill_ports_for_minimal_simulation` &quot;</span>
             <span class="s2">&quot;on the block graph before compiling it.&quot;</span>
