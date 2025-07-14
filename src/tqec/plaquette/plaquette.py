@@ -70,6 +70,7 @@ class Plaquette:
         """Return the plaquette origin.
 
         By definition, for the moment, the plaquette origin is always ``(0, 0)``.
+
         """
         return PhysicalQubitPosition2D(0, 0)
 
@@ -176,6 +177,7 @@ class Plaquette:
 
         This is an issue when trying to store a dictionary involving a plaquette as key and re-use
         it in subsequent runs or on other machines / OSes.
+
         """
         return int(hashlib.md5(self.name.encode()).hexdigest(), 16)
 
@@ -193,6 +195,7 @@ class Plaquette:
         """Check if the plaquette is empty.
 
         An empty plaquette is a plaquette that contain empty scheduled circuit.
+
         """
         return bool(self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit())
 
@@ -210,6 +213,7 @@ class Plaquette:
         """Return a dictionary representation of the plaquette.
 
         The dictionary is intended to be used as a JSON object.
+
         """
         return {
             "name": self.name,
@@ -245,14 +249,14 @@ class Plaquette:
 class Plaquettes:
     """Represent a collection of plaquettes that might be applied to a :class:`Template` instance.
 
-    The goal of this class is to abstract away how a "collection of
-    plaquettes" is represented and to provide a unique interface in
-    order to retrieve plaquettes when building a quantum circuit from a
-    template and plaquettes.
+    The goal of this class is to abstract away how a "collection of plaquettes" is represented and
+    to provide a unique interface in order to retrieve plaquettes when building a quantum circuit
+    from a template and plaquettes.
 
-    It also checks that the represented collection is valid, which means
-    that it does not include any plaquette associated with index 0 (that
-    is internally and conventionally reserved for the empty plaquette).
+    It also checks that the represented collection is valid, which means that it does not include
+    any plaquette associated with index 0 (that is internally and conventionally reserved for the
+    empty plaquette).
+
     """
 
     collection: FrozenDefaultDict[int, Plaquette]
@@ -292,8 +296,8 @@ class Plaquettes:
     def __hash__(self) -> int:
         """Implementation for Python's hash().
 
-        The returned value is reliable across runs, interpreters and
-        OSes.
+        The returned value is reliable across runs, interpreters and OSes.
+
         """
         return hash(
             tuple(

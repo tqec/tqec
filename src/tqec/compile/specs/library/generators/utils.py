@@ -5,6 +5,7 @@ The main utility provided by this module at the moment is
 object that may have a state, and a "decorator") that can be used to define
 functions that return :class:`~tqec.plaquettes.plaquettes.Plaquettes` instances
 from one that returns `FrozenDefaultDict[int, RPNGDescription]`.
+
 """
 
 from collections.abc import Callable

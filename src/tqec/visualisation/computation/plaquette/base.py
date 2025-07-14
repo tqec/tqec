@@ -34,8 +34,9 @@ class PlaquetteCorner(Enum):
 class SVGPlaquetteDrawer(ABC):
     """Base class for plaquette drawers that output to SVG.
 
-    A few static helper methods are defined in this class and can be re-used by
-    sub-classes, for example to get a SVG path from a set of points.
+    A few static helper methods are defined in this class and can be re-used by sub-classes, for
+    example to get a SVG path from a set of points.
+
     """
 
     _CENTER_COORDINATE: ClassVar[complex] = 0.5 + 0.5j

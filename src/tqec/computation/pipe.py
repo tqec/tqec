@@ -104,16 +104,12 @@ class PipeKind:
 
     @property
     def is_temporal(self) -> bool:
-        """Whether the pipe is temporal, i.e. connects two cubes along the Z
-        axis.
-        """
+        """Whether the pipe is temporal, i.e. connects two cubes along the Z axis."""
         return self.z is None
 
     @property
     def is_spatial(self) -> bool:
-        """Whether the pipe is spatial, i.e. connects two cubes along the X or
-        Y axis.
-        """
+        """Whether the pipe is spatial, i.e. connects two cubes along the X or Y axis."""
         return not self.is_temporal
 
     @staticmethod
@@ -123,8 +119,7 @@ class PipeKind:
         cube_at_head: bool,
         has_hadamard: bool = False,
     ) -> PipeKind:
-        """Infer the pipe kind from the endpoint cube kind and the pipe
-        direction.
+        """Infer the pipe kind from the endpoint cube kind and the pipe direction.
 
         Args:
             cube_kind: The kind of the cube at the endpoint of the pipe.

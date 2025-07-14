@@ -32,8 +32,8 @@ from tqec.utils.position import PlaquettePosition2D, Shift2D
 
 
 def _get_measurement_offset_mapping(circuit: stim.Circuit) -> dict[int, Measurement]:
-    """Get a mapping from measurement offsets as used and returned by the
-    package `tqecd.detectors` to a `Measurement` instance.
+    """Get a mapping from measurement offsets as used and returned by the package `tqecd.detectors`
+    to a `Measurement` instance.
 
     This function returns the mapping from negative offsets that are
     supposed to each represent a unique measurement in the circuit to
@@ -84,8 +84,8 @@ def _matched_detectors_to_detectors(
 def _center_plaquette_syndrome_qubits(
     subtemplate: SubTemplateType, plaquettes: Plaquettes, increments: Shift2D
 ) -> list[GridQubit]:
-    """Return a subset of qubits that are used as syndrome qubits by the
-    central plaquette of the provided `subtemplate`.
+    """Return a subset of qubits that are used as syndrome qubits by the central plaquette of the
+    provided `subtemplate`.
 
     The qubits are returned in the sub-template coordinates (i.e., origin at
     top-left corner of the provided `subtemplate`).
@@ -192,8 +192,8 @@ def _best_effort_filter_detectors(
     plaquettes: Sequence[Plaquettes],
     increments: Shift2D,
 ) -> frozenset[Detector]:
-    """Filter detectors that do not involve at least one measurement on a
-    syndrome qubit of the central plaquette, in the last round.
+    """Filter detectors that do not involve at least one measurement on a syndrome qubit of the
+    central plaquette, in the last round.
 
     Warning:
         This function assumes that there is exactly one measurement on each
@@ -362,8 +362,7 @@ def compute_detectors_at_end_of_situation(
     only_use_database: bool = False,
     parallel_process_count: int = 1,
 ) -> frozenset[Detector]:
-    """Returns detectors that should be added at the end of the provided
-    situation.
+    """Returns detectors that should be added at the end of the provided situation.
 
     Args:
         subtemplates: a sequence of sub-template(s), each entry consisting of
@@ -451,8 +450,8 @@ def _shift_detectors_to_center_of_subtemplate(
 def _get_or_default(
     array: npt.NDArray[numpy.int_], slices: Sequence[tuple[int, int]], default: int = 0
 ) -> npt.NDArray[numpy.int_]:
-    """Get slices of a `numpy` array, returning the provided `default` value
-    for out-of-bound accesses.
+    """Get slices of a `numpy` array, returning the provided `default` value for out-of-bound
+    accesses.
 
     Args:
         array: `numpy` array to recover values from.
@@ -538,8 +537,8 @@ def _get_or_default(
 def _compute_superimposed_template_instantiations(
     templates: Sequence[Template], k: int
 ) -> list[npt.NDArray[numpy.int_]]:
-    """Compute the instantiation of all the provided `templates`, making sure
-    that they are aligned with the last provided one.
+    """Compute the instantiation of all the provided `templates`, making sure that they are aligned
+    with the last provided one.
 
     When instantiating multiple templates that are supposed to be stacked up on
     top of each other (i.e., executed one after the other) we might be
@@ -661,9 +660,8 @@ def compute_detectors_for_fixed_radius(
     only_use_database: bool = False,
     parallel_process_count: int = 1,
 ) -> list[Detector]:
-    """Returns detectors that should be added at the end of the circuit that
-    would be obtained from the provided `template_at_timestep` and
-    `plaquettes_at_timestep`.
+    """Returns detectors that should be added at the end of the circuit that would be obtained from
+    the provided `template_at_timestep` and `plaquettes_at_timestep`.
 
     Args:
         templates: a sequence containing `t` :class:`Template` instance(s), each

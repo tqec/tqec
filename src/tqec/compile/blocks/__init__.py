@@ -1,5 +1,5 @@
-"""Provide a flexible representation to define blocks, the basic unit of
-computation in topological error corrected codes.
+"""Provide a flexible representation to define blocks, the basic unit of computation in topological
+error corrected codes.
 
 The main data-structure provided by this module is
 :class:`~tqec.compile.blocks.block.Block`. It is able to represent in a flexible
@@ -31,4 +31,5 @@ All these restrictions are handled by representing
 :class:`~tqec.compile.blocks.layers.atomic.base.BaseLayer` and
 :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer` instances.
 See :mod:`tqec.compile.blocks.layers` for more details.
+
 """

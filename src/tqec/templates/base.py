@@ -27,9 +27,9 @@ from tqec.utils.scale import PlaquetteScalable2D, round_or_fail
 class Template(ABC):
     """Base class for all the templates.
 
-    This class is the base of all templates and provide the necessary
-    interface that all templates should implement to be usable by the
-    library.
+    This class is the base of all templates and provide the necessary interface that all templates
+    should implement to be usable by the library.
+
     """
 
     def __init__(self, default_increments: Shift2D | None = None) -> None:

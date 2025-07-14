@@ -25,6 +25,7 @@ Modifications to the original code:
    REPEAT blocks (not before the block, the first instruction in the repeated
    inner block, and after the block).
 6. Re-phrase slightly the docstrings.
+
 """
 
 from collections import Counter, defaultdict
@@ -213,6 +214,7 @@ class NoiseModel:
 
         Small tweak from the paper: The measurement result is probabilistically flipped instead of
         the input qubit.
+
         """
         return NoiseModel(
             idle_depolarization=p / 10,
@@ -231,13 +233,13 @@ class NoiseModel:
     def uniform_depolarizing(p: float) -> "NoiseModel":
         """Near-standard circuit depolarizing noise.
 
-        Everything has the same parameter p. Single qubit clifford gates
-        get single qubit depolarization. Two qubit clifford gates get
-        single qubit depolarization. Dissipative gates have their result
-        probabilistically bit flipped (or phase flipped if appropriate).
+        Everything has the same parameter p. Single qubit clifford gates get single qubit
+        depolarization. Two qubit clifford gates get single qubit depolarization. Dissipative gates
+        have their result probabilistically bit flipped (or phase flipped if appropriate).
 
-        Non-demolition measurement is treated a bit unusually in that it
-        is the result that is flipped instead of the input qubit.
+        Non-demolition measurement is treated a bit unusually in that it is the result that is
+        flipped instead of the input qubit.
+
         """
         return NoiseModel(
             idle_depolarization=p,
@@ -444,6 +446,7 @@ def _split_targets_if_needed(
 
     This function splits operations, for example ``MPP`` into each product, classical control away
     from quantum ops, ...
+
     """
     t = OP_TYPES[op.name]
     if t == CLIFFORD_2Q:

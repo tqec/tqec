@@ -16,6 +16,7 @@ Modifications to the original code:
 3. Removing the line "DEPOLARIZE1(0.001) 0 1 2 3" from test_si_1000 and
    test_si_1000_repeat_block due to the removal of that noise from the main
    noise_model.py file.
+
 """
 
 import stim

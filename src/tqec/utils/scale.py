@@ -11,6 +11,7 @@ shape that should exactly match a pair of ``LinearFunction(2, 2)`` which is
 basically ``2k + 2``.
 
 :class:`Scalable2D` is exactly made to represent such pairs of scalable quantities.
+
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ class LinearFunction:
     """Represents a linear function.
 
     A linear function is fully described with a slope and an offset.
+
     """
 
     slope: float = 1.0

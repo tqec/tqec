@@ -82,8 +82,8 @@ class _DetectorDatabaseKey:
 
     @cached_property
     def plaquette_names(self) -> tuple[tuple[tuple[str, ...], ...], ...]:
-        """Cached property that returns nested tuples such that `ret[t][y][x]
-        == self.plaquettes_by_timestep[t][self.subtemplates[t][y, x]].name`.
+        """Cached property that returns nested tuples such that `ret[t][y][x] ==
+        self.plaquettes_by_timestep[t][self.subtemplates[t][y, x]].name`.
 
         The returned object can be iterated on using:
 
@@ -96,6 +96,7 @@ class _DetectorDatabaseKey:
                     plaquette: Plaquette = plaquettes[subtemplate[y, x]]
                     assert name == plaquette.name
         ```
+
         """
         return tuple(
             tuple(tuple(plaquettes[pi].name for pi in row) for row in st)
@@ -104,8 +105,8 @@ class _DetectorDatabaseKey:
 
     @cached_property
     def reliable_hash(self) -> int:
-        """Returns a hash of `self` that is guaranteed to be constant across
-        Python versions, OSes and executions.
+        """Returns a hash of `self` that is guaranteed to be constant across Python versions, OSes
+        and executions.
         """
         hasher = hashlib.md5()
         for timeslice in self.plaquette_names:
@@ -218,6 +219,7 @@ class DetectorDatabase:
         Old databases generated prior to the introduction of a version attribute will be
         loaded with the default value of .version, without passing through __init__,
         ie (0,0,0).
+
         """
         if mapping is None:
             mapping = dict()
@@ -285,8 +287,8 @@ class DetectorDatabase:
         subtemplates: Sequence[SubTemplateType],
         plaquettes_by_timestep: Sequence[Plaquettes],
     ) -> frozenset[Detector] | None:
-        """Return the detectors associated with the provided situation or
-        `None` if the situation is not in the database.
+        """Return the detectors associated with the provided situation or `None` if the situation is
+        not in the database.
 
         Args:
             subtemplate: a sequence of 2-dimensional arrays of integers

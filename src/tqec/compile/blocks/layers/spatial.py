@@ -13,19 +13,19 @@ from tqec.utils.scale import PhysicalQubitScalable2D
 EXPECTED_SPATIAL_BORDER_WIDTH: Final[int] = 2
 """Hard-coded expected spatial border width in qubit coordinates.
 
-At the moment, we need to ensure that removing one spatial border from any given
-layer will trim out a band of qubits with a known width. Some computations in
-the code base indirectly depends on the fact that this value is 2 for historical
-reasons.
+At the moment, we need to ensure that removing one spatial border from any given layer will trim out
+a band of qubits with a known width. Some computations in the code base indirectly depends on the
+fact that this value is 2 for historical reasons.
 
-Even though we do not need to in the foreseeable future, changing that value
-will likely lead to various errors in the code base.
+Even though we do not need to in the foreseeable future, changing that value will likely lead to
+various errors in the code base.
+
 """
 
 
 class WithSpatialFootprint(ABC):
-    """Base class providing the interface that should be implemented by objects
-    that have a spatial footprint.
+    """Base class providing the interface that should be implemented by objects that have a spatial
+    footprint.
     """
 
     def __init__(self, trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset()):
@@ -42,8 +42,8 @@ class WithSpatialFootprint(ABC):
     @property
     @abstractmethod
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        """Returns the 2-dimensional shape of the object as an exact expression
-        that can then be used to compute the shape for any value of ``k``.
+        """Returns the 2-dimensional shape of the object as an exact expression that can then be
+        used to compute the shape for any value of ``k``.
 
         Note:
             This method should return the shape in qubit-coordinates. That means

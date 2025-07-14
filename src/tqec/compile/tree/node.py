@@ -88,9 +88,7 @@ class LayerNode:
 
     @property
     def is_leaf(self) -> bool:
-        """Returns ``True`` if ``self`` does not have any children and so is a
-        leaf node.
-        """
+        """Returns ``True`` if ``self`` does not have any children and so is a leaf node."""
         return isinstance(self._layer, LayoutLayer)
 
     @property
@@ -100,8 +98,8 @@ class LayerNode:
 
     @property
     def repetitions(self) -> LinearFunction | None:
-        """Returns the number of repetitions of the repeated block if
-        ``self.is_repeated`` else ``None``.
+        """Returns the number of repetitions of the repeated block if ``self.is_repeated`` else
+        ``None``.
         """
         return self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
 
@@ -114,8 +112,7 @@ class LayerNode:
         }
 
     def walk(self, walker: NodeWalker) -> None:
-        """Walk the tree using DFS, calling the different walker methods on each
-        node.
+        """Walk the tree using DFS, calling the different walker methods on each node.
 
         Args:
             walker: structure that will be called on each explored node.
@@ -148,8 +145,7 @@ class LayerNode:
         global_qubit_map: QubitMap,
         add_polygons: bool = False,
     ) -> list[stim.Circuit | list[Polygon]]:
-        """Generate the circuits and polygons for each nodes in the subtree rooted
-        at ``self``.
+        """Generate the circuits and polygons for each nodes in the subtree rooted at ``self``.
 
         Args:
             k: scaling parameter.

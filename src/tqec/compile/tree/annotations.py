@@ -19,8 +19,8 @@ from tqec.utils.exceptions import TQECError
 
 @dataclass(frozen=True)
 class DetectorAnnotation:
-    """An annotation that should include all the necessary information to build a
-    ``DETECTOR`` instruction.
+    """An annotation that should include all the necessary information to build a ``DETECTOR``
+    instruction.
     """
 
     coordinates: StimCoordinates
@@ -42,8 +42,8 @@ class DetectorAnnotation:
     def from_detector(
         detector: Detector, measurement_records: MeasurementRecordsMap
     ) -> DetectorAnnotation:
-        """Create a :class:`DetectorAnnotation` from a detector and a list of
-        measurement records.
+        """Create a :class:`DetectorAnnotation` from a detector and a list of measurement
+        records.
         """
         return DetectorAnnotation(
             detector.coordinates,
@@ -59,9 +59,7 @@ class Polygon:
     qubits: frozenset[GridQubit]
 
     def _sorted_qubits(self) -> list[GridQubit]:
-        """Return the qubits in a sorted order that can be used to draw the
-        polygon.
-        """
+        """Return the qubits in a sorted order that can be used to draw the polygon."""
         cx = sum(q.x for q in self.qubits) / len(self.qubits)
         cy = sum(q.y for q in self.qubits) / len(self.qubits)
         return sorted(self.qubits, key=lambda q: math.atan2(q.y - cy, q.x - cx))

@@ -62,8 +62,8 @@ def read_block_graph_from_dae_file(
     filepath: str | pathlib.Path,
     graph_name: str = "",
 ) -> BlockGraph:
-    """Read a Collada DAE file and construct a
-    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.
+    """Read a Collada DAE file and construct a :py:class:`~tqec.computation.block_graph.BlockGraph`
+    from it.
 
     Args:
         filepath: The input dae file path.
@@ -207,8 +207,7 @@ def write_block_graph_to_dae_file(
     pop_faces_at_direction: SignedDirection3D | str | None = None,
     show_correlation_surface: CorrelationSurface | None = None,
 ) -> None:
-    """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
-    Collada DAE file.
+    """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a Collada DAE file.
 
     Args:
         block_graph: The block graph to write to the DAE file.
@@ -271,8 +270,8 @@ def read_block_graph_from_json(
     filepath: str | pathlib.Path,
     graph_name: str = "",
 ) -> BlockGraph:
-    """Read a Collada JSON file and construct a
-    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.
+    """Read a Collada JSON file and construct a :py:class:`~tqec.computation.block_graph.BlockGraph`
+    from it.
 
     Args:
         filepath: The input dae file path.
@@ -435,8 +434,8 @@ class _BaseColladaData:
         self,
         pop_faces_at_direction: SignedDirection3D | None = None,
     ) -> None:
-        """The base model template including the definition of all the library
-        nodes and the necessary material, geometry definitions.
+        """The base model template including the definition of all the library nodes and the
+        necessary material, geometry definitions.
         """
         self.mesh = collada.Collada()
         self.geometries = BlockGeometries()
@@ -603,8 +602,8 @@ class _BaseColladaData:
 
 @dataclass(frozen=True)
 class _Transformation:
-    """Transformation data class to store the translation, scale, rotation, and
-    the composed affine matrix.
+    """Transformation data class to store the translation, scale, rotation, and the composed affine
+    matrix.
 
     For the reference of the transformation matrix, see https://en.wikipedia.org/wiki/Transformation_matrix.
 

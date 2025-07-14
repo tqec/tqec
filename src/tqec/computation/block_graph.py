@@ -159,16 +159,14 @@ class BlockGraph:
     def ports(self) -> dict[str, Position3D]:
         """Mapping from port labels to their positions.
 
-        A port is a virtual node with unique label that represents the
-        input/output of the computation. It should be invisible when visualizing
-        the computation model.
+        A port is a virtual node with unique label that represents the input/output of the
+        computation. It should be invisible when visualizing the computation model.
+
         """
         return dict(self._ports)
 
     def get_degree(self, position: Position3D) -> int:
-        """Get the degree of a node in the graph, i.e. the number of edges
-        incident to it.
-        """
+        """Get the degree of a node in the graph, i.e. the number of edges incident to it."""
         return self._graph.degree(position)  # type: ignore
 
     @property
@@ -294,8 +292,8 @@ class BlockGraph:
         return self._graph.has_edge(pos1, pos2)
 
     def get_pipe(self, pos1: Position3D, pos2: Position3D) -> Pipe:
-        """Get the pipe by its endpoint positions. If there is no pipe between
-        the given positions, an exception will be raised.
+        """Get the pipe by its endpoint positions. If there is no pipe between the given positions,
+        an exception will be raised.
 
         Args:
             pos1: The first endpoint position.
@@ -343,8 +341,7 @@ class BlockGraph:
         )
 
     def validate(self) -> None:
-        """Check the validity of the block graph to represent a logical
-        computation.
+        """Check the validity of the block graph to represent a logical computation.
 
         Refer to the Fig.9 in arXiv:2404.18369. Currently, we ignore the b) and e),
         only check the following conditions:
@@ -503,8 +500,8 @@ class BlockGraph:
         )
 
     def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> BlockGraph:
-        """Shift the whole graph by the given offset in the x, y, z directions and
-        creat a new graph with the shifted positions.
+        """Shift the whole graph by the given offset in the x, y, z directions and creat a new graph
+        with the shifted positions.
 
         Args:
             dx: The offset in the x direction.
@@ -585,9 +582,8 @@ class BlockGraph:
             self._ports.pop(label)
 
     def fill_ports_for_minimal_simulation(self) -> list[FilledGraph]:
-        """Given a block graph with open ports, fill in the ports with the appropriate
-        cubes that will minimize the number of simulation runs needed for the complete
-        logical observable set.
+        """Given a block graph with open ports, fill in the ports with the appropriate cubes that
+        will minimize the number of simulation runs needed for the complete logical observable set.
 
         Returns:
             A list of :class:`~tqec.computation.open_graph.FilledGraph` instances, each
@@ -676,8 +672,8 @@ class BlockGraph:
         return composed_g
 
     def is_single_connected(self) -> bool:
-        """Check if the graph is single connected, i.e. there is only one connected
-        component in the graph.
+        """Check if the graph is single connected, i.e. there is only one connected component in the
+        graph.
         """
         return bool(is_connected(self._graph))
 
@@ -687,8 +683,8 @@ class BlockGraph:
         counterclockwise: bool = True,
         num_90_degree_rotation: int = 1,
     ) -> BlockGraph:
-        """Rotate the graph around an axis by 0, 90, 180, or 270 degrees and
-        create a new graph with the rotated positions.
+        """Rotate the graph around an axis by 0, 90, 180, or 270 degrees and create a new graph with
+        the rotated positions.
 
         Args:
             rotation_axis: The axis to rotate around.

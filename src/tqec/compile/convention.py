@@ -28,6 +28,7 @@ class ConventionTriplet:
     In order to implement a new way of generating plaquettes and implementing
     blocks, a new :class:`Convention` should be created. This involves
     implementing the interfaces for each of the 3 attributes below.
+
     """
 
     cube_builder: CubeBuilder

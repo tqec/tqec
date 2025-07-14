@@ -1,5 +1,5 @@
-"""Defines :meth:`~tqec.compile.generation.generate_circuit`, one of the core
-method of the :mod:`tqec` package.
+"""Defines :meth:`~tqec.compile.generation.generate_circuit`, one of the core method of the
+:mod:`tqec` package.
 
 This module defines two of core methods of the :mod:`tqec` package:
 
@@ -14,6 +14,7 @@ expected to call these methods several times and concatenate the output
 ``stim.Circuit`` instances in time to obtain a full QEC implementation.
 
 Note that these methods do not work with ``REPEAT`` instructions.
+
 """
 
 from __future__ import annotations
@@ -77,8 +78,7 @@ def generate_circuit_from_instantiation(
     plaquettes: Plaquettes,
     increments: Shift2D,
 ) -> ScheduledCircuit:
-    """Generate a quantum circuit from an array of plaquette indices and the
-    associated plaquettes.
+    """Generate a quantum circuit from an array of plaquette indices and the associated plaquettes.
 
     This is one of the core methods of the :mod:`tqec` package. It generates a
     quantum circuit from a spatial description of where the plaquettes should be
