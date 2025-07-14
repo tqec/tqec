@@ -364,8 +364,8 @@ def test_compute_superimposed_template_instantiations_shifted(k: int) -> None:
         reverse_indices = numpy.zeros(
             (templates[i].expected_plaquettes_number + 1,), dtype=numpy.int_
         )
-        for i, mapped_i in indices_map.items():
-            reverse_indices[i] = mapped_i
+        for j, mapped_j in indices_map.items():
+            reverse_indices[j] = mapped_j
 
         numpy.testing.assert_array_equal(reverse_indices[template.instantiate(k)], inst)
 
