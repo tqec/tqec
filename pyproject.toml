@@ -241,7 +241,7 @@ ignore = [
   # D203 - Requires a blank line between class declaration and its docstring. Incompatible with D211. We prefer D211.
   "D203", "D213",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
-  "D404", "D407", "D415", "D416", "D417",
+  "D407", "D417",
   # PLR091{2,3,5} - A few code blocks have too many {branches,arguments,statements}. Ignored for the moment.
   # PLR2004 - Replace magic values, not a priority at the moment.
   "PLR0912", "PLR0913", "PLR0915", "PLR2004",

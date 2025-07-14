@@ -6,7 +6,7 @@ instances with the same scalable shape. Each of the managed
 :class:`~tqec.templates.base.RectangularTemplate` instance is linked to a unique
 2-dimensional position on an infinite 2-dimensional grid.
 
-Example
+Example:
 -------
 A grid of :math:`2 \times 2` logical qubits can be represented with
 

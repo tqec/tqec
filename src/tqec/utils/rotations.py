@@ -267,7 +267,7 @@ def adjust_hadamards_direction(kind: BlockKind) -> BlockKind:
     Args:
         kind: the original "h" kind.
 
-    Returns
+    Returns:
         the updated (inverse) "h" kind.
 
     """
