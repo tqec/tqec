@@ -43,9 +43,7 @@ def shift_qubits(
                     ),
                 )
             )
-        elif instr.name == "QUBIT_COORDS" or (
-            also_shift_detectors and instr.name == "DETECTOR"
-        ):
+        elif instr.name == "QUBIT_COORDS" or (also_shift_detectors and instr.name == "DETECTOR"):
             args = instr.gate_args_copy()
             ret.append(
                 instr.name,
