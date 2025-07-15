@@ -190,8 +190,8 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             only_use_database: if ``True``, only detectors from the database will be
                 used. An error will be raised if a situation that is not registered
                 in the database is encountered. Default to ``False``.
-            lookback_size: number of QEC rounds to consider to try to find
-                detectors. Including more rounds increases computation time.
+            lookback: number of QEC rounds to consider to try to find detectors. Including more
+                rounds increases computation time.
             parallel_process_count: number of processes to use for parallel processing.
                 1 for sequential processing, >1 for parallel processing using
                 ``parallel_process_count`` processes, and -1 for using all available

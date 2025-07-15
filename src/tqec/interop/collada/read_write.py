@@ -213,7 +213,7 @@ def write_block_graph_to_dae_file(
 
     Args:
         block_graph: The block graph to write to the DAE file.
-        file: The output file path or file-like object that supports binary write.
+        file_like: The output file path or file-like object that supports binary write.
         pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.
         pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
             This is useful for visualizing the internal structure of the blocks. Default is None.
@@ -438,11 +438,7 @@ class _BaseColladaData:
         self,
         pop_faces_at_direction: SignedDirection3D | None = None,
     ) -> None:
-        """Base model template.
-
-        This class includes the definition of all the library nodes and the necessary material,
-        geometry definitions.
-        """
+        """Include the definition of all the library nodes and the necessary material."""
         self.mesh = collada.Collada()
         self.geometries = BlockGeometries()
 

@@ -145,7 +145,7 @@ class PlaquetteQubits:
 
 class SquarePlaquetteQubits(PlaquetteQubits):
     def __init__(self) -> None:
-        """Represents the qubits used by a regular square plaquette."""
+        """Represent the qubits used by a regular square plaquette."""
         super().__init__(
             # Order is important here! Top-left, top-right, bottom-left,
             # bottom-right.

@@ -45,6 +45,7 @@ def split_stats_for_observables(
 
     Args:
         stats: The statistics for different observable error combinations.
+        num_observables: number of observables contained in the provided ``stats``.
 
     Returns:
         A list of statistics for each individual observable.

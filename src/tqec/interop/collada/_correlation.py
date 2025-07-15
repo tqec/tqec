@@ -16,7 +16,7 @@ TransformationResult = tuple[Basis, _Transformation]
 
 class CorrelationSurfaceTransformationHelper:
     def __init__(self, block_graph: BlockGraph, pipe_length: float):
-        """Helper class to compute transformationsof correlation surfaces pieces in a COLLADA model.
+        """Help in computing the transformations of correlation surfaces pieces in a COLLADA model.
 
         The correlation surface is decomposed into small pieces of surfaces that can be transformed
         from a single 1x1 square surface in the XY-plane. This class computes the transformations
@@ -31,7 +31,7 @@ class CorrelationSurfaceTransformationHelper:
         self,
         correlation_surface: CorrelationSurface,
     ) -> list[TransformationResult]:
-        """Returns the transformations representing each piece of ``correlation_surface``."""
+        """Return the transformations representing each piece of ``correlation_surface``."""
         transformations: list[TransformationResult] = []
 
         # Surfaces in the pipes
@@ -238,7 +238,7 @@ class CorrelationSurfaceTransformationHelper:
 def _rotation_to_plane(
     plane_normal_direction: Direction3D,
 ) -> npt.NDArray[np.float32]:
-    """Starting from a surface in the XY-plane, rotate to the given plane."""
+    """Rotate a surface in the XY-plane to the given plane."""
     if plane_normal_direction == Direction3D.Z:
         return _rotation_matrix(Direction3D.Z, 0.0)
     elif plane_normal_direction == Direction3D.X:

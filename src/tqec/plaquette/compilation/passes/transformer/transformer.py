@@ -89,7 +89,7 @@ class ScheduledCircuitTransformation:
 
 class ScheduledCircuitTransformer:
     def __init__(self, transformations: Sequence[ScheduledCircuitTransformation]) -> None:
-        """Describes a list of :class:`ScheduledCircuitTransformation` instances.
+        """Describe a list of :class:`ScheduledCircuitTransformation` instances.
 
         Note:
             This class has been introduced for convenience and for future

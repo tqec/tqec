@@ -18,7 +18,7 @@ from tqec.utils.position import Direction3D, Position3D
 
 class PositionedZX:
     def __init__(self, g: GraphS, positions: Mapping[int, Position3D]) -> None:
-        """A ZX graph with 3D positions and additional constraints.
+        """Represent a ZX graph with 3D positions and additional constraints.
 
         The constraints are:
 

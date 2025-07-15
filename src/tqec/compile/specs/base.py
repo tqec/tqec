@@ -56,7 +56,7 @@ class CubeSpec:
         graph: BlockGraph,
         spatial_up_or_down_pipes_slices: frozenset[int] = frozenset(),
     ) -> CubeSpec:
-        """Returns the cube spec from a cube in a block graph."""
+        """Return the cube spec from a cube in a block graph."""
         has_spatial_up_or_down_pipe_in_timeslice = (
             cube.position.z in spatial_up_or_down_pipes_slices
         )

@@ -17,7 +17,7 @@ class SpatialArms(Flag):
 
     @staticmethod
     def from_cube_in_graph(cube: Cube, graph: BlockGraph) -> SpatialArms:
-        """Returns the spatial arms of a cube in a block graph."""
+        """Return the spatial arms of a cube in a block graph."""
         if not cube.is_spatial:
             return SpatialArms.NONE
         pos = cube.position

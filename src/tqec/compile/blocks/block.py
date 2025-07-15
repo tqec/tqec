@@ -79,7 +79,7 @@ class Block(SequencedLayers):
 
     @property
     def dimensions(self) -> tuple[LinearFunction, LinearFunction, LinearFunction]:
-        """Returns the dimensions of ``self``.
+        """Return the dimensions of ``self``.
 
         Returns:
             a 3-dimensional tuple containing the width for each of the

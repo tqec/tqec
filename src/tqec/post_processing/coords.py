@@ -2,7 +2,7 @@ import stim
 
 
 def add_tick_coordinate_to_detectors(circuit: stim.Circuit) -> stim.Circuit:
-    """Adds a coordinate containing the current moment index to each detector."""
+    """Add a coordinate containing the current moment index to each detector."""
     ret = stim.Circuit()
     num_ticks: int = 0
     for instruction in circuit.flattened():

@@ -69,12 +69,13 @@ class LayerVisualiser(NodeWalker):
         top_left_qubit: GridQubit | None = None,
         bottom_right_qubit: GridQubit | None = None,
     ):
-        """Creates a :class:`.LayerVisualiser` instance.
+        """Create a :class:`.LayerVisualiser` instance.
 
         Args:
             k: scaling factor.
             errors: a (possibly empty) sequence of errors to draw on the resulting SVG
                 representation.
+            show_observable: also visualise the observable at the provided index if not None.
             font_size: size of the font used to write the moment range of each layer that is drawn.
             font_color: color of the font used to write the moment range of each layer that is
                 drawn.
@@ -143,7 +144,7 @@ class LayerVisualiser(NodeWalker):
 
     @property
     def current_moment(self) -> int:
-        """Returns the index of the first moment on which something can be scheduled.
+        """Return the index of the first moment on which something can be scheduled.
 
         Returns:
             1 + the index of the last used moment.
@@ -157,7 +158,7 @@ class LayerVisualiser(NodeWalker):
             return 0
 
     def get_moment_text(self, start: int, end: int) -> svg.Text:
-        """Returns an SVG representation of a text indicating the moments covered by [start, end].
+        """Return an SVG representation of a text indicating the moments covered by [start, end].
 
         Args:
             start: initial moment.

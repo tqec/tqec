@@ -90,7 +90,7 @@ class ScheduledCircuit:
 
     @staticmethod
     def empty() -> ScheduledCircuit:
-        """Returns an empty :class:`ScheduledCircuit` instance."""
+        """Return an empty :class:`ScheduledCircuit` instance."""
         return ScheduledCircuit([], Schedule(), QubitMap(), _avoid_checks=True)
 
     @staticmethod

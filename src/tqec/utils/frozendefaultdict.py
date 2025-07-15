@@ -18,7 +18,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         *,
         default_value: V | None = None,
     ) -> None:
-        """A defaultdict implementation that cannot be mutated.
+        """Implement a ``defaultdict`` that cannot be mutated.
 
         This class re-defines all the mutating methods of `defaultdict` (i.e., all
         the mutating methods of `dict` and `__missing__`) in order to make any

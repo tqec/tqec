@@ -19,7 +19,7 @@ class WithTemporalFootprint(ABC):
     @property
     @abstractmethod
     def scalable_timesteps(self) -> LinearFunction:
-        """Returns the number of timesteps needed to implement the object.
+        """Return the number of timesteps needed to implement the object.
 
         Returns:
             the number of timesteps needed to implement the object as an
@@ -30,7 +30,7 @@ class WithTemporalFootprint(ABC):
         pass
 
     def timesteps(self, k: int) -> int:
-        """Returns the number of timesteps needed to implement the object for the provided ``k``.
+        """Return the number of timesteps needed to implement the object for the provided ``k``.
 
         Args:
             k: scaling parameter.
@@ -46,12 +46,11 @@ class WithTemporalFootprint(ABC):
     def with_temporal_borders_replaced(
         self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
     ) -> BaseLayer | BaseComposedLayer | None:
-        """Returns ``self`` with the provided temporal borders replaced.
+        """Return ``self`` with the provided temporal borders replaced.
 
         Args:
-            borders: a mapping from temporal borders to replace to their
-                replacement. A value of ``None`` as a replacement means that the
-                border is removed.
+            border_replacements: a mapping from temporal borders to replace to their replacement. A
+                value of ``None`` as a replacement means that the border is removed.
 
         Returns:
             a copy of ``self`` with the provided ``borders`` replaced, or ``None``
@@ -74,7 +73,7 @@ class WithTemporalFootprint(ABC):
     @property
     @abstractmethod
     def scalable_num_moments(self) -> LinearFunction:
-        """Returns the number of moments needed to implement the object,.
+        """Return the number of moments needed to implement the object,.
 
         Returns:
             the number of moments needed to implement the object as an
@@ -85,7 +84,7 @@ class WithTemporalFootprint(ABC):
         pass
 
     def num_moments(self, k: int) -> int:
-        """Returns the number of moments needed to implement the object for the provided ``k``.
+        """Return the number of moments needed to implement the object for the provided ``k``.
 
         Args:
             k: scaling parameter.

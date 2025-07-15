@@ -114,7 +114,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
-        """Returns the four 3-body stabilizer measurement plaquettes.
+        """Return the four 3-body stabilizer measurement plaquettes.
 
         Args:
             basis: basis of the 3-body stabilizer that should be measured by the returned
@@ -262,7 +262,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription]:
-        """Returns a description of the 3 different plaquettes needed to perform a spatial hadamard
+        """Return a description of the 3 different plaquettes needed to perform a spatial hadamard
         transformation between two qubits aligned on the X axis.
 
         Args:
@@ -315,12 +315,16 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription]:
-        """Returns a description of the 3 different plaquettes needed to perform a spatial hadamard
+        """Return a description of the 3 different plaquettes needed to perform a spatial hadamard
         transformation between two qubits aligned on the Y axis.
 
         Args:
             top_left_basis: basis of the top-left-most stabilizer (top
                 stabilizer of a 2-qubit plaquette).
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on data-qubits. Defaults
                 to ``None`` that translates to no reset being applied on data-qubits.
             measurement: basis of the measurement operation performed on data-qubits.
@@ -373,7 +377,7 @@ class FixedBoundaryConventionGenerator:
     #             Regular qubit            #
     ########################################
     def get_memory_qubit_raw_template(self) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
+        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a single logical qubit.
         """
         return QubitTemplate()
@@ -385,7 +389,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Returns a description of the plaquettes needed to implement a standard memory operation
+        """Return a description of the plaquettes needed to implement a standard memory operation
         on a logical qubit.
 
         Warning:
@@ -443,7 +447,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a standard memory operation on a logical
+        """Return the plaquettes needed to implement a standard memory operation on a logical
         qubit.
 
         Warning:
@@ -483,7 +487,7 @@ class FixedBoundaryConventionGenerator:
     #                X pipe                #
     ########################################
     def get_memory_vertical_boundary_raw_template(self) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
+        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a regular spatial pipe between two logical qubits aligned on the ``X`` axis.
         """
         return QubitVerticalBorders()
@@ -495,7 +499,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Returns a description of the plaquettes needed to implement a standard memory operation
+        """Return a description of the plaquettes needed to implement a standard memory operation
         on a pipe between two neighbouring logical qubits aligned on the ``X``-axis.
 
         Note:
@@ -513,6 +517,10 @@ class FixedBoundaryConventionGenerator:
             by this method.
 
         Arguments:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned memory description.
@@ -563,7 +571,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a standard memory operation on a pipe between
+        """Return the plaquettes needed to implement a standard memory operation on a pipe between
         two neighbouring logical qubits aligned on the ``X``-axis.
 
         Note:
@@ -610,7 +618,7 @@ class FixedBoundaryConventionGenerator:
     #                Y pipe                #
     ########################################
     def get_memory_horizontal_boundary_raw_template(self) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
+        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a regular spatial pipe between two logical qubits aligned on the ``Y`` axis.
         """
         return QubitHorizontalBorders()
@@ -622,7 +630,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Returns a description of the plaquettes needed to implement a standard memory operation
+        """Return a description of the plaquettes needed to implement a standard memory operation
         on a pipe between two neighbouring logical qubits aligned on the ``Y``-axis.
 
         Note:
@@ -694,7 +702,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a standard memory operation on a pipe between
+        """Return the plaquettes needed to implement a standard memory operation on a pipe between
         two neighbouring logical qubits aligned on the ``Y``-axis.
 
         Note:
@@ -741,7 +749,7 @@ class FixedBoundaryConventionGenerator:
     #                          Spatial                         #
     ############################################################
     def get_spatial_cube_qubit_raw_template(self) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
+        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial cube.
 
         Note:
@@ -763,7 +771,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Returns a description of the plaquettes needed to implement a spatial cube.
+        """Return a description of the plaquettes needed to implement a spatial cube.
 
         Note:
             A spatial cube is defined as a cube with all its spatial boundaries
@@ -975,7 +983,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a spatial cube.
+        """Return the plaquettes needed to implement a spatial cube.
 
         Note:
             A spatial cube is defined as a cube with all its spatial boundaries
@@ -1027,7 +1035,7 @@ class FixedBoundaryConventionGenerator:
     #              Spatial arm             #
     ########################################
     def get_spatial_cube_arm_raw_template(self, arms: SpatialArms) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
+        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement the given spatial ``arms``.
 
         Args:
@@ -1074,7 +1082,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement **one** pipe connecting to a spatial cube.
+        """Return the plaquettes needed to implement **one** pipe connecting to a spatial cube.
 
         Note:
             A spatial cube is defined as a cube with all its spatial boundaries
@@ -1370,7 +1378,7 @@ class FixedBoundaryConventionGenerator:
     #           Regular junction           #
     ########################################
     def get_temporal_hadamard_raw_template(self) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.Template` instance needed to implement a
+        """Return the :class:`~tqec.templates.base.Template` instance needed to implement a
         transversal Hadamard gate applied on one logical qubit.
         """
         return QubitTemplate()
@@ -1378,7 +1386,7 @@ class FixedBoundaryConventionGenerator:
     def get_temporal_hadamard_rpng_descriptions(
         self, is_reversed: bool, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Returns a description of the plaquettes needed to implement a transversal Hadamard gate
+        """Return a description of the plaquettes needed to implement a transversal Hadamard gate
         applied on one logical qubit.
 
         Warning:
@@ -1428,7 +1436,7 @@ class FixedBoundaryConventionGenerator:
     def get_temporal_hadamard_plaquettes(
         self, is_reversed: bool, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a transversal Hadamard gate applied on one
+        """Return the plaquettes needed to implement a transversal Hadamard gate applied on one
         logical qubit.
 
         Warning:
@@ -1466,7 +1474,7 @@ class FixedBoundaryConventionGenerator:
     #                X pipe                #
     ########################################
     def get_spatial_vertical_hadamard_raw_template(self) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
+        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard pipe between two logical qubits aligned on the ``X`` axis.
         """
         return QubitVerticalBorders()
@@ -1478,7 +1486,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Returns a description of the plaquettes needed to implement a Hadamard spatial transition
+        """Return a description of the plaquettes needed to implement a Hadamard spatial transition
         between two neighbouring logical qubits aligned on the ``X`` axis.
 
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
@@ -1543,7 +1551,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``X`` axis.
 
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
@@ -1588,7 +1596,7 @@ class FixedBoundaryConventionGenerator:
     #                Y pipe                #
     ########################################
     def get_spatial_horizontal_hadamard_raw_template(self) -> RectangularTemplate:
-        """Returns the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
+        """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
         implement a spatial Hadamard pipe between two logical qubits aligned on the ``Y`` axis.
         """
         return QubitHorizontalBorders()
@@ -1600,7 +1608,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> FrozenDefaultDict[int, RPNGDescription]:
-        """Returns a description of the plaquettes needed to implement a Hadamard spatial transition
+        """Return a description of the plaquettes needed to implement a Hadamard spatial transition
         between two neighbouring logical qubits aligned on the ``Y`` axis.
 
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
@@ -1665,7 +1673,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``Y`` axis.
 
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical

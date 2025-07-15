@@ -74,7 +74,7 @@ class CubeObservableQubitsBuilder(Protocol):
     """
 
     def __call__(self, shape: PlaquetteShape2D, cube: CubeWithArms) -> Sequence[Coordinates2D]:
-        """Builds the qubit coordinates whose measurement will be included in the observable."""
+        """Build the qubit coordinates whose measurement will be included in the observable."""
         ...
 
 
@@ -88,7 +88,7 @@ class PipeObservableQubitsBuilder(Protocol):
     """
 
     def __call__(self, shape: PlaquetteShape2D, pipe: PipeWithArms) -> Sequence[Coordinates2D]:
-        """Builds the qubit coordinates whose measurement will be included in the observable."""
+        """Build the qubit coordinates whose measurement will be included in the observable."""
         ...
 
 
@@ -104,7 +104,7 @@ class TemporalPipeObservableQubitsBuilder(Protocol):
     def __call__(
         self, shape: PlaquetteShape2D, pipe: PipeWithObservableBasis
     ) -> Sequence[Coordinates2D]:
-        """Builds the qubit coordinates whose measurement will be included in the observable."""
+        """Build the qubit coordinates whose measurement will be included in the observable."""
         ...
 
 
