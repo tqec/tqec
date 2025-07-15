@@ -216,9 +216,11 @@ reportPrivateImportUsage = false
 # exclude = ["__init__.py"]
 line-length = 100
 target-version = "py310"
+exclude = ["*.ipynb"]
 
 [tool.ruff.lint]
 select = ["I", "E", "W", "D", "F", "PL", "NPY", "N", "PERF", "RUF", "UP"]
+
 # ruff configuration
 # E, W -- pycodestyle
 # D -- pydocstyle
@@ -237,7 +239,8 @@ ignore = [
   # D100 & D104 - For the moment, we do not require documenting all public modules & packages.
   # D101 - By convention, class docstrings are on the __init__ method, so we do not document classes.
   # D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
-  "D100", "D101", "D104", "D105",
+  # D103 - https://github.com/tqec/tqec/issues/645
+  "D100", "D101", "D103", "D104", "D105",
   "D203", "D205", "D213",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
   "D400", "D401", "D404", "D407", "D415", "D416", "D417",
@@ -273,8 +276,10 @@ ignore = [
 # PLR2004 -- Checks if an equality or an inequality is compared to a variable or a num (prefers variable pre)
 # PLR0913 Too many arguments in function definition
 
+
 # Specific per-file ignores
 [tool.ruff.lint.per-file-ignores]
+# no need for docstring in unit tests and functions in user guide and examples gallery
 "**/*_test.py" = ["D103"]
 
 
