@@ -11,7 +11,7 @@ from tqec.visualisation.exception import TQECDrawingError
 def _get_error_cross_svg(
     size: float = 1, stroke_color: str = "red", stroke_width_multiplier: float = 0.2
 ) -> svg.Element:
-    """Return a SVG element representing an error."""
+    """Return an SVG element representing an error."""
     return svg.Path(
         d=[
             svg.M(-size / 2, -size / 2),

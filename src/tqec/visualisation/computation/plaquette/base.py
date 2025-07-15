@@ -233,7 +233,7 @@ class SVGPlaquetteDrawer(ABC):
 
     @staticmethod
     def get_colour(basis: Basis | PauliBasis | ExtendedBasis) -> str:
-        """Get a SVG-compatible hexadecimal color from a basis."""
+        """Get an SVG-compatible hexadecimal color from a basis."""
         match basis.value.upper():
             case "X":
                 return TQECColor.X.rgba.to_hex()

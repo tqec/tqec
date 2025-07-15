@@ -208,7 +208,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Text]:
-        """Return a SVG element containing data-qubit interaction orders as text.
+        """Return an SVG element containing data-qubit interaction orders as text.
 
         This function returns one SVG element per non-empty corners, each containing a text element
         with the time slice at which a 2-qubit operation is applied on the corner qubit.
@@ -244,7 +244,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Line | None:
-        """Return a SVG line showing the direction of the hook error.
+        """Return an SVG line showing the direction of the hook error.
 
         Args:
             configuration: drawing configuration.
@@ -273,7 +273,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
-        """Return a SVG layer containing a representation of data-qubit resets/measurements.
+        """Return an SVG layer containing a representation of data-qubit resets/measurements.
 
         Args:
             configuration: drawing configuration.
