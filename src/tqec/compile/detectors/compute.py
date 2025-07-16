@@ -26,6 +26,7 @@ from tqec.templates.subtemplates import (
     SubTemplateType,
     get_spatially_distinct_3d_subtemplates,
 )
+from tqec.utils.array import to2dlist
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import PlaquettePosition2D, Shift2D
@@ -782,9 +783,9 @@ def compute_detectors_for_fixed_radius(
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    subtemplate_indices_list: list[list[list[int]]] = (
-        unique_3d_subtemplates.subtemplate_indices.tolist()
-    )
+    subtemplate_indices_list: list[list[list[int]]] = [
+        to2dlist(arr) for arr in unique_3d_subtemplates.subtemplate_indices
+    ]
     for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_indices in enumerate(row):
             if all(i == 0 for i in subtemplate_indices):
