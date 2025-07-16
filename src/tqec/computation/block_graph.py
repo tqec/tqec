@@ -12,16 +12,8 @@ from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from networkx import Graph, is_connected
-from networkx.utils import graphs_equal
 
-from tqec.computation.cube import (
-    Cube,
-    CubeKind,
-    Port,
-    YHalfCube,
-    ZXCube,
-    cube_kind_from_string,
-)
+from tqec.computation.cube import Cube, CubeKind, Port, YHalfCube, ZXCube, cube_kind_from_string
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
@@ -330,14 +322,6 @@ class BlockGraph:
     def __getitem__(self, position: Position3D) -> Cube:
         self._check_cube_exists(position)
         return cast(Cube, self._graph.nodes[position][self._NODE_DATA_KEY])
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, BlockGraph):
-            return False
-        return (
-            graphs_equal(self._graph, other._graph)  # type: ignore
-            and self._ports == other._ports
-        )
 
     def validate(self) -> None:
         """Check the validity of the block graph to represent a logical computation.
