@@ -11,6 +11,7 @@ Because we do not have a module to perform simple geometry operations on qubits
 (yet), the :mod:`tqec.plaquette.qubit` module is providing classes to represent
 the qubits a plaquette is applied to and perform some operations on them (e.g.,
 get the qubits on a specific side of the plaquette).
+
 """
 
 from ..utils.frozendefaultdict import FrozenDefaultDict as FrozenDefaultDict

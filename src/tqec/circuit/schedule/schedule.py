@@ -1,5 +1,6 @@
-"""Defines the :class:`~.schedule.Schedule` class, a thin wrapper around
-``list[int]`` to represent a schedule.
+"""Defines the :class:`.Schedule` class.
+
+The :class:`.Schedule` class is a thin wrapper around ``list[int]`` to represent a schedule.
 """
 
 from __future__ import annotations
@@ -15,9 +16,10 @@ from tqec.circuit.schedule.exception import ScheduleError
 class Schedule:
     """Thin wrapper around ``list[int]`` to represent a schedule.
 
-    This class ensures that the list of integers provided is a valid
-    schedule by checking that all entries are positive integers, that
-    the list is sorted and that it does not contain any duplicate.
+    This class ensures that the list of integers provided is a valid schedule by checking that all
+    entries are positive integers, that the list is sorted and that it does not contain any
+    duplicate.
+
     """
 
     schedule: list[int] = field(default_factory=list)
@@ -35,6 +37,7 @@ class Schedule:
 
         This method should be used to avoid any dependency on
         :py:const:`Schedule._INITIAL_SCHEDULE` in user code.
+
         """
         return Schedule([Schedule._INITIAL_SCHEDULE + s for s in schedule_offsets])
 

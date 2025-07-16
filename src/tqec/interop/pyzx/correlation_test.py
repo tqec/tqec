@@ -146,7 +146,8 @@ def test_correlation_logical_s_via_gate_teleportation() -> None:
 
 
 def test_correlation_four_node_circle() -> None:
-    """Test against the following graph:
+    """Test against the below graphs.
+
        o---o
        |   |
     ---o---o

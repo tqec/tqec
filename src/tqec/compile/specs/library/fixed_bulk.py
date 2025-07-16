@@ -38,12 +38,12 @@ class FixedBulkCubeBuilder(CubeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
-        interface for the fixed bulk convention.
+        """Implementation of the :class:`.CubeBuilder` interface for the fixed bulk convention.
 
-        This class provides an implementation following the fixed-bulk convention.
-        This convention consists in the fact that the top-left most plaquette in the
-        bulk always measures a known-basis stabilizer (Z-basis for this class).
+        This class provides an implementation following the fixed-bulk convention. This convention
+        consists in the fact that the top-left most plaquette in the bulk always measures a known-
+        basis stabilizer (Z-basis for this class).
+
         """
         self._generator = FixedBulkConventionGenerator(translator, compiler)
 
@@ -100,12 +100,12 @@ class FixedBulkPipeBuilder(PipeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
-        interface for the fixed bulk convention.
+        """Implementation of the :class:`.PipeBuilder` interface for the fixed bulk convention.
 
-        This class provides an implementation following the fixed-bulk convention.
-        This convention consists in the fact that the top-left most plaquette in the
-        bulk always measures a known-parity stabilizer (Z-basis for this class).
+        This class provides an implementation following the fixed-bulk convention. This convention
+        consists in the fact that the top-left most plaquette in the bulk always measures a known-
+        parity stabilizer (Z-basis for this class).
+
         """
         self._generator = FixedBulkConventionGenerator(translator, compiler)
 
@@ -120,8 +120,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
     #######################
 
     def _get_temporal_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a temporal pipe based on the
-        provided ``spec``.
+        """Returns the block to implement a temporal pipe based on the provided ``spec``.
 
         Args:
             spec: description of the pipe that should be implemented by this
@@ -142,8 +141,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         return self._get_temporal_non_hadamard_pipe_block(spec)
 
     def _get_temporal_non_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a regular temporal junction
-        without Hadamard transition.
+        """Returns the block to implement a regular temporal junction without Hadamard transition.
 
         Args:
             spec: description of the pipe that should be implemented by this
@@ -280,9 +278,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         )
 
     def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
-        """Returns the ``Template`` instance needed to implement the pipe
-        representing the provided ``spec``.
-        """
+        """Returns the template needed to implement the pipe representing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
             case Direction3D.X, False:

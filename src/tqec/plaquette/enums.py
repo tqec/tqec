@@ -15,6 +15,7 @@ class PlaquetteOrientation(Enum):
         If ``self == PlaquetteOrientation.RIGHT`` then
         ``self.to_plaquette_side() == PlaquetteSide.LEFT`` because a plaquette oriented to the right
         has 2 data-qubit on its left side.
+
         """
         if self == PlaquetteOrientation.RIGHT:
             return PlaquetteSide.LEFT

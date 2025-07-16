@@ -13,15 +13,14 @@ class InstructionSimplifier(ABC):
     moment (which is often the case for the ``H`` gate). This class offers an
     interface to try to simplify those gates when it is possible, before raising
     an exception because the moment is invalid.
+
     """
 
     @abstractmethod
     def simplify(
         self, instructions: Sequence[stim.CircuitInstruction]
     ) -> list[stim.CircuitInstruction]:
-        """Simplify a list of instructions that are happening at the same moment
-        in the circuit.
-        """
+        """Simplify a list of instructions that are happening at the same moment in the circuit."""
         pass
 
 

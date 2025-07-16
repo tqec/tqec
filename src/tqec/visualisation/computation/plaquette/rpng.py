@@ -97,9 +97,11 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
-        """Returns the plaquette shape, uniformly filled if ``self`` represents a
-        plaquette measuring its qubits in the same Pauli basis, else without fill
-        at all.
+        """Returns the plaquette shape, filled iff it measure in a uniform Pauli basis.
+
+        This method returns the plaquette shape as an SVG path. It might also fill this shape if
+        ``self`` represents a plaquette measuring its qubits in the same Pauli basis, else without
+        fill at all.
 
         Args:
             configuration: drawing configuration.
@@ -163,8 +165,10 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Element]:
-        """Returns one SVG element per non-empty corners filling each corresponding
-        quarter with the appropriate colour.
+        """Returns one SVG element per non-empty corners filling each corresponding quarter.
+
+        This method should only be called if the plaquette drawn by self measures data-qubits in a
+        non-uniform Pauli basis (e.g. ZXXZ).
 
         Note:
             The returned filled rectangles are clipped with the clipPath with
@@ -203,9 +207,10 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Text]:
-        """Returns one SVG element per non-empty corners, each containing a text
-        element with the time slice at which a 2-qubit operation is applied on
-        the corner qubit.
+        """Returns a SVG element containing data-qubit interaction orders as text.
+
+        This function returns one SVG element per non-empty corners, each containing a text element
+        with the time slice at which a 2-qubit operation is applied on the corner qubit.
 
         Args:
             configuration: drawing configuration.
@@ -238,8 +243,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Line | None:
-        """Returns a SVG line showing the direction of the hook error, or ``None``
-        if there is no hook error.
+        """Returns a SVG line showing the direction of the hook error.
 
         Args:
             configuration: drawing configuration.
@@ -268,7 +272,9 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
-        """Args:
+        """Returns a SVG layer containing a representation of data-qubit resets/measurements.
+
+        Args:
             configuration: drawing configuration.
 
         Returns:

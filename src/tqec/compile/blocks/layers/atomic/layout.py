@@ -121,8 +121,7 @@ class LayoutLayer(BaseLayer):
         )
 
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
-        """Return an equivalent representation of ``self`` with a template and some
-        plaquettes.
+        """Return an equivalent representation of ``self`` with a template and some plaquettes.
 
         Raises:
             NotImplementedError: if not all layers composing ``self`` are instances

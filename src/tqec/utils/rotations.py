@@ -47,8 +47,7 @@ from tqec.utils.scale import round_or_fail
 def calc_rotation_angles(
     rotation_matrix: npt.NDArray[np.float32],
 ) -> npt.NDArray[np.float32]:
-    """Calculates the rotation angles of the three row vectors of matrix (M) from the original X/Y/Z
-    axis (given by an identity matrix)).
+    """Calculates the rotation angles of the three rows of matrix (M) from the original X/Y/Z axes.
 
     Args:
         rotation_matrix: rotation matrix for node, extracted from `.dae` file.
@@ -99,9 +98,10 @@ def get_axes_directions(rotation_matrix: npt.NDArray[np.float32]) -> dict[str, i
 def rotate_block_kind_by_matrix(
     block_kind: BlockKind, rotation_matrix: npt.NDArray[np.float32]
 ) -> BlockKind:
-    """Multiplies rotation matrix (rotate_matrix) with a symbolic vector made from the block_kind.
-        - rotate_matrix is NOT rotated: block_kind untouched
-        - rotate_matrix is rotated: block_kind rotated accordingly
+    """Multiplies ``rotation_matrix`` with a symbolic vector made from ``block_kind``.
+
+    - ``rotation_matrix`` is NOT rotated: ``block_kind`` untouched
+    - ``rotation_matrix`` is rotated: ``block_kind`` rotated accordingly
 
     Args:
         rotation_matrix: rotation matrix for node.
@@ -207,8 +207,10 @@ def rotate_on_import(
     scale_matrix: npt.NDArray[np.float32],
     kind: BlockKind,
 ) -> tuple[FloatPosition3D, BlockKind]:
-    """Updates the kind of an incoming block when its translation matrix indicates the original
-    block has been rotated, rejecting any invalid rotation in the process.
+    """Updates the kind of an incoming block when rotated.
+
+    The block kind is only updated when its translation matrix indicates the original block has been
+    rotated, rejecting any invalid rotation in the process.
 
     Args:
         rotation_matrix: rotation matrix of the incoming block.
@@ -256,9 +258,11 @@ def rotate_on_import(
 
 
 def adjust_hadamards_direction(kind: BlockKind) -> BlockKind:
-    """Inverts the direction of any "h" pipe when called as applicable (when pipe runs in the
-    negative direction on any given axis) by exchanging the kind for the corresponding pair on the
-    given axis.
+    """Inverts the direction of any "h" pipe.
+
+    This function inverts the direction of any "h" pipe when called as applicable (when pipe runs in
+    the negative direction on any given axis) by exchanging the kind for the corresponding pair on
+    the given axis.
 
     Args:
         kind: the original "h" kind.

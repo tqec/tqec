@@ -1,6 +1,4 @@
-"""Provides functions to pretty-print :class:`~tqec.templates.base.Template`
-instances.
-"""
+"""Provides functions to pretty-print :class:`~tqec.templates.base.Template` instances."""
 
 from __future__ import annotations
 
@@ -30,8 +28,7 @@ def display_template(
 
 
 def display_template_from_instantiation(instantiation: npt.NDArray[numpy.int_]) -> None:
-    """Display an array representing a template instantiation with ASCII
-    output.
+    """Display an array representing a template instantiation with ASCII output.
 
     Args:
         instantiation: the integer array obtained from the `Template.instantiate`

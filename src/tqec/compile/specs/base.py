@@ -80,9 +80,7 @@ class CubeSpec:
 
     @property
     def has_spatial_pipe_in_both_dimensions(self) -> bool:
-        """Return ``True`` if the cube spec has at least one pipe in each of the two spatial
-        dimensions (``X`` and ``Y``).
-        """
+        """Return ``True`` if the provided spec has a pipe in each of the two spatial dimensions."""
         return self.spatial_arms.has_spatial_arm_in_both_dimensions
 
 

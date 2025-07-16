@@ -34,8 +34,9 @@ class PlaquetteCorner(Enum):
 class SVGPlaquetteDrawer(ABC):
     """Base class for plaquette drawers that output to SVG.
 
-    A few static helper methods are defined in this class and can be re-used by
-    sub-classes, for example to get a SVG path from a set of points.
+    A few static helper methods are defined in this class and can be re-used by sub-classes, for
+    example to get a SVG path from a set of points.
+
     """
 
     _CENTER_COORDINATE: ClassVar[complex] = 0.5 + 0.5j
@@ -273,9 +274,7 @@ class EmptySVGPlaquetteDrawer(SVGPlaquetteDrawer):
 
 
 def _sort_by_angle(center: complex, points: list[complex]) -> list[complex]:
-    """Sort the given ``points`` according to the angle they form with respect to
-    the provided ``center``.
-    """
+    """Sort the given ``points`` w.r.t to the angle they form with the provided ``center``."""
     translated_points = [p - center for p in points]
     sorted_translated_points = sorted(translated_points, key=lambda c: math.atan2(c.imag, c.real))
     return [tp + center for tp in sorted_translated_points]

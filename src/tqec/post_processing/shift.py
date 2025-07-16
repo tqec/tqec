@@ -43,9 +43,7 @@ def shift_qubits(
                     ),
                 )
             )
-        elif instr.name == "QUBIT_COORDS" or (
-            also_shift_detectors and instr.name == "DETECTOR"
-        ):
+        elif instr.name == "QUBIT_COORDS" or (also_shift_detectors and instr.name == "DETECTOR"):
             args = instr.gate_args_copy()
             ret.append(
                 instr.name,
@@ -62,8 +60,7 @@ def shift_to_only_positive(
     stick_to_origin: bool = True,
     also_shift_detectors: bool = True,
 ) -> stim.Circuit:
-    """Shift the provided circuit so that it only operates on qubits with
-    positive coordinates.
+    """Shift the provided circuit so that it only operates on qubits with positive coordinates.
 
     Args:
         circuit: quantum circuit to shift.

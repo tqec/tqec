@@ -146,4 +146,5 @@ Templates are basically scalable arrays of integers. The module
 human readable representation of a given template instantiation. These functions
 are used in the documentation about templates above, and so their output can be
 observed above.
+
 """

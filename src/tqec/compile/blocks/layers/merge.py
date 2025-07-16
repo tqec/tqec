@@ -76,6 +76,7 @@ def merge_composed_layers(
     """Merge several :class:`.BaseComposedLayer` instances into one.
 
     The specific type returned will depend on the provided ``layers``.
+
     """
     # First, check that all the provided layers have the same scalable timesteps.
     different_timesteps = frozenset(layer.scalable_timesteps for layer in layers.values())

@@ -16,8 +16,7 @@ SubTemplateType = npt.NDArray[numpy.int_]
 
 @dataclass(frozen=True)
 class UniqueSubTemplates:
-    """Stores information on the sub-templates of a specific radius present on
-    a larger :class:`~tqec.templates.base.Template` instance.
+    """Stores information on the sub-templates of a specific Manhattan radius present on a template.
 
     A sub-template is defined here as a portion of a
     :class:`~tqec.templates.base.Template` instantiation. In other words, a
@@ -126,8 +125,7 @@ def get_spatially_distinct_subtemplates(
     manhattan_radius: int = 1,
     avoid_zero_plaquettes: bool = True,
 ) -> UniqueSubTemplates:
-    r"""Returns a representation of all the distinct sub-templates of the
-    provided manhattan radius.
+    r"""Returns a representation of all the distinct sub-templates of the provided manhattan radius.
 
     Note:
         This function will likely be inefficient for large templates (i.e.,
@@ -245,12 +243,11 @@ def get_spatially_distinct_subtemplates(
 
 @dataclass(frozen=True)
 class Unique3DSubTemplates:
-    """Stores information on the sub-templates of a specific spatial radius
-    present on a time concatenation of `Template` instances.
+    """Stores the 3D sub-templates of a specific Manhattan radius in some templates.
 
-    This class is a generalization of :class:`UniqueSubTemplates` when several
-    :class:`Template` instances are concatenated in time. In that case,
-    sub-templates of the last (in time) :class:`Template` instance are not enough
+    This class is a generalization of :class:`.UniqueSubTemplates` when several
+    :class:`.Template` instances are concatenated in time. In that case,
+    sub-templates of the last (in time) :class:`.Template` instance are not enough
     to represent the different "situations" that can be encountered.
 
     Attributes:
@@ -335,8 +332,7 @@ class Unique3DSubTemplates:
 def get_spatially_distinct_3d_subtemplates(
     instantiations: Sequence[npt.NDArray[numpy.int_]], manhattan_radius: int = 1
 ) -> Unique3DSubTemplates:
-    r"""Returns a representation of all the distinct 3-dimensional sub-templates
-    of the provided manhattan radius.
+    r"""Returns all the distinct 3-dimensional sub-templates of the provided Manhattan radius.
 
     Note:
         This function will likely be inefficient for large templates (i.e.,
