@@ -60,6 +60,9 @@ class StimCoordinates:
             )
         )
 
+    def __hash__(self) -> int:
+        return hash((self.x, self.y, self.t))
+
     def __lt__(self, other: StimCoordinates) -> bool:
         return self.to_stim_coordinates() < other.to_stim_coordinates()
 
