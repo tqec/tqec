@@ -45,7 +45,7 @@ Issues = "https://github.com/tqec/tqec/issues"
 [project.optional-dependencies]
 test = [
   "pytest<=8.4.1",
-  "mypy<=1.16.1",
+  "mypy<=1.17.0",
   "pytest-cov<=6.2.1",
   "types-networkx<=3.5.0.20250610",
   "scipy-stubs<=1.16.0.0",
@@ -216,9 +216,11 @@ reportPrivateImportUsage = false
 # exclude = ["__init__.py"]
 line-length = 100
 target-version = "py310"
+exclude = ["*.ipynb"]
 
 [tool.ruff.lint]
 select = ["I", "E", "W", "D", "F", "PL", "NPY", "N", "PERF", "RUF", "UP"]
+
 # ruff configuration
 # I -- isort
 # E, W -- pycodestyle

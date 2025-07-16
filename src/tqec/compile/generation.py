@@ -28,6 +28,7 @@ from tqec.circuit.schedule import (
 )
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
+from tqec.utils.array import to2dlist
 from tqec.utils.position import Shift2D
 
 
@@ -127,7 +128,7 @@ def generate_circuit_from_instantiation(
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    plaquette_array_list: list[list[int]] = plaquette_array.tolist()
+    plaquette_array_list: list[list[int]] = to2dlist(plaquette_array)
     for row_index, line in enumerate(plaquette_array_list):
         for column_index, plaquette_index in enumerate(line):
             if plaquette_index != 0:

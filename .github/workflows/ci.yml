@@ -79,6 +79,12 @@ jobs:
           python -m pip install -e '.[test]'
           python -m pip install pytest pytest-cov
       # Only perform quick tests when pushing on a PR
+      - name: Code health - format
+        uses: astral-sh/ruff-action@v3
+        with:
+          args: "format --check --diff"
+      - name: Code health - lint
+        run: ruff check --fix
       - name: Code coverage for partial tests
         if: github.ref != 'refs/heads/main'
         run: |

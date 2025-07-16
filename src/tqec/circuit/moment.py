@@ -396,6 +396,9 @@ class Moment:
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Moment) and self._circuit == other._circuit
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the :class:`Moment` instance.
 

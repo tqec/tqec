@@ -120,6 +120,9 @@ class LayoutLayer(BaseLayer):
             and self.layers == value.layers
         )
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
         """Return an equivalent representation of ``self`` with a template and some plaquettes.
 

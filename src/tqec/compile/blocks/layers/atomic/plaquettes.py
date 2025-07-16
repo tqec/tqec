@@ -166,6 +166,9 @@ class PlaquetteLayer(BaseLayer):
             and self._plaquettes == value._plaquettes
         )
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     @property
     @override
     def scalable_num_moments(self) -> LinearFunction:

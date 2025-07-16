@@ -129,14 +129,16 @@ class CorrelationSurface:
             A `PauliWeb` representation of the correlation surface.
 
         """
-        from tqec.interop.pyzx.correlation import correlation_surface_to_pauli_web
+        # Avoid pulling pyzx when importing that module.
+        from tqec.interop.pyzx.correlation import correlation_surface_to_pauli_web  # noqa: PLC0415
 
         return correlation_surface_to_pauli_web(self, g)
 
     @staticmethod
     def from_pauli_web(pauli_web: PauliWeb[int, tuple[int, int]]) -> CorrelationSurface:
         """Create a correlation surface from a Pauli web."""
-        from tqec.interop.pyzx.correlation import pauli_web_to_correlation_surface
+        # Avoid pulling pyzx when importing that module.
+        from tqec.interop.pyzx.correlation import pauli_web_to_correlation_surface  # noqa: PLC0415
 
         return pauli_web_to_correlation_surface(pauli_web)
 
@@ -168,7 +170,8 @@ class CorrelationSurface:
             The Pauli operator supported on the given ports.
 
         """
-        from pyzx.pauliweb import multiply_paulis
+        # Avoid pulling pyzx when importing that module.
+        from pyzx.pauliweb import multiply_paulis  # noqa: PLC0415
 
         paulis = [
             reduce(multiply_paulis, {b.value for b in self.bases_at(port)}, "I")

@@ -497,6 +497,9 @@ class ScheduledCircuit:
             and self._moments == other._moments
         )
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     def is_empty(self) -> bool:
         """Return ``True`` if ``self`` represents an empty circuit.
 

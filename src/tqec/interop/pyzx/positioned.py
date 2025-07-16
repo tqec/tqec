@@ -148,7 +148,10 @@ class PositionedZX:
 
     def to_block_graph(self) -> BlockGraph:
         """Convert the positioned ZX graph to a block graph."""
-        from tqec.interop.pyzx.synthesis.positioned import positioned_block_synthesis
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.synthesis.positioned import (  # noqa: PLC0415
+            positioned_block_synthesis,
+        )
 
         return positioned_block_synthesis(self)
 
@@ -176,7 +179,8 @@ class PositionedZX:
             A tuple of the figure and the axes.
 
         """
-        from tqec.interop.pyzx.plot import plot_positioned_zx_graph
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.plot import plot_positioned_zx_graph  # noqa: PLC0415
 
         return plot_positioned_zx_graph(
             self,

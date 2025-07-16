@@ -66,6 +66,9 @@ class RawCircuitLayer(BaseLayer):
     def __eq__(self, value: object) -> bool:
         raise NotImplementedError()
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     @property
     @override
     def scalable_num_moments(self) -> LinearFunction:
