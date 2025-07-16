@@ -253,7 +253,6 @@ ignore = [
   "UP038"
 ]
 
-
 # Specific per-file ignores
 [tool.ruff.lint.per-file-ignores]
 # We do not need tests functions to have a valid docstring
