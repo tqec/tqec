@@ -20,6 +20,7 @@ CNOT_DAE_FILE = ASSETS_FOLDER / "logical_cnot.dae"
 def generate_stim_circuit(
     compiled_graph: TopologicalComputationGraph, k: int, p: float
 ) -> stim.Circuit:
+    """Generate a stim circuit from the provided inputs."""
     circuit_without_detectors = compiled_graph.generate_stim_circuit(
         k, noise_model=NoiseModel.uniform_depolarizing(p)
     )
@@ -28,6 +29,7 @@ def generate_stim_circuit(
 
 
 def generate_cnot_circuits(*ks: int) -> None:
+    """Generate a logical CNOT for each of the provided scaling factors."""
     # 1 Create `BlockGraph` representing the computation
     block_graph = cnot(Basis.X)
 
@@ -46,6 +48,7 @@ def generate_cnot_circuits(*ks: int) -> None:
 
 
 def main() -> None:
+    """Parse the CLI arguments and start the benchmark."""
     parser = argparse.ArgumentParser(description="")
     parser.add_argument(
         "-k",
