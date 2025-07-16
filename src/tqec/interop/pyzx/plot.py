@@ -3,10 +3,12 @@
 from dataclasses import astuple
 from typing import cast
 
+import matplotlib.pyplot as plt
 import numpy
 import numpy.typing as npt
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d.axes3d import Axes3D
+from pyzx import draw_3d
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb
 
@@ -147,8 +149,6 @@ def plot_positioned_zx_graph(
         A tuple of the figure and the axes.
 
     """
-    import matplotlib.pyplot as plt
-
     fig = plt.figure(figsize=figsize)
     ax = cast(Axes3D, fig.add_subplot(111, projection="3d"))
 
@@ -179,8 +179,6 @@ def pyzx_draw_positioned_zx_3d(
         pauli_web: The Pauli web to draw. Default is None.
 
     """
-    from pyzx import draw_3d
-
     plot_g = g.g.clone()
     for v in plot_g.vertices():
         position = g.positions[v]

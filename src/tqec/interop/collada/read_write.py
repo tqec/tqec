@@ -17,20 +17,13 @@ from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import CubeKind, Port, YHalfCube
 from tqec.computation.pipe import PipeKind
-from tqec.interop.collada._geometry import (
-    BlockGeometries,
-    Face,
-    get_correlation_surface_geometry,
-)
+from tqec.interop.collada._correlation import CorrelationSurfaceTransformationHelper
+from tqec.interop.collada._geometry import BlockGeometries, Face, get_correlation_surface_geometry
 from tqec.interop.color import TQECColor
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import FloatPosition3D, Position3D, SignedDirection3D
-from tqec.utils.rotations import (
-    adjust_hadamards_direction,
-    get_axes_directions,
-    rotate_on_import,
-)
+from tqec.utils.rotations import adjust_hadamards_direction, get_axes_directions, rotate_on_import
 from tqec.utils.scale import round_or_fail
 
 _ASSET_AUTHOR = "TQEC Community"
@@ -577,10 +570,6 @@ class _BaseColladaData:
         correlation_surface: CorrelationSurface,
         pipe_length: float = 2.0,
     ) -> None:
-        from tqec.interop.collada._correlation import (
-            CorrelationSurfaceTransformationHelper,
-        )
-
         helper = CorrelationSurfaceTransformationHelper(block_graph, pipe_length)
 
         for (

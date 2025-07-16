@@ -14,14 +14,7 @@ import numpy as np
 from networkx import Graph, is_connected
 from networkx.utils import graphs_equal
 
-from tqec.computation.cube import (
-    Cube,
-    CubeKind,
-    Port,
-    YHalfCube,
-    ZXCube,
-    cube_kind_from_string,
-)
+from tqec.computation.cube import Cube, CubeKind, Port, YHalfCube, ZXCube, cube_kind_from_string
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
@@ -409,7 +402,8 @@ class BlockGraph:
             converted from the block graph.
 
         """
-        from tqec.interop.pyzx.positioned import PositionedZX
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.positioned import PositionedZX  # noqa: PLC0415
 
         return PositionedZX.from_block_graph(self)
 
@@ -432,7 +426,8 @@ class BlockGraph:
                 Default is None.
 
         """
-        from tqec.interop.collada.read_write import write_block_graph_to_dae_file
+        # Needs to be imported here to avoid pulling collada when importing this module.
+        from tqec.interop.collada.read_write import write_block_graph_to_dae_file  # noqa: PLC0415
 
         write_block_graph_to_dae_file(
             self,
@@ -455,7 +450,8 @@ class BlockGraph:
             constructed from the DAE file.
 
         """
-        from tqec.interop.collada.read_write import read_block_graph_from_dae_file
+        # Needs to be imported here to avoid pulling collada when importing this module.
+        from tqec.interop.collada.read_write import read_block_graph_from_dae_file  # noqa: PLC0415
 
         return read_block_graph_from_dae_file(filename, graph_name)
 
@@ -485,8 +481,9 @@ class BlockGraph:
             can be directly displayed in IPython compatible environments.
 
         """
-        from tqec.interop.collada.html_viewer import display_collada_model
-        from tqec.interop.collada.read_write import write_block_graph_to_dae_file
+        # Needs to be imported here to avoid pulling collada when importing this module.
+        from tqec.interop.collada.html_viewer import display_collada_model  # noqa: PLC0415
+        from tqec.interop.collada.read_write import write_block_graph_to_dae_file  # noqa: PLC0415
 
         bytes_buffer = BytesIO()
         write_block_graph_to_dae_file(
@@ -542,7 +539,8 @@ class BlockGraph:
             The list of correlation surfaces.
 
         """
-        from tqec.interop.pyzx.correlation import find_correlation_surfaces
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.correlation import find_correlation_surfaces  # noqa: PLC0415
 
         zx_graph = self.to_zx_graph()
 
@@ -595,7 +593,8 @@ class BlockGraph:
             block graph.
 
         """
-        from tqec.computation.open_graph import fill_ports_for_minimal_simulation
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.computation.open_graph import fill_ports_for_minimal_simulation  # noqa: PLC0415
 
         return fill_ports_for_minimal_simulation(self)
 
@@ -699,7 +698,8 @@ class BlockGraph:
             with the original graph.
 
         """
-        from tqec.utils.rotations import (
+        # Needs to be imported here to avoid pulling scipy when importing this module.
+        from tqec.utils.rotations import (  # noqa: PLC0415
             get_rotation_matrix,
             rotate_block_kind_by_matrix,
             rotate_position_by_matrix,
@@ -893,7 +893,8 @@ class BlockGraph:
             constructed from the DAE file.
 
         """
-        from tqec.interop.collada.read_write import read_block_graph_from_json
+        # Needs to be imported here to avoid pulling collada when importing this module.
+        from tqec.interop.collada.read_write import read_block_graph_from_json  # noqa: PLC0415
 
         return read_block_graph_from_json(filename, graph_name)
 
