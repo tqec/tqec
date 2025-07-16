@@ -339,6 +339,9 @@ class BlockGraph:
             and self._ports == other._ports
         )
 
+    def __hash__(self) -> int:
+        return hash(self._name)
+
     def validate(self) -> None:
         """Check the validity of the block graph to represent a logical computation.
 
