@@ -11,6 +11,7 @@ from tqec.templates.subtemplates import (
     get_spatially_distinct_3d_subtemplates,
     get_spatially_distinct_subtemplates,
 )
+from tqec.utils.array import to2dlist
 from tqec.utils.position import BlockPosition2D
 
 _TEMPLATES_TO_TEST = [
@@ -53,7 +54,7 @@ def test_get_spatially_distinct_subtemplates(
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    subtemplate_indices_list: list[list[int]] = unique_subtemplates.subtemplate_indices.tolist()
+    subtemplate_indices_list: list[list[int]] = to2dlist(unique_subtemplates.subtemplate_indices)
     for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_index in enumerate(row):
             if subtemplate_index == 0:
@@ -133,9 +134,9 @@ def test_get_spatially_distinct_3d_subtemplates(
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    subtemplate_indices_list: list[list[list[int]]] = (
-        unique_3d_subtemplates.subtemplate_indices.tolist()
-    )
+    subtemplate_indices_list: list[list[list[int]]] = [
+        to2dlist(arr) for arr in unique_3d_subtemplates.subtemplate_indices
+    ]
     for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_index_arr in enumerate(row):
             if all(subti == 0 for subti in subtemplate_index_arr):
