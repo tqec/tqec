@@ -4,6 +4,7 @@ import collections
 from collections.abc import Mapping
 
 import sinter
+from sinter._data import ExistingData
 
 from tqec.computation.correlation import CorrelationSurface
 
@@ -51,8 +52,6 @@ def split_stats_for_observables(
         A list of statistics for each individual observable.
 
     """
-    from sinter._data import ExistingData  # type: ignore
-
     # Combine the stats for each task
     data = ExistingData()
     for s in stats:

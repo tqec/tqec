@@ -327,7 +327,8 @@ def compile_correlation_surface_to_abstract_observable(
 
 
 def _check_correlation_surface_validity(correlation_surface: CorrelationSurface, g: GraphS) -> None:
-    from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase
+    # Needs to be imported here to avoid pulling pyzx when importing this module.
+    from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase  # noqa: PLC0415
 
     """Check the ZX graph can support the correlation surface."""
     # 1. Check the vertices in the correlation surface are in the graph

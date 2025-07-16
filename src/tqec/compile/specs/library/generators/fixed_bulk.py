@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from typing import Literal
 
 import stim
@@ -87,8 +88,6 @@ class FixedBulkConventionGenerator:
         self._mapper = PlaquetteMapper(translator, compiler)
 
     def _not_implemented_exception(self) -> NotImplementedError:
-        import inspect
-
         calling_method_name = inspect.stack(context=0)[1].function
         class_name = type(self).__name__
         return NotImplementedError(
