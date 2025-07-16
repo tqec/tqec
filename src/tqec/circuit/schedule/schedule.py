@@ -1,12 +1,14 @@
 """Defines the :class:`~.schedule.Schedule` class, a thin wrapper around
-``list[int]`` to represent a schedule."""
+``list[int]`` to represent a schedule.
+"""
 
 from __future__ import annotations
 
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
-from typing import ClassVar, Iterator, Sequence
+from typing import ClassVar
 
-from tqec.circuit.schedule.exception import ScheduleException
+from tqec.circuit.schedule.exception import ScheduleError
 
 
 @dataclass
@@ -43,7 +45,7 @@ class Schedule:
             not all(schedule[i] < schedule[i + 1] for i in range(len(schedule) - 1))
             or schedule[0] < Schedule._INITIAL_SCHEDULE
         ):
-            raise ScheduleException(
+            raise ScheduleError(
                 f"The provided schedule {schedule} is not a sorted list of positive "
                 "integers. You should only provide sorted schedules with positive "
                 "entries."
@@ -63,20 +65,21 @@ class Schedule:
 
         If inserting the integer results in an invalid schedule, the schedule is
         brought back to its (valid) original state before calling this function
-        and a :py:exc:`~.schedule.exception.ScheduleException` is raised.
+        and a :py:exc:`~.schedule.exception.ScheduleError` is raised.
 
         Args:
             i: index at which the provided value should be inserted.
             value: value to insert.
 
         Raises:
-            ScheduleException: if the inserted integer makes the schedule
+            ScheduleError: if the inserted integer makes the schedule
                 invalid.
+
         """
         self.schedule.insert(i, value)
         try:
             Schedule._check_schedule(self.schedule)
-        except ScheduleException as e:
+        except ScheduleError as e:
             self.schedule.pop(i)
             raise e
 
@@ -85,26 +88,39 @@ class Schedule:
 
         If appending the integer results in an invalid schedule, the schedule is
         brought back to its (valid) original state before calling this function
-        and a :py:exc:`~.schedule.exception.ScheduleException` is raised.
+        and a :py:exc:`~.schedule.exception.ScheduleError` is raised.
 
         Args:
             value: value to insert.
 
         Raises:
-            ScheduleException: if the inserted integer makes the schedule
+            ScheduleError: if the inserted integer makes the schedule
                 invalid.
+
         """
         self.schedule.append(value)
         try:
             Schedule._check_schedule(self.schedule)
-        except ScheduleException as e:
+        except ScheduleError as e:
             self.schedule.pop(-1)
             raise e
 
     def append_schedule(self, schedule: Schedule) -> None:
-        starting_index = (
-            self.schedule[-1] + 1 if self.schedule else Schedule._INITIAL_SCHEDULE
-        )
+        """Append a full schedule **after** ``self``.
+
+        Note:
+            The provided ``schedule`` is append just after ``self``. If ``self`` is empty, then we
+            have ``self == schedule`` at the end of this method. If ``self`` contains at least one
+            schedule, all entries of ``schedule`` are offset by the maximum schedule in ``self``
+            plus 1.
+
+        """
+        starting_index = self.schedule[-1] + 1 if self.schedule else Schedule._INITIAL_SCHEDULE
         # Not using a generator here but explicitly constructing a list because
         # if `schedule == self` a generator would induce an infinite loop.
         self.schedule.extend([starting_index + s for s in schedule.schedule])
+
+    @property
+    def max_schedule(self) -> int:
+        """Get the maximum timestep in ``self`` or ``0`` if ``self`` is empty."""
+        return self.schedule[-1] if self.schedule else 0

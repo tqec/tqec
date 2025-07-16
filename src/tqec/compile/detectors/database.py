@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import pickle
-from dataclasses import dataclass, field
+from collections.abc import Sequence
+from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Literal
+
+import numpy
+import semver
+from typing_extensions import Final
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.moment import Moment
@@ -16,10 +22,12 @@ from tqec.circuit.schedule import (
 )
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.generation import generate_circuit_from_instantiation
-from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.subtemplates import SubTemplateType
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
+
+CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 0, 0)
 
 
 @dataclass(frozen=True)
@@ -54,6 +62,7 @@ class _DetectorDatabaseKey:
     it has the advantage of being easy to construct, trivially invariant to
     plaquette re-indexing and easy to hash (with some care to NOT use Python's
     default `hash` due to its absence of stability across different runs).
+
     """
 
     subtemplates: Sequence[SubTemplateType]
@@ -61,7 +70,7 @@ class _DetectorDatabaseKey:
 
     def __post_init__(self) -> None:
         if len(self.subtemplates) != len(self.plaquettes_by_timestep):
-            raise TQECException(
+            raise TQECError(
                 "DetectorDatabaseKey can only store an equal number of "
                 f"subtemplates and plaquettes. Got {len(self.subtemplates)} "
                 f"subtemplates and {len(self.plaquettes_by_timestep)} plaquettes."
@@ -96,7 +105,8 @@ class _DetectorDatabaseKey:
     @cached_property
     def reliable_hash(self) -> int:
         """Returns a hash of `self` that is guaranteed to be constant across
-        Python versions, OSes and executions."""
+        Python versions, OSes and executions.
+        """
         hasher = hashlib.md5()
         for timeslice in self.plaquette_names:
             for row in timeslice:
@@ -108,10 +118,7 @@ class _DetectorDatabaseKey:
         return self.reliable_hash
 
     def __eq__(self, rhs: object) -> bool:
-        return (
-            isinstance(rhs, _DetectorDatabaseKey)
-            and self.plaquette_names == rhs.plaquette_names
-        )
+        return isinstance(rhs, _DetectorDatabaseKey) and self.plaquette_names == rhs.plaquette_names
 
     def circuit(self, plaquette_increments: Shift2D) -> ScheduledCircuit:
         """Get the `stim.Circuit` instance represented by `self`.
@@ -121,15 +128,12 @@ class _DetectorDatabaseKey:
 
         Returns:
             `stim.Circuit` instance represented by `self`.
+
         """
         circuits, qubit_map = relabel_circuits_qubit_indices(
             [
-                generate_circuit_from_instantiation(
-                    subtemplate, plaquettes, plaquette_increments
-                )
-                for subtemplate, plaquettes in zip(
-                    self.subtemplates, self.plaquettes_by_timestep
-                )
+                generate_circuit_from_instantiation(subtemplate, plaquettes, plaquette_increments)
+                for subtemplate, plaquettes in zip(self.subtemplates, self.plaquettes_by_timestep)
             ]
         )
         moments: list[Moment] = list(circuits[0].moments)
@@ -139,23 +143,87 @@ class _DetectorDatabaseKey:
             schedule.append_schedule(circuit.schedule)
         return ScheduledCircuit(moments, schedule, qubit_map)
 
+    def to_dict(self, plaquettes_to_indices: dict[Plaquette, int]) -> dict[str, Any]:
+        """Return a dictionary representation of the key.
 
-@dataclass
+        Args:
+            plaquettes_to_indices: mapping from each :class:`Plaquette` to its
+                index in the list of unique plaquettes. Each plaquette is
+                represented by its index in the list of unique
+                plaquettes to save space.
+
+        Returns:
+            a dictionary with the keys ``subtemplates`` and
+            ``plaquettes_by_timestep`` and their corresponding values.
+
+        """
+        return {
+            "subtemplates": [st.tolist() for st in self.subtemplates],
+            "plaquettes_by_timestep": [
+                p.to_dict(plaquettes_to_indices) for p in self.plaquettes_by_timestep
+            ],
+        }
+
+    @staticmethod
+    def from_dict(
+        data: dict[str, Any],
+        plaquettes: Sequence[Plaquette],
+    ) -> _DetectorDatabaseKey:
+        """Return a key from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``subtemplates`` and
+                ``plaquettes_by_timestep``.
+            plaquettes: list of :class:`Plaquette` instances to use to build the
+                :class:`Plaquettes` instances. Each plaquette is represented by
+                its index in the list of unique plaquettes to save space.
+
+        Returns:
+            a new instance of :class:`_DetectorDatabaseKey` with the provided
+            ``subtemplates`` and ``plaquettes_by_timestep``.
+
+        """
+        subtemplates = [numpy.array(st) for st in data["subtemplates"]]
+        plaquettes_by_timestep = [
+            Plaquettes.from_dict(p, plaquettes) for p in data["plaquettes_by_timestep"]
+        ]
+        return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
+
+
 class DetectorDatabase:
-    """Store a mapping from "situations" to the corresponding detectors.
+    version: semver.Version = semver.Version(0, 0, 0)
 
-    This class aims at storing efficiently a set of "situations" in which the
-    corresponding detectors are known and do not have to be re-computed.
+    def __init__(
+        self,
+        mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] | None = None,
+        frozen: bool = False,
+    ):
+        """Store a mapping from "situations" to the corresponding detectors.
 
-    In this class, a "situation" is described by :class:`_DetectorDatabaseKey`
-    and correspond to a spatially and temporally local piece of a larger
-    computation.
-    """
+        This class aims at storing efficiently a set of "situations" in which the
+        corresponding detectors are known and do not have to be re-computed.
 
-    mapping: dict[_DetectorDatabaseKey, frozenset[Detector]] = field(
-        default_factory=dict
-    )
-    frozen: bool = False
+        In this class, a "situation" is described by :class:`_DetectorDatabaseKey`
+        and correspond to a spatially and temporally local piece of a larger
+        computation.
+
+        The version number should be manually updated when code is pushed which makes old
+        instances of the database incompatible with newly generated instances.
+        Guidance on when to change `a` (major) or `b` (minor) in the `a.b` version number:
+        - MAJOR when the format of the file changes (i.e. when the attributes of
+        ``DetectorDatabase`` change),
+        - MINOR when the content of the database is invalidated (e.g. by changing a plaquette
+        implementation without changing its name).
+
+        Old databases generated prior to the introduction of a version attribute will be
+        loaded with the default value of .version, without passing through __init__,
+        ie (0,0,0).
+        """
+        if mapping is None:
+            mapping = dict()
+        self.mapping = mapping
+        self.frozen = frozen
+        self.version = CURRENT_DATABASE_VERSION
 
     def add_situation(
         self,
@@ -179,14 +247,13 @@ class DetectorDatabase:
                 top-left plaquette in the provided `subtemplates`.
 
         Raises:
-            TQECException: if this method is called and `self.frozen`.
+            TQECError: if this method is called and `self.frozen`.
+
         """
         if self.frozen:
-            raise TQECException("Cannot add a situation to a frozen database.")
+            raise TQECError("Cannot add a situation to a frozen database.")
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
-        self.mapping[key] = (
-            frozenset([detectors]) if isinstance(detectors, Detector) else detectors
-        )
+        self.mapping[key] = frozenset([detectors]) if isinstance(detectors, Detector) else detectors
 
     def remove_situation(
         self,
@@ -205,10 +272,11 @@ class DetectorDatabase:
                 `self.subtemplates` and corresponding to one QEC round.
 
         Raises:
-            TQECException: if this method is called and `self.frozen`.
+            TQECError: if this method is called and `self.frozen`.
+
         """
         if self.frozen:
-            raise TQECException("Cannot remove a situation to a frozen database.")
+            raise TQECError("Cannot remove a situation to a frozen database.")
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
         del self.mapping[key]
 
@@ -233,19 +301,20 @@ class DetectorDatabase:
         Returns:
             detectors associated with the provided situation or `None` if the
             situation is not in the database.
+
         """
         key = _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
         return self.mapping.get(key)
 
     def freeze(self) -> None:
+        """Make ``self`` read-only."""
         self.frozen = True
 
     def unfreeze(self) -> None:
+        """Make ``self`` writable."""
         self.frozen = False
 
-    def to_crumble_urls(
-        self, plaquette_increments: Shift2D = Shift2D(2, 2)
-    ) -> list[str]:
+    def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
         """Returns one URL pointing to https://algassert.com/crumble for each of
         the registered situations.
 
@@ -257,6 +326,7 @@ class DetectorDatabase:
         Returns:
             a list of Crumble URLs, each one representing a situation stored in
             `self`.
+
         """
         urls: list[str] = []
         for key, detectors in self.mapping.items():
@@ -270,20 +340,99 @@ class DetectorDatabase:
     def __len__(self) -> int:
         return len(self.mapping)
 
-    def to_file(self, filepath: Path) -> None:
-        if not filepath.parent.exists():
-            filepath.parent.mkdir()
-        with open(filepath, "wb") as f:
-            pickle.dump(self, f)
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the database.
+
+        Returns:
+            a dictionary with the keys ``mapping`` and ``frozen`` and their
+            corresponding values.
+
+        """
+        # First obtain the unique plaquettes
+        plaquettes_set: set[Plaquette] = set()
+        for key in self.mapping:
+            for p in key.plaquettes_by_timestep:
+                if p.collection.default_value is not None:
+                    plaquettes_set.add(p.collection.default_value)
+                plaquettes_set.update(p.collection.values())
+        uniq_plaquettes: Sequence[Plaquette] = list(plaquettes_set)
+        # Then create a mapping from each plaquette to its index
+        plaquettes_to_indices = {p: i for i, p in enumerate(uniq_plaquettes)}
+        return {
+            "mapping": [
+                [
+                    key.to_dict(plaquettes_to_indices=plaquettes_to_indices),
+                    [d.to_dict() for d in detectors],
+                ]
+                for key, detectors in self.mapping.items()
+            ],
+            "frozen": self.frozen,
+            "uniq_plaquettes": [p.to_dict() for p in uniq_plaquettes],
+        }
 
     @staticmethod
-    def from_file(filepath: Path) -> DetectorDatabase:
-        with open(filepath, "rb") as f:
-            database = pickle.load(f)
-            if not isinstance(database, DetectorDatabase):
-                raise TQECException(
-                    f"Found the Python type {type(database).__name__} in the "
-                    f"provided file but {type(DetectorDatabase).__name__} was "
-                    "expected."
-                )
+    def from_dict(data: dict[str, Any]) -> DetectorDatabase:
+        """Return a database from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``mapping`` and ``frozen``.
+
+        Returns:
+            a new instance of :class:`DetectorDatabase` with the provided
+            ``mapping`` and ``frozen``.
+
+        """
+        uniq_plaquettes = [Plaquette.from_dict(p) for p in data["uniq_plaquettes"]]
+        mapping = {
+            _DetectorDatabaseKey.from_dict(key, plaquettes=uniq_plaquettes): frozenset(
+                Detector.from_dict(d) for d in detectors
+            )
+            for key, detectors in data["mapping"]
+        }
+        return DetectorDatabase(mapping, data["frozen"])
+
+    def to_file(self, filepath: Path, format: Literal["pickle", "json"] = "pickle") -> None:
+        """Save the database to a file.
+
+        Args:
+            filepath: path to the file where the database should be saved.
+            format: format to use to save the database. Currently only
+                "pickle" and "json" are supported.
+
+        """
+        if not filepath.parent.exists():
+            filepath.parent.mkdir(parents=True)
+        if format == "pickle":
+            with open(filepath, "wb") as f:
+                pickle.dump(self, f)
+        else:
+            filepath = filepath.with_suffix(".json")
+            with open(filepath, "w") as f:
+                json.dump(self.to_dict(), f)
+
+    @staticmethod
+    def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
+        """Initialise a new instance from a file.
+
+        Args:
+            filepath: path to a file where a :class:`.DetectorDatabase` instance has been saved.
+            format: how the database was saved in ``filepath``.
+
+        Returns:
+            a new :class:`.DetectorDatabase` instance read from the provided ``filepath``.
+
+        """
+        if format == "pickle":
+            with open(filepath, "rb") as f:
+                database = pickle.load(f)
+        else:
+            with open(filepath) as f:
+                data = json.load(f)
+                database = DetectorDatabase.from_dict(data)
+        if not isinstance(database, DetectorDatabase):
+            raise TQECError(
+                f"Found the Python type {type(database).__name__} in the "
+                f"provided file but {type(DetectorDatabase).__name__} was "
+                "expected."
+            )
         return database

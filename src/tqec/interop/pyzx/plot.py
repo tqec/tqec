@@ -1,20 +1,21 @@
 """Defines functions to plot positioned ZX graphs and correlation surfaces on
-3D axes with ``matplotlib``."""
+3D axes with ``matplotlib``.
+"""
 
 from dataclasses import astuple
 from typing import cast
 
-from matplotlib.figure import Figure
 import numpy
 import numpy.typing as npt
+from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb
 
 from tqec.computation.correlation import CorrelationSurface
-from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phase
 from tqec.interop.color import RGBA, TQECColor
 from tqec.interop.pyzx.positioned import PositionedZX
+from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phase
 from tqec.utils.position import Position3D
 
 
@@ -48,6 +49,7 @@ def draw_positioned_zx_graph_on(
         node_size: The size of the node. Default is 400.
         hadamard_size: The size of the Hadamard transition. Default is 200.
         edge_width: The width of the edge. Default is 1.
+
     """
     g = graph.g
     pmap = graph.positions
@@ -85,19 +87,11 @@ def draw_positioned_zx_graph_on(
         dim.set_ticks([])
     x_limits, y_limits, z_limits = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()  # type: ignore
 
-    plot_radius = 0.5 * max(
-        abs(limits[1] - limits[0]) for limits in [x_limits, y_limits, z_limits]
-    )
+    plot_radius = 0.5 * max(abs(limits[1] - limits[0]) for limits in [x_limits, y_limits, z_limits])
 
-    ax.set_xlim3d(
-        [numpy.mean(x_limits) - plot_radius, numpy.mean(x_limits) + plot_radius]
-    )
-    ax.set_ylim3d(
-        [numpy.mean(y_limits) - plot_radius, numpy.mean(y_limits) + plot_radius]
-    )
-    ax.set_zlim3d(
-        [numpy.mean(z_limits) - plot_radius, numpy.mean(z_limits) + plot_radius]
-    )
+    ax.set_xlim3d([numpy.mean(x_limits) - plot_radius, numpy.mean(x_limits) + plot_radius])
+    ax.set_ylim3d([numpy.mean(y_limits) - plot_radius, numpy.mean(y_limits) + plot_radius])
+    ax.set_zlim3d([numpy.mean(z_limits) - plot_radius, numpy.mean(z_limits) + plot_radius])
 
 
 def draw_correlation_surface_on(
@@ -113,6 +107,7 @@ def draw_correlation_surface_on(
         positioned_graph: The positioned ZX graph to draw the correlation surface on.
         ax: The 3-dimensional ax to draw on.
         correlation_edge_width: The width of the correlation edges. Default is 3.
+
     """
     if correlation_surface.is_single_node:
         return
@@ -154,6 +149,7 @@ def plot_positioned_zx_graph(
 
     Returns:
         A tuple of the figure and the axes.
+
     """
     import matplotlib.pyplot as plt
 
@@ -185,6 +181,7 @@ def pyzx_draw_positioned_zx_3d(
         g: The positioned ZX graph to draw.
         id_labels: Whether to show the vertex id labels. Default is True.
         pauli_web: The Pauli web to draw. Default is None.
+
     """
     from pyzx import draw_3d
 

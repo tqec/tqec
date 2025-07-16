@@ -11,17 +11,18 @@ represented by instances of :class:`~.schedule.schedule.Schedule`).
 from __future__ import annotations
 
 import bisect
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from copy import copy, deepcopy
-from typing import Any, Callable, Iterable, Iterator, Sequence
+from typing import Any
 
 import stim
 
 from tqec.circuit.moment import Moment, iter_stim_circuit_without_repeat_by_moments
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap, get_qubit_map
-from tqec.circuit.schedule.exception import ScheduleException
+from tqec.circuit.schedule.exception import ScheduleError
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import is_annotation_instruction
 
 
@@ -59,26 +60,24 @@ class ScheduledCircuit:
 
         Raises:
             ScheduleError: if the provided ``schedule`` is invalid.
-            TQECException: if the provided ``circuit`` contains at least one
+            TQECError: if the provided ``circuit`` contains at least one
                 ``stim.CircuitRepeatBlock`` instance.
-            TQECException: if the provided ``circuit`` contains at least one
+            TQECError: if the provided ``circuit`` contains at least one
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
-        """
 
+        """
         if isinstance(schedule, int):
             schedule = list(range(schedule, schedule + len(moments)))
         if isinstance(schedule, list):
             schedule = Schedule(schedule)
 
         if len(moments) != len(schedule):
-            raise ScheduleException(
+            raise ScheduleError(
                 "ScheduledCircuit expects all the provided moments to be scheduled. "
                 f"Got {len(moments)} moments but {len(schedule)} schedules."
             )
-        if not _avoid_checks and any(
-            m.contains_instruction("QUBIT_COORDS") for m in moments
-        ):
-            raise ScheduleException(
+        if not _avoid_checks and any(m.contains_instruction("QUBIT_COORDS") for m in moments):
+            raise ScheduleError(
                 "ScheduledCircuit instance expects the input `stim.Circuit` to "
                 "not contain any QUBIT_COORDS instruction. Found at least one "
                 "moment with a QUBIT_COORDS instruction."
@@ -118,12 +117,12 @@ class ScheduledCircuit:
 
         Raises:
             ScheduleError: if the provided ``schedule`` is invalid.
-            TQECException: if the provided ``circuit`` contains at least one
+            TQECError: if the provided ``circuit`` contains at least one
                 ``stim.CircuitRepeatBlock`` instance.
-            TQECException: if the provided ``circuit`` contains at least one
+            TQECError: if the provided ``circuit`` contains at least one
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
-        """
 
+        """
         if isinstance(schedule, int):
             schedule = list(range(schedule, schedule + circuit.num_ticks + 1))
         if isinstance(schedule, list):
@@ -132,20 +131,18 @@ class ScheduledCircuit:
         # Ensure that the provided circuit does not contain any
         # `stim.CircuitRepeatBlock` instance.
         if any(isinstance(inst, stim.CircuitRepeatBlock) for inst in circuit):
-            raise ScheduleException(
-                "stim.CircuitRepeatBlock instances are not supported in "
-                "a ScheduledCircuit instance."
+            raise ScheduleError(
+                "stim.CircuitRepeatBlock instances are not supported in a "
+                "ScheduledCircuit instance."
             )
         moments: list[Moment] = list(
-            iter_stim_circuit_without_repeat_by_moments(
-                circuit, collected_before_use=True
-            )
+            iter_stim_circuit_without_repeat_by_moments(circuit, collected_before_use=True)
         )
         if not moments:
             return ScheduledCircuit.empty()
 
         if any(m.contains_instruction("QUBIT_COORDS") for m in moments[1:]):
-            raise ScheduleException(
+            raise ScheduleError(
                 "ScheduledCircuit instance expects the input `stim.Circuit` to "
                 "only contain QUBIT_COORDS instructions before the first TICK."
             )
@@ -164,19 +161,38 @@ class ScheduledCircuit:
         """Schedule of the internal moments."""
         return self._schedule
 
-    def get_qubit_coords_definition_preamble(self) -> stim.Circuit:
-        """Get a circuit with only ``QUBIT_COORDS`` instructions."""
-        return self._qubit_map.to_circuit()
+    def get_qubit_coords_definition_preamble(self, shift_to_positive: bool = False) -> stim.Circuit:
+        """Get a circuit with only ``QUBIT_COORDS`` instructions.
 
-    def get_circuit(self, include_qubit_coords: bool = True) -> stim.Circuit:
+        Args:
+            shift_to_positive: if ``True``, the qubit coordinates are shift such
+                that they are all positive. Their relative positioning stays
+                unchanged.
+
+        """
+        return self._qubit_map.to_circuit(shift_to_positive)
+
+    def get_circuit(
+        self, include_qubit_coords: bool = True, shift_to_positive: bool = False
+    ) -> stim.Circuit:
         """Build and return the ``stim.Circuit`` instance represented by
         ``self``.
+
+        Args:
+            include_qubit_coords: if ``True``, ``QUBIT_COORDS`` annotations are
+                added at the beginning of the returned circuit to declare the
+                coordinates of used qubits. Else, no ``QUBIT_COORDS`` annotation
+                is added.
+            shift_to_positive: if ``True``, the qubit coordinates are shift such
+                that they are all positive. Their relative positioning stays
+                unchanged.
 
         Warning:
             The circuit is re-built at each call! Use that function wisely.
 
         Returns:
             ``stim.Circuit`` instance represented by ``self``.
+
         """
         ret = stim.Circuit()
         if not self._moments:
@@ -184,7 +200,7 @@ class ScheduledCircuit:
 
         # Appending the QUBIT_COORDS instructions first.
         if include_qubit_coords:
-            ret += self.get_qubit_coords_definition_preamble()
+            ret += self.get_qubit_coords_definition_preamble(shift_to_positive)
 
         # Building the actual circuit.
         current_schedule: int = 0
@@ -197,56 +213,7 @@ class ScheduledCircuit:
             if current_schedule != last_schedule:
                 ret.append("TICK", [], [])
                 current_schedule += 1
-        return ret
 
-    def get_repeated_circuit(
-        self,
-        repetitions: int,
-        include_qubit_coords: bool = True,
-        include_additional_tick_in_body: bool = True,
-    ) -> stim.Circuit:
-        """Build and return the ``stim.Circuit`` instance represented by
-        ``self`` encapsulated in a ``REPEAT`` block.
-
-        Warning:
-            The circuit is re-built at each call! Use that function wisely.
-
-        Warning:
-            An extra ``TICK`` instruction is appended by default at the end of the
-            body of the ``REPEAT`` block to mimic ``stim`` way of doing. You can
-            control that behaviour with the ``include_additional_tick_in_body``
-            parameter.
-
-        Args:
-            repetitions: argument to the enclosing ``REPEAT`` block representing
-                the number of repetitions that should be used in the returned
-                circuit.
-            include_qubit_coords: if ``True``, ``QUBIT_COORDS`` instructions are
-                inserted at the beginning of the returned circuit (before the
-                ``REPEAT`` block).
-            include_additional_tick_in_body: if ``True``, an additional ``TICK``
-                instruction is appended to the **body** (i.e., the circuit
-                inside the ``REPEAT`` block) of the returned circuit. This is the
-                default behaviour as ``stim`` does that in its code and adding
-                the ``TICK`` here makes more sense than after the ``REPEAT`` block.
-
-        Returns:
-            ``stim.Circuit`` instance represented by self encapsulated in a
-            ``REPEAT`` block.
-        """
-        ret = stim.Circuit()
-        # Appending the QUBIT_COORDS instructions first.
-        if include_qubit_coords:
-            ret += self.get_qubit_coords_definition_preamble()
-
-        # Appending the repeated version of self
-        body = self.get_circuit(include_qubit_coords=False)
-        # A `TICK` instruction is appended before repeating the code block. This
-        # is to mimic internal `stim` ways of doing.
-        if include_additional_tick_in_body:
-            body.append("TICK", [], [])
-        repeated_instruction = stim.CircuitRepeatBlock(repetitions, body)
-        ret.append(repeated_instruction)
         return ret
 
     def map_qubit_indices(
@@ -274,13 +241,14 @@ class ScheduledCircuit:
         Returns:
             a modified instance of :class:`ScheduledCircuit` (a copy if
             ``inplace`` is ``True``, else ``self``).
+
         """
         mapped_final_qubits = QubitMap(
             {qubit_index_map[qi]: q for qi, q in self._qubit_map.items()}
         )
-        mapped_moments: list[Moment] = []
-        for moment in self._moments:
-            mapped_moments.append(moment.with_mapped_qubit_indices(qubit_index_map))
+        mapped_moments: list[Moment] = [
+            moment.with_mapped_qubit_indices(qubit_index_map) for moment in self._moments
+        ]
 
         if inplace:
             self._qubit_map = mapped_final_qubits
@@ -319,15 +287,14 @@ class ScheduledCircuit:
 
         Returns:
             an instance of :class:`ScheduledCircuit` with a new qubit map.
+
         """
         operand = self if inplace_qubit_map else copy(self)
         operand._qubit_map = operand._qubit_map.with_mapped_qubits(qubit_map)
         return operand
 
     def __copy__(self) -> ScheduledCircuit:
-        return ScheduledCircuit(
-            self._moments, self._schedule, self._qubit_map, _avoid_checks=True
-        )
+        return ScheduledCircuit(self._moments, self._schedule, self._qubit_map, _avoid_checks=True)
 
     def __deepcopy__(self, _: dict[Any, Any]) -> ScheduledCircuit:
         return ScheduledCircuit(
@@ -375,16 +342,16 @@ class ScheduledCircuit:
             provided ``schedule``, ``None`` is returned.
 
         Raises:
-            TQECException: if the provided calculated ``schedule`` is negative.
+            TQECError: if the provided calculated ``schedule`` is negative.
+
         """
         if not self._schedule:
             return None
 
         schedule = self._schedule[-1] + 1 + schedule if schedule < 0 else schedule
         if schedule < 0:
-            raise TQECException(
-                "Trying to get the index of a Moment instance with a negative "
-                f"schedule {schedule}."
+            raise TQECError(
+                f"Trying to get the index of a Moment instance with a negative schedule {schedule}."
             )
         moment_index = next(
             (i for i, sched in enumerate(self._schedule) if sched == schedule), None
@@ -403,13 +370,12 @@ class ScheduledCircuit:
                 might not be the second to last schedule).
 
         Raises:
-            TQECException: if no moment exist at the provided ``schedule``.
+            TQECError: if no moment exist at the provided ``schedule``.
+
         """
         moment_index = self._get_moment_index_by_schedule(schedule)
         if moment_index is None:
-            raise TQECException(
-                f"No Moment instance scheduled at the provided schedule {schedule}."
-            )
+            raise TQECError(f"No Moment instance scheduled at the provided schedule {schedule}.")
         return self._moments[moment_index]
 
     def append_new_moment(self, moment: Moment) -> None:
@@ -419,6 +385,7 @@ class ScheduledCircuit:
 
         Args:
             moment: the moment to schedule.
+
         """
         # By default, we cannot assume that self._schedule contains an entry, so
         # we insert at the first moment.
@@ -440,6 +407,7 @@ class ScheduledCircuit:
                 ``last schedule - 1`` (which might not be the second to last
                 schedule).
             moment: operations that should be added.
+
         """
         moment_index = self._get_moment_index_by_schedule(schedule)
         if moment_index is None:
@@ -459,10 +427,9 @@ class ScheduledCircuit:
         Args:
             index: index of the observable to append measurement records to.
             targets: measurement records forming (part of) the observable.
+
         """
-        self.append_annotation(
-            stim.CircuitInstruction("OBSERVABLE_INCLUDE", targets, [index])
-        )
+        self.append_annotation(stim.CircuitInstruction("OBSERVABLE_INCLUDE", targets, [index]))
 
     def append_annotation(self, instruction: stim.CircuitInstruction) -> None:
         """Append an annotation to the last moment.
@@ -472,10 +439,11 @@ class ScheduledCircuit:
                 ``self``.
 
         Raises:
-            TQECException: if the provided instruction is not an annotation.
+            TQECError: if the provided instruction is not an annotation.
+
         """
         if not is_annotation_instruction(instruction):
-            raise TQECException(
+            raise TQECError(
                 "The provided instruction is not an annotation, which is "
                 "disallowed by the append_annotation method."
             )
@@ -500,6 +468,7 @@ class ScheduledCircuit:
         Returns:
             a new instance of :class:`ScheduledCircuit` with the filtered
             circuit and schedules.
+
         """
         qubits_indices_to_keep = frozenset(
             self._qubit_map.q2i[q] for q in qubits_to_keep if q in self.qubits
@@ -532,3 +501,44 @@ class ScheduledCircuit:
             and self._qubit_map == other._qubit_map
             and self._moments == other._moments
         )
+
+    def is_empty(self) -> bool:
+        """Return ``True`` if ``self`` represents an empty circuit.
+
+        Warning:
+            an empty circuit is defined as a circuit containing no instructions.
+            ``QUBIT_COORDINATES`` instructions are ignored by this method (i.e., a circuit with only
+            ``QUBIT_COORDINATES`` instructions is considered empty), but other annotations are taken
+            into account (i.e., a circuit with a ``DETECTOR`` or ``SHIFT_COORDS`` instruction will
+            not be considered empty).
+
+        """
+        return all(m.is_empty for m in self._moments)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the circuit.
+
+        Returns:
+            a dictionary with the keys ``moments``, ``schedule`` and
+            ``qubit_map`` and their corresponding values.
+
+        """
+        return {
+            "moments": [m.to_dict() for m in self._moments],
+            "schedule": self._schedule.schedule,
+            "qubit_map": self._qubit_map.to_dict(),
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> ScheduledCircuit:
+        """Return a circuit from its dictionary representation.
+
+        Args:
+            data: dictionary with the keys ``moments``, ``schedule`` and
+                ``qubit_map``.
+
+        """
+        moments = [Moment.from_dict(m) for m in data["moments"]]
+        schedule = Schedule(data["schedule"])
+        qubit_map = QubitMap.from_dict(data["qubit_map"])
+        return ScheduledCircuit(moments, schedule, qubit_map, _avoid_checks=True)

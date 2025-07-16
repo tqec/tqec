@@ -24,5 +24,6 @@ class RPNGTranslator(ABC):
         Returns:
             a valid implementation of the provided
             :class:`~tqec.plaquette.rpng.RPNGDescription` instance.
+
         """
         pass

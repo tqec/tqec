@@ -8,7 +8,7 @@ def test_default_translator_creation() -> None:
     DefaultRPNGTranslator()
 
 
-def test_default_translator_from_ZZZZ_rpng_string() -> None:
+def test_default_translator_from_zzzz_rpng_string() -> None:
     translator = DefaultRPNGTranslator()
     # Usual plaquette corresponding to the ZZZZ stabilizer.
     desc = RPNGDescription.from_string("-z1- -z3- -z2- -z4-")
@@ -35,7 +35,7 @@ MX 4
     assert expected_circuit == plaquette.circuit.get_circuit()
 
 
-def test_default_translator_from_ZXXZ_rpng_string() -> None:
+def test_default_translator_from_zxxz_rpng_string() -> None:
     translator = DefaultRPNGTranslator()
     # Usual plaquette corresponding to the ZXXZ stabilizer with partial initialization.
     desc = RPNGDescription.from_string("-z1- zx2- zx4- -z5-")

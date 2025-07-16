@@ -2,12 +2,16 @@ import pytest
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.compile.tree.annotators.detectors import LookbackStack
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.base import Template
 from tqec.templates.qubit import QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
+
+_TRANSLATOR = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
 
 
 @pytest.fixture(name="template")
@@ -17,7 +21,7 @@ def template_fixture() -> Template:
 
 @pytest.fixture(name="plaquettes")
 def plaquettes_fixture() -> Plaquettes:
-    return Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette()))
+    return Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
 
 
 @pytest.fixture(name="measurement_records")
@@ -51,19 +55,19 @@ def test_stack_len(
         assert len(stack) == i + 1
     stack.enter_repeat_block()
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^Cannot get a meaningful stack length when a REPEAT block is in construction.$",
     ):
         len(stack)
     stack.enter_repeat_block()
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^Cannot get a meaningful stack length when a REPEAT block is in construction.$",
     ):
         len(stack)
     stack.close_repeat_block(1)
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^Cannot get a meaningful stack length when a REPEAT block is in construction.$",
     ):
         len(stack)
@@ -96,14 +100,8 @@ def test_stack_repeat_block_append(
 
 def test_stack_erroneous_repeat_block() -> None:
     stack = LookbackStack()
-    with pytest.raises(TQECException, match="Only got 1 < 2 entries in the stack..*"):
+    with pytest.raises(TQECError, match="Only got 1 < 2 entries in the stack..*"):
         stack.close_repeat_block(4)
-    stack.enter_repeat_block()
-    with pytest.raises(
-        TQECException,
-        match="Cannot have a REPEAT block with less than 1 repetitions..*",
-    ):
-        stack.close_repeat_block(0)
 
 
 def test_stack_lookback(
@@ -112,9 +110,7 @@ def test_stack_lookback(
     measurement_records: MeasurementRecordsMap,
 ) -> None:
     stack = LookbackStack()
-    with pytest.raises(
-        TQECException, match="Cannot look back a negative number of rounds..*"
-    ):
+    with pytest.raises(TQECError, match="Cannot look back a negative number of rounds..*"):
         stack.lookback(-1)
     # Valid query on empty stack.
     ts, ps, _ = stack.lookback(0)

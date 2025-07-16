@@ -1,17 +1,18 @@
 """Defines the ``CorrelationSurface`` class and the functions to find the
-correlation surfaces in the ZX graph."""
+correlation surfaces in the ZX graph.
+"""
 
 from __future__ import annotations
 
+import itertools
+from collections.abc import Iterator
 from fractions import Fraction
 from functools import reduce
-import itertools
-from typing import Iterator
 
+import stim
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb, multiply_paulis
 from pyzx.utils import FractionLike, VertexType
-import stim
 
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.utils import (
@@ -23,7 +24,7 @@ from tqec.interop.pyzx.utils import (
     is_zx_no_phase,
 )
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 def correlation_surface_to_pauli_web(
@@ -37,6 +38,7 @@ def correlation_surface_to_pauli_web(
 
     Returns:
         A `PauliWeb` representation of the correlation surface.
+
     """
     half_edge_bases: dict[tuple[int, int], set[str]] = {}
     for edge in correlation_surface.span:
@@ -75,24 +77,27 @@ def find_correlation_surfaces(
 ) -> list[CorrelationSurface]:
     """Find the correlation surfaces in a ZX graph.
 
-    Starting from each leaf node in the graph, the function explores how can the X/Z logical observable
-    move through the graph to form a correlation surface:
+    Starting from each leaf node in the graph, the function explores how can the X/Z logical
+    observable move through the graph to form a correlation surface:
 
-    - For a X/Z type leaf node, it can only support the logical observable with the opposite type. Only
-      a single type of logical observable is explored from the leaf node.
+    - For a X/Z type leaf node, it can only support the logical observable with the opposite type.
+      Only a single type of logical observable is explored from the leaf node.
     - For a Y type leaf node, it can only support the Y logical observable, i.e. the presence of
-      both X and Z logical observable. Both X and Z type logical observable are explored from the leaf node.
-      And the two correlation surfaces are combined to form the Y type correlation surface.
-    - For the BOUNDARY node, it can support any type of logical observable. Both X and Z type logical observable
-      are explored from it.
+      both X and Z logical observable. Both X and Z type logical observable are explored from the
+      leaf node. And the two correlation surfaces are combined to form the Y type correlation
+      surface.
+    - For the BOUNDARY node, it can support any type of logical observable. Both X and Z type
+      logical observable are explored from it.
 
-    The function uses a flood fill like recursive algorithm to find the correlation surface in the graph.
+    The function uses a flood fill like recursive algorithm to find the correlation surface in the
+    graph.
     Firstly, we define two types of nodes in the graph:
 
-    - *broadcast node:* A node that has seen logical observable with basis opposite to its own basis.
-      A logical observable needs to be broadcasted to all the neighbors of the node.
-    - *passthrough node:* A node that has seen logical observable with the same basis as its own basis.
-      A logical observable needs to be only supported on an even number of edges connected to the node.
+    - *broadcast node:* A node that has seen logical observable with basis opposite to its own
+      basis. A logical observable needs to be broadcasted to all the neighbors of the node.
+    - *passthrough node:* A node that has seen logical observable with the same basis as its own
+      basis. A logical observable needs to be only supported on an even number of edges connected
+      to the node.
 
     The algorithm starts from a set of frontier nodes and greedily expands the correlation
     surface until no more broadcast nodes are in the frontier. Then it explore the
@@ -112,6 +117,7 @@ def find_correlation_surfaces(
 
     Returns:
         A list of `CorrelationSurface` in the graph.
+
     """
     _check_spiders_are_supported(g)
     # Edge case: single node graph
@@ -124,12 +130,10 @@ def find_correlation_surfaces(
     leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
     if roots is not None:
         if not roots.issubset(leaves):
-            raise TQECException(
-                "The roots must all be leaf nodes, i.e. degree 1 nodes."
-            )
+            raise TQECError("The roots must all be leaf nodes, i.e. degree 1 nodes.")
         leaves = roots
     if not leaves:
-        raise TQECException(
+        raise TQECError(
             "The graph must contain at least one leaf node to find correlation surfaces."
         )
     correlation_surfaces: set[CorrelationSurface] = set()
@@ -138,8 +142,7 @@ def find_correlation_surfaces(
 
     if reduce_to_minimal_generators:
         stabilizers_to_surfaces = {
-            surface.external_stabilizer(sorted(leaves)): surface
-            for surface in correlation_surfaces
+            surface.external_stabilizer(sorted(leaves)): surface for surface in correlation_surfaces
         }
         correlation_surfaces = set(
             reduce_observables_to_minimal_generators(stabilizers_to_surfaces).values()
@@ -170,9 +173,7 @@ def _find_correlation_surfaces_from_leaf(
             assert is_s(g, leaf)
             spans = [sx | sz for sx, sz in itertools.product(x_spans, z_spans)]
     return [
-        CorrelationSurface(span)
-        for span in spans
-        if span and _leaf_nodes_can_support_span(g, span)
+        CorrelationSurface(span) for span in spans if span and _leaf_nodes_can_support_span(g, span)
     ]
 
 
@@ -216,7 +217,8 @@ def _find_spans_with_flood_fill(
     current_span: set[ZXEdge],
 ) -> list[frozenset[ZXEdge]] | None:
     """Find the correlation spans in the ZX graph using the flood fill like
-    algorithm."""
+    algorithm.
+    """
     # The node type mismatches the logical observable basis, then we can flood
     # through(broadcast) all the edges connected to the current node.
     # Greedily flood through the edges until encountering the passthrough node.
@@ -260,13 +262,13 @@ def _find_spans_with_flood_fill(
             return None
         branches_at_node: list[tuple[set[ZXNode], set[ZXEdge]]] = []
         for n in range(parity, len(edges_left) + 1, 2):
-            for branch_edges in itertools.combinations(edges_left, n):
-                branches_at_node.append(
-                    (
-                        {e.u if e.u != cur else e.v for e in branch_edges},
-                        set(branch_edges),
-                    )
+            branches_at_node.extend(
+                (
+                    {e.u if e.u != cur else e.v for e in branch_edges},
+                    set(branch_edges),
                 )
+                for branch_edges in itertools.combinations(edges_left, n)
+            )
         branches_at_different_nodes.append(branches_at_node)
 
     assert branches_at_different_nodes, "Should not be empty."
@@ -312,24 +314,21 @@ _SUPPORTED_SPIDERS: set[tuple[VertexType, FractionLike]] = {
 
 def _check_spiders_are_supported(g: GraphS) -> None:
     """Check the preconditions for the correlation surface finding
-    algorithm."""
+    algorithm.
+    """
     # 1. Check the spider types and phases are supported
     for v in g.vertices():
         vt = g.type(v)
         phase = g.phase(v)
         if (vt, phase) not in _SUPPORTED_SPIDERS:
-            raise TQECException(f"Unsupported spider type and phase: {vt} and {phase}.")
+            raise TQECError(f"Unsupported spider type and phase: {vt} and {phase}.")
     # 2. Check degree of the spiders
     for v in g.vertices():
         degree = g.vertex_degree(v)
         if is_boundary(g, v) and degree != 1:
-            raise TQECException(
-                f"Boundary spider must be dangling, but got {degree} neighbors."
-            )
+            raise TQECError(f"Boundary spider must be dangling, but got {degree} neighbors.")
         if is_s(g, v) and degree != 1:
-            raise TQECException(
-                f"S spider must be dangling, but got {degree} neighbors."
-            )
+            raise TQECError(f"S spider must be dangling, but got {degree} neighbors.")
 
 
 def reduce_observables_to_minimal_generators(
@@ -347,6 +346,7 @@ def reduce_observables_to_minimal_generators(
 
     Returns:
         A mapping from the generators' stabilizers to the correlation surfaces.
+
     """
     if not stabilizers_to_surfaces:
         return {}

@@ -7,5 +7,5 @@ the other ``tqec`` sub-modules.
 
 from .enums import Basis as Basis
 from .enums import Orientation as Orientation
-from .exceptions import TQECException as TQECException
+from .exceptions import TQECError as TQECError
 from .noise_model import NoiseModel as NoiseModel

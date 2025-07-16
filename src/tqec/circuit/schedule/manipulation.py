@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import itertools
 import warnings
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Sequence
 
 import stim
 
@@ -28,13 +28,11 @@ from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.utils.exceptions import TQECException, TQECWarning
+from tqec.utils.exceptions import TQECError, TQECWarning
 
 
 class _ScheduledCircuits:
-    def __init__(
-        self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap
-    ) -> None:
+    def __init__(self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap) -> None:
         """Represents a collection of
         :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instances.
 
@@ -51,6 +49,7 @@ class _ScheduledCircuits:
                 other.
             global_qubit_map: a unique qubit map that can be used to map qubits
                 to indices for all the provided ``circuits``.
+
         """
         # We might need to remap qubits to avoid index collision on several
         # circuits.
@@ -69,12 +68,14 @@ class _ScheduledCircuits:
 
     def _has_pending_moment(self, index: int) -> bool:
         """Check if the managed instance at the given index has a pending
-        operation."""
+        operation.
+        """
         return self._current_moments[index] is not None
 
     def _peek_scheduled_moment(self, index: int) -> tuple[int, Moment]:
         """Recover **without collecting** the pending operation for the
-        instance at the given index."""
+        instance at the given index.
+        """
         ret = self._current_moments[index]
         assert ret is not None
         return ret
@@ -85,10 +86,11 @@ class _ScheduledCircuits:
 
         Raises:
             AssertionError: ``if not self.has_pending_operation(index)``.
+
         """
         ret = self._current_moments[index]
         if ret is None:
-            raise TQECException(
+            raise TQECError(
                 "Trying to pop a Moment instance from a ScheduledCircuit with "
                 "all its moments already collected."
             )
@@ -108,6 +110,7 @@ class _ScheduledCircuits:
         Returns:
             a list of :class:`~tqec.circuit.moment.Moment` instances that should
             be added next to the QEC circuit.
+
         """
         assert self.has_pending_moment()
         circuit_indices_organised_by_schedule: dict[int, list[int]] = dict()
@@ -115,9 +118,7 @@ class _ScheduledCircuits:
             if not self._has_pending_moment(circuit_index):
                 continue
             schedule, _ = self._peek_scheduled_moment(circuit_index)
-            circuit_indices_organised_by_schedule.setdefault(schedule, list()).append(
-                circuit_index
-            )
+            circuit_indices_organised_by_schedule.setdefault(schedule, list()).append(circuit_index)
 
         minimum_schedule = min(circuit_indices_organised_by_schedule.keys())
         moments_to_return: list[Moment] = list()
@@ -174,11 +175,10 @@ def remove_duplicate_instructions(
     Returns:
         a list containing a copy of the ``stim.CircuitInstruction`` instances
         from the given instructions but without any duplicate.
+
     """
     # Separate mergeable operations from non-mergeable ones.
-    mergeable_operations: dict[
-        tuple[str, tuple[float, ...]], set[tuple[stim.GateTarget, ...]]
-    ] = {}
+    mergeable_operations: dict[tuple[str, tuple[float, ...]], set[tuple[stim.GateTarget, ...]]] = {}
     final_operations: list[stim.CircuitInstruction] = list()
     for inst in instructions:
         if inst.name in mergeable_instruction_names:
@@ -205,7 +205,7 @@ def remove_duplicate_instructions(
         circuit.append(instr)
     try:
         Moment.check_is_valid_moment(circuit)
-    except TQECException as e:
+    except TQECError as e:
         warnings.warn(
             "The instructions obtained at the end of the "
             "`remove_duplicate_instructions` function do not form a valid "
@@ -225,10 +225,9 @@ def merge_instructions(
     Returns:
         a list containing a copy of the ``stim.CircuitInstruction`` instances
         from the given instructions but merged.
+
     """
-    instructions_merger: dict[
-        tuple[str, tuple[float, ...]], list[list[stim.GateTarget]]
-    ] = {}
+    instructions_merger: dict[tuple[str, tuple[float, ...]], list[list[stim.GateTarget]]] = {}
     for instruction in instructions:
         args = tuple(instruction.gate_args_copy())
         instructions_merger.setdefault((instruction.name, args), []).extend(
@@ -269,6 +268,7 @@ def merge_scheduled_circuits(
 
     Returns:
         a circuit representing the merged scheduled circuits given as input.
+
     """
     scheduled_circuits = _ScheduledCircuits(circuits, global_qubit_map)
 
@@ -337,12 +337,11 @@ def relabel_circuits_qubit_indices(
 
         1. the sequence of indices is ``range(0, len(qubit_map))``.
         2. qubits are assigned indices in sorted order.
+
     """
     # First, get a global qubit index map.
     # Using itertools to avoid the edge case `len(circuits) == 0`
-    needed_qubits = frozenset(
-        itertools.chain.from_iterable([c.qubits for c in circuits])
-    )
+    needed_qubits = frozenset(itertools.chain.from_iterable([c.qubits for c in circuits]))
     global_qubit_map = QubitMap.from_qubits(sorted(needed_qubits))
     global_q2i = global_qubit_map.q2i
     # Then, get the remapped circuits. Note that map_qubit_indices should

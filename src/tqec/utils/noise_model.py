@@ -21,10 +21,14 @@ Modifications to the original code:
    immediately followed by resets. As a result, the depolarizing error has no
    effect.
 4. Remove the ``depolarizing_two_body_measurement_noise`` noise model.
+5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and
+   REPEAT blocks (not before the block, the first instruction in the repeated
+   inner block, and after the block).
 """
 
 from collections import Counter, defaultdict
-from typing import AbstractSet, Iterator
+from collections.abc import Iterator
+from typing import AbstractSet
 
 import stim
 
@@ -127,7 +131,8 @@ class NoiseRule:
     """Describes how to add noise to an operation."""
 
     def __init__(self, *, after: dict[str, float], flip_result: float = 0):
-        """
+        """Describes how to add noise to an operation.
+
         Args:
             after: A dictionary mapping noise rule names to their probability argument.
                 For example, {"DEPOLARIZE2": 0.01, "X_ERROR": 0.02} will add two qubit
@@ -136,6 +141,7 @@ class NoiseRule:
                 to the same targets as the relevant operation.
             flip_result: The probability that a measurement result should be reported incorrectly.
                 Only valid when applied to operations that produce measurement results.
+
         """
         if not (0 <= flip_result <= 1):
             raise ValueError(f"not (0 <= {flip_result=} <= 1)")
@@ -147,7 +153,7 @@ class NoiseRule:
         self.after = after
         self.flip_result = flip_result
 
-    def append_noisy_version_of(
+    def _append_noisy_version_of(
         self,
         *,
         split_op: stim.CircuitInstruction,
@@ -187,6 +193,7 @@ class NoiseModel:
         any_clifford_1q_rule: NoiseRule | None = None,
         any_clifford_2q_rule: NoiseRule | None = None,
     ):
+        """Represents a noise model that can be applied to a ``stim.Circuit``."""
         self.idle_depolarization = idle_depolarization
         self.additional_depolarization_waiting_for_m_or_r = (
             additional_depolarization_waiting_for_m_or_r
@@ -203,7 +210,8 @@ class NoiseModel:
         As defined in "A Fault-Tolerant Honeycomb Memory":
         https://arxiv.org/abs/2108.10457
 
-        Small tweak from the paper: The measurement result is probabilistically flipped instead of the input qubit.
+        Small tweak from the paper: The measurement result is probabilistically flipped instead of
+        the input qubit.
         """
         return NoiseModel(
             idle_depolarization=p / 10,
@@ -312,9 +320,7 @@ class NoiseModel:
 
         collapse_qubits_set = set(collapse_qubits)
         clifford_qubits_set = set(clifford_qubits)
-        idle = sorted(
-            system_qubits - collapse_qubits_set - clifford_qubits_set - immune_qubits
-        )
+        idle = sorted(system_qubits - collapse_qubits_set - clifford_qubits_set - immune_qubits)
         if idle and self.idle_depolarization:
             out.append("DEPOLARIZE1", idle, self.idle_depolarization)
 
@@ -324,9 +330,7 @@ class NoiseModel:
             and waiting_for_mr
             and self.additional_depolarization_waiting_for_m_or_r
         ):
-            out.append(
-                "DEPOLARIZE1", idle, self.additional_depolarization_waiting_for_m_or_r
-            )
+            out.append("DEPOLARIZE1", idle, self.additional_depolarization_waiting_for_m_or_r)
 
     def _append_noisy_moment(
         self,
@@ -342,7 +346,7 @@ class NoiseModel:
             if rule is None:
                 out.append(split_op)
             else:
-                rule.append_noisy_version_of(
+                rule._append_noisy_version_of(
                     split_op=split_op,
                     out_during_moment=out,
                     after_moments=after,
@@ -370,11 +374,13 @@ class NoiseModel:
 
         Args:
             circuit: The circuit to layer noise over.
-            system_qubits: All qubits used by the circuit. These are the qubits eligible for idling noise.
+            system_qubits: All qubits used by the circuit. These are the qubits eligible for idling
+                noise.
             immune_qubits: Qubits to not apply noise to, even if they are operated on.
 
         Returns:
             The noisy version of the circuit.
+
         """
         if system_qubits is None:
             system_qubits = set(range(circuit.num_qubits))
@@ -382,24 +388,21 @@ class NoiseModel:
             immune_qubits = set()
 
         result = stim.Circuit()
-
-        first = True
-        for moment_split_ops in _iter_split_op_moments(
-            circuit, immune_qubits=immune_qubits
-        ):
-            if first:
-                first = False
-            elif result and isinstance(result[-1], stim.CircuitRepeatBlock):
+        for moment_split_ops in _iter_split_op_moments(circuit, immune_qubits=immune_qubits):
+            if not result:
+                pass
+            elif isinstance(moment_split_ops, stim.CircuitRepeatBlock):
+                pass
+            elif isinstance(result[-1], stim.CircuitRepeatBlock):
                 pass
             else:
-                result.append("TICK")
+                result.append("TICK", [], [])
             if isinstance(moment_split_ops, stim.CircuitRepeatBlock):
                 noisy_body = self.noisy_circuit(
                     moment_split_ops.body_copy(),
                     system_qubits=system_qubits,
                     immune_qubits=immune_qubits,
                 )
-                noisy_body.append("TICK")
                 result.append(
                     stim.CircuitRepeatBlock(
                         repeat_count=moment_split_ops.repeat_count, body=noisy_body
@@ -418,7 +421,8 @@ class NoiseModel:
 
 def occurs_in_classical_control_system(op: stim.CircuitInstruction) -> bool:
     """Determines if an operation is an annotation or a classical control
-    system update."""
+    system update.
+    """
     t = OP_TYPES[op.name]
     if t == ANNOTATION:
         return True
@@ -439,7 +443,8 @@ def _split_targets_if_needed(
     op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
 ) -> Iterator[stim.CircuitInstruction]:
     """Splits operations into pieces as needed (e.g. MPP into each product,
-    classical control away from quantum ops)."""
+    classical control away from quantum ops).
+    """
     t = OP_TYPES[op.name]
     if t == CLIFFORD_2Q:
         yield from _split_targets_if_needed_clifford_2q(op, immune_qubits)
@@ -466,7 +471,8 @@ def _split_targets_if_needed_clifford_2q(
     op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
 ) -> Iterator[stim.CircuitInstruction]:
     """Splits classical control system operations away from things actually
-    happening on the quantum computer."""
+    happening on the quantum computer.
+    """
     assert OP_TYPES[op.name] == CLIFFORD_2Q
     targets = op.targets_copy()
     if immune_qubits or any(t.is_measurement_record_target for t in targets):
@@ -481,7 +487,8 @@ def _split_targets_if_needed_m_basis(
     op: stim.CircuitInstruction, immune_qubits: AbstractSet[int]
 ) -> Iterator[stim.CircuitInstruction]:
     """Splits an MPP operation into one operation for each Pauli product it
-    measures."""
+    measures.
+    """
     targets = op.targets_copy()
     args = op.gate_args_copy()
     k = 0
@@ -501,15 +508,17 @@ def _iter_split_op_moments(
 ) -> Iterator[stim.CircuitRepeatBlock | list[stim.CircuitInstruction]]:
     """Splits a circuit into moments and some operations into pieces.
 
-    Classical control system operations like CX rec[-1] 0 are split from quantum operations like CX 1 0.
+    Classical control system operations like ``CX rec[-1] 0`` are split from quantum operations
+    like ``CX 1 0``.
 
     MPP operations are split into one operation per Pauli product.
 
     Yields:
-        Lists of operations corresponding to one moment in the circuit, with any problematic operations
-        like MPPs split into pieces.
+        Lists of operations corresponding to one moment in the circuit, with any problematic
+        operations like MPPs split into pieces.
 
         (A moment is the time between two TICKs.)
+
     """
     cur_moment: list[stim.CircuitInstruction] = []
 
@@ -519,14 +528,11 @@ def _iter_split_op_moments(
                 yield cur_moment
                 cur_moment = []
             yield op
-        else:  # if isinstance(op, stim.CircuitInstruction):
-            if op.name == "TICK":
-                yield cur_moment
-                cur_moment = []
-            else:
-                cur_moment.extend(
-                    _split_targets_if_needed(op, immune_qubits=immune_qubits)
-                )
+        elif op.name == "TICK":
+            yield cur_moment
+            cur_moment = []
+        else:
+            cur_moment.extend(_split_targets_if_needed(op, immune_qubits=immune_qubits))
     if cur_moment:
         yield cur_moment
 
@@ -538,6 +544,7 @@ def _measure_basis(*, split_op: stim.CircuitInstruction) -> str | None:
     Returns:
         None: This is not a measurement (or not *just* a measurement).
         str: Pauli product string that the operation measures (e.g. "XX" or "Y").
+
     """
     result = OP_MEASURE_BASES.get(split_op.name)
     targets = split_op.targets_copy()

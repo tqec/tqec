@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
+from typing import Any
 
 
 class PauliBasis(Enum):
@@ -14,6 +14,7 @@ class PauliBasis(Enum):
         return self.value
 
     def to_extended_basis(self) -> ExtendedBasis:
+        """Return ``self`` as an extended basis."""
         return ExtendedBasis(self.value)
 
 
@@ -56,6 +57,7 @@ class RPNG:
             be applied. Should be a 1-digit positive integer, typically in
             ``[1, 5]``.
         g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
+
     """
 
     r: ExtendedBasis | None
@@ -69,6 +71,7 @@ class RPNG:
 
         Raises:
             ValueError: if an invalid ``rpng_string`` is provided.
+
         """
         if len(rpng_string) != 4:
             raise ValueError("The rpng string must be exactly 4-character long.")
@@ -115,7 +118,11 @@ class RPNG:
         return str(self) == "----"
 
     def __str__(self) -> str:
-        return f"{'-' if self.r is None else self.r.value}{'-' if self.p is None else self.p.value}{'-' if self.n is None else self.n}{'-' if self.g is None else self.g.value}"
+        r = "-" if self.r is None else self.r.value
+        p = "-" if self.p is None else self.p.value
+        n = "-" if self.n is None else self.n
+        g = "-" if self.g is None else self.g.value
+        return f"{r}{p}{n}{g}"
 
 
 @dataclass(frozen=True)
@@ -128,6 +135,7 @@ class RG:
     Attributes:
         r: reset basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
         g: measure basis (``x``, ``y`` or ``z``), ``h`` or ``-``.
+
     """
 
     r: PauliBasis | None
@@ -175,6 +183,7 @@ class RPNGDescription:
         corners: one ``RPNG`` description for each of the four corners of the
             plaquette.
         ancilla: ``RG`` description of the syndrome qubit.
+
     """
 
     corners: tuple[RPNG, RPNG, RPNG, RPNG]
@@ -205,9 +214,7 @@ class RPNGDescription:
         return cls(rpng_objs)
 
     @classmethod
-    def from_extended_string(
-        cls, ancilla_and_corners_rpng_string: str
-    ) -> RPNGDescription:
+    def from_extended_string(cls, ancilla_and_corners_rpng_string: str) -> RPNGDescription:
         """Initialize the RPNGDescription object from a (16+3)-character string"""
         values = ancilla_and_corners_rpng_string.split(" ")
         ancilla_rg = RG.from_string(values[0])
@@ -218,6 +225,7 @@ class RPNGDescription:
 
     @staticmethod
     def empty() -> RPNGDescription:
+        """Return a description of the empty plaquette."""
         return RPNGDescription.from_extended_string("-- ---- ---- ---- ----")
 
     def get_r_op(self, data_idx: int) -> str | None:
@@ -234,54 +242,46 @@ class RPNGDescription:
 
     @property
     def has_reset(self) -> bool:
+        """Return ``True`` if ``self`` contains at least one corner with a reset."""
         return any(corner.get_r_op() not in {None, "H"} for corner in self.corners)
 
     @property
     def has_measurement(self) -> bool:
+        """Return ``True`` if ``self`` contains at least one corner with a measurement."""
         return any(corner.get_g_op() not in {None, "H"} for corner in self.corners)
 
     def __str__(self) -> str:
         return " ".join(str(rpng) for rpng in self.corners)
 
-    def view_as_svg(
-        self,
-        write_to_filepath: str | Path | None = None,
-        canvas_height: int = 100,
-        opacity: float = 1.0,
-        show_rg_fields: bool = True,
-        show_interaction_order: bool = True,
-        show_hook_error: bool = False,
-    ) -> str:
-        """Visualize the RPNG description as an SVG image.
+    def to_dict(self) -> dict[str, Any]:
+        """Return a dictionary representation of the RPNG description.
+
+        The dictionary is intended to be used as a JSON object.
+        """
+        return {
+            "corners": [str(rpng) for rpng in self.corners],
+            "ancilla": str(self.ancilla),
+        }
+
+    @staticmethod
+    def from_dict(data: dict[str, Any]) -> RPNGDescription:
+        """Return a RPNGDescription object from its dictionary representation.
 
         Args:
-            write_to_filepath: the path to write the SVG image to.
-            canvas_height: The height of the canvas in pixels.
-            opacity: The opacity of the plaquettes.
-            show_rg_fields: Whether to show the R/G fields on the data qubits. If True, the R
-                field is shown as a small rectangle at the position of the data qubit, whose color
-                corresponds to the basis. The G field is shown as a small circle at the position
-                of the data qubit, whose color corresponds to the basis.
-            show_interaction_order: Whether to show the interaction order of the plaquettes. If
-                True, the interaction order is shown at each corner of the plaquette.
-            show_hook_error: Whether to highlight the plaquette with the hook error. If True, the
-                hook error is shown as a black line along the hook edge.
-
+            data: dictionary with the keys ``corners`` and ``ancilla``.
 
         Returns:
-            The SVG string representing the visualization.
-        """
-        from tqec.plaquette.rpng.visualisation import rpng_svg_viewer
+            a new instance of :class:`RPNGDescription` with the provided
+            ``corners`` and ``ancilla``.
 
-        svg_str = rpng_svg_viewer(
-            self,
-            canvas_height=canvas_height,
-            opacity=opacity,
-            show_rg_fields=show_rg_fields,
-            show_interaction_order=show_interaction_order,
-            show_hook_error=lambda _: show_hook_error,
+        """
+        assert len(data["corners"]) == 4, "There must be 4 corners in the RPNG description."
+        corners = data["corners"]
+        corners = (
+            RPNG.from_string(corners[0]),
+            RPNG.from_string(corners[1]),
+            RPNG.from_string(corners[2]),
+            RPNG.from_string(corners[3]),
         )
-        if write_to_filepath is not None:
-            with open(write_to_filepath, "w") as f:
-                f.write(svg_str)
-        return svg_str
+        ancilla = RG.from_string(data["ancilla"])
+        return RPNGDescription(corners, ancilla)

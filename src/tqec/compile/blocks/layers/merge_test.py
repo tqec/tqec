@@ -1,4 +1,4 @@
-from typing import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 
 import pytest
 import stim
@@ -21,13 +21,17 @@ from tqec.compile.blocks.layers.merge import (
     merge_sequenced_layers,
 )
 from tqec.compile.blocks.positioning import LayoutPosition2D
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+
+_TRANSLATOR = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
 
 
 @pytest.fixture(name="base_layers")
@@ -35,15 +39,16 @@ def base_layers_fixture() -> list[BaseLayer]:
     return [
         PlaquetteLayer(
             QubitTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+            Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
         ),
         PlaquetteLayer(
             QubitSpatialCubeTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+            Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
         ),
         RawCircuitLayer(
             lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
             PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5)),
+            LinearFunction(0, 0),
         ),
     ]
 
@@ -129,7 +134,7 @@ def test_merge_repeated_layers_wrong_duration(
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     with pytest.raises(
-        TQECException,
+        TQECError,
         match=".*Cannot merge RepeatedLayer instances that have different lengths..*",
     ):
         merge_repeated_layers(
@@ -179,15 +184,9 @@ def test_merge_sequenced_layers_composed(
     b11 = LayoutPosition2D.from_block_position(BlockPosition2D(1, 1))
     merged_layer = merge_sequenced_layers(
         {
-            b00: SequencedLayers(
-                [SequencedLayers([plaquette_layer, raw_layer]), plaquette_layer2]
-            ),
-            b01: SequencedLayers(
-                [SequencedLayers([plaquette_layer2, plaquette_layer]), raw_layer]
-            ),
-            b11: SequencedLayers(
-                [SequencedLayers([raw_layer, plaquette_layer2]), plaquette_layer]
-            ),
+            b00: SequencedLayers([SequencedLayers([plaquette_layer, raw_layer]), plaquette_layer2]),
+            b01: SequencedLayers([SequencedLayers([plaquette_layer2, plaquette_layer]), raw_layer]),
+            b11: SequencedLayers([SequencedLayers([raw_layer, plaquette_layer2]), plaquette_layer]),
         },
         logical_qubit_shape,
     )
@@ -221,7 +220,8 @@ def test_merge_sequenced_layers_composed_different_schedules(
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     with pytest.raises(
         NotImplementedError,
-        match=".*_merge_sequenced_layers only supports merging sequences that have layers with a matching temporal schedule..*",
+        match=".*_merge_sequenced_layers only supports merging sequences that "
+        "have layers with a matching temporal schedule..*",
     ):
         merge_sequenced_layers(
             {
@@ -301,9 +301,7 @@ def test_merge_composed_layers_unknown_layer_type(
         def all_layers(self, k: int) -> Iterable[BaseLayer]:
             raise NotImplementedError()
 
-        def with_spatial_borders_trimmed(
-            self, borders: Iterable[SpatialBlockBorder]
-        ) -> Self:
+        def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> Self:
             raise NotImplementedError()
 
         def with_temporal_borders_replaced(
@@ -316,9 +314,11 @@ def test_merge_composed_layers_unknown_layer_type(
         ) -> SequencedLayers:
             raise NotImplementedError()
 
-        def get_temporal_layer_on_border(
-            self, border: TemporalBlockBorder
-        ) -> BaseLayer:
+        def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
+            raise NotImplementedError()
+
+        @property
+        def scalable_num_moments(self) -> LinearFunction:
             raise NotImplementedError()
 
     plaquette_layer, plaquette_layer2, raw_layer = base_layers
@@ -333,9 +333,7 @@ def test_merge_composed_layers_unknown_layer_type(
         merge_composed_layers(
             {
                 b00: RepeatedLayer(plaquette_layer, LinearFunction(2, 2)),
-                b01: UnknownComposedLayerType(
-                    logical_qubit_shape, LinearFunction(2, 2)
-                ),
+                b01: UnknownComposedLayerType(logical_qubit_shape, LinearFunction(2, 2)),
             },
             logical_qubit_shape,
         )

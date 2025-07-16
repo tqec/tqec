@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from fractions import Fraction
-from typing import Iterable
 
 from pyzx import EdgeType, VertexType
 from pyzx.graph.graph_s import GraphS

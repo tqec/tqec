@@ -11,7 +11,7 @@ from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
 from tqec.plaquette.rpng import ExtendedBasis, PauliBasis, RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import (
     MEASUREMENT_INSTRUCTION_NAMES,
     RESET_INSTRUCTION_NAMES,
@@ -64,13 +64,11 @@ class DefaultRPNGTranslator(RPNGTranslator):
 
         data_qubit_indices = list(qubits.data_qubits_indices)
         if len(data_qubit_indices) != 4:
-            raise TQECException("Expected 4 data-qubits, got", len(data_qubit_indices))
+            raise TQECError("Expected 4 data-qubits, got", len(data_qubit_indices))
         used_data_qubit_indices: set[int] = set()
         syndrome_qubit_indices = list(qubits.syndrome_qubits_indices)
         if len(syndrome_qubit_indices) != 1:
-            raise TQECException(
-                "Expected 1 syndrome qubit, got", len(syndrome_qubit_indices)
-            )
+            raise TQECError("Expected 1 syndrome qubit, got", len(syndrome_qubit_indices))
         syndrome_qubit_index = syndrome_qubit_indices[0]
 
         # Handling syndrome qubit reset/measurement
@@ -100,18 +98,16 @@ class DefaultRPNGTranslator(RPNGTranslator):
         schedule: list[int] = [0]
         # Add reset operations
         self._add_extended_basis_operation(circuit, "R", reset_timestep_operations)
-        circuit.append("TICK")
+        circuit.append("TICK", [], [])
 
         # Add entangling gates
         for sched, entangling_operation in enumerate(entangling_operations):
             if entangling_operation is None:
                 continue
             p, data_qubit = entangling_operation
-            circuit.append(
-                f"C{p.value.upper()}", [syndrome_qubit_index, data_qubit], []
-            )
+            circuit.append(f"C{p.value.upper()}", [syndrome_qubit_index, data_qubit], [])
             schedule.append(sched + 1)
-            circuit.append("TICK")
+            circuit.append("TICK", [], [])
 
         # Add measurement operations
         self._add_extended_basis_operation(circuit, "M", meas_timestep_operations)
@@ -120,12 +116,8 @@ class DefaultRPNGTranslator(RPNGTranslator):
         # Filter out unused qubits
         kept_data_qubits = [qubits.data_qubits[i] for i in used_data_qubit_indices]
         new_plaquette_qubits = PlaquetteQubits(kept_data_qubits, qubits.syndrome_qubits)
-        unfiltered_circuit = ScheduledCircuit.from_circuit(
-            circuit, schedule, qubits.qubit_map
-        )
-        filtered_circuit = unfiltered_circuit.filter_by_qubits(
-            new_plaquette_qubits.all_qubits
-        )
+        unfiltered_circuit = ScheduledCircuit.from_circuit(circuit, schedule, qubits.qubit_map)
+        filtered_circuit = unfiltered_circuit.filter_by_qubits(new_plaquette_qubits.all_qubits)
 
         # Return the plaquette
         return Plaquette(
@@ -133,7 +125,7 @@ class DefaultRPNGTranslator(RPNGTranslator):
             qubits=new_plaquette_qubits,
             circuit=filtered_circuit,
             mergeable_instructions=(
-                RESET_INSTRUCTION_NAMES | MEASUREMENT_INSTRUCTION_NAMES
+                RESET_INSTRUCTION_NAMES | MEASUREMENT_INSTRUCTION_NAMES | {"H"}
             ),
             debug_information=PlaquetteDebugInformation(rpng_description),
         )

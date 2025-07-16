@@ -9,19 +9,24 @@ from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
+from tqec.templates._testing import FixedTemplate
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+
+_TRANSLATOR = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
 
 
 @pytest.fixture(name="plaquette_layer")
 def plaquette_layer_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitTemplate(),
-        Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+        Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
     )
 
 
@@ -29,7 +34,20 @@ def plaquette_layer_fixture() -> PlaquetteLayer:
 def plaquette_layer2_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitSpatialCubeTemplate(),
-        Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+        Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
+    )
+
+
+@pytest.fixture(name="non_empty_plaquette_layer")
+def non_empty_plaquette_layer_fixture() -> PlaquetteLayer:
+    return PlaquetteLayer(
+        FixedTemplate([[1]]),
+        Plaquettes(
+            FrozenDefaultDict(
+                {1: _TRANSLATOR.translate(RPNGDescription.from_string("-x1- -x2- -x3- -x4-"))},
+                default_value=_EMPTY_PLAQUETTE,
+            )
+        ),
     )
 
 
@@ -38,21 +56,16 @@ def raw_circuit_layer_fixture() -> RawCircuitLayer:
     return RawCircuitLayer(
         lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
         PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5)),
+        LinearFunction(0, 0),
     )
 
 
-def test_creation(
-    plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer
-) -> None:
+def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer) -> None:
     RepeatedLayer(plaquette_layer, LinearFunction(0, 1))
     RepeatedLayer(raw_circuit_layer, LinearFunction(1, 90))
-    RepeatedLayer(
-        SequencedLayers([plaquette_layer, plaquette_layer]), LinearFunction(1, 0)
-    )
-    with pytest.raises(TQECException, match=".*non-linear number of timesteps.*"):
-        RepeatedLayer(
-            RepeatedLayer(plaquette_layer, LinearFunction(1, 0)), LinearFunction(1, 0)
-        )
+    RepeatedLayer(SequencedLayers([plaquette_layer, plaquette_layer]), LinearFunction(1, 0))
+    with pytest.raises(TQECError, match=".*non-linear number of timesteps.*"):
+        RepeatedLayer(RepeatedLayer(plaquette_layer, LinearFunction(1, 0)), LinearFunction(1, 0))
 
 
 def test_scalable_timesteps(plaquette_layer: PlaquetteLayer) -> None:
@@ -75,9 +88,7 @@ def test_with_spatial_borders_trimmed(
     all_indices = frozenset(plaquette_layer.plaquettes.collection.keys())
     expected_plaquette_indices = all_indices - frozenset(
         itertools.chain.from_iterable(
-            frozenset(
-                plaquette_layer.template.get_border_indices(border.to_template_border())
-            )
+            frozenset(plaquette_layer.template.get_border_indices(border.to_template_border()))
             for border in borders
         )
     )
@@ -126,7 +137,8 @@ def test_to_sequenced_layer_with_schedule(
 
     with pytest.raises(
         NotImplementedError,
-        match="^The ability to split the body of a RepeatedLayer instance has not been implemented yet..*$",
+        match="^The ability to split the body of a RepeatedLayer instance has "
+        "not been implemented yet..*$",
     ):
         repeated_layer.to_sequenced_layer_with_schedule(
             (LinearFunction(0, 2), LinearFunction(6, 4))
@@ -138,8 +150,9 @@ def test_to_sequenced_layer_with_schedule_raising(
 ) -> None:
     repeated_layer = RepeatedLayer(plaquette_layer, LinearFunction(2, 2))
     with pytest.raises(
-        TQECException,
-        match="Cannot transform the RepeatedLayer instance to a SequencedLayers instance with the provided schedule.*",
+        TQECError,
+        match="Cannot transform the RepeatedLayer instance to a SequencedLayers "
+        "instance with the provided schedule.*",
     ):
         repeated_layer.to_sequenced_layer_with_schedule(
             (LinearFunction(0, 2), LinearFunction(2, 0), LinearFunction(0, 2))
@@ -147,11 +160,12 @@ def test_to_sequenced_layer_with_schedule_raising(
 
     with pytest.raises(
         NotImplementedError,
-        match="^Splitting a RepeatedLayer instance with a non-constant duration body is not implemented yet.$",
+        match="^Splitting a RepeatedLayer instance with a non-constant duration "
+        "body is not implemented yet.$",
     ):
-        RepeatedLayer(
-            repeated_layer, LinearFunction(0, 2)
-        ).to_sequenced_layer_with_schedule((LinearFunction(2, 2), LinearFunction(2, 2)))
+        RepeatedLayer(repeated_layer, LinearFunction(0, 2)).to_sequenced_layer_with_schedule(
+            (LinearFunction(2, 2), LinearFunction(2, 2))
+        )
 
 
 def test_with_temporal_borders_replaced_none(plaquette_layer: PlaquetteLayer) -> None:
@@ -196,14 +210,10 @@ def test_with_temporal_borders_replaced(
     for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:
         assert layer.with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_NEGATIVE: replacement}
-        ) == SequencedLayers(
-            [replacement, RepeatedLayer(plaquette_layer, LinearFunction(2, 1))]
-        )
+        ) == SequencedLayers([replacement, RepeatedLayer(plaquette_layer, LinearFunction(2, 1))])
         assert layer.with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_POSITIVE: replacement}
-        ) == SequencedLayers(
-            [RepeatedLayer(plaquette_layer, LinearFunction(2, 1)), replacement]
-        )
+        ) == SequencedLayers([RepeatedLayer(plaquette_layer, LinearFunction(2, 1)), replacement])
         assert layer.with_temporal_borders_replaced(
             {
                 TemporalBlockBorder.Z_NEGATIVE: replacement,
@@ -221,9 +231,7 @@ def test_with_temporal_borders_replaced(
             TemporalBlockBorder.Z_NEGATIVE: None,
             TemporalBlockBorder.Z_POSITIVE: plaquette_layer2,
         }
-    ) == SequencedLayers(
-        [RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer2]
-    )
+    ) == SequencedLayers([RepeatedLayer(plaquette_layer, LinearFunction(2, 0)), plaquette_layer2])
     # Now with only a few repetitions, leading to edge-cases
     layer = RepeatedLayer(plaquette_layer, LinearFunction(0, 2))
     for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:
@@ -248,3 +256,31 @@ def test_with_temporal_borders_replaced(
         )
         == plaquette_layer2
     )
+
+
+def test_scalable_num_moments(
+    plaquette_layer: PlaquetteLayer, non_empty_plaquette_layer: PlaquetteLayer
+) -> None:
+    for lf in [
+        LinearFunction(0, 0),
+        LinearFunction(0, 1),
+        LinearFunction(1, 0),
+        LinearFunction(2, 4),
+    ]:
+        assert RepeatedLayer(plaquette_layer, lf).scalable_num_moments == LinearFunction(0, 0)
+
+    assert RepeatedLayer(
+        non_empty_plaquette_layer, LinearFunction(0, 0)
+    ).scalable_num_moments == LinearFunction(0, 0)
+    assert (
+        RepeatedLayer(non_empty_plaquette_layer, LinearFunction(0, 1)).scalable_num_moments
+        == non_empty_plaquette_layer.scalable_num_moments
+    )
+    assert non_empty_plaquette_layer.scalable_num_moments.is_constant()
+    layer_num_moments = non_empty_plaquette_layer.scalable_num_moments.offset
+    assert RepeatedLayer(
+        non_empty_plaquette_layer, LinearFunction(1, 0)
+    ).scalable_num_moments == LinearFunction(layer_num_moments, 0)
+    assert RepeatedLayer(
+        non_empty_plaquette_layer, LinearFunction(2, 4)
+    ).scalable_num_moments == LinearFunction(2 * layer_num_moments, 4 * layer_num_moments)

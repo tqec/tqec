@@ -1,6 +1,6 @@
 """Defines templates representing logical qubits and its constituent parts."""
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy
 import numpy.typing as npt
@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from tqec.templates.base import BorderIndices, RectangularTemplate
 from tqec.templates.enums import TemplateBorder
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
@@ -102,6 +102,7 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
         For ``k == 1``, this template does not include any of the plaquette
         that have an index in ``[13, 17]`` and so its instantiation has a "hole"
         in the plaquette indices.
+
     """
 
     @override
@@ -232,9 +233,9 @@ class QubitVerticalBorders(RectangularTemplate):
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
         match border:
             case TemplateBorder.TOP | TemplateBorder.BOTTOM:
-                raise TQECException(
-                    f"Template {self.__class__.__name__} does not have repeating "
-                    f"elements on the {border.name} border."
+                raise TQECError(
+                    f"Template {self.__class__.__name__} does not have "
+                    f"repeating elements on the {border.name} border."
                 )
             case TemplateBorder.LEFT:
                 return BorderIndices(1, 5, 6, 3)
@@ -289,7 +290,7 @@ class QubitHorizontalBorders(RectangularTemplate):
             case TemplateBorder.BOTTOM:
                 return BorderIndices(3, 7, 8, 4)
             case TemplateBorder.LEFT | TemplateBorder.RIGHT:
-                raise TQECException(
+                raise TQECError(
                     f"Template {self.__class__.__name__} does not have repeating "
                     f"elements on the {border.name} border."
                 )

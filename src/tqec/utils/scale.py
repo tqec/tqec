@@ -16,11 +16,13 @@ basically ``2k + 2``.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 from typing_extensions import Self
 
-from tqec.utils.exceptions import TQECException
+from tqec.circuit.qubit import GridQubit
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import PhysicalQubitShape2D, PlaquetteShape2D, Shape2D, Shift2D
 
 
@@ -42,6 +44,7 @@ class LinearFunction:
 
         Returns:
             the image of x.
+
         """
         return self.slope * x + self.offset
 
@@ -55,6 +58,7 @@ class LinearFunction:
 
         Returns:
             a new linear function instance representing `self + other`.
+
         """
         if isinstance(other, (int, float)):
             other = LinearFunction(0, other)
@@ -70,6 +74,7 @@ class LinearFunction:
 
         Returns:
             a new linear function instance representing `self - other`.
+
         """
         if isinstance(other, (int, float)):
             other = LinearFunction(0, other)
@@ -83,6 +88,7 @@ class LinearFunction:
 
         Returns:
             a copy of `self`, scaled by the provided `other`.
+
         """
         return self.__rmul__(other)
 
@@ -94,6 +100,7 @@ class LinearFunction:
 
         Returns:
             a copy of `self`, scaled by the provided `other`.
+
         """
         return LinearFunction(other * self.slope, other * self.offset)
 
@@ -106,6 +113,7 @@ class LinearFunction:
         Returns:
             If they intersect, return x such that `self(x) = other(x)`.
             Otherwise, return None.
+
         """
         if self.slope == other.slope:
             return None
@@ -127,19 +135,38 @@ class LinearFunction:
         return f"{self.slope}*x + {self.offset}"
 
     def integer_eval(self, x: int) -> int:
+        """Evaluate the linear function on ``x`` and return the result as an integer.
+
+        Raises:
+            TQECError: if the result is not an integer.
+
+        Returns:
+            ``int(self(x))``.
+
+        """
         return round_or_fail(self.slope * x + self.offset)
 
     def exact_integer_div(self, div: int) -> LinearFunction:
+        """Divide ``self`` by ``div`` when possible.
+
+        Raises:
+            ZeroDivisionError: if ``div == 0``.
+            TQECError: if ``self.slope`` or ``self.offset`` are not divisible by ``div``.
+
+        Returns:
+            a new linear function such that ``div * ret == self``.
+
+        """
         if div == 0:
             raise ZeroDivisionError()
         slope, offset = round_or_fail(self.slope), round_or_fail(self.offset)
         if slope % div != 0:
-            raise TQECException(
+            raise TQECError(
                 "Trying to divide exactly a LinearFunction by an integer that "
                 f"is not a multiple of the slope. Divisor: {div}. Slope: {slope}."
             )
         if offset % div != 0:
-            raise TQECException(
+            raise TQECError(
                 "Trying to divide exactly a LinearFunction by an integer that "
                 f"is not a multiple of the offset. Divisor: {div}. Offset: "
                 f"{offset}."
@@ -147,15 +174,74 @@ class LinearFunction:
         return LinearFunction(slope // div, offset // div)
 
     def is_constant(self, atol: float = 1e-8) -> bool:
+        """Return ``True`` if ``self.slope`` is close to ``0``."""
         return abs(self.slope) < atol
 
     def is_scalable(self, atol: float = 1e-8) -> bool:
+        """Return ``True`` if ``not self.is_scalable``."""
         return not self.is_constant(atol)
 
     def is_close_to(self, other: LinearFunction, atol: float = 1e-8) -> bool:
-        return (
-            abs(self.slope - other.slope) < atol
-            and abs(self.offset - other.offset) < atol
+        """Return ``True`` is ``self`` is approximately equal to ``other``."""
+        return abs(self.slope - other.slope) < atol and abs(self.offset - other.offset) < atol
+
+    @staticmethod
+    def unambiguous_max_on_positives(
+        fs: Iterable[LinearFunction], default: LinearFunction | None = None
+    ) -> LinearFunction:
+        """Compute the unambiguous maximum of the provided linear functions on
+        the positive numbers.
+
+        A unambiguous maximum on R+ (the set of positive numbers) is a linear
+        function that is greater or equal than all the functions in ``fs`` on
+        the whole R+ interval.
+
+        Args:
+            fs: linear functions to find a unambiguous maximum in.
+            default: default value to return if ``fs`` is empty. Defaults to
+                ``None`` which is internally translated to ``LinearFunction(0, 0)``.
+
+        Raises:
+            TQECError: if the maximum found is ambiguous.
+
+        Returns:
+            the unambiguous maximum in ``fs``.
+
+        """
+        if default is None:
+            default = LinearFunction(0, 0)
+        iterator = iter(fs)
+        try:
+            res: LinearFunction = next(iterator)
+        except StopIteration:
+            return default
+        # Find the **potentially ambiguous** maximum trivially.
+        # If the maximum is unambiguous, res will be it. Else, there is an
+        # ambiguity and so we should raise.
+        for f in iterator:
+            if f.offset >= res.offset and f.slope >= res.slope:
+                res = f
+
+        for f in fs:
+            if f.offset > res.offset or f.slope > res.slope:
+                raise TQECError(
+                    "Could not find a unambiguous maximum in the provided linear functions. "
+                    f"{res} could be the maximum, but is ambiguous with {f}."
+                )
+        return res
+
+    @staticmethod
+    def safe_mul(lhs: LinearFunction, rhs: LinearFunction) -> LinearFunction:
+        """Return ``lhs * rhs``, checking that the result is a linear function.
+
+        Raises:
+            TQECError: if both ``lhs.slope`` and ``rhs.slope`` are non-zero.
+
+        """
+        if lhs.slope != 0 and rhs.slope != 0:
+            raise TQECError(f"The result of ({lhs}) * ({rhs}) is not a linear function.")
+        return LinearFunction(
+            lhs.slope * rhs.offset + rhs.slope * lhs.offset, lhs.offset * rhs.offset
         )
 
 
@@ -170,14 +256,15 @@ def round_or_fail(f: float, atol: float = 1e-8) -> int:
             is acceptable.
 
     Raises:
-        TQECException: if abs(f - round(f)) > atol
+        TQECError: if abs(f - round(f)) > atol
 
     Returns:
         ``int(round(f))``
+
     """
-    rounded_value = int(round(f))
+    rounded_value = round(f)
     if abs(f - rounded_value) > atol:
-        raise TQECException(f"Rounding from {f} to integer failed.")
+        raise TQECError(f"Rounding from {f} to integer failed.")
     return rounded_value
 
 
@@ -188,6 +275,7 @@ class Scalable2D:
     Attributes:
         x: a linear function representing the value of the ``x`` coordinate.
         y: a linear function representing the value of the ``y`` coordinate.
+
     """
 
     x: LinearFunction
@@ -201,38 +289,52 @@ class Scalable2D:
                 quantities stored in ``self``.
 
         Raises:
-            TQECException: if any of ``self.x(k)`` or ``self.y(k)`` returns a
+            TQECError: if any of ``self.x(k)`` or ``self.y(k)`` returns a
                 number that is not an integer (or very close to an integer).
 
         Returns:
-            ``Shape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))``
+            ``Shape2D(self.x.integer_eval(k), self.y.integer_eval(k))``
+
         """
-        return Shape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
+        return Shape2D(self.x.integer_eval(k), self.y.integer_eval(k))
 
     def to_numpy_shape(self, k: int) -> tuple[int, int]:
         """Get a tuple of coordinates in ``numpy``-coordinates.
 
         Raises:
-            TQECException: if any of ``self.x(k)`` or ``self.y(k)`` returns a
+            TQECError: if any of ``self.x(k)`` or ``self.y(k)`` returns a
                 number that is not an integer (or very close to an integer).
 
         Returns:
             a tuple of coordinates in ``numpy``-coordinates.
+
         """
         return self.to_shape_2d(k).to_numpy_shape()
 
-    def __add__(self: Self, other: Self) -> Self:
-        return self.__class__(self.x + other.x, self.y + other.y)
+    @staticmethod
+    def _get_x_y(
+        other: Scalable2D | Shift2D | tuple[LinearFunction | int, LinearFunction | int],
+    ) -> tuple[LinearFunction | int, LinearFunction | int]:
+        if isinstance(other, tuple):
+            return other
+        else:
+            return other.x, other.y
 
-    def __sub__(self: Self, other: Self) -> Self:
-        return self.__class__(self.x - other.x, self.y - other.y)
+    def __add__(self: Self, other: Self | Shift2D | tuple[int, int]) -> Self:
+        x, y = Scalable2D._get_x_y(other)
+        return self.__class__(self.x + x, self.y + y)
+
+    def __sub__(self: Self, other: Self | Shift2D | tuple[int, int]) -> Self:
+        x, y = Scalable2D._get_x_y(other)
+        return self.__class__(self.x - x, self.y - y)
 
 
 class PlaquetteScalable2D(Scalable2D):
     """A pair of scalable quantities in plaquette coordinates."""
 
     def to_shape_2d(self, k: int) -> PlaquetteShape2D:
-        return PlaquetteShape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
+        """Evaluate both coordinates with ``k`` as input."""
+        return PlaquetteShape2D(self.x.integer_eval(k), self.y.integer_eval(k))
 
     def __mul__(self, other: Shift2D) -> PhysicalQubitScalable2D:
         return PhysicalQubitScalable2D(self.x * other.x, self.y * other.y)
@@ -242,4 +344,9 @@ class PhysicalQubitScalable2D(Scalable2D):
     """A pair of scalable quantities in physical qubit coordinates."""
 
     def to_shape_2d(self, k: int) -> PhysicalQubitShape2D:
-        return PhysicalQubitShape2D(round_or_fail(self.x(k)), round_or_fail(self.y(k)))
+        """Evaluate both coordinates with ``k`` as input."""
+        return PhysicalQubitShape2D(self.x.integer_eval(k), self.y.integer_eval(k))
+
+    def to_grid_qubit(self, k: int) -> GridQubit:
+        """Evaluate both coordinates with ``k`` as input, returning a :class:`.GridQubit`."""
+        return GridQubit(self.x.integer_eval(k), self.y.integer_eval(k))

@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 import sinter
 
-from tqec.utils.exceptions import TQECException
 from tqec.simulation.io_utils.csv_files import write_sinter_stats_to_csv
+from tqec.utils.exceptions import TQECError
 
 
 @pytest.fixture
@@ -79,7 +79,7 @@ def test_raise_if_file_exists(tmp_path: Path, stats_a: list[sinter.TaskStats]) -
     filepath = tmp_path / "data.csv"
     write_sinter_stats_to_csv(filepath, stats_a)
 
-    with pytest.raises(TQECException) as excinfo:
+    with pytest.raises(TQECError) as excinfo:
         write_sinter_stats_to_csv(filepath, stats_a, if_file_exists="raise")
 
     assert "exists" in str(excinfo.value)
@@ -106,9 +106,7 @@ def test_merge_if_file_exists(
     stats_from_csv = sinter.read_stats_from_csv_files(filepath)
 
     assert len(stats_from_csv) == 4
-    assert next(
-        s for s in stats_from_csv if s.strong_id == "id_a0"
-    ) == sinter.TaskStats(
+    assert next(s for s in stats_from_csv if s.strong_id == "id_a0") == sinter.TaskStats(
         strong_id="id_a0",
         decoder="pymatching",
         shots=11_000_000,

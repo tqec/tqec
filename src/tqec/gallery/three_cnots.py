@@ -1,5 +1,6 @@
 """Block graph that represents three logical CNOT gates compressed in
-spacetime."""
+spacetime.
+"""
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
@@ -29,6 +30,7 @@ def three_cnots(observable_basis: Basis | None = None) -> BlockGraph:
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing the
         three logical CNOT gates compressed in spacetime.
+
     """
     g = BlockGraph("Three CNOTs")
     nodes = [

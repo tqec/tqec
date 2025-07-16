@@ -1,13 +1,15 @@
 import os
 import tempfile
+
 import pytest
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.gallery import cz, memory, cnot
+from tqec.gallery import cnot, memory
+from tqec.interop.collada.read_write_test import rotated_cnot
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 
@@ -26,7 +28,7 @@ def test_block_graph_add_cube() -> None:
     assert g[v].kind == ZXCube.from_str("ZXZ")
     assert v in g
 
-    with pytest.raises(TQECException, match="Cube already exists at position .*"):
+    with pytest.raises(TQECError, match="Cube already exists at position .*"):
         g.add_cube(Position3D(0, 0, 0), "XZX")
 
     v = g.add_cube(Position3D(1, 0, 0), "PORT", "P")
@@ -35,13 +37,13 @@ def test_block_graph_add_cube() -> None:
     assert g.spacetime_volume == 1
     assert g[v].is_port
 
-    with pytest.raises(TQECException, match=".* port with the same label .*"):
+    with pytest.raises(TQECError, match=".* port with the same label .*"):
         g.add_cube(Position3D(10, 0, 0), "P", "P")
 
 
 def test_block_graph_add_pipe() -> None:
     g = BlockGraph()
-    with pytest.raises(TQECException, match="No cube at position .*"):
+    with pytest.raises(TQECError, match="No cube at position .*"):
         g.add_pipe(
             Position3D(0, 0, 0),
             Position3D(1, 0, 0),
@@ -56,14 +58,14 @@ def test_block_graph_add_pipe() -> None:
     assert g.get_degree(u) == 1
     assert len(g.pipes_at(u)) == 1
 
-    with pytest.raises(TQECException, match=".* already a pipe between .*"):
+    with pytest.raises(TQECError, match=".* already a pipe between .*"):
         g.add_pipe(
             Position3D(0, 0, 0),
             Position3D(0, 0, 1),
         )
 
     g.add_cube(Position3D(1, 0, 0), "ZXZ")
-    with pytest.raises(TQECException, match=r"No pipe between .*"):
+    with pytest.raises(TQECError, match=r"No pipe between .*"):
         g.get_pipe(Position3D(0, 0, 0), Position3D(1, 0, 0))
 
 
@@ -95,18 +97,18 @@ def test_block_graph_validate_y_cube() -> None:
     u = g.add_cube(Position3D(0, 0, 0), "ZXZ")
     v = g.add_cube(Position3D(1, 0, 0), "Y")
     g.add_pipe(u, v)
-    with pytest.raises(TQECException, match="has non-timelike pipes connected"):
+    with pytest.raises(TQECError, match="has non-timelike pipes connected"):
         g.validate()
 
     g = BlockGraph()
     n1 = g.add_cube(Position3D(0, 0, 1), "Y")
-    with pytest.raises(TQECException, match="does not have exactly one pipe connected"):
+    with pytest.raises(TQECError, match="does not have exactly one pipe connected"):
         g.validate()
     n2 = g.add_cube(Position3D(0, 0, 0), "ZXZ")
     n3 = g.add_cube(Position3D(0, 0, 2), "ZXZ")
     g.add_pipe(n1, n2)
     g.add_pipe(n1, n3)
-    with pytest.raises(TQECException, match="does not have exactly one pipe connected"):
+    with pytest.raises(TQECError, match="does not have exactly one pipe connected"):
         g.validate()
 
 
@@ -120,7 +122,7 @@ def test_block_graph_validate_3d_corner() -> None:
     g.add_pipe(n2, n3)
     g.add_pipe(n2, n4, "XOZ")
 
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         g.validate()
 
 
@@ -220,7 +222,7 @@ def test_graph_rotation() -> None:
 
     g = BlockGraph()
     g.add_cube(Position3D(0, 0, 0), "Y")
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         g.rotate(Direction3D.X)
     rg = g.rotate(Direction3D.Z)
     assert Position3D(-1, 0, 0) in rg
@@ -229,9 +231,6 @@ def test_graph_rotation() -> None:
 
 @pytest.mark.parametrize("obs_basis", [Basis.Z, Basis.X, None])
 def test_cnot_graph_rotation(obs_basis: Basis | None) -> None:
-    from tqec.interop.collada.read_write_test import rotated_cnot
-    from tqec.gallery.cnot import cnot
-
     g = cnot(obs_basis)
     rg = g.rotate(Direction3D.X, False)
 
@@ -268,7 +267,7 @@ def test_block_graph_to_from_dict() -> None:
     assert g.from_dict(g_dict) == g
 
 
-def test_block_graph_to_from_json() -> None:
+def test_block_graph_to_json() -> None:
     g = BlockGraph("Horizontal Hadamard Line")
     n = g.add_cube(Position3D(0, 0, 0), "ZXZ")
     n2 = g.add_cube(Position3D(1, 0, 0), "P", "In")
@@ -276,15 +275,21 @@ def test_block_graph_to_from_json() -> None:
     json_text = g.to_json(indent=None)
     assert (
         json_text
-        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": ""}, {"position": [1, 0, 0], "kind": "PORT", "label": "In"}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH"}], "ports": {"In": [1, 0, 0]}}"""
+        == """{"name": "Horizontal Hadamard Line", "cubes": [{"position": [0, 0, 0], "kind": "ZXZ", "label": "", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}, {"position": [1, 0, 0], "kind": "PORT", "label": "In", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "pipes": [{"u": [0, 0, 0], "v": [1, 0, 0], "kind": "OXZH", "transform": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]}], "ports": {"In": [1, 0, 0]}}"""  # noqa
     )
-    assert g.from_json(json_text=json_text) == g
 
-    g = cz()
+
+def test_block_graph_from_json() -> None:
+    g = BlockGraph("Horizontal Hadamard Line")
+    n = g.add_cube(Position3D(0, 0, 0), "ZXZ")
+    n2 = g.add_cube(Position3D(1, 0, 0), "ZXZ")
+    g.add_pipe(n, n2, "OXZH")
+
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as temp_file:
         g.to_json(temp_file.name)
-        read_g = BlockGraph.from_json(temp_file.name)
+        read_g = BlockGraph.from_json(temp_file.name, "simple_test")
         assert read_g == g
+
     os.remove(temp_file.name)
 
 

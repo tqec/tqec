@@ -1,5 +1,6 @@
 """This is an example of compiling a logical CNOT `.dae` model to
-`stim.Circuit`."""
+`stim.Circuit`.
+"""
 
 from pathlib import Path
 from typing import Literal
@@ -14,10 +15,10 @@ from tqec.compile.specs.library.zxxz import (
     ZXXZ_SUBSTITUTION_BUILDER,
 )
 from tqec.gallery.cnot import cnot
-from tqec.utils.enums import Basis
-from tqec.utils.noise_model import NoiseModel
 from tqec.simulation.plotting.inset import plot_observable_as_inset
 from tqec.simulation.simulation import start_simulation_using_sinter
+from tqec.utils.enums import Basis
+from tqec.utils.noise_model import NoiseModel
 
 EXAMPLE_FOLDER = Path(__file__).parent
 TQEC_FOLDER = EXAMPLE_FOLDER.parent
@@ -35,9 +36,7 @@ def generate_graphs(style: Literal["css", "zxxz"], observable_basis: Basis) -> N
     # correlation_surfaces = [correlation_surfaces[0]]
 
     block_builder = CSS_BLOCK_BUILDER if style == "css" else ZXXZ_BLOCK_BUILDER
-    substitution_builder = (
-        CSS_SUBSTITUTION_BUILDER if style == "css" else ZXXZ_SUBSTITUTION_BUILDER
-    )
+    substitution_builder = CSS_SUBSTITUTION_BUILDER if style == "css" else ZXXZ_SUBSTITUTION_BUILDER
     stats = start_simulation_using_sinter(
         block_graph,
         range(1, 4),
@@ -68,8 +67,7 @@ def generate_graphs(style: Literal["css", "zxxz"], observable_basis: Basis) -> N
         ax.loglog()
         ax.set_title(f"{style.upper()} Logical CNOT Error Rate")
         fig.savefig(
-            ASSETS_FOLDER
-            / f"{style}_logical_cnot_result_{observable_basis}_observable_{i}.png"
+            ASSETS_FOLDER / f"{style}_logical_cnot_result_{observable_basis}_observable_{i}.png"
         )
 
 

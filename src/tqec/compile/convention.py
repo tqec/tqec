@@ -3,17 +3,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from tqec.compile.observables.fixed_boundary_builder import (
+    FIXED_BOUNDARY_OBSERVABLE_BUILDER,
+)
 from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
-from tqec.compile.observables.fixed_parity_builder import (
-    FIXED_PARITY_OBSERVABLE_BUILDER,
+from tqec.compile.specs.library.fixed_boundary import (
+    FIXED_BOUNDARY_CUBE_BUILDER,
+    FIXED_BOUNDARY_PIPE_BUILDER,
 )
 from tqec.compile.specs.library.fixed_bulk import (
     FIXED_BULK_CUBE_BUILDER,
     FIXED_BULK_PIPE_BUILDER,
-)
-from tqec.compile.specs.library.fixed_parity import (
-    FIXED_PARITY_CUBE_BUILDER,
-    FIXED_PARITY_PIPE_BUILDER,
 )
 
 if TYPE_CHECKING:
@@ -42,6 +42,9 @@ class Convention:
     name: str
     triplet: ConventionTriplet
 
+    def __str__(self) -> str:
+        return self.name
+
 
 FIXED_BULK_CONVENTION = Convention(
     "fixed_bulk",
@@ -50,13 +53,13 @@ FIXED_BULK_CONVENTION = Convention(
     ),
 )
 
-FIXED_PARITY_CONVENTION = Convention(
-    "fixed_parity",
+FIXED_BOUNDARY_CONVENTION = Convention(
+    "fixed_boundary",
     ConventionTriplet(
-        FIXED_PARITY_CUBE_BUILDER,
-        FIXED_PARITY_PIPE_BUILDER,
-        FIXED_PARITY_OBSERVABLE_BUILDER,
+        FIXED_BOUNDARY_CUBE_BUILDER,
+        FIXED_BOUNDARY_PIPE_BUILDER,
+        FIXED_BOUNDARY_OBSERVABLE_BUILDER,
     ),
 )
 
-ALL_CONVENTIONS = {conv.name: conv for conv in [FIXED_BULK_CONVENTION]}
+ALL_CONVENTIONS = {conv.name: conv for conv in [FIXED_BULK_CONVENTION, FIXED_BOUNDARY_CONVENTION]}

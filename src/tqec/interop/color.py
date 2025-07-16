@@ -15,6 +15,7 @@ class RGBA:
         g: Green component of the color, in the range [0, 255].
         b: Blue component of the color, in the range [0, 255].
         a: Alpha component of the color, in the range [0, 1].
+
     """
 
     r: int
@@ -30,6 +31,7 @@ class RGBA:
 
         Returns:
             A new RGBA with the same color but a different alpha value.
+
         """
         return RGBA(self.r, self.g, self.b, a)
 
@@ -39,6 +41,7 @@ class RGBA:
 
         Returns:
             Length 4 tuple of floats representing the color.
+
         """
         return (self.r / 255, self.g / 255, self.b / 255, self.a)
 
@@ -47,6 +50,7 @@ class RGBA:
 
         Returns:
             The color as a hexadecimal string.
+
         """
         return f"#{self.r:02x}{self.g:02x}{self.b:02x}"
 
@@ -79,7 +83,8 @@ class TQECColor(Enum):
 
     def with_zx_flipped(self) -> TQECColor:
         """Returns a ``X`` or ``Z`` color from a ``Z`` or ``X`` color and vice
-        versa."""
+        versa.
+        """
         if self == TQECColor.X:
             return TQECColor.Z
         if self == TQECColor.Z:

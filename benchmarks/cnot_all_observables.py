@@ -5,11 +5,11 @@ import stim
 from tqecd.construction import annotate_detectors_automatically
 
 from tqec.compile.compile import compile_block_graph
-from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.convention import FIXED_BULK_CONVENTION
+from tqec.compile.graph import TopologicalComputationGraph
+from tqec.gallery import cnot
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
-from tqec.gallery import cnot
 
 BENCHMARK_FOLDER = Path(__file__).resolve().parent
 TQEC_FOLDER = BENCHMARK_FOLDER.parent

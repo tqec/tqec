@@ -1,11 +1,12 @@
 import os
 import tempfile
+from pathlib import Path
 
 import pytest
-from pathlib import Path
+
 from tqec.computation.block_graph import BlockGraph
-from tqec.gallery.cnot import cnot
 from tqec.computation.cube import ZXCube
+from tqec.gallery.cnot import cnot
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.position import Position3D
@@ -23,8 +24,8 @@ def rotated_cnot(observable_basis: Basis | None = None) -> BlockGraph:
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing
         the logical CNOT gate.
-    """
 
+    """
     g = BlockGraph()
 
     nodes = [
@@ -73,8 +74,8 @@ def test_logical_cnot_collada_write_read(pipe_length: float) -> None:
 def test_rotated_cnot_collada_write_read() -> None:
     block_graph = rotated_cnot(Basis.Z)
 
-    ROTATED_CNOT_DAE = Path(__file__).parent / "test_files/rotated_cnot.dae"
-    block_graph_from_file = BlockGraph.from_dae_file(ROTATED_CNOT_DAE)
+    rotated_cnot_dae_path = Path(__file__).parent / "test_files/rotated_cnot.dae"
+    block_graph_from_file = BlockGraph.from_dae_file(rotated_cnot_dae_path)
 
     assert block_graph_from_file == block_graph
 

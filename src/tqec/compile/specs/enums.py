@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from enum import Flag, auto
-from typing import Iterator
+
+from tqec.computation.block_graph import BlockGraph
+from tqec.computation.cube import Cube
+from tqec.utils.exceptions import TQECError
 
 
 class SpatialArms(Flag):
@@ -11,8 +15,41 @@ class SpatialArms(Flag):
     DOWN = auto()
     LEFT = auto()
 
+    @staticmethod
+    def from_cube_in_graph(cube: Cube, graph: BlockGraph) -> SpatialArms:
+        """Returns the spatial arms of a cube in a block graph."""
+        if not cube.is_spatial:
+            return SpatialArms.NONE
+        pos = cube.position
+        if pos not in graph or graph[pos] != cube:
+            raise TQECError(f"Cube {cube} is not in the graph.")
+        spatial_arms = SpatialArms.NONE
+        for flag, shift in SpatialArms.get_map_from_arm_to_shift().items():
+            if graph.has_pipe_between(pos, pos.shift_by(*shift)):
+                spatial_arms |= flag
+        return spatial_arms
+
+    @property
+    def has_spatial_arm_in_both_dimensions(self) -> bool:
+        """Checks if the spatial arms have arms in both spatial dimensions."""
+        return (SpatialArms.DOWN in self or SpatialArms.UP in self) and (
+            SpatialArms.LEFT in self or SpatialArms.RIGHT in self
+        )
+
     @classmethod
     def get_map_from_arm_to_shift(cls) -> dict[SpatialArms, tuple[int, int]]:
+        """Return a mapping from any **single** arm to the shift needed to get the cube at the other
+        end of that arm.
+
+        If a block ``B`` has a LEFT arm, the other end of the arm is the coordinates of ``B``
+        shifted by ``(-1, 0)``. Hence,
+        ``SpatialArms.get_map_from_arm_to_shift()[SpatialArms.LEFT] == (-1 0)``.
+
+        Warning:
+            In TQEC convention, the ``Y`` axis is pointing **downwards**. That means that UP is
+            linked to ``(0, -1)`` in the returned dictionary.
+
+        """
         return {
             cls.UP: (0, -1),
             cls.RIGHT: (1, 0),
@@ -22,6 +59,10 @@ class SpatialArms(Flag):
 
     @staticmethod
     def I_shaped_arms() -> list[SpatialArms]:
+        """Return the 2 arm combinations that form a I-shape.
+
+        The 2 combinations are UP | DOWN and LEFT | RIGHT.
+        """
         return [
             SpatialArms.DOWN | SpatialArms.UP,
             SpatialArms.LEFT | SpatialArms.RIGHT,
@@ -29,6 +70,10 @@ class SpatialArms(Flag):
 
     @staticmethod
     def L_shaped_arms() -> list[SpatialArms]:
+        """Return the 4 arm combinations that form a L-shape.
+
+        The 4 combinations are DOWN | LEFT, DOWN | RIGHT, UP | LEFT and UP | RIGHT.
+        """
         return [
             SpatialArms.DOWN | SpatialArms.LEFT,
             SpatialArms.DOWN | SpatialArms.RIGHT,
@@ -38,6 +83,7 @@ class SpatialArms(Flag):
 
     @staticmethod
     def T_shaped_arms() -> list[SpatialArms]:
+        """Return the 4 arm combinations that form a T-shape."""
         return [
             SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP,
             SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT,
@@ -47,12 +93,12 @@ class SpatialArms(Flag):
 
     @staticmethod
     def X_shaped_arms() -> list[SpatialArms]:
-        return [
-            SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT
-        ]
+        """Return the only arm combinations that form a X-shape (i.e., all the arms)."""
+        return [SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT]
 
     @staticmethod
     def single_arms() -> list[SpatialArms]:
+        """Return the 4 possible single arms."""
         return [
             SpatialArms.UP,
             SpatialArms.RIGHT,

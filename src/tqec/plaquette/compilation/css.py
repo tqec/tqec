@@ -1,6 +1,5 @@
 from typing import Final
 
-from tqec.utils.enums import Basis
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.compilation.passes.controlled_gate_basis import (
     ChangeControlledGateBasisPass,
@@ -12,6 +11,7 @@ from tqec.plaquette.compilation.passes.reset_basis import ChangeResetBasisPass
 from tqec.plaquette.compilation.passes.scheduling import ChangeSchedulePass
 from tqec.plaquette.compilation.passes.sort_targets import SortTargetsPass
 from tqec.plaquette.compilation.passes.transformer import ScheduleConstant
+from tqec.utils.enums import Basis
 
 
 def _add_hadamard(mergeable_instructions: frozenset[str]) -> frozenset[str]:
@@ -29,9 +29,7 @@ CSSPlaquetteCompiler: Final[PlaquetteCompiler] = PlaquetteCompiler(
         # Change measurement basis when needed
         ChangeMeasurementBasisPass(Basis.Z),
         # Change controlled gate basis when needed (CZ -> CX)
-        ChangeControlledGateBasisPass(
-            Basis.X, ScheduleConstant(1), ScheduleConstant(7)
-        ),
+        ChangeControlledGateBasisPass(Basis.X, ScheduleConstant(1), ScheduleConstant(7)),
         # Sort the instruction targets to normalize the circuits.
         SortTargetsPass(),
     ],

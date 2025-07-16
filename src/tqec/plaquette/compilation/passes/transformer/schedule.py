@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from typing_extensions import override
 
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 class ScheduleFunction(ABC):
@@ -11,6 +11,7 @@ class ScheduleFunction(ABC):
 
     @abstractmethod
     def __call__(self, input_schedule: int) -> int:
+        """Transform the provided ``input_schedule`` to a new schedule and return it."""
         pass
 
 
@@ -33,9 +34,9 @@ class ScheduleConstant(ScheduleFunction):
 
     def __post_init__(self) -> None:
         if self.constant < 0:
-            raise TQECException(
-                "Cannot have a negative schedule. The provided constant is "
-                f"negative: {self.constant}."
+            raise TQECError(
+                "Cannot have a negative schedule. "
+                f"The provided constant is negative: {self.constant}."
             )
 
     @override

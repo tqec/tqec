@@ -12,7 +12,7 @@ from tqec.compile.tree.annotations import DetectorAnnotation
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 @dataclass(frozen=True)
@@ -33,6 +33,7 @@ class LookbackInformation:
             circuit and then extracting the measurement records from it, but it
             turns out that we already have access to these records when creating
             such a structure, so we store them to avoid re-computing.
+
     """
 
     template: Template
@@ -53,20 +54,22 @@ class LookbackInformationList:
         measurement_records: MeasurementRecordsMap,
     ) -> None:
         """Add the provided parameters to the lookback window, potentially removing
-        older items that should not be considered anymore."""
-        self.infos.append(
-            LookbackInformation(template, plaquettes, measurement_records)
-        )
+        older items that should not be considered anymore.
+        """
+        self.infos.append(LookbackInformation(template, plaquettes, measurement_records))
 
     def extend(self, other: LookbackInformationList, repetitions: int = 1) -> None:
+        """Add the provided lookback information to self, potentially repeating it several times.
+
+        This method can be used when exiting a REPEAT block to update the lookback information by
+        taking into account that it might be repeated several times.
+        """
         self.infos.extend(other.infos * repetitions)
 
     def __len__(self) -> int:
         return len(self.infos)
 
-    def __getitem__(
-        self, index: int | slice
-    ) -> LookbackInformation | list[LookbackInformation]:
+    def __getitem__(self, index: int | slice) -> LookbackInformation | list[LookbackInformation]:
         return self.infos[index]
 
 
@@ -85,19 +88,16 @@ class LookbackStack:
         self._stack: list[LookbackInformationList] = [LookbackInformationList()]
 
     def enter_repeat_block(self) -> None:
+        """Append a new entry to the stack."""
         self._stack.append(LookbackInformationList())
 
     def close_repeat_block(self, repetitions: int) -> None:
+        """Remove the last entry on the stack, repeating it as needed into the new last entry."""
         if len(self._stack) < 2:
-            raise TQECException(
+            raise TQECError(
                 f"Only got {len(self._stack)} < 2 entries in the stack. That "
                 "means that we are not in a REPEAT block. Cannot call "
                 "close_repeat_block()."
-            )
-        if repetitions < 1:
-            raise TQECException(
-                "Cannot have a REPEAT block with less than 1 repetitions. Got "
-                f"{repetitions} repetitions."
             )
         self._stack[-2].extend(self._stack[-1], repetitions)
         self._stack.pop(-1)
@@ -115,9 +115,8 @@ class LookbackStack:
         self, n: int
     ) -> tuple[list[Template], list[Plaquettes], list[MeasurementRecordsMap]]:
         if n < 0:
-            raise TQECException(
-                "Cannot look back a negative number of rounds. Got a lookback "
-                f"value of {n}."
+            raise TQECError(
+                f"Cannot look back a negative number of rounds. Got a lookback value of {n}."
             )
         if n == 0:
             return [], [], []
@@ -149,9 +148,8 @@ class LookbackStack:
 
     def __len__(self) -> int:
         if len(self._stack) > 1:
-            raise TQECException(
-                "Cannot get a meaningful stack length when a REPEAT block is "
-                "in construction."
+            raise TQECError(
+                "Cannot get a meaningful stack length when a REPEAT block is in construction."
             )
         return len(self._stack[0])
 
@@ -164,6 +162,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
         detector_database: DetectorDatabase | None = None,
         only_use_database: bool = False,
         lookback: int = 2,
+        parallel_process_count: int = 1,
     ):
         """Walker computing and annotating detectors on leaf nodes.
 
@@ -189,18 +188,24 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
                 in the database is encountered. Default to ``False``.
             lookback_size: number of QEC rounds to consider to try to find
                 detectors. Including more rounds increases computation time.
+            parallel_process_count: number of processes to use for parallel processing.
+                1 for sequential processing, >1 for parallel processing using
+                ``parallel_process_count`` processes, and -1 for using all available
+                CPU cores. Default to 1.
+
         """
         if lookback < 1:
-            raise TQECException(
+            raise TQECError(
                 "Cannot compute detectors without any layer. The `lookback` "
                 f"parameter should be >= 1 but got {lookback}."
             )
         self._k = k
         self._manhattan_radius = manhattan_radius
-        self._database = detector_database
+        self._database = detector_database if detector_database is not None else DetectorDatabase()
         self._only_use_database = only_use_database
         self._lookback_size = lookback
         self._lookback_stack = LookbackStack()
+        self._parallel_process_count = parallel_process_count
 
     @override
     def visit_node(self, node: LayerNode) -> None:
@@ -208,9 +213,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             return
         annotations = node.get_annotations(self._k)
         if annotations.circuit is None:
-            raise TQECException(
-                "Cannot compute detectors without the circuit annotation."
-            )
+            raise TQECError("Cannot compute detectors without the circuit annotation.")
         self._lookback_stack.append(
             *node._layer.to_template_and_plaquettes(),
             MeasurementRecordsMap.from_scheduled_circuit(annotations.circuit),
@@ -226,6 +229,7 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             self._manhattan_radius,
             self._database,
             self._only_use_database,
+            self._parallel_process_count,
         )
 
         for detector in detectors:

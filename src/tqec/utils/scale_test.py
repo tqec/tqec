@@ -1,13 +1,11 @@
 import pytest
 
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shape2D
 from tqec.utils.scale import LinearFunction, Scalable2D, round_or_fail
 
 
-@pytest.mark.parametrize(
-    "slope,offset", [(0, 0), (2, 0), (1, 0), (0, 4), (-1, 5), (2, -1)]
-)
+@pytest.mark.parametrize("slope,offset", [(0, 0), (2, 0), (1, 0), (0, 4), (-1, 5), (2, -1)])
 def test_linear_function(slope: int, offset: int) -> None:
     f = LinearFunction(slope, offset)
     assert f(10) == slope * 10 + offset
@@ -49,17 +47,17 @@ def test_scalable_2d_shape() -> None:
 
 
 def test_scalable_2d_add() -> None:
-    A = Scalable2D(LinearFunction(0, 0), LinearFunction(1, 0))
-    B = Scalable2D(LinearFunction(-12, 0), LinearFunction(1, 5))
-    C = Scalable2D(LinearFunction(-12, 0), LinearFunction(2, 5))
-    assert A + B == C
+    a = Scalable2D(LinearFunction(0, 0), LinearFunction(1, 0))
+    b = Scalable2D(LinearFunction(-12, 0), LinearFunction(1, 5))
+    c = Scalable2D(LinearFunction(-12, 0), LinearFunction(2, 5))
+    assert a + b == c
 
 
 def test_round_or_fail() -> None:
     round_or_fail(1.0)
     round_or_fail(0.0)
     round_or_fail(-13.0)
-    with pytest.raises(TQECException, match=r"^Rounding from 3.1 to integer failed.$"):
+    with pytest.raises(TQECError, match=r"^Rounding from 3.1 to integer failed.$"):
         round_or_fail(3.1)
 
 
@@ -80,9 +78,9 @@ def test_exact_integer_div() -> None:
     assert b.exact_integer_div(3) == LinearFunction(0, 2)
     assert b.exact_integer_div(-3) == LinearFunction(0, -2)
     assert b.exact_integer_div(6) == LinearFunction(0, 1)
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         b.exact_integer_div(5)
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         a.exact_integer_div(3)
     with pytest.raises(ZeroDivisionError):
         a.exact_integer_div(0)
@@ -109,3 +107,26 @@ def test_is_close_to() -> None:
     assert not LinearFunction(0, 0).is_close_to(LinearFunction(1, 0))
     assert LinearFunction(0, 0).is_close_to(LinearFunction(0, 0))
     assert LinearFunction(0, 0).is_close_to(LinearFunction(0, -0))
+
+
+def test_unambiguous_max_on_positives() -> None:
+    assert LinearFunction.unambiguous_max_on_positives(
+        [LinearFunction(i, 0) for i in range(10)]
+    ) == LinearFunction(9, 0)
+    assert LinearFunction.unambiguous_max_on_positives(
+        [LinearFunction(0, i) for i in range(10)]
+    ) == LinearFunction(0, 9)
+    with pytest.raises(TQECError, match="^Could not find a unambiguous maximum.*"):
+        # Ambiguous because LinearFunction(0, 1) > LinearFunction(1, 0) for the input in [0, 1], but
+        # the opposite for [1, infinity].
+        LinearFunction.unambiguous_max_on_positives([LinearFunction(0, 1), LinearFunction(1, 0)])
+
+
+def test_safe_mul() -> None:
+    smul = LinearFunction.safe_mul
+    for i in range(1, 10):
+        lf = LinearFunction(i, i)
+        assert smul(lf, LinearFunction(0, 0)) == LinearFunction(0, 0)
+        assert smul(lf, LinearFunction(0, 1)) == lf
+        with pytest.raises(TQECError):
+            smul(lf, lf)

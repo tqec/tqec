@@ -59,15 +59,13 @@ def test_count_qubit_accesses() -> None:
     assert count_qubit_accesses(stim.Circuit("QUBIT_COORDS(0, 0) 0")) == {}
     assert count_qubit_accesses(stim.Circuit("DETECTOR(0) rec[-1]")) == {}
     assert count_qubit_accesses(stim.Circuit("CX rec[-1] 0")) == {0: 1}
-    assert count_qubit_accesses(stim.Circuit("H 0 0 1 1 2 2 3 3")) == {
-        i: 2 for i in range(4)
-    }
+    assert count_qubit_accesses(stim.Circuit("H 0 0 1 1 2 2 3 3")) == {i: 2 for i in range(4)}
     assert count_qubit_accesses(stim.Circuit("H 0 1 2 3\nTICK\nH 0 1 2 3")) == {
         i: 2 for i in range(4)
     }
-    assert count_qubit_accesses(
-        stim.Circuit("REPEAT 34{\nH 0 1 2 3\nTICK\nH 0 1 2 3\n}")
-    ) == {i: 34 * 2 for i in range(4)}
+    assert count_qubit_accesses(stim.Circuit("REPEAT 34{\nH 0 1 2 3\nTICK\nH 0 1 2 3\n}")) == {
+        i: 34 * 2 for i in range(4)
+    }
 
 
 def test_used_qubit_indices() -> None:
@@ -75,12 +73,8 @@ def test_used_qubit_indices() -> None:
     assert get_used_qubit_indices(stim.Circuit("QUBIT_COORDS(0, 0) 0")) == frozenset()
     assert get_used_qubit_indices(stim.Circuit("DETECTOR(0) rec[-1]")) == frozenset()
     assert get_used_qubit_indices(stim.Circuit("CX rec[-1] 0")) == frozenset([0])
-    assert get_used_qubit_indices(stim.Circuit("H 0 0 1 1 2 2 3 3")) == frozenset(
-        range(4)
-    )
-    assert get_used_qubit_indices(
-        stim.Circuit("H 0 1 2 3\nTICK\nH 0 1 2 3")
-    ) == frozenset(range(4))
+    assert get_used_qubit_indices(stim.Circuit("H 0 0 1 1 2 2 3 3")) == frozenset(range(4))
+    assert get_used_qubit_indices(stim.Circuit("H 0 1 2 3\nTICK\nH 0 1 2 3")) == frozenset(range(4))
     assert get_used_qubit_indices(
         stim.Circuit("REPEAT 34{\nH 0 1 2 3\nTICK\nH 0 1 2 3\n}")
     ) == frozenset(range(4))
@@ -90,9 +84,9 @@ def test_to_qubit_coords_instruction() -> None:
     assert GridQubit(0, 0).to_qubit_coords_instruction(0) == stim.CircuitInstruction(
         "QUBIT_COORDS", [0], [0, 0]
     )
-    assert GridQubit(0, 0).to_qubit_coords_instruction(
-        34789
-    ) == stim.CircuitInstruction("QUBIT_COORDS", [34789], [0, 0])
+    assert GridQubit(0, 0).to_qubit_coords_instruction(34789) == stim.CircuitInstruction(
+        "QUBIT_COORDS", [34789], [0, 0]
+    )
     assert GridQubit(-1, 1).to_qubit_coords_instruction(0) == stim.CircuitInstruction(
         "QUBIT_COORDS", [0], [-1, 1]
     )

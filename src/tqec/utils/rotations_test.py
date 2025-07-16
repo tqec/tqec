@@ -2,11 +2,11 @@ from typing import TypedDict
 
 import numpy as np
 import numpy.typing as npt
-from pytest import raises
 import pytest
+from pytest import raises
 
-from tqec.utils.exceptions import TQECException
 from tqec.computation.block_graph import block_kind_from_str
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 from tqec.utils.rotations import (
     calc_rotation_angles,
@@ -66,9 +66,7 @@ valid_rotations: list[RotDict] = [
         "rotated_kind": "ZOX",
     },
     {
-        "rotate_matrix": np.array(
-            [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]]
-        ),
+        "rotate_matrix": np.array([[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]]),
         "kind": "ZOX",
         "rotated_kind": "ZOX",
     },
@@ -93,9 +91,7 @@ valid_rotations: list[RotDict] = [
         "rotated_kind": "Y",
     },
     {
-        "rotate_matrix": np.array(
-            [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0]]
-        ),
+        "rotate_matrix": np.array([[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0]]),
         "kind": "Y",
         "rotated_kind": "Y",
     },
@@ -118,9 +114,7 @@ invalid_y_rotations: list[RotDict] = [
         "rotated_kind": "Y",
     },
     {
-        "rotate_matrix": np.array(
-            [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]
-        ),
+        "rotate_matrix": np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]]),
         "kind": "Y",
         "rotated_kind": "Y",
     },
@@ -133,28 +127,26 @@ invalid_y_rotations: list[RotDict] = [
 
 
 def test_calc_rotation_angles() -> None:
-    for i, M in enumerate(rotation_matrices_for_testing):
-        R = calc_rotation_angles(M)
-        assert R.all() == confirm_angles[i].all()
+    for i, matrix in enumerate(rotation_matrices_for_testing):
+        rotation_angles = calc_rotation_angles(matrix)
+        assert rotation_angles.all() == confirm_angles[i].all()
 
 
 def test_get_axes_directions() -> None:
-    for i, M in enumerate(rotation_matrices_for_testing):
-        R = get_axes_directions(M)
-        assert R == confirm_directions[i]
+    for i, matrix in enumerate(rotation_matrices_for_testing):
+        rotation_angles = get_axes_directions(matrix)
+        assert rotation_angles == confirm_directions[i]
 
 
 def test_rotate_block_kind() -> None:
     for transformation in valid_rotations:
         kind = block_kind_from_str(transformation["kind"])
-        rotated_kind = rotate_block_kind_by_matrix(
-            kind, transformation["rotate_matrix"]
-        )
+        rotated_kind = rotate_block_kind_by_matrix(kind, transformation["rotate_matrix"])
         assert str(rotated_kind) == transformation["rotated_kind"]
 
 
 def test_invalid_y_rotations() -> None:
-    with raises(TQECException):
+    with raises(TQECError):
         for transformation in invalid_y_rotations:
             kind = block_kind_from_str(transformation["kind"])
             rotate_block_kind_by_matrix(kind, transformation["rotate_matrix"])

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from itertools import chain
-from typing import Iterable, Mapping, Sequence
 
 from typing_extensions import override
 
@@ -9,7 +9,7 @@ from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
@@ -31,7 +31,8 @@ class SequencedLayers(BaseComposedLayer):
                 removed from the layer.
 
         Raises:
-            TQECException: if the provided ``layer_sequence`` is empty.
+            TQECError: if the provided ``layer_sequence`` is empty.
+
         """
         super().__init__(trimmed_spatial_borders)
         self._layer_sequence = layer_sequence
@@ -39,11 +40,12 @@ class SequencedLayers(BaseComposedLayer):
 
     @property
     def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:
+        """Get the sequence of layers stored by ``self``."""
         return self._layer_sequence
 
     def _post_init_check(self) -> None:
         if len(self.layer_sequence) < 1:
-            raise TQECException(
+            raise TQECError(
                 f"An instance of {type(self).__name__} is expected to have "
                 f"at least one layer. Found {len(self.layer_sequence)}."
             )
@@ -72,15 +74,13 @@ class SequencedLayers(BaseComposedLayer):
         scalable_shape = self._layer_sequence[0].scalable_shape
         for layer in self._layer_sequence[1:]:
             if layer.scalable_shape != scalable_shape:
-                raise TQECException("Found a different scalable shape.")
+                raise TQECError("Found a different scalable shape.")
         return scalable_shape
 
     def _layers_with_spatial_borders_trimmed(
         self, borders: Iterable[SpatialBlockBorder]
     ) -> list[BaseLayer | BaseComposedLayer]:
-        return [
-            layer.with_spatial_borders_trimmed(borders) for layer in self.layer_sequence
-        ]
+        return [layer.with_spatial_borders_trimmed(borders) for layer in self.layer_sequence]
 
     @override
     def with_spatial_borders_trimmed(
@@ -141,7 +141,7 @@ class SequencedLayers(BaseComposedLayer):
     ) -> SequencedLayers:
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot transform the {SequencedLayers.__name__} instance to a "
                 f"{SequencedLayers.__name__} instance with the provided schedule. "
                 f"The provided schedule has a duration of {duration} but the "
@@ -150,18 +150,23 @@ class SequencedLayers(BaseComposedLayer):
         if self.schedule == schedule:
             return self
         raise NotImplementedError(
-            f"Adapting a {SequencedLayers.__name__} instance to another schedule "
-            "is not yet implemented."
+            f"Adapting a {SequencedLayers.__name__} instance to another "
+            "schedule is not yet implemented."
         )
 
     def __eq__(self, value: object) -> bool:
-        return (
-            isinstance(value, SequencedLayers)
-            and self.layer_sequence == value.layer_sequence
-        )
+        return isinstance(value, SequencedLayers) and self.layer_sequence == value.layer_sequence
 
     @override
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
         return self._layer_sequence[
             0 if border == TemporalBlockBorder.Z_NEGATIVE else -1
         ].get_temporal_layer_on_border(border)
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return sum(
+            (layer.scalable_num_moments for layer in self.layer_sequence),
+            start=LinearFunction(0, 0),
+        )

@@ -49,9 +49,7 @@ def test_pipe_kind_from_cube_kind() -> None:
 
 
 def test_pipe() -> None:
-    with pytest.raises(
-        Exception, match="The pipe must connect two nearby cubes in direction Y."
-    ):
+    with pytest.raises(Exception, match="The pipe must connect two nearby cubes in direction Y."):
         Pipe(
             Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
             Cube(Position3D(1, 0, 0), ZXCube.from_str("XXZ")),

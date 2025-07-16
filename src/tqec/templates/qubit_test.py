@@ -8,7 +8,7 @@ from tqec.templates.qubit import (
     QubitTemplate,
     QubitVerticalBorders,
 )
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
@@ -112,12 +112,11 @@ def test_horizontal_borders_template_borders_indices() -> None:
     instantiation = template.instantiate(2)
 
     expected_error_message = (
-        "Template QubitHorizontalBorders does not have repeating elements "
-        "on the {} border."
+        "Template QubitHorizontalBorders does not have repeating elements on the {} border."
     )
-    with pytest.raises(TQECException, match=expected_error_message.format("LEFT")):
+    with pytest.raises(TQECError, match=expected_error_message.format("LEFT")):
         template.get_border_indices(TemplateBorder.LEFT)
-    with pytest.raises(TQECException, match=expected_error_message.format("RIGHT")):
+    with pytest.raises(TQECError, match=expected_error_message.format("RIGHT")):
         template.get_border_indices(TemplateBorder.RIGHT)
     assert list(template.get_border_indices(TemplateBorder.TOP)) == [
         instantiation[0][i] for i in [0, 1, 2, -1]
@@ -162,12 +161,11 @@ def test_vertical_borders_template_borders_indices() -> None:
     instantiation = template.instantiate(2)
 
     expected_error_message = (
-        "Template QubitVerticalBorders does not have repeating elements "
-        "on the {} border."
+        "Template QubitVerticalBorders does not have repeating elements on the {} border."
     )
-    with pytest.raises(TQECException, match=expected_error_message.format("TOP")):
+    with pytest.raises(TQECError, match=expected_error_message.format("TOP")):
         template.get_border_indices(TemplateBorder.TOP)
-    with pytest.raises(TQECException, match=expected_error_message.format("BOTTOM")):
+    with pytest.raises(TQECError, match=expected_error_message.format("BOTTOM")):
         template.get_border_indices(TemplateBorder.BOTTOM)
     assert list(template.get_border_indices(TemplateBorder.LEFT)) == [
         instantiation[i][0] for i in [0, 1, 2, -1]

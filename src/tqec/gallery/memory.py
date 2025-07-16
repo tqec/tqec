@@ -14,6 +14,7 @@ def memory(observable_basis: Basis = Basis.Z) -> BlockGraph:
 
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance.
+
     """
     g = BlockGraph(f"Logical {observable_basis} Memory Experiment")
     node_kind = f"ZX{observable_basis.value}"

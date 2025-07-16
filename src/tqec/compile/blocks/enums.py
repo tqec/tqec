@@ -13,6 +13,7 @@ class SpatialBlockBorder(Enum):
     Y_POSITIVE = SignedDirection3D(Direction3D.Y, True)
 
     def to_template_border(self) -> TemplateBorder:
+        """Return the template border corresponding to ``self``."""
         match self:
             case SpatialBlockBorder.X_NEGATIVE:
                 return TemplateBorder.LEFT
@@ -46,6 +47,7 @@ def border_from_signed_direction(
 
         For example, if ``"+X"`` is provided, the returned border will be
         ``SpatialBlockBorder.X_POSITIVE``
+
     """
     match direction:
         case SignedDirection3D(Direction3D.Z, _):
