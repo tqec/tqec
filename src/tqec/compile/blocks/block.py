@@ -120,6 +120,9 @@ class Block(SequencedLayers):
     def __eq__(self, value: object) -> bool:
         return isinstance(value, Block) and super().__eq__(value)
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
 
 def merge_parallel_block_layers(
     blocks_in_parallel: Mapping[LayoutPosition2D, Block],
