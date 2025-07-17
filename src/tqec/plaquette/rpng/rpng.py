@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, Sequence
+
+from tqec.circuit.schedule.schedule import Schedule
+from tqec.utils.enums import Basis
 
 
 class PauliBasis(Enum):
@@ -222,6 +225,22 @@ class RPNGDescription:
         if len(rpng_objs) != 4:
             raise ValueError("There must be 4 corners in the RPNG description.")
         return cls(rpng_objs, ancilla_rg)
+
+    @classmethod
+    def from_basis_and_schedule(
+        cls,
+        basis: Basis,
+        schedule: Sequence[int] | Schedule,
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
+    ) -> RPNGDescription:
+        """Initialize the RPNGDescription object from a basis and a schedule."""
+        r = "-" if reset is None else reset.value
+        m = "-" if measurement is None else measurement.value
+        rpng_objs = tuple([RPNG.from_string(f"{r}{basis.value.lower()}{s}{m}") for s in schedule])
+        if len(rpng_objs) != 4:
+            raise ValueError("There must be 4 corners in the RPNG description.")
+        return cls(rpng_objs)
 
     @staticmethod
     def empty() -> RPNGDescription:

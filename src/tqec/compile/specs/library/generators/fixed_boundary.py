@@ -224,7 +224,7 @@ class FixedBoundaryConventionGenerator:
 
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_args(b, reset, measurement, is_reversed))
+            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, is_reversed))
             for b in Basis
         }
 
