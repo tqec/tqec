@@ -231,8 +231,8 @@ class RPNGDescription:
         cls,
         basis: Basis,
         schedule: Sequence[int] | Schedule,
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
+        reset: PauliBasis | None = None,
+        measurement: ExtendedBasis | None = None,
     ) -> RPNGDescription:
         """Initialize the RPNGDescription object from a basis and a schedule."""
         r = "-" if reset is None else reset.value
