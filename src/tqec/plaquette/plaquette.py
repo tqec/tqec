@@ -139,7 +139,7 @@ class Plaquette:
         )
 
     def project_on_boundary(self, projected_orientation: PlaquetteOrientation) -> Plaquette:
-        """Project the plaquette on a boundary and returns the projected version.
+        """Project the plaquette on a boundary and return the projected version.
 
         This method is useful for deriving a boundary plaquette from a integral
         plaquette.

@@ -51,7 +51,7 @@ class QubitMap:
         """Creates a qubit map from the provided ``qubits``.
 
         Qubit indices are associated in the order in which ``qubits`` are provided: the first qubit
-        will have index ``0``, the second index ``1``, ...
+        will have index ``0``, the second index ``1`` and so on. 
         """
         return QubitMap(dict(enumerate(qubits)))
 

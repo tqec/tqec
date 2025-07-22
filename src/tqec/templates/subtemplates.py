@@ -125,7 +125,7 @@ def get_spatially_distinct_subtemplates(
     manhattan_radius: int = 1,
     avoid_zero_plaquettes: bool = True,
 ) -> UniqueSubTemplates:
-    r"""Returns a representation of all the distinct sub-templates of the provided manhattan radius.
+    r"""Returns a representation of all the distinct sub-templates of the provided Manhattan radius.
 
     Note:
         This function will likely be inefficient for large templates (i.e.,

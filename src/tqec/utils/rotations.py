@@ -258,7 +258,7 @@ def rotate_on_import(
 
 
 def adjust_hadamards_direction(kind: BlockKind) -> BlockKind:
-    """Inverts the direction of any "h" pipe.
+    """Inverts the direction of any Hadamard pipe.
 
     This function inverts the direction of any "h" pipe when called as applicable (when pipe runs in
     the negative direction on any given axis) by exchanging the kind for the corresponding pair on

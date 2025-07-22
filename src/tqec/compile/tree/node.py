@@ -110,7 +110,7 @@ class LayerNode:
         }
 
     def walk(self, walker: NodeWalker) -> None:
-        """Walk the tree using DFS, calling the different walker methods on each node.
+        """Walk the tree using Depth-First Search (DFS), calling the different walker methods on each node.
 
         Args:
             walker: structure that will be called on each explored node.
@@ -132,7 +132,7 @@ class LayerNode:
         return self._annotations.setdefault(k, LayerNodeAnnotations())
 
     def set_circuit_annotation(self, k: int, circuit: ScheduledCircuit) -> None:
-        """Set the circuit annotation associated with the provided ``k`` to ``circuit``."""
+        """Set the circuit annotation associated with the provided scaling parameter ``k`` to ``circuit``."""
         self.get_annotations(k).circuit = circuit
 
     def generate_circuits_with_potential_polygons(
