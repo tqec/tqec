@@ -31,7 +31,7 @@ class CorrelationSurfaceTransformationHelper:
         self,
         correlation_surface: CorrelationSurface,
     ) -> list[TransformationResult]:
-        """Returns the transformations representing each piece of ``correlation_surface``."""
+        """Returns the transformations representing each piece of the ``correlation_surface``."""
         transformations: list[TransformationResult] = []
 
         # Surfaces in the pipes
