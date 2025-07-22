@@ -437,7 +437,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and</span>
 <span class="sd">   REPEAT blocks (not before the block, the first instruction in the repeated</span>
 <span class="sd">   inner block, and after the block).</span>
-<span class="sd">6. Re-phrase slightly the docstrings.</span>
+<span class="sd">6. Re-phrase the docstrings slightly .</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -656,9 +656,9 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">uniform_depolarizing</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NoiseModel&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Near-standard circuit depolarizing noise.</span>
 
-<span class="sd">        Everything has the same parameter p. Single qubit clifford gates get single qubit</span>
-<span class="sd">        depolarization. Two qubit clifford gates get single qubit depolarization. Dissipative gates</span>
-<span class="sd">        have their result probabilistically bit flipped (or phase flipped if appropriate).</span>
+<span class="sd">        Everything has the same parameter ``p``. Single-qubit Clifford gates get single-qubit</span>
+<span class="sd">        depolarization. Two-qubit Clifford gates get single-qubit depolarization. Dissipative gates</span>
+<span class="sd">        have their result probabilistically bit-flipped (or phase-flipped if appropriate).</span>
 
 <span class="sd">        Non-demolition measurement is treated a bit unusually in that it is the result that is</span>
 <span class="sd">        flipped instead of the input qubit.</span>
