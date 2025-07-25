@@ -1,6 +1,4 @@
-"""Defines the ``CorrelationSurface`` class and the functions to find the
-correlation surfaces in the ZX graph.
-"""
+"""Defines :class:`CorrelationSurface` and functions to find and build them from a ZX graph."""
 
 from __future__ import annotations
 
@@ -49,6 +47,7 @@ class ZXEdge:
     Note that the Pauli operators are represented by `Basis` enum, which only
     contains `X` and `Z` operators. The `Y` operator is represented by two
     edges with `X` and `Z` operators respectively.
+
     """
 
     u: ZXNode
@@ -67,9 +66,9 @@ class ZXEdge:
     def is_self_loop(self) -> bool:
         """Whether the edge is a self-loop edge.
 
-        By definition, a self-loop edge represents a correlation surface
-        within a single node. This is an edge case where the ZX graph
-        only contains a single node.
+        By definition, a self-loop edge represents a correlation surface within a single node. This
+        is an edge case where the ZX graph only contains a single node.
+
         """
         return self.u.id == self.v.id
 
@@ -81,9 +80,10 @@ class ZXEdge:
 
 @dataclass(frozen=True)
 class CorrelationSurface:
-    """A correlation surface in a computation is a set of measurements whose
-    values determine the parity of the logical operators at the inputs and
-    outputs associated with the surface.
+    """Represents a set of measurements whose values determine the parity of the logical operators.
+
+    A correlation surface in a computation is a set of measurements whose values determine the
+    parity of the logical operators at the inputs and outputs associated with the surface.
 
     Note:
         We use the term "correlation surface", "pauli web" and "observable" interchangeably in
@@ -144,9 +144,9 @@ class CorrelationSurface:
     def is_single_node(self) -> bool:
         """Whether the correlation surface contains only a single node.
 
-        This is an edge case where the ZX graph only contains a single
-        node. The span of the correlation surface is a self-loop edge at
-        the node.
+        This is an edge case where the ZX graph only contains a single node. The span of the
+        correlation surface is a self-loop edge at the node.
+
         """
         return len(self.span) == 1 and next(iter(self.span)).is_self_loop()
 
@@ -155,9 +155,7 @@ class CorrelationSurface:
         return {v.id for edge in self.span for v in edge}
 
     def edges_at(self, v: int) -> set[ZXEdge]:
-        """Return the set of edges incident to the vertex in the correlation
-        surface.
-        """
+        """Return the set of edges incident to the vertex in the correlation surface."""
         return {edge for edge in self.span if any(n.id == v for n in edge)}
 
     def external_stabilizer(self, io_ports: list[int]) -> str:
@@ -187,7 +185,7 @@ class CorrelationSurface:
         graph.
 
         Args:
-            g: The block graph to consider.
+            graph: The block graph to consider.
 
         Returns:
             The Pauli operator that is the external stabilizer of the correlation surface.
@@ -207,8 +205,9 @@ class CorrelationSurface:
     def area(self) -> int:
         """Return the area of the correlation surface.
 
-        The area of the correlation surface is the number of nodes it spans.
-        A X node and a Z node with the same id are counted as two nodes.
+        The area of the correlation surface is the number of nodes it spans. A X node and a Z node
+        with the same id are counted as two nodes.
+
         """
         span_nodes = {node for edge in self.span for node in edge}
         return len(span_nodes)

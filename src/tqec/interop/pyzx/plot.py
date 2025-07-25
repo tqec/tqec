@@ -1,6 +1,4 @@
-"""Defines functions to plot positioned ZX graphs and correlation surfaces on
-3D axes with ``matplotlib``.
-"""
+"""Defines functions to plot positioned ZX graphs and correlation surfaces on 3D axes."""
 
 from dataclasses import astuple
 from typing import cast
@@ -40,8 +38,7 @@ def draw_positioned_zx_graph_on(
     hadamard_size: int = 200,
     edge_width: int = 1,
 ) -> None:
-    """Draw the :py:class:`~tqec.interop.pyzx.PositionedZX` on the provided
-    axes.
+    """Draw the :py:class:`~tqec.interop.pyzx.PositionedZX` on the provided axes.
 
     Args:
         graph: The positioned ZX graph to draw.
@@ -104,7 +101,7 @@ def draw_correlation_surface_on(
 
     Args:
         correlation_surface: The correlation surface to draw.
-        positioned_graph: The positioned ZX graph to draw the correlation surface on.
+        graph: The positioned ZX graph to draw the correlation surface on.
         ax: The 3-dimensional ax to draw on.
         correlation_edge_width: The width of the correlation edges. Default is 3.
 
@@ -136,8 +133,7 @@ def plot_positioned_zx_graph(
     hadamard_size: int = 200,
     edge_width: int = 1,
 ) -> tuple[Figure, Axes3D]:
-    """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using
-    matplotlib.
+    """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.
 
     Args:
         graph: The positioned ZX graph to plot.

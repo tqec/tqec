@@ -1,5 +1,4 @@
-r"""Defines a high-level template composing several sub-templates:
-:class:`LayoutTemplate`.
+r"""Defines a high-level template composing several sub-templates: :class:`LayoutTemplate`.
 
 This module defines a :class:`~tqec.templates.base.Template` child class that
 is able to represent several :class:`~tqec.templates.base.RectangularTemplate`
@@ -7,7 +6,7 @@ instances with the same scalable shape. Each of the managed
 :class:`~tqec.templates.base.RectangularTemplate` instance is linked to a unique
 2-dimensional position on an infinite 2-dimensional grid.
 
-Example
+Example:
 -------
 A grid of :math:`2 \times 2` logical qubits can be represented with
 
@@ -90,7 +89,7 @@ class LayoutTemplate(Template):
         element_layout: dict[BlockPosition2D, RectangularTemplate],
         default_increments: Shift2D | None = None,
     ) -> None:
-        """A template representing a layout of other templates.
+        """Implement a template representing a layout of other templates.
 
         Each element template in the layout is placed at a specific position in
         the 2D grid.
@@ -172,9 +171,9 @@ class LayoutTemplate(Template):
     def get_global_plaquettes(
         self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]
     ) -> Plaquettes:
-        """Merge the provided ``individual_plaquettes`` into a single
-        :class:`~tqec.plaquette.plaquette.Plaquettes` instance that can be used
-        to instantiate ``self``.
+        """Merges ``individual_plaquettes`` into a single :class:`.Plaquettes` instance.
+
+        The returned :class:`.Plaquettes` instance can then be used to instantiate ``self``.
 
         Raises:
             TQECError: if the provided ``individual_plaquettes`` does not
@@ -223,7 +222,7 @@ class LayoutTemplate(Template):
     @property
     @override
     def scalable_shape(self) -> PlaquetteScalable2D:
-        """Returns a scalable version of the template shape."""
+        """Return a scalable version of the template shape."""
         return PlaquetteScalable2D(
             self._nx * self._element_scalable_shape.x,
             self._ny * self._element_scalable_shape.y,
@@ -236,8 +235,7 @@ class LayoutTemplate(Template):
     @property
     @override
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the `instantiate`
-        method.
+        """Returns the number of plaquettes expected from the ``instantiate`` method.
 
         Returns:
             the number of plaquettes expected from the `instantiate` method.

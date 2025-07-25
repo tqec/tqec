@@ -1,5 +1,4 @@
-"""Defines :class:`TopologicalComputationGraph` that represents a topological
-computation.
+"""Defines :class:`TopologicalComputationGraph` that represents a topological computation.
 
 ## Design choices
 
@@ -41,6 +40,7 @@ To solve that issue, spatial pipes do not substitute plaquettes in cubes but
 rather remove the cube boundary and implement its own layers.
 
 For temporal pipes, the layers are replaced in-place within block instances.
+
 """
 
 from pathlib import Path
@@ -114,9 +114,7 @@ class TopologicalComputationGraph:
         observable_builder: ObservableBuilder,
         observables: list[AbstractObservable] | None = None,
     ) -> None:
-        """Represents a topological computation with
-        :class:`~tqec.compile.blocks.block.Block` instances.
-        """
+        """Represents a topological computation with :class:`.Block` instances."""
         self._blocks: dict[LayoutPosition3D, Block] = {}
         # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
         # extent. We need to keep track of the temporal pipes that are at the
@@ -199,8 +197,7 @@ class TopologicalComputationGraph:
             )
 
     def _check_spatial_pipe(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
-        """Check the validity of a spatial pipe between ``source`` and
-        ``sink``.
+        """Check the validity of a spatial pipe between ``source`` and ``sink``.
 
         Args:
             source: source of the pipe. Should be the "smallest" position.
@@ -277,8 +274,7 @@ class TopologicalComputationGraph:
         spatial_block_border: SpatialBlockBorder,
         temporal_pipe_border: TemporalBlockBorder,
     ) -> None:
-        """Substitutes the plaquettes of the pipe in ``pipe_pos`` using
-        ``neighbouring_block_layer``.
+        """Substitutes the plaquettes of the pipe at ``pipe_pos`` using ``neighbouring_block_layer``
 
         The pipe in ``pipe_pos`` is modified in-line.
 

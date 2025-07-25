@@ -62,15 +62,13 @@ def read_block_graph_from_dae_file(
     filepath: str | pathlib.Path,
     graph_name: str = "",
 ) -> BlockGraph:
-    """Read a Collada DAE file and construct a
-    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.
+    """Read a Collada DAE file and construct a :class:`.BlockGraph` from it.
 
     Args:
         filepath: The input dae file path.
         graph_name: The name of the block graph. Default is an empty string.
-        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph.
-            See :py:meth:`~tqec.computation.block_graph.BlockGraph.fix_shadowed_faces`
-            for more details. Default is True.
+        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph. See
+            :py:meth:`.BlockGraph.fix_shadowed_faces` for more details. Default is True.
 
     Returns:
         The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
@@ -173,8 +171,12 @@ def read_block_graph_from_dae_file(
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
-            pos = _offset_y_cube_position(pos, pipe_length)
-        graph.add_cube(_int_position_before_scale(pos, pipe_length), cube_kind)
+            graph.add_cube(
+                _int_position_before_scale(_offset_y_cube_position(pos, pipe_length), pipe_length),
+                cube_kind,
+            )
+        else:
+            graph.add_cube(_int_position_before_scale(pos, pipe_length), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -207,12 +209,11 @@ def write_block_graph_to_dae_file(
     pop_faces_at_direction: SignedDirection3D | str | None = None,
     show_correlation_surface: CorrelationSurface | None = None,
 ) -> None:
-    """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
-    Collada DAE file.
+    """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a Collada DAE file.
 
     Args:
         block_graph: The block graph to write to the DAE file.
-        file: The output file path or file-like object that supports binary write.
+        file_like: The output file path or file-like object that supports binary write.
         pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.
         pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
             This is useful for visualizing the internal structure of the blocks. Default is None.
@@ -271,15 +272,14 @@ def read_block_graph_from_json(
     filepath: str | pathlib.Path,
     graph_name: str = "",
 ) -> BlockGraph:
-    """Read a Collada JSON file and construct a
-    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.
+    """Read a Collada JSON file and construct a :py:class:`.BlockGraph` from it.
 
     Args:
         filepath: The input dae file path.
         graph_name: The name of the block graph. Default is an empty string.
 
     Returns:
-        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.
+        The constructed :py:class:`.BlockGraph` object.
 
     Raises:
         TQECError: If the JSON file cannot be parsed and converted to a block graph.
@@ -392,8 +392,11 @@ def read_block_graph_from_json(
     # Add cubes
     for pos, cube_kind, axes_directions in parsed_cubes:
         if isinstance(cube_kind, YHalfCube):
-            pos = _offset_y_cube_position(pos, 0.0)
-        graph.add_cube(_int_position_before_scale(pos, 0.0), cube_kind)
+            graph.add_cube(
+                _int_position_before_scale(_offset_y_cube_position(pos, 0.0), 0.0), cube_kind
+            )
+        else:
+            graph.add_cube(_int_position_before_scale(pos, 0.0), cube_kind)
     port_index = 0
 
     # Add pipes
@@ -435,8 +438,10 @@ class _BaseColladaData:
         self,
         pop_faces_at_direction: SignedDirection3D | None = None,
     ) -> None:
-        """The base model template including the definition of all the library
-        nodes and the necessary material, geometry definitions.
+        """Base model template.
+
+        This class includes the definition of all the library nodes and the necessary material,
+        geometry definitions.
         """
         self.mesh = collada.Collada()
         self.geometries = BlockGeometries()
@@ -603,8 +608,7 @@ class _BaseColladaData:
 
 @dataclass(frozen=True)
 class _Transformation:
-    """Transformation data class to store the translation, scale, rotation, and
-    the composed affine matrix.
+    """Stores the translation, scale, rotation, and the composed affine matrix.
 
     For the reference of the transformation matrix, see https://en.wikipedia.org/wiki/Transformation_matrix.
 

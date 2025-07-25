@@ -88,7 +88,7 @@ def test_positioned_synthesis_X_shape() -> None:
     ]
     g = make_positioned_zx_graph(
         vertex_types=[VertexType.Z] + [VertexType.BOUNDARY] * 4,
-        positions=[Position3D(0, 0, 0)] + ports,
+        positions=[Position3D(0, 0, 0), *ports],
         edges=[(0, 1), (0, 2), (0, 3), (0, 4)],
         hadamard_edges=[False] * 4,
         inputs=(1,),

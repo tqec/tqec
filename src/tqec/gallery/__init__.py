@@ -10,6 +10,7 @@ instances representing the logical computations, including:
 - :mod:`.move_rotation`: rotate spatial boundaries by moving the logical qubit in spacetime
 - :mod:`.three_cnots`: three logical CNOT gates compressed in spacetime
 - :mod:`.steane_encoding`: Steane encoding circuit compressed in spacetime
+
 """
 
 from .cnot import cnot as cnot

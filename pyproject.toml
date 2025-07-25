@@ -220,16 +220,16 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["I", "E", "W", "D", "F", "PL", "NPY", "N", "PERF", "RUF", "UP"]
 # ruff configuration
+# I -- isort
 # E, W -- pycodestyle
 # D -- pydocstyle
-# I -- isort
 # F -- pyflakes
 # PL -- pylint
 # NPY -- Numpy specific rules
 # N -- pep8-naming
 # PERF -- Perflint
 # RUF -- ruff specific rules
-
+# UP -- pyupgrade
 # Rules considered over other incompatible ones
 exclude = ["docs/conf.py", "setup.py"]
 
@@ -238,45 +238,29 @@ ignore = [
   # D101 - By convention, class docstrings are on the __init__ method, so we do not document classes.
   # D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
   "D100", "D101", "D104", "D105",
-  "D203", "D205", "D213",
+  # D203 - Requires a blank line between class declaration and its docstring. Incompatible with D211. We prefer D211.
+  "D203", "D213",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
   "D400", "D401", "D404", "D407", "D415", "D416", "D417",
-  "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR1714", "PLR2004",
+  # PLR091{2,3,5} - A few code blocks have too many {branches,arguments,statements}. Ignored for the moment.
+  # PLR2004 - Replace magic values, not a priority at the moment.
+  "PLR0912", "PLR0913", "PLR0915", "PLR2004",
   # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
   "N802",
   "PLC0414", "PLC0105",
   "PLW2901",
-  "RUF017", "RUF009", "RUF005", "RUF015", "RUF002", "RUF003",
-  "UP038", "UP035"
+  # UP038 - Soon-to-be-deprecated rule, we prefer using isinstance(obj, (A, B)).
+  "UP038"
 ]
-# Rules Ignored Permanently
-
-# pydocstyle considers ----- an underline.
-
-# D212 and D211 specially selected due to following incompatibilities
-# warning: `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible. Ignoring `one-blank-line-before-class`.
-# warning: `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible. Ignoring `multi-line-summary-second-line`.
-
-# D416 was adding a semicolon after some section headings when ruff's automated --fix was was used
-# As this was not added evenly after all section headings, we ignore this.
-
-# D400 - Checks for docstrings in which the first line does not end in a period.
-# D401 - Checks for docstring first lines that are not in an imperative mood.
-# D404 - Checks for docstrings that start with `This`.
-# D415 - Checks for docstrings in which the first line does not end in a punctuation mark, such as a period, question mark, or exclamation point.
-
-# N802 - This catches lowercase isssues in function names. We have quite a few unit tests along the lines of `test_default_translator_from_ZZZZ_rpng_string`
-
-# PLR0912 -- Checks for functions or methods with too many branches. The default number is 12.
-# PLR0911 -- Checks for functions or methods with too many return statements. The default number is 6.
-# PLR0915 -- Checks for functions or methods with too many statements. The default number is 50.
-# PLR2004 -- Checks if an equality or an inequality is compared to a variable or a num (prefers variable pre)
-# PLR0913 Too many arguments in function definition
 
 # Specific per-file ignores
 [tool.ruff.lint.per-file-ignores]
+# We do not need tests functions to have a valid docstring
 "**/*_test.py" = ["D103"]
-
+# Some summary lines are long and hard to condense to a single line without loosing the precision and expressivity here.
+# Disabling for the moment, will see in the future if these warnings can be re-enabled without hurting the documentation.
+"src/tqec/compile/specs/library/generators/*" = ["D205"]
+"src/tqec/compile/observables/*" = ["D205"]
 
 [tool.pytest.ini_options]
 markers = ["slow: mark a test that takes a long time to run."]

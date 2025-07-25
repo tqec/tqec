@@ -70,6 +70,7 @@ class Plaquette:
         """Return the plaquette origin.
 
         By definition, for the moment, the plaquette origin is always ``(0, 0)``.
+
         """
         return PhysicalQubitPosition2D(0, 0)
 
@@ -83,15 +84,13 @@ class Plaquette:
         return self.name
 
     def project_on_data_qubit_indices(self, data_qubits_indices: list[int]) -> Plaquette:
-        """Project the plaquette on the provided qubits and return a new
-        plaquette with the remaining qubits and circuit.
+        """Project the plaquette on the provided qubit indices.
 
         This method is useful for deriving a boundary plaquette from a integral
         plaquette.
 
         Args:
-            data_qubits: data-qubit indices that will be kept in the returned
-                plaquette.
+            data_qubits_indices: data-qubit indices that will be kept in the returned plaquette.
 
         Returns:
             A new plaquette with projected qubits and circuit. The qubits are
@@ -106,8 +105,7 @@ class Plaquette:
         return self.project_on_data_qubits(kept_qubits)
 
     def project_on_data_qubits(self, data_qubits: list[GridQubit]) -> Plaquette:
-        """Project the plaquette on the provided qubits and return a new
-        plaquette with the remaining qubits and circuit.
+        """Project the plaquette on the provided qubits.
 
         This method is useful for deriving a boundary plaquette from a integral
         plaquette.
@@ -140,8 +138,7 @@ class Plaquette:
         )
 
     def project_on_boundary(self, projected_orientation: PlaquetteOrientation) -> Plaquette:
-        """Project the plaquette on boundary and return a new plaquette with
-        the remaining qubits and circuit.
+        """Project the plaquette on a boundary and return the projected version.
 
         This method is useful for deriving a boundary plaquette from a integral
         plaquette.
@@ -179,6 +176,7 @@ class Plaquette:
 
         This is an issue when trying to store a dictionary involving a plaquette as key and re-use
         it in subsequent runs or on other machines / OSes.
+
         """
         return int(hashlib.md5(self.name.encode()).hexdigest(), 16)
 
@@ -196,13 +194,12 @@ class Plaquette:
         """Check if the plaquette is empty.
 
         An empty plaquette is a plaquette that contain empty scheduled circuit.
+
         """
         return bool(self.circuit.get_circuit(include_qubit_coords=False) == stim.Circuit())
 
     def with_debug_information(self, debug_information: PlaquetteDebugInformation) -> Plaquette:
-        """Create a copy of ``self`` with its debug information replaced by the provided
-        ``debug_information``.
-        """
+        """Create a copy of ``self`` with the provided ``debug_information``."""
         return Plaquette(
             self.name,
             self.qubits,
@@ -215,6 +212,7 @@ class Plaquette:
         """Return a dictionary representation of the plaquette.
 
         The dictionary is intended to be used as a JSON object.
+
         """
         return {
             "name": self.name,
@@ -248,17 +246,16 @@ class Plaquette:
 
 @dataclass(frozen=True)
 class Plaquettes:
-    """Represent a collection of plaquettes that might be applied to a
-    :class:`Template` instance.
+    """Represent a collection of plaquettes that might be applied to a :class:`Template` instance.
 
-    The goal of this class is to abstract away how a "collection of
-    plaquettes" is represented and to provide a unique interface in
-    order to retrieve plaquettes when building a quantum circuit from a
-    template and plaquettes.
+    The goal of this class is to abstract away how a "collection of plaquettes" is represented and
+    to provide a unique interface in order to retrieve plaquettes when building a quantum circuit
+    from a template and plaquettes.
 
-    It also checks that the represented collection is valid, which means
-    that it does not include any plaquette associated with index 0 (that
-    is internally and conventionally reserved for the empty plaquette).
+    It also checks that the represented collection is valid, which means that it does not include
+    any plaquette associated with index 0 (that is internally and conventionally reserved for the
+    empty plaquette).
+
     """
 
     collection: FrozenDefaultDict[int, Plaquette]
@@ -296,10 +293,12 @@ class Plaquettes:
         return isinstance(rhs, Plaquettes) and self.collection == rhs.collection
 
     def __hash__(self) -> int:
-        """Implementation for Python's hash().
+        """Implement hashing for Python's hash().
 
-        The returned value is reliable across runs, interpreters and
-        OSes.
+        The returned value is reliable across runs, interpreters and OSes.
+
+        The returned value is reliable across runs, interpreters and OSes.
+
         """
         return hash(
             tuple(
@@ -318,9 +317,7 @@ class Plaquettes:
         return d
 
     def without_plaquettes(self, indices: Collection[int]) -> Plaquettes:
-        """Remove the plaquettes associated with the provided ``indices`` from a copy of ``self``
-        and return the new instance.
-        """
+        """Remove the plaquettes at the provided ``indices`` from a copy of ``self``."""
         return Plaquettes(
             FrozenDefaultDict(
                 {k: v for k, v in self.collection.items() if k not in indices},
@@ -364,6 +361,9 @@ class Plaquettes:
 
         Args:
             data: dictionary with the keys ``plaquettes`` and ``default``.
+            plaquettes: list of :class:`Plaquette` instances to use to build the
+                :class:`Plaquettes` instances. Each plaquette is represented by
+                its index in the list of unique plaquettes to save space.
 
         Returns:
             a new instance of :class:`Plaquettes` with the provided

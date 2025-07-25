@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import astuple, dataclass
+from dataclasses import astuple, dataclass, field
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -39,7 +39,7 @@ class Face:
     width: float
     height: float
     normal_direction: SignedDirection3D
-    position: FloatPosition3D = FloatPosition3D(0.0, 0.0, 0.0)
+    position: FloatPosition3D = field(default=FloatPosition3D(0.0, 0.0, 0.0))
 
     @staticmethod
     def get_triangle_indices() -> npt.NDArray[np.int_]:
@@ -102,9 +102,7 @@ class BlockGeometries:
         kind: BlockKind,
         pop_faces_at_directions: frozenset[SignedDirection3D] = frozenset(),
     ) -> list[Face]:
-        """Get the geometry of a block kind, possibly with some faces popped
-        out.
-        """
+        """Get the geometry of a block kind, possibly with some faces popped out."""
         faces = self.geometries[kind]
         return [face for face in faces if face.normal_direction not in pop_faces_at_directions]
 
