@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import stim
 from typing_extensions import override
@@ -50,7 +50,9 @@ class ScheduledCircuitTransformation:
 
     source_name: str
     transformation: dict[ScheduleFunction, list[InstructionCreator]]
-    instruction_simplifier: InstructionSimplifier = NoInstructionSimplification()
+    instruction_simplifier: InstructionSimplifier = field(
+        default_factory=NoInstructionSimplification
+    )
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
         """Apply the transformation to ``circuit`` and return the result."""
