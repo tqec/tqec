@@ -252,7 +252,7 @@ class ExtendedPlaquetteCollection:
         measurement: Basis | None,
         is_reversed: bool,
     ) -> ExtendedPlaquetteCollection:
-        """Build an instance from the provided arguments."""
+        """Build an instance from the provided ``RPNGDescription``."""
         up, down = get_extended_plaquette(description, reset, measurement, is_reversed)
         # In the calls to project_on_data_qubit_indices, it is important to remember
         # that individual plaquettes composing the extended plaquette have slightly
