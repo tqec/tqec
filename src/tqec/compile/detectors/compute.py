@@ -35,7 +35,7 @@ def _get_measurement_offset_mapping(circuit: stim.Circuit) -> dict[int, Measurem
     """Get a mapping from measurement offsets to a :class:`.Measurement` instance.
 
     The measurement offsets used as keys in the returned mapping are in accordance with the
-    `tqecd.detectors` external package.
+    ``tqecd.detectors`` external package.
 
     This function returns the mapping from negative offsets that are
     supposed to each represent a unique measurement in the circuit to
@@ -196,10 +196,10 @@ def _best_effort_filter_detectors(
     """Filter detectors using a best-effort strategy.
 
     This function filters out detectors that do not involve at least one measurement on a syndrome
-    qubit of the central plaquette in the last round. Such a filtering is voluntarily not too strict
-    as the goal is to reduce the amount of detectors that should be considered but a more robust
-    filter will be applied later in the pipeline. So this function implements a good-enough
-    filtering that is not perfect but that is at least guaranteed to not remove detectors that
+    qubit of the central plaquette in the last round. Such a filtering is voluntarily not too
+    strict, as the goal is to reduce the number of detectors that should be considered, but a more
+    robust filter will be applied later in the pipeline. So this function implements a good-enough
+    filtering that is not perfect, but that is at least guaranteed not to remove detectors that
     should not be removed.
 
     Warning:
@@ -457,7 +457,7 @@ def _shift_detectors_to_center_of_subtemplate(
 def _get_or_default(
     array: npt.NDArray[numpy.int_], slices: Sequence[tuple[int, int]], default: int = 0
 ) -> npt.NDArray[numpy.int_]:
-    """Get slices of an array, returning the provided `default` value for out-of-bound accesses.
+    """Get slices of an array, returning the provided ``default`` value for out-of-bound accesses.
 
     Args:
         array: `numpy` array to recover values from.
@@ -543,7 +543,7 @@ def _get_or_default(
 def _compute_superimposed_template_instantiations(
     templates: Sequence[Template], k: int
 ) -> list[npt.NDArray[numpy.int_]]:
-    """Compute the instantiation of all the provided `templates`, taking care of alignment.
+    """Compute the instantiation of all the provided ``templates``, taking care of alignment.
 
     When instantiating multiple templates that are supposed to be stacked up on
     top of each other (i.e., executed one after the other) we might be

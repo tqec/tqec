@@ -12,12 +12,10 @@ def add_tick_coordinate_to_detectors(circuit: stim.Circuit) -> stim.Circuit:
             num_ticks += 1
             ret.append(instruction)
         elif instruction.name == "DETECTOR":
-            ret.append(
-                stim.CircuitInstruction(
-                    instruction.name,
-                    instruction.targets_copy(),
-                    [*instruction.gate_args_copy(), num_ticks],
-                )
+            instruction = stim.CircuitInstruction(
+                instruction.name,
+                instruction.targets_copy(),
+                [*instruction.gate_args_copy(), num_ticks],
             )
         else:
             ret.append(instruction)

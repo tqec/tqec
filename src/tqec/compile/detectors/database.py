@@ -124,8 +124,8 @@ class _DetectorDatabaseKey:
         - ``8731178165517315210``
 
         This is an issue for the detector database as we would like it to be reproducible. Else,
-        re-using an existing database will always fail because keys will have a different hash,
-        hence re-computing detectors at each calls and growing indefinitely the database.
+        reusing an existing database will always fail because keys will have a different hash,
+        hence re-computing detectors at each call and growing the database indefinitely.
 
         This method implements a reliable hash that should be constant no matter the context
         (different Python calls, different OS, different version of Python, ...).

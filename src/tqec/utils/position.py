@@ -100,7 +100,7 @@ class Shape2D(Vec2D):
         """Returns the shape according to numpy indexing.
 
         In the coordinate system used in this library, numpy indexes arrays using (y, x)
-        coordinates. This method is here to translate a Shape instance to a numpy shape
+        coordinates. This method is here to translate a ``Shape`` instance to a numpy shape
         transparently for the user.
 
         """

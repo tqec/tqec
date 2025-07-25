@@ -24,10 +24,8 @@ Modifications to the original code:
 5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and
    REPEAT blocks (not before the block, the first instruction in the repeated
    inner block, and after the block).
-6. Re-phrase slightly the docstrings.
-7. Replace ``typing.AbstractSet`` by ``collection.abc.Set``
-8. Replace several equalities by inclusion in set (``obj == A or obj == B`` becomes
-   ``obj in {A, B}``)
+6. Re-phrase the docstrings slightly .
+
 """
 
 from collections import Counter, defaultdict
@@ -232,9 +230,9 @@ class NoiseModel:
     def uniform_depolarizing(p: float) -> "NoiseModel":
         """Near-standard circuit depolarizing noise.
 
-        Everything has the same parameter p. Single qubit clifford gates get single qubit
-        depolarization. Two qubit clifford gates get single qubit depolarization. Dissipative gates
-        have their result probabilistically bit flipped (or phase flipped if appropriate).
+        Everything has the same parameter ``p``. Single-qubit Clifford gates get single-qubit
+        depolarization. Two-qubit Clifford gates get single-qubit depolarization. Dissipative gates
+        have their result probabilistically bit-flipped (or phase-flipped if appropriate).
 
         Non-demolition measurement is treated a bit unusually in that it is the result that is
         flipped instead of the input qubit.

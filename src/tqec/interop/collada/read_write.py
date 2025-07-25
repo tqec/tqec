@@ -62,7 +62,7 @@ def read_block_graph_from_dae_file(
     filepath: str | pathlib.Path,
     graph_name: str = "",
 ) -> BlockGraph:
-    """Read a Collada DAE file and construct a :py:class:`.BlockGraph` from it.
+    """Read a Collada DAE file and construct a :class:`.BlockGraph` from it.
 
     Args:
         filepath: The input dae file path.

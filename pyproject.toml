@@ -45,7 +45,7 @@ Issues = "https://github.com/tqec/tqec/issues"
 [project.optional-dependencies]
 test = [
   "pytest<=8.4.1",
-  "mypy<=1.16.1",
+  "mypy<=1.17.0",
   "pytest-cov<=6.2.1",
   "types-networkx<=3.5.0.20250610",
   "scipy-stubs<=1.16.0.0",
@@ -247,8 +247,8 @@ ignore = [
   "PLR0912", "PLR0913", "PLR0915", "PLR2004",
   # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
   "N802",
-  # PLC0414 - "from A.B.C import X as X" is flagged as an error, but should not in __init__.py files. Ignored for that reason.
-  "PLC0414",
+  "PLC0414", "PLC0105",
+  "PLW2901",
   # UP038 - Soon-to-be-deprecated rule, we prefer using isinstance(obj, (A, B)).
   "UP038"
 ]
