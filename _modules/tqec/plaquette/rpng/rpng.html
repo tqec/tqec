@@ -413,7 +413,7 @@ window.addEventListener("load", () => mermaid.run());
   <h1>Source code for tqec.plaquette.rpng.rpng</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
@@ -620,7 +620,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">corners</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RPNG</span><span class="p">,</span> <span class="n">RPNG</span><span class="p">,</span> <span class="n">RPNG</span><span class="p">,</span> <span class="n">RPNG</span><span class="p">]</span>
-    <span class="n">ancilla</span><span class="p">:</span> <span class="n">RG</span> <span class="o">=</span> <span class="n">RG</span><span class="p">(</span><span class="n">PauliBasis</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">ancilla</span><span class="p">:</span> <span class="n">RG</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">RG</span><span class="p">(</span><span class="n">PauliBasis</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">PauliBasis</span><span class="o">.</span><span class="n">X</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validation of the initialization arguments.</span>
