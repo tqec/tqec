@@ -100,8 +100,8 @@ def build_regular_cube_bottom_stabilizer_qubits(
     connect_to: SignedDirection3D,
     stabilizer_basis: Basis,
 ) -> Sequence[Coordinates2D]:
-    """Builds the stabilizer measurement coordinates that will be included in the observable spanning
-    half of the bottom face of a regular cube.
+    """Builds the stabilizer measurement coordinates that will be included in the observable
+    spanning half of the bottom face of a regular cube.
     """
     stabilizers: list[tuple[float, float]] = []
     xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
@@ -147,8 +147,8 @@ def build_regular_cube_bottom_stabilizer_qubits(
 def build_spatial_cube_bottom_stabilizer_qubits(
     shape: PlaquetteShape2D, stabilizer_basis: Basis
 ) -> Sequence[Coordinates2D]:
-    """Builds the stabilizer measurement coordinates that will be included in the observable spanning
-    the bottom face of a spatial cube.
+    """Builds the stabilizer measurement coordinates that will be included in the observable
+    spanning the bottom face of a spatial cube.
     """
     xy_sum_parity = 0 if stabilizer_basis == Basis.Z else 1
     return [

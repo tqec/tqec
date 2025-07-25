@@ -5,6 +5,7 @@ from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.tree.annotations import Polygon
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import PauliBasis
+from tqec.utils.array import to2dlist
 from tqec.utils.position import Shift2D
 
 
@@ -44,7 +45,7 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    template_plaquettes_list: list[list[int]] = template_plaquettes.tolist()
+    template_plaquettes_list: list[list[int]] = to2dlist(template_plaquettes)
     for row_index, line in enumerate(template_plaquettes_list):
         for column_index, plaquette_index in enumerate(line):
             if plaquette_index != 0:

@@ -8,6 +8,7 @@ from itertools import combinations
 from typing import Final
 
 import networkx as nx
+from pyzx.pauliweb import multiply_paulis
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
@@ -181,8 +182,6 @@ def fill_ports_for_minimal_simulation(
 
 
 def _multiply_unsigned_paulis(p1: str, p2: str) -> str:
-    from pyzx.pauliweb import multiply_paulis
-
     return "".join(multiply_paulis(p1[i], p2[i]) for i in range(len(p1)))
 
 
