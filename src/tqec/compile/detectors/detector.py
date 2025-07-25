@@ -41,7 +41,7 @@ class Detector:
     def to_instruction(
         self, measurement_records_map: MeasurementRecordsMap
     ) -> stim.CircuitInstruction:
-        """Return the ``stim.CircuitInstruction`` instance representing the detector stored in ``self``.
+        """Return the ``stim.CircuitInstruction`` instance representing the detector in ``self``.
 
         Args:
             measurement_records_map: a map from qubits and qubit-local

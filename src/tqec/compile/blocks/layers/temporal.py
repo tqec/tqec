@@ -30,7 +30,7 @@ class WithTemporalFootprint(ABC):
         pass
 
     def timesteps(self, k: int) -> int:
-        """Returns the number of timesteps needed to implement the object for the provided scaling parameter ``k``.
+        """Returns the number of timesteps needed for the provided scaling parameter ``k``.
 
         Args:
             k: scaling parameter.
@@ -85,7 +85,7 @@ class WithTemporalFootprint(ABC):
         pass
 
     def num_moments(self, k: int) -> int:
-        """Returns the number of moments needed to implement the object for the provided scaling parameter ``k``.
+        """Returns the number of moments needed for the provided scaling parameter ``k``.
 
         Args:
             k: scaling parameter.

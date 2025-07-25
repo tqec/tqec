@@ -196,9 +196,9 @@ def _best_effort_filter_detectors(
     """Filter detectors using a best-effort strategy.
 
     This function filters out detectors that do not involve at least one measurement on a syndrome
-    qubit of the central plaquette in the last round. Such a filtering is voluntarily not too strict
-    , as the goal is to reduce the number of detectors that should be considered, but a more robust
-    filter will be applied later in the pipeline. So this function implements a good-enough
+    qubit of the central plaquette in the last round. Such a filtering is voluntarily not too
+    strict, as the goal is to reduce the number of detectors that should be considered, but a more
+    robust filter will be applied later in the pipeline. So this function implements a good-enough
     filtering that is not perfect, but that is at least guaranteed not to remove detectors that
     should not be removed.
 
