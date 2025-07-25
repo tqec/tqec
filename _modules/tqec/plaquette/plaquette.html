@@ -507,8 +507,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        plaquette.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data_qubits: data-qubit indices that will be kept in the returned</span>
-<span class="sd">                plaquette.</span>
+<span class="sd">            data_qubits_indices: data-qubit indices that will be kept in the returned plaquette.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new plaquette with projected qubits and circuit. The qubits are</span>
@@ -742,7 +741,9 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">Plaquettes</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">==</span> <span class="n">rhs</span><span class="o">.</span><span class="n">collection</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Implementation for Python&#39;s hash().</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Implement hashing for Python&#39;s hash().</span>
+
+<span class="sd">        The returned value is reliable across runs, interpreters and OSes.</span>
 
 <span class="sd">        The returned value is reliable across runs, interpreters and OSes.</span>
 
@@ -822,6 +823,9 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: dictionary with the keys ``plaquettes`` and ``default``.</span>
+<span class="sd">            plaquettes: list of :class:`Plaquette` instances to use to build the</span>
+<span class="sd">                :class:`Plaquettes` instances. Each plaquette is represented by</span>
+<span class="sd">                its index in the list of unique plaquettes to save space.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            a new instance of :class:`Plaquettes` with the provided</span>

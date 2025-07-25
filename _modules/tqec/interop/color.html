@@ -441,7 +441,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="RGBA.with_alpha">
 <a class="viewcode-back" href="../../../_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.with_alpha">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">with_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RGBA</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a new RGBA with the same color but a different alpha value.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new RGBA with the same color but a different alpha value.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            a: The new alpha value.</span>
@@ -468,7 +468,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="RGBA.to_hex">
 <a class="viewcode-back" href="../../../_autosummary/tqec.interop.RGBA.html#tqec.interop.RGBA.to_hex">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the color as a hexadecimal string.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the color as a hexadecimal string.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The color as a hexadecimal string.</span>
@@ -493,7 +493,7 @@ window.addEventListener("load", () => mermaid.run());
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">rgba</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RGBA</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the RGBA representation of the color.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the RGBA representation of the color.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">TQECColor</span><span class="o">.</span><span class="n">X</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">RGBA</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">TQECColor</span><span class="o">.</span><span class="n">Y</span><span class="p">:</span>
