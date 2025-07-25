@@ -241,6 +241,7 @@ ignore = [
   # D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
   "D100", "D101", "D104", "D105",
   # D203 - Requires a blank line between class declaration and its docstring. Incompatible with D211. We prefer D211.
+  # D203 - Requires multiline docstrings to start on the second line. Incompatible with D212. We prefer D212.
   "D203", "D213",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
   "D400", "D401", "D404", "D407", "D415", "D416", "D417",
