@@ -442,8 +442,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Set</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">stim</span>
 
@@ -574,7 +573,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">split_op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span>
         <span class="n">out_during_moment</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span>
         <span class="n">after_moments</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">],</span>
-        <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">immune_qubits</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
@@ -715,8 +714,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="o">*</span><span class="p">,</span>
         <span class="n">moment_split_ops</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">],</span>
         <span class="n">out</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span>
-        <span class="n">system_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-        <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">system_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">collapse_qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">clifford_qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -764,8 +763,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="o">*</span><span class="p">,</span>
         <span class="n">moment_split_ops</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">],</span>
         <span class="n">out</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span>
-        <span class="n">system_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-        <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">system_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">after</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">split_op</span> <span class="ow">in</span> <span class="n">moment_split_ops</span><span class="p">:</span>
@@ -868,7 +867,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed</span><span class="p">(</span>
-    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits operations into pieces as needed.</span>
 
@@ -888,7 +887,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed_clifford_1q</span><span class="p">(</span>
-    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">immune_qubits</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">()</span>
@@ -899,7 +898,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed_clifford_2q</span><span class="p">(</span>
-    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits classical control system operations away from quantum operations.&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span>
@@ -913,7 +912,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed_m_basis</span><span class="p">(</span>
-    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits an MPP operation into one operation for each Pauli product it measures.&quot;&quot;&quot;</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
@@ -931,7 +930,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_iter_split_op_moments</span><span class="p">(</span>
-    <span class="n">circuit</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">circuit</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitRepeatBlock</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits a circuit into moments and some operations into pieces.</span>
 
