@@ -13,6 +13,7 @@ RPNGDescription
    
       ~RPNGDescription.__init__
       ~RPNGDescription.empty
+      ~RPNGDescription.from_basis_and_schedule
       ~RPNGDescription.from_dict
       ~RPNGDescription.from_extended_string
       ~RPNGDescription.from_string
@@ -43,6 +44,7 @@ RPNGDescription
    
    .. automethod:: __init__
    .. automethod:: empty
+   .. automethod:: from_basis_and_schedule
    .. automethod:: from_dict
    .. automethod:: from_extended_string
    .. automethod:: from_string

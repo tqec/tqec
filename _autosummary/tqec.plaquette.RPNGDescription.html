@@ -539,25 +539,28 @@ plaquette.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.empty" title="tqec.plaquette.RPNGDescription.empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">empty</span></code></a>()</p></td>
 <td><p>Return a description of the empty plaquette.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_dict" title="tqec.plaquette.RPNGDescription.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a>(data)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_basis_and_schedule" title="tqec.plaquette.RPNGDescription.from_basis_and_schedule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_basis_and_schedule</span></code></a>(basis, schedule[, ...])</p></td>
+<td><p>Initialize the RPNGDescription object from a basis and a schedule.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_dict" title="tqec.plaquette.RPNGDescription.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a>(data)</p></td>
 <td><p>Return a RPNGDescription object from its dictionary representation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_extended_string" title="tqec.plaquette.RPNGDescription.from_extended_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_extended_string</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_extended_string" title="tqec.plaquette.RPNGDescription.from_extended_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_extended_string</span></code></a>(...)</p></td>
 <td><p>Initialize the RPNGDescription object from a (16+3)-character string.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_string" title="tqec.plaquette.RPNGDescription.from_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_string</span></code></a>(corners_rpng_string)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.from_string" title="tqec.plaquette.RPNGDescription.from_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_string</span></code></a>(corners_rpng_string)</p></td>
 <td><p>Initialize the RPNGDescription object from a (16+3)-character string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_g_op" title="tqec.plaquette.RPNGDescription.get_g_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_g_op</span></code></a>(data_idx)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_g_op" title="tqec.plaquette.RPNGDescription.get_g_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_g_op</span></code></a>(data_idx)</p></td>
 <td><p>Get the measurement operation or Hadamard for the specific data qubit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_n" title="tqec.plaquette.RPNGDescription.get_n"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_n</span></code></a>(data_idx)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_n" title="tqec.plaquette.RPNGDescription.get_n"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_n</span></code></a>(data_idx)</p></td>
 <td><p>Get the time of the 2Q gate involving the specific data qubit.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_r_op" title="tqec.plaquette.RPNGDescription.get_r_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_r_op</span></code></a>(data_idx)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.get_r_op" title="tqec.plaquette.RPNGDescription.get_r_op"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_r_op</span></code></a>(data_idx)</p></td>
 <td><p>Get the reset operation or Hadamard for the specific data qubit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.to_dict" title="tqec.plaquette.RPNGDescription.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription.to_dict" title="tqec.plaquette.RPNGDescription.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
 <td><p>Return a dictionary representation of the RPNG description.</p></td>
 </tr>
 </tbody>
@@ -605,6 +608,25 @@ plaquette.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription" title="tqec.plaquette.rpng.rpng.RPNGDescription"><em>RPNGDescription</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tqec.plaquette.RPNGDescription.from_basis_and_schedule">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_basis_and_schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/rpng/rpng.html#RPNGDescription.from_basis_and_schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.RPNGDescription.from_basis_and_schedule" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the RPNGDescription object from a basis and a schedule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>basis</strong> (<a class="reference internal" href="tqec.utils.Basis.html#tqec.utils.Basis" title="tqec.utils.enums.Basis"><em>Basis</em></a>)</p></li>
+<li><p><strong>schedule</strong> (<em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>Schedule</em>)</p></li>
+<li><p><strong>reset</strong> (<em>PauliBasis</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>measurement</strong> (<em>ExtendedBasis</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#tqec.plaquette.RPNGDescription" title="tqec.plaquette.rpng.rpng.RPNGDescription"><em>RPNGDescription</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -765,6 +787,7 @@ plaquette.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.ancilla"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.ancilla</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.__init__"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.empty"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.empty()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.from_basis_and_schedule"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.from_basis_and_schedule()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.from_dict"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.from_dict()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.from_extended_string"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.from_extended_string()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tqec.plaquette.RPNGDescription.from_string"><code class="docutils literal notranslate"><span class="pre">RPNGDescription.from_string()</span></code></a></li>
