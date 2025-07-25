@@ -16,7 +16,7 @@ TransformationResult = tuple[Basis, _Transformation]
 
 class CorrelationSurfaceTransformationHelper:
     def __init__(self, block_graph: BlockGraph, pipe_length: float):
-        """Helper class to compute transformations of correlation surfaces pieces in a COLLADA model.
+        """Helper class to compute transformations of correlation surfaces pieces in a BlockGraph.
 
         The correlation surface is decomposed into small pieces of surfaces that can be transformed
         from a single 1x1 square surface in the XY-plane. This class computes the transformations
