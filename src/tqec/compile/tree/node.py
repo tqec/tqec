@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 from collections.abc import Mapping, Sequence
 from typing import Any, TypeGuard
 
@@ -192,7 +193,7 @@ class LayerNode:
 
         if isinstance(self._layer, SequencedLayers):
             ret = []
-            for child, next_child in zip(self._children[:-1], self._children[1:]):
+            for child, next_child in itertools.pairwise(self._children):
                 ret += child.generate_circuits_with_potential_polygons(
                     k, global_qubit_map, add_polygons
                 )
