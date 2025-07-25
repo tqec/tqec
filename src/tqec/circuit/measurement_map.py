@@ -1,4 +1,4 @@
-"""Defines :class:`.MeasurementRecordsMap` used to query measurement offsets in a circuit.
+"""Defines :class:`.MeasurementRecordsMap` which is used to query measurement offsets in a circuit.
 
 This module defines :class:`MeasurementRecordsMap`. This class implements the
 necessary interface to register, modify and query measurement offsets from a

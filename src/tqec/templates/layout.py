@@ -235,7 +235,7 @@ class LayoutTemplate(Template):
     @property
     @override
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the `instantiate` method.
+        """Returns the number of plaquettes expected from the ``instantiate`` method.
 
         Returns:
             the number of plaquettes expected from the `instantiate` method.
