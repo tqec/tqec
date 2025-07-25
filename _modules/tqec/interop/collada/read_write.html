@@ -477,15 +477,13 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a Collada DAE file and construct a</span>
-<span class="sd">    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a Collada DAE file and construct a :class:`.BlockGraph` from it.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        filepath: The input dae file path.</span>
 <span class="sd">        graph_name: The name of the block graph. Default is an empty string.</span>
-<span class="sd">        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph.</span>
-<span class="sd">            See :py:meth:`~tqec.computation.block_graph.BlockGraph.fix_shadowed_faces`</span>
-<span class="sd">            for more details. Default is True.</span>
+<span class="sd">        fix_shadowed_faces: Whether to fix the shadowed faces in the block graph. See</span>
+<span class="sd">            :py:meth:`.BlockGraph.fix_shadowed_faces` for more details. Default is True.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.</span>
@@ -625,8 +623,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">pop_faces_at_direction</span><span class="p">:</span> <span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">show_correlation_surface</span><span class="p">:</span> <span class="n">CorrelationSurface</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a</span>
-<span class="sd">    Collada DAE file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a Collada DAE file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        block_graph: The block graph to write to the DAE file.</span>
@@ -690,15 +687,14 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a Collada JSON file and construct a</span>
-<span class="sd">    :py:class:`~tqec.computation.block_graph.BlockGraph` from it.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a Collada JSON file and construct a :py:class:`.BlockGraph` from it.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        filepath: The input dae file path.</span>
 <span class="sd">        graph_name: The name of the block graph. Default is an empty string.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The constructed :py:class:`~tqec.computation.block_graph.BlockGraph` object.</span>
+<span class="sd">        The constructed :py:class:`.BlockGraph` object.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        TQECError: If the JSON file cannot be parsed and converted to a block graph.</span>
@@ -854,8 +850,10 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">pop_faces_at_direction</span><span class="p">:</span> <span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The base model template including the definition of all the library</span>
-<span class="sd">        nodes and the necessary material, geometry definitions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Base model template.</span>
+
+<span class="sd">        This class includes the definition of all the library nodes and the necessary material,</span>
+<span class="sd">        geometry definitions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">collada</span><span class="o">.</span><span class="n">Collada</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">geometries</span> <span class="o">=</span> <span class="n">BlockGeometries</span><span class="p">()</span>
@@ -1022,8 +1020,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">_Transformation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation data class to store the translation, scale, rotation, and</span>
-<span class="sd">    the composed affine matrix.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stores the translation, scale, rotation, and the composed affine matrix.</span>
 
 <span class="sd">    For the reference of the transformation matrix, see https://en.wikipedia.org/wiki/Transformation_matrix.</span>
 

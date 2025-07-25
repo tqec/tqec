@@ -437,6 +437,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and</span>
 <span class="sd">   REPEAT blocks (not before the block, the first instruction in the repeated</span>
 <span class="sd">   inner block, and after the block).</span>
+<span class="sd">6. Re-phrase the docstrings slightly .</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
@@ -632,6 +634,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">        Small tweak from the paper: The measurement result is probabilistically flipped instead of</span>
 <span class="sd">        the input qubit.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">NoiseModel</span><span class="p">(</span>
             <span class="n">idle_depolarization</span><span class="o">=</span><span class="n">p</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span>
@@ -653,13 +656,13 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="nf">uniform_depolarizing</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NoiseModel&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Near-standard circuit depolarizing noise.</span>
 
-<span class="sd">        Everything has the same parameter p. Single qubit clifford gates</span>
-<span class="sd">        get single qubit depolarization. Two qubit clifford gates get</span>
-<span class="sd">        single qubit depolarization. Dissipative gates have their result</span>
-<span class="sd">        probabilistically bit flipped (or phase flipped if appropriate).</span>
+<span class="sd">        Everything has the same parameter ``p``. Single-qubit Clifford gates get single-qubit</span>
+<span class="sd">        depolarization. Two-qubit Clifford gates get single-qubit depolarization. Dissipative gates</span>
+<span class="sd">        have their result probabilistically bit-flipped (or phase-flipped if appropriate).</span>
 
-<span class="sd">        Non-demolition measurement is treated a bit unusually in that it</span>
-<span class="sd">        is the result that is flipped instead of the input qubit.</span>
+<span class="sd">        Non-demolition measurement is treated a bit unusually in that it is the result that is</span>
+<span class="sd">        flipped instead of the input qubit.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">NoiseModel</span><span class="p">(</span>
             <span class="n">idle_depolarization</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
@@ -795,8 +798,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">system_qubits</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">immune_qubits</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a noisy version of the given circuit, by applying the</span>
-<span class="sd">        receiving noise model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a noisy version of the given circuit, by applying the receiving noise model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circuit: The circuit to layer noise over.</span>
@@ -848,9 +850,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">occurs_in_classical_control_system</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines if an operation is an annotation or a classical control</span>
-<span class="sd">    system update.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines if an operation is an annotation or a classical control system update.&quot;&quot;&quot;</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">ANNOTATION</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -870,8 +870,11 @@ window.addEventListener("load", () => mermaid.run());
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed</span><span class="p">(</span>
     <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits operations into pieces as needed (e.g. MPP into each product,</span>
-<span class="sd">    classical control away from quantum ops).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits operations into pieces as needed.</span>
+
+<span class="sd">    This function splits operations, for example ``MPP`` into each product, classical control away</span>
+<span class="sd">    from quantum ops, ...</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span><span class="p">:</span>
@@ -898,9 +901,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed_clifford_2q</span><span class="p">(</span>
     <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits classical control system operations away from things actually</span>
-<span class="sd">    happening on the quantum computer.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits classical control system operations away from quantum operations.&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">OP_TYPES</span><span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">immune_qubits</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">is_measurement_record_target</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">):</span>
@@ -914,9 +915,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_targets_if_needed_m_basis</span><span class="p">(</span>
     <span class="n">op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">,</span> <span class="n">immune_qubits</span><span class="p">:</span> <span class="n">AbstractSet</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits an MPP operation into one operation for each Pauli product it</span>
-<span class="sd">    measures.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits an MPP operation into one operation for each Pauli product it measures.&quot;&quot;&quot;</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">gate_args_copy</span><span class="p">()</span>
     <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
@@ -966,8 +965,7 @@ window.addEventListener("load", () => mermaid.run());
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_measure_basis</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">split_op</span><span class="p">:</span> <span class="n">stim</span><span class="o">.</span><span class="n">CircuitInstruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts an operation into a string describing the Pauli product basis</span>
-<span class="sd">    it measures.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts an operation into a string describing the Pauli product basis it measures.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None: This is not a measurement (or not *just* a measurement).</span>

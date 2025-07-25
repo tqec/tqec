@@ -485,15 +485,13 @@
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquettes">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tqec.plaquette.</span></span><span class="sig-name descname"><span class="pre">Plaquettes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquettes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquettes" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Represent a collection of plaquettes that might be applied to a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code> instance.</p>
-<p>The goal of this class is to abstract away how a “collection of
-plaquettes” is represented and to provide a unique interface in
-order to retrieve plaquettes when building a quantum circuit from a
-template and plaquettes.</p>
-<p>It also checks that the represented collection is valid, which means
-that it does not include any plaquette associated with index 0 (that
-is internally and conventionally reserved for the empty plaquette).</p>
+<p>Represent a collection of plaquettes that might be applied to a <code class="xref py py-class docutils literal notranslate"><span class="pre">Template</span></code> instance.</p>
+<p>The goal of this class is to abstract away how a “collection of plaquettes” is represented and
+to provide a unique interface in order to retrieve plaquettes when building a quantum circuit
+from a template and plaquettes.</p>
+<p>It also checks that the represented collection is valid, which means that it does not include
+any plaquette associated with index 0 (that is internally and conventionally reserved for the
+empty plaquette).</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
@@ -519,7 +517,7 @@ is internally and conventionally reserved for the empty plaquette).</p>
 <td><p>Return a new <a class="reference internal" href="#tqec.plaquette.Plaquettes" title="tqec.plaquette.Plaquettes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plaquettes</span></code></a> instance with the updated plaquettes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquettes.without_plaquettes" title="tqec.plaquette.Plaquettes.without_plaquettes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">without_plaquettes</span></code></a>(indices)</p></td>
-<td><p>Remove the plaquettes associated with the provided <code class="docutils literal notranslate"><span class="pre">indices</span></code> from a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> and return the new instance.</p></td>
+<td><p>Remove the plaquettes at the provided <code class="docutils literal notranslate"><span class="pre">indices</span></code> from a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -647,8 +645,7 @@ Each entry will replace an existing (or create a new) entry in a copy of <code c
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquettes.without_plaquettes">
 <span class="sig-name descname"><span class="pre">without_plaquettes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquettes.without_plaquettes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquettes.without_plaquettes" title="Link to this definition">#</a></dt>
-<dd><p>Remove the plaquettes associated with the provided <code class="docutils literal notranslate"><span class="pre">indices</span></code> from a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code>
-and return the new instance.</p>
+<dd><p>Remove the plaquettes at the provided <code class="docutils literal notranslate"><span class="pre">indices</span></code> from a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>indices</strong> (<em>Collection</em><em>[</em><em>int</em><em>]</em>)</p>

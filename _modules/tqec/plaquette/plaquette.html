@@ -485,6 +485,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the plaquette origin.</span>
 
 <span class="sd">        By definition, for the moment, the plaquette origin is always ``(0, 0)``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">PhysicalQubitPosition2D</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
@@ -500,8 +501,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="Plaquette.project_on_data_qubit_indices">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.project_on_data_qubit_indices">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">project_on_data_qubit_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_qubits_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Plaquette</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the plaquette on the provided qubits and return a new</span>
-<span class="sd">        plaquette with the remaining qubits and circuit.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the plaquette on the provided qubit indices.</span>
 
 <span class="sd">        This method is useful for deriving a boundary plaquette from a integral</span>
 <span class="sd">        plaquette.</span>
@@ -526,8 +526,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="Plaquette.project_on_data_qubits">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.project_on_data_qubits">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">project_on_data_qubits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">GridQubit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Plaquette</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the plaquette on the provided qubits and return a new</span>
-<span class="sd">        plaquette with the remaining qubits and circuit.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the plaquette on the provided qubits.</span>
 
 <span class="sd">        This method is useful for deriving a boundary plaquette from a integral</span>
 <span class="sd">        plaquette.</span>
@@ -563,8 +562,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="Plaquette.project_on_boundary">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.project_on_boundary">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">project_on_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">projected_orientation</span><span class="p">:</span> <span class="n">PlaquetteOrientation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Plaquette</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the plaquette on boundary and return a new plaquette with</span>
-<span class="sd">        the remaining qubits and circuit.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the plaquette on a boundary and return the projected version.</span>
 
 <span class="sd">        This method is useful for deriving a boundary plaquette from a integral</span>
 <span class="sd">        plaquette.</span>
@@ -605,6 +603,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">        This is an issue when trying to store a dictionary involving a plaquette as key and re-use</span>
 <span class="sd">        it in subsequent runs or on other machines / OSes.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span> <span class="mi">16</span><span class="p">)</span></div>
 
@@ -625,6 +624,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the plaquette is empty.</span>
 
 <span class="sd">        An empty plaquette is a plaquette that contain empty scheduled circuit.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">get_circuit</span><span class="p">(</span><span class="n">include_qubit_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="n">stim</span><span class="o">.</span><span class="n">Circuit</span><span class="p">())</span></div>
 
@@ -632,9 +632,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="Plaquette.with_debug_information">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.with_debug_information">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">with_debug_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug_information</span><span class="p">:</span> <span class="n">PlaquetteDebugInformation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Plaquette</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a copy of ``self`` with its debug information replaced by the provided</span>
-<span class="sd">        ``debug_information``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a copy of ``self`` with the provided ``debug_information``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Plaquette</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qubits</span><span class="p">,</span>
@@ -650,6 +648,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary representation of the plaquette.</span>
 
 <span class="sd">        The dictionary is intended to be used as a JSON object.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -690,17 +689,16 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Plaquettes</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent a collection of plaquettes that might be applied to a</span>
-<span class="sd">    :class:`Template` instance.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent a collection of plaquettes that might be applied to a :class:`Template` instance.</span>
 
-<span class="sd">    The goal of this class is to abstract away how a &quot;collection of</span>
-<span class="sd">    plaquettes&quot; is represented and to provide a unique interface in</span>
-<span class="sd">    order to retrieve plaquettes when building a quantum circuit from a</span>
-<span class="sd">    template and plaquettes.</span>
+<span class="sd">    The goal of this class is to abstract away how a &quot;collection of plaquettes&quot; is represented and</span>
+<span class="sd">    to provide a unique interface in order to retrieve plaquettes when building a quantum circuit</span>
+<span class="sd">    from a template and plaquettes.</span>
 
-<span class="sd">    It also checks that the represented collection is valid, which means</span>
-<span class="sd">    that it does not include any plaquette associated with index 0 (that</span>
-<span class="sd">    is internally and conventionally reserved for the empty plaquette).</span>
+<span class="sd">    It also checks that the represented collection is valid, which means that it does not include</span>
+<span class="sd">    any plaquette associated with index 0 (that is internally and conventionally reserved for the</span>
+<span class="sd">    empty plaquette).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">collection</span><span class="p">:</span> <span class="n">FrozenDefaultDict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Plaquette</span><span class="p">]</span>
@@ -746,8 +744,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Implementation for Python&#39;s hash().</span>
 
-<span class="sd">        The returned value is reliable across runs, interpreters and</span>
-<span class="sd">        OSes.</span>
+<span class="sd">        The returned value is reliable across runs, interpreters and OSes.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span>
             <span class="nb">tuple</span><span class="p">(</span>
@@ -771,9 +769,7 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="Plaquettes.without_plaquettes">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquettes.html#tqec.plaquette.Plaquettes.without_plaquettes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">without_plaquettes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Plaquettes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove the plaquettes associated with the provided ``indices`` from a copy of ``self``</span>
-<span class="sd">        and return the new instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove the plaquettes at the provided ``indices`` from a copy of ``self``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Plaquettes</span><span class="p">(</span>
             <span class="n">FrozenDefaultDict</span><span class="p">(</span>
                 <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">},</span>

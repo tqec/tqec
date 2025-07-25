@@ -538,8 +538,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.utils.NoiseModel.noisy_circuit">
 <span class="sig-name descname"><span class="pre">noisy_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">immune_qubits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/noise_model.html#NoiseModel.noisy_circuit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.utils.NoiseModel.noisy_circuit" title="Link to this definition">#</a></dt>
-<dd><p>Returns a noisy version of the given circuit, by applying the
-receiving noise model.</p>
+<dd><p>Returns a noisy version of the given circuit, by applying the receiving noise model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -580,12 +579,11 @@ the input qubit.</p>
 <dt class="sig sig-object py" id="tqec.utils.NoiseModel.uniform_depolarizing">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uniform_depolarizing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/utils/noise_model.html#NoiseModel.uniform_depolarizing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.utils.NoiseModel.uniform_depolarizing" title="Link to this definition">#</a></dt>
 <dd><p>Near-standard circuit depolarizing noise.</p>
-<p>Everything has the same parameter p. Single qubit clifford gates
-get single qubit depolarization. Two qubit clifford gates get
-single qubit depolarization. Dissipative gates have their result
-probabilistically bit flipped (or phase flipped if appropriate).</p>
-<p>Non-demolition measurement is treated a bit unusually in that it
-is the result that is flipped instead of the input qubit.</p>
+<p>Everything has the same parameter <code class="docutils literal notranslate"><span class="pre">p</span></code>. Single-qubit Clifford gates get single-qubit
+depolarization. Two-qubit Clifford gates get single-qubit depolarization. Dissipative gates
+have their result probabilistically bit-flipped (or phase-flipped if appropriate).</p>
+<p>Non-demolition measurement is treated a bit unusually in that it is the result that is
+flipped instead of the input qubit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>p</strong> (<em>float</em>)</p>

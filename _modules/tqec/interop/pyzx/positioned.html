@@ -540,8 +540,7 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.interop.PositionedZX.html#tqec.interop.PositionedZX.from_block_graph">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_block_graph</span><span class="p">(</span><span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PositionedZX</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a :py:class:`~tqec.computation.block_graph.BlockGraph` to a</span>
-<span class="sd">        ZX graph with 3D positions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a :py:class:`.BlockGraph` to a ZX graph with 3D positions.</span>
 
 <span class="sd">        The conversion process is as follows:</span>
 
@@ -594,8 +593,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">hadamard_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">edge_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Figure</span><span class="p">,</span> <span class="n">Axes3D</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX`</span>
-<span class="sd">        using matplotlib.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            graph: The ZX graph to plot.</span>

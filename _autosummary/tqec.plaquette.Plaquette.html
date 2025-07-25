@@ -571,13 +571,13 @@ circuits together to remove duplicate instructions.</p>
 <td><p>Check if the plaquette is empty.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.project_on_boundary" title="tqec.plaquette.Plaquette.project_on_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_on_boundary</span></code></a>(projected_orientation)</p></td>
-<td><p>Project the plaquette on boundary and return a new plaquette with the remaining qubits and circuit.</p></td>
+<td><p>Project the plaquette on a boundary and return the projected version.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.project_on_data_qubit_indices" title="tqec.plaquette.Plaquette.project_on_data_qubit_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_on_data_qubit_indices</span></code></a>(...)</p></td>
-<td><p>Project the plaquette on the provided qubits and return a new plaquette with the remaining qubits and circuit.</p></td>
+<td><p>Project the plaquette on the provided qubit indices.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.project_on_data_qubits" title="tqec.plaquette.Plaquette.project_on_data_qubits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_on_data_qubits</span></code></a>(data_qubits)</p></td>
-<td><p>Project the plaquette on the provided qubits and return a new plaquette with the remaining qubits and circuit.</p></td>
+<td><p>Project the plaquette on the provided qubits.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.reliable_hash" title="tqec.plaquette.Plaquette.reliable_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reliable_hash</span></code></a>()</p></td>
 <td><p>Return a hash of <code class="docutils literal notranslate"><span class="pre">self</span></code> that is replicable across OSes and Python runs.</p></td>
@@ -586,7 +586,7 @@ circuits together to remove duplicate instructions.</p>
 <td><p>Return a dictionary representation of the plaquette.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#tqec.plaquette.Plaquette.with_debug_information" title="tqec.plaquette.Plaquette.with_debug_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_debug_information</span></code></a>(debug_information)</p></td>
-<td><p>Create a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> with its debug information replaced by the provided <code class="docutils literal notranslate"><span class="pre">debug_information</span></code>.</p></td>
+<td><p>Create a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided <code class="docutils literal notranslate"><span class="pre">debug_information</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -676,8 +676,7 @@ circuits together to remove duplicate instructions.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquette.project_on_boundary">
 <span class="sig-name descname"><span class="pre">project_on_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">projected_orientation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.project_on_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.project_on_boundary" title="Link to this definition">#</a></dt>
-<dd><p>Project the plaquette on boundary and return a new plaquette with
-the remaining qubits and circuit.</p>
+<dd><p>Project the plaquette on a boundary and return the projected version.</p>
 <p>This method is useful for deriving a boundary plaquette from a integral
 plaquette.</p>
 <dl class="field-list simple">
@@ -701,8 +700,7 @@ removed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquette.project_on_data_qubit_indices">
 <span class="sig-name descname"><span class="pre">project_on_data_qubit_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_qubits_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.project_on_data_qubit_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.project_on_data_qubit_indices" title="Link to this definition">#</a></dt>
-<dd><p>Project the plaquette on the provided qubits and return a new
-plaquette with the remaining qubits and circuit.</p>
+<dd><p>Project the plaquette on the provided qubit indices.</p>
 <p>This method is useful for deriving a boundary plaquette from a integral
 plaquette.</p>
 <dl class="field-list simple">
@@ -728,8 +726,7 @@ moments with the corresponding schedules are removed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquette.project_on_data_qubits">
 <span class="sig-name descname"><span class="pre">project_on_data_qubits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_qubits</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.project_on_data_qubits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.project_on_data_qubits" title="Link to this definition">#</a></dt>
-<dd><p>Project the plaquette on the provided qubits and return a new
-plaquette with the remaining qubits and circuit.</p>
+<dd><p>Project the plaquette on the provided qubits.</p>
 <p>This method is useful for deriving a boundary plaquette from a integral
 plaquette.</p>
 <dl class="field-list simple">
@@ -779,8 +776,7 @@ it in subsequent runs or on other machines / OSes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tqec.plaquette.Plaquette.with_debug_information">
 <span class="sig-name descname"><span class="pre">with_debug_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug_information</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tqec/plaquette/plaquette.html#Plaquette.with_debug_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tqec.plaquette.Plaquette.with_debug_information" title="Link to this definition">#</a></dt>
-<dd><p>Create a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> with its debug information replaced by the provided
-<code class="docutils literal notranslate"><span class="pre">debug_information</span></code>.</p>
+<dd><p>Create a copy of <code class="docutils literal notranslate"><span class="pre">self</span></code> with the provided <code class="docutils literal notranslate"><span class="pre">debug_information</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>debug_information</strong> (<em>PlaquetteDebugInformation</em>)</p>
