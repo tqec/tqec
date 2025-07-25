@@ -205,7 +205,7 @@ class QubitMap:
         return QubitMap(i2q)
 
     def qubit_bounds(self) -> tuple[GridQubit, GridQubit]:
-        """Returns the tightest possible bounding box containing all the qubits in ``self``.
+        """Return the tightest possible bounding box containing all the qubits in ``self``.
 
         Raises:
             TQECError: if ``self`` is empty.

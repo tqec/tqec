@@ -83,7 +83,7 @@ class PlaquettePosition2D(Position2D):
     """Represents the position of a plaquette on a 2-dimensional plane."""
 
     def get_origin_position(self, shift: Shift2D) -> PhysicalQubitPosition2D:
-        """Returns the position of the plaquette origin."""
+        """Return the position of the plaquette origin."""
         return PhysicalQubitPosition2D(shift.x * self.x, shift.y * self.y)
 
 
@@ -91,13 +91,17 @@ class BlockPosition2D(Position2D):
     """Represents the position of a block on a 2-dimensional plane."""
 
     def get_top_left_plaquette_position(self, block_shape: PlaquetteShape2D) -> PlaquettePosition2D:
-        """Returns the position of the top-left plaquette of the block."""
+        """Return the position of the top-left plaquette of the block."""
         return PlaquettePosition2D(block_shape.x * self.x, block_shape.y * self.y)
 
 
 class Shape2D(Vec2D):
     def to_numpy_shape(self) -> tuple[int, int]:
-        """Returns the shape according to numpy indexing.
+        """Return the shape according to numpy indexing.
+
+        In the coordinate system used in this library, numpy indexes arrays using (y, x)
+        coordinates. This method is here to translate a Shape instance to a numpy shape
+        transparently for the user.
 
         In the coordinate system used in this library, numpy indexes arrays using (y, x)
         coordinates. This method is here to translate a ``Shape`` instance to a numpy shape

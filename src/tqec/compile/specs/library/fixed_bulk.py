@@ -174,7 +174,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         )
 
     def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a temporal Hadamard pipe.
+        """Return the block to implement a temporal Hadamard pipe.
 
         Note:
             This method performs the realignment and Hadamard transition at the
@@ -222,7 +222,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
     ##############################
     @staticmethod
     def _get_spatial_cube_arms(spec: PipeSpec) -> SpatialArms:
-        """Returns the arm(s) corresponding to the provided ``spec``.
+        """Return the arm(s) corresponding to the provided ``spec``.
 
         Args:
             spec: pipe specification to get the arm(s) from.
@@ -354,7 +354,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         return Block(layers)
 
     def _get_spatial_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a spatial pipe based on the provided ``spec``.
+        """Return the block to implement a spatial pipe based on the provided ``spec``.
 
         Args:
             spec: description of the pipe that should be implemented by this method. Should be a

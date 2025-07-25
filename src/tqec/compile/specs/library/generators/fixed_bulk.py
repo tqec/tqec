@@ -155,7 +155,7 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
-        """Returns the four 3-body stabilizer measurement plaquettes.
+        """Return the four 3-body stabilizer measurement plaquettes.
 
         Args:
             reset: basis of the reset operation performed on data-qubits. Defaults
@@ -789,7 +789,7 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a spatial cube.
+        """Return the plaquettes needed to implement a spatial cube.
 
         Note:
             A spatial cube is defined as a cube with all its spatial boundaries
@@ -1120,7 +1120,7 @@ class FixedBulkConventionGenerator:
     def get_temporal_hadamard_realignment_plaquettes(
         self, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> Plaquettes:
-        """Returns the :class:`.Plaquettes` instance needed to implement the realignment of the bulk
+        """Return the :class:`.Plaquettes` instance needed to implement the realignment of the bulk
         stabilizer basis of the code.
 
         This is needed because a transversal Hadamard layer will change the bulk stabilizer basis of
@@ -1243,7 +1243,7 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``X`` axis.
 
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
@@ -1346,7 +1346,7 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``Y`` axis.
 
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical

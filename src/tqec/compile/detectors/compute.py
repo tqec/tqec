@@ -375,7 +375,7 @@ def compute_detectors_at_end_of_situation(
         subtemplates: a sequence of sub-template(s), each entry consisting of
             a square 2-dimensional array of integers with odd-length sides
             representing the arrangement of plaquettes in a subtemplate.
-        plaquettes_at_timestep: a sequence of collection of plaquettes each
+        plaquettes_by_timestep: a sequence of collection of plaquettes each
             representing one QEC round.
         increments: spatial increments between each `Plaquette` origin.
         database: existing database of detectors that is used to avoid computing
@@ -626,7 +626,7 @@ def _compute_detector_for_subtemplate(
         int,  # parallel_process_count
     ],
 ) -> tuple[tuple[int, ...], frozenset[Detector]]:
-    """Helper function for parallel processing of detector computation.
+    """Wrap :func:`compute_detectors_at_end_of_situation` for parallel processing of detectors.
 
     Args:
         args: A tuple containing:

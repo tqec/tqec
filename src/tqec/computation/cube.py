@@ -246,7 +246,7 @@ class Cube:
         return isinstance(self.kind, ZXCube) and self.kind.is_spatial
 
     def to_dict(self) -> dict[str, Any]:
-        """Returns the dictionary representation of the cube."""
+        """Return the dictionary representation of the cube."""
         return {
             "position": self.position.as_tuple(),
             "kind": str(self.kind),
@@ -255,7 +255,7 @@ class Cube:
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> Cube:
-        """Creates a cube from the dictionary representation.
+        """Create a cube from the dictionary representation.
 
         Args:
             data: The dictionary representation of the cube.

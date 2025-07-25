@@ -90,8 +90,7 @@ class Plaquette:
         plaquette.
 
         Args:
-            data_qubits: data-qubit indices that will be kept in the returned
-                plaquette.
+            data_qubits_indices: data-qubit indices that will be kept in the returned plaquette.
 
         Returns:
             A new plaquette with projected qubits and circuit. The qubits are
@@ -294,7 +293,9 @@ class Plaquettes:
         return isinstance(rhs, Plaquettes) and self.collection == rhs.collection
 
     def __hash__(self) -> int:
-        """Implementation for Python's hash().
+        """Implement hashing for Python's hash().
+
+        The returned value is reliable across runs, interpreters and OSes.
 
         The returned value is reliable across runs, interpreters and OSes.
 
@@ -360,6 +361,9 @@ class Plaquettes:
 
         Args:
             data: dictionary with the keys ``plaquettes`` and ``default``.
+            plaquettes: list of :class:`Plaquette` instances to use to build the
+                :class:`Plaquettes` instances. Each plaquette is represented by
+                its index in the list of unique plaquettes to save space.
 
         Returns:
             a new instance of :class:`Plaquettes` with the provided

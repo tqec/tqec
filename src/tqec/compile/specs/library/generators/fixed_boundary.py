@@ -114,7 +114,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> tuple[RPNGDescription, RPNGDescription, RPNGDescription, RPNGDescription]:
-        """Returns the four 3-body stabilizer measurement plaquettes.
+        """Return the four 3-body stabilizer measurement plaquettes.
 
         Args:
             basis: basis of the 3-body stabilizer that should be measured by the returned
@@ -321,6 +321,10 @@ class FixedBoundaryConventionGenerator:
         Args:
             top_left_basis: basis of the top-left-most stabilizer (top
                 stabilizer of a 2-qubit plaquette).
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             reset: basis of the reset operation performed on data-qubits. Defaults
                 to ``None`` that translates to no reset being applied on data-qubits.
             measurement: basis of the measurement operation performed on data-qubits.
@@ -513,6 +517,10 @@ class FixedBoundaryConventionGenerator:
             by this method.
 
         Arguments:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
             z_orientation: orientation of the ``Z`` observable. Used to compute
                 the stabilizers that should be measured on the boundaries and in
                 the bulk of the returned memory description.
@@ -975,7 +983,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a spatial cube.
+        """Return the plaquettes needed to implement a spatial cube.
 
         Note:
             A spatial cube is defined as a cube with all its spatial boundaries
@@ -1428,7 +1436,7 @@ class FixedBoundaryConventionGenerator:
     def get_temporal_hadamard_plaquettes(
         self, is_reversed: bool, z_orientation: Orientation = Orientation.HORIZONTAL
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a transversal Hadamard gate applied on one
+        """Return the plaquettes needed to implement a transversal Hadamard gate applied on one
         logical qubit.
 
         Warning:
@@ -1543,7 +1551,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``X`` axis.
 
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical
@@ -1665,7 +1673,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        """Returns the plaquettes needed to implement a Hadamard spatial transition between two
+        """Return the plaquettes needed to implement a Hadamard spatial transition between two
         neighbouring logical qubits aligned on the ``Y`` axis.
 
         The Hadamard transition basically exchanges the ``X`` and ``Z`` logical

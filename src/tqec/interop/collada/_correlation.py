@@ -238,7 +238,7 @@ class CorrelationSurfaceTransformationHelper:
 def _rotation_to_plane(
     plane_normal_direction: Direction3D,
 ) -> npt.NDArray[np.float32]:
-    """Starting from a surface in the XY-plane, rotate to the given plane."""
+    """Rotate a surface in the XY-plane to the given plane."""
     if plane_normal_direction == Direction3D.Z:
         return _rotation_matrix(Direction3D.Z, 0.0)
     elif plane_normal_direction == Direction3D.X:

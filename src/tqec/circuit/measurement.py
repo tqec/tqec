@@ -31,7 +31,7 @@ class AbstractMeasurement(ABC):
 
     @abstractmethod
     def offset_spatially_by(self, x: int, y: int) -> AbstractMeasurement:
-        """Returns a new instance offset by the provided spatial coordinates.
+        """Return a new instance offset by the provided spatial coordinates.
 
         Args:
             x: first spatial dimension offset.
@@ -44,7 +44,7 @@ class AbstractMeasurement(ABC):
 
     @abstractmethod
     def offset_temporally_by(self, t: int) -> AbstractMeasurement:
-        """Returns a new instance offset by the provided temporal coordinates.
+        """Return a new instance offset by the provided temporal coordinates.
 
         Args:
             t: temporal offset.

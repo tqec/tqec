@@ -30,8 +30,7 @@ class WithSpatialFootprint(ABC):
         """Initialise the instance.
 
         Args:
-            removed_spatial_borders: all the spatial borders that have been
-                trimmed from the layer.
+            trimmed_spatial_borders: all the spatial borders that have been trimmed from the layer.
 
         """
         super().__init__()
@@ -58,7 +57,7 @@ class WithSpatialFootprint(ABC):
         pass
 
     def shape(self, k: int) -> PhysicalQubitShape2D:
-        """Returns the 2-dimensional shape of the object for the given ``k``.
+        """Return the 2-dimensional shape of the object for the given ``k``.
 
         Args:
             k: scaling parameter.
@@ -71,7 +70,7 @@ class WithSpatialFootprint(ABC):
 
     @abstractmethod
     def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> Self:
-        """Returns ``self`` with the provided spatial borders removed.
+        """Return ``self`` with the provided spatial borders removed.
 
         Args:
             borders: spatial borders to remove.

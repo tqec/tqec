@@ -22,7 +22,7 @@ class ExtendedPlaquettePosition(Enum):
     DOWN = "DOWN"
 
     def flip(self) -> ExtendedPlaquettePosition:
-        """Returns the opposite direction."""
+        """Return the opposite direction."""
         match self:
             case ExtendedPlaquettePosition.UP:
                 return ExtendedPlaquettePosition.DOWN
@@ -178,7 +178,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
-        """Returns the plaquette shape, uniformly filled with the appropriate color.
+        """Return the plaquette shape, uniformly filled with the appropriate color.
 
         Args:
             configuration: drawing configuration.

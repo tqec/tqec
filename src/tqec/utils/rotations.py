@@ -76,7 +76,7 @@ def calc_rotation_angles(
 
 
 def get_axes_directions(rotation_matrix: npt.NDArray[np.float32]) -> dict[str, int]:
-    """Gets up/down multipliers for each row of a rotation matrix.
+    """Get up/down multipliers for each row of a rotation matrix.
 
     Args:
         rotation_matrix: rotation matrix for node.
@@ -157,7 +157,7 @@ def get_rotation_matrix(
     counterclockwise: bool = True,
     angle: float = np.pi / 2,
 ) -> npt.NDArray[np.float32]:
-    """Gets the rotation matrix for a given axis and rotation.
+    """Get the rotation matrix for a given axis and rotation.
 
     Args:
         rotation_axis: axis to rotate around.
@@ -267,7 +267,7 @@ def adjust_hadamards_direction(kind: BlockKind) -> BlockKind:
     Args:
         kind: the original "h" kind.
 
-    Returns
+    Returns:
         the updated (inverse) "h" kind.
 
     """

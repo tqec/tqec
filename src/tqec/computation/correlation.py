@@ -185,7 +185,7 @@ class CorrelationSurface:
         graph.
 
         Args:
-            g: The block graph to consider.
+            graph: The block graph to consider.
 
         Returns:
             The Pauli operator that is the external stabilizer of the correlation surface.

@@ -130,7 +130,7 @@ class NoiseRule:
     """Describes how to add noise to an operation."""
 
     def __init__(self, *, after: dict[str, float], flip_result: float = 0):
-        """Describes how to add noise to an operation.
+        """Describe how to add noise to an operation.
 
         Args:
             after: A dictionary mapping noise rule names to their probability argument.
@@ -192,7 +192,7 @@ class NoiseModel:
         any_clifford_1q_rule: NoiseRule | None = None,
         any_clifford_2q_rule: NoiseRule | None = None,
     ):
-        """Represents a noise model that can be applied to a ``stim.Circuit``."""
+        """Represent a noise model that can be applied to a ``stim.Circuit``."""
         self.idle_depolarization = idle_depolarization
         self.additional_depolarization_waiting_for_m_or_r = (
             additional_depolarization_waiting_for_m_or_r
@@ -502,7 +502,7 @@ def _split_targets_if_needed_m_basis(
 def _iter_split_op_moments(
     circuit: stim.Circuit, *, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitRepeatBlock | list[stim.CircuitInstruction]]:
-    """Splits a circuit into moments and some operations into pieces.
+    """Split a circuit into moments and some operations into pieces.
 
     Classical control system operations like ``CX rec[-1] 0`` are split from quantum operations
     like ``CX 1 0``.

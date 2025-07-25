@@ -28,7 +28,7 @@ class StimCoordinates:
     """
 
     def to_stim_coordinates(self) -> tuple[float, ...]:
-        """Returns a tuple that can be used as ``stim`` coordinates.
+        """Return a tuple that can be used as ``stim`` coordinates.
 
         The output of this method is intended to be forwarded to the third
         argument of ``stim.CircuitInstruction``.

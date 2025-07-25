@@ -17,6 +17,7 @@ def display_template(
 
     Args:
         template: the Template instance to display.
+        k: scaling factor.
         plaquette_indices: the plaquette indices that are forwarded to the call
             to `template.instantiate` to get the actual template representation.
             If None, default to ``range(1, template.expected_plaquettes_number + 1)``.

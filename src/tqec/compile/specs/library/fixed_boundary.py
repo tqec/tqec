@@ -246,7 +246,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
     ##############################
     @staticmethod
     def _get_spatial_cube_arms(spec: PipeSpec) -> SpatialArms:
-        """Returns the arm(s) corresponding to the provided ``spec``.
+        """Return the arm(s) corresponding to the provided ``spec``.
 
         Args:
             spec: pipe specification to get the arm(s) from.
@@ -380,7 +380,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         )
 
     def get_spatial_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns a :class:`.Block` instance implementing the provided ``spec``."""
+        """Return a :class:`.Block` instance implementing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         cube_specs = spec.cube_specs
         if cube_specs[0].is_spatial or cube_specs[1].is_spatial:

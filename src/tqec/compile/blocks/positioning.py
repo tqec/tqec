@@ -55,7 +55,7 @@ class LayoutPosition2D(ABC):
 
 class LayoutCubePosition2D(LayoutPosition2D):
     def __init__(self, x: int, y: int) -> None:
-        """Internal class to represent the position of a cube on the grid.
+        """Represent the position of a cube on the grid.
 
         For the moment, only 2 entities have to appear on the grid: cubes and pipes.
         For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
@@ -75,7 +75,7 @@ class LayoutCubePosition2D(LayoutPosition2D):
 
 class LayoutPipePosition2D(LayoutPosition2D):
     def __init__(self, x: int, y: int) -> None:
-        """Internal class to represent the position of a cube on the grid.
+        """Represent the position of a cube on the grid.
 
         For the moment, only 2 entities have to appear on the grid: cubes and pipes.
         For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
@@ -171,7 +171,7 @@ class LayoutPosition3D(ABC, Generic[T_co]):
 
     @property
     def z(self) -> int:
-        """Returns the z-coordinate."""
+        """Return the z-coordinate."""
         return self._z
 
     def __repr__(self) -> str:

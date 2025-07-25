@@ -24,7 +24,7 @@ class RGBA:
     a: float
 
     def with_alpha(self, a: float) -> RGBA:
-        """Returns a new RGBA with the same color but a different alpha value.
+        """Return a new RGBA with the same color but a different alpha value.
 
         Args:
             a: The new alpha value.
@@ -45,7 +45,7 @@ class RGBA:
         return (self.r / 255, self.g / 255, self.b / 255, self.a)
 
     def to_hex(self) -> str:
-        """Returns the color as a hexadecimal string.
+        """Return the color as a hexadecimal string.
 
         Returns:
             The color as a hexadecimal string.
@@ -66,7 +66,7 @@ class TQECColor(Enum):
 
     @property
     def rgba(self) -> RGBA:
-        """Returns the RGBA representation of the color."""
+        """Return the RGBA representation of the color."""
         if self == TQECColor.X:
             return RGBA(255, 127, 127, 1.0)
         if self == TQECColor.Y:

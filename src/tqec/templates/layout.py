@@ -6,7 +6,7 @@ instances with the same scalable shape. Each of the managed
 :class:`~tqec.templates.base.RectangularTemplate` instance is linked to a unique
 2-dimensional position on an infinite 2-dimensional grid.
 
-Example
+Example:
 -------
 A grid of :math:`2 \times 2` logical qubits can be represented with
 
@@ -89,7 +89,7 @@ class LayoutTemplate(Template):
         element_layout: dict[BlockPosition2D, RectangularTemplate],
         default_increments: Shift2D | None = None,
     ) -> None:
-        """A template representing a layout of other templates.
+        """Implement a template representing a layout of other templates.
 
         Each element template in the layout is placed at a specific position in
         the 2D grid.
@@ -222,7 +222,7 @@ class LayoutTemplate(Template):
     @property
     @override
     def scalable_shape(self) -> PlaquetteScalable2D:
-        """Returns a scalable version of the template shape."""
+        """Return a scalable version of the template shape."""
         return PlaquetteScalable2D(
             self._nx * self._element_scalable_shape.x,
             self._ny * self._element_scalable_shape.y,

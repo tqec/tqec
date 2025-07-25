@@ -258,7 +258,7 @@ class DetectorDatabase:
         """Add a new situation to the database.
 
         Args:
-            subtemplate: a sequence of 2-dimensional arrays of integers
+            subtemplates: a sequence of 2-dimensional arrays of integers
                 representing the sub-template(s). Each entry corresponds to one
                 QEC round.
             plaquettes_by_timestep: a list of :class:`Plaquettes`, each
@@ -287,7 +287,7 @@ class DetectorDatabase:
         """Remove an existing situation from the database.
 
         Args:
-            subtemplate: a sequence of 2-dimensional arrays of integers
+            subtemplates: a sequence of 2-dimensional arrays of integers
                 representing the sub-template(s). Each entry corresponds to one
                 QEC round.
             plaquettes_by_timestep: a list of :class:`Plaquettes`, each
@@ -312,14 +312,13 @@ class DetectorDatabase:
         """Return the detectors associated with the provided situation.
 
         Args:
-            subtemplate: a sequence of 2-dimensional arrays of integers
+            subtemplates: a sequence of 2-dimensional arrays of integers
                 representing the sub-template(s). Each entry corresponds to one
                 QEC round.
             plaquettes_by_timestep: a list of :class:`Plaquettes`, each
                 :class:`Plaquettes` entry storing enough :class:`Plaquette`
                 instances to generate a circuit from corresponding entry in
                 `self.subtemplates` and corresponding to one QEC round.
-            detectors: computed detectors that should be stored in the database.
 
         Returns:
             detectors associated with the provided situation or `None` if the

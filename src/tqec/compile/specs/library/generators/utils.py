@@ -29,7 +29,7 @@ class PlaquetteMapper:
         translator: RPNGTranslator = DefaultRPNGTranslator(),
         compiler: PlaquetteCompiler = IdentityPlaquetteCompiler,
     ) -> None:
-        """Wrapper around a translator and a compiler to ease plaquette generation."""
+        """Wrap a translator and a compiler to ease plaquette generation."""
         self._translator = translator
         self._compiler = compiler
 
@@ -41,7 +41,7 @@ class PlaquetteMapper:
         self,
         f: Callable[P, FrozenDefaultDict[int, RPNGDescription]],
     ) -> Callable[P, Plaquettes]:
-        """Wraps the provided callable ``f`` to automatically get :class:`.Plaquette` instances.
+        """Wrap the provided callable ``f`` to automatically get :class:`.Plaquette` instances.
 
         This method wraps correctly the provided function such that :meth:`get_plaquette` is called
         on each of the returned :class:`.RPNGDescription` instance to get its corresponding
