@@ -11,8 +11,7 @@ from tqec.utils.position import BlockPosition2D, BlockPosition3D, SignedDirectio
 
 class LayoutPosition2D(ABC):
     def __init__(self, x: int, y: int) -> None:
-        """Internal class to represent the local indexing used to represent both
-        cubes and pipes.
+        """Internal class to represent the local indexing used to represent both cubes and pipes.
 
         Args:
             x: first coordinate.
@@ -62,6 +61,7 @@ class LayoutCubePosition2D(LayoutPosition2D):
         For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
         instances) to be on even coordinates and pipes positions to have one odd
         coordinates in the pipe dimension and even coordinates elsewhere.
+
         """
         if (x % 2 == 1) or (y % 2 == 1):
             clsname = self.__class__.__name__
@@ -81,6 +81,7 @@ class LayoutPipePosition2D(LayoutPosition2D):
         For that reason, we define cube positions (i.e., :class:`LayoutCubePosition2D`
         instances) to be on even coordinates and pipes positions to have one odd
         coordinates in the pipe dimension and even coordinates elsewhere.
+
         """
         if not ((x % 2 == 1) ^ (y % 2 == 1)):
             clsname = self.__class__.__name__
@@ -103,8 +104,7 @@ T = TypeVar("T", bound=LayoutPosition2D, covariant=True, default=LayoutPosition2
 
 class LayoutPosition3D(ABC, Generic[T]):
     def __init__(self, spatial_position: T, z: int) -> None:
-        """Internal class to represent the local indexing used to represent both
-        cubes and pipes in 3-dimensions.
+        """Internal class to represent the local indexing used to represent both 3D cubes and pipes.
 
         This class simply wraps a :class:`LayoutPosition2D` instance with an
         integer-valued z coordinate.
@@ -112,6 +112,7 @@ class LayoutPosition3D(ABC, Generic[T]):
         Because temporal pipes are "absorbed" in its neighbouring blocks, we do not
         have to represent them, hence the z coordinate does not need any kind of
         special treatment like the x and y coordinates.
+
         """
         super().__init__()
         self._spatial_position = spatial_position

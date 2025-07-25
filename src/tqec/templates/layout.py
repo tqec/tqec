@@ -1,5 +1,4 @@
-r"""Defines a high-level template composing several sub-templates:
-:class:`LayoutTemplate`.
+r"""Defines a high-level template composing several sub-templates: :class:`LayoutTemplate`.
 
 This module defines a :class:`~tqec.templates.base.Template` child class that
 is able to represent several :class:`~tqec.templates.base.RectangularTemplate`
@@ -172,9 +171,9 @@ class LayoutTemplate(Template):
     def get_global_plaquettes(
         self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]
     ) -> Plaquettes:
-        """Merge the provided ``individual_plaquettes`` into a single
-        :class:`~tqec.plaquette.plaquette.Plaquettes` instance that can be used
-        to instantiate ``self``.
+        """Merges ``individual_plaquettes`` into a single :class:`.Plaquettes` instance.
+
+        The returned :class:`.Plaquettes` instance can then be used to instantiate ``self``.
 
         Raises:
             TQECError: if the provided ``individual_plaquettes`` does not
@@ -236,8 +235,7 @@ class LayoutTemplate(Template):
     @property
     @override
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the `instantiate`
-        method.
+        """Returns the number of plaquettes expected from the ``instantiate`` method.
 
         Returns:
             the number of plaquettes expected from the `instantiate` method.

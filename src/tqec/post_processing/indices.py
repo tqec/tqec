@@ -12,8 +12,7 @@ def remap_qubit_indices(
     target_qubit_map: QubitMap | None = None,
     sort_key: Callable[[GridQubit], Any] = lambda q: (q.x, q.y),
 ) -> stim.Circuit:
-    """Change qubit indices from the provided ``circuit`` by using the provided
-    ``target_qubit_map``.
+    """Change qubit indices from ``circuit`` by using the provided ``target_qubit_map``.
 
     Args:
         circuit: original circuit that will be copied and changed by this

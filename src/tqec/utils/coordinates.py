@@ -1,6 +1,4 @@
-"""Implements a wrapper to standardise stim coordinate system across the code
-base.
-"""
+"""Implements a wrapper to standardise the stim coordinate system across the code base."""
 
 from __future__ import annotations
 
@@ -15,6 +13,7 @@ class StimCoordinates:
     This class should be used whenever a ``stim.CircuitInstruction`` that expects
     arguments that are interpreted by stim as coordinates is built. This is the
     case of the ``DETECTOR`` instruction for example.
+
     """
 
     _ABS_TOL = 1e-10
@@ -24,14 +23,16 @@ class StimCoordinates:
     y: float
     """Second spatial coordinate."""
     t: float | None = None
-    """Third coordinate, most of the time associated to time, but might be
-    associated to the third spatial coordinate in some contexts."""
+    """Third coordinate, most of the time associated to time, but might be associated to the third
+    spatial coordinate in some contexts.
+    """
 
     def to_stim_coordinates(self) -> tuple[float, ...]:
         """Returns a tuple that can be used as ``stim`` coordinates.
 
         The output of this method is intended to be forwarded to the third
         argument of ``stim.CircuitInstruction``.
+
         """
         if self.t is not None:
             return (self.x, self.y, self.t)
@@ -66,6 +67,7 @@ class StimCoordinates:
         """Return a dictionary representation of the coordinates.
 
         The dictionary is intended to be used as a JSON object.
+
         """
         return {
             "x": self.x,
@@ -75,8 +77,7 @@ class StimCoordinates:
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> StimCoordinates:
-        """Return a new instance of :class:`StimCoordinates` from its dictionary
-        representation.
+        """Return a new instance of :class:`StimCoordinates` from its dictionary representation.
 
         Args:
             data: dictionary with the keys ``x``, ``y`` and ``t``.

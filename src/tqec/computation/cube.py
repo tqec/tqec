@@ -78,6 +78,7 @@ class ZXCube:
         Normal basis only appears once in the three bases of the cube. For example,
         the normal basis of the cube ``XZZ`` is ``X`` and the normal basis of the cube
         ``ZXX`` is ``Z``.
+
         """
         if sum(basis == Basis.Z for basis in astuple(self)) == 1:
             return Basis.Z
@@ -90,6 +91,7 @@ class ZXCube:
         Normal direction is the direction along which the normal basis appears.
         For example, the normal direction of the cube ``XZZ`` is ``Direction3D.X``
         and the normal direction of the cube ``XXZ`` is ``Direction3D.Z``.
+
         """
         return Direction3D(astuple(self).index(self.normal_basis))
 
@@ -99,6 +101,7 @@ class ZXCube:
 
         A spatial cube is a cube whose all spatial boundaries are in the same basis.
         There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.
+
         """
         return self.x == self.y
 
@@ -115,8 +118,7 @@ class ZXCube:
         return self.as_tuple()[direction.value]
 
     def with_basis_along(self, direction: Direction3D, basis: Basis) -> ZXCube:
-        """Set the basis of the walls along the given direction axis and return
-        a new instance.
+        """Set the basis of the walls along the given direction axis and return a new instance.
 
         Args:
             direction: The direction of the axis along which the basis is set.
@@ -135,10 +137,10 @@ class ZXCube:
 class Port:
     """Cube kind representing the open ports in the block graph.
 
-    The open ports correspond to the input/output of the computation
-    represented by the block graph. They will have no effect on the
-    functionality of the logical computation itself and should be
+    The open ports correspond to the input/output of the computation represented by the block graph.
+    They will have no effect on the functionality of the logical computation itself and should be
     invisible when visualizing the computation model.
+
     """
 
     def __str__(self) -> str:
@@ -220,23 +222,17 @@ class Cube:
 
     @property
     def is_zx_cube(self) -> bool:
-        """Return whether the cube is of kind
-        :py:class:`~tqec.computation.cube.ZXCube`.
-        """
+        """Verify whether the cube is of kind :py:class:`~tqec.computation.cube.ZXCube`."""
         return isinstance(self.kind, ZXCube)
 
     @property
     def is_port(self) -> bool:
-        """Return whether the cube is of kind
-        :py:class:`~tqec.computation.cube.Port`.
-        """
+        """Verify whether the cube is of kind :py:class:`~tqec.computation.cube.Port`."""
         return isinstance(self.kind, Port)
 
     @property
     def is_y_cube(self) -> bool:
-        """Return whether the cube is of kind
-        :py:class:`~tqec.computation.cube.YHalfCube`.
-        """
+        """Verify whether the cube is of kind :py:class:`~tqec.computation.cube.YHalfCube`."""
         return isinstance(self.kind, YHalfCube)
 
     @property
@@ -245,6 +241,7 @@ class Cube:
 
         A spatial cube is a cube whose all spatial boundaries are in the same basis.
         There are only two possible spatial cubes: ``XXZ`` and ``ZZX``.
+
         """
         return isinstance(self.kind, ZXCube) and self.kind.is_spatial
 

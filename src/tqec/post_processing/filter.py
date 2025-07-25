@@ -9,8 +9,7 @@ from tqec.utils.exceptions import TQECWarning
 def subcircuit_only_on_indices(
     circuit: stim.Circuit, qubit_indices: frozenset[int]
 ) -> stim.Circuit:
-    """Returns a new circuit with operations applied on qubit targets that are
-    not in ``qubit_indices`` removed.
+    """Returns a new circuit with only operations applied on qubit targets in ``qubit_indices``.
 
     Note:
         Non-qubit targets are not considered for filtering. That means that an

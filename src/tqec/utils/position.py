@@ -22,6 +22,7 @@ we have
 This is particularly useful when we, as humans, are mostly used to always have
 (x, y) coordinates but some libraries (such as numpy) reverse that order for
 indexing.
+
 """
 
 from __future__ import annotations
@@ -66,9 +67,7 @@ class Position2D(Vec2D):
         return BlockPosition2D(self.x, self.y)
 
     def is_neighbour(self, other: Position2D) -> bool:
-        """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1.
-        """
+        """Check if the other position is near to this position, i.e. Manhattan distance is 1."""
         return abs(self.x - other.x) + abs(self.y - other.y) == 1
 
     def to_3d(self, z: int = 0) -> Position3D:
@@ -100,10 +99,10 @@ class Shape2D(Vec2D):
     def to_numpy_shape(self) -> tuple[int, int]:
         """Returns the shape according to numpy indexing.
 
-        In the coordinate system used in this library, numpy indexes
-        arrays using (y, x) coordinates. This method is here to
-        translate a Shape instance to a numpy shape transparently for
-        the user.
+        In the coordinate system used in this library, numpy indexes arrays using (y, x)
+        coordinates. This method is here to translate a ``Shape`` instance to a numpy shape
+        transparently for the user.
+
         """
         return (self.y, self.x)
 
@@ -145,9 +144,7 @@ class Position3D(Vec3D):
             return self.shift_by(dz=shift)
 
     def is_neighbour(self, other: Position3D) -> bool:
-        """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1.
-        """
+        """Check if the other position is near to this position, i.e. Manhattan distance is 1."""
         return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z) == 1
 
     def as_tuple(self) -> tuple[int, int, int]:

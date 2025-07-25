@@ -23,6 +23,7 @@ class QubitTemplate(RectangularTemplate):
         7  9 10  9 10 11
         8 10  9 10  9 12
         3 13 14 13 14  4
+
     """
 
     @override
@@ -186,8 +187,7 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
 
 
 class QubitVerticalBorders(RectangularTemplate):
-    """Two vertical sides of neighbouring error-corrected qubits glued
-    together.
+    """Two vertical sides of neighbouring error-corrected qubits glued together.
 
     The below text represents this template for an input ``k == 2`` ::
         1 2
@@ -196,6 +196,7 @@ class QubitVerticalBorders(RectangularTemplate):
         5 7
         6 8
         3 4
+
     """
 
     @override
@@ -244,12 +245,12 @@ class QubitVerticalBorders(RectangularTemplate):
 
 
 class QubitHorizontalBorders(RectangularTemplate):
-    """Two horizontal sides of neighbouring error-corrected qubits glued
-    together.
+    """Two horizontal sides of neighbouring error-corrected qubits glued together.
 
     The below text represents this template for an input ``k == 2`` ::
         1 5 6 5 6 2
         3 7 8 7 8 4
+
     """
 
     @override

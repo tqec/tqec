@@ -7,11 +7,11 @@ from string import Template
 
 
 class _ColladaHTMLViewer:
-    """Helper class to view COLLADA model in html with the help of
-    ``three.js``.
+    """Helper class to view COLLADA model in html with the help of ``three.js``.
 
     This can display a COLLADA model in IPython compatible environments with the
     implementation of ``_repr_html_`` method.
+
     """
 
     HTML_TEMPLATE = Template("""
@@ -258,8 +258,10 @@ def display_collada_model(
     filepath_or_bytes: str | pathlib.Path | bytes,
     write_html_filepath: str | pathlib.Path | None = None,
 ) -> _ColladaHTMLViewer:
-    """Display the 3D COLLADA model from a Collada DAE file in IPython
-    compatible environments, or write the generated HTML content to a file.
+    """Display the 3D COLLADA model from a Collada DAE file in IPython compatible environments.
+
+    If ``write_html_filepath`` is provided (i.e., not ``None``), this function writes the generated
+    HTML content to a file.
 
     The implementation of this function references the code snippet from the
     ``stim.Circuit().diagram()`` method.

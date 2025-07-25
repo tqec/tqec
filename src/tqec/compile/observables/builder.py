@@ -65,61 +65,57 @@ Coordinates2D = tuple[float, float] | tuple[int, int]
 
 
 class CubeObservableQubitsBuilder(Protocol):
-    """Builds the qubits whose measurements will be included in the logical
-    observable that is supported by the cube.
+    """Builds the qubits whose measurements will be included in the logical observable that is
+    supported by the cube.
 
-    This calculates the coordinates of these data qubits in the local coordinate
-    system.
+    This calculates the coordinates of these data qubits in the local coordinate system.
+
     """
 
     def __call__(self, shape: PlaquetteShape2D, cube: CubeWithArms) -> Sequence[Coordinates2D]:
-        """Builds the qubit coordinates whose measurement will be included in
-        the observable.
-        """
+        """Builds the qubit coordinates whose measurement will be included in the observable."""
         ...
 
 
 class PipeObservableQubitsBuilder(Protocol):
-    """Builds the qubits whose measurements will be included in the logical
-    observable that is supported by the pipe.
+    """Builds the qubits whose measurements will be included in the logical observable that is
+    supported by the pipe.
 
-    This calculates the coordinates of that data qubit in the local coordinate
-    system of the cube at the head of the pipe.
+    This calculates the coordinates of that data qubit in the local coordinate system of the cube at
+    the head of the pipe.
+
     """
 
     def __call__(self, shape: PlaquetteShape2D, pipe: PipeWithArms) -> Sequence[Coordinates2D]:
-        """Builds the qubit coordinates whose measurement will be included in
-        the observable.
-        """
+        """Builds the qubit coordinates whose measurement will be included in the observable."""
         ...
 
 
 class TemporalPipeObservableQubitsBuilder(Protocol):
-    """Builds the qubits whose measurements will be included in the logical
-    observable that is supported by the temporal pipe.
+    """Builds the qubits whose measurements will be included in the logical observable that is
+    supported by the temporal pipe.
 
-    This calculates the coordinates of that data qubit in the local coordinate
-    system of the cube at the head of the pipe.
+    This calculates the coordinates of that data qubit in the local coordinate system of the cube at
+    the head of the pipe.
+
     """
 
     def __call__(
         self, shape: PlaquetteShape2D, pipe: PipeWithObservableBasis
     ) -> Sequence[Coordinates2D]:
-        """Builds the qubit coordinates whose measurement will be included in
-        the observable.
-        """
+        """Builds the qubit coordinates whose measurement will be included in the observable."""
         ...
 
 
 @dataclass
 class ObservableBuilder:
-    """Compute the qubits whose measurements will be included in the logical
-    observable.
+    """Compute the qubits whose measurements will be included in the logical observable.
 
     The builders can include the qubits that are not in the circuit like qubits in the
     scretched stabilizers to simplify the calculation. The qubits that are not
     measured in the circuit will be ignored when calling
     ``get_observable_with_measurement_records``.
+
     """
 
     cube_top_readouts_builder: CubeObservableQubitsBuilder
@@ -211,8 +207,7 @@ class ObservableBuilder:
         local_coords: Iterable[tuple[float, float] | tuple[int, int]],
         block_position: Position3D,
     ) -> set[GridQubit]:
-        """Transform local coordinates at a block to the global coordinates in the
-        circuit.
+        """Transform local coordinates at a block to the global coordinates in the circuit.
 
         When calculating the coordinates of the measurement qubits, we use a local
         coordinate system in the individual blocks. The top-left corner of the
@@ -224,6 +219,7 @@ class ObservableBuilder:
         and simplifies the calculation of the qubit coordinates. The global coordinates
         are calculated by offsetting the local coordinates by the global position of
         the block and accounting for the ``Template.default_increments``.
+
         """
         block_shape = template.element_shape(k)
         template_increments = template.get_increments()
@@ -243,8 +239,8 @@ def get_observable_with_measurement_records(
     observable_index: int,
     ignore_qubits_with_no_measurement: bool = True,
 ) -> Observable:
-    """Calculate the measurement offsets of the observable qubits measured at
-    the end of the circuit and construct the observable.
+    """Calculate the measurement offsets of the observable qubits measured at the end of the circuit
+    and construct the observable.
 
     Args:
         qubits: The qubits whose measurements will be included in the observable.

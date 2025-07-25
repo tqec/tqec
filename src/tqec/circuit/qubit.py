@@ -1,9 +1,9 @@
-"""Defines :class:`~tqec.circuit.qubit.GridQubit` and helper functions to
-manage qubits.
+"""Defines :class:`~tqec.circuit.qubit.GridQubit` and helper functions to manage qubits.
 
 This module defines a central class to represent a qubit placed on a
 2-dimensional grid, :class:`GridQubit`, and a few functions to extract
 qubit-related information from ``stim.Circuit`` instances.
+
 """
 
 from __future__ import annotations
@@ -40,9 +40,7 @@ class GridQubit:
         return self._y
 
     def to_qubit_coords_instruction(self, index: int) -> stim.CircuitInstruction:
-        """Return the ``QUBIT_COORDS`` ``stim.CircuitInstruction`` needed to
-        define ``self`` in a ``stim.Circuit``.
-        """
+        """Return the ``QUBIT_COORDS`` instruction defining ``self`` in a ``stim.Circuit``."""
         return stim.CircuitInstruction(
             "QUBIT_COORDS",
             [index],
@@ -129,8 +127,7 @@ ANNOTATION_INSTRUCTIONS: frozenset[str] = frozenset(
 
 
 def count_qubit_accesses(circuit: stim.Circuit) -> dict[int, int]:
-    """Count the number of times a given qubit is used by an instruction that
-    is not an annotation.
+    """Count the number of times a given qubit is used by an instruction that is not an annotation.
 
     Note:
         If a ``REPEAT`` instruction is found, each qubit access within the
@@ -163,8 +160,7 @@ def count_qubit_accesses(circuit: stim.Circuit) -> dict[int, int]:
 
 
 def get_used_qubit_indices(circuit: stim.Circuit) -> set[int]:
-    """Returns the indices of qubits that are used by at least one non-
-    annotation instruction.
+    """Returns the indices of qubits that are used by at least one non-annotation instruction.
 
     Args:
         circuit: circuit containing the gates.

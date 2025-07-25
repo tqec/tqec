@@ -16,13 +16,11 @@ TransformationResult = tuple[Basis, _Transformation]
 
 class CorrelationSurfaceTransformationHelper:
     def __init__(self, block_graph: BlockGraph, pipe_length: float):
-        """Helper class to compute transformations of each piece of a correlation
-        surfaces in a COLLADA model.
+        """Helper class to compute transformations of correlation surfaces pieces in a COLLADA model.
 
-        The correlation surface is decomposed into small pieces of surfaces
-        that can be transformed from a single 1x1 square surface in the XY-plane.
-        This class computes the transformations for each piece of the correlation
-        surface.
+        The correlation surface is decomposed into small pieces of surfaces that can be transformed
+        from a single 1x1 square surface in the XY-plane. This class computes the transformations
+        for each piece of the correlation surface.
 
         """
         self.block_graph = block_graph
@@ -33,10 +31,7 @@ class CorrelationSurfaceTransformationHelper:
         self,
         correlation_surface: CorrelationSurface,
     ) -> list[TransformationResult]:
-        """Compute the list of transformations (with corresponding bases) that
-        represent each piece of the given correlation surface in the COLLADA
-        model.
-        """
+        """Returns the transformations representing each piece of the ``correlation_surface``."""
         transformations: list[TransformationResult] = []
 
         # Surfaces in the pipes
@@ -94,8 +89,10 @@ class CorrelationSurfaceTransformationHelper:
         return FloatPosition3D(*(p * (1 + self.pipe_length) for p in pos.as_tuple()))
 
     def _compute_pipe_transformations(self, edge: ZXEdge) -> list[TransformationResult]:
-        """Compute the surface transformations within a pipe. If the edge is a
-        Hadamard edge, two surfaces with different basis are created.
+        """Compute the surface transformations within a pipe.
+
+        If the edge is a Hadamard edge, two surfaces with different basis are created.
+
         """
         transformations: list[TransformationResult] = []
         normal_direction = self._surface_normal_direction(edge)
@@ -207,8 +204,8 @@ class CorrelationSurfaceTransformationHelper:
     ) -> list[TransformationResult]:
         """Compute the transformations for the surfaces in a L-shape turn.
 
-        At turn, two surfaces in the same basis are created and form a 90 degree
-        angle.
+        At turn, two surfaces in the same basis are created and form a 90 degree angle.
+
         """
         cube_kind = self._get_cube(v).kind
         assert isinstance(cube_kind, ZXCube)

@@ -36,8 +36,7 @@ class RGBA:
         return RGBA(self.r, self.g, self.b, a)
 
     def as_floats(self) -> tuple[float, float, float, float]:
-        """Returns the color as a tuple of floats. The RGB values are
-        normalized to the range [0, 1].
+        """Returns the color as a tuple of floats. RGB values are normalized to the range [0, 1].
 
         Returns:
             Length 4 tuple of floats representing the color.
@@ -82,9 +81,7 @@ class TQECColor(Enum):
             return RGBA(0, 0, 255, 0.8)
 
     def with_zx_flipped(self) -> TQECColor:
-        """Returns a ``X`` or ``Z`` color from a ``Z`` or ``X`` color and vice
-        versa.
-        """
+        """Returns a ``X`` or ``Z`` color from a ``Z`` or ``X`` color and vice versa."""
         if self == TQECColor.X:
             return TQECColor.Z
         if self == TQECColor.Z:
