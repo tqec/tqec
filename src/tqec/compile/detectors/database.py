@@ -107,7 +107,7 @@ class _DetectorDatabaseKey:
 
     @cached_property
     def reliable_hash(self) -> int:
-        """Return a hash of ``self`` that is guaranteed to be constant.
+        """Returns a hash of ``self`` that is guaranteed to be constant.
 
         Python's ``hash`` is not guaranteed to be constant across Python versions, OSes and
         executions. In particular, strings hash will not be repeatable across different Python
@@ -124,8 +124,8 @@ class _DetectorDatabaseKey:
         - ``8731178165517315210``
 
         This is an issue for the detector database as we would like it to be reproducible. Else,
-        re-using an existing database will always fail because keys will have a different hash,
-        hence re-computing detectors at each calls and growing indefinitely the database.
+        reusing an existing database will always fail because keys will have a different hash,
+        hence re-computing detectors at each call and growing the database indefinitely.
 
         This method implements a reliable hash that should be constant no matter the context
         (different Python calls, different OS, different version of Python, ...).
@@ -337,7 +337,7 @@ class DetectorDatabase:
         self.frozen = False
 
     def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
-        """Return a Crumble URL (https://algassert.com/crumble) for each of the stored situations.
+        """Returns a URL pointing to https://algassert.com/crumble for each of the stored situations
 
         Args:
             plaquette_increments: increments between two :class:`Plaquette`

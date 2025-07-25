@@ -19,7 +19,7 @@ class WithTemporalFootprint(ABC):
     @property
     @abstractmethod
     def scalable_timesteps(self) -> LinearFunction:
-        """Return the number of timesteps needed to implement the object.
+        """Returns the number of timesteps needed to implement the object.
 
         Returns:
             the number of timesteps needed to implement the object as an
@@ -30,7 +30,7 @@ class WithTemporalFootprint(ABC):
         pass
 
     def timesteps(self, k: int) -> int:
-        """Return the number of timesteps needed to implement the object for the provided ``k``.
+        """Returns the number of timesteps needed for the provided scaling parameter ``k``.
 
         Args:
             k: scaling parameter.
@@ -73,7 +73,7 @@ class WithTemporalFootprint(ABC):
     @property
     @abstractmethod
     def scalable_num_moments(self) -> LinearFunction:
-        """Return the number of moments needed to implement the object,.
+        """Returns the number of moments needed to implement the object,.
 
         Returns:
             the number of moments needed to implement the object as an
@@ -84,7 +84,7 @@ class WithTemporalFootprint(ABC):
         pass
 
     def num_moments(self, k: int) -> int:
-        """Return the number of moments needed to implement the object for the provided ``k``.
+        """Returns the number of moments needed for the provided scaling parameter ``k``.
 
         Args:
             k: scaling parameter.

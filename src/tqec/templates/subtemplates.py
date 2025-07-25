@@ -125,7 +125,7 @@ def get_spatially_distinct_subtemplates(
     manhattan_radius: int = 1,
     avoid_zero_plaquettes: bool = True,
 ) -> UniqueSubTemplates:
-    r"""Return a representation of all the distinct sub-templates of the provided manhattan radius.
+    r"""Returns a representation of all the distinct sub-templates of the provided Manhattan radius.
 
     Note:
         This function will likely be inefficient for large templates (i.e.,
@@ -332,7 +332,7 @@ class Unique3DSubTemplates:
 def get_spatially_distinct_3d_subtemplates(
     instantiations: Sequence[npt.NDArray[numpy.int_]], manhattan_radius: int = 1
 ) -> Unique3DSubTemplates:
-    r"""Return all the distinct 3-dimensional sub-templates of the provided Manhattan radius.
+    r"""Returns all the distinct 3-dimensional sub-templates of the provided Manhattan radius.
 
     Note:
         This function will likely be inefficient for large templates (i.e.,

@@ -357,7 +357,7 @@ class Moment:
         )
 
     def with_mapped_qubit_indices(self, qubit_index_map: dict[int, int]) -> Moment:
-        """Map the qubits **indices** the :class:`Moment` instance is applied on.
+        """Map the qubit **indices** on whom the :class:`Moment` instance is applied.
 
         Note:
             This method has to iterate over all the instructions in ``self`` and

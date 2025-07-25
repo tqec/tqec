@@ -17,7 +17,7 @@ At the moment, we need to ensure that removing one spatial border from any given
 a band of qubits with a known width. Some computations in the code base indirectly depends on the
 fact that this value is 2 for historical reasons.
 
-Even though we do not need to in the foreseeable future, changing that value will likely lead to
+Even though we do not need to in the foreseeable future, changing that width will likely lead to
 various errors in the code base.
 
 """
@@ -39,7 +39,7 @@ class WithSpatialFootprint(ABC):
     @property
     @abstractmethod
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        """Return the 2-dimensional shape of the object.
+        """Returns the 2-dimensional shape of the object.
 
         Note:
             This method should return the shape in qubit-coordinates. That means

@@ -152,7 +152,7 @@ class BlockGraph:
     def ports(self) -> dict[str, Position3D]:
         """Mapping from port labels to their positions.
 
-        A port is a virtual node with unique label that represents the input/output of the
+        A port is a virtual node with a unique label that represents the input/output of the
         computation. It should be invisible when visualizing the computation model.
 
         """
@@ -499,7 +499,7 @@ class BlockGraph:
         )
 
     def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> BlockGraph:
-        """Shift a copy of ``self`` by the given offset in the x, y, z directions and returns it.
+        """Shift a copy of ``self`` by the given offset in the x, y, z directions and return it.
 
         Args:
             dx: The offset in the x direction.
@@ -686,7 +686,7 @@ class BlockGraph:
         counterclockwise: bool = True,
         num_90_degree_rotation: int = 1,
     ) -> BlockGraph:
-        """Rotate a copy of ``self`` around an axis by a multiple of 90 degrees and returns it.
+        """Rotate a copy of ``self`` around an axis by a multiple of 90 degrees and return it.
 
         Args:
             rotation_axis: The axis to rotate around.

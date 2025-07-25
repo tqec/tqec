@@ -12,7 +12,7 @@ from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 def build_spatial_cube_top_readout_qubits(
     shape: PlaquetteShape2D, arms: SpatialArms
 ) -> Sequence[Coordinates2D]:
-    """Build the qubit coordinates for a straight or bent middle line of the top face of a spatial
+    """Builds the qubit coordinates for a straight or bent middle line of the top face of a spatial
     cube.
     """
     assert len(arms) == 2
@@ -41,7 +41,7 @@ def build_spatial_cube_top_readout_qubits(
 def build_cube_top_readout_qubits(
     shape: PlaquetteShape2D, cube: CubeWithArms
 ) -> Sequence[Coordinates2D]:
-    """Build the qubit coordinates whose measurements will be included in the observable on the top
+    """Builds the qubit coordinates whose measurements will be included in the observable on the top
     face of a cube.
     """
     if not cube.cube.is_spatial:
@@ -81,7 +81,7 @@ def _build_pipe_top_readout_qubits_impl(
 def build_pipe_top_readout_qubits(
     shape: PlaquetteShape2D, pipe: PipeWithArms
 ) -> Sequence[Coordinates2D]:
-    """Build the qubit coordinates whose measurements will be included in the observable on the top
+    """Builds the qubit coordinates whose measurements will be included in the observable on the top
     face of a pipe.
     """
     return _build_pipe_top_readout_qubits_impl(
@@ -93,7 +93,7 @@ def build_regular_cube_bottom_stabilizer_qubits(
     shape: PlaquetteShape2D,
     connect_to: SignedDirection3D,
 ) -> Sequence[Coordinates2D]:
-    """Build the stabilizer measurement coordinates that will be included in the observable spanning
+    """Builds the stabilizer measurement coordinates who will be included in the observable spanning
     half of the bottom face of a regular cube.
     """
     stabilizers: list[tuple[float, float]] = []
@@ -132,7 +132,7 @@ def build_regular_cube_bottom_stabilizer_qubits(
 def build_spatial_cube_bottom_stabilizer_qubits(
     shape: PlaquetteShape2D,
 ) -> Sequence[Coordinates2D]:
-    """Build the stabilizer measurement coordinates that will be included in the observable spanning
+    """Builds the stabilizer measurement coordinates who will be included in the observable spanning
     the bottom face of a single spatial cube.
     """
     return [(i + 0.5, j + 0.5) for i in range(shape.x) for j in range(shape.y) if (i + j) % 2 == 0]
@@ -144,7 +144,7 @@ def build_connected_spatial_cube_bottom_stabilizer_qubits(
     connect_to: SignedDirection3D,
     extended_stabilizers_used: bool,
 ) -> Sequence[Coordinates2D]:
-    """Build the stabilizer measurement coordinates that will be included in the observable spanning
+    """Builds the stabilizer measurement coordinates who will be included in the observable spanning
     the bottom face of a spatial cube connected to pipes.
     """
     max_y = (
@@ -164,7 +164,7 @@ def build_connected_spatial_cube_bottom_stabilizer_qubits(
 def build_pipe_bottom_stabilizer_qubits(
     shape: PlaquetteShape2D, pipe: PipeWithArms
 ) -> Sequence[Coordinates2D]:
-    """Build the stabilizer measurement coordinates that will be included in the observable on the
+    """Builds the stabilizer measurement coordinates who will be included in the observable on the
     bottom face of a pipe.
 
     It includes the bottom stabilizers of the connected cubes.

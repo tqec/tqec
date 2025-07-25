@@ -15,7 +15,7 @@ from tqec.interop.pyzx.positioned import PositionedZX
 
 
 def add_inset_axes3d(ax_target: Axes, bounds: tuple[float, float, float, float]) -> Axes3D:
-    """Wrap ``fig.add_axes`` to achieve ``ax.inset_axes`` functionality for 3D."""
+    """Wrapper around ``fig.add_axes`` to achieve ``ax.inset_axes`` functionality for 3D."""
     ax = ax_target.inset_axes(bounds, projection="3d")
     assert isinstance(ax, Axes3D)
     return ax

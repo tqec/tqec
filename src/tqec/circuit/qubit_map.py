@@ -48,16 +48,16 @@ class QubitMap:
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
-        """Create a qubit map from the provided ``qubits``.
+        """Creates a qubit map from the provided ``qubits``.
 
         Qubit indices are associated in the order in which ``qubits`` are provided: the first qubit
-        will have index ``0``, the second index ``1``, ...
+        will have index ``0``, the second index ``1`` and so on.
         """
         return QubitMap(dict(enumerate(qubits)))
 
     @staticmethod
     def from_circuit(circuit: stim.Circuit) -> QubitMap:
-        """Return a qubit map from the qubit coordinates at the end of the provided ``circuit``.
+        """Returns a qubit map from the qubit coordinates at the end of the provided ``circuit``.
 
         Warning:
             This function, just like
@@ -222,7 +222,7 @@ class QubitMap:
 
 
 def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
-    """Return the existing qubits and their coordinates at the end of the provided ``circuit``.
+    """Returns the existing qubits and their coordinates at the end of the provided ``circuit``.
 
     Warning:
         This function, just like

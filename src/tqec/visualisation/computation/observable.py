@@ -40,7 +40,7 @@ def get_observable_svg(
     plaquette_height: float,
     configuration: DrawerConfiguration = DrawerConfiguration(),
 ) -> svg.G:
-    """Return an SVG element with the provided ``observable`` drawn and a transparent background.
+    """Returns an SVG element with the provided ``observable`` drawn and a transparent background.
 
     Args:
         observable: the observable to plot. It is represented as a list of qubits

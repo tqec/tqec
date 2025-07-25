@@ -47,7 +47,7 @@ from tqec.utils.scale import round_or_fail
 def calc_rotation_angles(
     rotation_matrix: npt.NDArray[np.float32],
 ) -> npt.NDArray[np.float32]:
-    """Compute the rotation angles of the three rows of matrix (M) from the original X/Y/Z axes.
+    """Calculates the rotation angles of the three rows of matrix (M) from the original X/Y/Z axes.
 
     Args:
         rotation_matrix: rotation matrix for node, extracted from `.dae` file.
@@ -207,7 +207,7 @@ def rotate_on_import(
     scale_matrix: npt.NDArray[np.float32],
     kind: BlockKind,
 ) -> tuple[FloatPosition3D, BlockKind]:
-    """Update the kind of an incoming block when rotated.
+    """Updates the kind of an incoming block when rotated.
 
     The block kind is only updated when its translation matrix indicates the original block has been
     rotated, rejecting any invalid rotation in the process.
@@ -258,11 +258,11 @@ def rotate_on_import(
 
 
 def adjust_hadamards_direction(kind: BlockKind) -> BlockKind:
-    """Inverts the direction of any "h" pipe.
+    """Inverts the direction of any Hadamard pipe.
 
-    This function inverts the direction of any "h" pipe when called as applicable (when pipe runs in
-    the negative direction on any given axis) by exchanging the kind for the corresponding pair on
-    the given axis.
+    This function inverts the direction of any "h" pipe when called as applicable (when the pipe
+    runs in the negative direction on any given axis) by exchanging the kind for the corresponding
+    pair on the given axis.
 
     Args:
         kind: the original "h" kind.

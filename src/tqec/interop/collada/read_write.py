@@ -55,7 +55,7 @@ def read_block_graph_from_dae_file(
     filepath: str | pathlib.Path,
     graph_name: str = "",
 ) -> BlockGraph:
-    """Read a Collada DAE file and construct a :py:class:`.BlockGraph` from it.
+    """Read a Collada DAE file and construct a :class:`.BlockGraph` from it.
 
     Args:
         filepath: The input dae file path.
@@ -431,7 +431,11 @@ class _BaseColladaData:
         self,
         pop_faces_at_direction: SignedDirection3D | None = None,
     ) -> None:
-        """Include the definition of all the library nodes and the necessary material."""
+        """Base model template.
+
+        This class includes the definition of all the library nodes and the necessary material,
+        geometry definitions.
+        """
         self.mesh = collada.Collada()
         self.geometries = BlockGeometries()
 

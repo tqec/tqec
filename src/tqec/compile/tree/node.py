@@ -89,7 +89,7 @@ class LayerNode:
 
     @property
     def is_leaf(self) -> bool:
-        """Return ``True`` if ``self`` does not have any children and so is a leaf node."""
+        """Returns ``True`` if ``self`` does not have any children and so is a leaf node."""
         return isinstance(self._layer, LayoutLayer)
 
     @property
@@ -99,7 +99,7 @@ class LayerNode:
 
     @property
     def repetitions(self) -> LinearFunction | None:
-        """Return the number of repetitions of the node if ``self.is_repeated`` else ``None``."""
+        """Returns the number of repetitions of the node if ``self.is_repeated`` else ``None``."""
         return self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
 
     def to_dict(self) -> dict[str, Any]:
@@ -111,7 +111,7 @@ class LayerNode:
         }
 
     def walk(self, walker: NodeWalker) -> None:
-        """Walk the tree using DFS, calling the different walker methods on each node.
+        """Walk the tree using Depth-First Search (DFS), calling walker methods on each node.
 
         Args:
             walker: structure that will be called on each explored node.
@@ -133,7 +133,7 @@ class LayerNode:
         return self._annotations.setdefault(k, LayerNodeAnnotations())
 
     def set_circuit_annotation(self, k: int, circuit: ScheduledCircuit) -> None:
-        """Set the circuit annotation associated with the provided ``k`` to ``circuit``."""
+        """Set the circuit annotation associated with the scaling parameter ``k`` to ``circuit``."""
         self.get_annotations(k).circuit = circuit
 
     def generate_circuits_with_potential_polygons(
