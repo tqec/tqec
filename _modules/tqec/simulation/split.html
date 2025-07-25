@@ -418,6 +418,9 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sinter</span>
 
+<span class="c1"># Import of a private module not marked as explicitly typed, type ignore for mypy.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sinter._data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExistingData</span>  <span class="c1"># type: ignore</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.computation.correlation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CorrelationSurface</span>
 
 
@@ -466,8 +469,6 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        A list of statistics for each individual observable.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">sinter._data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExistingData</span>  <span class="c1"># type: ignore</span>
-
     <span class="c1"># Combine the stats for each task</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">ExistingData</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">:</span>

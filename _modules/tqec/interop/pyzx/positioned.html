@@ -577,7 +577,10 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.interop.PositionedZX.html#tqec.interop.PositionedZX.to_block_graph">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_block_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the positioned ZX graph to a block graph.&quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.synthesis.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="n">positioned_block_synthesis</span>
+        <span class="c1"># Needs to be imported here to avoid pulling pyzx when importing this module.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.synthesis.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: PLC0415</span>
+            <span class="n">positioned_block_synthesis</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">positioned_block_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
@@ -608,7 +611,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            A tuple of the figure and the axes.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_positioned_zx_graph</span>
+        <span class="c1"># Needs to be imported here to avoid pulling pyzx when importing this module.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_positioned_zx_graph</span>  <span class="c1"># noqa: PLC0415</span>
 
         <span class="k">return</span> <span class="n">plot_positioned_zx_graph</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
