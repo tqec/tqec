@@ -213,6 +213,9 @@ class RepeatedLayer(BaseComposedLayer):
             and self.internal_layer == value.internal_layer
         )
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     @override
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
         return self.internal_layer.get_temporal_layer_on_border(border)
