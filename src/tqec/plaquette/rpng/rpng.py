@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Sequence
+from typing import Any
 
 from tqec.circuit.schedule.schedule import Schedule
 from tqec.utils.enums import Basis
