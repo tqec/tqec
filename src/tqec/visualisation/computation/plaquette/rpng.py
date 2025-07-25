@@ -98,7 +98,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
-        """Returns the plaquette shape, filled iff it measure in a uniform Pauli basis.
+        """Returns the plaquette shape, filled iff it measures in a uniform Pauli basis.
 
         This method returns the plaquette shape as an SVG path. It might also fill this shape if
         ``self`` represents a plaquette measuring its qubits in the same Pauli basis, else without
