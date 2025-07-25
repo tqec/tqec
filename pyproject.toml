@@ -55,6 +55,9 @@ dev = [
   "jupyterlab<=4.4.3",
   "tqec[test, doc, bench]",
   "pre-commit<=4.2.0",
+  # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
+  # cannot afford someone installing a different version of ruff and being forbidden to commit
+  # anything because the different version sees some errors in the code.
   "ruff==0.12.5",
 ]
 doc = [
