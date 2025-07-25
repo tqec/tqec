@@ -34,7 +34,9 @@ from tqec.utils.exceptions import TQECError, TQECWarning
 
 
 class _ScheduledCircuits:
-    def __init__(self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap) -> None:
+    def __init__(
+        self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap
+    ) -> None:
         """Represents a collection of :class:`.ScheduledCircuit` instances.
 
         This class aims at providing accessors for several compatible instances
@@ -62,7 +64,8 @@ class _ScheduledCircuits:
     def has_pending_moment(self) -> bool:
         """Checks if any of the managed instances has a pending moment.
 
-        Any moment that has not been collected by using collect_moment is considered to be pending.
+        Any moment that has not been collected by using ``collect_moment`` is considered to be
+        pending.
 
         """
         return any(self._has_pending_moment(i) for i in range(len(self._circuits)))
@@ -114,7 +117,9 @@ class _ScheduledCircuits:
             if not self._has_pending_moment(circuit_index):
                 continue
             schedule, _ = self._peek_scheduled_moment(circuit_index)
-            circuit_indices_organised_by_schedule.setdefault(schedule, list()).append(circuit_index)
+            circuit_indices_organised_by_schedule.setdefault(schedule, list()).append(
+                circuit_index
+            )
 
         minimum_schedule = min(circuit_indices_organised_by_schedule.keys())
         moments_to_return: list[Moment] = list()
@@ -174,7 +179,9 @@ def remove_duplicate_instructions(
 
     """
     # Separate mergeable operations from non-mergeable ones.
-    mergeable_operations: dict[tuple[str, tuple[float, ...]], set[tuple[stim.GateTarget, ...]]] = {}
+    mergeable_operations: dict[
+        tuple[str, tuple[float, ...]], set[tuple[stim.GateTarget, ...]]
+    ] = {}
     final_operations: list[stim.CircuitInstruction] = list()
     for inst in instructions:
         if inst.name in mergeable_instruction_names:
@@ -189,7 +196,9 @@ def remove_duplicate_instructions(
     final_operations.extend(
         stim.CircuitInstruction(
             name,
-            functools.reduce(operator.iadd, _sort_target_groups([list(t) for t in targets]), []),
+            functools.reduce(
+                operator.iadd, _sort_target_groups([list(t) for t in targets]), []
+            ),
             args,
         )
         for (name, args), targets in mergeable_operations.items()
@@ -223,14 +232,18 @@ def merge_instructions(
         from the given instructions but merged.
 
     """
-    instructions_merger: dict[tuple[str, tuple[float, ...]], list[list[stim.GateTarget]]] = {}
+    instructions_merger: dict[
+        tuple[str, tuple[float, ...]], list[list[stim.GateTarget]]
+    ] = {}
     for instruction in instructions:
         args = tuple(instruction.gate_args_copy())
         instructions_merger.setdefault((instruction.name, args), []).extend(
             instruction.target_groups()
         )
     return [
-        stim.CircuitInstruction(name, functools.reduce(operator.iadd, targets, []), args)
+        stim.CircuitInstruction(
+            name, functools.reduce(operator.iadd, targets, []), args
+        )
         for (name, args), targets in instructions_merger.items()
     ]
 
@@ -289,7 +302,9 @@ def merge_scheduled_circuits(
         for inst in merged_instructions:
             circuit.append(
                 inst.name,
-                functools.reduce(operator.iadd, _sort_target_groups(inst.target_groups()), []),
+                functools.reduce(
+                    operator.iadd, _sort_target_groups(inst.target_groups()), []
+                ),
                 inst.gate_args_copy(),
             )
         all_moments.append(Moment(circuit))
@@ -336,7 +351,9 @@ def relabel_circuits_qubit_indices(
     """
     # First, get a global qubit index map.
     # Using itertools to avoid the edge case `len(circuits) == 0`
-    needed_qubits = frozenset(itertools.chain.from_iterable([c.qubits for c in circuits]))
+    needed_qubits = frozenset(
+        itertools.chain.from_iterable([c.qubits for c in circuits])
+    )
     global_qubit_map = QubitMap.from_qubits(sorted(needed_qubits))
     global_q2i = global_qubit_map.q2i
     # Then, get the remapped circuits. Note that map_qubit_indices should

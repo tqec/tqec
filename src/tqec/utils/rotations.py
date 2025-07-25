@@ -117,7 +117,7 @@ def rotate_block_kind_by_matrix(
     # Placeholder for results
     rotated_name = ""
 
-    # State cultivation blocks: special case - added chars needed to clear loop
+    # State cultivation blocks: special case – added chars needed to clear loop
     original_name = str(block_kind)[:3] if len(str(block_kind)) > 1 else str(block_kind) + "-!"
 
     # Loop:
@@ -258,11 +258,11 @@ def rotate_on_import(
 
 
 def adjust_hadamards_direction(kind: BlockKind) -> BlockKind:
-    """Inverts the direction of any "h" pipe.
+    """Inverts the direction of any Hadamard pipe.
 
-    This function inverts the direction of any "h" pipe when called as applicable (when pipe runs in
-    the negative direction on any given axis) by exchanging the kind for the corresponding pair on
-    the given axis.
+    This function inverts the direction of any "h" pipe when called as applicable (when the pipe
+    runs in the negative direction on any given axis) by exchanging the kind for the corresponding
+    pair on the given axis.
 
     Args:
         kind: the original "h" kind.

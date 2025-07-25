@@ -47,10 +47,14 @@ class GridQubit:
             StimCoordinates(self.x, self.y).to_stim_coordinates(),
         )
 
-    def __add__(self, other: GridQubit | PhysicalQubitPosition2D | Shift2D) -> GridQubit:
+    def __add__(
+        self, other: GridQubit | PhysicalQubitPosition2D | Shift2D
+    ) -> GridQubit:
         return GridQubit(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other: GridQubit | PhysicalQubitPosition2D | Shift2D) -> GridQubit:
+    def __sub__(
+        self, other: GridQubit | PhysicalQubitPosition2D | Shift2D
+    ) -> GridQubit:
         return GridQubit(self.x - other.x, self.y - other.y)
 
     def __mul__(self, other: int) -> GridQubit:
@@ -63,7 +67,9 @@ class GridQubit:
         return hash((self._x, self._y))
 
     def __eq__(self, value: object) -> bool:
-        return isinstance(value, GridQubit) and self._x == value._x and self._y == value._y
+        return (
+            isinstance(value, GridQubit) and self._x == value._x and self._y == value._y
+        )
 
     def __lt__(self, other: GridQubit) -> bool:
         return (self._x, self._y) < (other._x, other._y)
@@ -160,7 +166,7 @@ def count_qubit_accesses(circuit: stim.Circuit) -> dict[int, int]:
 
 
 def get_used_qubit_indices(circuit: stim.Circuit) -> set[int]:
-    """Returns the indices of qubits that are used by at least one non- annotation instruction.
+    """Returns the indices of qubits that are used by at least one non-annotation instruction.
 
     Args:
         circuit: circuit containing the gates.

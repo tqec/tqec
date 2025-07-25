@@ -43,15 +43,19 @@ class QubitMap:
     def __post_init__(self) -> None:
         qubit_counter = Counter(self.i2q.values())
         if len(qubit_counter) != len(self.i2q):
-            duplicated_qubits = frozenset(q for q in qubit_counter if qubit_counter[q] > 1)
-            raise TQECError(f"Found qubit(s) with more than one index: {duplicated_qubits}.")
+            duplicated_qubits = frozenset(
+                q for q in qubit_counter if qubit_counter[q] > 1
+            )
+            raise TQECError(
+                f"Found qubit(s) with more than one index: {duplicated_qubits}."
+            )
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
         """Creates a qubit map from the provided ``qubits``.
 
         Qubit indices are associated in the order in which ``qubits`` are provided: the first qubit
-        will have index ``0``, the second index ``1``, ...
+        will have index ``0``, the second index ``1`` and so on.
         """
         return QubitMap(dict(enumerate(qubits)))
 
@@ -92,7 +96,9 @@ class QubitMap:
         """Get all the qubits manager by ``self``."""
         return self.i2q.values()
 
-    def with_mapped_qubits(self, qubit_map: Callable[[GridQubit], GridQubit]) -> QubitMap:
+    def with_mapped_qubits(
+        self, qubit_map: Callable[[GridQubit], GridQubit]
+    ) -> QubitMap:
         """Change the qubits involved in ``self`` without changing the associated indices.
 
         Args:
@@ -124,7 +130,9 @@ class QubitMap:
             ``set(return_value.qubits).issubset(qubits_to_keep)`` is ``True``.
 
         """
-        return self.filter_by_qubit_indices(self.q2i[q] for q in qubits_to_keep if q in self.q2i)
+        return self.filter_by_qubit_indices(
+            self.q2i[q] for q in qubits_to_keep if q in self.q2i
+        )
 
     def filter_by_qubit_indices(self, qubit_indices_to_keep: Iterable[int]) -> QubitMap:
         """Filter the qubit map to only keep qubits present in ``qubit_indices_to_keep``.
@@ -161,7 +169,9 @@ class QubitMap:
             ret.append(
                 "QUBIT_COORDS",
                 qi,
-                StimCoordinates(qubit.x + shiftx, qubit.y + shifty).to_stim_coordinates(),
+                StimCoordinates(
+                    qubit.x + shiftx, qubit.y + shifty
+                ).to_stim_coordinates(),
             )
         return ret
 

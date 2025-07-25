@@ -24,7 +24,7 @@ class PlaquetteCompiler:
         self._mergeable_instructions_modifier = mergeable_instructions_modifier
 
     def compile(self, plaquette: Plaquette) -> Plaquette:
-        """Apply in order all the stored compilation passes and returns the resulting plaquette.
+        """Apply all the stored compilation passes in order and return the resulting plaquette.
 
         Args:
             plaquette: plaquette to compile.
