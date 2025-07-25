@@ -217,7 +217,7 @@ class ScheduledCircuit:
     def map_qubit_indices(
         self, qubit_index_map: dict[int, int], inplace: bool = False
     ) -> ScheduledCircuit:
-        """Map the qubits **indices** the :class:`ScheduledCircuit` instance is applied on.
+        """Map the qubit **indices** on whom the :class:`ScheduledCircuit` instance is applied.
 
         Note:
             This method differs from :meth:`~ScheduledCircuit.map_to_qubits`

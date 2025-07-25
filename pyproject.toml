@@ -45,7 +45,7 @@ Issues = "https://github.com/tqec/tqec/issues"
 [project.optional-dependencies]
 test = [
   "pytest<=8.4.1",
-  "mypy<=1.16.1",
+  "mypy<=1.17.0",
   "pytest-cov<=6.2.1",
   "types-networkx<=3.5.0.20250610",
   "scipy-stubs<=1.16.0.0",
@@ -240,13 +240,15 @@ ignore = [
   "D100", "D101", "D104", "D105",
   # D203 - Requires a blank line between class declaration and its docstring. Incompatible with D211. We prefer D211.
   "D203", "D213",
+  # D407 - Ignored because ==== under a section heading is considered as a missing underline.
+  "D400", "D401", "D404", "D407", "D415", "D416", "D417",
   # PLR091{2,3,5} - A few code blocks have too many {branches,arguments,statements}. Ignored for the moment.
   # PLR2004 - Replace magic values, not a priority at the moment.
   "PLR0912", "PLR0913", "PLR0915", "PLR2004",
   # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
   "N802",
-  # PLC0414 - "from A.B.C import X as X" is flagged as an error, but should not in __init__.py files. Ignored for that reason.
-  "PLC0414",
+  "PLC0414", "PLC0105",
+  "PLW2901",
   # UP038 - Soon-to-be-deprecated rule, we prefer using isinstance(obj, (A, B)).
   "UP038"
 ]

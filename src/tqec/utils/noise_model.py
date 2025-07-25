@@ -24,11 +24,8 @@ Modifications to the original code:
 5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and
    REPEAT blocks (not before the block, the first instruction in the repeated
    inner block, and after the block).
-6. Re-phrase slightly the docstrings.
-7. Replace ``typing.AbstractSet`` by ``collection.abc.Set``
-8. Replace several equalities by inclusion in set (``obj == A or obj == B`` becomes
-   ``obj in {A, B}``)
-9. Change first docstring lines to imperative mood.
+6. Re-phrase the docstrings slightly .
+
 """
 
 from collections import Counter, defaultdict
@@ -233,9 +230,9 @@ class NoiseModel:
     def uniform_depolarizing(p: float) -> "NoiseModel":
         """Near-standard circuit depolarizing noise.
 
-        Everything has the same parameter p. Single qubit clifford gates get single qubit
-        depolarization. Two qubit clifford gates get single qubit depolarization. Dissipative gates
-        have their result probabilistically bit flipped (or phase flipped if appropriate).
+        Everything has the same parameter ``p``. Single-qubit Clifford gates get single-qubit
+        depolarization. Two-qubit Clifford gates get single-qubit depolarization. Dissipative gates
+        have their result probabilistically bit-flipped (or phase-flipped if appropriate).
 
         Non-demolition measurement is treated a bit unusually in that it is the result that is
         flipped instead of the input qubit.
@@ -372,7 +369,7 @@ class NoiseModel:
         system_qubits: set[int] | None = None,
         immune_qubits: set[int] | None = None,
     ) -> stim.Circuit:
-        """Return a noisy version of the given circuit, by applying the receiving noise model.
+        """Returns a noisy version of the given circuit, by applying the receiving noise model.
 
         Args:
             circuit: The circuit to layer noise over.
@@ -422,7 +419,7 @@ class NoiseModel:
 
 
 def occurs_in_classical_control_system(op: stim.CircuitInstruction) -> bool:
-    """Determine if an operation is an annotation or a classical control system update."""
+    """Determines if an operation is an annotation or a classical control system update."""
     t = OP_TYPES[op.name]
     if t == ANNOTATION:
         return True
@@ -442,7 +439,7 @@ def occurs_in_classical_control_system(op: stim.CircuitInstruction) -> bool:
 def _split_targets_if_needed(
     op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
-    """Split operations into pieces as needed.
+    """Splits operations into pieces as needed.
 
     This function splits operations, for example ``MPP`` into each product, classical control away
     from quantum ops, ...
@@ -473,7 +470,7 @@ def _split_targets_if_needed_clifford_1q(
 def _split_targets_if_needed_clifford_2q(
     op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
-    """Split classical control system operations away from quantum operations."""
+    """Splits classical control system operations away from quantum operations."""
     assert OP_TYPES[op.name] == CLIFFORD_2Q
     targets = op.targets_copy()
     if immune_qubits or any(t.is_measurement_record_target for t in targets):
@@ -487,7 +484,7 @@ def _split_targets_if_needed_clifford_2q(
 def _split_targets_if_needed_m_basis(
     op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
-    """Split an MPP operation into one operation for each Pauli product it measures."""
+    """Splits an MPP operation into one operation for each Pauli product it measures."""
     targets = op.targets_copy()
     args = op.gate_args_copy()
     k = 0
@@ -537,7 +534,7 @@ def _iter_split_op_moments(
 
 
 def _measure_basis(*, split_op: stim.CircuitInstruction) -> str | None:
-    """Convert an operation into a string describing the Pauli product basis it measures.
+    """Converts an operation into a string describing the Pauli product basis it measures.
 
     Returns:
         None: This is not a measurement (or not *just* a measurement).

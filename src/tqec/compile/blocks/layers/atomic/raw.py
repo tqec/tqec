@@ -18,7 +18,7 @@ class RawCircuitLayer(BaseLayer):
         scalable_num_moments: LinearFunction,
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
     ):
-        """Represent a layer with a spatial footprint that is defined by a raw circuit.
+        """Represents a layer with a spatial footprint that is defined by a raw circuit.
 
         Args:
             circuit_factory: a function callable returning a quantum circuit for

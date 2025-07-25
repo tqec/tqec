@@ -190,7 +190,7 @@ class RPNGDescription:
     ancilla: RG = field(default=RG(PauliBasis.X, PauliBasis.X))
 
     def __post_init__(self) -> None:
-        """Validate the initialization arguments.
+        """Validation of the initialization arguments.
 
         Constraints:
         - the n values for the corners must be unique

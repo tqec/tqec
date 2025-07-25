@@ -60,7 +60,7 @@ class AbstractMeasurement(ABC):
 
     @abstractmethod
     def map_qubit(self, qubit_map: Mapping[GridQubit, GridQubit]) -> AbstractMeasurement:
-        """Return a copy of ``self`` with qubits mapped according to the provided``qubit_map``.
+        """Returns a copy of ``self`` with qubits mapped according to the provided``qubit_map``.
 
         The returned instance represents a measurement on the qubit obtained from ``self.qubit`` and
         the provided ``qubit_map``.

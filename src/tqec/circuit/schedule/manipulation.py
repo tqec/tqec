@@ -35,7 +35,7 @@ from tqec.utils.exceptions import TQECError, TQECWarning
 
 class _ScheduledCircuits:
     def __init__(self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap) -> None:
-        """Represent a collection of :class:`.ScheduledCircuit` instances.
+        """Represents a collection of :class:`.ScheduledCircuit` instances.
 
         This class aims at providing accessors for several compatible instances
         of :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`. It allows
@@ -63,6 +63,9 @@ class _ScheduledCircuits:
         """Check if any of the managed instances has a pending moment.
 
         Any moment that has not been collected by using collect_moment is considered to be pending.
+
+        Any moment that has not been collected by using ``collect_moment`` is considered to be
+        pending.
 
         """
         return any(self._has_pending_moment(i) for i in range(len(self._circuits)))
