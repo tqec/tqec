@@ -76,9 +76,7 @@ class ScheduledCircuit:
                 "ScheduledCircuit expects all the provided moments to be scheduled. "
                 f"Got {len(moments)} moments but {len(schedule)} schedules."
             )
-        if not _avoid_checks and any(
-            m.contains_instruction("QUBIT_COORDS") for m in moments
-        ):
+        if not _avoid_checks and any(m.contains_instruction("QUBIT_COORDS") for m in moments):
             raise ScheduleError(
                 "ScheduledCircuit instance expects the input `stim.Circuit` to "
                 "not contain any QUBIT_COORDS instruction. Found at least one "
@@ -137,9 +135,7 @@ class ScheduledCircuit:
                 "ScheduledCircuit instance."
             )
         moments: list[Moment] = list(
-            iter_stim_circuit_without_repeat_by_moments(
-                circuit, collected_before_use=True
-            )
+            iter_stim_circuit_without_repeat_by_moments(circuit, collected_before_use=True)
         )
         if not moments:
             return ScheduledCircuit.empty()
@@ -164,9 +160,7 @@ class ScheduledCircuit:
         """Schedule of the internal moments."""
         return self._schedule
 
-    def get_qubit_coords_definition_preamble(
-        self, shift_to_positive: bool = False
-    ) -> stim.Circuit:
+    def get_qubit_coords_definition_preamble(self, shift_to_positive: bool = False) -> stim.Circuit:
         """Get a circuit with only ``QUBIT_COORDS`` instructions.
 
         Args:
@@ -250,8 +244,7 @@ class ScheduledCircuit:
             {qubit_index_map[qi]: q for qi, q in self._qubit_map.items()}
         )
         mapped_moments: list[Moment] = [
-            moment.with_mapped_qubit_indices(qubit_index_map)
-            for moment in self._moments
+            moment.with_mapped_qubit_indices(qubit_index_map) for moment in self._moments
         ]
 
         if inplace:
@@ -298,9 +291,7 @@ class ScheduledCircuit:
         return operand
 
     def __copy__(self) -> ScheduledCircuit:
-        return ScheduledCircuit(
-            self._moments, self._schedule, self._qubit_map, _avoid_checks=True
-        )
+        return ScheduledCircuit(self._moments, self._schedule, self._qubit_map, _avoid_checks=True)
 
     def __deepcopy__(self, _: dict[Any, Any]) -> ScheduledCircuit:
         return ScheduledCircuit(
@@ -380,9 +371,7 @@ class ScheduledCircuit:
         """
         moment_index = self._get_moment_index_by_schedule(schedule)
         if moment_index is None:
-            raise TQECError(
-                f"No Moment instance scheduled at the provided schedule {schedule}."
-            )
+            raise TQECError(f"No Moment instance scheduled at the provided schedule {schedule}.")
         return self._moments[moment_index]
 
     def append_new_moment(self, moment: Moment) -> None:
@@ -435,9 +424,7 @@ class ScheduledCircuit:
             targets: measurement records forming (part of) the observable.
 
         """
-        self.append_annotation(
-            stim.CircuitInstruction("OBSERVABLE_INCLUDE", targets, [index])
-        )
+        self.append_annotation(stim.CircuitInstruction("OBSERVABLE_INCLUDE", targets, [index]))
 
     def append_annotation(self, instruction: stim.CircuitInstruction) -> None:
         """Append an annotation to the last moment.
