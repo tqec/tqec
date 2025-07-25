@@ -21,7 +21,7 @@ from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
-from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.rpng import ExtendedBasis, RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.templates.qubit import (
@@ -226,7 +226,7 @@ class FixedBoundaryConventionGenerator:
 
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_args(b, reset, measurement, is_reversed))
+            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, is_reversed))
             for b in Basis
         }
 
@@ -245,12 +245,13 @@ class FixedBoundaryConventionGenerator:
         hsched = HORIZONTAL_HOOK_SCHEDULES[is_reversed]
         return {
             basis: {
-                Orientation.VERTICAL: RPNGDescription.from_string(
-                    " ".join(f"-{basis.value.lower()}{s}h" for s in vsched)
-                ),
-                Orientation.HORIZONTAL: RPNGDescription.from_string(
-                    " ".join(f"-{basis.value.lower()}{s}h" for s in hsched)
-                ),
+                orientation: RPNGDescription.from_basis_and_schedule(
+                    basis, sched, measurement=ExtendedBasis.H
+                )
+                for orientation, sched in (
+                    (Orientation.VERTICAL, vsched),
+                    (Orientation.HORIZONTAL, hsched),
+                )
             }
             for basis in Basis
         }
