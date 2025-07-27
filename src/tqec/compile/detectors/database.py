@@ -3,11 +3,12 @@ from __future__ import annotations
 import hashlib
 import json
 import pickle
-from collections.abc import Sequence
+import warnings
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Final, Literal
+from typing import Any, ClassVar, Final, Literal
 
 import numpy
 import semver
@@ -213,8 +214,49 @@ class _DetectorDatabaseKey:
         return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
 
 
+class _DetectorDatabaseIO:
+    @staticmethod
+    def from_pickle_file(filepath: Path) -> DetectorDatabase:
+        try:
+            with open(filepath, "rb") as f:
+                return pickle.load(f)
+        except pickle.PickleError as e:
+            moving_location = filepath.parent / f"faulty_database_{hash(e)}.pkl"
+            warnings.warn(
+                f"Error when reading the database at {filepath}: {e}. Moving the database to "
+                f"{moving_location} and returning an empty database."
+            )
+            filepath.rename(moving_location)
+            return DetectorDatabase()
+
+    @staticmethod
+    def from_json_file(filepath: Path) -> DetectorDatabase:
+        with open(filepath) as f:
+            data = json.load(f)
+            return DetectorDatabase.from_dict(data)
+
+    @staticmethod
+    def to_pickle_file(filepath: Path, database: DetectorDatabase) -> None:
+        with open(filepath, "wb") as f:
+            pickle.dump(database, f)
+
+    @staticmethod
+    def to_json_file(filepath: Path, database: DetectorDatabase) -> None:
+        with open(filepath, "w") as f:
+            json.dump(database.to_dict(), f)
+
+
 class DetectorDatabase:
     version: semver.Version = semver.Version(0, 0, 0)
+
+    _READERS: ClassVar[Mapping[str, Callable[[Path], DetectorDatabase]]] = {
+        "pickle": _DetectorDatabaseIO.from_pickle_file,
+        "json": _DetectorDatabaseIO.from_json_file,
+    }
+    _WRITERS: ClassVar[Mapping[str, Callable[[Path, DetectorDatabase], None]]] = {
+        "pickle": _DetectorDatabaseIO.to_pickle_file,
+        "json": _DetectorDatabaseIO.to_json_file,
+    }
 
     def __init__(
         self,
@@ -423,13 +465,13 @@ class DetectorDatabase:
         """
         if not filepath.parent.exists():
             filepath.parent.mkdir(parents=True)
-        if format == "pickle":
-            with open(filepath, "wb") as f:
-                pickle.dump(self, f)
-        else:
-            filepath = filepath.with_suffix(".json")
-            with open(filepath, "w") as f:
-                json.dump(self.to_dict(), f)
+        if format not in DetectorDatabase._WRITERS:
+            raise TQECError(
+                f"Could not save the database: the provided format {format} is not supported. "
+                + "Supported formats are:\n  -"
+                + "\n  -".join(DetectorDatabase._WRITERS.keys())
+            )
+        DetectorDatabase._WRITERS[format](filepath, self)
 
     @staticmethod
     def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
@@ -443,13 +485,18 @@ class DetectorDatabase:
             a new :class:`.DetectorDatabase` instance read from the provided ``filepath``.
 
         """
-        if format == "pickle":
-            with open(filepath, "rb") as f:
-                database = pickle.load(f)
-        else:
-            with open(filepath) as f:
-                data = json.load(f)
-                database = DetectorDatabase.from_dict(data)
+        if not filepath.exists():
+            raise TQECError(
+                f"Could not read the database: the provided filepath ('{filepath}') does not exist "
+                "on disk."
+            )
+        if format not in DetectorDatabase._READERS:
+            raise TQECError(
+                f"Could not read the database: the provided format {format} is not supported. "
+                + "Supported formats are:\n  -"
+                + "\n  -".join(DetectorDatabase._READERS.keys())
+            )
+        database = DetectorDatabase._READERS[format](filepath)
         if not isinstance(database, DetectorDatabase):
             raise TQECError(
                 f"Found the Python type {type(database).__name__} in the "
