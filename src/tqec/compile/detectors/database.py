@@ -219,7 +219,7 @@ class _DetectorDatabaseIO:
     def from_pickle_file(filepath: Path) -> DetectorDatabase:
         try:
             with open(filepath, "rb") as f:
-                return pickle.load(f)
+                database = pickle.load(f)
         except pickle.PickleError as e:
             moving_location = filepath.parent / f"faulty_database_{hash(e)}.pkl"
             warnings.warn(
@@ -228,6 +228,14 @@ class _DetectorDatabaseIO:
             )
             filepath.rename(moving_location)
             return DetectorDatabase()
+
+        if not isinstance(database, DetectorDatabase):
+            raise TQECError(
+                f"Found the Python type {type(database).__name__} in the "
+                f"provided file but {type(DetectorDatabase).__name__} was "
+                "expected."
+            )
+        return database
 
     @staticmethod
     def from_json_file(filepath: Path) -> DetectorDatabase:
@@ -496,11 +504,4 @@ class DetectorDatabase:
                 + "Supported formats are:\n  -"
                 + "\n  -".join(DetectorDatabase._READERS.keys())
             )
-        database = DetectorDatabase._READERS[format](filepath)
-        if not isinstance(database, DetectorDatabase):
-            raise TQECError(
-                f"Found the Python type {type(database).__name__} in the "
-                f"provided file but {type(DetectorDatabase).__name__} was "
-                "expected."
-            )
-        return database
+        return DetectorDatabase._READERS[format](filepath)
