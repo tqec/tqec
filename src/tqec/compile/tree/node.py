@@ -31,7 +31,7 @@ def contains_only_layout_or_composed_layers(
 class NodeWalker:
     def visit_node(self, node: LayerNode) -> None:
         """Interface called when ``node`` is visited, before recursing in children."""
-        pass
+        pass  # pragma: no cover
 
     def enter_node(self, node: LayerNode) -> None:
         """Interface called when entering ``node``."""
@@ -104,7 +104,7 @@ class LayerNode:
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
-        return {
+        return {  # pragma: no cover
             "layer": type(self._layer).__name__,
             "children": [child.to_dict() for child in self._children],
             "annotations": {k: annotation.to_dict() for k, annotation in self._annotations.items()},

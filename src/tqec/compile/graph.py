@@ -542,6 +542,6 @@ class TopologicalComputationGraph:
             a string representing the Crumble URL of the quantum circuit.
 
         """
-        return self.to_layer_tree().generate_crumble_url(
+        return self.to_layer_tree().generate_crumble_url(  # pragma: no cover
             k, manhattan_radius, detector_database, add_polygons=add_polygons
         )

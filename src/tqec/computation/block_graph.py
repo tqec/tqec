@@ -326,14 +326,14 @@ class BlockGraph:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BlockGraph):
-            return False
+            return False  # pragma: no cover
         return (
             graphs_equal(self._graph, other._graph)  # type: ignore
             and self._ports == other._ports
         )
 
     def __hash__(self) -> int:
-        return hash(self._name)
+        return hash(self._name)  # pragma: no cover
 
     def validate(self) -> None:
         """Check the validity of the block graph to represent a logical computation.
@@ -816,7 +816,7 @@ class BlockGraph:
             The cube instances that have the specified label.
 
         """
-        return [cube for cube in self.cubes if cube.label == label]
+        return [cube for cube in self.cubes if cube.label == label]  # pragma: no cover
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the block graph."""

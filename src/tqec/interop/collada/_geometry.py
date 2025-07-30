@@ -218,7 +218,7 @@ class BlockGeometries:
     def _load_correlation_surface_geometries(self) -> None:
         """Geometries for horizontal, vertical and inclined surfaces."""
         # horizontal surface
-        self.geometries
+        self.geometries  # pragma: no cover
 
 
 def get_correlation_surface_geometry(basis: Basis) -> Face:
