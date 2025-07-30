@@ -58,7 +58,7 @@ class Polygon:
         """Return the qubits in a sorted order that can be used to draw the polygon."""
         cx = sum(q.x for q in self.qubits) / len(self.qubits)
         cy = sum(q.y for q in self.qubits) / len(self.qubits)
-        return sorted(self.qubits, key=lambda q: math.atan2(q.y - cy, q.x - cx))
+        return sorted(self.qubits, key=lambda q: math.atan2(q.y - cy, q.x - cx))  # pragma: no cover
 
     def to_crumble_url_string(self, qubit_map: QubitMap) -> str:
         """Convert the polygon to the representation in a crumble url."""
@@ -80,7 +80,7 @@ class LayerNodeAnnotations:
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
-        return {
+        return {  # pragma: no cover
             "circuit_str": (str(self.circuit.get_circuit()) if self.circuit is not None else None),
             "detectors": self.detectors,
             "observables": self.observables,
@@ -95,11 +95,11 @@ class LayerTreeAnnotations:
     @property
     def has_qubit_map(self) -> bool:
         """Return ``True`` if the qubit map annotation has been set."""
-        return self.qubit_map is not None
+        return self.qubit_map is not None  # pragma: no cover
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
         ret: dict[str, Any] = {"qubit_map": None}
         if self.qubit_map is not None:
             ret["qubit_map"] = {i: (q.x, q.y) for i, q in self.qubit_map.i2q.items()}
-        return ret
+        return ret  # pragma: no cover

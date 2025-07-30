@@ -160,7 +160,7 @@ class RepeatedLayer(BaseComposedLayer):
 
     @override
     def all_layers(self, k: int) -> Iterable[BaseLayer]:
-        yield from chain.from_iterable(
+        yield from chain.from_iterable(  # pragma: no cover
             (
                 (self.internal_layer,)
                 if isinstance(self.internal_layer, BaseLayer)

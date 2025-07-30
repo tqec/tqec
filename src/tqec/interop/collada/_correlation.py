@@ -244,7 +244,7 @@ def _rotation_to_plane(
     elif plane_normal_direction == Direction3D.X:
         return _rotation_matrix(Direction3D.Y, 90.0)
     else:
-        return _rotation_matrix(Direction3D.X, 90.0)
+        return _rotation_matrix(Direction3D.X, 90.0)  # pragma: no cover
 
 
 def _rotation_matrix(

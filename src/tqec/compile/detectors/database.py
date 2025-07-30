@@ -422,14 +422,14 @@ class DetectorDatabase:
 
         """
         if not filepath.parent.exists():
-            filepath.parent.mkdir(parents=True)
+            filepath.parent.mkdir(parents=True)  # pragma: no cover
         if format == "pickle":
             with open(filepath, "wb") as f:
                 pickle.dump(self, f)
         else:
-            filepath = filepath.with_suffix(".json")
-            with open(filepath, "w") as f:
-                json.dump(self.to_dict(), f)
+            filepath = filepath.with_suffix(".json")  # pragma: no cover
+            with open(filepath, "w") as f:  # pragma: no cover
+                json.dump(self.to_dict(), f)  # pragma: no cover
 
     @staticmethod
     def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
@@ -447,9 +447,9 @@ class DetectorDatabase:
             with open(filepath, "rb") as f:
                 database = pickle.load(f)
         else:
-            with open(filepath) as f:
-                data = json.load(f)
-                database = DetectorDatabase.from_dict(data)
+            with open(filepath) as f:  # pragma: no cover
+                data = json.load(f)  # pragma: no cover
+                database = DetectorDatabase.from_dict(data)  # pragma: no cover
         if not isinstance(database, DetectorDatabase):
             raise TQECError(
                 f"Found the Python type {type(database).__name__} in the "

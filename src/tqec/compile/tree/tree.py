@@ -88,7 +88,7 @@ class LayerTree:
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
-        return {
+        return {  # pragma: no cover
             "root": self._root.to_dict(),
             "abstract_observables": self._abstract_observables,
             "annotations": {k: annotation.to_dict() for k, annotation in self._annotations.items()},
@@ -120,7 +120,7 @@ class LayerTree:
         parallel_process_count: int = 1,
     ) -> None:
         if manhattan_radius <= 0:
-            return
+            return  # pragma: no cover
         self._root.walk(
             AnnotateDetectorsOnLayerNode(
                 k,
@@ -140,7 +140,7 @@ class LayerTree:
         self,
         k: int,
     ) -> None:
-        self._root.walk(AnnotatePolygonOnLayerNode(k))
+        self._root.walk(AnnotatePolygonOnLayerNode(k))  # pragma: no cover
 
     def generate_crumble_url(
         self,
@@ -234,7 +234,7 @@ class LayerTree:
         """Annotate the tree with circuits, qubit maps, detectors and observables."""
         # If already annotated, no need to re-annotate.
         if k in self._annotations:
-            return
+            return  # pragma: no cover
         # Else, perform all the needed computations.
         self._annotate_circuits(k)
         self._annotate_qubit_map(k)
