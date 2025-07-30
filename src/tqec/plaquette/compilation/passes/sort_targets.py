@@ -1,3 +1,5 @@
+import functools
+import operator
 from collections.abc import Iterator
 
 import stim
@@ -15,16 +17,14 @@ def _with_targets_sorted(moments: Iterator[Moment]) -> list[Moment]:
         for instruction in moment.instructions:
             target_groups = instruction.target_groups()
             target_groups.sort(key=lambda group: [trgt.value for trgt in group])
-            targets: list[stim.GateTarget] = sum(target_groups, start=[])
+            targets: list[stim.GateTarget] = functools.reduce(operator.iadd, target_groups, [])
             circuit.append(instruction.name, targets, instruction.gate_args_copy())
         ret_moments.append(Moment(circuit, moment.qubits_indices, _avoid_checks=True))
     return ret_moments
 
 
 class SortTargetsPass(CompilationPass):
-    """Compilation pass sorting the targets of the provided quantum circuit
-    instructions.
-    """
+    """Compilation pass sorting the targets of the provided quantum circuit instructions."""
 
     @override
     def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:

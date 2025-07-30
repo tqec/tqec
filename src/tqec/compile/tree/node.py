@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 from collections.abc import Mapping, Sequence
 from typing import Any, TypeGuard
 
@@ -23,21 +24,21 @@ from tqec.utils.scale import LinearFunction
 def contains_only_layout_or_composed_layers(
     layers: Sequence[BaseLayer | BaseComposedLayer],
 ) -> TypeGuard[Sequence[LayoutLayer | BaseComposedLayer]]:
-    """Helper function to ensure correct typing."""
+    """Ensure correct typing after using that function in a condition."""
     return all(isinstance(layer, (LayoutLayer, BaseComposedLayer)) for layer in layers)
 
 
 class NodeWalker:
     def visit_node(self, node: LayerNode) -> None:
-        """Called when ``node`` is visited, before recursing in children."""
+        """Interface called when ``node`` is visited, before recursing in children."""
         pass
 
     def enter_node(self, node: LayerNode) -> None:
-        """Called when entering ``node``."""
+        """Interface called when entering ``node``."""
         pass
 
     def exit_node(self, node: LayerNode) -> None:
-        """Called when exiting ``node``."""
+        """Interface called when exiting ``node``."""
         pass
 
 
@@ -47,7 +48,7 @@ class LayerNode:
         layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
     ) -> None:
-        """Represents a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
+        """Represent a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
 
         Args:
             layer: layer being represented by the node.
@@ -88,21 +89,17 @@ class LayerNode:
 
     @property
     def is_leaf(self) -> bool:
-        """Returns ``True`` if ``self`` does not have any children and so is a
-        leaf node.
-        """
+        """Returns ``True`` if ``self`` does not have any children and so is a leaf node."""
         return isinstance(self._layer, LayoutLayer)
 
     @property
     def is_repeated(self) -> bool:
-        """Returns ``True`` if ``self`` stores a RepeatedLayer."""
+        """Return ``True`` if ``self`` stores a RepeatedLayer."""
         return isinstance(self._layer, RepeatedLayer)
 
     @property
     def repetitions(self) -> LinearFunction | None:
-        """Returns the number of repetitions of the repeated block if
-        ``self.is_repeated`` else ``None``.
-        """
+        """Returns the number of repetitions of the node if ``self.is_repeated`` else ``None``."""
         return self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
 
     def to_dict(self) -> dict[str, Any]:
@@ -114,8 +111,7 @@ class LayerNode:
         }
 
     def walk(self, walker: NodeWalker) -> None:
-        """Walk the tree using DFS, calling the different walker methods on each
-        node.
+        """Walk the tree using Depth-First Search (DFS), calling walker methods on each node.
 
         Args:
             walker: structure that will be called on each explored node.
@@ -137,9 +133,7 @@ class LayerNode:
         return self._annotations.setdefault(k, LayerNodeAnnotations())
 
     def set_circuit_annotation(self, k: int, circuit: ScheduledCircuit) -> None:
-        """Set the circuit annotation associated with the provided scaling parameter ``k`` to
-        ``circuit``.
-        """
+        """Set the circuit annotation associated with the scaling parameter ``k`` to ``circuit``."""
         self.get_annotations(k).circuit = circuit
 
     def generate_circuits_with_potential_polygons(
@@ -148,8 +142,7 @@ class LayerNode:
         global_qubit_map: QubitMap,
         add_polygons: bool = False,
     ) -> list[stim.Circuit | list[Polygon]]:
-        """Generate the circuits and polygons for each nodes in the subtree rooted
-        at ``self``.
+        """Generate the circuits and polygons for each nodes in the subtree rooted at ``self``.
 
         Args:
             k: scaling parameter.
@@ -200,7 +193,7 @@ class LayerNode:
 
         if isinstance(self._layer, SequencedLayers):
             ret = []
-            for child, next_child in zip(self._children[:-1], self._children[1:]):
+            for child, next_child in itertools.pairwise(self._children):
                 ret += child.generate_circuits_with_potential_polygons(
                     k, global_qubit_map, add_polygons
                 )

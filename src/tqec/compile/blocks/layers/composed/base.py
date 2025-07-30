@@ -20,11 +20,12 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
     such, composed layers are expected to have either a scalable time footprint
     (i.e., that grows with ``k``) or a constant time footprint that is strictly
     greater than ``1``.
+
     """
 
     @abstractmethod
     def all_layers(self, k: int) -> Iterable[BaseLayer]:
-        """Returns all the base layers represented by the instance.
+        """Return all the base layers represented by the instance.
 
         Returns:
             All the base layers represented by the instance. The returned
@@ -37,7 +38,7 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
     def to_sequenced_layer_with_schedule(
         self, schedule: tuple[LinearFunction, ...]
     ) -> SequencedLayers:
-        """Splits ``self`` into a :class:`.SequencedLayers` instance with the provided schedule.
+        """Split ``self`` into a :class:`.SequencedLayers` instance with the provided schedule.
 
         Args:
             schedule: duration of each of the layers in the returned :class:`.SequencedLayers`

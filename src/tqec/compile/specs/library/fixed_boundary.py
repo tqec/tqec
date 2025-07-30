@@ -1,4 +1,5 @@
-from typing import Callable, Final, Protocol
+from collections.abc import Callable
+from typing import Final, Protocol
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -36,8 +37,7 @@ def _get_block(
     plaquettes_generator: _PlaquettesGenerator,
     repetitions: LinearFunction,
 ) -> Block:
-    """Get the block implemented with the provided ``template`` and
-    ``plaquettes_generator``.
+    """Get the block implemented with the provided ``template`` and ``plaquettes_generator``.
 
     This helper function handles all the complexity linked to generating a :class:`.Block` instance
     for the fixed boundary convention, especially when a spatial junction needs to be implemented
@@ -111,8 +111,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
     def __init__(
         self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
-        """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
-        interface for the fixed boundary convention.
+        """Implementation of the :class:`.CubeBuilder` interface for the fixed boundary convention.
 
         This class provides an implementation following the fixed-boundary convention.
         This convention consists in the fact that 2-body stabilizers on the boundary
@@ -179,8 +178,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
     def __init__(
         self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
-        """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
-        interface for the fixed boundary convention.
+        """Implementation of the :class:`.PipeBuilder` interface for the fixed boundary convention.
 
         This class provides an implementation following the fixed-boundary convention.
         This convention consists in the fact that 2-body stabilizers on the boundary
@@ -205,8 +203,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
     #    TEMPORAL PIPE    #
     #######################
     def get_temporal_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a temporal pipe based on the
-        provided ``spec``.
+        """Returns the block to implement a temporal pipe based on the provided ``spec``.
 
         Args:
             spec: description of the pipe that should be implemented by this
@@ -249,7 +246,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
     ##############################
     @staticmethod
     def _get_spatial_cube_arms(spec: PipeSpec) -> SpatialArms:
-        """Returns the arm(s) corresponding to the provided ``spec``.
+        """Return the arm(s) corresponding to the provided ``spec``.
 
         Args:
             spec: pipe specification to get the arm(s) from.
@@ -303,9 +300,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         )
 
     def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
-        """Returns the ``Template`` instance needed to implement the pipe
-        representing the provided ``spec``.
-        """
+        """Returns the template needed to implement the pipe representing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
             case Direction3D.X, False:
@@ -385,7 +380,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         )
 
     def get_spatial_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns a :class:`.Block` instance implementing the provided ``spec``."""
+        """Return a :class:`.Block` instance implementing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         cube_specs = spec.cube_specs
         if cube_specs[0].is_spatial or cube_specs[1].is_spatial:

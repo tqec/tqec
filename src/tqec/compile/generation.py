@@ -1,5 +1,4 @@
-"""Defines :meth:`~tqec.compile.generation.generate_circuit`, one of the core
-method of the :mod:`tqec` package.
+"""Defines :meth:`.generate_circuit`, one of the core method of the :mod:`tqec` package.
 
 This module defines two of core methods of the :mod:`tqec` package:
 
@@ -14,6 +13,7 @@ expected to call these methods several times and concatenate the output
 ``stim.Circuit`` instances in time to obtain a full QEC implementation.
 
 Note that these methods do not work with ``REPEAT`` instructions.
+
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ from tqec.circuit.schedule import (
 )
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
+from tqec.utils.array import to2dlist
 from tqec.utils.position import Shift2D
 
 
@@ -77,8 +78,7 @@ def generate_circuit_from_instantiation(
     plaquettes: Plaquettes,
     increments: Shift2D,
 ) -> ScheduledCircuit:
-    """Generate a quantum circuit from an array of plaquette indices and the
-    associated plaquettes.
+    """Generate a quantum circuit from an array of plaquette indices and the associated plaquettes.
 
     This is one of the core methods of the :mod:`tqec` package. It generates a
     quantum circuit from a spatial description of where the plaquettes should be
@@ -128,7 +128,7 @@ def generate_circuit_from_instantiation(
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    plaquette_array_list: list[list[int]] = plaquette_array.tolist()
+    plaquette_array_list: list[list[int]] = to2dlist(plaquette_array)
     for row_index, line in enumerate(plaquette_array_list):
         for column_index, plaquette_index in enumerate(line):
             if plaquette_index != 0:

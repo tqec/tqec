@@ -18,8 +18,7 @@ class RawCircuitLayer(BaseLayer):
         scalable_num_moments: LinearFunction,
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
     ):
-        """Represents a layer with a spatial footprint that is defined by a raw
-        circuit.
+        """Represents a layer with a spatial footprint that is defined by a raw circuit.
 
         Args:
             circuit_factory: a function callable returning a quantum circuit for
@@ -66,6 +65,9 @@ class RawCircuitLayer(BaseLayer):
     @override
     def __eq__(self, value: object) -> bool:
         raise NotImplementedError()
+
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
     @property
     @override

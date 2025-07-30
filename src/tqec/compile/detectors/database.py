@@ -7,11 +7,10 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Final, Literal
 
 import numpy
 import semver
-from typing_extensions import Final
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.moment import Moment
@@ -82,20 +81,24 @@ class _DetectorDatabaseKey:
 
     @cached_property
     def plaquette_names(self) -> tuple[tuple[tuple[str, ...], ...], ...]:
-        """Cached property that returns nested tuples such that `ret[t][y][x]
-        == self.plaquettes_by_timestep[t][self.subtemplates[t][y, x]].name`.
+        """Cached property returning a representation of the current situation with plaquette names.
 
-        The returned object can be iterated on using:
+        Returns:
+            Nested tuples such that
+            ``ret[t][y][x] == self.plaquettes_by_timestep[t][self.subtemplates[t][y, x]].name``.
 
-        ```py
-        for t, names in enumerate(self.plaquette_names):
-            subtemplate = self.subtemplates[t]
-            plaquettes = self.plaquettes_by_timestep[t]
-            for y, names_row in enumerate(names):
-                for x, name in enumerate(names_row):
-                    plaquette: Plaquette = plaquettes[subtemplate[y, x]]
-                    assert name == plaquette.name
-        ```
+            The returned object can be iterated on using:
+
+            .. code:: python
+
+                for t, names in enumerate(self.plaquette_names):
+                    subtemplate = self.subtemplates[t]
+                    plaquettes = self.plaquettes_by_timestep[t]
+                    for y, names_row in enumerate(names):
+                        for x, name in enumerate(names_row):
+                            plaquette: Plaquette = plaquettes[subtemplate[y, x]]
+                            assert name == plaquette.name
+
         """
         return tuple(
             tuple(tuple(plaquettes[pi].name for pi in row) for row in st)
@@ -104,8 +107,28 @@ class _DetectorDatabaseKey:
 
     @cached_property
     def reliable_hash(self) -> int:
-        """Returns a hash of `self` that is guaranteed to be constant across
-        Python versions, OSes and executions.
+        """Returns a hash of ``self`` that is guaranteed to be constant.
+
+        Python's ``hash`` is not guaranteed to be constant across Python versions, OSes and
+        executions. In particular, strings hash will not be repeatable across different Python
+        executable calls. The following line should return different values at each call:
+
+        .. code:: bash
+
+            python -c 'print(hash("Hello world"))'
+
+        For example, here are the results obtained after calling that line 3 times on my machine:
+
+        - ``2656127643635015930``
+        - ``1413792191058799258``
+        - ``8731178165517315210``
+
+        This is an issue for the detector database as we would like it to be reproducible. Else,
+        reusing an existing database will always fail because keys will have a different hash,
+        hence re-computing detectors at each call and growing the database indefinitely.
+
+        This method implements a reliable hash that should be constant no matter the context
+        (different Python calls, different OS, different version of Python, ...).
         """
         hasher = hashlib.md5()
         for timeslice in self.plaquette_names:
@@ -218,6 +241,7 @@ class DetectorDatabase:
         Old databases generated prior to the introduction of a version attribute will be
         loaded with the default value of .version, without passing through __init__,
         ie (0,0,0).
+
         """
         if mapping is None:
             mapping = dict()
@@ -234,7 +258,7 @@ class DetectorDatabase:
         """Add a new situation to the database.
 
         Args:
-            subtemplate: a sequence of 2-dimensional arrays of integers
+            subtemplates: a sequence of 2-dimensional arrays of integers
                 representing the sub-template(s). Each entry corresponds to one
                 QEC round.
             plaquettes_by_timestep: a list of :class:`Plaquettes`, each
@@ -263,7 +287,7 @@ class DetectorDatabase:
         """Remove an existing situation from the database.
 
         Args:
-            subtemplate: a sequence of 2-dimensional arrays of integers
+            subtemplates: a sequence of 2-dimensional arrays of integers
                 representing the sub-template(s). Each entry corresponds to one
                 QEC round.
             plaquettes_by_timestep: a list of :class:`Plaquettes`, each
@@ -285,18 +309,16 @@ class DetectorDatabase:
         subtemplates: Sequence[SubTemplateType],
         plaquettes_by_timestep: Sequence[Plaquettes],
     ) -> frozenset[Detector] | None:
-        """Return the detectors associated with the provided situation or
-        `None` if the situation is not in the database.
+        """Return the detectors associated with the provided situation.
 
         Args:
-            subtemplate: a sequence of 2-dimensional arrays of integers
+            subtemplates: a sequence of 2-dimensional arrays of integers
                 representing the sub-template(s). Each entry corresponds to one
                 QEC round.
             plaquettes_by_timestep: a list of :class:`Plaquettes`, each
                 :class:`Plaquettes` entry storing enough :class:`Plaquette`
                 instances to generate a circuit from corresponding entry in
                 `self.subtemplates` and corresponding to one QEC round.
-            detectors: computed detectors that should be stored in the database.
 
         Returns:
             detectors associated with the provided situation or `None` if the
@@ -315,8 +337,7 @@ class DetectorDatabase:
         self.frozen = False
 
     def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
-        """Returns one URL pointing to https://algassert.com/crumble for each of
-        the registered situations.
+        """Returns a URL pointing to https://algassert.com/crumble for each of the stored situations
 
         Args:
             plaquette_increments: increments between two :class:`Plaquette`

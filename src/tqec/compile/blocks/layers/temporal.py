@@ -14,16 +14,12 @@ if TYPE_CHECKING:
 
 
 class WithTemporalFootprint(ABC):
-    """Base class providing the interface that should be implemented by objects
-    that have a temporal footprint.
-    """
+    """Base class providing the interface implemented by objects that have a temporal footprint."""
 
     @property
     @abstractmethod
     def scalable_timesteps(self) -> LinearFunction:
-        """Returns the number of timesteps needed to implement the object as an
-        exact expression that can then be used to compute the number of
-        timesteps for any value of ``k``.
+        """Returns the number of timesteps needed to implement the object.
 
         Returns:
             the number of timesteps needed to implement the object as an
@@ -34,8 +30,7 @@ class WithTemporalFootprint(ABC):
         pass
 
     def timesteps(self, k: int) -> int:
-        """Returns the number of timesteps needed to implement the object for
-        the provided scaling parameter ``k``.
+        """Returns the number of timesteps needed for the provided scaling parameter ``k``.
 
         Args:
             k: scaling parameter.
@@ -51,12 +46,11 @@ class WithTemporalFootprint(ABC):
     def with_temporal_borders_replaced(
         self, border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None]
     ) -> BaseLayer | BaseComposedLayer | None:
-        """Returns ``self`` with the provided temporal borders replaced.
+        """Return ``self`` with the provided temporal borders replaced.
 
         Args:
-            borders: a mapping from temporal borders to replace to their
-                replacement. A value of ``None`` as a replacement means that the
-                border is removed.
+            border_replacements: a mapping from temporal borders to replace to their replacement. A
+                value of ``None`` as a replacement means that the border is removed.
 
         Returns:
             a copy of ``self`` with the provided ``borders`` replaced, or ``None``
@@ -72,15 +66,14 @@ class WithTemporalFootprint(ABC):
 
         This method can be used to get the temporal extremal layers of a temporal pipe to replace
         the linked cube temporal extremal layers.
+
         """
         pass
 
     @property
     @abstractmethod
     def scalable_num_moments(self) -> LinearFunction:
-        """Returns the number of moments needed to implement the object as an
-        exact expression that can then be used to compute the number of
-        moments for any value of ``k``.
+        """Returns the number of moments needed to implement the object,.
 
         Returns:
             the number of moments needed to implement the object as an
@@ -91,8 +84,7 @@ class WithTemporalFootprint(ABC):
         pass
 
     def num_moments(self, k: int) -> int:
-        """Returns the number of moments needed to implement the object for
-        the provided scaling parameter ``k``.
+        """Returns the number of moments needed for the provided scaling parameter ``k``.
 
         Args:
             k: scaling parameter.

@@ -52,7 +52,7 @@ class SequencedLayers(BaseComposedLayer):
 
     @property
     def schedule(self) -> tuple[LinearFunction, ...]:
-        """Returns the duration of each of the sequenced layers."""
+        """Return the duration of each of the sequenced layers."""
         return tuple(layer.scalable_timesteps for layer in self.layer_sequence)
 
     @property
@@ -156,6 +156,9 @@ class SequencedLayers(BaseComposedLayer):
 
     def __eq__(self, value: object) -> bool:
         return isinstance(value, SequencedLayers) and self.layer_sequence == value.layer_sequence
+
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
     @override
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:

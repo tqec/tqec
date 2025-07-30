@@ -22,6 +22,7 @@ we have
 This is particularly useful when we, as humans, are mostly used to always have
 (x, y) coordinates but some libraries (such as numpy) reverse that order for
 indexing.
+
 """
 
 from __future__ import annotations
@@ -66,9 +67,7 @@ class Position2D(Vec2D):
         return BlockPosition2D(self.x, self.y)
 
     def is_neighbour(self, other: Position2D) -> bool:
-        """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1.
-        """
+        """Check if the other position is near to this position, i.e. Manhattan distance is 1."""
         return abs(self.x - other.x) + abs(self.y - other.y) == 1
 
     def to_3d(self, z: int = 0) -> Position3D:
@@ -84,7 +83,7 @@ class PlaquettePosition2D(Position2D):
     """Represents the position of a plaquette on a 2-dimensional plane."""
 
     def get_origin_position(self, shift: Shift2D) -> PhysicalQubitPosition2D:
-        """Returns the position of the plaquette origin."""
+        """Return the position of the plaquette origin."""
         return PhysicalQubitPosition2D(shift.x * self.x, shift.y * self.y)
 
 
@@ -92,18 +91,22 @@ class BlockPosition2D(Position2D):
     """Represents the position of a block on a 2-dimensional plane."""
 
     def get_top_left_plaquette_position(self, block_shape: PlaquetteShape2D) -> PlaquettePosition2D:
-        """Returns the position of the top-left plaquette of the block."""
+        """Return the position of the top-left plaquette of the block."""
         return PlaquettePosition2D(block_shape.x * self.x, block_shape.y * self.y)
 
 
 class Shape2D(Vec2D):
     def to_numpy_shape(self) -> tuple[int, int]:
-        """Returns the shape according to numpy indexing.
+        """Return the shape according to numpy indexing.
 
-        In the coordinate system used in this library, numpy indexes
-        arrays using (y, x) coordinates. This method is here to
-        translate a Shape instance to a numpy shape transparently for
-        the user.
+        In the coordinate system used in this library, numpy indexes arrays using (y, x)
+        coordinates. This method is here to translate a Shape instance to a numpy shape
+        transparently for the user.
+
+        In the coordinate system used in this library, numpy indexes arrays using (y, x)
+        coordinates. This method is here to translate a ``Shape`` instance to a numpy shape
+        transparently for the user.
+
         """
         return (self.y, self.x)
 
@@ -145,9 +148,7 @@ class Position3D(Vec3D):
             return self.shift_by(dz=shift)
 
     def is_neighbour(self, other: Position3D) -> bool:
-        """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1.
-        """
+        """Check if the other position is near to this position, i.e. Manhattan distance is 1."""
         return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z) == 1
 
     def as_tuple(self) -> tuple[int, int, int]:

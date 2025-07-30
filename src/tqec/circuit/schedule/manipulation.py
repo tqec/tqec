@@ -1,5 +1,4 @@
-"""Defines functions to modify or merge
-:class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instances.
+"""Defines functions to modify or merge :class:`.ScheduledCircuit` instances.
 
 This module implement a few central functions for the :mod:`tqec` library:
 
@@ -13,11 +12,14 @@ This module implement a few central functions for the :mod:`tqec` library:
   :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` before merging them.
   This function is called internally by :func:`merge_scheduled_circuits` but
   might be useful at other places and so is kept public.
+
 """
 
 from __future__ import annotations
 
+import functools
 import itertools
+import operator
 import warnings
 from collections.abc import Iterable, Sequence
 
@@ -33,8 +35,7 @@ from tqec.utils.exceptions import TQECError, TQECWarning
 
 class _ScheduledCircuits:
     def __init__(self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap) -> None:
-        """Represents a collection of
-        :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit` instances.
+        """Represents a collection of :class:`.ScheduledCircuit` instances.
 
         This class aims at providing accessors for several compatible instances
         of :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`. It allows
@@ -59,30 +60,28 @@ class _ScheduledCircuits:
         self._current_moments = [next(it, None) for it in self._iterators]
 
     def has_pending_moment(self) -> bool:
-        """Checks if any of the managed instances has a pending moment.
+        """Check if any of the managed instances has a pending moment.
 
-        Any moment that has not been collected by using collect_moment
-        is considered to be pending.
+        Any moment that has not been collected by using collect_moment is considered to be pending.
+
+        Any moment that has not been collected by using ``collect_moment`` is considered to be
+        pending.
+
         """
         return any(self._has_pending_moment(i) for i in range(len(self._circuits)))
 
     def _has_pending_moment(self, index: int) -> bool:
-        """Check if the managed instance at the given index has a pending
-        operation.
-        """
+        """Check if the managed instance at the given index has a pending operation."""
         return self._current_moments[index] is not None
 
     def _peek_scheduled_moment(self, index: int) -> tuple[int, Moment]:
-        """Recover **without collecting** the pending operation for the
-        instance at the given index.
-        """
+        """Recover **without collecting** pending operations for the instance at the given index."""
         ret = self._current_moments[index]
         assert ret is not None
         return ret
 
     def _pop_scheduled_moment(self, index: int) -> tuple[int, Moment]:
-        """Recover and mark as collected the pending moment for the instance at
-        the given index.
+        """Recover and mark as collected the pending moment for the instance at the given index.
 
         Raises:
             AssertionError: ``if not self.has_pending_operation(index)``.
@@ -145,7 +144,7 @@ def remove_duplicate_instructions(
     instructions: list[stim.CircuitInstruction],
     mergeable_instruction_names: frozenset[str],
 ) -> list[stim.CircuitInstruction]:
-    """Removes all the duplicate instructions from the given list.
+    """Remove all the duplicate instructions from the given list.
 
     Note:
         This function guarantees the following post-conditions on the returned
@@ -193,7 +192,7 @@ def remove_duplicate_instructions(
     final_operations.extend(
         stim.CircuitInstruction(
             name,
-            sum(_sort_target_groups([list(t) for t in targets]), start=[]),
+            functools.reduce(operator.iadd, _sort_target_groups([list(t) for t in targets]), []),
             args,
         )
         for (name, args), targets in mergeable_operations.items()
@@ -234,7 +233,7 @@ def merge_instructions(
             instruction.target_groups()
         )
     return [
-        stim.CircuitInstruction(name, sum(targets, start=[]), args)
+        stim.CircuitInstruction(name, functools.reduce(operator.iadd, targets, []), args)
         for (name, args), targets in instructions_merger.items()
     ]
 
@@ -244,8 +243,7 @@ def merge_scheduled_circuits(
     global_qubit_map: QubitMap,
     mergeable_instructions: Iterable[str] = (),
 ) -> ScheduledCircuit:
-    """Merge several :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`
-    instances into one instance.
+    """Merge several :class:`.ScheduledCircuit` instances into one instance.
 
     This function takes several **compatible** scheduled circuits as input and
     merge them, respecting their schedules, into a unique
@@ -261,7 +259,7 @@ def merge_scheduled_circuits(
 
     Args:
         circuits: **compatible** circuits to merge.
-        qubit_map: global qubit map for all the provided ``circuits``.
+        global_qubit_map: global qubit map for all the provided ``circuits``.
         mergeable_instructions: a list of instruction names that are considered
             mergeable. Duplicate instructions with a name in this list will be
             merged into a single instruction.
@@ -279,8 +277,8 @@ def merge_scheduled_circuits(
     while scheduled_circuits.has_pending_moment():
         schedule, moments = scheduled_circuits.collect_moments_at_minimum_schedule()
         # Flatten the moments into a list of operations to perform some modifications
-        instructions: list[stim.CircuitInstruction] = sum(
-            (list(moment.instructions) for moment in moments), start=[]
+        instructions: list[stim.CircuitInstruction] = functools.reduce(
+            operator.iadd, (list(moment.instructions) for moment in moments), []
         )
         # Avoid duplicated operations. Any operation that have the Plaquette.get_mergeable_tag() tag
         # is considered mergeable, and can be removed if another operation in the list
@@ -294,7 +292,7 @@ def merge_scheduled_circuits(
         for inst in merged_instructions:
             circuit.append(
                 inst.name,
-                sum(_sort_target_groups(inst.target_groups()), start=[]),
+                functools.reduce(operator.iadd, _sort_target_groups(inst.target_groups()), []),
                 inst.gate_args_copy(),
             )
         all_moments.append(Moment(circuit))

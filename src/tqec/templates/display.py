@@ -1,6 +1,4 @@
-"""Provides functions to pretty-print :class:`~tqec.templates.base.Template`
-instances.
-"""
+"""Provides functions to pretty-print :class:`~tqec.templates.base.Template` instances."""
 
 from __future__ import annotations
 
@@ -19,6 +17,7 @@ def display_template(
 
     Args:
         template: the Template instance to display.
+        k: scaling factor.
         plaquette_indices: the plaquette indices that are forwarded to the call
             to `template.instantiate` to get the actual template representation.
             If None, default to ``range(1, template.expected_plaquettes_number + 1)``.
@@ -30,8 +29,7 @@ def display_template(
 
 
 def display_template_from_instantiation(instantiation: npt.NDArray[numpy.int_]) -> None:
-    """Display an array representing a template instantiation with ASCII
-    output.
+    """Display an array representing a template instantiation with ASCII output.
 
     Args:
         instantiation: the integer array obtained from the `Template.instantiate`
