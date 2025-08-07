@@ -85,3 +85,17 @@ Here are some helpful links to learn more about the community:
 All the resources and group meeting recordings are available at [this link](https://docs.google.com/spreadsheets/d/11DSA2wzKLOrfTGNHunFvzsMYeO7jZ8Ny8kpzoC_wKQg/edit?resourcekey=0-PdGFkp5s-4XWihMSxk0UIg&gid=0#gid=0).
 
 Please join the [Google group](https://groups.google.com/g/tqec-design-automation) to receive more updates and information!
+
+---
+
+> ### **Legal Notice**
+>
+> This library is intended for **academic, educational, and civilian research only**, in the field of **fault-tolerant quantum computing**, particularly in **surface code compilation** and **topological error correction**.
+>
+> It is made freely and publicly available without access restrictions, in the interest of advancing **open scientific and academic collaboration**.
+>
+> **Use in military, surveillance, or dual-use applications is strictly prohibited.**
+>
+> Please, review the full [`LEGAL_NOTICE.md`](https://github.com/tqec/tqec/blob/main/LEGAL_NOTICE.md) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
+
+---
