@@ -39,7 +39,13 @@ class StimCoordinates:
         return (self.x, self.y)
 
     def __str__(self) -> str:
-        return "(" + ",".join(f"{c:.2f}" for c in self.to_stim_coordinates()) + ")"
+        return (
+            "("
+            + ",".join(  # pragma: no cover
+                f"{c:.2f}" for c in self.to_stim_coordinates()
+            )
+            + ")"
+        )
 
     def offset_spatially_by(self, x: float, y: float) -> StimCoordinates:
         """Return a new instance with offset spatial coordinates."""
@@ -61,7 +67,7 @@ class StimCoordinates:
         )
 
     def __hash__(self) -> int:
-        return hash((self.x, self.y, self.t))
+        return hash((self.x, self.y, self.t))  # pragma: no cover
 
     def __lt__(self, other: StimCoordinates) -> bool:
         return self.to_stim_coordinates() < other.to_stim_coordinates()

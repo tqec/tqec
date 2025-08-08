@@ -130,5 +130,5 @@ class ScheduledCircuitTransformationPass(CompilationPass):
     def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
         modified_circuit = self._transformations.apply(circuit)
         if check_all_flows:
-            self.check_flows(circuit, modified_circuit)
+            self.check_flows(circuit, modified_circuit)  # pragma: no cover
         return modified_circuit

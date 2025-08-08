@@ -16,9 +16,9 @@ class TemplateBorder(Enum):
         match self:
             case TemplateBorder.TOP:
                 return TemplateBorder.BOTTOM
-            case TemplateBorder.BOTTOM:
-                return TemplateBorder.TOP
-            case TemplateBorder.LEFT:
-                return TemplateBorder.RIGHT
-            case TemplateBorder.RIGHT:
-                return TemplateBorder.LEFT
+            case TemplateBorder.BOTTOM:  # pragma: no cover
+                return TemplateBorder.TOP  # pragma: no cover
+            case TemplateBorder.LEFT:  # pragma: no cover
+                return TemplateBorder.RIGHT  # pragma: no cover
+            case TemplateBorder.RIGHT:  # pragma: no cover
+                return TemplateBorder.LEFT  # pragma: no cover

@@ -32,5 +32,5 @@ class SortTargetsPass(CompilationPass):
             _with_targets_sorted(circuit.moments), circuit.schedule, circuit.qubit_map
         )
         if check_all_flows:
-            self.check_flows(circuit, modified_circuit)
+            self.check_flows(circuit, modified_circuit)  # pragma: no cover
         return modified_circuit

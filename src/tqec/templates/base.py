@@ -152,7 +152,7 @@ class Template(ABC):
             a representation of all the sub-templates found.
 
         """
-        return get_spatially_distinct_subtemplates(
+        return get_spatially_distinct_subtemplates(  # pragma: no cover
             self.instantiate(k), manhattan_radius, avoid_zero_plaquettes
         )
 

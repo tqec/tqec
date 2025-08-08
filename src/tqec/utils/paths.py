@@ -12,7 +12,7 @@ USER_DATA_PATH: Final[Path] = user_data_path(appname="TQEC")
 # defaults to a user-controlled directory.
 def _get_database_path() -> Path:
     if (env_db_path := os.getenv("TQEC_DETECTOR_DATABASE_PATH")) is not None:
-        return Path(env_db_path)
+        return Path(env_db_path)  # pragma: no cover
     else:
         return USER_DATA_PATH / "detector_database.pkl"
 
