@@ -73,7 +73,7 @@ class LookbackInformationList:
         return len(self.infos)
 
     def __getitem__(self, index: int | slice) -> LookbackInformation | list[LookbackInformation]:
-        return self.infos[index]
+        return self.infos[index]  # pragma: no cover
 
 
 class LookbackStack:

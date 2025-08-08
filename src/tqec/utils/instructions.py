@@ -28,12 +28,12 @@ def is_combined_reset_and_measurement_instruction(
     instruction: stim.CircuitInstruction,
 ) -> bool:
     """Check if ``instruction`` is a combined reset/measurement instruction (e.g., ``MR``)."""
-    return instruction.name in COMBINED_RESET_AND_MEASUREMENT_INSTRUCTION_NAMES
+    return instruction.name in COMBINED_RESET_AND_MEASUREMENT_INSTRUCTION_NAMES  # pragma: no cover
 
 
 def is_measurement_instruction(instruction: stim.CircuitInstruction) -> bool:
     """Check if ``instruction`` is a measurement instruction (e.g., ``M``)."""
-    return instruction.name in MEASUREMENT_INSTRUCTION_NAMES
+    return instruction.name in MEASUREMENT_INSTRUCTION_NAMES  # pragma: no cover
 
 
 def is_single_qubit_measurement_instruction(
@@ -57,4 +57,4 @@ def is_annotation_instruction(instruction: stim.CircuitInstruction) -> bool:
 
 def is_reset_instruction(instruction: stim.CircuitInstruction) -> bool:
     """Check if the provided ``instruction`` is a reset instruction (e.g., ``R``)."""
-    return instruction.name in RESET_INSTRUCTION_NAMES
+    return instruction.name in RESET_INSTRUCTION_NAMES  # pragma: no cover

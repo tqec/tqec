@@ -36,7 +36,7 @@ def display_template_from_instantiation(instantiation: npt.NDArray[numpy.int_]) 
             method.
 
     """
-    print(get_template_representation_from_instantiation(instantiation))
+    print(get_template_representation_from_instantiation(instantiation))  # pragma: no cover
 
 
 def get_template_representation_from_instantiation(

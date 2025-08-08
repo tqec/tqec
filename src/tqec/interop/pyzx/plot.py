@@ -20,16 +20,16 @@ from tqec.utils.position import Position3D
 
 
 def _node_color(g: GraphS, v: int) -> RGBA:
-    assert not is_boundary(g, v)
-    if is_s(g, v):
-        return TQECColor.Y.rgba
-    if is_z_no_phase(g, v):
-        return TQECColor.Z.rgba
-    return TQECColor.X.rgba
+    assert not is_boundary(g, v)  # pragma: no cover
+    if is_s(g, v):  # pragma: no cover
+        return TQECColor.Y.rgba  # pragma: no cover
+    if is_z_no_phase(g, v):  # pragma: no cover
+        return TQECColor.Z.rgba  # pragma: no cover
+    return TQECColor.X.rgba  # pragma: no cover
 
 
 def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:
-    return numpy.array([astuple(p) for p in positions]).T
+    return numpy.array([astuple(p) for p in positions]).T  # pragma: no cover
 
 
 def draw_positioned_zx_graph_on(

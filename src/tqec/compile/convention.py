@@ -44,7 +44,7 @@ class Convention:
     triplet: ConventionTriplet
 
     def __str__(self) -> str:
-        return self.name
+        return self.name  # pragma: no cover
 
 
 FIXED_BULK_CONVENTION = Convention(

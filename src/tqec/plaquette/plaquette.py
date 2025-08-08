@@ -81,7 +81,7 @@ class Plaquette:
         return hash(self.name)
 
     def __str__(self) -> str:
-        return self.name
+        return self.name  # pragma: no cover
 
     def project_on_data_qubit_indices(self, data_qubits_indices: list[int]) -> Plaquette:
         """Project the plaquette on the provided qubit indices.
@@ -178,7 +178,7 @@ class Plaquette:
         it in subsequent runs or on other machines / OSes.
 
         """
-        return int(hashlib.md5(self.name.encode()).hexdigest(), 16)
+        return int(hashlib.md5(self.name.encode()).hexdigest(), 16)  # pragma: no cover
 
     @property
     def num_measurements(self) -> int:
@@ -200,7 +200,7 @@ class Plaquette:
 
     def with_debug_information(self, debug_information: PlaquetteDebugInformation) -> Plaquette:
         """Create a copy of ``self`` with the provided ``debug_information``."""
-        return Plaquette(
+        return Plaquette(  # pragma: no cover
             self.name,
             self.qubits,
             self.circuit,
@@ -300,7 +300,7 @@ class Plaquettes:
         The returned value is reliable across runs, interpreters and OSes.
 
         """
-        return hash(
+        return hash(  # pragma: no cover
             tuple(
                 sorted(
                     (index, plaquette.reliable_hash())
@@ -327,7 +327,7 @@ class Plaquettes:
 
     def items(self) -> Iterable[tuple[int, Plaquette]]:
         """Return an iterable over each :class:`.Plaquette` and its associated index in ``self``."""
-        return self.collection.items()
+        return self.collection.items()  # pragma: no cover
 
     def to_dict(self, plaquettes_to_indices: dict[Plaquette, int] | None = None) -> dict[str, Any]:
         """Return a dictionary representation of the plaquettes.

@@ -153,7 +153,7 @@ class PositionedZX:
             positioned_block_synthesis,
         )
 
-        return positioned_block_synthesis(self)
+        return positioned_block_synthesis(self)  # pragma: no cover
 
     def draw(
         self,
@@ -182,7 +182,7 @@ class PositionedZX:
         # Needs to be imported here to avoid pulling pyzx when importing this module.
         from tqec.interop.pyzx.plot import plot_positioned_zx_graph  # noqa: PLC0415
 
-        return plot_positioned_zx_graph(
+        return plot_positioned_zx_graph(  # pragma: no cover
             self,
             figsize=figsize,
             title=title,

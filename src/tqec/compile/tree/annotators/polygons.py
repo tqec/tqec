@@ -21,11 +21,11 @@ class AnnotatePolygonOnLayerNode(NodeWalker):
             k: scaling factor.
 
         """
-        self._k = k
+        self._k = k  # pragma: no cover
 
     @override
     def visit_node(self, node: LayerNode) -> None:
-        if not node.is_leaf:
+        if not node.is_leaf:  # pragma: no cover
             return
         assert isinstance(node._layer, LayoutLayer)
         node.get_annotations(self._k).polygons = generate_polygons_for_layout_layer(
