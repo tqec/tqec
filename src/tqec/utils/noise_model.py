@@ -419,7 +419,7 @@ class NoiseModel:
 
 
 def occurs_in_classical_control_system(op: stim.CircuitInstruction) -> bool:
-    """Determines if an operation is an annotation or a classical control system update."""
+    """Determine if an operation is an annotation or a classical control system update."""
     t = OP_TYPES[op.name]
     if t == ANNOTATION:
         return True
@@ -439,7 +439,7 @@ def occurs_in_classical_control_system(op: stim.CircuitInstruction) -> bool:
 def _split_targets_if_needed(
     op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
-    """Splits operations into pieces as needed.
+    """Split operations into pieces as needed.
 
     This function splits operations, for example ``MPP`` into each product, classical control away
     from quantum ops, ...
@@ -470,7 +470,7 @@ def _split_targets_if_needed_clifford_1q(
 def _split_targets_if_needed_clifford_2q(
     op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
-    """Splits classical control system operations away from quantum operations."""
+    """Split classical control system operations away from quantum operations."""
     assert OP_TYPES[op.name] == CLIFFORD_2Q
     targets = op.targets_copy()
     if immune_qubits or any(t.is_measurement_record_target for t in targets):
@@ -484,7 +484,7 @@ def _split_targets_if_needed_clifford_2q(
 def _split_targets_if_needed_m_basis(
     op: stim.CircuitInstruction, immune_qubits: Set[int]
 ) -> Iterator[stim.CircuitInstruction]:
-    """Splits an MPP operation into one operation for each Pauli product it measures."""
+    """Split an MPP operation into one operation for each Pauli product it measures."""
     targets = op.targets_copy()
     args = op.gate_args_copy()
     k = 0
@@ -534,7 +534,7 @@ def _iter_split_op_moments(
 
 
 def _measure_basis(*, split_op: stim.CircuitInstruction) -> str | None:
-    """Converts an operation into a string describing the Pauli product basis it measures.
+    """Convert an operation into a string describing the Pauli product basis it measures.
 
     Returns:
         None: This is not a measurement (or not *just* a measurement).

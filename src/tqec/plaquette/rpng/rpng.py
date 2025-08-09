@@ -34,7 +34,7 @@ class ExtendedBasis(Enum):
 
 @dataclass(frozen=True)
 class RPNG:
-    """Represents a single ``RPNG`` string.
+    """Represent a single ``RPNG`` string.
 
     ## Format specification
 
