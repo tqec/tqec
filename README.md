@@ -4,8 +4,11 @@
 
 # TQEC
 
+![Python >= 3.10](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 [![build](https://github.com/tqec/tqec/actions/workflows/ci.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/ci.yml)
 [![docs](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml)
+
+
 
 TQEC(Topological Quantum Error Correction) is a design automation software for representing,
 constructing and compiling large-scale fault-tolerant quantum computations based on surface code and lattice surgery.
