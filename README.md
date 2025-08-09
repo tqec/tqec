@@ -4,6 +4,15 @@
 
 # TQEC
 
+![Python](https://img.shields.io/badge/python-3.10-blue.svg)
+![Python](https://img.shields.io/badge/python-3.11-blue.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue.svg)
+[![build](https://github.com/tqec/tqec/actions/workflows/ci.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/ci.yml)
+[![docs](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml)
+[![Star History Chart](https://api.star-history.com/svg?repos=tqec/tqec&type=Date)](https://www.star-history.com/#tqec/tqec&Date)
+
+
+
 TQEC(Topological Quantum Error Correction) is a design automation software for representing,
 constructing and compiling large-scale fault-tolerant quantum computations based on surface code and lattice surgery.
 
@@ -17,7 +26,11 @@ These blocks can then be combined to construct large-scale logical computations,
 
 **Note:** This project is under active development and provide no backwards compatibility at current stage.
 
-## Documentation
+<p align="center">
+  <a href="https://tqec.github.io/tqec/">
+  <img width=30% src="https://img.shields.io/badge/documentation-blue?style=for-the-badge&logo=read%20the%20docs" alt="Documentation" />
+  </a>
+</p>
 
 Documentation is available at <https://tqec.github.io/tqec/index.html>
 
