@@ -207,7 +207,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Text]:
-        """Returns a SVG element containing data-qubit interaction orders as text.
+        """Return a SVG element containing data-qubit interaction orders as text.
 
         This function returns one SVG element per non-empty corners, each containing a text element
         with the time slice at which a 2-qubit operation is applied on the corner qubit.
@@ -268,7 +268,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Line | None:
-        """Returns a SVG line showing the direction of the hook error.
+        """Return a SVG line showing the direction of the hook error.
 
         Args:
             configuration: drawing configuration.
@@ -317,7 +317,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
-        """Returns a SVG layer containing a representation of data-qubit resets/measurements.
+        """Return a SVG layer containing a representation of data-qubit resets/measurements.
 
         Args:
             configuration: drawing configuration.

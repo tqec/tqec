@@ -158,7 +158,7 @@ class LayerVisualiser(NodeWalker):
             return 0
 
     def get_moment_text(self, start: int, end: int) -> svg.Text:
-        """Returns an SVG representation of a text indicating the moments covered by [start, end].
+        """Return an SVG representation of a text indicating the moments covered by [start, end].
 
         Args:
             start: initial moment.

@@ -370,7 +370,7 @@ def compute_detectors_at_end_of_situation(
     only_use_database: bool = False,
     parallel_process_count: int = 1,
 ) -> frozenset[Detector]:
-    """Returns detectors that should be added at the end of the provided situation.
+    """Return detectors that should be added at the end of the provided situation.
 
     Args:
         subtemplates: a sequence of sub-template(s), each entry consisting of

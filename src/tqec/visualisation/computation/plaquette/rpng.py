@@ -98,7 +98,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
-        """Returns the plaquette shape, filled iff it measures in a uniform Pauli basis.
+        """Return the plaquette shape, filled iff it measures in a uniform Pauli basis.
 
         This method returns the plaquette shape as an SVG path. It might also fill this shape if
         ``self`` represents a plaquette measuring its qubits in the same Pauli basis, else without
@@ -166,7 +166,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Element]:
-        """Returns one SVG element per non-empty corners filling each corresponding quarter.
+        """Return one SVG element per non-empty corners filling each corresponding quarter.
 
         This method should only be called if the plaquette drawn by self measures data-qubits in a
         non-uniform Pauli basis (e.g. ZXXZ).
@@ -208,7 +208,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Text]:
-        """Returns a SVG element containing data-qubit interaction orders as text.
+        """Return a SVG element containing data-qubit interaction orders as text.
 
         This function returns one SVG element per non-empty corners, each containing a text element
         with the time slice at which a 2-qubit operation is applied on the corner qubit.
@@ -244,7 +244,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Line | None:
-        """Returns a SVG line showing the direction of the hook error.
+        """Return a SVG line showing the direction of the hook error.
 
         Args:
             configuration: drawing configuration.
@@ -273,7 +273,7 @@ class RPNGPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
-        """Returns a SVG layer containing a representation of data-qubit resets/measurements.
+        """Return a SVG layer containing a representation of data-qubit resets/measurements.
 
         Args:
             configuration: drawing configuration.

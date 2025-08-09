@@ -89,7 +89,7 @@ class LayerNode:
 
     @property
     def is_leaf(self) -> bool:
-        """Returns ``True`` if ``self`` does not have any children and so is a leaf node."""
+        """Return ``True`` if ``self`` does not have any children and so is a leaf node."""
         return isinstance(self._layer, LayoutLayer)
 
     @property
@@ -99,7 +99,7 @@ class LayerNode:
 
     @property
     def repetitions(self) -> LinearFunction | None:
-        """Returns the number of repetitions of the node if ``self.is_repeated`` else ``None``."""
+        """Return the number of repetitions of the node if ``self.is_repeated`` else ``None``."""
         return self._layer.repetitions if isinstance(self._layer, RepeatedLayer) else None
 
     def to_dict(self) -> dict[str, Any]:

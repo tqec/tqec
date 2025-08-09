@@ -430,7 +430,7 @@ class _BaseColladaData:
         self,
         pop_faces_at_direction: SignedDirection3D | None = None,
     ) -> None:
-        """Base model template.
+        """Encode the base model template.
 
         This class includes the definition of all the library nodes and the necessary material,
         geometry definitions.

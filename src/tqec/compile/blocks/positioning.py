@@ -11,7 +11,7 @@ from tqec.utils.position import BlockPosition2D, BlockPosition3D, SignedDirectio
 
 class LayoutPosition2D(ABC):
     def __init__(self, x: int, y: int) -> None:
-        """Internal class to represent the local indexing used to represent both cubes and pipes.
+        """Represent the local indexing used to represent both cubes and pipes.
 
         Args:
             x: first coordinate.
@@ -104,10 +104,10 @@ T_co = TypeVar("T_co", bound=LayoutPosition2D, covariant=True, default=LayoutPos
 
 class LayoutPosition3D(ABC, Generic[T_co]):
     def __init__(self, spatial_position: T_co, z: int) -> None:
-        """Internal class to represent the local indexing used to represent both 3D cubes and pipes.
+        """Represent the local indexing used to represent both 3D cubes and pipes.
 
-        This class simply wraps a :class:`LayoutPosition2D` instance with an
-        integer-valued z coordinate.
+        This class simply wraps a :class:`LayoutPosition2D` instance with an integer-valued z
+        coordinate.
 
         Because temporal pipes are "absorbed" in its neighbouring blocks, we do not
         have to represent them, hence the z coordinate does not need any kind of

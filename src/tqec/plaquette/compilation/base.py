@@ -18,7 +18,7 @@ class PlaquetteCompiler:
         passes: Iterable[CompilationPass],
         mergeable_instructions_modifier: Callable[[frozenset[str]], frozenset[str]],
     ):
-        """A wrapper around a list of :class:`.CompilationPass` instances."""
+        """Wrap a list of :class:`.CompilationPass` instances."""
         self._name = name
         self._passes = passes
         self._mergeable_instructions_modifier = mergeable_instructions_modifier

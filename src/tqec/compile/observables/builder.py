@@ -66,7 +66,7 @@ Coordinates2D = tuple[float, float] | tuple[int, int]
 
 
 class CubeObservableQubitsBuilder(Protocol):
-    """Builds the qubits whose measurements will be included in the logical observable that is
+    """Build the qubits whose measurements will be included in the logical observable that is
     supported by the cube.
 
     This calculates the coordinates of these data qubits in the local coordinate system.
@@ -74,12 +74,12 @@ class CubeObservableQubitsBuilder(Protocol):
     """
 
     def __call__(self, shape: PlaquetteShape2D, cube: CubeWithArms) -> Sequence[Coordinates2D]:
-        """Builds the qubit coordinates whose measurement will be included in the observable."""
+        """Build the qubit coordinates whose measurement will be included in the observable."""
         ...
 
 
 class PipeObservableQubitsBuilder(Protocol):
-    """Builds the qubits whose measurements will be included in the logical observable that is
+    """Build the qubits whose measurements will be included in the logical observable that is
     supported by the pipe.
 
     This calculates the coordinates of that data qubit in the local coordinate system of the cube at
@@ -88,12 +88,12 @@ class PipeObservableQubitsBuilder(Protocol):
     """
 
     def __call__(self, shape: PlaquetteShape2D, pipe: PipeWithArms) -> Sequence[Coordinates2D]:
-        """Builds the qubit coordinates whose measurement will be included in the observable."""
+        """Build the qubit coordinates whose measurement will be included in the observable."""
         ...
 
 
 class TemporalPipeObservableQubitsBuilder(Protocol):
-    """Builds the qubits whose measurements will be included in the logical observable that is
+    """Build the qubits whose measurements will be included in the logical observable that is
     supported by the temporal pipe.
 
     This calculates the coordinates of that data qubit in the local coordinate system of the cube at
@@ -104,7 +104,7 @@ class TemporalPipeObservableQubitsBuilder(Protocol):
     def __call__(
         self, shape: PlaquetteShape2D, pipe: PipeWithObservableBasis
     ) -> Sequence[Coordinates2D]:
-        """Builds the qubit coordinates whose measurement will be included in the observable."""
+        """Build the qubit coordinates whose measurement will be included in the observable."""
         ...
 
 
