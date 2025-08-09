@@ -387,7 +387,7 @@ class DetectorDatabase:
         self.frozen = False
 
     def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
-        """Returns a URL pointing to https://algassert.com/crumble for each of the stored situations
+        """Return a URL pointing to https://algassert.com/crumble for each of the stored situations.
 
         Args:
             plaquette_increments: increments between two :class:`Plaquette`
