@@ -108,7 +108,7 @@ class _DetectorDatabaseKey:
 
     @cached_property
     def reliable_hash(self) -> int:
-        """Returns a hash of ``self`` that is guaranteed to be constant.
+        """Return a hash of ``self`` that is guaranteed to be constant.
 
         Python's ``hash`` is not guaranteed to be constant across Python versions, OSes and
         executions. In particular, strings hash will not be repeatable across different Python

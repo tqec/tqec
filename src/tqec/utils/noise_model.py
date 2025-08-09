@@ -369,7 +369,7 @@ class NoiseModel:
         system_qubits: set[int] | None = None,
         immune_qubits: set[int] | None = None,
     ) -> stim.Circuit:
-        """Returns a noisy version of the given circuit, by applying the receiving noise model.
+        """Return a noisy version of the given circuit, by applying the receiving noise model.
 
         Args:
             circuit: The circuit to layer noise over.

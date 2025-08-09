@@ -57,7 +57,7 @@ class QubitMap:
 
     @staticmethod
     def from_circuit(circuit: stim.Circuit) -> QubitMap:
-        """Returns a qubit map from the qubit coordinates at the end of the provided ``circuit``.
+        """Return a qubit map from the qubit coordinates at the end of the provided ``circuit``.
 
         Warning:
             This function, just like
@@ -222,7 +222,7 @@ class QubitMap:
 
 
 def get_qubit_map(circuit: stim.Circuit) -> QubitMap:
-    """Returns the existing qubits and their coordinates at the end of the provided ``circuit``.
+    """Return the existing qubits and their coordinates at the end of the provided ``circuit``.
 
     Warning:
         This function, just like
