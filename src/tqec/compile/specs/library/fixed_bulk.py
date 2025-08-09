@@ -38,7 +38,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        """Implementation of the :class:`.CubeBuilder` interface for the fixed bulk convention.
+        """Implement the :class:`.CubeBuilder` interface for the fixed bulk convention.
 
         This class provides an implementation following the fixed-bulk convention. This convention
         consists in the fact that the top-left most plaquette in the bulk always measures a known-
@@ -100,7 +100,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
-        """Implementation of the :class:`.PipeBuilder` interface for the fixed bulk convention.
+        """Implement the :class:`.PipeBuilder` interface for the fixed bulk convention.
 
         This class provides an implementation following the fixed-bulk convention. This convention
         consists in the fact that the top-left most plaquette in the bulk always measures a known-

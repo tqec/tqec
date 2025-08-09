@@ -111,7 +111,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
     def __init__(
         self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
-        """Implementation of the :class:`.CubeBuilder` interface for the fixed boundary convention.
+        """Implement the :class:`.CubeBuilder` interface for the fixed boundary convention.
 
         This class provides an implementation following the fixed-boundary convention.
         This convention consists in the fact that 2-body stabilizers on the boundary
@@ -178,7 +178,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
     def __init__(
         self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
-        """Implementation of the :class:`.PipeBuilder` interface for the fixed boundary convention.
+        """Implement the :class:`.PipeBuilder` interface for the fixed boundary convention.
 
         This class provides an implementation following the fixed-boundary convention.
         This convention consists in the fact that 2-body stabilizers on the boundary

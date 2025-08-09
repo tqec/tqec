@@ -48,7 +48,7 @@ class QubitMap:
 
     @staticmethod
     def from_qubits(qubits: Iterable[GridQubit]) -> QubitMap:
-        """Creates a qubit map from the provided ``qubits``.
+        """Create a qubit map from the provided ``qubits``.
 
         Qubit indices are associated in the order in which ``qubits`` are provided: the first qubit
         will have index ``0``, the second index ``1`` and so on.
