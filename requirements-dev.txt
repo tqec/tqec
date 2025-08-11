@@ -10,5 +10,5 @@ mypy<=1.17.0
 types-networkx<=3.5.0.20250610
 pytest-cov<=6.2.1
 pandoc<=2.4
-pre-commit<=4.2.0
+pre-commit<=4.3.0
 scipy-stubs<=1.16.0.0
