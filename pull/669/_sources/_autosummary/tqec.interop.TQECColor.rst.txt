@@ -1,0 +1,41 @@
+TQECColor
+=========
+
+.. currentmodule:: tqec.interop
+
+.. autoclass:: TQECColor
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TQECColor.with_zx_flipped
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TQECColor.rgba
+      ~TQECColor.X
+      ~TQECColor.Y
+      ~TQECColor.Z
+      ~TQECColor.H
+      ~TQECColor.X_CORRELATION
+      ~TQECColor.Z_CORRELATION
+   
+   
+
+   
+   
+   .. rubric:: Detailed methods
+
+   
+   .. automethod:: with_zx_flipped
+   
+   
