@@ -197,7 +197,7 @@ class Moment:
             raise TQECError("Trying to add an overlapping quantum circuit to a Moment instance.")
         cpy = deepcopy(self)
         cpy += other
-        return cpy  # pragma: no cover
+        return cpy
 
     @staticmethod
     def _get_used_qubit_indices(

@@ -50,7 +50,7 @@ class LayoutPosition2D(ABC):
         if isinstance(other, tuple):
             x, y = other
             return self.__class__(self._x + x, self._y + y)
-        return self.__class__(self._x + other._x, self._y + other._y)  # pragma: no cover
+        return self.__class__(self._x + other._x, self._y + other._y)
 
 
 class LayoutCubePosition2D(LayoutPosition2D):

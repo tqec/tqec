@@ -268,4 +268,3 @@ ignore = [
 
 [tool.pytest.ini_options]
 markers = ["slow: mark a test that takes a long time to run."]
-addopts = ["src/tqec/interop/collada/html_viewer.py"]

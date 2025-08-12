@@ -54,11 +54,11 @@ class Polygon:
     basis: PauliBasis
     qubits: frozenset[GridQubit]
 
-    def _sorted_qubits(self) -> list[GridQubit]:
+    def _sorted_qubits(self) -> list[GridQubit]:  # pragma: no cover
         """Return the qubits in a sorted order that can be used to draw the polygon."""
-        cx = sum(q.x for q in self.qubits) / len(self.qubits)  # pragma: no cover
-        cy = sum(q.y for q in self.qubits) / len(self.qubits)  # pragma: no cover
-        return sorted(self.qubits, key=lambda q: math.atan2(q.y - cy, q.x - cx))  # pragma: no cover
+        cx = sum(q.x for q in self.qubits) / len(self.qubits)
+        cy = sum(q.y for q in self.qubits) / len(self.qubits)
+        return sorted(self.qubits, key=lambda q: math.atan2(q.y - cy, q.x - cx))
 
     def to_crumble_url_string(self, qubit_map: QubitMap) -> str:
         """Convert the polygon to the representation in a crumble url."""
@@ -93,19 +93,19 @@ class LayerTreeAnnotations:
     qubit_map: QubitMap | None = None
 
     @property
-    def has_qubit_map(self) -> bool:
+    def has_qubit_map(self) -> bool:  # pragma: no cover
         """Return ``True`` if the qubit map annotation has been set."""
-        return self.qubit_map is not None  # pragma: no cover
+        return self.qubit_map is not None
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:  # pragma: no cover
         """Return a dictionary representation of ``self``."""
-        ret: dict[str, Any] = {"qubit_map": None}  # pragma: no cover
-        if self.qubit_map is not None:  # pragma: no cover
+        ret: dict[str, Any] = {"qubit_map": None}
+        if self.qubit_map is not None:
             ret["qubit_map"] = {
-                i: (  # pragma: no cover
+                i: (
                     q.x,
                     q.y,
                 )
                 for i, q in self.qubit_map.i2q.items()
             }
-        return ret  # pragma: no cover
+        return ret

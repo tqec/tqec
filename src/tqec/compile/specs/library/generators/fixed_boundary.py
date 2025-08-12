@@ -7,7 +7,6 @@ obtained for the fixed boundary convention.
 
 from __future__ import annotations
 
-import inspect
 from typing import Final, Literal
 
 from tqec.compile.specs.base import CubeSpec
@@ -46,14 +45,6 @@ class FixedBoundaryConventionGenerator:
 
         """
         self._mapper = PlaquetteMapper(translator, compiler)
-
-    def _not_implemented_exception(self) -> NotImplementedError:
-        calling_method_name = inspect.stack(context=0)[1].function  # pragma: no cover
-        class_name = type(self).__name__
-        return NotImplementedError(
-            f"The method '{class_name}.{calling_method_name}' has not been "
-            "implemented but is required to continue. Please implement it."
-        )
 
     def get_bulk_rpng_descriptions(
         self,
