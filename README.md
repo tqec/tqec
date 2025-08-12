@@ -10,12 +10,12 @@
 ![Python](https://img.shields.io/badge/python-3.13-blue.svg)
 [![build](https://github.com/tqec/tqec/actions/workflows/ci.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/ci.yml)
 [![docs](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml)
-![GitHub Repo stars](https://img.shields.io/github/stars/tqec/tqec?style=flat-square&logo=github)
-[![Star History Chart](https://img.shields.io/badge/📈-Star%20History-blue?style=flat-square)](https://star-history.com/#tqec/tqec&amp;Date&Date)
+[![Stars](https://img.shields.io/github/stars/tqec/tqec.svg)](https://github.com/tqec/tqec/stargazers)
+[![Star History Chart](https://img.shields.io/badge/📈-Star%20History-blue?style=flat-square)](https://www.star-history.com/#tqec/tqec&Date)
 
 
 
-TQEC(Topological Quantum Error Correction) is a design automation software for representing,
+TQEC (Topological Quantum Error Correction) is a design automation software for representing,
 constructing and compiling large-scale fault-tolerant quantum computations based on surface code and lattice surgery.
 
 In the past decade, there have been significant advancements in surface code quantum computation based on lattice surgery.
@@ -26,7 +26,7 @@ As a result, many complex logical computations have not been practically simulat
 `tqec` provides numerous building blocks based on state-of-the-art protocols, with verified correct circuits implementation for each block.
 These blocks can then be combined to construct large-scale logical computations, enabling the automatic compilation of large-scale computational circuits.
 
-**Note:** This project is under active development and provide no backwards compatibility at current stage.
+> **_NOTE:_** This project is under active development and provide no backwards compatibility at current stage.
 
 <p align="center">
   <a href="https://tqec.github.io/tqec/">
@@ -102,7 +102,6 @@ All the resources and group meeting recordings are available at [this link](http
 Please join the [Google group](https://groups.google.com/g/tqec-design-automation) to receive more updates and information!
 
 ---
-
 > ### **Legal Notice**
 >
 > This library is intended for **academic, educational, and civilian research only**, in the field of **fault-tolerant quantum computing**, particularly in **surface code compilation** and **topological error correction**.
@@ -112,5 +111,4 @@ Please join the [Google group](https://groups.google.com/g/tqec-design-automatio
 > **Use in military, surveillance, or dual-use applications is strictly prohibited.**
 >
 > Please, review the full [`LEGAL_NOTICE.md`](https://github.com/tqec/tqec/blob/main/LEGAL_NOTICE.md) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
-
 ---
