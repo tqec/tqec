@@ -51,7 +51,7 @@ test = [
   "scipy-stubs<=1.16.0.0",
 ]
 dev = [
-  "pymatching<=2.2.2",
+  "pymatching<=2.3.0",
   "jupyterlab<=4.4.3",
   "tqec[test, doc, bench]",
   "pre-commit<=4.3.0",
