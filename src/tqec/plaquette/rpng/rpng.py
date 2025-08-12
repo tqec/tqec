@@ -96,25 +96,25 @@ class RPNG:
             raise ValueError("Unacceptable character for the G field.")
         return cls(r, p, n, g)
 
-    def get_r_op(self) -> str | None:
+    def get_r_op(self) -> str | None:  # pragma: no cover
         """Get the reset operation or Hadamard."""
-        op = self.r  # pragma: no cover
-        if op is None:  # pragma: no cover
-            return None  # pragma: no cover
-        elif op.value in PauliBasis._value2member_map_:  # pragma: no cover
-            return f"R{op.value.upper()}"  # pragma: no cover
-        else:  # pragma: no cover
-            return f"{op.value.upper()}"  # pragma: no cover
+        op = self.r
+        if op is None:
+            return None
+        elif op.value in PauliBasis._value2member_map_:
+            return f"R{op.value.upper()}"
+        else:
+            return f"{op.value.upper()}"
 
-    def get_g_op(self) -> str | None:
+    def get_g_op(self) -> str | None:  # pragma: no cover
         """Get the measurement operation or Hadamard."""
-        op = self.g  # pragma: no cover
-        if op is None:  # pragma: no cover
-            return None  # pragma: no cover
-        elif op.value in PauliBasis._value2member_map_:  # pragma: no cover
-            return f"M{op.value.upper()}"  # pragma: no cover
-        else:  # pragma: no cover
-            return f"{op.value.upper()}"  # pragma: no cover
+        op = self.g
+        if op is None:
+            return None
+        elif op.value in PauliBasis._value2member_map_:
+            return f"M{op.value.upper()}"
+        else:
+            return f"{op.value.upper()}"
 
     @property
     def is_null(self) -> bool:

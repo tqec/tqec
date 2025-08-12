@@ -17,21 +17,21 @@ from tqec.visualisation.computation.plaquette.rpng import RPNGPlaquetteDrawer
 class DrawPolygon:
     qubits_by_basis: dict[PauliBasis, list[GridQubit]] | PauliBasis
 
-    def to_json(self) -> dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:  # pragma: no cover
         """Serialize ``self`` as a JSON-like dictionary."""
-        if isinstance(self.qubits_by_basis, PauliBasis):  # pragma: no cover
-            return {"basis": self.qubits_by_basis.value}  # pragma: no cover
-        return {  # pragma: no cover
+        if isinstance(self.qubits_by_basis, PauliBasis):
+            return {"basis": self.qubits_by_basis.value}
+        return {
             str(basis): [qubit.to_dict() for qubit in qubits]
             for basis, qubits in self.qubits_by_basis.items()
         }
 
     @staticmethod
-    def from_json(data: dict[str, Any]) -> DrawPolygon:
+    def from_json(data: dict[str, Any]) -> DrawPolygon:  # pragma: no cover
         """Deserialize ``self`` from a JSON-like dictionary."""
-        if "basis" in data:  # pragma: no cover
-            return DrawPolygon(PauliBasis(data["basis"]))  # pragma: no cover
-        return DrawPolygon(  # pragma: no cover
+        if "basis" in data:
+            return DrawPolygon(PauliBasis(data["basis"]))
+        return DrawPolygon(
             {
                 PauliBasis(basis): [GridQubit.from_dict(q) for q in qubits]
                 for basis, qubits in data.items()
@@ -126,10 +126,10 @@ class PlaquetteDebugInformation:
             ),
         )
 
-    def get_svg_drawer(self) -> SVGPlaquetteDrawer:
+    def get_svg_drawer(self) -> SVGPlaquetteDrawer:  # pragma: no cover
         """Get a drawer to draw the plaquette associated to ``self``."""
-        if self.drawer is not None:  # pragma: no cover
-            return self.drawer  # pragma: no cover
-        if self.rpng is not None:  # pragma: no cover
-            return RPNGPlaquetteDrawer(self.rpng)  # pragma: no cover
-        return EmptySVGPlaquetteDrawer()  # pragma: no cover
+        if self.drawer is not None:
+            return self.drawer
+        if self.rpng is not None:
+            return RPNGPlaquetteDrawer(self.rpng)
+        return EmptySVGPlaquetteDrawer()
