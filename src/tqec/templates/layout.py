@@ -171,7 +171,7 @@ class LayoutTemplate(Template):
     def get_global_plaquettes(
         self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]
     ) -> Plaquettes:
-        """Merges ``individual_plaquettes`` into a single :class:`.Plaquettes` instance.
+        """Merge ``individual_plaquettes`` into a single :class:`.Plaquettes` instance.
 
         The returned :class:`.Plaquettes` instance can then be used to instantiate ``self``.
 
@@ -235,7 +235,7 @@ class LayoutTemplate(Template):
     @property
     @override
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the ``instantiate`` method.
+        """Return the number of plaquettes expected from the ``instantiate`` method.
 
         Returns:
             the number of plaquettes expected from the `instantiate` method.

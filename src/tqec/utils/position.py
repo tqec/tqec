@@ -52,7 +52,7 @@ class Vec3D:
 
 
 class Position2D(Vec2D):
-    """Represents a position on a 2-dimensional plane.
+    """Represent a position on a 2-dimensional plane.
 
     Warning:
         This class represents a position without any knowledge of the coordinate
@@ -76,11 +76,11 @@ class Position2D(Vec2D):
 
 
 class PhysicalQubitPosition2D(Position2D):
-    """Represents the position of a physical qubit on a 2-dimensional plane."""
+    """Represent the position of a physical qubit on a 2-dimensional plane."""
 
 
 class PlaquettePosition2D(Position2D):
-    """Represents the position of a plaquette on a 2-dimensional plane."""
+    """Represent the position of a plaquette on a 2-dimensional plane."""
 
     def get_origin_position(self, shift: Shift2D) -> PhysicalQubitPosition2D:
         """Return the position of the plaquette origin."""
@@ -88,7 +88,7 @@ class PlaquettePosition2D(Position2D):
 
 
 class BlockPosition2D(Position2D):
-    """Represents the position of a block on a 2-dimensional plane."""
+    """Represent the position of a block on a 2-dimensional plane."""
 
     def get_top_left_plaquette_position(self, block_shape: PlaquetteShape2D) -> PlaquettePosition2D:
         """Return the position of the top-left plaquette of the block."""
@@ -112,11 +112,11 @@ class Shape2D(Vec2D):
 
 
 class PlaquetteShape2D(Shape2D):
-    """Represents a 2-dimensional shape using plaquette coordinate system."""
+    """Represent a 2-dimensional shape using plaquette coordinate system."""
 
 
 class PhysicalQubitShape2D(Shape2D):
-    """Represents a 2-dimensional shape using physical qubit coordinate system."""
+    """Represent a 2-dimensional shape using physical qubit coordinate system."""
 
 
 class Shift2D(Vec2D):
@@ -164,7 +164,7 @@ class Position3D(Vec3D):
 
 
 class BlockPosition3D(Position3D):
-    """Represents the position of a block in 3D space."""
+    """Represent the position of a block in 3D space."""
 
     def as_2d(self) -> BlockPosition2D:
         """Return ``self`` as a 2-dimensional position, ignoring the ``z`` coordinate."""
