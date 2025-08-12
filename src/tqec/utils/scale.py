@@ -28,7 +28,7 @@ from tqec.utils.position import PhysicalQubitShape2D, PlaquetteShape2D, Shape2D,
 
 @dataclass(frozen=True)
 class LinearFunction:
-    """Represents a linear function.
+    """Represent a linear function.
 
     A linear function is fully described with a slope and an offset.
 

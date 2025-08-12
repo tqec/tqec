@@ -80,7 +80,7 @@ class ZXEdge:
 
 @dataclass(frozen=True)
 class CorrelationSurface:
-    """Represents a set of measurements whose values determine the parity of the logical operators.
+    """Represent a set of measurements whose values determine the parity of the logical operators.
 
     A correlation surface in a computation is a set of measurements whose values determine the
     parity of the logical operators at the inputs and outputs associated with the surface.

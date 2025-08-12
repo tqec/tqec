@@ -111,7 +111,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
     def __init__(
         self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
-        """Implementation of the :class:`.CubeBuilder` interface for the fixed boundary convention.
+        """Implement the :class:`.CubeBuilder` interface for the fixed boundary convention.
 
         This class provides an implementation following the fixed-boundary convention.
         This convention consists in the fact that 2-body stabilizers on the boundary
@@ -178,7 +178,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
     def __init__(
         self, compiler: PlaquetteCompiler, translator: RPNGTranslator = DefaultRPNGTranslator()
     ) -> None:
-        """Implementation of the :class:`.PipeBuilder` interface for the fixed boundary convention.
+        """Implement the :class:`.PipeBuilder` interface for the fixed boundary convention.
 
         This class provides an implementation following the fixed-boundary convention.
         This convention consists in the fact that 2-body stabilizers on the boundary
@@ -203,7 +203,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
     #    TEMPORAL PIPE    #
     #######################
     def get_temporal_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a temporal pipe based on the provided ``spec``.
+        """Return the block to implement a temporal pipe based on the provided ``spec``.
 
         Args:
             spec: description of the pipe that should be implemented by this
@@ -300,7 +300,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         )
 
     def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
-        """Returns the template needed to implement the pipe representing the provided ``spec``."""
+        """Return the template needed to implement the pipe representing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
             case Direction3D.X, False:
