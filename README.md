@@ -10,7 +10,7 @@
 ![Python](https://img.shields.io/badge/python-3.13-blue.svg)
 [![build](https://github.com/tqec/tqec/actions/workflows/ci.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/ci.yml)
 [![docs](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml)
-
+![GitHub Repo stars](https://img.shields.io/github/stars/tqec/tqec?label=Stars)
 
 
 
