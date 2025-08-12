@@ -35,7 +35,7 @@ from tqec.utils.exceptions import TQECError, TQECWarning
 
 class _ScheduledCircuits:
     def __init__(self, circuits: list[ScheduledCircuit], global_qubit_map: QubitMap) -> None:
-        """Represents a collection of :class:`.ScheduledCircuit` instances.
+        """Represent a collection of :class:`.ScheduledCircuit` instances.
 
         This class aims at providing accessors for several compatible instances
         of :class:`~tqec.circuit.schedule.circuit.ScheduledCircuit`. It allows

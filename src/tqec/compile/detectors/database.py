@@ -108,7 +108,7 @@ class _DetectorDatabaseKey:
 
     @cached_property
     def reliable_hash(self) -> int:
-        """Returns a hash of ``self`` that is guaranteed to be constant.
+        """Return a hash of ``self`` that is guaranteed to be constant.
 
         Python's ``hash`` is not guaranteed to be constant across Python versions, OSes and
         executions. In particular, strings hash will not be repeatable across different Python
@@ -387,7 +387,7 @@ class DetectorDatabase:
         self.frozen = False
 
     def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
-        """Returns a URL pointing to https://algassert.com/crumble for each of the stored situations
+        """Return a URL pointing to https://algassert.com/crumble for each of the stored situations.
 
         Args:
             plaquette_increments: increments between two :class:`Plaquette`

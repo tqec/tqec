@@ -9,7 +9,7 @@ from tqec.utils.exceptions import TQECError
 
 @dataclass
 class ScheduleMap:
-    """Represents a map from schedules to schedules."""
+    """Represent a map from schedules to schedules."""
 
     map: dict[int, int]
 

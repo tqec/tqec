@@ -39,7 +39,7 @@ class WithSpatialFootprint(ABC):
     @property
     @abstractmethod
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        """Returns the 2-dimensional shape of the object.
+        """Return the 2-dimensional shape of the object.
 
         Note:
             This method should return the shape in qubit-coordinates. That means

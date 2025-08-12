@@ -38,7 +38,7 @@ class ConventionTriplet:
 
 @dataclass(frozen=True)
 class Convention:
-    """Represents a convention to implement blocks."""
+    """Represent a convention to implement blocks."""
 
     name: str
     triplet: ConventionTriplet

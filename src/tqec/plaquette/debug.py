@@ -66,7 +66,7 @@ class PlaquetteDebugInformation:
         return None
 
     def with_data_qubits_removed(self, removed_data_qubits: list[int]) -> PlaquetteDebugInformation:
-        """Returns a copy of ``self`` without any information on ``removed_data_qubits``."""
+        """Return a copy of ``self`` without any information on ``removed_data_qubits``."""
         if self.rpng is None:
             return self
         corners: list[RPNG] = list(self.rpng.corners)

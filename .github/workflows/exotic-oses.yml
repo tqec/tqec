@@ -22,7 +22,7 @@ jobs:
         with:
           # Use smallest supported Python version as the common denominator.
           # In theory, if everything succeed in 3.10, everything should succeed in
-          # 3.11, 3.12 and follow-up version.
+          # 3.11, 3.12, 3.13 and follow-up version.
           python-version: "3.10"
           cache: "pip"
       - name: Install dependencies

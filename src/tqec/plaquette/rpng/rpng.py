@@ -34,7 +34,7 @@ class ExtendedBasis(Enum):
 
 @dataclass(frozen=True)
 class RPNG:
-    """Represents a single ``RPNG`` string.
+    """Represent a single ``RPNG`` string.
 
     ## Format specification
 
@@ -194,7 +194,7 @@ class RPNGDescription:
     ancilla: RG = field(default=RG(PauliBasis.X, PauliBasis.X))
 
     def __post_init__(self) -> None:
-        """Validation of the initialization arguments.
+        """Validate the initialization arguments.
 
         Constraints:
         - the n values for the corners must be unique

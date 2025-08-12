@@ -51,10 +51,10 @@ test = [
   "scipy-stubs<=1.16.0.0",
 ]
 dev = [
-  "pymatching<=2.2.2",
+  "pymatching<=2.3.0",
   "jupyterlab<=4.4.3",
   "tqec[test, doc, bench]",
-  "pre-commit<=4.2.0",
+  "pre-commit<=4.3.0",
   # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
   # cannot afford someone installing a different version of ruff and being forbidden to commit
   # anything because the different version sees some errors in the code.
@@ -247,7 +247,7 @@ ignore = [
   # D203 - Requires multiline docstrings to start on the second line. Incompatible with D212. We prefer D212.
   "D203", "D213",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
-  "D400", "D401", "D404", "D407", "D415", "D416", "D417",
+  "D407",
   # PLR091{2,3,5} - A few code blocks have too many {branches,arguments,statements}. Ignored for the moment.
   # PLR2004 - Replace magic values, not a priority at the moment.
   "PLR0912", "PLR0913", "PLR0915", "PLR2004",
