@@ -10,7 +10,8 @@
 ![Python](https://img.shields.io/badge/python-3.13-blue.svg)
 [![build](https://github.com/tqec/tqec/actions/workflows/ci.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/ci.yml)
 [![docs](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml)
-![GitHub Repo stars](https://img.shields.io/github/stars/tqec/tqec?label=Stars)
+![GitHub Repo stars](https://img.shields.io/github/stars/tqec/tqec?style=flat-square&logo=github)
+[![Star History Chart](https://img.shields.io/badge/📈-Star%20History-blue?style=flat-square)](https://star-history.com/#tqec/tqec&amp;Date&Date)
 
 
 
