@@ -107,5 +107,5 @@ Please join the [Google group](https://groups.google.com/g/tqec-design-automatio
 >
 > **Use in military, surveillance, or dual-use applications is strictly prohibited.**
 >
-> Please, review the full [`LEGAL_NOTICE.md`](https://github.com/tqec/tqec/blob/main/LEGAL_NOTICE.md) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
+> Please, review the full [`LEGAL_NOTICE.md`](https://tqec.github.io/tqec/legal_notice.html) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
 ---

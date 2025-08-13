@@ -8,6 +8,7 @@
    :maxdepth: 2
    :hidden:
 
+   Legal Notice <legal_notice>
    Introduction <self>
    User Guide <user_guide/index>
    Gallery <gallery/index>
