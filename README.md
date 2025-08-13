@@ -4,7 +4,7 @@
 
 # TQEC
 
-![Compatible with Python versions 3.10 and higher](https://img.shields.io/badge/Python-3.10+-blue.svg?logo=python)
+![Python](https://img.shields.io/badge/python-3.10%20|%203.11%20|%203.12%20|%203.13-blue)
 [![build](https://github.com/tqec/tqec/actions/workflows/ci.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/ci.yml)
 [![docs](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml)
 [![Stars](https://img.shields.io/github/stars/tqec/tqec.svg)](https://github.com/tqec/tqec/stargazers)
