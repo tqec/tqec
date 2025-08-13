@@ -9,8 +9,8 @@
 [![docs](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml)
 [![Stars](https://img.shields.io/github/stars/tqec/tqec.svg)](https://github.com/tqec/tqec/stargazers)
 [![Star History Chart](https://img.shields.io/badge/📈-Star%20History-blue?style=flat-square)](https://www.star-history.com/#tqec/tqec&Date)
-
-
+[![Legal Notice](https://img.shields.io/badge/docs-legal%20notice-blue)](https://tqec.github.io/tqec/legal_notice.html)
+[![Licensed under the Apache 2.0 open-source license](https://img.shields.io/badge/License-Apache%202.0-blue.svg?logo=opensourceinitiative)](https://github.com/tqec/tqec/blob/main/LICENSE)
 
 TQEC (Topological Quantum Error Correction) is a design automation software for representing,
 constructing and compiling large-scale fault-tolerant quantum computations based on surface code and lattice surgery.
