@@ -13,3 +13,4 @@
    Gallery <gallery/index>
    Contributor Guide <contributor_guide>
    API Reference <api>
+   Legal Notice <legal_notice>
