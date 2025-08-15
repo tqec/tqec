@@ -21,6 +21,11 @@ def test_measurement_construction(qubit: GridQubit) -> None:
         Measurement(qubit, 10)
 
 
+def test_measurement_str() -> None:
+    assert str(Measurement(GridQubit(0, 0), -1)) == "M[Q[0, 0],-1]"
+    assert str(Measurement(GridQubit(3, -4), -99)) == "M[Q[3, -4],-99]"
+
+
 @pytest.mark.parametrize("qubit", _grid_qubits)
 def test_measurement_offset(qubit: GridQubit) -> None:
     assert Measurement(qubit, -1).offset_spatially_by(0, 0) == Measurement(qubit, -1)

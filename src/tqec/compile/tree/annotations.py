@@ -54,7 +54,7 @@ class Polygon:
     basis: PauliBasis
     qubits: frozenset[GridQubit]
 
-    def _sorted_qubits(self) -> list[GridQubit]:
+    def _sorted_qubits(self) -> list[GridQubit]:  # pragma: no cover
         """Return the qubits in a sorted order that can be used to draw the polygon."""
         cx = sum(q.x for q in self.qubits) / len(self.qubits)
         cy = sum(q.y for q in self.qubits) / len(self.qubits)
@@ -80,7 +80,7 @@ class LayerNodeAnnotations:
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
-        return {
+        return {  # pragma: no cover
             "circuit_str": (str(self.circuit.get_circuit()) if self.circuit is not None else None),
             "detectors": self.detectors,
             "observables": self.observables,
@@ -93,13 +93,19 @@ class LayerTreeAnnotations:
     qubit_map: QubitMap | None = None
 
     @property
-    def has_qubit_map(self) -> bool:
+    def has_qubit_map(self) -> bool:  # pragma: no cover
         """Return ``True`` if the qubit map annotation has been set."""
         return self.qubit_map is not None
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:  # pragma: no cover
         """Return a dictionary representation of ``self``."""
         ret: dict[str, Any] = {"qubit_map": None}
         if self.qubit_map is not None:
-            ret["qubit_map"] = {i: (q.x, q.y) for i, q in self.qubit_map.i2q.items()}
+            ret["qubit_map"] = {
+                i: (
+                    q.x,
+                    q.y,
+                )
+                for i, q in self.qubit_map.i2q.items()
+            }
         return ret

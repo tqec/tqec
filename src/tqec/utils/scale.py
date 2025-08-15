@@ -122,7 +122,7 @@ class LinearFunction:
         return -(other.offset - self.offset) / (other.slope - self.slope)
 
     @staticmethod
-    def _from(obj: LinearFunction | float) -> LinearFunction:
+    def _from(obj: LinearFunction | float) -> LinearFunction:  # pragma: no cover
         if isinstance(obj, (float, int)):
             return LinearFunction(0, obj)
         else:

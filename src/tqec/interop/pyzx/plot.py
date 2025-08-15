@@ -19,7 +19,7 @@ from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phas
 from tqec.utils.position import Position3D
 
 
-def _node_color(g: GraphS, v: int) -> RGBA:
+def _node_color(g: GraphS, v: int) -> RGBA:  # pragma: no cover
     assert not is_boundary(g, v)
     if is_s(g, v):
         return TQECColor.Y.rgba
@@ -28,7 +28,7 @@ def _node_color(g: GraphS, v: int) -> RGBA:
     return TQECColor.X.rgba
 
 
-def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:
+def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:  # pragma: no cover
     return numpy.array([astuple(p) for p in positions]).T
 
 

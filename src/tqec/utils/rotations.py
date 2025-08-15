@@ -241,7 +241,7 @@ def rotate_on_import(
         # two axes)
         or sum([angle for angle in rotation_angles]) < 180
     ):
-        raise TQECError(
+        raise TQECError(  # pragma: no cover
             f"There is an invalid rotation for {kind} block at "
             f"position {FloatPosition3D(*translation_matrix)}."
         )

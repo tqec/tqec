@@ -85,6 +85,7 @@ def test_with_spatial_borders_trimmed(
     borders: tuple[SpatialBlockBorder, ...], plaquette_layer: PlaquetteLayer
 ) -> None:
     layer = RepeatedLayer(plaquette_layer, LinearFunction(4, 5))
+    assert len(list(layer.all_layers(1))) == 9
     all_indices = frozenset(plaquette_layer.plaquettes.collection.keys())
     expected_plaquette_indices = all_indices - frozenset(
         itertools.chain.from_iterable(
@@ -93,6 +94,7 @@ def test_with_spatial_borders_trimmed(
         )
     )
     trimmed_layer = layer.with_spatial_borders_trimmed(borders)
+    assert len(list(trimmed_layer.all_layers(1))) == 9
     assert isinstance(trimmed_layer.internal_layer, PlaquetteLayer)
     assert (
         frozenset(trimmed_layer.internal_layer.plaquettes.collection.keys())
@@ -205,6 +207,8 @@ def test_with_temporal_borders_replaced(
     raw_circuit_layer: RawCircuitLayer,
 ) -> None:
     layer = RepeatedLayer(plaquette_layer, LinearFunction(2, 2))
+    assert layer.get_temporal_layer_on_border(TemporalBlockBorder.Z_NEGATIVE) == plaquette_layer
+    assert layer.get_temporal_layer_on_border(TemporalBlockBorder.Z_POSITIVE) == plaquette_layer
 
     assert layer.with_temporal_borders_replaced({}) == layer
     for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:

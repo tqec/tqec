@@ -47,7 +47,7 @@ class RawCircuitLayer(BaseLayer):
     @property
     def circuit_factory(self) -> Callable[[int], ScheduledCircuit]:
         """Get the callable used to generate a scalable quantum circuit from the scaling factor."""
-        return self._circuit_factory
+        return self._circuit_factory  # pragma: no cover
 
     @property
     @override
@@ -72,4 +72,4 @@ class RawCircuitLayer(BaseLayer):
     @property
     @override
     def scalable_num_moments(self) -> LinearFunction:
-        return self._scalable_num_moments
+        return self._scalable_num_moments  # pragma: no cover

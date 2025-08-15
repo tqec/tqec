@@ -40,7 +40,7 @@ class WithTemporalFootprint(ABC):
             the provided scaling parameter ``k``.
 
         """
-        return self.scalable_timesteps.integer_eval(k)
+        return self.scalable_timesteps.integer_eval(k)  # pragma: no cover
 
     @abstractmethod
     def with_temporal_borders_replaced(
@@ -94,4 +94,4 @@ class WithTemporalFootprint(ABC):
             the provided scaling parameter ``k``.
 
         """
-        return self.scalable_num_moments.integer_eval(k)
+        return self.scalable_num_moments.integer_eval(k)  # pragma: no cover

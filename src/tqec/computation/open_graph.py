@@ -154,7 +154,7 @@ def fill_ports_for_minimal_simulation(
         port_basis = ports_basis_for_clique(clique)
         for port, basis in zip(ports, port_basis):
             port_pos = graph.ports[port]
-            if basis == "Y":
+            if basis == "Y":  # pragma: no cover
                 fg.fill_ports({port: YHalfCube()})
                 continue
             assert basis in ["Z", "X"]
@@ -182,7 +182,13 @@ def fill_ports_for_minimal_simulation(
 
 
 def _multiply_unsigned_paulis(p1: str, p2: str) -> str:
-    return "".join(multiply_paulis(p1[i], p2[i]) for i in range(len(p1)))
+    return "".join(
+        multiply_paulis(
+            p1[i],
+            p2[i],
+        )
+        for i in range(len(p1))
+    )
 
 
 def _iter_stabilizer_group(

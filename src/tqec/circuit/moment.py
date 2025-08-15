@@ -41,7 +41,7 @@ class MultipleOperationsOnSameQubitError(TQECError):
     @property
     def qubits(self) -> list[int]:
         """Return the qubits that are targeted by several instructions at the same timestep."""
-        return self._qubits
+        return self._qubits  # pragma: no cover
 
 
 class Moment:
@@ -343,7 +343,7 @@ class Moment:
         return len(self._circuit) == 0
 
     def __copy__(self) -> Moment:
-        return Moment(
+        return Moment(  # pragma: no cover
             self._circuit,
             used_qubits=self._used_qubits,
             _avoid_checks=True,

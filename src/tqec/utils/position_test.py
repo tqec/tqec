@@ -31,6 +31,7 @@ def test_position_3d() -> None:
     assert p1.is_neighbour(Position3D(-1, 0, 0))
     assert not p1.is_neighbour(Position3D(1, 0, 1))
     assert not p1.is_neighbour(Position3D(0, -1, 1))
+    assert p1.as_2d() == Position2D(0, 0)
 
 
 def test_signed_direction() -> None:

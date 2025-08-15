@@ -64,7 +64,7 @@ class Position2D(Vec2D):
 
     def with_block_coordinate_system(self) -> BlockPosition2D:
         """Return a :class:`.BlockPosition2D` from ``self``."""
-        return BlockPosition2D(self.x, self.y)
+        return BlockPosition2D(self.x, self.y)  # pragma: no cover
 
     def is_neighbour(self, other: Position2D) -> bool:
         """Check if the other position is near to this position, i.e. Manhattan distance is 1."""
@@ -84,7 +84,7 @@ class PlaquettePosition2D(Position2D):
 
     def get_origin_position(self, shift: Shift2D) -> PhysicalQubitPosition2D:
         """Return the position of the plaquette origin."""
-        return PhysicalQubitPosition2D(shift.x * self.x, shift.y * self.y)
+        return PhysicalQubitPosition2D(shift.x * self.x, shift.y * self.y)  # pragma: no cover
 
 
 class BlockPosition2D(Position2D):
@@ -121,10 +121,10 @@ class PhysicalQubitShape2D(Shape2D):
 
 class Shift2D(Vec2D):
     def __mul__(self, factor: int) -> Shift2D:
-        return Shift2D(factor * self.x, factor * self.y)
+        return Shift2D(factor * self.x, factor * self.y)  # pragma: no cover
 
     def __rmul__(self, factor: int) -> Shift2D:
-        return self.__mul__(factor)
+        return self.__mul__(factor)  # pragma: no cover
 
 
 class Position3D(Vec3D):

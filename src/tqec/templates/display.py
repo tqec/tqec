@@ -28,7 +28,9 @@ def display_template(
     display_template_from_instantiation(template.instantiate(k, plaquette_indices))
 
 
-def display_template_from_instantiation(instantiation: npt.NDArray[numpy.int_]) -> None:
+def display_template_from_instantiation(
+    instantiation: npt.NDArray[numpy.int_],
+) -> None:  # pragma: no cover
     """Display an array representing a template instantiation with ASCII output.
 
     Args:

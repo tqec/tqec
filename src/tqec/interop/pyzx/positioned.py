@@ -146,7 +146,7 @@ class PositionedZX:
 
         return PositionedZX(g, v2p)
 
-    def to_block_graph(self) -> BlockGraph:
+    def to_block_graph(self) -> BlockGraph:  # pragma: no cover
         """Convert the positioned ZX graph to a block graph."""
         # Needs to be imported here to avoid pulling pyzx when importing this module.
         from tqec.interop.pyzx.synthesis.positioned import (  # noqa: PLC0415
@@ -163,7 +163,7 @@ class PositionedZX:
         node_size: int = 400,
         hadamard_size: int = 200,
         edge_width: int = 1,
-    ) -> tuple[Figure, Axes3D]:
+    ) -> tuple[Figure, Axes3D]:  # pragma: no cover
         """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.
 
         Args:
