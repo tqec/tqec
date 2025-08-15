@@ -672,7 +672,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="s2">&lt;/html&gt;</span>
 <span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath_or_bytes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath_or_bytes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filepath_or_bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
             <span class="n">collada_bytes</span> <span class="o">=</span> <span class="n">filepath_or_bytes</span>
         <span class="k">else</span><span class="p">:</span>
@@ -681,19 +681,19 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">collada_base64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">collada_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">html_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HTML_TEMPLATE</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">MODEL_BASE64_PLACEHOLDER</span><span class="o">=</span><span class="n">collada_base64</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
         <span class="n">framed</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;&lt;iframe style=&quot;width: 100%; height: 300px; overflow: hidden; resize: both; &quot;&quot;&quot;</span>
         <span class="n">framed</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;border: 1px dashed gray;&quot; frameBorder=&quot;0&quot; &quot;&quot;&quot;</span>
         <span class="n">framed</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;srcdoc=&quot;</span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html_str</span><span class="p">,</span><span class="w"> </span><span class="n">quote</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&gt;&lt;/iframe&gt;&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">framed</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">html_str</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">html_str</span>  <span class="c1"># pragma: no cover</span>
 
 
 <div class="viewcode-block" id="display_collada_model">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.interop.display_collada_model.html#tqec.interop.display_collada_model">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">display_collada_model</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">display_collada_model</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
     <span class="n">filepath_or_bytes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">,</span>
     <span class="n">write_html_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ColladaHTMLViewer</span><span class="p">:</span>
