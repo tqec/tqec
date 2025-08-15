@@ -599,14 +599,14 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="PositionedZX.to_block_graph">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.interop.PositionedZX.html#tqec.interop.PositionedZX.to_block_graph">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_block_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_block_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BlockGraph</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the positioned ZX graph to a block graph.&quot;&quot;&quot;</span>
         <span class="c1"># Needs to be imported here to avoid pulling pyzx when importing this module.</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.synthesis.positioned</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: PLC0415</span>
             <span class="n">positioned_block_synthesis</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">positioned_block_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+        <span class="k">return</span> <span class="n">positioned_block_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PositionedZX.draw">
@@ -619,7 +619,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">node_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span>
         <span class="n">hadamard_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
         <span class="n">edge_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Figure</span><span class="p">,</span> <span class="n">Axes3D</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Figure</span><span class="p">,</span> <span class="n">Axes3D</span><span class="p">]:</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.</span>
 
 <span class="sd">        Args:</span>
@@ -638,7 +638,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="c1"># Needs to be imported here to avoid pulling pyzx when importing this module.</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">tqec.interop.pyzx.plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_positioned_zx_graph</span>  <span class="c1"># noqa: PLC0415</span>
 
-        <span class="k">return</span> <span class="n">plot_positioned_zx_graph</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">return</span> <span class="n">plot_positioned_zx_graph</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
             <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>

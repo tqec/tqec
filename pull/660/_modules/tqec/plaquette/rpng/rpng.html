@@ -540,7 +540,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="RPNG.get_r_op">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.get_r_op">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_r_op</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_r_op</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the reset operation or Hadamard.&quot;&quot;&quot;</span>
         <span class="n">op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span>
         <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -553,7 +553,7 @@ window.addEventListener("load", () => mermaid.run());
 
 <div class="viewcode-block" id="RPNG.get_g_op">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNG.html#tqec.plaquette.RPNG.get_g_op">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_g_op</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_g_op</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the measurement operation or Hadamard.&quot;&quot;&quot;</span>
         <span class="n">op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span>
         <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -567,7 +567,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_null</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the RPNG object is null, i.e. all fields are None.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;----&quot;</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;----&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">r</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">value</span>
@@ -722,21 +722,21 @@ window.addEventListener("load", () => mermaid.run());
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_r_op">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_r_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the reset operation or Hadamard for the specific data qubit.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="n">data_idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_r_op</span><span class="p">()</span>  <span class="c1"># pragma: no cover</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="n">data_idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_r_op</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="RPNGDescription.get_n">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_n">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_n</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the time of the 2Q gate involving the specific data qubit.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="n">data_idx</span><span class="p">]</span><span class="o">.</span><span class="n">n</span>  <span class="c1"># pragma: no cover</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="n">data_idx</span><span class="p">]</span><span class="o">.</span><span class="n">n</span></div>
 
 
 <div class="viewcode-block" id="RPNGDescription.get_g_op">
 <a class="viewcode-back" href="../../../../_autosummary/tqec.plaquette.RPNGDescription.html#tqec.plaquette.RPNGDescription.get_g_op">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_g_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the measurement operation or Hadamard for the specific data qubit.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="n">data_idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_g_op</span><span class="p">()</span>  <span class="c1"># pragma: no cover</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="n">data_idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_g_op</span><span class="p">()</span></div>
 
 
     <span class="nd">@property</span>
@@ -744,7 +744,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``True`` if ``self`` contains at least one corner with a reset.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
             <span class="n">corner</span><span class="o">.</span><span class="n">get_r_op</span><span class="p">()</span>
-            <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>  <span class="c1"># pragma: no cover</span>
+            <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>
                 <span class="kc">None</span><span class="p">,</span>
                 <span class="s2">&quot;H&quot;</span><span class="p">,</span>
             <span class="p">}</span>
@@ -756,7 +756,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``True`` if ``self`` contains at least one corner with a measurement.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
             <span class="n">corner</span><span class="o">.</span><span class="n">get_g_op</span><span class="p">()</span>
-            <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>  <span class="c1"># pragma: no cover</span>
+            <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>
                 <span class="kc">None</span><span class="p">,</span>
                 <span class="s2">&quot;H&quot;</span><span class="p">,</span>
             <span class="p">}</span>
