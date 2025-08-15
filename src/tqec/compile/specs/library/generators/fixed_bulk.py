@@ -1234,7 +1234,7 @@ class FixedBulkConventionGenerator:
             on the ``X`` axis.
 
         """
-        raise self._not_implemented_exception()
+        raise self._not_implemented_exception()  # pragma: no cover
 
     def get_spatial_vertical_hadamard_plaquettes(
         self,
@@ -1337,7 +1337,7 @@ class FixedBulkConventionGenerator:
             on the ``Y`` axis.
 
         """
-        raise self._not_implemented_exception()
+        raise self._not_implemented_exception()  # pragma: no cover
 
     def get_spatial_horizontal_hadamard_plaquettes(
         self,

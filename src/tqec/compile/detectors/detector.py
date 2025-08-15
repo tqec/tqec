@@ -36,7 +36,7 @@ class Detector:
 
     def __str__(self) -> str:
         measurements_str = "{" + ",".join(map(str, self.measurements)) + "}"
-        return f"D{self.coordinates}{measurements_str}"  # pragma: no cover
+        return f"D{self.coordinates}{measurements_str}"
 
     def to_instruction(
         self, measurement_records_map: MeasurementRecordsMap
