@@ -281,12 +281,83 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             arms |= SpatialArms.LEFT if pipedir == Direction3D.X else SpatialArms.UP
         return arms
 
+    @staticmethod
+    def _get_all_spatial_cube_arms(spec: PipeSpec) -> (SpatialArms, SpatialArms):
+        """Returns the arm(s) corresponding to the provided ``spec``.
+
+        Args:
+            spec: pipe specification to get the arm(s) from.
+
+        Raises:
+            TQECError: if the provided ``spec`` is not a spatial pipe.
+
+        Returns:
+            two :class:`~tqec.compile.specs.enums.SpatialArms` instances, corresponding to the two end cubes
+            of the pipe ``spec``. Each flag contains
+            upto four flags.
+        """
+        assert spec.pipe_kind.is_spatial
+        # Check that we do have a spatial junction.
+        assert any(spec.is_spatial for spec in spec.cube_specs)
+        u, v = spec.cube_specs
+
+        if u.is_spatial:
+            u_arms = u.spatial_arms # this gives me all of u's spatial arms
+        if v.is_spatial:
+            v_arms = v.spatial_arms
+        return (u_arms, v_arms)
+
     def _get_spatial_cube_pipe_block(self, spec: PipeSpec) -> Block:
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
+        is_hadamard = spec.pipe_kind.has_hadamard
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
+        arms = FixedBoundaryPipeBuilder._get_spatial_cube_arms(spec) # this tells me whether I',m a vertical (up+down)
+        # or horizontal
+        # pipe (left+right)
+        if is_hadamard:
+            #if it is a horizontal pipe I am just going to implement normal hadamards, but if it is vertical,
+            # I need extended stabilisers and their form depends on what other arms are leaving the end spatial cube
+            if horizontal:
+                #normal hadamard
+                def plaquettes_generator(is_reversed: bool, r: Basis | None, m: Basis | None) -> Plaquettes:
+                    return self._generator.get_spatial_horizontal_hadamard_plaquettes(
+                        spatial_boundary_basis, arms, spec.cube_specs, is_reversed, r, m
+                    )
+
+                pipe_template = self._generator.get_spatial_horizontal_hadamard_raw_template(arms)
+            else:
+                all_cube_arms = FixedBoundaryCubeBuilder._get_all_spatial_cube_arms(spec)
+                u_arms = all_cube_arms[0]
+                v_arms = all_cube_arms[1]
+                if u_arms contains SpatialArms.LEFT: # u is the bottom cube, and the hadamard is at the bottom of the pipe
+                    #triangle extended stabiliser
+                    def plaquettes_generator(is_reversed: bool, r: Basis | None, m: Basis | None) -> Plaquettes:
+                        return self._generator.get_spatial_above_left_arm_and_double_armed_extended_stabiliser_hadamard_plaquettes(
+                            spatial_boundary_basis, arms, spec.cube_specs, is_reversed, r, m
+                        )
+
+                    pipe_template = self._generator.get_spatial_above_left_arm_and_double_armed_extended_stabiliser_hadamard_raw_template(arms)
+                else:
+                    #rectangle extended stabiliser
+                    def plaquettes_generator(is_reversed: bool, r: Basis | None, m: Basis | None) -> Plaquettes:
+                        return self._generator.get_spatial_above_right_arm_extended_stabiliser_hadamard_plaquettes(
+                            spatial_boundary_basis, arms, spec.cube_specs, is_reversed, r, m
+                        )
+
+                    pipe_template = self._generator.get_spatial_above_right_arm_extended_stabiliser_hadamard_raw_template(
+                        arms)
+
+            return _get_block(
+                z,
+                spec.has_spatial_up_or_down_pipe_in_timeslice,
+                pipe_template,
+                plaquettes_generator,
+                _DEFAULT_BLOCK_REPETITIONS,
+            )
+
+        #Else we want a non hadamard pipe:
         # Get the plaquette indices mappings
-        arms = FixedBoundaryPipeBuilder._get_spatial_cube_arms(spec)
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
 
         def plaquettes_generator(is_reversed: bool, r: Basis | None, m: Basis | None) -> Plaquettes:
