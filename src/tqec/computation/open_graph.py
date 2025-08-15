@@ -44,12 +44,7 @@ class FilledGraph:
 
     def get_external_stabilizers(self) -> list[str]:
         """Return the external stabilizers of the correlation surfaces."""
-        return [
-            obs.external_stabilizer_on_graph(  # pragma: no cover
-                self.graph
-            )
-            for obs in self.observables
-        ]
+        return [obs.external_stabilizer_on_graph(self.graph) for obs in self.observables]
 
 
 def fill_ports_for_minimal_simulation(
@@ -159,7 +154,7 @@ def fill_ports_for_minimal_simulation(
         port_basis = ports_basis_for_clique(clique)
         for port, basis in zip(ports, port_basis):
             port_pos = graph.ports[port]
-            if basis == "Y":
+            if basis == "Y":  # pragma: no cover
                 fg.fill_ports({port: YHalfCube()})
                 continue
             assert basis in ["Z", "X"]
@@ -189,9 +184,7 @@ def fill_ports_for_minimal_simulation(
 def _multiply_unsigned_paulis(p1: str, p2: str) -> str:
     return "".join(
         multiply_paulis(
-            p1[  # pragma: no cover
-                i
-            ],
+            p1[i],
             p2[i],
         )
         for i in range(len(p1))
@@ -226,4 +219,4 @@ def _is_compatible_paulis(s1: str, s2: str) -> bool:
             continue
         if i != j:
             return False
-    return True  # pragma: no cover
+    return True

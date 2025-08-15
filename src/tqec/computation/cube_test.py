@@ -48,3 +48,12 @@ def test_port() -> None:
         "kind": "PORT",
         "label": "p",
     }
+
+
+def test_cube_from_dict() -> None:
+    cube_dict = {
+        "position": (0, 0, 0),
+        "kind": "ZXZ",
+        "label": "",
+    }
+    assert Cube.from_dict(cube_dict) == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))

@@ -96,7 +96,7 @@ class RPNG:
             raise ValueError("Unacceptable character for the G field.")
         return cls(r, p, n, g)
 
-    def get_r_op(self) -> str | None:  # pragma: no cover
+    def get_r_op(self) -> str | None:
         """Get the reset operation or Hadamard."""
         op = self.r
         if op is None:
@@ -106,7 +106,7 @@ class RPNG:
         else:
             return f"{op.value.upper()}"
 
-    def get_g_op(self) -> str | None:  # pragma: no cover
+    def get_g_op(self) -> str | None:
         """Get the measurement operation or Hadamard."""
         op = self.g
         if op is None:
@@ -119,7 +119,7 @@ class RPNG:
     @property
     def is_null(self) -> bool:
         """Check if the RPNG object is null, i.e. all fields are None."""
-        return str(self) == "----"  # pragma: no cover
+        return str(self) == "----"
 
     def __str__(self) -> str:
         r = "-" if self.r is None else self.r.value
@@ -251,22 +251,22 @@ class RPNGDescription:
 
     def get_r_op(self, data_idx: int) -> str | None:
         """Get the reset operation or Hadamard for the specific data qubit."""
-        return self.corners[data_idx].get_r_op()  # pragma: no cover
+        return self.corners[data_idx].get_r_op()
 
     def get_n(self, data_idx: int) -> int | None:
         """Get the time of the 2Q gate involving the specific data qubit."""
-        return self.corners[data_idx].n  # pragma: no cover
+        return self.corners[data_idx].n
 
     def get_g_op(self, data_idx: int) -> str | None:
         """Get the measurement operation or Hadamard for the specific data qubit."""
-        return self.corners[data_idx].get_g_op()  # pragma: no cover
+        return self.corners[data_idx].get_g_op()
 
     @property
     def has_reset(self) -> bool:
         """Return ``True`` if ``self`` contains at least one corner with a reset."""
         return any(
             corner.get_r_op()
-            not in {  # pragma: no cover
+            not in {
                 None,
                 "H",
             }
@@ -278,7 +278,7 @@ class RPNGDescription:
         """Return ``True`` if ``self`` contains at least one corner with a measurement."""
         return any(
             corner.get_g_op()
-            not in {  # pragma: no cover
+            not in {
                 None,
                 "H",
             }

@@ -28,8 +28,8 @@ def _node_color(g: GraphS, v: int) -> RGBA:  # pragma: no cover
     return TQECColor.X.rgba
 
 
-def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:
-    return numpy.array([astuple(p) for p in positions]).T  # pragma: no cover
+def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:  # pragma: no cover
+    return numpy.array([astuple(p) for p in positions]).T
 
 
 def draw_positioned_zx_graph_on(

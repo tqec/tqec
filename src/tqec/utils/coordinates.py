@@ -38,14 +38,8 @@ class StimCoordinates:
             return (self.x, self.y, self.t)
         return (self.x, self.y)
 
-    def __str__(self) -> str:
-        return (
-            "("
-            + ",".join(  # pragma: no cover
-                f"{c:.2f}" for c in self.to_stim_coordinates()
-            )
-            + ")"
-        )
+    def __str__(self) -> str:  # pragma: no cover
+        return "(" + ",".join(f"{c:.2f}" for c in self.to_stim_coordinates()) + ")"
 
     def offset_spatially_by(self, x: float, y: float) -> StimCoordinates:
         """Return a new instance with offset spatial coordinates."""

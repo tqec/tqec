@@ -300,6 +300,7 @@ def test_block_graph_relabel_cubes() -> None:
     g.add_pipe(n, n2, "OXZH")
     n3 = g.add_cube(Position3D(2, 0, 0), "P", "Out")
     g.add_pipe(n2, n3, "OXZH")
+    assert g.get_cubes_by_label("In")[0].position == Position3D(0, 0, 0)
 
     label_mapping: dict[Position3D | str, str] = {
         Position3D(0, 0, 0): "InputPortByPos",
@@ -315,3 +316,4 @@ def test_block_graph_relabel_cubes() -> None:
     assert "Out" not in new_labels
     assert g[Position3D(0, 0, 0)].is_port
     assert g[Position3D(2, 0, 0)].is_port
+    assert len(g.get_cubes_by_label("In")) == 0

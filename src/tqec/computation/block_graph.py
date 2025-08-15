@@ -816,7 +816,7 @@ class BlockGraph:
             The cube instances that have the specified label.
 
         """
-        return [cube for cube in self.cubes if cube.label == label]  # pragma: no cover
+        return [cube for cube in self.cubes if cube.label == label]
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the block graph."""

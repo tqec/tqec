@@ -160,7 +160,7 @@ class RepeatedLayer(BaseComposedLayer):
 
     @override
     def all_layers(self, k: int) -> Iterable[BaseLayer]:
-        yield from chain.from_iterable(  # pragma: no cover
+        yield from chain.from_iterable(
             (
                 (self.internal_layer,)
                 if isinstance(self.internal_layer, BaseLayer)
@@ -218,7 +218,7 @@ class RepeatedLayer(BaseComposedLayer):
 
     @override
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
-        return self.internal_layer.get_temporal_layer_on_border(border)  # pragma: no cover
+        return self.internal_layer.get_temporal_layer_on_border(border)
 
     @property
     @override

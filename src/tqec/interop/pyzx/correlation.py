@@ -60,10 +60,10 @@ def pauli_web_to_correlation_surface(
     while half_edges:
         (u, v), pauli_u = half_edges.popitem()
         pauli_v = half_edges.pop((v, u))
-        if pauli_u == "Y":
-            span.add(ZXEdge(ZXNode(u, Basis.X), ZXNode(v, Basis.Z)))  # pragma: no cover
-            span.add(ZXEdge(ZXNode(u, Basis.Z), ZXNode(v, Basis.Z)))  # pragma: no cover
-            continue  # pragma: no cover
+        if pauli_u == "Y":  # pragma: no cover
+            span.add(ZXEdge(ZXNode(u, Basis.X), ZXNode(v, Basis.Z)))
+            span.add(ZXEdge(ZXNode(u, Basis.Z), ZXNode(v, Basis.Z)))
+            continue
         span.add(ZXEdge(ZXNode(u, Basis(pauli_u)), ZXNode(v, Basis(pauli_v))))
     return CorrelationSurface(frozenset(span))
 

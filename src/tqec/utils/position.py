@@ -160,7 +160,7 @@ class Position3D(Vec3D):
 
     def as_2d(self) -> Position2D:
         """Return the position as a 2D position."""
-        return Position2D(self.x, self.y)  # pragma: no cover
+        return Position2D(self.x, self.y)
 
 
 class BlockPosition3D(Position3D):

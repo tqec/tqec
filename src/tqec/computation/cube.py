@@ -265,7 +265,7 @@ class Cube:
             dictionary representation.
 
         """
-        return Cube(  # pragma: no cover
+        return Cube(
             position=Position3D(*data["position"]),
             kind=cube_kind_from_string(data["kind"]),
             label=data["label"],
