@@ -1,0 +1,75 @@
+---
+title: 'tqec: A Python package for topological quantum error correction'
+
+authors:
+- name: Adrien Suau
+  equal_contrib: true
+  affiliation: 1
+- name: Yiming Zhang
+  equal_contrib: true
+  affiliation: 2
+- name: Purva Thakre
+  affiliation: 3
+- name: Yilun Zhao
+- name: Kabir Dubey
+  orcid: 0000-0002-7621-9004
+  affiliation: 4
+- name: Jose A Bolanos
+- name: Arabella Schelpe
+- name: Philip Seitz
+- name: Gian Giacomo Guerreschi
+- name: Ángela Elisa Álvarez Pérez
+  affiliation: 5
+- name: Reinhard Stahn
+- name: Jerome Lensen
+- name: Brendan Reid
+- name: Austin Fowler
+  equal_contrib: true
+  affiliation: 6
+
+affiliations:
+- name: Qraftware
+  index: 1
+- name: University of Science and Technology of China
+  index: 2
+- name: School of Physics and Applied Physics, Southern Illinois University, Carbondale, IL, 62901, USA
+  index: 3
+- name: Department of Computer Science, Northwestern University, United States
+  index: 4
+- name: Solvy
+  index: 5
+- name: Stairway Invest
+  index: 6
+
+date: 15 August 2025
+bibliography: paper.bib
+
+---
+
+# Summary
+
+`tqec` is a Python-based open-source project. It is a compiler, which takes a logical-level quantum
+computation model represented as connected 3D primitive blocks and translates it into a detailed,
+fault-tolerant, physical-level circuit. The result is a Stim circuit with all the detailed
+information needed for simulation or to run on real quantum hardware. This enables both quantum algorithm
+designers and experimentalists to rapidly iterate and obtain exact low-level circuits, facilitating
+efficient performance simulation or experimental demonstration. The ‘Topological Quantum Error Correction’
+of the package name highlights the project’s focus on topological codes. At present, the project is
+primarily centered on the surface code.
+
+Simulations of quantum computer operations in the large-scale error correction regime are currently
+infeasible. Building the logical Stim circuits is a hassle, and Monte Carlo simulations at the scale of,
+for example, hierarchical memory systems involving yoked surface codes, are difficult to perform exactly.
+The full-scale simulations performed by`tqec` provide evidence of potential opportunities to reduce
+overhead in quantum circuits at a greater level of detail than extrapolations.
+
+`tqec` is based on several academic papers (@polian:2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020),
+as well as making substantial use of Craig Gidney's Stim package @gidney:2021.
+
+Some recent work enabled by `tqec`: @kan:2025, @dubey:2025, @bolanos:2025.
+
+# Acknowledgements
+
+We thank the Unitary Foundation for a micro-grant in the early stages of the project development.
+
+# References
