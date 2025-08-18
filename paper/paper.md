@@ -48,7 +48,7 @@ bibliography: paper.bib
 
 # Summary
 
-`tqec` is a Python-based open-source project. It is a compiler, which takes a logical-level quantum
+`tqec` is a Python-based open-source project. It is a compiler which takes a logical-level quantum
 computation model represented as connected 3D primitive blocks and translates it into a detailed,
 fault-tolerant, physical-level circuit. The result is a Stim circuit with all the detailed
 information needed for simulation or to run on real quantum hardware. This enables both quantum algorithm
