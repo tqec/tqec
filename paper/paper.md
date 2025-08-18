@@ -63,7 +63,7 @@ for example, hierarchical memory systems involving yoked surface codes, are diff
 The full-scale simulations performed by`tqec` provide evidence of potential opportunities to reduce
 overhead in quantum circuits at a greater level of detail than extrapolations.
 
-`tqec` is based on several academic papers (@polian:2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020),
+`tqec` is based on several academic papers (@polian2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020),
 as well as making substantial use of Craig Gidney's Stim package @gidney:2021.
 
 Some recent work enabled by `tqec`: @kan:2025, @dubey:2025, @bolanos:2025.
