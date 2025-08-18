@@ -60,7 +60,7 @@ primarily centered on the surface code.
 Simulations of quantum computer operations in the large-scale error correction regime are currently
 infeasible. Building the logical Stim circuits is a hassle, and Monte Carlo simulations at the scale of,
 for example, hierarchical memory systems involving yoked surface codes, are difficult to perform exactly.
-The full-scale simulations performed by`tqec` provide evidence of potential opportunities to reduce
+The full-scale simulations performed by `tqec` provide evidence of potential opportunities to reduce
 overhead in quantum circuits at a greater level of detail than extrapolations.
 
 `tqec` is based on several academic papers (@polian2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020),
