@@ -57,15 +57,21 @@ efficient performance simulation or experimental demonstration. The ‘Topologic
 of the package name highlights the project’s focus on topological codes. At present, the project is
 primarily centered on the surface code.
 
+# Statement of Need
+
 Simulations of quantum computer operations in the large-scale error correction regime are currently
 infeasible. Building the logical Stim circuits is a hassle, and Monte Carlo simulations at the scale of,
-for example, hierarchical memory systems involving yoked surface codes, are difficult to perform exactly.
-The full-scale simulations performed by `tqec` provide more accurate fault-tolerant resource estimation than empirical extrapolations.
+for example, hierarchical memory systems involving yoked surface codes, are difficult to perform exactly, @gidney:2025.
+The full-scale simulations performed by `tqec` provide more accurate fault-tolerant resource estimation
+than empirical extrapolations.
 
-`tqec` is based on several academic papers (@polian2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020),
-as well as making substantial use of Craig Gidney's Stim package @gidney:2021.
-
-Some recent work enabled by `tqec`: @kan:2025, @dubey:2025, @bolanos:2025.
+`tqec` is designed to be used by students and researchers who seek to understand the theory of quantum
+error correction and experiment with scalable quantum computer system and circuit designs. Posters featuring
+preliminary research and an educational tutorial enabled by `tqec` have been approved for conference
+proceedings: @kan:2025 and @dubey:2025. A further software package has been recently built to enable better interfacing
+between PyZX and `tqec`: @topologiq. The functionality of the `tqec` package is based on several
+academic papers (@polian:2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020), and makes
+substantial use of Craig Gidney's `Stim` package @gidney:2021.
 
 # Acknowledgements
 
