@@ -17,18 +17,24 @@ authors:
 - name: Jose A Bolanos
 - name: Arabella Schelpe
 - name: Philip Seitz
+  orcid: 0000-0003-3856-4090
+  affiliation: 5
 - name: Gian Giacomo Guerreschi
 - name: Ángela Elisa Álvarez Pérez
-  affiliation: 5
+  affiliation: 6
 - name: Reinhard Stahn
+  affiliation: 7
 - name: Jerome Lensen
+  orcid: 0009-0008-7933-6848
+  affiliation: 8
 - name: Brendan Reid
+  affiliation: 9
 - name: Austin Fowler
   equal_contrib: true
-  affiliation: 6
+  affiliation: 10
 
 affiliations:
-- name: Qraftware
+- name: Qraftware, Toulouse, France
   index: 1
 - name: University of Science and Technology of China
   index: 2
@@ -36,10 +42,18 @@ affiliations:
   index: 3
 - name: Department of Computer Science, Northwestern University, United States
   index: 4
-- name: Solvy
+- name: Technical University of Munich, TUM School of Computation, Information and Technology
   index: 5
-- name: Stairway Invest
+- name: Solvy
   index: 6
+- name: Parity Quantum Computing Germany GmbH, 20095 Hamburg, Germany
+  index: 7
+- name: VTT, Finland
+  index: 8
+- name: PsiQuantum
+  index: 9
+- name: Stairway Invest
+  index: 10
 
 date: 15 August 2025
 bibliography: paper.bib
