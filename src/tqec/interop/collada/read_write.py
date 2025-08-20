@@ -198,7 +198,7 @@ def write_block_graph_to_dae_file(
     block_graph: BlockGraph,
     file_like: str | pathlib.Path | BinaryIO,
     pipe_length: float = 2.0,
-    pop_faces_at_direction: SignedDirection3D | str | None = None,
+    pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
     show_correlation_surface: CorrelationSurface | None = None,
 ) -> None:
     """Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a Collada DAE file.
@@ -207,15 +207,19 @@ def write_block_graph_to_dae_file(
         block_graph: The block graph to write to the DAE file.
         file_like: The output file path or file-like object that supports binary write.
         pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.
-        pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
+        pop_faces_at_directions: Remove the faces at the given directions for all the blocks.
             This is useful for visualizing the internal structure of the blocks. Default is None.
         show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface`
             to show in the block graph. Default is None.
 
     """
-    if isinstance(pop_faces_at_direction, str):
-        pop_faces_at_direction = SignedDirection3D.from_string(pop_faces_at_direction)
-    base = _BaseColladaData(pop_faces_at_direction)
+    directions: list[SignedDirection3D] = []
+    for direction in pop_faces_at_directions:
+        if isinstance(direction, str):
+            directions.append(SignedDirection3D.from_string(direction))
+        else:
+            directions.append(direction)
+    base = _BaseColladaData(directions)
 
     def scale_position(pos: Position3D) -> FloatPosition3D:
         return FloatPosition3D(*(p * (1 + pipe_length) for p in pos.as_tuple()))
@@ -428,7 +432,7 @@ class _BlockLibraryKey:
 class _BaseColladaData:
     def __init__(
         self,
-        pop_faces_at_direction: SignedDirection3D | None = None,
+        pop_faces_at_directions: Iterable[SignedDirection3D] = (),
     ) -> None:
         """Encode the base model template.
 
@@ -443,8 +447,8 @@ class _BaseColladaData:
         self.root_node = collada.scene.Node("SketchUp", name="SketchUp")
         self.block_library: dict[_BlockLibraryKey, collada.scene.Node] = {}
         self.surface_library: dict[Basis, collada.scene.Node] = {}
-        self._pop_faces_at_direction: frozenset[SignedDirection3D] = (
-            frozenset({pop_faces_at_direction}) if pop_faces_at_direction else frozenset()
+        self._pop_faces_at_directions: frozenset[SignedDirection3D] = frozenset(
+            pop_faces_at_directions
         )
         self._num_instances: int = 0
 
@@ -527,7 +531,7 @@ class _BaseColladaData:
         block_kind: BlockKind,
         pop_faces_at_directions: Iterable[SignedDirection3D] = (),
     ) -> _BlockLibraryKey:
-        pop_faces_at_directions = frozenset(pop_faces_at_directions) | self._pop_faces_at_direction
+        pop_faces_at_directions = frozenset(pop_faces_at_directions) | self._pop_faces_at_directions
         key = _BlockLibraryKey(block_kind, pop_faces_at_directions)
         if key in self.block_library:
             return key

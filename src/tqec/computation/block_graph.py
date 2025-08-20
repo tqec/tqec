@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import math
 import pathlib
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, cast
@@ -411,7 +411,7 @@ class BlockGraph:
         self,
         file_path: str | pathlib.Path,
         pipe_length: float = 2.0,
-        pop_faces_at_direction: SignedDirection3D | str | None = None,
+        pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
         show_correlation_surface: CorrelationSurface | None = None,
     ) -> None:
         """Write the block graph to a Collada DAE file.
@@ -419,7 +419,7 @@ class BlockGraph:
         Args:
             file_path: The output file path.
             pipe_length: The length of the pipes. Default is 2.0.
-            pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
+            pop_faces_at_directions: Remove the faces at the given directions for all the blocks.
                 This is useful for visualizing the internal structure of the blocks.
                 Default is None.
             show_correlation_surface: The correlation surface to show in the block graph.
@@ -433,7 +433,7 @@ class BlockGraph:
             self,
             file_path,
             pipe_length,
-            pop_faces_at_direction,
+            pop_faces_at_directions,
             show_correlation_surface,
         )
 
@@ -459,7 +459,7 @@ class BlockGraph:
         self,
         write_html_filepath: str | pathlib.Path | None = None,
         pipe_length: float = 2.0,
-        pop_faces_at_direction: SignedDirection3D | str | None = None,
+        pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
         show_correlation_surface: CorrelationSurface | None = None,
     ) -> _ColladaHTMLViewer:
         """View COLLADA model in html with the help of ``three.js``.
@@ -470,7 +470,7 @@ class BlockGraph:
             write_html_filepath: The output html file path to write the generated html content
                 if provided. Default is None.
             pipe_length: The length of the pipes. Default is 2.0.
-            pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
+            pop_faces_at_directions: Remove the faces at the given directions for all the blocks.
                 This is useful for visualizing the internal structure of the blocks.
                 Default is None.
             show_correlation_surface: The correlation surface to show in the block graph.
@@ -490,7 +490,7 @@ class BlockGraph:
             self,
             bytes_buffer,
             pipe_length,
-            pop_faces_at_direction,
+            pop_faces_at_directions,
             show_correlation_surface,
         )
         return display_collada_model(
