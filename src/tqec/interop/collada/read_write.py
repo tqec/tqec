@@ -632,12 +632,3 @@ class _Transformation:
         mat[:3, :3] = self.rotation * self.scale[None, :]
         mat[:3, 3] = self.translation
         return mat
-
-
-@dataclass(frozen=True)
-class _GraphItem:
-    """Data class to summary key spatial information for a specific cube or pipe."""
-
-    position_in_blockgraph: Position3D
-    kind: BlockKind
-    transformation_matrix: _Transformation
