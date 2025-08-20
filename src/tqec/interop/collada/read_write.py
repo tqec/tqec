@@ -236,11 +236,11 @@ def write_block_graph_to_dae_file(
 
         matrix = np.eye(4, dtype=np.float32)
         matrix[:3, 3] = scaled_position.as_array()
-        pop_faces_at_directions = [
+        pop_directions = [
             SignedDirection3D(pipe.direction, cube == pipe.u)
             for pipe in block_graph.pipes_at(cube.position)
         ]
-        base.add_block_instance(matrix, cube.kind, pop_faces_at_directions)
+        base.add_block_instance(matrix, cube.kind, pop_directions)
 
     for pipe in block_graph.pipes:
         head_pos = scale_position(pipe.u.position)
