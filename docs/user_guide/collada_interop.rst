@@ -52,6 +52,6 @@ Additionally, you can attach the correlation surface to the model to visualize w
 
     correlation_surfaces = graph.find_correlation_surfaces()
     graph.view_as_html(
-        pop_faces_at_directions=("-Y"),
+        pop_faces_at_directions=("-Y",),
         show_correlation_surface=correlation_surfaces[0],
     )
