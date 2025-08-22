@@ -640,7 +640,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
     <span class="n">file_like</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="n">BinaryIO</span><span class="p">,</span>
     <span class="n">pipe_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
-    <span class="n">pop_faces_at_direction</span><span class="p">:</span> <span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pop_faces_at_directions</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
     <span class="n">show_correlation_surface</span><span class="p">:</span> <span class="n">CorrelationSurface</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a :py:class:`~tqec.computation.block_graph.BlockGraph` to a Collada DAE file.</span>
@@ -649,15 +649,19 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        block_graph: The block graph to write to the DAE file.</span>
 <span class="sd">        file_like: The output file path or file-like object that supports binary write.</span>
 <span class="sd">        pipe_length: The length of the pipes in the COLLADA model. Default is 2.0.</span>
-<span class="sd">        pop_faces_at_direction: Remove the faces at the given direction for all the blocks.</span>
+<span class="sd">        pop_faces_at_directions: Remove the faces at the given directions for all the blocks.</span>
 <span class="sd">            This is useful for visualizing the internal structure of the blocks. Default is None.</span>
 <span class="sd">        show_correlation_surface: The :py:class:`~tqec.computation.correlation.CorrelationSurface`</span>
 <span class="sd">            to show in the block graph. Default is None.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pop_faces_at_direction</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">pop_faces_at_direction</span> <span class="o">=</span> <span class="n">SignedDirection3D</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">pop_faces_at_direction</span><span class="p">)</span>
-    <span class="n">base</span> <span class="o">=</span> <span class="n">_BaseColladaData</span><span class="p">(</span><span class="n">pop_faces_at_direction</span><span class="p">)</span>
+    <span class="n">directions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SignedDirection3D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="n">pop_faces_at_directions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">directions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SignedDirection3D</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">direction</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">directions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">_BaseColladaData</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">scale_position</span><span class="p">(</span><span class="n">pos</span><span class="p">:</span> <span class="n">Position3D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatPosition3D</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">FloatPosition3D</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pipe_length</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pos</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">()))</span>
@@ -674,11 +678,11 @@ window.addEventListener("load", () => mermaid.run());
 
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="n">matrix</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaled_position</span><span class="o">.</span><span class="n">as_array</span><span class="p">()</span>
-        <span class="n">pop_faces_at_directions</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">pop_directions</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">SignedDirection3D</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="n">cube</span> <span class="o">==</span> <span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes_at</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
         <span class="p">]</span>
-        <span class="n">base</span><span class="o">.</span><span class="n">add_block_instance</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">pop_faces_at_directions</span><span class="p">)</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">add_block_instance</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">pop_directions</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">pipes</span><span class="p">:</span>
         <span class="n">head_pos</span> <span class="o">=</span> <span class="n">scale_position</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
@@ -871,7 +875,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="k">class</span><span class="w"> </span><span class="nc">_BaseColladaData</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">pop_faces_at_direction</span><span class="p">:</span> <span class="n">SignedDirection3D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pop_faces_at_directions</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SignedDirection3D</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode the base model template.</span>
 
@@ -886,8 +890,8 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">root_node</span> <span class="o">=</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s2">&quot;SketchUp&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SketchUp&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_library</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_BlockLibraryKey</span><span class="p">,</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">surface_library</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Basis</span><span class="p">,</span> <span class="n">collada</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pop_faces_at_direction</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">SignedDirection3D</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">frozenset</span><span class="p">({</span><span class="n">pop_faces_at_direction</span><span class="p">})</span> <span class="k">if</span> <span class="n">pop_faces_at_direction</span> <span class="k">else</span> <span class="nb">frozenset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pop_faces_at_directions</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">SignedDirection3D</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+            <span class="n">pop_faces_at_directions</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_instances</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -970,7 +974,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">block_kind</span><span class="p">:</span> <span class="n">BlockKind</span><span class="p">,</span>
         <span class="n">pop_faces_at_directions</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SignedDirection3D</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BlockLibraryKey</span><span class="p">:</span>
-        <span class="n">pop_faces_at_directions</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">pop_faces_at_directions</span><span class="p">)</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pop_faces_at_direction</span>
+        <span class="n">pop_faces_at_directions</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">pop_faces_at_directions</span><span class="p">)</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pop_faces_at_directions</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">_BlockLibraryKey</span><span class="p">(</span><span class="n">block_kind</span><span class="p">,</span> <span class="n">pop_faces_at_directions</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_library</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">key</span>
@@ -1071,15 +1075,6 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">mat</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">mat</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation</span>
         <span class="k">return</span> <span class="n">mat</span>
-
-
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">_GraphItem</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data class to summary key spatial information for a specific cube or pipe.&quot;&quot;&quot;</span>
-
-    <span class="n">position_in_blockgraph</span><span class="p">:</span> <span class="n">Position3D</span>
-    <span class="n">kind</span><span class="p">:</span> <span class="n">BlockKind</span>
-    <span class="n">transformation_matrix</span><span class="p">:</span> <span class="n">_Transformation</span>
 </pre></div>
 
                 </article>
