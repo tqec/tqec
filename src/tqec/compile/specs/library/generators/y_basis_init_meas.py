@@ -94,13 +94,15 @@ def order_func(m: complex, top_bot_basis: str) -> list[complex]:
     return VERTICAL_HOOK_ORDER
 
 
-def make_fixed_bulk_qubit_patch(
+def make_memory_qubit_patch(
     *,
     distance: int,
     top_bot_basis: str,
+    fixed_bulk: bool,
 ) -> gen.Patch:
-    """Make a rectangular surface code patch with fixed bulk convention."""
+    """Make a surface code memory patch."""
     left_right_basis = "Z" if top_bot_basis == "X" else "X"
+    top_left_tile_basis = "Z" if fixed_bulk else top_bot_basis
     return rectangular_surface_code_patch(
         width=distance,
         height=distance,
@@ -108,60 +110,27 @@ def make_fixed_bulk_qubit_patch(
         right_basis=left_right_basis,
         bot_basis=top_bot_basis,
         left_basis=left_right_basis,
-        top_left_tile_basis="Z",
+        top_left_tile_basis=top_left_tile_basis,
         order_func=functools.partial(order_func, top_bot_basis=top_bot_basis),
     )
 
 
-def make_fixed_boundary_qubit_patch(
-    *,
-    distance: int,
-    top_bot_basis: str,
-) -> gen.Patch:
-    """Make a rectangular surface code patch with fixed boundary convention."""
-    left_right_basis = "Z" if top_bot_basis == "X" else "X"
-    return rectangular_surface_code_patch(
-        width=distance,
-        height=distance,
-        top_basis=top_bot_basis,
-        right_basis=left_right_basis,
-        bot_basis=top_bot_basis,
-        left_basis=left_right_basis,
-        top_left_tile_basis=top_bot_basis,
-        order_func=functools.partial(order_func, top_bot_basis=top_bot_basis),
-    )
-
-
-def make_fixed_bulk_yboundary_patch(
+def make_yboundary_patch(
     *,
     distance: int,
     top_bot_basis_after_transition: str,
+    fixed_bulk: bool,
 ) -> gen.Patch:
-    """Make a surface code patch at the time boundary of Y-basis initialization
-    with fixed bulk convention.
-    """
-    return rectangular_surface_code_patch(
-        width=distance,
-        height=distance,
-        top_basis="Z",
-        right_basis="X",
-        bot_basis="X",
-        left_basis="Z",
-        top_left_tile_basis="Z",
-        order_func=functools.partial(order_func, top_bot_basis=top_bot_basis_after_transition),
-    )
+    """Make a surface code patch at the time boundary of Y-basis initialization."""
+    if fixed_bulk:
+        top_left_basis = "Z"
+        bot_right_basis = "X"
+        top_left_tile_basis = "Z"
+    else:
+        top_left_basis = "Z" if top_bot_basis_after_transition == "Z" else "X"
+        bot_right_basis = "Z" if top_left_basis == "X" else "X"
+        top_left_tile_basis = top_left_basis
 
-
-def make_fixed_boundary_yboundary_patch(
-    *,
-    distance: int,
-    top_bot_basis_after_transition: str,
-) -> gen.Patch:
-    """Make a surface code patch at the time boundary of Y-basis initialization
-    with fixed boundary convention.
-    """
-    top_left_basis = "Z" if top_bot_basis_after_transition == "Z" else "X"
-    bot_right_basis = "Z" if top_left_basis == "X" else "X"
     return rectangular_surface_code_patch(
         width=distance,
         height=distance,
@@ -169,6 +138,6 @@ def make_fixed_boundary_yboundary_patch(
         right_basis=bot_right_basis,
         bot_basis=bot_right_basis,
         left_basis=top_left_basis,
-        top_left_tile_basis=top_left_basis,
+        top_left_tile_basis=top_left_tile_basis,
         order_func=functools.partial(order_func, top_bot_basis=top_bot_basis_after_transition),
     )
