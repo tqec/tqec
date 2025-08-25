@@ -82,7 +82,7 @@ than empirical extrapolations.
 `tqec` is designed to be used by students and researchers who seek to understand the theory of quantum
 error correction and experiment with scalable quantum computer system and circuit designs. Posters featuring
 preliminary research and an educational tutorial enabled by `tqec` have been approved for conference
-proceedings: @kan:2025 and @dubey:2025. A further software package has been recently built to enable better interfacing
+proceedings: @dubey:2025 and @kan:2025 . A further software package has been recently built to enable better interfacing
 between PyZX and `tqec`: @topologiq. The functionality of the `tqec` package is based on several
 academic papers (@polian:2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020), and makes
 substantial use of Craig Gidney's `Stim` package @gidney:2012.
