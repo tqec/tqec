@@ -1,18 +1,18 @@
 """Factory for Y basis initialization and measurement circuit."""
 
 import functools
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Set
+from typing import Any
 
 import gen
 
-DIRS: list[complex] = [(1 + 1j) * 1j**d for d in range(4)]
+DIRS: list[complex] = [(0.5 + 0.5j) * 1j**d for d in range(4)]
 DR, DL, UL, UR = DIRS
-HORIZONTAL_HOOK_ORDER = [UL, UR, DL, DR]
-VERTICAL_HOOK_ORDER = [UL, DL, UR, DR]
+ORDER_S = [UR, UL, DR, DL]
+ORDER_N = [UR, DR, UL, DL]
 
 
 def surface_code_patch(
-    *,
     possible_data_qubits: Iterable[complex],
     basis: Callable[[complex], str],
     is_boundary_x: Callable[[complex], bool],
@@ -46,98 +46,392 @@ def surface_code_patch(
     return gen.Patch(tiles)
 
 
-def checkerboard_basis(q: complex, top_left_tile_basis: str) -> str:
+def checkerboard_basis(q: complex) -> str:
     """Classifies a coordinate as X type or Z type according to a checkerboard."""
-    tlb_flipped = "Z" if top_left_tile_basis == "X" else "X"
-    return top_left_tile_basis if int(q.real + q.imag) % 4 == 0 else tlb_flipped
+    is_x = int(q.real + q.imag) & 1 == 0
+    return "X" if is_x else "Z"
 
 
 def rectangular_surface_code_patch(
-    *,
     width: int,
     height: int,
     top_basis: str,
     bot_basis: str,
     left_basis: str,
     right_basis: str,
-    top_left_tile_basis: str,
     order_func: Callable[[complex], Iterable[complex | None]],
 ) -> gen.Patch:
     """Make a rectangular surface code patch."""
 
     def is_boundary(m: complex, *, b: str) -> bool:
-        if top_basis == b and m.imag == 0:
+        if top_basis == b and m.imag == -0.5:
             return True
-        if left_basis == b and m.real == 0:
+        if left_basis == b and m.real == -0.5:
             return True
-        if bot_basis == b and m.imag == 2 * height:
+        if bot_basis == b and m.imag == height - 0.5:
             return True
-        if right_basis == b and m.real == 2 * width:
+        if right_basis == b and m.real == width - 0.5:
             return True
         return False
 
     return surface_code_patch(
-        possible_data_qubits=[
-            (1 + 1j) + 2 * x + 2j * y for x in range(width) for y in range(height)
-        ],
-        basis=functools.partial(checkerboard_basis, top_left_tile_basis=top_left_tile_basis),
+        possible_data_qubits=[x + 1j * y for x in range(width) for y in range(height)],
+        basis=checkerboard_basis,
         is_boundary_x=functools.partial(is_boundary, b="X"),
         is_boundary_z=functools.partial(is_boundary, b="Z"),
         order_func=order_func,
     )
 
 
-def order_func(m: complex, top_bot_basis: str) -> list[complex]:
-    """Determine the interaction order for a data qubit with the surrounding measure qubits."""
-    if checkerboard_basis(m, top_left_tile_basis="Z") == top_bot_basis:
-        return HORIZONTAL_HOOK_ORDER
-    return VERTICAL_HOOK_ORDER
+def make_xtop_qubit_patch(distance: int) -> gen.Patch:
+    """Make a surface code patch with X boundaries on top and bottom edges."""
 
-
-def make_memory_qubit_patch(
-    *,
-    distance: int,
-    top_bot_basis: str,
-    fixed_bulk: bool,
-) -> gen.Patch:
-    """Make a surface code memory patch."""
-    left_right_basis = "Z" if top_bot_basis == "X" else "X"
-    top_left_tile_basis = "Z" if fixed_bulk else top_bot_basis
-    return rectangular_surface_code_patch(
-        width=distance,
-        height=distance,
-        top_basis=top_bot_basis,
-        right_basis=left_right_basis,
-        bot_basis=top_bot_basis,
-        left_basis=left_right_basis,
-        top_left_tile_basis=top_left_tile_basis,
-        order_func=functools.partial(order_func, top_bot_basis=top_bot_basis),
-    )
-
-
-def make_yboundary_patch(
-    *,
-    distance: int,
-    top_bot_basis_after_transition: str,
-    fixed_bulk: bool,
-) -> gen.Patch:
-    """Make a surface code patch at the time boundary of Y-basis initialization."""
-    if fixed_bulk:
-        top_left_basis = "Z"
-        bot_right_basis = "X"
-        top_left_tile_basis = "Z"
-    else:
-        top_left_basis = "Z" if top_bot_basis_after_transition == "Z" else "X"
-        bot_right_basis = "Z" if top_left_basis == "X" else "X"
-        top_left_tile_basis = top_left_basis
+    def order_func(m: complex) -> list[complex]:
+        if checkerboard_basis(m) == "X":
+            return ORDER_S
+        else:
+            return ORDER_N
 
     return rectangular_surface_code_patch(
         width=distance,
         height=distance,
-        top_basis=top_left_basis,
-        right_basis=bot_right_basis,
-        bot_basis=bot_right_basis,
-        left_basis=top_left_basis,
-        top_left_tile_basis=top_left_tile_basis,
-        order_func=functools.partial(order_func, top_bot_basis=top_bot_basis_after_transition),
+        top_basis="X",
+        right_basis="Z",
+        bot_basis="X",
+        left_basis="Z",
+        order_func=order_func,
     )
+
+
+def make_ztop_yboundary_patch(distance: int) -> gen.Patch:
+    """Make the surface code patch at the end of a Y-basis measurement."""
+
+    def order_func(m: complex) -> list[complex]:
+        if checkerboard_basis(m) == "X":
+            return ORDER_S
+        else:
+            return ORDER_N
+
+    return rectangular_surface_code_patch(
+        width=distance,
+        height=distance,
+        top_basis="Z",
+        right_basis="X",
+        bot_basis="X",
+        left_basis="Z",
+        order_func=order_func,
+    )
+
+
+def build_surface_code_round_circuit(
+    patch: gen.Patch,
+    *,
+    init_data_basis: str | dict[complex, str] | None = None,
+    measure_data_basis: str | dict[complex, str] | None = None,
+    save_layer: Any,
+    out: gen.ChunkBuilder,
+) -> None:
+    """Build a standard surface code round circuit into an existing ChunkBuilder."""
+    measure_xs = gen.Patch([tile for tile in patch.tiles if tile.basis == "X"])
+    measure_zs = gen.Patch([tile for tile in patch.tiles if tile.basis == "Z"])
+    if init_data_basis is None:
+        init_data_basis = {}
+    elif isinstance(init_data_basis, str):
+        init_data_basis = {q: init_data_basis for q in patch.data_set}
+    if measure_data_basis is None:
+        measure_data_basis = {}
+    elif isinstance(measure_data_basis, str):
+        measure_data_basis = {q: measure_data_basis for q in patch.data_set}
+
+    out.append("RX", measure_xs.measure_set)
+    for basis in "XYZ":
+        qs = [q for q in init_data_basis if init_data_basis[q] == basis]
+        if qs:
+            out.append(f"R{basis}", qs)
+    out.append("R", measure_zs.measure_set)
+    out.append("TICK")
+
+    (num_layers,) = {len(tile.data_qubits) for tile in patch.tiles}
+    for k in range(num_layers):
+        out.append(
+            "CX",
+            [
+                (tile.measure_qubit, tile.data_qubits[k])[:: -1 if tile.basis == "Z" else +1]
+                for tile in patch.tiles
+                if tile.data_qubits[k] is not None
+            ],
+        )
+        out.append("TICK")
+
+    def measure_key_func(pos: complex) -> tuple[complex, Any]:
+        return (pos, save_layer)
+
+    out.append("MX", measure_xs.measure_set, measure_key_func=measure_key_func)
+    for basis in "XYZ":
+        qs = [q for q in measure_data_basis if measure_data_basis[q] == basis]
+        if qs:
+            out.append(f"M{basis}", qs, measure_key_func=measure_key_func)
+    out.append("M", measure_zs.measure_set, measure_key_func=measure_key_func)
+
+
+def standard_surface_code_chunk(
+    patch: gen.Patch,
+    init_data_basis: str | dict[complex, str] | None = None,
+    measure_data_basis: str | dict[complex, str] | None = None,
+    obs: gen.PauliMap | None = None,
+    wants_to_merge_with_prev: bool = False,
+    wants_to_merge_with_next: bool = False,
+) -> gen.Chunk:
+    """Make a standard surface code round circuit chunk."""
+    if init_data_basis is None:
+        init_data_basis = {}
+    elif isinstance(init_data_basis, str):
+        init_data_basis = {q: init_data_basis for q in patch.data_set}
+    if measure_data_basis is None:
+        measure_data_basis = {}
+    elif isinstance(measure_data_basis, str):
+        measure_data_basis = {q: measure_data_basis for q in patch.data_set}
+
+    builder = gen.ChunkBuilder(allowed_qubits=patch.used_set)
+    save_layer = "solo"
+    build_surface_code_round_circuit(
+        patch=patch,
+        init_data_basis=init_data_basis,
+        measure_data_basis=measure_data_basis,
+        save_layer=save_layer,
+        out=builder,
+    )
+
+    if not init_data_basis:
+        for tile in patch.tiles:
+            builder.add_flow(
+                center=tile.measure_qubit,
+                start=tile.to_pauli_map(),
+                ms=[(tile.measure_qubit, save_layer)],
+            )
+    if not measure_data_basis:
+        for tile in patch.tiles:
+            builder.add_flow(
+                center=tile.measure_qubit,
+                end=tile.to_pauli_map(),
+                ms=[(tile.measure_qubit, save_layer)],
+            )
+    for tile in patch.tiles:
+        if all(
+            q is None or init_data_basis.get(q) == b for q, b in zip(tile.data_qubits, tile.bases)
+        ):
+            builder.add_flow(
+                center=tile.measure_qubit,
+                ms=[(tile.measure_qubit, save_layer)],
+            )
+    for tile in patch.tiles:
+        if all(
+            q is None or measure_data_basis.get(q) == b
+            for q, b in zip(tile.data_qubits, tile.bases)
+        ):
+            builder.add_flow(
+                center=tile.measure_qubit,
+                ms=[(q, save_layer) for q in tile.used_set],
+            )
+    if obs is not None:
+        start_obs = dict(obs.qubits)
+        end_obs = dict(obs.qubits)
+        for q in init_data_basis:
+            if q in start_obs:
+                if start_obs.pop(q) != init_data_basis[q]:
+                    raise ValueError("wrong init basis for obs")
+        ms = []
+        for q in measure_data_basis:
+            if q in end_obs:
+                if end_obs.pop(q) != measure_data_basis[q]:
+                    raise ValueError("wrong measure basis for obs")
+                ms.append((q, save_layer))
+
+        builder.add_flow(
+            center=0,
+            start=gen.PauliMap(start_obs),  # type: ignore[arg-type]
+            end=gen.PauliMap(end_obs),  # type: ignore[arg-type]
+            obs_key=0,
+            ms=ms,
+        )
+
+    return builder.finish_chunk(
+        wants_to_merge_with_prev=wants_to_merge_with_prev,
+        wants_to_merge_with_next=wants_to_merge_with_next,
+    )
+
+
+def _m_basis(m: complex) -> str | None:
+    if m.real % 1 == 0:
+        return None
+    is_x = int(m.real + m.imag) & 1 == 0
+    return "X" if is_x else "Z"
+
+
+def _split_dl_md_ur(ps: Set[complex]) -> tuple[set[complex], set[complex], set[complex]]:
+    dl = set()
+    ur = set()
+    md = set()
+    for m in ps:
+        dst = ur if m.real > m.imag + 1 else md if m.real == m.imag or m.real == m.imag + 1 else dl
+        dst.add(m)
+    return dl, md, ur
+
+
+def make_y_transition_round_nesw_xzxz_to_xzzx(distance: int) -> gen.Chunk:
+    """Make the circuit chunk for surface code patch transition from XZXZ to XZZX boundaries."""
+    start = make_xtop_qubit_patch(distance)
+    end = make_ztop_yboundary_patch(distance)
+    used = start.used_set | end.used_set
+
+    xs = {q for q in used if _m_basis(q) == "X"}
+    zs = {q for q in used if _m_basis(q) == "Z"}
+    top_row = {q for q in used if q.imag == -0.5}
+    right_col = {q for q in used if q.real == distance - 0.5}
+
+    def toward(qs: Set[complex], delta: complex, sign: int) -> set[tuple[complex, complex]]:
+        result = set()
+        for q in qs:
+            if q + delta in used:
+                result.add((q, q + delta)[::sign])
+        return result
+
+    xs_dl, xs_md, xs_ur = _split_dl_md_ur(xs)
+    zs_dl, zs_md, zs_ur = _split_dl_md_ur(zs)
+
+    builder = gen.ChunkBuilder(used)
+    builder.append("RX", (xs - right_col) | top_row)
+    builder.append("R", (zs - top_row) | right_col)
+    builder.append("TICK")
+    builder.append("CX", toward(xs - right_col, DL, +1))
+    builder.append("CX", toward(zs - top_row, DL, -1))
+    builder.append("TICK")
+    builder.append("CX", toward(xs - right_col, DR, +1))
+    builder.append("CX", toward(zs - top_row, UL, -1))
+    builder.append("TICK")
+    builder.append("CX", toward(xs_ur | xs_md, UL, -1))
+    builder.append("CX", toward(zs_ur, DR, +1))
+    builder.append("XCY", toward(zs_md, DR, +1))
+    builder.append("CX", toward(xs_dl, UL, +1))
+    builder.append("CX", toward(zs_dl, DR, -1))
+    builder.append("TICK")
+    builder.append("CX", toward(xs_ur, DL, -1))
+    builder.append("CX", toward(zs_ur, DL, +1))
+    builder.append("CX", toward(xs_dl, UR, +1))
+    builder.append("CX", toward(zs_dl, UR, -1))
+    builder.append("TICK")
+    builder.append("XCY", toward(xs_md - top_row, DL, -1))
+    builder.append("TICK")
+    builder.append("H", [q for q in used if q.real > q.imag])
+    builder.append("SQRT_X", [q for q in used if q.real == q.imag and q.real % 1 == 0.5])
+    builder.append("TICK")
+    xms = (xs - top_row) | right_col
+
+    def measure_key_func(pos: complex) -> tuple[complex, Any]:
+        return (pos, "solo")
+
+    builder.append("MX", xms, measure_key_func=measure_key_func)
+    builder.append("MY", {0}, measure_key_func=measure_key_func)
+    builder.append("MZ", (zs - right_col) | top_row, measure_key_func=measure_key_func)
+
+    # Annotate input stabilizers that get measured.
+    for tile in start.tiles:
+        m = tile.measure_qubit
+        assert m is not None
+        if m.real == m.imag:
+            measurements = [m, m + 1]
+        elif m.real == distance - 0.5:
+            measurements = [m]
+        elif m.imag == -0.5:
+            measurements = [m]
+        elif m.real > m.imag and tile.basis == "X":
+            measurements = [m - 1j]
+        elif m.real > m.imag and tile.basis == "Z":
+            measurements = [m + 1]
+        elif m.real < m.imag:
+            measurements = [m]
+        else:
+            raise NotImplementedError(f"{m=!r}")
+
+        builder.add_flow(
+            start=tile.to_pauli_map(),
+            center=m,
+            ms=[(k, "solo") for k in measurements],
+        )
+
+    # Annotate output stabilizers that get prepared.
+    for tile in end.tiles:
+        m = tile.measure_qubit
+        assert m is not None
+        if m == 0.5 + 0.5j:
+            measurements = [m, m + 1, m - 1j, m + UL]
+        elif m == distance - 0.5 + 0.5j:
+            measurements = [m]
+        elif m == distance - 1.5 - 0.5j:
+            measurements = [m]
+        elif m.real == distance - 0.5:
+            measurements = [m, m - 1j]
+        elif m.imag == -0.5:
+            measurements = [m, m + 1]
+        elif m.real == m.imag:
+            measurements = [m, m + 1, m - 1j]
+        else:
+            measurements = [m]
+
+        builder.add_flow(
+            end=tile.to_pauli_map(),
+            center=m,
+            ms=[(k, "solo") for k in measurements],
+        )
+
+    # Annotate how observable flows through the system.
+    builder.add_flow(
+        center=0,
+        start=gen.PauliMap(
+            {
+                0: "Y",
+                **{q: "Z" for q in range(1, distance)},
+                **{q * 1j: "X" for q in range(1, distance)},
+            }
+        ),
+        ms=[(m, "solo") for m in [0j, *xms]],
+        obs_key=0,
+    )
+
+    return builder.finish_chunk()
+
+
+def make_y_basis_measurement_chunks(
+    distance: int,
+    padding_rounds: int,
+) -> list[gen.Chunk | gen.ChunkLoop]:
+    """Make circuit chunks for Y-basis measurement."""
+    boundary_patch = make_ztop_yboundary_patch(distance=distance)
+    qubit_to_boundary_round = make_y_transition_round_nesw_xzxz_to_xzzx(distance=distance)
+    boundary_round = standard_surface_code_chunk(boundary_patch)
+    final_round = standard_surface_code_chunk(
+        boundary_patch,
+        measure_data_basis={
+            q: "Z" if q.real + q.imag < distance else "X" for q in boundary_patch.data_set
+        },
+    )
+    return [
+        qubit_to_boundary_round,
+        boundary_round.with_repetitions(padding_rounds),
+        final_round,
+    ]
+
+
+def make_y_basis_initialization_chunks(
+    distance: int,
+    padding_rounds: int,
+) -> list[gen.Chunk | gen.ChunkLoop]:
+    """Make circuit chunks for Y-basis initialization."""
+    qubit_to_boundary_round, boundary_rounds, final_round = make_y_basis_measurement_chunks(
+        distance, padding_rounds
+    )
+    return [
+        final_round.time_reversed(),
+        boundary_rounds.time_reversed(),
+        qubit_to_boundary_round.time_reversed(),
+    ]
