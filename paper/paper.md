@@ -80,7 +80,7 @@ The full-scale simulations performed by `tqec` provide more accurate fault-toler
 than empirical extrapolations.
 
 `tqec` is designed to be used by students and researchers who seek to understand the theory of quantum
-error correction and experiment with scalable quantum computer system and circuit designs. Posters featuring
+error correction and experiment with scalable quantum computer system and circuit designs. A poster featuring
 preliminary research and an educational tutorial enabled by `tqec` have been approved for conference
 proceedings: @dubey:2025 and @kan:2025 . A further software package has been recently built to enable better interfacing
 between PyZX and `tqec`: @topologiq. The functionality of the `tqec` package is based on several
