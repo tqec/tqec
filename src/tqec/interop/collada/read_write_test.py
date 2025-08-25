@@ -120,7 +120,7 @@ def test_collada_write_read_with_correlation_surface() -> None:
             block_graph.to_dae_file(
                 temp_file.name,
                 2.0,
-                pop_faces_at_direction="+X",
+                pop_faces_at_directions=("+X", "-Y"),
                 show_correlation_surface=correlation_surface,
             )
             block_graph_from_file = BlockGraph.from_dae_file(temp_file.name)

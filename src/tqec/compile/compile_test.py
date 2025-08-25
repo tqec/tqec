@@ -72,7 +72,7 @@ def generate_circuit_and_assert(
             g.view_as_html(
                 surface_dir / f"correlation_surface_{i}.html",
                 show_correlation_surface=surface,
-                pop_faces_at_direction="-Y",
+                pop_faces_at_directions=("-Y",),
             )
 
     compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
