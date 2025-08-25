@@ -2,7 +2,7 @@
 
 import functools
 from collections.abc import Callable, Iterable, Set
-from typing import Any
+from typing import Any, Literal
 
 import gen
 
@@ -404,6 +404,7 @@ def make_y_transition_round_nesw_xzxz_to_xzzx(distance: int) -> gen.Chunk:
 def make_y_basis_measurement_chunks(
     distance: int,
     padding_rounds: int,
+    transform: Callable[[complex], complex] = lambda x: x,
 ) -> list[gen.Chunk | gen.ChunkLoop]:
     """Make circuit chunks for Y-basis measurement."""
     boundary_patch = make_ztop_yboundary_patch(distance=distance)
@@ -416,22 +417,59 @@ def make_y_basis_measurement_chunks(
         },
     )
     return [
-        qubit_to_boundary_round,
-        boundary_round.with_repetitions(padding_rounds),
-        final_round,
+        qubit_to_boundary_round.with_transformed_coords(transform),
+        boundary_round.with_transformed_coords(transform).with_repetitions(padding_rounds),
+        final_round.with_transformed_coords(transform),
     ]
 
 
 def make_y_basis_initialization_chunks(
     distance: int,
     padding_rounds: int,
+    transform: Callable[[complex], complex] = lambda x: x,
 ) -> list[gen.Chunk | gen.ChunkLoop]:
     """Make circuit chunks for Y-basis initialization."""
     qubit_to_boundary_round, boundary_rounds, final_round = make_y_basis_measurement_chunks(
-        distance, padding_rounds
+        distance, padding_rounds, transform
     )
     return [
         final_round.time_reversed(),
         boundary_rounds.time_reversed(),
         qubit_to_boundary_round.time_reversed(),
     ]
+
+
+def transform_qubit_to_patch_orientation(
+    qubit: complex,
+    center: complex,
+    convention: Literal["fixed_bulk", "fixed_boundary"],
+    top_bot_boundary_basis: str,
+) -> complex:
+    """Transform the patch coordinates of the Y-basis init/meas chunks into the
+    correct orientation for the certain boundary conditions and convention. The
+    qubit coordinates are scaled at the end to be on the integer lattice.
+    """
+
+    def scale(q: complex) -> complex:
+        return 2 * q + 1 + 1j
+
+    def reflect_across_vertical_axis(q: complex) -> complex:
+        return complex(2 * center.real - q.real, q.imag)
+
+    def rotate_90_clockwise(q: complex) -> complex:
+        qr = center.real + (center.imag - q.imag)
+        qi = center.imag + (q.real - center.real)
+        return complex(qr, qi)
+
+    # The original patch has X boundaries on top and bottom and conforms to the
+    # "fixed_bulk" convention.
+    match convention, top_bot_boundary_basis:
+        case _, "Z":
+            # rotate 90 degrees clockwise, then reflect across vertical axis
+            print(rotate_90_clockwise(qubit))
+            return scale(reflect_across_vertical_axis(rotate_90_clockwise(qubit)))
+        case "fixed_boundary", "X":
+            # reflect across vertical axis
+            return scale(reflect_across_vertical_axis(qubit))
+        case _:  # "fixed_bulk", "X"
+            return scale(qubit)

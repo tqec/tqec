@@ -7,6 +7,7 @@ from tqec.compile.specs.library.generators.y_basis_init_meas import (
     make_y_basis_initialization_chunks,
     make_y_basis_measurement_chunks,
     standard_surface_code_chunk,
+    transform_qubit_to_patch_orientation,
 )
 
 
@@ -42,7 +43,7 @@ def make_y_memory_experiment(
 
 
 @pytest.mark.parametrize("distance", range(2, 10))
-def test_make_y_memory_experiment(distance: int):
+def test_make_y_memory_experiment(distance: int) -> None:
     circuit = make_y_memory_experiment(
         distance, memory_rounds=5, padding_rounds=distance // 2, noise_strength=1e-3
     )
@@ -54,3 +55,12 @@ def test_make_y_memory_experiment(distance: int):
     actual_distance = len(circuit.shortest_graphlike_error())
     expected_distance = distance
     assert actual_distance == expected_distance
+
+
+def test_transform_qubit_to_patch_orientation() -> None:
+    center = 2 + 2j
+    assert transform_qubit_to_patch_orientation(0, center, "fixed_bulk", "X") == 1 + 1j
+    assert transform_qubit_to_patch_orientation(0, center, "fixed_bulk", "Z") == 1 + 1j
+    assert transform_qubit_to_patch_orientation(4j, center, "fixed_bulk", "Z") == 9 + 1j
+    assert transform_qubit_to_patch_orientation(0.5 - 0.5j, center, "fixed_boundary", "Z") == 2j
+    assert transform_qubit_to_patch_orientation(4j, center, "fixed_boundary", "X") == 9 + 9j
