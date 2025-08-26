@@ -385,16 +385,27 @@ def make_y_transition_round_nesw_xzxz_to_xzzx(distance: int) -> gen.Chunk:
         )
 
     # Annotate how observable flows through the system.
+    # Contrast to the observable in the paper, the annotated observable is composed
+    # of the two X/Z midline operators.
+    half_d = distance // 2
+    center_dq = complex(half_d, half_d)
     builder.add_flow(
-        center=0,
+        center=center_dq,
         start=gen.PauliMap(
             {
-                0: "Y",
-                **{q: "Z" for q in range(1, distance)},
-                **{q * 1j: "X" for q in range(1, distance)},
+                center_dq: "Y",
+                **{complex(q, half_d): "Z" for q in range(distance) if q != half_d},
+                **{complex(half_d, q): "X" for q in range(distance) if q != half_d},
             }
         ),
-        ms=[(m, "solo") for m in [0j, *xms]],
+        ms=[
+            (m, "solo")
+            for m in [
+                0j,
+                *[q for q in zs | top_row if q.real < half_d and q.imag < half_d],
+                *[q for q in xs | right_col if q.real > half_d and q.imag > half_d],
+            ]
+        ],
         obs_key=0,
     )
 
