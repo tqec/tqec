@@ -11,6 +11,8 @@ authors:
 - name: Purva Thakre
   affiliation: 3
 - name: Yilun Zhao
+  orcid: 0000-0002-6812-5120
+  affiliation: 11
 - name: Kabir Dubey
   orcid: 0000-0002-7621-9004
   affiliation: 4
