@@ -12,28 +12,31 @@ authors:
   affiliation: 3
 - name: Yilun Zhao
   orcid: 0000-0002-6812-5120
-  affiliation: 11
+  affiliation: 4
 - name: Kabir Dubey
   orcid: 0000-0002-7621-9004
-  affiliation: 4
+  affiliation: 5
 - name: Jose A Bolanos
+  affiliation: 6
 - name: Arabella Schelpe
+  affiliation: 7
 - name: Philip Seitz
   orcid: 0000-0003-3856-4090
-  affiliation: 5
+  affiliation: 8
 - name: Gian Giacomo Guerreschi
-- name: Ángela Elisa Álvarez Pérez
-  affiliation: 6
-- name: Reinhard Stahn
   affiliation: 7
+- name: Ángela Elisa Álvarez Pérez
+  affiliation: 9
+- name: Reinhard Stahn
+  affiliation: 10
 - name: Jerome Lensen
   orcid: 0009-0008-7933-6848
-  affiliation: 8
+  affiliation: 11
 - name: Brendan Reid
-  affiliation: 9
+  affiliation: 12
 - name: Austin Fowler
   equal_contrib: true
-  affiliation: 10
+  affiliation: 13
 
 affiliations:
 - name: Qraftware, Toulouse, France
@@ -42,23 +45,28 @@ affiliations:
   index: 2
 - name: School of Physics and Applied Physics, Southern Illinois University, Carbondale, IL, 62901, USA
   index: 3
-- name: Department of Computer Science, Northwestern University, United States
-  index: 4
-- name: Technical University of Munich, TUM School of Computation, Information and Technology
-  index: 5
-- name: Solvy
-  index: 6
-- name: Parity Quantum Computing Germany GmbH, 20095 Hamburg, Germany
-  index: 7
-- name: VTT, Finland
-  index: 8
-- name: PsiQuantum
-  index: 9
-- name: Stairway Invest
-  index: 10
 - name: Institute of Computing Technology, Chinese Academy of Sciences
+  index: 4
+- name: Department of Computer Science, Northwestern University, United States
+  index: 5
+- name: Independent Consultant
+  index: 6
+- name: Independent Researcher
+  index: 7
+- name: Technical University of Munich, TUM School of Computation, Information and Technology
+  index: 8
+- name: Solvy
+  index: 9
+- name: Parity Quantum Computing Germany GmbH, 20095 Hamburg, Germany
+  index: 10
+- name: VTT, Finland
   index: 11
-date: 15 August 2025
+- name: PsiQuantum
+  index: 12
+- name: Stairway Invest
+  index: 13
+
+date: 27 August 2025
 bibliography: paper.bib
 
 ---
