@@ -48,12 +48,13 @@ from typing import Final
 
 import stim
 
-from tqec.compile.blocks.block import Block, merge_parallel_block_layers
 from tqec.compile.blocks.enums import (
     SpatialBlockBorder,
     TemporalBlockBorder,
     border_from_signed_direction,
 )
+from tqec.compile.blocks.injected_block import InjectedBlock
+from tqec.compile.blocks.layered_block import LayeredBlock, merge_parallel_block_layers
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
@@ -65,6 +66,7 @@ from tqec.compile.blocks.positioning import (
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
+from tqec.compile.specs.base import Block
 from tqec.compile.tree.tree import LayerTree
 from tqec.templates.enums import TemplateBorder
 from tqec.utils.exceptions import TQECError
@@ -115,35 +117,49 @@ class TopologicalComputationGraph:
         observables: list[AbstractObservable] | None = None,
     ) -> None:
         """Represent a topological computation with :class:`.Block` instances."""
-        self._blocks: dict[LayoutPosition3D, Block] = {}
+        self._layered_blocks: dict[LayoutPosition3D, LayeredBlock] = {}
+        self._injected_blocks: dict[LayoutPosition3D, InjectedBlock] = {}
         # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
         # extent. We need to keep track of the temporal pipes that are at the
         # same layer of at least one temporal Hadamard pipe.
         # We use the bottom cube position `z` to store the temporal pipe, s.t.
         # the pipe is actually at the position `z+0.5`
-        self._temporal_pipes_at_hadamard_layer: dict[LayoutPosition3D, Block] = {}
+        self._temporal_pipes_at_hadamard_layer: dict[LayoutPosition3D, LayeredBlock] = {}
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = scalable_qubit_shape
         self._observables: list[AbstractObservable] | None = observables
         self._observable_builder = observable_builder
 
+    @property
+    def all_layout_positions(self) -> set[LayoutPosition3D]:
+        """Get all the positions at which a block has been added."""
+        return set(self._layered_blocks.keys()).union(set(self._injected_blocks.keys()))
+
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         """Add a new cube at ``position`` implemented by the provided ``block``."""
+        self._check_block_spatial_shape(block)
+        layout_position = LayoutPosition3D.from_block_position(position)
+        if isinstance(block, InjectedBlock):
+            if layout_position in self._injected_blocks:
+                raise TQECError(
+                    "Cannot override an injected block with ``add_cube``. There is already "
+                    f"an injected block at {layout_position}."
+                )
+            self._injected_blocks[layout_position] = block
+            return
         if not block.is_cube:
             raise TQECError(
                 f"Cannot add the block as a cube. The provided block({block}) "
                 "has at least one non-scalable dimension."
             )
-        self._check_block_spatial_shape(block)
-        layout_position = LayoutPosition3D.from_block_position(position)
-        if layout_position in self._blocks:
+        if layout_position in self._layered_blocks:
             raise TQECError(
                 "Cannot override a block with ``add_cube``. There is already "
                 f"an entry at {layout_position}."
             )
-        self._blocks[layout_position] = block
+        self._layered_blocks[layout_position] = block
 
-    def get_cube(self, position: BlockPosition3D) -> Block:
-        """Recover the :class:`.Block` instance at the provided ``position``.
+    def get_layered_block(self, position: BlockPosition3D) -> LayeredBlock:
+        """Recover the :class:`.LayeredBlock` instance at the provided ``position``.
 
         Args:
             position: position of the block to recover.
@@ -152,11 +168,11 @@ class TopologicalComputationGraph:
             KeyError: if the provided ``position`` has no block associated.
 
         Returns:
-            the :class:`.Block` instance at the provided ``position``.
+            the :class:`.LayeredBlock` instance at the provided ``position``.
 
         """
         layout_position = LayoutPosition3D.from_block_position(position)
-        return self._blocks[layout_position]
+        return self._layered_blocks[layout_position]
 
     def _check_any_pipe(self, source: BlockPosition3D, sink: BlockPosition3D) -> None:
         """Check the validity of a pipe between ``source`` and ``sink``.
@@ -185,13 +201,13 @@ class TopologicalComputationGraph:
                 "source < sink."
             )
         source_layout_position = LayoutPosition3D.from_block_position(source)
-        if source_layout_position not in self._blocks:
+        if source_layout_position not in self.all_layout_positions:
             raise TQECError(
                 f"Cannot add a pipe between {source:=} and {sink:=}: the "
                 "source is not in the graph."
             )
         sink_layout_position = LayoutPosition3D.from_block_position(sink)
-        if sink_layout_position not in self._blocks:
+        if sink_layout_position not in self.all_layout_positions:
             raise TQECError(
                 f"Cannot add a pipe between {source:=} and {sink:=}: the sink is not in the graph."
             )
@@ -215,7 +231,7 @@ class TopologicalComputationGraph:
         """
         self._check_any_pipe(source, sink)
         layout_position = LayoutPosition3D.from_pipe_position((source, sink))
-        if layout_position in self._blocks:
+        if layout_position in self._layered_blocks:
             raise TQECError(
                 "Cannot override a pipe with ``add_pipe``. "
                 f"There is already a pipe at {layout_position}."
@@ -264,8 +280,12 @@ class TopologicalComputationGraph:
         sink_border = border_from_signed_direction(SignedDirection3D(juncdir, False))
         assert isinstance(source_border, SpatialBlockBorder)
         assert isinstance(sink_border, SpatialBlockBorder)
-        self._blocks[psource] = self._blocks[psource].with_spatial_borders_trimmed([source_border])
-        self._blocks[psink] = self._blocks[psink].with_spatial_borders_trimmed([sink_border])
+        self._layered_blocks[psource] = self._layered_blocks[psource].with_spatial_borders_trimmed(
+            [source_border]
+        )
+        self._layered_blocks[psink] = self._layered_blocks[psink].with_spatial_borders_trimmed(
+            [sink_border]
+        )
 
     def _substitute_part_of_spatial_pipe(
         self,
@@ -293,7 +313,7 @@ class TopologicalComputationGraph:
                 substituted is not an instance of ``PlaquetteLayer``.
 
         """
-        pipe_block = self._blocks[pipe_pos]
+        pipe_block = self._layered_blocks[pipe_pos]
         pipe_layer_to_replace = pipe_block.get_temporal_layer_on_border(temporal_pipe_border)
         if not isinstance(pipe_layer_to_replace, PlaquetteLayer):
             raise NotImplementedError(
@@ -314,7 +334,7 @@ class TopologicalComputationGraph:
             {temporal_pipe_border: replaced_pipe_layer}
         )
         assert replaced_block is not None, "No layer was removed"
-        self._blocks[pipe_pos] = replaced_block
+        self._layered_blocks[pipe_pos] = replaced_block
 
     def _replace_temporal_border(
         self,
@@ -323,7 +343,7 @@ class TopologicalComputationGraph:
         layer: BaseLayer,
     ) -> None:
         pblock = LayoutPosition3D.from_block_position(block_pos)
-        block = self._blocks[pblock]
+        block = self._layered_blocks[pblock]
 
         # First replace the layer on the temporal border of the block.
         layer_on_top_of_block = layer
@@ -333,7 +353,7 @@ class TopologicalComputationGraph:
             )
         new_block = block.with_temporal_borders_replaced({block_border: layer_on_top_of_block})
         assert new_block is not None, "No layer removal happened, only replacement"
-        self._blocks[pblock] = new_block
+        self._layered_blocks[pblock] = new_block
         # Then, if the block has no trimmed spatial border (i.e., no spatial
         # pipes), we can return because the replacement is over.
         if not block.trimmed_spatial_borders:
@@ -355,7 +375,7 @@ class TopologicalComputationGraph:
             )
 
     def _replace_temporal_borders(
-        self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
+        self, source: BlockPosition3D, sink: BlockPosition3D, block: LayeredBlock
     ) -> None:
         self._check_any_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
@@ -366,19 +386,23 @@ class TopologicalComputationGraph:
                 "be handled separately."
             )
         # Source
-        self._replace_temporal_border(
-            source,
-            TemporalBlockBorder.Z_POSITIVE,
-            block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
-        )
+        psource = LayoutPosition3D.from_block_position(source)
+        if psource not in self._injected_blocks:
+            self._replace_temporal_border(
+                source,
+                TemporalBlockBorder.Z_POSITIVE,
+                block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
+            )
         # Sink
-        self._replace_temporal_border(
-            sink,
-            TemporalBlockBorder.Z_NEGATIVE,
-            block.get_atomic_temporal_border(TemporalBlockBorder.Z_POSITIVE),
-        )
+        psink = LayoutPosition3D.from_block_position(sink)
+        if psink not in self._injected_blocks:
+            self._replace_temporal_border(
+                sink,
+                TemporalBlockBorder.Z_NEGATIVE,
+                block.get_atomic_temporal_border(TemporalBlockBorder.Z_POSITIVE),
+            )
 
-    def add_pipe(self, source: BlockPosition3D, sink: BlockPosition3D, block: Block) -> None:
+    def add_pipe(self, source: BlockPosition3D, sink: BlockPosition3D, block: LayeredBlock) -> None:
         """Add the provided block as a pipe between ``source`` and ``sink``.
 
         Raises:
@@ -414,7 +438,7 @@ class TopologicalComputationGraph:
         else:  # block is a spatial pipe
             self._trim_cube_spatial_borders(source, sink)
             key = LayoutPosition3D.from_pipe_position((source, sink))
-            self._blocks[key] = block
+            self._layered_blocks[key] = block
 
     def to_layer_tree(self) -> LayerTree:
         """Merge layers happening in parallel at each time step.
@@ -438,13 +462,15 @@ class TopologicalComputationGraph:
             :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
 
         """
-        zs = [pos.z for pos in self._blocks.keys()]
+        zs = [pos.z for pos in self._layered_blocks.keys()]
         min_z, max_z = min(zs), max(zs)
-        blocks_by_z: list[dict[LayoutPosition2D, Block]] = [{} for _ in range(min_z, max_z + 1)]
-        temporal_pipes_by_z: list[dict[LayoutPosition2D, Block]] = [
+        blocks_by_z: list[dict[LayoutPosition2D, LayeredBlock]] = [
             {} for _ in range(min_z, max_z + 1)
         ]
-        for pos, block in self._blocks.items():
+        temporal_pipes_by_z: list[dict[LayoutPosition2D, LayeredBlock]] = [
+            {} for _ in range(min_z, max_z + 1)
+        ]
+        for pos, block in self._layered_blocks.items():
             blocks_by_z[pos.z - min_z][pos.as_2d()] = block
         for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():
             temporal_pipes_by_z[pos.z - min_z][pos.as_2d()] = pipe
@@ -460,6 +486,7 @@ class TopologicalComputationGraph:
             ),
             abstract_observables=self._observables,
             observable_builder=self._observable_builder,
+            injected_blocks=self._injected_blocks,
         )
 
     def generate_stim_circuit(

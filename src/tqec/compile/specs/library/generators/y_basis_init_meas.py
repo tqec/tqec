@@ -6,6 +6,10 @@ from typing import Any, Literal
 
 import gen
 
+from tqec.compile.blocks.injected_block import Alignment, InjectedBlock
+from tqec.compile.specs.base import YHalfCubeSpec
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+
 DIRS: list[complex] = [(0.5 + 0.5j) * 1j**d for d in range(4)]
 DR, DL, UL, UR = DIRS
 ORDER_S = [UR, UL, DR, DL]
@@ -484,3 +488,37 @@ def transform_qubit_to_patch_orientation(
             return scale(reflect_across_vertical_axis(qubit))
         case _:  # "fixed_bulk", "X"
             return scale(qubit)
+
+
+def get_y_half_cube_block(
+    y_spec: YHalfCubeSpec, convention: Literal["fixed_bulk", "fixed_boundary"]
+) -> InjectedBlock:
+    """Get a chunks factory for Y-basis initialization and measurement circuit."""
+
+    def factory(k: int) -> list[gen.Chunk | gen.ChunkLoop]:
+        distance = 2 * k + 1
+        padding_rounds = distance // 2
+        center = complex(distance // 2, distance // 2)
+        transform = functools.partial(
+            transform_qubit_to_patch_orientation,
+            center=center,
+            convention=convention,
+            top_bot_boundary_basis=str(y_spec.horizontal_boundary_basis),
+        )
+        func = (
+            make_y_basis_initialization_chunks
+            if y_spec.initialization
+            else make_y_basis_measurement_chunks
+        )
+        return func(
+            distance=distance,
+            padding_rounds=padding_rounds,
+            transform=transform,
+        )
+
+    return InjectedBlock(
+        factory,
+        scalable_timesteps=LinearFunction(1, 2),
+        scalable_shape=PhysicalQubitScalable2D(x=LinearFunction(4, 5), y=LinearFunction(4, 5)),
+        alignment=Alignment.TAIL if y_spec.initialization else Alignment.HEAD,
+    )

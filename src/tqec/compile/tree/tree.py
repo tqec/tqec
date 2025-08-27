@@ -11,7 +11,9 @@ from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
+from tqec.compile.blocks.injected_block import InjectedBlock
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
+from tqec.compile.blocks.positioning import LayoutPosition3D
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import ObservableBuilder
@@ -61,6 +63,7 @@ class LayerTree:
         observable_builder: ObservableBuilder,
         abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
+        injected_blocks: Mapping[LayoutPosition3D, InjectedBlock] | None = None,
     ):
         """Represent a computation as a tree.
 
@@ -72,19 +75,22 @@ class LayerTree:
 
         Args:
             root: root node of the tree.
+            observable_builder: the style of the surface code patch.
             abstract_observables: a list of abstract observables to be compiled into
                 observables. If set to ``None``, no observables will be compiled
                 into the circuit.
             annotations: a mapping from positive integers representing the value
                 of ``k``, the scaling factor, to annotations computed for that
                 value of ``k``.
-            observable_builder: the style of the surface code patch.
+            injected_blocks: a mapping from 3D block positions to injected block
+                instances.
 
         """
         self._root = LayerNode(root)
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
         self._observable_builder = observable_builder
+        self._injected_blocks = dict(injected_blocks) if injected_blocks is not None else {}
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
