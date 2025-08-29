@@ -18,6 +18,7 @@ class SequencedLayers(BaseComposedLayer):
         self,
         layer_sequence: Sequence[BaseLayer | BaseComposedLayer],
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
+        z: int | None = None,
     ):
         """Composed layer implementing a fixed sequence of layers.
 
@@ -29,6 +30,8 @@ class SequencedLayers(BaseComposedLayer):
                 spatial footprint.
             trimmed_spatial_borders: all the spatial borders that have been
                 removed from the layer.
+            z: The ``z`` position of the sequenced layers in 3D space. Defaults to
+                ``None``.
 
         Raises:
             TQECError: if the provided ``layer_sequence`` is empty.
@@ -36,19 +39,17 @@ class SequencedLayers(BaseComposedLayer):
         """
         super().__init__(trimmed_spatial_borders)
         self._layer_sequence = layer_sequence
-        self._post_init_check()
+        self._z = z
+
+    @property
+    def z(self) -> int | None:
+        """Get the ``z`` position of the sequenced layers in 3D space."""
+        return self._z
 
     @property
     def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:
         """Get the sequence of layers stored by ``self``."""
         return self._layer_sequence
-
-    def _post_init_check(self) -> None:
-        if len(self.layer_sequence) < 1:
-            raise TQECError(
-                f"An instance of {type(self).__name__} is expected to have "
-                f"at least one layer. Found {len(self.layer_sequence)}."
-            )
 
     @property
     def schedule(self) -> tuple[LinearFunction, ...]:

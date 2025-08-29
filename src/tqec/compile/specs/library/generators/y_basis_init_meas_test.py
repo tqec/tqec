@@ -17,11 +17,13 @@ def make_y_memory_experiment(
     y_init_chunks = make_y_basis_initialization_chunks(distance, padding_rounds)
     y_meas_chunks = make_y_basis_measurement_chunks(distance, padding_rounds)
 
+    half_d = distance // 2
+    center_dq = complex(half_d, half_d)
     qubit_obs = gen.PauliMap(
         {
-            0: "Y",
-            **{q: "Z" for q in range(1, distance)},
-            **{q * 1j: "X" for q in range(1, distance)},
+            center_dq: "Y",
+            **{complex(q, half_d): "Z" for q in range(distance) if q != half_d},
+            **{complex(half_d, q): "X" for q in range(distance) if q != half_d},
         }
     )
     memory_patch = make_xtop_qubit_patch(distance)

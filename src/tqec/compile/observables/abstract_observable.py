@@ -121,6 +121,7 @@ class AbstractObservable:
     bottom_stabilizer_cubes: frozenset[CubeWithArms] = frozenset()
     bottom_stabilizer_pipes: frozenset[PipeWithArms] = frozenset()
     temporal_hadamard_pipes: frozenset[PipeWithObservableBasis] = frozenset()
+    y_half_cubes: frozenset[Cube] = frozenset()
 
     def slice_at_z(self, z: int) -> AbstractObservable:
         """Get the observable slice at the given z position."""
@@ -130,6 +131,7 @@ class AbstractObservable:
             frozenset(c for c in self.bottom_stabilizer_cubes if c.cube.position.z == z),
             frozenset(p for p in self.bottom_stabilizer_pipes if p.pipe.u.position.z == z),
             frozenset(p for p in self.temporal_hadamard_pipes if p.pipe.u.position.z == z),
+            frozenset(c for c in self.y_half_cubes if c.position.z == z),
         )
 
 
@@ -231,6 +233,7 @@ def compile_correlation_surface_to_abstract_observable(
     top_readout_pipes: set[PipeWithArms] = set()
     bottom_stabilizer_pipes: set[PipeWithArms] = set()
     temporal_hadamard_pipes: set[PipeWithObservableBasis] = set()
+    y_half_cubes: set[Cube] = set()
 
     # 1. Handle spatial cubes top readouts
     for node in correlation_surface.span_vertices():
@@ -272,8 +275,9 @@ def compile_correlation_surface_to_abstract_observable(
     # 2. Handle all the pipes
     def has_obs_include(cube: Cube, correlation: Basis) -> bool:
         """Check if the top data qubit readout should be included in the observable."""
+        # Y cubes should have been handled
         if cube.is_y_cube:
-            return True
+            return False
         assert isinstance(cube.kind, ZXCube)
         # No pipe at the top
         if block_graph.has_pipe_between(cube.position, cube.position.shift_by(0, 0, 1)):
@@ -290,6 +294,9 @@ def compile_correlation_surface_to_abstract_observable(
             # during realignment of plaquettes under fixed-bulk convention
             if include_temporal_hadamard_pipes and pipe.kind.has_hadamard:
                 temporal_hadamard_pipes.add(PipeWithObservableBasis(pipe, edge.u.basis))
+            for cube in pipe:
+                if cube.is_y_cube:
+                    y_half_cubes.add(cube)
             if has_obs_include(pipe.v, edge.v.basis):
                 top_readout_cubes.add(CubeWithArms(pipe.v))
             continue
@@ -323,6 +330,7 @@ def compile_correlation_surface_to_abstract_observable(
         top_readout_pipes=frozenset(top_readout_pipes),
         bottom_stabilizer_pipes=frozenset(bottom_stabilizer_pipes),
         temporal_hadamard_pipes=frozenset(temporal_hadamard_pipes),
+        y_half_cubes=frozenset(y_half_cubes),
     )
 
 

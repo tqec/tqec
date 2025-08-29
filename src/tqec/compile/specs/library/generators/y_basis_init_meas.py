@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 import gen
 
-from tqec.compile.blocks.injected_block import Alignment, InjectedBlock
+from tqec.compile.blocks.injected_block import Alignment, CircuitWithInterface, InjectedBlock
 from tqec.compile.specs.base import YHalfCubeSpec
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -282,7 +282,9 @@ def _split_dl_md_ur(ps: Set[complex]) -> tuple[set[complex], set[complex], set[c
     return dl, md, ur
 
 
-def make_y_transition_round_nesw_xzxz_to_xzzx(distance: int) -> gen.Chunk:
+def make_y_transition_round_nesw_xzxz_to_xzzx(
+    distance: int, include_observable_flow: bool
+) -> gen.Chunk:
     """Make the circuit chunk for surface code patch transition from XZXZ to XZZX boundaries."""
     start = make_xtop_qubit_patch(distance)
     end = make_ztop_yboundary_patch(distance)
@@ -391,27 +393,28 @@ def make_y_transition_round_nesw_xzxz_to_xzzx(distance: int) -> gen.Chunk:
     # Annotate how observable flows through the system.
     # Contrast to the observable in the paper, the annotated observable is composed
     # of the two X/Z midline operators.
-    half_d = distance // 2
-    center_dq = complex(half_d, half_d)
-    builder.add_flow(
-        center=center_dq,
-        start=gen.PauliMap(
-            {
-                center_dq: "Y",
-                **{complex(q, half_d): "Z" for q in range(distance) if q != half_d},
-                **{complex(half_d, q): "X" for q in range(distance) if q != half_d},
-            }
-        ),
-        ms=[
-            (m, "solo")
-            for m in [
-                0j,
-                *[q for q in zs | top_row if q.real < half_d and q.imag < half_d],
-                *[q for q in xs | right_col if q.real > half_d and q.imag > half_d],
-            ]
-        ],
-        obs_key=0,
-    )
+    if include_observable_flow:
+        half_d = distance // 2
+        center_dq = complex(half_d, half_d)
+        builder.add_flow(
+            center=center_dq,
+            start=gen.PauliMap(
+                {
+                    center_dq: "Y",
+                    **{complex(q, half_d): "Z" for q in range(distance) if q != half_d},
+                    **{complex(half_d, q): "X" for q in range(distance) if q != half_d},
+                }
+            ),
+            ms=[
+                (m, "solo")
+                for m in [
+                    0j,
+                    *[q for q in zs | top_row if q.real < half_d and q.imag < half_d],
+                    *[q for q in xs | right_col if q.real > half_d and q.imag > half_d],
+                ]
+            ],
+            obs_key=0,
+        )
 
     return builder.finish_chunk()
 
@@ -419,11 +422,15 @@ def make_y_transition_round_nesw_xzxz_to_xzzx(distance: int) -> gen.Chunk:
 def make_y_basis_measurement_chunks(
     distance: int,
     padding_rounds: int,
+    include_observable_flow: bool = True,
+    include_open_flows: bool = True,
     transform: Callable[[complex], complex] = lambda x: x,
 ) -> list[gen.Chunk | gen.ChunkLoop]:
     """Make circuit chunks for Y-basis measurement."""
-    boundary_patch = make_ztop_yboundary_patch(distance=distance)
-    qubit_to_boundary_round = make_y_transition_round_nesw_xzxz_to_xzzx(distance=distance)
+    boundary_patch = make_ztop_yboundary_patch(distance)
+    qubit_to_boundary_round = make_y_transition_round_nesw_xzxz_to_xzzx(
+        distance, include_observable_flow
+    )
     boundary_round = standard_surface_code_chunk(boundary_patch)
     final_round = standard_surface_code_chunk(
         boundary_patch,
@@ -431,6 +438,8 @@ def make_y_basis_measurement_chunks(
             q: "Z" if q.real + q.imag < distance else "X" for q in boundary_patch.data_set
         },
     )
+    if not include_open_flows:
+        qubit_to_boundary_round = without_in_flows(qubit_to_boundary_round)
     return [
         qubit_to_boundary_round.with_transformed_coords(transform),
         boundary_round.with_transformed_coords(transform).with_repetitions(padding_rounds),
@@ -441,17 +450,31 @@ def make_y_basis_measurement_chunks(
 def make_y_basis_initialization_chunks(
     distance: int,
     padding_rounds: int,
+    include_observable_flow: bool = True,
+    include_open_flows: bool = True,
     transform: Callable[[complex], complex] = lambda x: x,
 ) -> list[gen.Chunk | gen.ChunkLoop]:
     """Make circuit chunks for Y-basis initialization."""
     qubit_to_boundary_round, boundary_rounds, final_round = make_y_basis_measurement_chunks(
-        distance, padding_rounds, transform
+        distance, padding_rounds, include_observable_flow, include_open_flows, transform
     )
     return [
         final_round.time_reversed(),
         boundary_rounds.time_reversed(),
         qubit_to_boundary_round.time_reversed(),
     ]
+
+
+def make_y_basis_init_or_meas_interface(
+    distance: int,
+    transform: Callable[[complex], complex] = lambda x: x,
+) -> gen.ChunkInterface:
+    """Make the start (end) chunk interface for Y-basis measurement (initialization)."""
+    qubit_to_boundary_round = make_y_transition_round_nesw_xzxz_to_xzzx(
+        distance, include_observable_flow=False
+    )
+    interface = qubit_to_boundary_round.start_interface()
+    return interface.with_transformed_coords(transform)
 
 
 def transform_qubit_to_patch_orientation(
@@ -481,7 +504,6 @@ def transform_qubit_to_patch_orientation(
     match convention, top_bot_boundary_basis:
         case _, "Z":
             # rotate 90 degrees clockwise, then reflect across vertical axis
-            print(rotate_90_clockwise(qubit))
             return scale(reflect_across_vertical_axis(rotate_90_clockwise(qubit)))
         case "fixed_boundary", "X":
             # reflect across vertical axis
@@ -490,12 +512,18 @@ def transform_qubit_to_patch_orientation(
             return scale(qubit)
 
 
+def without_in_flows(chunk: gen.Chunk) -> gen.Chunk:
+    """Return a copy of the chunk with all input flows removed."""
+    kept_flows = [flow for flow in chunk.flows if not flow.start]
+    return chunk.with_edits(flows=kept_flows)
+
+
 def get_y_half_cube_block(
     y_spec: YHalfCubeSpec, convention: Literal["fixed_bulk", "fixed_boundary"]
 ) -> InjectedBlock:
     """Get a chunks factory for Y-basis initialization and measurement circuit."""
 
-    def factory(k: int) -> list[gen.Chunk | gen.ChunkLoop]:
+    def factory(k: int, include_observable: bool) -> CircuitWithInterface:
         distance = 2 * k + 1
         padding_rounds = distance // 2
         center = complex(distance // 2, distance // 2)
@@ -510,11 +538,19 @@ def get_y_half_cube_block(
             if y_spec.initialization
             else make_y_basis_measurement_chunks
         )
-        return func(
+        chunks = func(
             distance=distance,
             padding_rounds=padding_rounds,
+            include_observable_flow=include_observable,
+            include_open_flows=False,
             transform=transform,
         )
+        compiler = gen.ChunkCompiler()
+        for chunk in chunks:
+            compiler.append(chunk)
+        circuit = compiler.finish_circuit()
+        interface = make_y_basis_init_or_meas_interface(distance, transform=transform)
+        return CircuitWithInterface(circuit, interface)
 
     return InjectedBlock(
         factory,

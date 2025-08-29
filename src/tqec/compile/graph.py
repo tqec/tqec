@@ -60,7 +60,6 @@ from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import (
     LayoutPipePosition2D,
-    LayoutPosition2D,
     LayoutPosition3D,
 )
 from tqec.compile.detectors.database import DetectorDatabase
@@ -118,7 +117,7 @@ class TopologicalComputationGraph:
     ) -> None:
         """Represent a topological computation with :class:`.Block` instances."""
         self._layered_blocks: dict[LayoutPosition3D, LayeredBlock] = {}
-        self._injected_blocks: dict[LayoutPosition3D, InjectedBlock] = {}
+        self._injected_blocks: dict[BlockPosition3D, InjectedBlock] = {}
         # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
         # extent. We need to keep track of the temporal pipes that are at the
         # same layer of at least one temporal Hadamard pipe.
@@ -132,20 +131,22 @@ class TopologicalComputationGraph:
     @property
     def all_layout_positions(self) -> set[LayoutPosition3D]:
         """Get all the positions at which a block has been added."""
-        return set(self._layered_blocks.keys()).union(set(self._injected_blocks.keys()))
+        return set(self._layered_blocks.keys()).union(
+            {LayoutPosition3D.from_block_position(p) for p in self._injected_blocks.keys()}
+        )
 
     def add_cube(self, position: BlockPosition3D, block: Block) -> None:
         """Add a new cube at ``position`` implemented by the provided ``block``."""
         self._check_block_spatial_shape(block)
-        layout_position = LayoutPosition3D.from_block_position(position)
         if isinstance(block, InjectedBlock):
-            if layout_position in self._injected_blocks:
+            if position in self._injected_blocks:
                 raise TQECError(
                     "Cannot override an injected block with ``add_cube``. There is already "
-                    f"an injected block at {layout_position}."
+                    f"an injected block at {position}."
                 )
-            self._injected_blocks[layout_position] = block
+            self._injected_blocks[position] = block
             return
+        layout_position = LayoutPosition3D.from_block_position(position)
         if not block.is_cube:
             raise TQECError(
                 f"Cannot add the block as a cube. The provided block({block}) "
@@ -386,16 +387,14 @@ class TopologicalComputationGraph:
                 "be handled separately."
             )
         # Source
-        psource = LayoutPosition3D.from_block_position(source)
-        if psource not in self._injected_blocks:
+        if source not in self._injected_blocks:
             self._replace_temporal_border(
                 source,
                 TemporalBlockBorder.Z_POSITIVE,
                 block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
             )
         # Sink
-        psink = LayoutPosition3D.from_block_position(sink)
-        if psink not in self._injected_blocks:
+        if sink not in self._injected_blocks:
             self._replace_temporal_border(
                 sink,
                 TemporalBlockBorder.Z_NEGATIVE,
@@ -462,26 +461,31 @@ class TopologicalComputationGraph:
             :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
 
         """
-        zs = [pos.z for pos in self._layered_blocks.keys()]
-        min_z, max_z = min(zs), max(zs)
-        blocks_by_z: list[dict[LayoutPosition2D, LayeredBlock]] = [
-            {} for _ in range(min_z, max_z + 1)
-        ]
-        temporal_pipes_by_z: list[dict[LayoutPosition2D, LayeredBlock]] = [
-            {} for _ in range(min_z, max_z + 1)
-        ]
-        for pos, block in self._layered_blocks.items():
-            blocks_by_z[pos.z - min_z][pos.as_2d()] = block
-        for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():
-            temporal_pipes_by_z[pos.z - min_z][pos.as_2d()] = pipe
+        min_z = min(pos.z for pos in self.all_layout_positions)
+
         return LayerTree(
             SequencedLayers(
                 [
                     SequencedLayers(
-                        merge_parallel_block_layers(blocks, self._scalable_qubit_shape)
-                        + merge_parallel_block_layers(pipes, self._scalable_qubit_shape),
+                        merge_parallel_block_layers(
+                            {
+                                pos.as_2d(): block
+                                for pos, block in self._layered_blocks.items()
+                                if pos.z == z
+                            },
+                            self._scalable_qubit_shape,
+                        )
+                        + merge_parallel_block_layers(
+                            {
+                                pos.as_2d(): pipe
+                                for pos, pipe in self._temporal_pipes_at_hadamard_layer.items()
+                                if pos.z == z
+                            },
+                            self._scalable_qubit_shape,
+                        ),
+                        z=z - min_z,
                     )
-                    for blocks, pipes in zip(blocks_by_z, temporal_pipes_by_z)
+                    for z in sorted({pos.z for pos in self._layered_blocks})
                 ]
             ),
             abstract_observables=self._observables,

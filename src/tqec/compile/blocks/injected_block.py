@@ -7,10 +7,12 @@ circuit representation of such blocks that can be injected into the computation
 during compilation.
 """
 
-from collections.abc import Callable
 from enum import Enum
+from typing import Protocol
 
 import gen
+import stim
+from pygltflib import dataclass
 
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
@@ -20,16 +22,39 @@ class Alignment(Enum):
     TAIL = "tail"
 
 
+@dataclass(frozen=True)
+class CircuitWithInterface:
+    circuit: stim.Circuit
+    interface: gen.ChunkInterface
+
+
+class InjectionFactory(Protocol):
+    def __call__(self, k: int, include_observable: bool) -> CircuitWithInterface:
+        """Generate a scalable quantum circuit from the scaling factor.
+
+        Args:
+            k: The scaling factor.
+            include_observable: whether to include the observable in the generated circuit.
+                Currently, only a single possible observable in the injected block
+                is supported.
+
+        Returns:
+            A quantum circuit with expected interface.
+
+        """
+        ...
+
+
 class InjectedBlock:
     def __init__(
         self,
-        chunks_factory: Callable[[int], list[gen.Chunk | gen.ChunkLoop]],
+        injection_factory: InjectionFactory,
         scalable_timesteps: LinearFunction,
         scalable_shape: PhysicalQubitScalable2D,
         alignment: Alignment,
     ) -> None:
         """Represent a block that is injected in time during the computation."""
-        self._chunks_factory = chunks_factory
+        self._injection_factory = injection_factory
         self._scalable_timesteps = scalable_timesteps
         self._scalable_shape = scalable_shape
         self._alignment = alignment
@@ -45,9 +70,9 @@ class InjectedBlock:
         return self._scalable_shape
 
     @property
-    def chunks_factory(self) -> Callable[[int], list[gen.Chunk | gen.ChunkLoop]]:
+    def injection_factory(self) -> InjectionFactory:
         """Get the callable used to generate a scalable quantum circuit from the scaling factor."""
-        return self._chunks_factory
+        return self._injection_factory
 
     @property
     def alignment(self) -> Alignment:
