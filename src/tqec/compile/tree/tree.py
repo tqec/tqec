@@ -382,16 +382,21 @@ class LayerTree:
         all_zs = sorted(set(circuits_by_z) | {pos.z for pos in self._injected_blocks})
         # Block Injection
         q2i = {complex(q.x, q.y): i for q, i in qubit_map.q2i.items()}
-        builder = InejctionBuilder(k, q2i)
+        builder = InejctionBuilder(k, q2i, len(self._abstract_observables))
+        injection_obs_indices: dict[BlockPosition3D, list[int]] = {}
+        for obs_idx, obs in enumerate(self._abstract_observables):
+            for cube in obs.y_half_cubes:
+                pos = BlockPosition3D(*cube.position.as_tuple())
+                injection_obs_indices.setdefault(pos, []).append(obs_idx)
         for z in range(min(all_zs), max(all_zs) + 1):
             injection_blocks = {
-                pos.as_2d(): block for pos, block in self._injected_blocks.items() if pos.z == z
+                pos: block for pos, block in self._injected_blocks.items() if pos.z == z
             }
             circuit_at_z = circuits_by_z.get(z, stim.Circuit())
             assert injection_blocks or circuit_at_z
             builder.append_circuit(circuit_at_z)
             for pos, block in injection_blocks.items():
-                builder.inject(pos, block)
+                builder.inject(pos.as_2d(), block, injection_obs_indices.get(pos, []))
         return builder.finish()
 
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:

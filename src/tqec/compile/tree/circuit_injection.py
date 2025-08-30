@@ -12,10 +12,11 @@ from tqec.utils.position import BlockPosition2D
 
 
 class InejctionBuilder:
-    def __init__(self, k: int, q2i: dict[complex, int]) -> None:
+    def __init__(self, k: int, q2i: dict[complex, int], num_observables: int) -> None:
         """Create a helper class to build the circuit weaved with injected blocks."""
         self._k = k
         self._q2i = q2i
+        self._o2i = {i: i for i in range(num_observables)}
 
         self._prev_circuit = stim.Circuit()
         self._cur_circuit = stim.Circuit()
@@ -53,9 +54,16 @@ class InejctionBuilder:
                     circuit=fragment,
                     flows=flows,
                     q2i=self._q2i,
-                    o2i={},
+                    o2i=self._o2i,
                 ).solve()
                 chunk.verify()
+                # close obs flows
+                chunk = chunk.with_edits(
+                    flows=[
+                        flow if flow.obs_key is None else _obs_flow_as_closed_flow(flow)
+                        for flow in chunk.flows
+                    ]
+                )
                 self._chunks.append(chunk)
 
         self._prev_circuit = self._cur_circuit
@@ -77,7 +85,12 @@ class InejctionBuilder:
         self._cur_circuit = circuit.flattened()
         self._injected = False
 
-    def inject(self, position: BlockPosition2D, block: InjectedBlock) -> None:
+    def inject(
+        self,
+        position: BlockPosition2D,
+        block: InjectedBlock,
+        observable_indices: list[int],
+    ) -> None:
         """Inject the given block at the specified position."""
         block_qubit_shape = block.scalable_shape.to_numpy_shape(self._k)
 
@@ -87,19 +100,21 @@ class InejctionBuilder:
                 q.imag + position.y * (block_qubit_shape[1] - 1),
             )
 
-        circuit_with_interface = block.injection_factory(self._k, include_observable=False)
+        circuit_with_interface = block.injection_factory(self._k)
         circuit = self._reindex_circuit(
             gen.stim_circuit_with_transformed_coords(circuit_with_interface.circuit, transform)
         )
-        interface = circuit_with_interface.interface.with_transformed_coords(transform)
-        self._add_semi_auto_flows(interface, block.alignment)
+        det_interface = circuit_with_interface.det_interface.with_transformed_coords(transform)
+        obs_interface = circuit_with_interface.obs_interface.with_transformed_coords(transform)
+        self._add_semi_auto_det_flows(det_interface, block.alignment)
+        self._add_semi_auto_obs_flows(obs_interface, block.alignment, observable_indices)
         if not self._cur_circuit:
             self._cur_circuit = circuit
         else:
             self._cur_circuit = self._weave_into_cur_circuit(circuit, block.alignment)
         self._injected = True
 
-    def _add_semi_auto_flows(self, interface: gen.ChunkInterface, alignment: Alignment) -> None:
+    def _add_semi_auto_det_flows(self, interface: gen.ChunkInterface, alignment: Alignment) -> None:
         ports = interface.ports
         if alignment == Alignment.HEAD:
             _add_flows_if_not_exist(
@@ -114,6 +129,31 @@ class InejctionBuilder:
             )
             _add_flows_if_not_exist(
                 [gen.FlowSemiAuto(start=port, mids="auto") for port in ports], self._next_flows
+            )
+
+    def _add_semi_auto_obs_flows(
+        self, interface: gen.ChunkInterface, alignment: Alignment, observable_indices: list[int]
+    ) -> None:
+        ports = interface.ports
+        assert len(ports) <= 1
+        if len(ports) == 0:
+            return
+        port = next(iter(ports))
+        if alignment == Alignment.HEAD:
+            _add_flows_if_not_exist(
+                [
+                    gen.FlowSemiAuto(start=port, mids="auto", obs_key=idx)
+                    for idx in observable_indices
+                ],
+                self._cur_flows,
+            )
+        else:
+            _add_flows_if_not_exist(
+                [
+                    gen.FlowSemiAuto(end=port, mids="auto", obs_key=idx)
+                    for idx in observable_indices
+                ],
+                self._cur_flows,
             )
 
     def _weave_into_cur_circuit(
@@ -303,9 +343,7 @@ def _pair_layer_circuits(
 def _add_flows_if_not_exist(
     flows: Iterable[gen.FlowSemiAuto], add_to: list[gen.FlowSemiAuto]
 ) -> None:
-    for flow in flows:
-        if flow not in add_to:
-            add_to.append(flow)
+    add_to.extend(flow for flow in flows if flow not in add_to)
 
 
 def _split_circuit_into_fragment_circuits(circuit: stim.Circuit) -> list[stim.Circuit]:
@@ -321,3 +359,7 @@ def _get_fragment_circuit(fragment: Fragment | FragmentLoop) -> stim.Circuit:
     for f in fragment.fragments:
         circuit += _get_fragment_circuit(f)
     return circuit * fragment.repetitions
+
+
+def _obs_flow_as_closed_flow(flow: gen.Flow) -> gen.Flow:
+    return flow.with_edits(start=gen.PauliMap(), end=gen.PauliMap())

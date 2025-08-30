@@ -14,6 +14,7 @@ import gen
 import stim
 from pygltflib import dataclass
 
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
@@ -25,18 +26,20 @@ class Alignment(Enum):
 @dataclass(frozen=True)
 class CircuitWithInterface:
     circuit: stim.Circuit
-    interface: gen.ChunkInterface
+    det_interface: gen.ChunkInterface
+    obs_interface: gen.ChunkInterface
+
+    def __post_init__(self) -> None:
+        if len(self.obs_interface.ports) > 1:
+            raise TQECError("At most one observable flow is supported at each injection block.")
 
 
 class InjectionFactory(Protocol):
-    def __call__(self, k: int, include_observable: bool) -> CircuitWithInterface:
+    def __call__(self, k: int) -> CircuitWithInterface:
         """Generate a scalable quantum circuit from the scaling factor.
 
         Args:
             k: The scaling factor.
-            include_observable: whether to include the observable in the generated circuit.
-                Currently, only a single possible observable in the injected block
-                is supported.
 
         Returns:
             A quantum circuit with expected interface.

@@ -14,6 +14,8 @@ DIRS: list[complex] = [(0.5 + 0.5j) * 1j**d for d in range(4)]
 DR, DL, UL, UR = DIRS
 ORDER_S = [UR, UL, DR, DL]
 ORDER_N = [UR, DR, UL, DL]
+# ORDER_S = [UL, UR, DL, DR]
+# ORDER_N = [UL, DL, UR, DR]
 
 
 def surface_code_patch(
@@ -439,7 +441,7 @@ def make_y_basis_measurement_chunks(
         },
     )
     if not include_open_flows:
-        qubit_to_boundary_round = without_in_flows(qubit_to_boundary_round)
+        qubit_to_boundary_round = without_in_det_flows(qubit_to_boundary_round)
     return [
         qubit_to_boundary_round.with_transformed_coords(transform),
         boundary_round.with_transformed_coords(transform).with_repetitions(padding_rounds),
@@ -468,13 +470,22 @@ def make_y_basis_initialization_chunks(
 def make_y_basis_init_or_meas_interface(
     distance: int,
     transform: Callable[[complex], complex] = lambda x: x,
-) -> gen.ChunkInterface:
-    """Make the start (end) chunk interface for Y-basis measurement (initialization)."""
+) -> tuple[gen.ChunkInterface, gen.ChunkInterface]:
+    """Make the (det, obs) start/end chunk interface for Y-basis measurement/initialization."""
     qubit_to_boundary_round = make_y_transition_round_nesw_xzxz_to_xzzx(
-        distance, include_observable_flow=False
+        distance, include_observable_flow=True
     )
-    interface = qubit_to_boundary_round.start_interface()
-    return interface.with_transformed_coords(transform)
+    flows = qubit_to_boundary_round.flows
+    det_flows = [f for f in flows if f.obs_key is None]
+    obs_flows = [f for f in flows if f.obs_key is not None]
+
+    det_interface = gen.ChunkInterface(
+        ports=[flow.key_start for flow in det_flows if flow.start],
+    ).with_transformed_coords(transform)
+    obs_interface = gen.ChunkInterface(
+        ports=[flow.key_start for flow in obs_flows if flow.start],
+    ).with_transformed_coords(transform)
+    return det_interface, obs_interface
 
 
 def transform_qubit_to_patch_orientation(
@@ -512,9 +523,9 @@ def transform_qubit_to_patch_orientation(
             return scale(qubit)
 
 
-def without_in_flows(chunk: gen.Chunk) -> gen.Chunk:
+def without_in_det_flows(chunk: gen.Chunk) -> gen.Chunk:
     """Return a copy of the chunk with all input flows removed."""
-    kept_flows = [flow for flow in chunk.flows if not flow.start]
+    kept_flows = [flow for flow in chunk.flows if not flow.start or flow.obs_key is not None]
     return chunk.with_edits(flows=kept_flows)
 
 
@@ -523,7 +534,7 @@ def get_y_half_cube_block(
 ) -> InjectedBlock:
     """Get a chunks factory for Y-basis initialization and measurement circuit."""
 
-    def factory(k: int, include_observable: bool) -> CircuitWithInterface:
+    def factory(k: int) -> CircuitWithInterface:
         distance = 2 * k + 1
         padding_rounds = distance // 2
         center = complex(distance // 2, distance // 2)
@@ -541,16 +552,15 @@ def get_y_half_cube_block(
         chunks = func(
             distance=distance,
             padding_rounds=padding_rounds,
-            include_observable_flow=include_observable,
+            include_observable_flow=False,
             include_open_flows=False,
             transform=transform,
         )
-        compiler = gen.ChunkCompiler()
-        for chunk in chunks:
-            compiler.append(chunk)
-        circuit = compiler.finish_circuit()
-        interface = make_y_basis_init_or_meas_interface(distance, transform=transform)
-        return CircuitWithInterface(circuit, interface)
+        circuit = gen.compile_chunks_into_circuit(chunks)  # type: ignore[arg-type]
+        det_interface, obs_interface = make_y_basis_init_or_meas_interface(
+            distance, transform=transform
+        )
+        return CircuitWithInterface(circuit, det_interface, obs_interface)
 
     return InjectedBlock(
         factory,
