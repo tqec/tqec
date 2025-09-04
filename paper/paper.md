@@ -19,6 +19,7 @@ authors:
 - name: Jose A Bolanos
   affiliation: 6
 - name: Arabella Schelpe
+  orcid: 0009-0003-9046-3104
   affiliation: 7
 - name: Philip Seitz
   orcid: 0000-0003-3856-4090
@@ -41,31 +42,31 @@ authors:
 affiliations:
 - name: Qraftware, Toulouse, France
   index: 1
-- name: University of Science and Technology of China
+- name: University of Science and Technology of China, China
   index: 2
-- name: School of Physics and Applied Physics, Southern Illinois University, Carbondale, IL, 62901, USA
+- name: School of Physics and Applied Physics, Southern Illinois University, Carbondale, USA
   index: 3
-- name: Institute of Computing Technology, Chinese Academy of Sciences
+- name: Institute of Computing Technology, Chinese Academy of Sciences, China
   index: 4
 - name: Department of Computer Science, Northwestern University, United States
   index: 5
-- name: Independent Consultant
+- name: Independent Consultant, Finland
   index: 6
-- name: Independent Researcher
+- name: Independent Researcher, UK
   index: 7
-- name: Technical University of Munich, TUM School of Computation, Information and Technology
+- name: Technical University of Munich, TUM School of Computation, Information and Technology, Germany
   index: 8
 - name: Intel Corporation, Technology Research Group, Santa Clara, USA
   index: 9
-- name: Solvy
+- name: Solvy, Spain
   index: 10
-- name: Parity Quantum Computing Germany GmbH, 20095 Hamburg, Germany
+- name: Parity Quantum Computing Germany GmbH, Hamburg, Germany
   index: 11
 - name: VTT, Finland
   index: 12
-- name: PsiQuantum
+- name: PsiQuantum, Palo Alto, California, USA
   index: 13
-- name: Stairway Invest
+- name: Stairway Invest, Los Angeles, California, USA
   index: 14
 
 date: 27 August 2025
