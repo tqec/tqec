@@ -13,6 +13,6 @@ updates:
         - dependency-type: "direct"
       ignore:
         - dependency-name: "*"
-          update-types: ["version-update:semver-patch"]
+          update-types: ["version-update:semver-patch", "version-update:semver-minor"]
       labels:
         - "dependency update"
