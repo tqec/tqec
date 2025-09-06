@@ -19,52 +19,55 @@ authors:
 - name: Jose A Bolanos
   affiliation: 6
 - name: Arabella Schelpe
+  orcid: 0009-0003-9046-3104
   affiliation: 7
 - name: Philip Seitz
   orcid: 0000-0003-3856-4090
   affiliation: 8
 - name: Gian Giacomo Guerreschi
-  affiliation: 7
-- name: Ángela Elisa Álvarez Pérez
   affiliation: 9
-- name: Reinhard Stahn
+- name: Ángela Elisa Álvarez Pérez
   affiliation: 10
+- name: Reinhard Stahn
+  affiliation: 11
 - name: Jerome Lensen
   orcid: 0009-0008-7933-6848
-  affiliation: 11
-- name: Brendan Reid
   affiliation: 12
+- name: Brendan Reid
+  affiliation: 13
 - name: Austin Fowler
   equal_contrib: true
-  affiliation: 13
+  affiliation: 14
 
 affiliations:
 - name: Qraftware, Toulouse, France
   index: 1
-- name: University of Science and Technology of China
+- name: University of Science and Technology of China, China
   index: 2
-- name: School of Physics and Applied Physics, Southern Illinois University, Carbondale, IL, 62901, USA
+- name: School of Physics and Applied Physics, Southern Illinois University, Carbondale, USA
   index: 3
-- name: Institute of Computing Technology, Chinese Academy of Sciences
+- name: Institute of Computing Technology, Chinese Academy of Sciences, China
   index: 4
 - name: Department of Computer Science, Northwestern University, United States
   index: 5
-- name: Independent Consultant
+- name: Independent Consultant, Finland
   index: 6
-- name: Independent Researcher
+- name: Independent Researcher, UK
   index: 7
-- name: Technical University of Munich, TUM School of Computation, Information and Technology
+- name: Technical University of Munich, TUM School of Computation, Information and Technology, Germany
   index: 8
-- name: Solvy
+- name: Intel Corporation, Technology Research Group, Santa Clara, USA
   index: 9
-- name: Parity Quantum Computing Germany GmbH, 20095 Hamburg, Germany
+- name: Solvy, Spain
   index: 10
-- name: VTT, Finland
+- name: Parity Quantum Computing Germany GmbH, Hamburg, Germany
   index: 11
-- name: PsiQuantum
+- name: VTT, Finland
   index: 12
-- name: Stairway Invest
+- name: PsiQuantum, Palo Alto, California, USA
   index: 13
+- name: Stairway Invest, Los Angeles, California, USA
+  index: 14
 
 date: 27 August 2025
 bibliography: paper.bib
@@ -78,8 +81,7 @@ computation model represented as connected 3D primitive blocks and translates it
 fault-tolerant, physical-level circuit. The result is a `Stim` circuit with all the detailed
 information needed for simulation or to run on real quantum hardware. This enables both quantum algorithm
 designers and experimentalists to rapidly iterate and obtain exact low-level circuits, facilitating
-efficient performance simulation or experimental demonstration. The ‘Topological Quantum Error Correction’
-of the package name highlights the project’s focus on topological codes. At present, the project is
+efficient performance simulation or experimental demonstration. At present, `tqec` is
 primarily centered on the surface code.
 
 # Statement of Need
