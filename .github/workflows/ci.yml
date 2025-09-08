@@ -21,10 +21,12 @@ jobs:
         uses: actions/setup-python@v5
       - name: Install uv
         uses: astral-sh/setup-uv@v6
-      - name: Install dependencies
-        run: uv pip install --upgrade pip pre-commit
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv
+          uv pip install --upgrade pip pre-commit
       - name: Run pre-commit hooks
-        run: pre-commit run --all-files
+        run: uv run pre-commit run --all-files
 
   build-and-test-python:
     runs-on: ubuntu-latest
@@ -39,24 +41,24 @@ jobs:
         uses: actions/setup-python@v5
       - name: Install uv
         uses: astral-sh/setup-uv@v6
-      - name: Install dependencies
+      - name: Install dependencies after creating a virtual environment
         run: |
-          uv pip install --upgrade pip
+          uv venv
           uv pip install ".[all]"
           uv pip install pytest mypy
       - name: Build
         run: uv pip install -e .
       # Type check the code base.
       - name: Mypy type checking
-        run: mypy src/tqec/
+        run: uv run mypy src/tqec/
       # Perform the full tests (including slow ones) when pushing on main.
       - name: Complete tests
         if: github.ref == 'refs/heads/main'
-        run: uv pytest $(git ls-files '*_test.py')
+        run: uv run pytest $(git ls-files '*_test.py')
       # Only perform quick tests when pushing on a PR.
       - name: Partial tests
         if: github.ref != 'refs/heads/main'
-        run: uv pytest $(git ls-files '*_test.py') -m "not slow"
+        run: uv run pytest $(git ls-files '*_test.py') -m "not slow"
 
   coverage-python:
     runs-on: ubuntu-latest
@@ -70,8 +72,9 @@ jobs:
         uses: actions/setup-python@v5
       - name: Install uv
         uses: astral-sh/setup-uv@v6
-      - name: Install dependencies and tqec package
+      - name: Install dependencies and tqec package after creating virtual environment
         run: |
+          uv venv
           uv pip install --upgrade pip
           uv pip install -e '.[test]'
           uv pip install pytest pytest-cov
@@ -81,11 +84,11 @@ jobs:
         with:
           args: "format --check --diff"
       - name: Code health - lint
-        run: ruff check --fix
+        run: uv run ruff check --fix
       - name: Code coverage for partial tests
         if: github.ref != 'refs/heads/main'
         run: |
-          uv pytest --cov=tqec --cov-report=xml:coverage.xml --cov-report term-missing:skip-covered $(git ls-files '*_test.py') -m "not slow"
+          uv run pytest --cov=tqec --cov-report=xml:coverage.xml --cov-report term-missing:skip-covered $(git ls-files '*_test.py') -m "not slow"
       # Print code coverage if in PR
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
