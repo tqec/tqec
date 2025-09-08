@@ -64,7 +64,7 @@ Issues = "https://github.com/tqec/tqec/issues"
 test = [
   "pytest<=8.4.1",
   "mypy<=1.17.0",
-  "pytest-cov<=6.2.1",
+  "pytest-cov<=6.3.0",
   "types-networkx<=3.5.0.20250610",
   "scipy-stubs<=1.16.0.0",
 ]
