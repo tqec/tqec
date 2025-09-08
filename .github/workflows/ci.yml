@@ -22,7 +22,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
       - name: Install dependencies
-        run: uv pip install --upgrade pip pre-commit --system
+        run: uv pip install --upgrade pip pre-commit
       - name: Run pre-commit hooks
         run: pre-commit run --all-files
 
@@ -41,11 +41,11 @@ jobs:
         uses: astral-sh/setup-uv@v6
       - name: Install dependencies
         run: |
-          uv pip install --upgrade pip --system
-          uv pip install ".[all]" --system
-          uv pip install pytest mypy --system
+          uv pip install --upgrade pip
+          uv pip install ".[all]"
+          uv pip install pytest mypy
       - name: Build
-        run: uv pip install -e . --system
+        run: uv pip install -e .
       # Type check the code base.
       - name: Mypy type checking
         run: mypy src/tqec/
