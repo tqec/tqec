@@ -19,9 +19,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-          cache: "uv"
       - name: Install dependencies
         run: uv pip install --upgrade pip pre-commit
       - name: Run pre-commit hooks
@@ -38,9 +35,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "uv"
       - name: Install dependencies
         run: |
           uv pip install --upgrade pip
@@ -70,9 +64,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-          cache: "uv"
       - name: Install dependencies and tqec package
         run: |
           uv pip install --upgrade pip
