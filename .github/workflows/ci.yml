@@ -45,7 +45,6 @@ jobs:
         run: |
           uv venv
           uv pip install ".[all]"
-          uv pip install pytest mypy
       - name: Build
         run: uv pip install -e .
       # Type check the code base.
@@ -77,7 +76,6 @@ jobs:
           uv venv
           uv pip install --upgrade pip
           uv pip install -e '.[test]'
-          uv pip install pytest pytest-cov
       # Only perform quick tests when pushing on a PR
       - name: Code health - format
         uses: astral-sh/ruff-action@v3
