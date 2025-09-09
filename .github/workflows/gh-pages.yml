@@ -31,7 +31,6 @@ jobs:
           sudo apt-get install -y --no-install-recommends pandoc
           uv pip install --upgrade pip
           uv pip install -e '.[all]'
-          uv pip install sphinx-copybutton
       - uses: actions/cache@v4
         id: cache-docs
         with:
@@ -42,7 +41,8 @@ jobs:
           restore-keys: |
             docs_database_and_stim_results_cache
       - name: Generate the documentation
-        run: uv run make html
+        run: |
+          uv run --frozen make html
         working-directory: docs/
         # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
         # this is used to reduce the docs build time in the CI.
