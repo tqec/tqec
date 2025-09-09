@@ -43,7 +43,7 @@ jobs:
             docs_database_and_stim_results_cache
       - name: Generate the documentation
         run: |
-          source ../.venv/bin/activate
+          source .venv/bin/activate
           make html
         working-directory: docs/
         # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
