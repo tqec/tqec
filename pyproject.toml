@@ -47,6 +47,7 @@ dependencies = [
     "scipy<=1.15.3",
     "semver<=3.0.4",
     "sinter<=1.15.0",
+    "sphinx-design>=0.6.1",
     "stim<=1.15.0",
     "svg-py<=1.8.0",
     "tqecd<=0.1.2",
