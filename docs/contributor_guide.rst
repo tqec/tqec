@@ -18,8 +18,7 @@ If you want to help maintaining and improving the ``tqec`` package, you will nee
 to install a few more packages than the regular installation. It is also
 recommended to use an editable installation.
 
-Currently, ``tqec`` is compatible with Python 3.10, 3.11 and 3.12. Some dependencies limit the project's
-compatibility with Python 3.13.
+Currently, ``tqec`` is compatible with Python 3.10, 3.11, 3.12 and 3.13.
 
 .. code-block:: bash
 
@@ -27,7 +26,7 @@ compatibility with Python 3.13.
     git clone https://github.com/tqec/tqec.git
     # Install the library with developer dependencies
     # Note the "-e" option, that's important.
-    python -m pip install -e 'tqec[all]'
+    uv pip install -e 'tqec[all]'
     # Go in the tqec directory and enable pre-commit
     cd tqec
     pre-commit install
