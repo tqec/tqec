@@ -107,10 +107,10 @@ dev = [
 ]
 
 all = [
-    "tqec[test]",
-    "tqec[docs]",
-    "tqec[dev]",
-    "tqec[bench]",
+    {include-group = "test"},
+    {include-group = "docs"},
+    {include-group = "dev"},
+    {include-group = "bench"},
 ]
 
 [project.scripts]
