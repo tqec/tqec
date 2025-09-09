@@ -31,10 +31,21 @@ jobs:
           sudo apt-get install -y --no-install-recommends pandoc
           uv pip install --upgrade pip
           uv pip install -e '.[all]'
+      - uses: actions/cache@v4
+        id: cache-docs
+        with:
+          path: docs/_examples_database/
+          # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
+          key: docs_database_and_stim_results_cache-${{ github.run_id }}
+          enableCrossOsArchive: true
+          restore-keys: |
+            docs_database_and_stim_results_cache
       - name: Generate the documentation
         run: |
           uv run --group all make html
         working-directory: docs/
+        # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
+        # this is used to reduce the docs build time in the CI.
       - name: Deploy if 'main' branch
         uses: peaceiris/actions-gh-pages@v4
         # Only publish if we are on main!
