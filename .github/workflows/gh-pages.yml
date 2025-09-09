@@ -34,6 +34,7 @@ jobs:
       - name: Generate the documentation
         run: |
           uv run --group all make html
+        working-directory: docs/
       - name: Deploy if 'main' branch
         uses: peaceiris/actions-gh-pages@v4
         # Only publish if we are on main!
