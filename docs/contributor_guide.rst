@@ -24,11 +24,13 @@ Currently, ``tqec`` is compatible with Python 3.10, 3.11, 3.12 and 3.13.
 
     # Clone the repository to have local files to work on
     git clone https://github.com/tqec/tqec.git
-    # Install the library with developer dependencies
-    # Note the "-e" option, that's important.
-    uv pip install -e 'tqec[all]'
-    # Go in the tqec directory and enable pre-commit
+    # Go in the tqec directory
     cd tqec
+    # Install the library with developer dependencies
+    # Note the "-editable" option, that's important.
+    uv pip install --group all
+    uv pip install --editable .
+    # enable pre-commit
     pre-commit install
 
 .. warning::
