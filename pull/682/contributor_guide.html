@@ -459,11 +459,12 @@ recommended to use an editable installation.</p>
 <p>Currently, <code class="docutils literal notranslate"><span class="pre">tqec</span></code> is compatible with Python 3.10, 3.11, 3.12 and 3.13.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the repository to have local files to work on</span>
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/tqec.git
+<span class="c1"># Go in the tqec directory and</span>
 <span class="c1"># Install the library with developer dependencies</span>
 <span class="c1"># Note the &quot;-e&quot; option, that&#39;s important.</span>
-uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;tqec[all]&#39;</span>
-<span class="c1"># Go in the tqec directory and enable pre-commit</span>
 <span class="nb">cd</span><span class="w"> </span>tqec
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--editable<span class="w"> </span>.
+<span class="c1"># enable pre-commit</span>
 pre-commit<span class="w"> </span>install
 </pre></div>
 </div>
