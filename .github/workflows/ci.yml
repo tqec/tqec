@@ -73,7 +73,7 @@ jobs:
           python-version: "3.13"
       - name: Install uv
         uses: astral-sh/setup-uv@v6
-      - name: Install dependencies and tqec package after creating virtual environment
+      - name: Install dependencies and tqec package after creating a virtual environment
         run: |
           uv venv
           uv sync --group test
