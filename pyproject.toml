@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build >= 0.7.19, <0.9.0"]
+build-backend = "uv_build"
 
 [project]
 name = "tqec"
@@ -12,7 +12,7 @@ description = "A design automation framework for Topological Quantum Error Corre
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["topological quantum error correction", "qec"]
-requires-python = ">= 3.10"
+requires-python = ">= 3.10, <3.14"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -29,12 +29,31 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Quantum Computing",
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: User Interfaces",
   "Topic :: Utilities",
   "Typing :: Typed",
 ]
-dynamic = ["dependencies"]
+dependencies = [
+    "matplotlib<=3.10.3",
+    "networkx<=3.5",
+    "numpy<=2.2.6",
+    "platformdirs<=4.4.0",
+    "pycollada<=0.9.1",
+    "pycryptosat<=5.11.21",
+    "python-sat[cryptosat]<=1.8.dev20",
+    "pyzx<=0.9.0",
+    "scipy<=1.15.3",
+    "semver<=3.0.4",
+    "sinter<=1.15.0",
+    "sphinx-design>=0.6.1",
+    "stim<=1.15.0",
+    "svg-py<=1.8.0",
+    "tqecd<=0.1.2",
+    "typing-extensions<=4.15.0",
+]
+
 
 [project.urls]
 Website = "https://tqec.app"
@@ -42,7 +61,7 @@ Documentation = "https://tqec.github.io/tqec/"
 Repository = "https://github.com/tqec/tqec"
 Issues = "https://github.com/tqec/tqec/issues"
 
-[project.optional-dependencies]
+[dependency-groups]
 test = [
   "pytest<=8.4.1",
   "mypy<=1.17.0",
@@ -50,17 +69,8 @@ test = [
   "types-networkx<=3.5.0.20250610",
   "scipy-stubs<=1.16.0.0",
 ]
-dev = [
-  "pymatching<=2.3.0",
-  "jupyterlab<=4.4.3",
-  "tqec[test, doc, bench]",
-  "pre-commit<=4.3.0",
-  # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
-  # cannot afford someone installing a different version of ruff and being forbidden to commit
-  # anything because the different version sees some errors in the code.
-  "ruff==0.12.5",
-]
-doc = [
+
+docs = [
   "sphinx<=8.1.3",
   "myst-parser<=4.0.1",
   "pydata-sphinx-theme<=0.16.1",
@@ -73,8 +83,36 @@ doc = [
   "sphinxcontrib-bibtex<=2.64",
   "jupyter-sphinx<=0.5.3",
 ]
+
 bench = ["pyinstrument"]
-all = ["tqec[test, dev, doc, bench]"]
+
+dev = [
+    "jupyterlab<=4.4.3",
+    "mypy<=1.17.0",
+    "myst-parser<=4.0.1",
+    "nbsphinx<=0.9.7",
+    "pandoc<=2.4",
+    "pre-commit<=4.3.0",
+    "pydata-sphinx-theme<=0.16.1",
+    "pymatching<=2.3.0",
+    "pytest<=8.4.1",
+    "pytest-cov<=6.2.1",
+    # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
+    # cannot afford someone installing a different version of ruff and being forbidden to commit
+    # anything because the different version sees some errors in the code.
+    "ruff==0.12.5",
+    "scipy-stubs<=1.16.0.0",
+    "sphinx<=8.1.3",
+    "sphinxcontrib-mermaid<=1.0.0",
+    "types-networkx<=3.5.0.20250610",
+]
+
+all = [
+    {include-group = "test"},
+    {include-group = "docs"},
+    {include-group = "dev"},
+    {include-group = "bench"},
+]
 
 [project.scripts]
 tqec = "tqec._cli.tqec:main"
