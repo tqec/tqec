@@ -18,34 +18,63 @@ If you want to help maintaining and improving the ``tqec`` package, you will nee
 to install a few more packages than the regular installation. It is also
 recommended to use an editable installation.
 
-Currently, ``tqec`` is compatible with Python 3.10, 3.11 and 3.12. Some dependencies limit the project's
-compatibility with Python 3.13.
+Currently, ``tqec`` is compatible with Python 3.10, 3.11, 3.12 and 3.13. You can install the editable version
+of ``tqec`` through ``pip`` or ``uv``.
 
-.. code-block:: bash
+.. tab-set::
 
-    # Clone the repository to have local files to work on
-    git clone https://github.com/tqec/tqec.git
-    # Install the library with developer dependencies
-    # Note the "-e" option, that's important.
-    python -m pip install -e 'tqec[all]'
-    # Go in the tqec directory and enable pre-commit
-    cd tqec
-    pre-commit install
+    .. tab-item:: pip
+
+        .. code-block:: bash
+
+            # Clone the repository to have local files to work on
+              git clone https://github.com/tqec/tqec.git
+              # Install the library with developer dependencies
+              # Note the "-e" option, that's important.
+              python -m pip install -e 'tqec[all]'
+              # Go in the tqec directory and enable pre-commit
+              cd tqec
+              pre-commit install
+
+        .. attention::
+            The ``-e`` option to the ``python -m pip install`` call is **important** as it installs an editable version
+            of ``tqec``. Without that option, changes made in the folder ``tqec`` will **not** be reflected on the
+            ``tqec`` package installed.
+
+            Without the ``-e`` option, ``pip`` copies all the files it needs (mainly, the code) to the current Python
+            package folder. Any modification to the original ``tqec`` folder you installed the package from
+            will not be reflected automatically on the copied files, which will limit your ability to test new
+            changes on the code base. The ``-e`` option tells ``pip`` to create a link instead of copying, which means
+            that the code in the ``tqec`` folder will be the code used when importing ``tqec``.
+
+    .. tab-item:: uv
+
+        .. code-block:: bash
+
+            # Clone the repository to have local files to work on
+            git clone https://github.com/tqec/tqec.git
+            # Go in the tqec directory
+            cd tqec
+            # Install the library with developer dependencies
+            # Note the "-editable" option, that's important.
+            uv sync --group all
+            # enable pre-commit
+            uv run pre-commit install
+
+        .. attention::
+            Note that compared to ``pip``, we do not need to explicitly provide a flag for an editable installation in ``uv``.
+            By default, ``uv sync`` will install an editable version of ``tqec``. Without the editable installation, changes
+            made in the folder ``tqec`` will **not** be reflected on the installed ``tqec`` package.
+
+            Without ``sync``, ``uv`` copies all the files it needs (mainly, the code) to the current Python
+            package folder. Any modification to the original ``tqec`` folder you installed the package from
+            will not be reflected automatically on the copied files, which will limit your ability to test new
+            changes on the code base.
+
 
 .. warning::
-    You will have to install ``pandoc`` separately as the instructions above only install a ``pandoc`` wrapper.
+    You might have to install ``pandoc`` separately as the instructions above only install a ``pandoc`` wrapper.
     See https://stackoverflow.com/a/71585691 for more info.
-
-.. warning::
-    The ``-e`` option to the ``python -m pip install`` call is **important** as it installs an editable version
-    of ``tqec``. Without that option, changes made in the folder ``tqec`` will **not** be reflected on the
-    ``tqec`` package installed.
-
-    Without the ``-e`` option, ``pip`` copies all the files it needs (mainly, the code) to the current Python
-    package folder. Any modification to the original ``tqec`` folder you installed the package from
-    will not be reflected automatically on the copied files, which will limit your ability to test new
-    changes on the code base. The ``-e`` option tells ``pip`` to create a link instead of copying, which means
-    that the code in the ``tqec`` folder will be the code used when importing ``tqec``.
 
 If you encounter any issue during the installation, please refer to :ref:`installation` for more information.
 

@@ -1,14 +1,14 @@
-"""Defines functions to plot positioned ZX graphs and correlation surfaces on
-3D axes with ``matplotlib``.
-"""
+"""Defines functions to plot positioned ZX graphs and correlation surfaces on 3D axes."""
 
 from dataclasses import astuple
 from typing import cast
 
+import matplotlib.pyplot as plt
 import numpy
 import numpy.typing as npt
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d.axes3d import Axes3D
+from pyzx import draw_3d
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb
 
@@ -19,7 +19,7 @@ from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phas
 from tqec.utils.position import Position3D
 
 
-def _node_color(g: GraphS, v: int) -> RGBA:
+def _node_color(g: GraphS, v: int) -> RGBA:  # pragma: no cover
     assert not is_boundary(g, v)
     if is_s(g, v):
         return TQECColor.Y.rgba
@@ -28,7 +28,7 @@ def _node_color(g: GraphS, v: int) -> RGBA:
     return TQECColor.X.rgba
 
 
-def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:
+def _positions_array(*positions: Position3D) -> npt.NDArray[numpy.int_]:  # pragma: no cover
     return numpy.array([astuple(p) for p in positions]).T
 
 
@@ -40,8 +40,7 @@ def draw_positioned_zx_graph_on(
     hadamard_size: int = 200,
     edge_width: int = 1,
 ) -> None:
-    """Draw the :py:class:`~tqec.interop.pyzx.PositionedZX` on the provided
-    axes.
+    """Draw the :py:class:`~tqec.interop.pyzx.PositionedZX` on the provided axes.
 
     Args:
         graph: The positioned ZX graph to draw.
@@ -104,7 +103,7 @@ def draw_correlation_surface_on(
 
     Args:
         correlation_surface: The correlation surface to draw.
-        positioned_graph: The positioned ZX graph to draw the correlation surface on.
+        graph: The positioned ZX graph to draw the correlation surface on.
         ax: The 3-dimensional ax to draw on.
         correlation_edge_width: The width of the correlation edges. Default is 3.
 
@@ -136,8 +135,7 @@ def plot_positioned_zx_graph(
     hadamard_size: int = 200,
     edge_width: int = 1,
 ) -> tuple[Figure, Axes3D]:
-    """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using
-    matplotlib.
+    """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.
 
     Args:
         graph: The positioned ZX graph to plot.
@@ -151,8 +149,6 @@ def plot_positioned_zx_graph(
         A tuple of the figure and the axes.
 
     """
-    import matplotlib.pyplot as plt
-
     fig = plt.figure(figsize=figsize)
     ax = cast(Axes3D, fig.add_subplot(111, projection="3d"))
 
@@ -183,8 +179,6 @@ def pyzx_draw_positioned_zx_3d(
         pauli_web: The Pauli web to draw. Default is None.
 
     """
-    from pyzx import draw_3d
-
     plot_g = g.g.clone()
     for v in plot_g.vertices():
         position = g.positions[v]

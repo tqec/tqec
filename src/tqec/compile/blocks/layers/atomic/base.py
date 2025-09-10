@@ -21,6 +21,7 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
     footprint remains fixed at ``1``, representing a single layer. To stack layers
     over time or repeat them in a scalable manner, use
     :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer` instead.
+
     """
 
     @property

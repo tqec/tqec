@@ -4,7 +4,15 @@
 
 # TQEC
 
-TQEC(Topological Quantum Error Correction) is a design automation software for representing,
+![Python](https://img.shields.io/badge/python-3.10%20|%203.11%20|%203.12%20|%203.13-blue)
+[![build](https://github.com/tqec/tqec/actions/workflows/ci.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/ci.yml)
+[![docs](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/tqec/tqec/actions/workflows/gh-pages.yml)
+[![Stars](https://img.shields.io/github/stars/tqec/tqec.svg)](https://github.com/tqec/tqec/stargazers)
+[![Star History Chart](https://img.shields.io/badge/📈-Star%20History-blue?style=flat-square)](https://www.star-history.com/#tqec/tqec&Date)
+[![Legal Notice](https://img.shields.io/badge/docs-legal%20notice-blue)](https://tqec.github.io/tqec/legal_notice.html)
+[![Licensed under the Apache 2.0 open-source license](https://img.shields.io/badge/License-Apache%202.0-blue.svg?logo=opensourceinitiative)](https://github.com/tqec/tqec/blob/main/LICENSE)
+
+TQEC (Topological Quantum Error Correction) is a design automation software for representing,
 constructing and compiling large-scale fault-tolerant quantum computations based on surface code and lattice surgery.
 
 In the past decade, there have been significant advancements in surface code quantum computation based on lattice surgery.
@@ -15,19 +23,32 @@ As a result, many complex logical computations have not been practically simulat
 `tqec` provides numerous building blocks based on state-of-the-art protocols, with verified correct circuits implementation for each block.
 These blocks can then be combined to construct large-scale logical computations, enabling the automatic compilation of large-scale computational circuits.
 
-**Note:** This project is under active development and provide no backwards compatibility at current stage.
+> **_NOTE:_** This project is under active development and provide no backwards compatibility at current stage.
 
-## Documentation
+<p align="center">
+  <a href="https://tqec.github.io/tqec/">
+  <img width=30% src="https://img.shields.io/badge/documentation-blue?style=for-the-badge&logo=read%20the%20docs" alt="Documentation" />
+  </a>
+</p>
 
 Documentation is available at <https://tqec.github.io/tqec/index.html>
 
 ## Installation
 
-Currently, you need to install `tqec` from source:
+Currently, you need to install `tqec` from source with `pip` or [`uv`](https://docs.astral.sh/uv/):
 
-```sh
+````{tab-set-code}
+
+
+```{code-block} pip
 python -m pip install git+https://github.com/tqec/tqec.git
 ```
+
+```{code-block} uv
+uv pip install git+https://github.com/tqec/tqec.git
+```
+
+````
 
 For a more detailed installation guide and common troubleshooting tips, see the [installation page](https://tqec.github.io/tqec/user_guide/installation.html) in the documentation.
 
@@ -85,3 +106,15 @@ Here are some helpful links to learn more about the community:
 All the resources and group meeting recordings are available at [this link](https://docs.google.com/spreadsheets/d/11DSA2wzKLOrfTGNHunFvzsMYeO7jZ8Ny8kpzoC_wKQg/edit?resourcekey=0-PdGFkp5s-4XWihMSxk0UIg&gid=0#gid=0).
 
 Please join the [Google group](https://groups.google.com/g/tqec-design-automation) to receive more updates and information!
+
+---
+> ### **Legal Notice**
+>
+> This library is intended for **academic, educational, and civilian research only**, in the field of **fault-tolerant quantum computing**, particularly in **surface code compilation** and **topological error correction**.
+>
+> It is made freely and publicly available without access restrictions, in the interest of advancing **open scientific and academic collaboration**.
+>
+> **Use in military, surveillance, or dual-use applications is strictly prohibited.**
+>
+> Please, review the full [`LEGAL_NOTICE.md`](https://github.com/tqec/tqec/blob/main/LEGAL_NOTICE.md) for important terms regarding **export control**, **ethical use**, and **contributor responsibilities**.
+---

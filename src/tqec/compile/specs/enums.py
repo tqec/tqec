@@ -17,9 +17,9 @@ class SpatialArms(Flag):
 
     @staticmethod
     def from_cube_in_graph(cube: Cube, graph: BlockGraph) -> SpatialArms:
-        """Returns the spatial arms of a cube in a block graph."""
+        """Return the spatial arms of a cube in a block graph."""
         if not cube.is_spatial:
-            return SpatialArms.NONE
+            return SpatialArms.NONE  # pragma: no cover
         pos = cube.position
         if pos not in graph or graph[pos] != cube:
             raise TQECError(f"Cube {cube} is not in the graph.")
@@ -38,8 +38,10 @@ class SpatialArms(Flag):
 
     @classmethod
     def get_map_from_arm_to_shift(cls) -> dict[SpatialArms, tuple[int, int]]:
-        """Return a mapping from any **single** arm to the shift needed to get the cube at the other
-        end of that arm.
+        """Return a mapping from any single arm to 2-dimensional shifts.
+
+        The returned shifts are the shift needed to get the cube at the other end of the associated
+        single arm.
 
         If a block ``B`` has a LEFT arm, the other end of the arm is the coordinates of ``B``
         shifted by ``(-1, 0)``. Hence,
@@ -48,6 +50,10 @@ class SpatialArms(Flag):
         Warning:
             In TQEC convention, the ``Y`` axis is pointing **downwards**. That means that UP is
             linked to ``(0, -1)`` in the returned dictionary.
+
+        Returns:
+            a mapping from any single arm to the shift needed to get the cube at the other end of
+            that arm.
 
         """
         return {
@@ -62,6 +68,7 @@ class SpatialArms(Flag):
         """Return the 2 arm combinations that form a I-shape.
 
         The 2 combinations are UP | DOWN and LEFT | RIGHT.
+
         """
         return [
             SpatialArms.DOWN | SpatialArms.UP,
@@ -73,8 +80,9 @@ class SpatialArms(Flag):
         """Return the 4 arm combinations that form a L-shape.
 
         The 4 combinations are DOWN | LEFT, DOWN | RIGHT, UP | LEFT and UP | RIGHT.
+
         """
-        return [
+        return [  # pragma: no cover
             SpatialArms.DOWN | SpatialArms.LEFT,
             SpatialArms.DOWN | SpatialArms.RIGHT,
             SpatialArms.UP | SpatialArms.LEFT,
@@ -84,7 +92,7 @@ class SpatialArms(Flag):
     @staticmethod
     def T_shaped_arms() -> list[SpatialArms]:
         """Return the 4 arm combinations that form a T-shape."""
-        return [
+        return [  # pragma: no cover
             SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP,
             SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT,
             SpatialArms.UP | SpatialArms.RIGHT | SpatialArms.DOWN,
@@ -94,7 +102,9 @@ class SpatialArms(Flag):
     @staticmethod
     def X_shaped_arms() -> list[SpatialArms]:
         """Return the only arm combinations that form a X-shape (i.e., all the arms)."""
-        return [SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT]
+        return [  # pragma: no cover
+            SpatialArms.DOWN | SpatialArms.LEFT | SpatialArms.UP | SpatialArms.RIGHT
+        ]
 
     @staticmethod
     def single_arms() -> list[SpatialArms]:
@@ -110,7 +120,7 @@ class SpatialArms(Flag):
         return sum(arm in self for arm in SpatialArms.single_arms())
 
     def __iter__(self) -> Iterator[SpatialArms]:
-        yield from (arm for arm in SpatialArms.single_arms() if arm in self)
+        yield from (arm for arm in SpatialArms.single_arms() if arm in self)  # pragma: no cover
 
     def __repr__(self) -> str:
         if self == SpatialArms.NONE:

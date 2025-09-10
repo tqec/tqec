@@ -30,7 +30,7 @@ DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER: Final[int] = 1
 def contains_only_plaquette_layers(
     layers: dict[LayoutPosition2D, BaseLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, PlaquetteLayer]]:
-    """Helper function to ensure correct typing."""
+    """Ensure correct typing when used in a conditional block."""
     return all(isinstance(layer, PlaquetteLayer) for layer in layers.values())
 
 
@@ -40,7 +40,7 @@ class LayoutLayer(BaseLayer):
         layers: dict[LayoutPosition2D, BaseLayer],
         element_shape: PhysicalQubitScalable2D,
     ) -> None:
-        """A layer gluing several other layers together on a 2-dimensional grid.
+        """Glue several other layers together on a 2-dimensional grid.
 
         Args:
             layers: a mapping from positions on the 2-dimensional space to
@@ -120,9 +120,11 @@ class LayoutLayer(BaseLayer):
             and self.layers == value.layers
         )
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
-        """Return an equivalent representation of ``self`` with a template and some
-        plaquettes.
+        """Return an equivalent representation of ``self`` with a template and some plaquettes.
 
         Raises:
             NotImplementedError: if not all layers composing ``self`` are instances

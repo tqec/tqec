@@ -9,6 +9,7 @@ STEANE_CODE_DAE = GALLERY_DAE_DIR / "steane_encoding.dae"
 
 def steane_encoding(observable_basis: Basis | None = None) -> BlockGraph:
     """Create a block graph that represents a Steane encoding circuit.
+
     The block graph is created from a DAE file that describes the circuit.
 
     Args:

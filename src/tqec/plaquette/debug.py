@@ -17,7 +17,7 @@ from tqec.visualisation.computation.plaquette.rpng import RPNGPlaquetteDrawer
 class DrawPolygon:
     qubits_by_basis: dict[PauliBasis, list[GridQubit]] | PauliBasis
 
-    def to_json(self) -> dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:  # pragma: no cover
         """Serialize ``self`` as a JSON-like dictionary."""
         if isinstance(self.qubits_by_basis, PauliBasis):
             return {"basis": self.qubits_by_basis.value}
@@ -27,7 +27,7 @@ class DrawPolygon:
         }
 
     @staticmethod
-    def from_json(data: dict[str, Any]) -> DrawPolygon:
+    def from_json(data: dict[str, Any]) -> DrawPolygon:  # pragma: no cover
         """Deserialize ``self`` from a JSON-like dictionary."""
         if "basis" in data:
             return DrawPolygon(PauliBasis(data["basis"]))
@@ -66,9 +66,7 @@ class PlaquetteDebugInformation:
         return None
 
     def with_data_qubits_removed(self, removed_data_qubits: list[int]) -> PlaquetteDebugInformation:
-        """Returns a copy of ``self`` with the debug information concerning the provided
-        ``removed_data_qubits`` qubit indices removed.
-        """
+        """Return a copy of ``self`` without any information on ``removed_data_qubits``."""
         if self.rpng is None:
             return self
         corners: list[RPNG] = list(self.rpng.corners)
@@ -128,7 +126,7 @@ class PlaquetteDebugInformation:
             ),
         )
 
-    def get_svg_drawer(self) -> SVGPlaquetteDrawer:
+    def get_svg_drawer(self) -> SVGPlaquetteDrawer:  # pragma: no cover
         """Get a drawer to draw the plaquette associated to ``self``."""
         if self.drawer is not None:
             return self.drawer

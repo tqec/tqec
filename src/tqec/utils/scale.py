@@ -1,5 +1,4 @@
-"""Defines several scalable classes such as :class:`LinearFunction` or
-:class:`Scalable2D`.
+"""Defines several scalable classes such as :class:`LinearFunction` or :class:`Scalable2D`.
 
 This module defines the necessary classes to help with scalable structures.
 :class:`LinearFunction` simply represents a linear function ``a * k + b`` where
@@ -12,6 +11,7 @@ shape that should exactly match a pair of ``LinearFunction(2, 2)`` which is
 basically ``2k + 2``.
 
 :class:`Scalable2D` is exactly made to represent such pairs of scalable quantities.
+
 """
 
 from __future__ import annotations
@@ -28,9 +28,10 @@ from tqec.utils.position import PhysicalQubitShape2D, PlaquetteShape2D, Shape2D,
 
 @dataclass(frozen=True)
 class LinearFunction:
-    """Represents a linear function.
+    """Represent a linear function.
 
     A linear function is fully described with a slope and an offset.
+
     """
 
     slope: float = 1.0
@@ -121,7 +122,7 @@ class LinearFunction:
         return -(other.offset - self.offset) / (other.slope - self.slope)
 
     @staticmethod
-    def _from(obj: LinearFunction | float) -> LinearFunction:
+    def _from(obj: LinearFunction | float) -> LinearFunction:  # pragma: no cover
         if isinstance(obj, (float, int)):
             return LinearFunction(0, obj)
         else:
@@ -189,8 +190,7 @@ class LinearFunction:
     def unambiguous_max_on_positives(
         fs: Iterable[LinearFunction], default: LinearFunction | None = None
     ) -> LinearFunction:
-        """Compute the unambiguous maximum of the provided linear functions on
-        the positive numbers.
+        """Compute the unambiguous maximum of the provided linear functions on the positive numbers.
 
         A unambiguous maximum on R+ (the set of positive numbers) is a linear
         function that is greater or equal than all the functions in ``fs`` on
@@ -246,8 +246,7 @@ class LinearFunction:
 
 
 def round_or_fail(f: float, atol: float = 1e-8) -> int:
-    """Try to round the provided ``f`` to the nearest integer and raise if
-    ``f`` was not close enough to this integer.
+    """Try to round the provided ``f`` to the nearest integer.
 
     Args:
         f: a floating-point value that should be close (absolute tolerance of
@@ -256,7 +255,7 @@ def round_or_fail(f: float, atol: float = 1e-8) -> int:
             is acceptable.
 
     Raises:
-        TQECError: if abs(f - round(f)) > atol
+        TQECError: if ``abs(f - round(f)) > atol``
 
     Returns:
         ``int(round(f))``

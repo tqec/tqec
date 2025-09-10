@@ -22,7 +22,7 @@ class ExtendedPlaquettePosition(Enum):
     DOWN = "DOWN"
 
     def flip(self) -> ExtendedPlaquettePosition:
-        """Returns the opposite direction."""
+        """Return the opposite direction."""
         match self:
             case ExtendedPlaquettePosition.UP:
                 return ExtendedPlaquettePosition.DOWN
@@ -178,7 +178,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Element:
-        """Returns the plaquette shape, uniformly filled with the appropriate color.
+        """Return the plaquette shape, uniformly filled with the appropriate color.
 
         Args:
             configuration: drawing configuration.
@@ -207,9 +207,10 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> list[svg.Text]:
-        """Returns one SVG element per non-empty corners, each containing a text
-        element with the time slice at which a 2-qubit operation is applied on
-        the corner qubit.
+        """Return a SVG element containing data-qubit interaction orders as text.
+
+        This function returns one SVG element per non-empty corners, each containing a text element
+        with the time slice at which a 2-qubit operation is applied on the corner qubit.
 
         Args:
             configuration: drawing configuration.
@@ -267,8 +268,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.Line | None:
-        """Returns a SVG line showing the direction of the hook error, or ``None``
-        if there is no hook error.
+        """Return a SVG line showing the direction of the hook error.
 
         Args:
             configuration: drawing configuration.
@@ -317,7 +317,9 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
         self,
         configuration: DrawerConfiguration = DrawerConfiguration(),
     ) -> svg.G:
-        """Args:
+        """Return a SVG layer containing a representation of data-qubit resets/measurements.
+
+        Args:
             configuration: drawing configuration.
 
         Returns:

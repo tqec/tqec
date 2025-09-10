@@ -28,8 +28,9 @@ class PlaquetteQubits:
         self,
         orientation: Orientation = Orientation.HORIZONTAL,
     ) -> list[GridQubit]:
-        """Return the data qubits on the edge of the plaquette. By convention,
-        the edge is the one with the highest index in the relevant axis.
+        """Return the data qubits on the edge of the plaquette.
+
+        By convention, the edge is the one with the highest index in the relevant axis.
 
         Args:
             orientation (TemplateOrientation, optional): Whether to use horizontal or
@@ -75,7 +76,7 @@ class PlaquetteQubits:
             return [q for q in self if q.y == max_y]
 
     def __hash__(self) -> int:
-        return hash((tuple(self.syndrome_qubits), tuple(self.data_qubits)))
+        return hash((tuple(self.syndrome_qubits), tuple(self.data_qubits)))  # pragma: no cover
 
     def __eq__(self, rhs: object) -> bool:
         return (
@@ -144,7 +145,7 @@ class PlaquetteQubits:
 
 class SquarePlaquetteQubits(PlaquetteQubits):
     def __init__(self) -> None:
-        """Represents the qubits used by a regular square plaquette."""
+        """Represent the qubits used by a regular square plaquette."""
         super().__init__(
             # Order is important here! Top-left, top-right, bottom-left,
             # bottom-right.

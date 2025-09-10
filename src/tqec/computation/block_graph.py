@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import math
 import pathlib
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, cast
@@ -14,14 +14,7 @@ import numpy as np
 from networkx import Graph, is_connected
 from networkx.utils import graphs_equal
 
-from tqec.computation.cube import (
-    Cube,
-    CubeKind,
-    Port,
-    YHalfCube,
-    ZXCube,
-    cube_kind_from_string,
-)
+from tqec.computation.cube import Cube, CubeKind, Port, YHalfCube, ZXCube, cube_kind_from_string
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
@@ -159,16 +152,14 @@ class BlockGraph:
     def ports(self) -> dict[str, Position3D]:
         """Mapping from port labels to their positions.
 
-        A port is a virtual node with unique label that represents the
-        input/output of the computation. It should be invisible when visualizing
-        the computation model.
+        A port is a virtual node with a unique label that represents the input/output of the
+        computation. It should be invisible when visualizing the computation model.
+
         """
         return dict(self._ports)
 
     def get_degree(self, position: Position3D) -> int:
-        """Get the degree of a node in the graph, i.e. the number of edges
-        incident to it.
-        """
+        """Get the degree of a node in the graph, i.e. the number of edges incident to it."""
         return self._graph.degree(position)  # type: ignore
 
     @property
@@ -294,8 +285,7 @@ class BlockGraph:
         return self._graph.has_edge(pos1, pos2)
 
     def get_pipe(self, pos1: Position3D, pos2: Position3D) -> Pipe:
-        """Get the pipe by its endpoint positions. If there is no pipe between
-        the given positions, an exception will be raised.
+        """Get the pipe by its endpoint positions.
 
         Args:
             pos1: The first endpoint position.
@@ -336,15 +326,17 @@ class BlockGraph:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BlockGraph):
-            return False
+            return False  # pragma: no cover
         return (
             graphs_equal(self._graph, other._graph)  # type: ignore
             and self._ports == other._ports
         )
 
+    def __hash__(self) -> int:
+        return hash(self._name)  # pragma: no cover
+
     def validate(self) -> None:
-        """Check the validity of the block graph to represent a logical
-        computation.
+        """Check the validity of the block graph to represent a logical computation.
 
         Refer to the Fig.9 in arXiv:2404.18369. Currently, we ignore the b) and e),
         only check the following conditions:
@@ -410,7 +402,8 @@ class BlockGraph:
             converted from the block graph.
 
         """
-        from tqec.interop.pyzx.positioned import PositionedZX
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.positioned import PositionedZX  # noqa: PLC0415
 
         return PositionedZX.from_block_graph(self)
 
@@ -418,7 +411,7 @@ class BlockGraph:
         self,
         file_path: str | pathlib.Path,
         pipe_length: float = 2.0,
-        pop_faces_at_direction: SignedDirection3D | str | None = None,
+        pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
         show_correlation_surface: CorrelationSurface | None = None,
     ) -> None:
         """Write the block graph to a Collada DAE file.
@@ -426,20 +419,21 @@ class BlockGraph:
         Args:
             file_path: The output file path.
             pipe_length: The length of the pipes. Default is 2.0.
-            pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
+            pop_faces_at_directions: Remove the faces at the given directions for all the blocks.
                 This is useful for visualizing the internal structure of the blocks.
                 Default is None.
             show_correlation_surface: The correlation surface to show in the block graph.
                 Default is None.
 
         """
-        from tqec.interop.collada.read_write import write_block_graph_to_dae_file
+        # Needs to be imported here to avoid pulling collada when importing this module.
+        from tqec.interop.collada.read_write import write_block_graph_to_dae_file  # noqa: PLC0415
 
         write_block_graph_to_dae_file(
             self,
             file_path,
             pipe_length,
-            pop_faces_at_direction,
+            pop_faces_at_directions,
             show_correlation_surface,
         )
 
@@ -456,7 +450,8 @@ class BlockGraph:
             constructed from the DAE file.
 
         """
-        from tqec.interop.collada.read_write import read_block_graph_from_dae_file
+        # Needs to be imported here to avoid pulling collada when importing this module.
+        from tqec.interop.collada.read_write import read_block_graph_from_dae_file  # noqa: PLC0415
 
         return read_block_graph_from_dae_file(filename, graph_name)
 
@@ -464,7 +459,7 @@ class BlockGraph:
         self,
         write_html_filepath: str | pathlib.Path | None = None,
         pipe_length: float = 2.0,
-        pop_faces_at_direction: SignedDirection3D | str | None = None,
+        pop_faces_at_directions: Iterable[SignedDirection3D | str] = (),
         show_correlation_surface: CorrelationSurface | None = None,
     ) -> _ColladaHTMLViewer:
         """View COLLADA model in html with the help of ``three.js``.
@@ -475,7 +470,7 @@ class BlockGraph:
             write_html_filepath: The output html file path to write the generated html content
                 if provided. Default is None.
             pipe_length: The length of the pipes. Default is 2.0.
-            pop_faces_at_direction: Remove the faces at the given direction for all the blocks.
+            pop_faces_at_directions: Remove the faces at the given directions for all the blocks.
                 This is useful for visualizing the internal structure of the blocks.
                 Default is None.
             show_correlation_surface: The correlation surface to show in the block graph.
@@ -486,15 +481,16 @@ class BlockGraph:
             can be directly displayed in IPython compatible environments.
 
         """
-        from tqec.interop.collada.html_viewer import display_collada_model
-        from tqec.interop.collada.read_write import write_block_graph_to_dae_file
+        # Needs to be imported here to avoid pulling collada when importing this module.
+        from tqec.interop.collada.html_viewer import display_collada_model  # noqa: PLC0415
+        from tqec.interop.collada.read_write import write_block_graph_to_dae_file  # noqa: PLC0415
 
         bytes_buffer = BytesIO()
         write_block_graph_to_dae_file(
             self,
             bytes_buffer,
             pipe_length,
-            pop_faces_at_direction,
+            pop_faces_at_directions,
             show_correlation_surface,
         )
         return display_collada_model(
@@ -503,8 +499,7 @@ class BlockGraph:
         )
 
     def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> BlockGraph:
-        """Shift the whole graph by the given offset in the x, y, z directions and
-        creat a new graph with the shifted positions.
+        """Shift a copy of ``self`` by the given offset in the x, y, z directions and return it.
 
         Args:
             dx: The offset in the x direction.
@@ -544,7 +539,8 @@ class BlockGraph:
             The list of correlation surfaces.
 
         """
-        from tqec.interop.pyzx.correlation import find_correlation_surfaces
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.correlation import find_correlation_surfaces  # noqa: PLC0415
 
         zx_graph = self.to_zx_graph()
 
@@ -585,9 +581,10 @@ class BlockGraph:
             self._ports.pop(label)
 
     def fill_ports_for_minimal_simulation(self) -> list[FilledGraph]:
-        """Given a block graph with open ports, fill in the ports with the appropriate
-        cubes that will minimize the number of simulation runs needed for the complete
-        logical observable set.
+        """Fill the ports of the provided ``graph`` to minimize the number of simulation runs.
+
+        Given a block graph with open ports, fill in the ports with the appropriate cubes that
+        will minimize the number of simulation runs needed for the complete logical observable set.
 
         Returns:
             A list of :class:`~tqec.computation.open_graph.FilledGraph` instances, each
@@ -596,7 +593,8 @@ class BlockGraph:
             block graph.
 
         """
-        from tqec.computation.open_graph import fill_ports_for_minimal_simulation
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.computation.open_graph import fill_ports_for_minimal_simulation  # noqa: PLC0415
 
         return fill_ports_for_minimal_simulation(self)
 
@@ -676,8 +674,9 @@ class BlockGraph:
         return composed_g
 
     def is_single_connected(self) -> bool:
-        """Check if the graph is single connected, i.e. there is only one connected
-        component in the graph.
+        """Check if the graph is single connected.
+
+        A block graph is single-connected if there is only one connected component in the graph.
         """
         return bool(is_connected(self._graph))
 
@@ -687,8 +686,7 @@ class BlockGraph:
         counterclockwise: bool = True,
         num_90_degree_rotation: int = 1,
     ) -> BlockGraph:
-        """Rotate the graph around an axis by 0, 90, 180, or 270 degrees and
-        create a new graph with the rotated positions.
+        """Rotate a copy of ``self`` around an axis by a multiple of 90 degrees and return it.
 
         Args:
             rotation_axis: The axis to rotate around.
@@ -700,7 +698,8 @@ class BlockGraph:
             with the original graph.
 
         """
-        from tqec.utils.rotations import (
+        # Needs to be imported here to avoid pulling scipy when importing this module.
+        from tqec.utils.rotations import (  # noqa: PLC0415
             get_rotation_matrix,
             rotate_block_kind_by_matrix,
             rotate_position_by_matrix,
@@ -894,7 +893,8 @@ class BlockGraph:
             constructed from the DAE file.
 
         """
-        from tqec.interop.collada.read_write import read_block_graph_from_json
+        # Needs to be imported here to avoid pulling collada when importing this module.
+        from tqec.interop.collada.read_write import read_block_graph_from_json  # noqa: PLC0415
 
         return read_block_graph_from_json(filename, graph_name)
 

@@ -13,8 +13,9 @@ Warning:
 """
 
 import itertools
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 import pytest
 from typing_extensions import TypeVarTuple, Unpack
@@ -71,7 +72,7 @@ def generate_circuit_and_assert(
             g.view_as_html(
                 surface_dir / f"correlation_surface_{i}.html",
                 show_correlation_surface=surface,
-                pop_faces_at_direction="-Y",
+                pop_faces_at_directions=("-Y",),
             )
 
     compiled_graph = compile_block_graph(g, convention, correlation_surfaces)

@@ -18,8 +18,7 @@ class RawCircuitLayer(BaseLayer):
         scalable_num_moments: LinearFunction,
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
     ):
-        """Represents a layer with a spatial footprint that is defined by a raw
-        circuit.
+        """Represent a layer with a spatial footprint that is defined by a raw circuit.
 
         Args:
             circuit_factory: a function callable returning a quantum circuit for
@@ -48,7 +47,7 @@ class RawCircuitLayer(BaseLayer):
     @property
     def circuit_factory(self) -> Callable[[int], ScheduledCircuit]:
         """Get the callable used to generate a scalable quantum circuit from the scaling factor."""
-        return self._circuit_factory
+        return self._circuit_factory  # pragma: no cover
 
     @property
     @override
@@ -67,7 +66,10 @@ class RawCircuitLayer(BaseLayer):
     def __eq__(self, value: object) -> bool:
         raise NotImplementedError()
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     @property
     @override
     def scalable_num_moments(self) -> LinearFunction:
-        return self._scalable_num_moments
+        return self._scalable_num_moments  # pragma: no cover

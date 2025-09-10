@@ -20,19 +20,24 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-          cache: "pip"
-      - name: Install dependencies
-        run: python -m pip install --upgrade pip pre-commit
+          python-version: "3.13"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv
+          uv sync --group dev
       - name: Run pre-commit hooks
-        run: pre-commit run --all-files
+        run: uv run pre-commit run --all-files
 
   build-and-test-python:
     runs-on: ubuntu-latest
     needs: pre-commit-ci
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       # Checkout and install TQEC
       - uses: actions/checkout@v4
@@ -40,25 +45,25 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
-      - name: Install dependencies
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install dependencies after creating a virtual environment
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt -r requirements-dev.txt
-          python -m pip install pytest mypy
-      - name: Build
-        run: python -m pip install -e .
+          uv venv
+          uv sync --group all
       # Type check the code base.
       - name: Mypy type checking
-        run: mypy src/tqec/
+        run: uv run mypy src/tqec/
       # Perform the full tests (including slow ones) when pushing on main.
       - name: Complete tests
         if: github.ref == 'refs/heads/main'
-        run: python -m pytest $(git ls-files '*_test.py')
+        run: uv run pytest $(git ls-files '*_test.py')
       # Only perform quick tests when pushing on a PR.
       - name: Partial tests
         if: github.ref != 'refs/heads/main'
-        run: python -m pytest $(git ls-files '*_test.py') -m "not slow"
+        run: uv run pytest $(git ls-files '*_test.py') -m "not slow"
 
   coverage-python:
     runs-on: ubuntu-latest
@@ -71,18 +76,26 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-          cache: "pip"
-      - name: Install dependencies and tqec package
+          python-version: "3.13"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install dependencies and tqec package after creating a virtual environment
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e '.[test]'
-          python -m pip install pytest pytest-cov
+          uv venv
+          uv sync --group test
       # Only perform quick tests when pushing on a PR
+      - name: Code health - format
+        uses: astral-sh/ruff-action@v3
+        with:
+          args: "format --check --diff"
+      - name: Code health - lint
+        run: uv run ruff check --fix
       - name: Code coverage for partial tests
         if: github.ref != 'refs/heads/main'
         run: |
-          python -m pytest --cov=tqec --cov-report=xml:coverage.xml --cov-report term-missing:skip-covered $(git ls-files '*_test.py') -m "not slow"
+          uv run pytest --cov=tqec --cov-report=xml:coverage.xml --cov-report term-missing:skip-covered $(git ls-files '*_test.py') -m "not slow"
       # Print code coverage if in PR
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0

@@ -18,7 +18,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         *,
         default_value: V | None = None,
     ) -> None:
-        """A defaultdict implementation that cannot be mutated.
+        """Implement a ``defaultdict`` that cannot be mutated.
 
         This class re-defines all the mutating methods of `defaultdict` (i.e., all
         the mutating methods of `dict` and `__missing__`) in order to make any
@@ -64,7 +64,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
 
     @override
     def __len__(self) -> int:
-        return len(self._dict)
+        return len(self._dict)  # pragma: no cover
 
     @override
     def __contains__(self, key: object) -> bool:
@@ -76,17 +76,17 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
         return FrozenDefaultDict(mapping, default_value=self._default_value)
 
     def __hash__(self) -> int:
-        return hash(tuple(sorted(self.items())))
+        return hash(tuple(sorted(self.items())))  # pragma: no cover
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FrozenDefaultDict):
-            return False
+            return False  # pragma: no cover
         other = cast(FrozenDefaultDict[K, V], other)
         return (self._default_value == other._default_value) and self._dict == other._dict
 
     def has_default_value(self) -> bool:
         """Return ``True`` if ``self`` has a default value."""
-        return self._default_value is not None
+        return self._default_value is not None  # pragma: no cover
 
     @property
     def default_value(self) -> V | None:
@@ -111,7 +111,7 @@ class FrozenDefaultDict(Generic[K, V], Mapping[K, V]):
 
     def map_keys_if_present(self, mapping: Mapping[K, K]) -> FrozenDefaultDict[K, V]:
         """Apply ``callable`` to each key and return a new instance with the modified keys."""
-        return FrozenDefaultDict(
+        return FrozenDefaultDict(  # pragma: no cover
             {mapping[k]: v for k, v in self.items() if k in mapping},
             default_value=self._default_value,
         )

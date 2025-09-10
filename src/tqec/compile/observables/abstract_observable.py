@@ -138,8 +138,7 @@ def compile_correlation_surface_to_abstract_observable(
     correlation_surface: CorrelationSurface,
     include_temporal_hadamard_pipes: bool = False,
 ) -> AbstractObservable:
-    """Compile a ``CorrelationSurface`` into an ``AbstractObservable`` in the
-    block graph.
+    """Compile a ``CorrelationSurface`` into an ``AbstractObservable`` in the block graph.
 
     The correlation surface translates into measurements to be included in the
     observable in the following ways:
@@ -272,9 +271,7 @@ def compile_correlation_surface_to_abstract_observable(
 
     # 2. Handle all the pipes
     def has_obs_include(cube: Cube, correlation: Basis) -> bool:
-        """Check if the top data qubit readout should be included in the
-        observable.
-        """
+        """Check if the top data qubit readout should be included in the observable."""
         if cube.is_y_cube:
             return True
         assert isinstance(cube.kind, ZXCube)
@@ -330,7 +327,8 @@ def compile_correlation_surface_to_abstract_observable(
 
 
 def _check_correlation_surface_validity(correlation_surface: CorrelationSurface, g: GraphS) -> None:
-    from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase
+    # Needs to be imported here to avoid pulling pyzx when importing this module.
+    from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase  # noqa: PLC0415
 
     """Check the ZX graph can support the correlation surface."""
     # 1. Check the vertices in the correlation surface are in the graph

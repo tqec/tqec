@@ -28,6 +28,7 @@ class ConventionTriplet:
     In order to implement a new way of generating plaquettes and implementing
     blocks, a new :class:`Convention` should be created. This involves
     implementing the interfaces for each of the 3 attributes below.
+
     """
 
     cube_builder: CubeBuilder
@@ -37,13 +38,13 @@ class ConventionTriplet:
 
 @dataclass(frozen=True)
 class Convention:
-    """Represents a convention to implement blocks."""
+    """Represent a convention to implement blocks."""
 
     name: str
     triplet: ConventionTriplet
 
     def __str__(self) -> str:
-        return self.name
+        return self.name  # pragma: no cover
 
 
 FIXED_BULK_CONVENTION = Convention(

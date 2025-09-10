@@ -32,6 +32,7 @@ class Block(SequencedLayers):
     Depending on the stored layers, this class can be used to represent regular
     cubes (i.e. scaling in the 3 dimensions with ``k``) as well as pipes (i.e.
     scaling in only 2 dimension with ``k``).
+
     """
 
     @override
@@ -78,7 +79,7 @@ class Block(SequencedLayers):
 
     @property
     def dimensions(self) -> tuple[LinearFunction, LinearFunction, LinearFunction]:
-        """Returns the dimensions of ``self``.
+        """Return the dimensions of ``self``.
 
         Returns:
             a 3-dimensional tuple containing the width for each of the
@@ -93,6 +94,7 @@ class Block(SequencedLayers):
         """Return ``True`` if ``self`` represents a cube, else ``False``.
 
         A cube is defined as a block with all its 3 dimensions that are scalable.
+
         """
         return all(dim.is_scalable() for dim in self.dimensions)
 
@@ -101,6 +103,7 @@ class Block(SequencedLayers):
         """Return ``True`` if ``self`` represents a pipe, else ``False``.
 
         A pipe is defined as a block with all but one of its 3 dimensions that are scalable.
+
         """
         return sum(dim.is_scalable() for dim in self.dimensions) == 2
 
@@ -110,19 +113,22 @@ class Block(SequencedLayers):
 
         A temporal pipe is a pipe (exactly 2 scalable dimensions) for which the non-scalable
         dimension is the third one (time dimension).
+
         """
         return self.is_pipe and self.dimensions[2].is_constant()
 
     def __eq__(self, value: object) -> bool:
         return isinstance(value, Block) and super().__eq__(value)
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
 
 def merge_parallel_block_layers(
     blocks_in_parallel: Mapping[LayoutPosition2D, Block],
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> list[LayoutLayer | BaseComposedLayer]:
-    """Merge several stacks of layers executed in parallel into one stack of
-    larger layers.
+    """Merge several stacks of layers executed in parallel into one stack of larger layers.
 
     Args:
         blocks_in_parallel: a 2-dimensional arrangement of blocks. Each of the

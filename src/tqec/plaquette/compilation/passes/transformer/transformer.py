@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import stim
 from typing_extensions import override
@@ -50,7 +50,9 @@ class ScheduledCircuitTransformation:
 
     source_name: str
     transformation: dict[ScheduleFunction, list[InstructionCreator]]
-    instruction_simplifier: InstructionSimplifier = NoInstructionSimplification()
+    instruction_simplifier: InstructionSimplifier = field(
+        default_factory=NoInstructionSimplification
+    )
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
         """Apply the transformation to ``circuit`` and return the result."""
@@ -87,7 +89,7 @@ class ScheduledCircuitTransformation:
 
 class ScheduledCircuitTransformer:
     def __init__(self, transformations: Sequence[ScheduledCircuitTransformation]) -> None:
-        """Describes a list of :class:`ScheduledCircuitTransformation` instances.
+        """Describe a list of :class:`ScheduledCircuitTransformation` instances.
 
         Note:
             This class has been introduced for convenience and for future
@@ -128,5 +130,5 @@ class ScheduledCircuitTransformationPass(CompilationPass):
     def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
         modified_circuit = self._transformations.apply(circuit)
         if check_all_flows:
-            self.check_flows(circuit, modified_circuit)
+            self.check_flows(circuit, modified_circuit)  # pragma: no cover
         return modified_circuit

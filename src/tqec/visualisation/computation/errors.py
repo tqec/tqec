@@ -11,7 +11,7 @@ from tqec.visualisation.exception import TQECDrawingError
 def _get_error_cross_svg(
     size: float = 1, stroke_color: str = "red", stroke_width_multiplier: float = 0.2
 ) -> svg.Element:
-    """Returns a SVG element representing an error."""
+    """Return an SVG element representing an error."""
     return svg.Path(
         d=[
             svg.M(-size / 2, -size / 2),
@@ -51,8 +51,7 @@ def get_errors_svg(
     size: float = 1,
     add_detectors_from_errors: bool = True,
 ) -> svg.G:
-    """Returns an SVG element with the provided ``errors`` drawn and a transparent
-    background.
+    """Return an SVG element with the provided ``errors`` drawn and a transparent background.
 
     Args:
         errors: a sequence of errors to plot. It is often desirable to filter
@@ -63,6 +62,7 @@ def get_errors_svg(
         plaquette_width: width (in SVG dimensions) of a regular square plaquette.
         plaquette_height: height (in SVG dimensions) of a regular square plaquette.
         size: size (in SVG dimensions) of the crosses used to mark errors.
+        add_detectors_from_errors: add a visualisation of detectors from the provided errors.
 
     Returns:
         a SVG element containing as many sub-elements as there are errors in the

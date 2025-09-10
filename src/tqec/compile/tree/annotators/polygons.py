@@ -5,6 +5,7 @@ from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.tree.annotations import Polygon
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.plaquette.rpng.rpng import PauliBasis
+from tqec.utils.array import to2dlist
 from tqec.utils.position import Shift2D
 
 
@@ -20,11 +21,11 @@ class AnnotatePolygonOnLayerNode(NodeWalker):
             k: scaling factor.
 
         """
-        self._k = k
+        self._k = k  # pragma: no cover
 
     @override
     def visit_node(self, node: LayerNode) -> None:
-        if not node.is_leaf:
+        if not node.is_leaf:  # pragma: no cover
             return
         assert isinstance(node._layer, LayoutLayer)
         node.get_annotations(self._k).polygons = generate_polygons_for_layout_layer(
@@ -33,9 +34,7 @@ class AnnotatePolygonOnLayerNode(NodeWalker):
 
 
 def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polygon]:
-    """Generate the polygons that might be used to visualise stabilizers in Crumble when exporting
-    the provided ``layer``.
-    """
+    """Generate the polygons that might be used to visualise stabilizers in Crumble."""
     template, plaquettes = layer.to_template_and_plaquettes()
 
     _indices = list(range(1, template.expected_plaquettes_number + 1))
@@ -46,7 +45,7 @@ def generate_polygons_for_layout_layer(layer: LayoutLayer, k: int) -> list[Polyg
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    template_plaquettes_list: list[list[int]] = template_plaquettes.tolist()
+    template_plaquettes_list: list[list[int]] = to2dlist(template_plaquettes)
     for row_index, line in enumerate(template_plaquettes_list):
         for column_index, plaquette_index in enumerate(line):
             if plaquette_index != 0:

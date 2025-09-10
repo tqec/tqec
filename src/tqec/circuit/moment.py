@@ -6,6 +6,7 @@ class.
 
 Internally, :class:`Moment` stores the instructions using ``stim.Circuit``
 instead of using ``cirq`` data-structures.
+
 """
 
 from __future__ import annotations
@@ -40,7 +41,7 @@ class MultipleOperationsOnSameQubitError(TQECError):
     @property
     def qubits(self) -> list[int]:
         """Return the qubits that are targeted by several instructions at the same timestep."""
-        return self._qubits
+        return self._qubits  # pragma: no cover
 
 
 class Moment:
@@ -63,6 +64,7 @@ class Moment:
     The only minor different is that ``cirq`` only uses the second assertion
     above (meaning that an annotation might push a quantum gate to the next
     moment, even though the annotation is never executed in hardware).
+
     """
 
     def __init__(
@@ -168,15 +170,11 @@ class Moment:
         return self._used_qubits
 
     def contains_instruction(self, instruction_name: str) -> bool:
-        """Return ``True`` if ``self`` contains at least one operation with the
-        provided name.
-        """
+        """Return ``True`` if ``self`` contains at least one operation with the provided name."""
         return any(instr.name == instruction_name for instr in self._circuit)
 
     def remove_all_instructions_inplace(self, instructions_to_remove: frozenset[str]) -> None:
-        """Remove in-place all the instructions that have their name in the
-        provided ``instructions_to_remove``.
-        """
+        """Remove in-place all the instructions with a name in ``instructions_to_remove``."""
         new_circuit = stim.Circuit()
         for inst in self._circuit:
             if inst.name in instructions_to_remove:
@@ -309,9 +307,7 @@ class Moment:
 
     @property
     def num_measurements(self) -> int:
-        """Return the number of measurements in the :class:`Moment`
-        instance.
-        """
+        """Return the number of measurements in the :class:`Moment` instance."""
         # Mypy is showing an error here:
         # error: Returning Any from function declared to return "int"
         # I do not understand why, but it probably has to do with Stim typing
@@ -319,8 +315,10 @@ class Moment:
         return self._circuit.num_measurements  # type: ignore
 
     def filter_by_qubits(self, qubits_to_keep: Iterable[int]) -> Moment:
-        """Return a new :class:`Moment` instance containing only the
-        instructions that are applied on the provided qubits.
+        """Return a new instance containing only the instructions applied on the provided qubits.
+
+        Any operation from ``self`` that is applied to at least one qubit that is not in the
+        provided ``qubits_to_keep`` will not be present in the returned :class:`Moment` instance.
         """
         qubits = frozenset(qubits_to_keep)
         used_qubits: set[int] = set()
@@ -345,7 +343,7 @@ class Moment:
         return len(self._circuit) == 0
 
     def __copy__(self) -> Moment:
-        return Moment(
+        return Moment(  # pragma: no cover
             self._circuit,
             used_qubits=self._used_qubits,
             _avoid_checks=True,
@@ -359,8 +357,7 @@ class Moment:
         )
 
     def with_mapped_qubit_indices(self, qubit_index_map: dict[int, int]) -> Moment:
-        """Map the qubits **indices** the :class:`Moment` instance is applied
-        on.
+        """Map the qubit **indices** on whom the :class:`Moment` instance is applied.
 
         Note:
             This method has to iterate over all the instructions in ``self`` and
@@ -399,10 +396,14 @@ class Moment:
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Moment) and self._circuit == other._circuit
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the :class:`Moment` instance.
 
         The dictionary is intended to be used as a JSON object.
+
         """
         return {
             "circuit": str(self._circuit),

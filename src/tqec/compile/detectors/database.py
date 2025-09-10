@@ -3,15 +3,15 @@ from __future__ import annotations
 import hashlib
 import json
 import pickle
-from collections.abc import Sequence
+import warnings
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, ClassVar, Final, Literal
 
 import numpy
 import semver
-from typing_extensions import Final
 
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.moment import Moment
@@ -82,20 +82,24 @@ class _DetectorDatabaseKey:
 
     @cached_property
     def plaquette_names(self) -> tuple[tuple[tuple[str, ...], ...], ...]:
-        """Cached property that returns nested tuples such that `ret[t][y][x]
-        == self.plaquettes_by_timestep[t][self.subtemplates[t][y, x]].name`.
+        """Cached property returning a representation of the current situation with plaquette names.
 
-        The returned object can be iterated on using:
+        Returns:
+            Nested tuples such that
+            ``ret[t][y][x] == self.plaquettes_by_timestep[t][self.subtemplates[t][y, x]].name``.
 
-        ```py
-        for t, names in enumerate(self.plaquette_names):
-            subtemplate = self.subtemplates[t]
-            plaquettes = self.plaquettes_by_timestep[t]
-            for y, names_row in enumerate(names):
-                for x, name in enumerate(names_row):
-                    plaquette: Plaquette = plaquettes[subtemplate[y, x]]
-                    assert name == plaquette.name
-        ```
+            The returned object can be iterated on using:
+
+            .. code:: python
+
+                for t, names in enumerate(self.plaquette_names):
+                    subtemplate = self.subtemplates[t]
+                    plaquettes = self.plaquettes_by_timestep[t]
+                    for y, names_row in enumerate(names):
+                        for x, name in enumerate(names_row):
+                            plaquette: Plaquette = plaquettes[subtemplate[y, x]]
+                            assert name == plaquette.name
+
         """
         return tuple(
             tuple(tuple(plaquettes[pi].name for pi in row) for row in st)
@@ -104,8 +108,28 @@ class _DetectorDatabaseKey:
 
     @cached_property
     def reliable_hash(self) -> int:
-        """Returns a hash of `self` that is guaranteed to be constant across
-        Python versions, OSes and executions.
+        """Return a hash of ``self`` that is guaranteed to be constant.
+
+        Python's ``hash`` is not guaranteed to be constant across Python versions, OSes and
+        executions. In particular, strings hash will not be repeatable across different Python
+        executable calls. The following line should return different values at each call:
+
+        .. code:: bash
+
+            python -c 'print(hash("Hello world"))'
+
+        For example, here are the results obtained after calling that line 3 times on my machine:
+
+        - ``2656127643635015930``
+        - ``1413792191058799258``
+        - ``8731178165517315210``
+
+        This is an issue for the detector database as we would like it to be reproducible. Else,
+        reusing an existing database will always fail because keys will have a different hash,
+        hence re-computing detectors at each call and growing the database indefinitely.
+
+        This method implements a reliable hash that should be constant no matter the context
+        (different Python calls, different OS, different version of Python, ...).
         """
         hasher = hashlib.md5()
         for timeslice in self.plaquette_names:
@@ -190,8 +214,57 @@ class _DetectorDatabaseKey:
         return _DetectorDatabaseKey(subtemplates, plaquettes_by_timestep)
 
 
+class _DetectorDatabaseIO:
+    @staticmethod
+    def from_pickle_file(filepath: Path) -> DetectorDatabase:
+        try:
+            with open(filepath, "rb") as f:
+                database = pickle.load(f)
+        except pickle.PickleError as e:
+            moving_location = filepath.parent / f"faulty_database_{hash(e)}.pkl"
+            warnings.warn(
+                f"Error when reading the database at {filepath}: {e}. Moving the database to "
+                f"{moving_location} and returning an empty database."
+            )
+            filepath.rename(moving_location)
+            return DetectorDatabase()
+
+        if not isinstance(database, DetectorDatabase):
+            raise TQECError(
+                f"Found the Python type {type(database).__name__} in the "
+                f"provided file but {type(DetectorDatabase).__name__} was "
+                "expected."
+            )
+        return database
+
+    @staticmethod
+    def from_json_file(filepath: Path) -> DetectorDatabase:
+        with open(filepath) as f:
+            data = json.load(f)
+            return DetectorDatabase.from_dict(data)
+
+    @staticmethod
+    def to_pickle_file(filepath: Path, database: DetectorDatabase) -> None:
+        with open(filepath, "wb") as f:
+            pickle.dump(database, f)
+
+    @staticmethod
+    def to_json_file(filepath: Path, database: DetectorDatabase) -> None:
+        with open(filepath, "w") as f:
+            json.dump(database.to_dict(), f)
+
+
 class DetectorDatabase:
     version: semver.Version = semver.Version(0, 0, 0)
+
+    _READERS: ClassVar[Mapping[str, Callable[[Path], DetectorDatabase]]] = {
+        "pickle": _DetectorDatabaseIO.from_pickle_file,
+        "json": _DetectorDatabaseIO.from_json_file,
+    }
+    _WRITERS: ClassVar[Mapping[str, Callable[[Path, DetectorDatabase], None]]] = {
+        "pickle": _DetectorDatabaseIO.to_pickle_file,
+        "json": _DetectorDatabaseIO.to_json_file,
+    }
 
     def __init__(
         self,
@@ -218,6 +291,7 @@ class DetectorDatabase:
         Old databases generated prior to the introduction of a version attribute will be
         loaded with the default value of .version, without passing through __init__,
         ie (0,0,0).
+
         """
         if mapping is None:
             mapping = dict()
@@ -234,7 +308,7 @@ class DetectorDatabase:
         """Add a new situation to the database.
 
         Args:
-            subtemplate: a sequence of 2-dimensional arrays of integers
+            subtemplates: a sequence of 2-dimensional arrays of integers
                 representing the sub-template(s). Each entry corresponds to one
                 QEC round.
             plaquettes_by_timestep: a list of :class:`Plaquettes`, each
@@ -263,7 +337,7 @@ class DetectorDatabase:
         """Remove an existing situation from the database.
 
         Args:
-            subtemplate: a sequence of 2-dimensional arrays of integers
+            subtemplates: a sequence of 2-dimensional arrays of integers
                 representing the sub-template(s). Each entry corresponds to one
                 QEC round.
             plaquettes_by_timestep: a list of :class:`Plaquettes`, each
@@ -285,18 +359,16 @@ class DetectorDatabase:
         subtemplates: Sequence[SubTemplateType],
         plaquettes_by_timestep: Sequence[Plaquettes],
     ) -> frozenset[Detector] | None:
-        """Return the detectors associated with the provided situation or
-        `None` if the situation is not in the database.
+        """Return the detectors associated with the provided situation.
 
         Args:
-            subtemplate: a sequence of 2-dimensional arrays of integers
+            subtemplates: a sequence of 2-dimensional arrays of integers
                 representing the sub-template(s). Each entry corresponds to one
                 QEC round.
             plaquettes_by_timestep: a list of :class:`Plaquettes`, each
                 :class:`Plaquettes` entry storing enough :class:`Plaquette`
                 instances to generate a circuit from corresponding entry in
                 `self.subtemplates` and corresponding to one QEC round.
-            detectors: computed detectors that should be stored in the database.
 
         Returns:
             detectors associated with the provided situation or `None` if the
@@ -315,8 +387,7 @@ class DetectorDatabase:
         self.frozen = False
 
     def to_crumble_urls(self, plaquette_increments: Shift2D = Shift2D(2, 2)) -> list[str]:
-        """Returns one URL pointing to https://algassert.com/crumble for each of
-        the registered situations.
+        """Return a URL pointing to https://algassert.com/crumble for each of the stored situations.
 
         Args:
             plaquette_increments: increments between two :class:`Plaquette`
@@ -402,13 +473,13 @@ class DetectorDatabase:
         """
         if not filepath.parent.exists():
             filepath.parent.mkdir(parents=True)
-        if format == "pickle":
-            with open(filepath, "wb") as f:
-                pickle.dump(self, f)
-        else:
-            filepath = filepath.with_suffix(".json")
-            with open(filepath, "w") as f:
-                json.dump(self.to_dict(), f)
+        if format not in DetectorDatabase._WRITERS:
+            raise TQECError(
+                f"Could not save the database: the provided format {format} is not supported. "
+                + "Supported formats are:\n  -"
+                + "\n  -".join(DetectorDatabase._WRITERS.keys())
+            )
+        DetectorDatabase._WRITERS[format](filepath, self)
 
     @staticmethod
     def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
@@ -422,17 +493,15 @@ class DetectorDatabase:
             a new :class:`.DetectorDatabase` instance read from the provided ``filepath``.
 
         """
-        if format == "pickle":
-            with open(filepath, "rb") as f:
-                database = pickle.load(f)
-        else:
-            with open(filepath) as f:
-                data = json.load(f)
-                database = DetectorDatabase.from_dict(data)
-        if not isinstance(database, DetectorDatabase):
+        if not filepath.exists():
             raise TQECError(
-                f"Found the Python type {type(database).__name__} in the "
-                f"provided file but {type(DetectorDatabase).__name__} was "
-                "expected."
+                f"Could not read the database: the provided filepath ('{filepath}') does not exist "
+                "on disk."
             )
-        return database
+        if format not in DetectorDatabase._READERS:
+            raise TQECError(
+                f"Could not read the database: the provided format {format} is not supported. "
+                + "Supported formats are:\n  -"
+                + "\n  -".join(DetectorDatabase._READERS.keys())
+            )
+        return DetectorDatabase._READERS[format](filepath)

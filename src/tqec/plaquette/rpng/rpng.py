@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Sequence
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
+
+from tqec.circuit.schedule.schedule import Schedule
+from tqec.utils.enums import Basis
 
 
 class PauliBasis(Enum):
@@ -11,7 +15,7 @@ class PauliBasis(Enum):
     Z = "z"
 
     def __str__(self) -> str:
-        return self.value
+        return self.value  # pragma: no cover
 
     def to_extended_basis(self) -> ExtendedBasis:
         """Return ``self`` as an extended basis."""
@@ -25,12 +29,12 @@ class ExtendedBasis(Enum):
     H = "h"
 
     def __str__(self) -> str:
-        return self.value
+        return self.value  # pragma: no cover
 
 
 @dataclass(frozen=True)
 class RPNG:
-    """Represents a single ``RPNG`` string.
+    """Represent a single ``RPNG`` string.
 
     ## Format specification
 
@@ -67,7 +71,7 @@ class RPNG:
 
     @classmethod
     def from_string(cls, rpng_string: str) -> RPNG:
-        """Initialize the RPNG object from a 4-character string
+        """Initialize the RPNG object from a 4-character string.
 
         Raises:
             ValueError: if an invalid ``rpng_string`` is provided.
@@ -93,7 +97,7 @@ class RPNG:
         return cls(r, p, n, g)
 
     def get_r_op(self) -> str | None:
-        """Get the reset operation or Hadamard"""
+        """Get the reset operation or Hadamard."""
         op = self.r
         if op is None:
             return None
@@ -103,7 +107,7 @@ class RPNG:
             return f"{op.value.upper()}"
 
     def get_g_op(self) -> str | None:
-        """Get the measurement operation or Hadamard"""
+        """Get the measurement operation or Hadamard."""
         op = self.g
         if op is None:
             return None
@@ -114,7 +118,7 @@ class RPNG:
 
     @property
     def is_null(self) -> bool:
-        """Check if the RPNG object is null, i.e. all fields are None"""
+        """Check if the RPNG object is null, i.e. all fields are None."""
         return str(self) == "----"
 
     def __str__(self) -> str:
@@ -143,7 +147,7 @@ class RG:
 
     @classmethod
     def from_string(cls, rg_string: str) -> RG:
-        """Initialize the ``RG`` object from a 2-character string"""
+        """Initialize the ``RG`` object from a 2-character string."""
         if len(rg_string) != 2:
             raise ValueError("The RG string must be exactly 2-character long.")
         r_str, g_str = tuple(rg_string)
@@ -161,7 +165,7 @@ class RG:
 
 @dataclass
 class RPNGDescription:
-    """Organize the description of a plaquette in RPNG format
+    """Organize the description of a plaquette in RPNG format.
 
     The corners of the square plaquette are listed following the order:
     top-left, top-right, bottom-left, bottom-right.
@@ -187,14 +191,15 @@ class RPNGDescription:
     """
 
     corners: tuple[RPNG, RPNG, RPNG, RPNG]
-    ancilla: RG = RG(PauliBasis.X, PauliBasis.X)
+    ancilla: RG = field(default=RG(PauliBasis.X, PauliBasis.X))
 
     def __post_init__(self) -> None:
-        """Validation of the initialization arguments
+        """Validate the initialization arguments.
 
         Constraints:
         - the n values for the corners must be unique
         - the n values for the corners must be larger than 0
+
         """
         times = []
         for rpng in self.corners:
@@ -207,7 +212,7 @@ class RPNGDescription:
 
     @classmethod
     def from_string(cls, corners_rpng_string: str) -> RPNGDescription:
-        """Initialize the RPNGDescription object from a (16+3)-character string"""
+        """Initialize the RPNGDescription object from a (16+3)-character string."""
         rpng_objs = tuple([RPNG.from_string(s) for s in corners_rpng_string.split(" ")])
         if len(rpng_objs) != 4:
             raise ValueError("There must be 4 corners in the RPNG description.")
@@ -215,7 +220,7 @@ class RPNGDescription:
 
     @classmethod
     def from_extended_string(cls, ancilla_and_corners_rpng_string: str) -> RPNGDescription:
-        """Initialize the RPNGDescription object from a (16+3)-character string"""
+        """Initialize the RPNGDescription object from a (16+3)-character string."""
         values = ancilla_and_corners_rpng_string.split(" ")
         ancilla_rg = RG.from_string(values[0])
         rpng_objs = tuple([RPNG.from_string(s) for s in values[1:]])
@@ -223,32 +228,62 @@ class RPNGDescription:
             raise ValueError("There must be 4 corners in the RPNG description.")
         return cls(rpng_objs, ancilla_rg)
 
+    @classmethod
+    def from_basis_and_schedule(
+        cls,
+        basis: Basis,
+        schedule: Sequence[int] | Schedule,
+        reset: PauliBasis | None = None,
+        measurement: ExtendedBasis | None = None,
+    ) -> RPNGDescription:
+        """Initialize the RPNGDescription object from a basis and a schedule."""
+        r = "-" if reset is None else reset.value
+        m = "-" if measurement is None else measurement.value
+        rpng_objs = tuple([RPNG.from_string(f"{r}{basis.value.lower()}{s}{m}") for s in schedule])
+        if len(rpng_objs) != 4:
+            raise ValueError("There must be 4 corners in the RPNG description.")
+        return cls(rpng_objs)
+
     @staticmethod
     def empty() -> RPNGDescription:
         """Return a description of the empty plaquette."""
         return RPNGDescription.from_extended_string("-- ---- ---- ---- ----")
 
     def get_r_op(self, data_idx: int) -> str | None:
-        """Get the reset operation or Hadamard for the specific data qubit"""
+        """Get the reset operation or Hadamard for the specific data qubit."""
         return self.corners[data_idx].get_r_op()
 
     def get_n(self, data_idx: int) -> int | None:
-        """Get the time of the 2Q gate involving the specific data qubit"""
+        """Get the time of the 2Q gate involving the specific data qubit."""
         return self.corners[data_idx].n
 
     def get_g_op(self, data_idx: int) -> str | None:
-        """Get the measurement operation or Hadamard for the specific data qubit"""
+        """Get the measurement operation or Hadamard for the specific data qubit."""
         return self.corners[data_idx].get_g_op()
 
     @property
     def has_reset(self) -> bool:
         """Return ``True`` if ``self`` contains at least one corner with a reset."""
-        return any(corner.get_r_op() not in {None, "H"} for corner in self.corners)
+        return any(
+            corner.get_r_op()
+            not in {
+                None,
+                "H",
+            }
+            for corner in self.corners
+        )
 
     @property
     def has_measurement(self) -> bool:
         """Return ``True`` if ``self`` contains at least one corner with a measurement."""
-        return any(corner.get_g_op() not in {None, "H"} for corner in self.corners)
+        return any(
+            corner.get_g_op()
+            not in {
+                None,
+                "H",
+            }
+            for corner in self.corners
+        )
 
     def __str__(self) -> str:
         return " ".join(str(rpng) for rpng in self.corners)
@@ -257,6 +292,7 @@ class RPNGDescription:
         """Return a dictionary representation of the RPNG description.
 
         The dictionary is intended to be used as a JSON object.
+
         """
         return {
             "corners": [str(rpng) for rpng in self.corners],

@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 from tqec.compile.observables.abstract_observable import CubeWithArms, PipeWithArms
 from tqec.compile.observables.builder import Coordinates2D, ObservableBuilder
@@ -12,8 +12,8 @@ from tqec.utils.position import Direction3D, PlaquetteShape2D, SignedDirection3D
 def build_spatial_cube_top_readout_qubits(
     shape: PlaquetteShape2D, arms: SpatialArms
 ) -> Sequence[Coordinates2D]:
-    """Builds the qubit coordinates for a straight or bent middle line of the
-    top face of a spatial cube.
+    """Build the qubit coordinates for a straight or bent middle line of the top face of a spatial
+    cube.
     """
     assert len(arms) == 2
     half_x, half_y = shape.x // 2, shape.y // 2
@@ -41,8 +41,8 @@ def build_spatial_cube_top_readout_qubits(
 def build_cube_top_readout_qubits(
     shape: PlaquetteShape2D, cube: CubeWithArms
 ) -> Sequence[Coordinates2D]:
-    """Builds the qubit coordinates whose measurements will be included in the
-    observable on the top face of a cube.
+    """Build the qubit coordinates whose measurements will be included in the observable on the top
+    face of a cube.
     """
     if not cube.cube.is_spatial:
         kind = cube.cube.kind
@@ -81,8 +81,8 @@ def _build_pipe_top_readout_qubits_impl(
 def build_pipe_top_readout_qubits(
     shape: PlaquetteShape2D, pipe: PipeWithArms
 ) -> Sequence[Coordinates2D]:
-    """Builds the qubit coordinates whose measurements will be included in the
-    observable on the top face of a pipe.
+    """Build the qubit coordinates whose measurements will be included in the observable on the top
+    face of a pipe.
     """
     return _build_pipe_top_readout_qubits_impl(
         shape, pipe.pipe.direction, _extended_stabilizers_used(pipe)
@@ -93,8 +93,8 @@ def build_regular_cube_bottom_stabilizer_qubits(
     shape: PlaquetteShape2D,
     connect_to: SignedDirection3D,
 ) -> Sequence[Coordinates2D]:
-    """Builds the stabilizer measurement coordinates who will be included in the
-    observable spanning half of the bottom face of a regular cube.
+    """Build the stabilizer measurement coordinates who will be included in the observable spanning
+    half of the bottom face of a regular cube.
     """
     stabilizers: list[tuple[float, float]] = []
     # We calculate the qubits for the connect_to=SignedDirection3D(Direction3D.X, True) case
@@ -132,8 +132,8 @@ def build_regular_cube_bottom_stabilizer_qubits(
 def build_spatial_cube_bottom_stabilizer_qubits(
     shape: PlaquetteShape2D,
 ) -> Sequence[Coordinates2D]:
-    """Builds the stabilizer measurement coordinates who will be included in the
-    observable spanning the bottom face of a single spatial cube.
+    """Build the stabilizer measurement coordinates who will be included in the observable spanning
+    the bottom face of a single spatial cube.
     """
     return [(i + 0.5, j + 0.5) for i in range(shape.x) for j in range(shape.y) if (i + j) % 2 == 0]
 
@@ -144,8 +144,8 @@ def build_connected_spatial_cube_bottom_stabilizer_qubits(
     connect_to: SignedDirection3D,
     extended_stabilizers_used: bool,
 ) -> Sequence[Coordinates2D]:
-    """Builds the stabilizer measurement coordinates who will be included in the
-    observable spanning the bottom face of a spatial cube connected to pipes.
+    """Build the stabilizer measurement coordinates who will be included in the observable spanning
+    the bottom face of a spatial cube connected to pipes.
     """
     max_y = (
         shape.y - 1
@@ -164,10 +164,11 @@ def build_connected_spatial_cube_bottom_stabilizer_qubits(
 def build_pipe_bottom_stabilizer_qubits(
     shape: PlaquetteShape2D, pipe: PipeWithArms
 ) -> Sequence[Coordinates2D]:
-    """Builds the stabilizer measurement coordinates who will be included in the
-    observable on the bottom face of a pipe.
+    """Build the stabilizer measurement coordinates who will be included in the observable on the
+    bottom face of a pipe.
 
     It includes the bottom stabilizers of the connected cubes.
+
     """
     direction = pipe.pipe.direction
     extended_stabilizers_used = _extended_stabilizers_used(pipe)

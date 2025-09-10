@@ -24,7 +24,7 @@ class RGBA:
     a: float
 
     def with_alpha(self, a: float) -> RGBA:
-        """Returns a new RGBA with the same color but a different alpha value.
+        """Return a new RGBA with the same color but a different alpha value.
 
         Args:
             a: The new alpha value.
@@ -33,11 +33,10 @@ class RGBA:
             A new RGBA with the same color but a different alpha value.
 
         """
-        return RGBA(self.r, self.g, self.b, a)
+        return RGBA(self.r, self.g, self.b, a)  # pragma: no cover
 
     def as_floats(self) -> tuple[float, float, float, float]:
-        """Returns the color as a tuple of floats. The RGB values are
-        normalized to the range [0, 1].
+        """Return the color as a tuple of floats. RGB values are normalized to the range [0, 1].
 
         Returns:
             Length 4 tuple of floats representing the color.
@@ -46,13 +45,13 @@ class RGBA:
         return (self.r / 255, self.g / 255, self.b / 255, self.a)
 
     def to_hex(self) -> str:
-        """Returns the color as a hexadecimal string.
+        """Return the color as a hexadecimal string.
 
         Returns:
             The color as a hexadecimal string.
 
         """
-        return f"#{self.r:02x}{self.g:02x}{self.b:02x}"
+        return f"#{self.r:02x}{self.g:02x}{self.b:02x}"  # pragma: no cover
 
 
 class TQECColor(Enum):
@@ -67,7 +66,7 @@ class TQECColor(Enum):
 
     @property
     def rgba(self) -> RGBA:
-        """Returns the RGBA representation of the color."""
+        """Return the RGBA representation of the color."""
         if self == TQECColor.X:
             return RGBA(255, 127, 127, 1.0)
         if self == TQECColor.Y:
@@ -82,9 +81,7 @@ class TQECColor(Enum):
             return RGBA(0, 0, 255, 0.8)
 
     def with_zx_flipped(self) -> TQECColor:
-        """Returns a ``X`` or ``Z`` color from a ``Z`` or ``X`` color and vice
-        versa.
-        """
+        """Return a ``X`` or ``Z`` color from a ``Z`` or ``X`` color and vice versa."""
         if self == TQECColor.X:
             return TQECColor.Z
         if self == TQECColor.Z:

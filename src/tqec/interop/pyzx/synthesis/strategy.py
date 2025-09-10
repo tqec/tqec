@@ -16,15 +16,14 @@ class SynthesisStrategy(Enum):
     """Strategy for synthesizing a block graph from a ZX graph."""
 
     POSITIONED = "POSITIONED"
-    """Mapping from a
-    :py:class:`~tqec.interop.pyzx.positioned_graph.PositionedZX` instance to a
+    """Mapping from a :py:class:`~tqec.interop.pyzx.positioned_graph.PositionedZX` instance to a
     block graph.
 
-    This strategy requires specifying the 3D positions of each vertex
-    explicitly in the ZX graph. Then the conversion converts each vertex
-    by looking at its nearest neighbors to infer the cube kind. The
-    conversion maps each vertex to a cube in the block graph and each
-    edge to a pipe connecting the corresponding cubes.
+    This strategy requires specifying the 3D positions of each vertex explicitly in the ZX graph.
+    Then the conversion converts each vertex by looking at its nearest neighbors to infer the cube
+    kind. The conversion maps each vertex to a cube in the block graph and each edge to a pipe
+    connecting the corresponding cubes.
+
     """
 
 
@@ -35,8 +34,7 @@ def block_synthesis(
     positions: Mapping[int, Position3D] | None = None,
     **_kwargs: dict[str, Any],
 ) -> BlockGraph:
-    """Perform block synthesis, translating an instance of ``pyzx.GraphS`` to a
-    :class:`.BlockGraph`.
+    """Perform block synthesis translating an instance of ``pyzx.GraphS`` to a :class:`.BlockGraph`.
 
     Args:
         zx_graph: a ZX graph to transform into a :class:`.BlockGraph`.

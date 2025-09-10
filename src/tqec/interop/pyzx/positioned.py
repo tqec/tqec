@@ -18,7 +18,7 @@ from tqec.utils.position import Direction3D, Position3D
 
 class PositionedZX:
     def __init__(self, g: GraphS, positions: Mapping[int, Position3D]) -> None:
-        """A ZX graph with 3D positions and additional constraints.
+        """Represent a ZX graph with 3D positions and additional constraints.
 
         The constraints are:
 
@@ -114,8 +114,7 @@ class PositionedZX:
 
     @staticmethod
     def from_block_graph(block_graph: BlockGraph) -> PositionedZX:
-        """Convert a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
-        ZX graph with 3D positions.
+        """Convert a :py:class:`.BlockGraph` to a ZX graph with 3D positions.
 
         The conversion process is as follows:
 
@@ -147,9 +146,12 @@ class PositionedZX:
 
         return PositionedZX(g, v2p)
 
-    def to_block_graph(self) -> BlockGraph:
+    def to_block_graph(self) -> BlockGraph:  # pragma: no cover
         """Convert the positioned ZX graph to a block graph."""
-        from tqec.interop.pyzx.synthesis.positioned import positioned_block_synthesis
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.synthesis.positioned import (  # noqa: PLC0415
+            positioned_block_synthesis,
+        )
 
         return positioned_block_synthesis(self)
 
@@ -161,9 +163,8 @@ class PositionedZX:
         node_size: int = 400,
         hadamard_size: int = 200,
         edge_width: int = 1,
-    ) -> tuple[Figure, Axes3D]:
-        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX`
-        using matplotlib.
+    ) -> tuple[Figure, Axes3D]:  # pragma: no cover
+        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.
 
         Args:
             graph: The ZX graph to plot.
@@ -178,7 +179,8 @@ class PositionedZX:
             A tuple of the figure and the axes.
 
         """
-        from tqec.interop.pyzx.plot import plot_positioned_zx_graph
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.plot import plot_positioned_zx_graph  # noqa: PLC0415
 
         return plot_positioned_zx_graph(
             self,
