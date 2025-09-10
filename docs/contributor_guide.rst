@@ -59,7 +59,7 @@ of ``tqec`` through ``pip`` or ``uv``.
             # Note the "-editable" option, that's important.
             uv sync --group all
             # enable pre-commit
-            pre-commit install
+            uv run pre-commit install
 
         .. attention::
             Note that compared to ``pip``, we do not need to explicitly provide a flag for an editable installation in ``uv``.
