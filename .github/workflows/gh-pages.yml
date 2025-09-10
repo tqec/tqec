@@ -32,7 +32,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pandoc
           uv sync --group all
-          uv sync --editable .
       - uses: actions/cache@v4
         id: cache-docs
         with:

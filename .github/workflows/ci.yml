@@ -45,8 +45,6 @@ jobs:
         run: |
           uv venv
           uv sync --group all
-      - name: Build
-        run: uv sync --editable .
       # Type check the code base.
       - name: Mypy type checking
         run: uv run mypy src/tqec/

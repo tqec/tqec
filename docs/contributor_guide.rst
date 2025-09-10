@@ -58,20 +58,18 @@ of ``tqec`` through ``pip`` or ``uv``.
             # Install the library with developer dependencies
             # Note the "-editable" option, that's important.
             uv sync --group all
-            uv sync --editable .
             # enable pre-commit
             pre-commit install
 
         .. attention::
-            The ``--editable`` option to the ``uv sync`` call is **important** as it installs an editable version
-            of ``tqec``. Without that option, changes made in the folder ``tqec`` will **not** be reflected on the
-            ``tqec`` package installed.
+            Note that compared to ``pip``, we do not need to explicitly provide a flag for an editable installation in ``uv``.
+            By default, ``uv sync`` will install an editable version of ``tqec``. Without the editable installation, changes
+            made in the folder ``tqec`` will **not** be reflected on the installed ``tqec`` package.
 
-            Without the ``--editable`` option, ``uv`` copies all the files it needs (mainly, the code) to the current Python
+            Without ``sync``, ``uv`` copies all the files it needs (mainly, the code) to the current Python
             package folder. Any modification to the original ``tqec`` folder you installed the package from
             will not be reflected automatically on the copied files, which will limit your ability to test new
-            changes on the code base. The ``--editable`` option tells ``uv`` to create a link instead of copying, which means
-            that the code in the ``tqec`` folder will be the code used when importing ``tqec``.
+            changes on the code base.
 
 
 .. warning::
