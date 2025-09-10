@@ -9,6 +9,8 @@ from __future__ import annotations
 import inspect
 from typing import Final, Literal
 
+from pyzx.hrules import is_hadamard
+
 from tqec.compile.specs.base import CubeSpec
 from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.constants import (
@@ -1080,6 +1082,7 @@ class FixedBoundaryConventionGenerator:
         is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
+        is_hadamard
     ) -> Plaquettes:
         """Returns the plaquettes needed to implement **one** pipe connecting to
         a spatial cube.
@@ -1138,26 +1141,45 @@ class FixedBoundaryConventionGenerator:
             SpatialArms.RIGHT,
             SpatialArms.LEFT | SpatialArms.RIGHT,
         ]:
-            return self._get_left_right_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis,
-                arms,
-                linked_cubes,
-                is_reversed,
-                reset,
-                measurement,
-            )
+            if is_hadamard:
+                return self._get_left_right_spatial_hadamard_cube_arm_plaquettes(
+                    spatial_boundary_basis,
+                    arms,
+                    linked_cubes,
+                    is_reversed,
+                    reset,
+                    measurement,
+                )
+            else:
+                return self._get_left_right_spatial_cube_arm_plaquettes(
+                    spatial_boundary_basis,
+                    arms,
+                    linked_cubes,
+                    is_reversed,
+                    reset,
+                    measurement,
+                )
         if arms in [
             SpatialArms.UP,
             SpatialArms.DOWN,
             SpatialArms.UP | SpatialArms.DOWN,
         ]:
-            return self._get_up_down_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis,
-                linked_cubes,
-                is_reversed,
-                reset,
-                measurement,
-            )
+            if is_hadamard:
+                return self._get_up_down_spatial_hadamard_cube_arm_plaquettes(
+                    spatial_boundary_basis,
+                    linked_cubes,
+                    is_reversed,
+                    reset,
+                    measurement,
+                )
+            else:
+                return self._get_up_down_spatial_cube_arm_plaquettes(
+                    spatial_boundary_basis,
+                    linked_cubes,
+                    is_reversed,
+                    reset,
+                    measurement,
+                )
         raise TQECError(f"Got an invalid arm: {arms}.")
 
     def _get_left_right_spatial_cube_arm_plaquettes(
@@ -1170,7 +1192,7 @@ class FixedBoundaryConventionGenerator:
         measurement: Basis | None = None,
     ) -> Plaquettes:
         # This is a regular memory arm, except that we should make sure that one
-        # of the boundary does not override the extended stabilizer.
+        # of the boundary does not override the extended stabilizer (in the 'corner' between the arms).
         z_orientation = (
             Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
         )
@@ -1184,10 +1206,34 @@ class FixedBoundaryConventionGenerator:
             regular_memory = regular_memory.without_plaquettes([3])
         return regular_memory
 
+    def _get_left_right_spatial_hadamard_cube_arm_plaquettes(
+            self,
+            spatial_boundary_basis: Basis,
+            arms: SpatialArms,
+            linked_cubes: tuple[CubeSpec, CubeSpec],
+            is_reversed: bool,
+            reset: Basis | None = None,
+            measurement: Basis | None = None,
+        ) -> Plaquettes:
+        # This is a regular hadamard arm, except that we should make sure that one
+        # of the boundary does not override the extended stabilizer (in the 'corner' between the arms).
+        z_orientation = (
+            Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
+        )
+        regular_hadamard = self.get_spatial_vertical_hadamard_plaquettes(
+            is_reversed, z_orientation, reset, measurement
+        )
+        u, v = linked_cubes
+        if SpatialArms.LEFT in arms and SpatialArms.UP in v.spatial_arms:
+            regular_hadamard = regular_hadamard.without_plaquettes([2])
+        if SpatialArms.RIGHT in arms and SpatialArms.DOWN in u.spatial_arms:
+            regular_hadamard = regular_hadamard.without_plaquettes([3])
+        return regular_hadamard
+
     @staticmethod
-    def pipe_needs_extended_stablizers(linked_cubes: tuple[CubeSpec, CubeSpec]) -> bool:
+    def pipe_needs_extended_stabilizers(linked_cubes: tuple[CubeSpec, CubeSpec]) -> bool:
         """Check if the pipe represented by the given ``arms`` and
-        ``linked_cubes`` requires extended stablizers.
+        ``linked_cubes`` requires extended stabilizers.
 
         In fixed boundary convention, spatial cubes change the boundary parity.
         That is why we need stretched stabilizers. By convention, TQEC inserts
@@ -1204,7 +1250,7 @@ class FixedBoundaryConventionGenerator:
                 specifications of the two ends of the pipe.
 
         Returns:
-            ``True`` if extended stablizers should be used, ``False`` otherwise.
+            ``True`` if extended stabilizers should be used, ``False`` otherwise.
 
         """
         return (
@@ -1232,7 +1278,7 @@ class FixedBoundaryConventionGenerator:
             boundary, ``False`` otherwise.
 
         """
-        assert FixedBoundaryConventionGenerator.pipe_needs_extended_stablizers(linked_cubes)
+        assert FixedBoundaryConventionGenerator.pipe_needs_extended_stabilizers(linked_cubes)
         return linked_cubes[1].has_spatial_pipe_in_both_dimensions
 
     def _get_up_down_spatial_cube_arm_plaquettes(
@@ -1243,9 +1289,62 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        if not FixedBoundaryConventionGenerator.pipe_needs_extended_stablizers(linked_cubes):
+        if not FixedBoundaryConventionGenerator.pipe_needs_extended_stabilizers(linked_cubes):
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
+                spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
+            )
+        # General case, need extended stabilizers.
+        sbb, otb = spatial_boundary_basis, spatial_boundary_basis.flipped()
+        # EPs: extended plaquettes
+        extended_plaquettes = self.get_extended_plaquettes(reset, measurement, is_reversed)
+        # Dictionary that will be filled with plaquettes
+        plaquettes: dict[int, Plaquette] = {}
+        # Getting the extended plaquettes for the bulk and filling the dictionary
+        has_left_boundary = (
+            FixedBoundaryConventionGenerator.pipe_has_boundary_extended_stabilizer_at_left(
+                linked_cubes
+            )
+        )
+        bulk1 = extended_plaquettes[otb if has_left_boundary else sbb].bulk
+        bulk2 = extended_plaquettes[sbb if has_left_boundary else otb].bulk
+        plaquettes |= {5: bulk1.top, 6: bulk2.top, 7: bulk1.bottom, 8: bulk2.bottom}
+        # Getting the extended plaquette, either for the left or the right
+        # boundary depending on the spatial arm that is being asked for.
+        boundary_collection = extended_plaquettes[sbb]
+        u, v = linked_cubes
+        if has_left_boundary:
+            boundary = (
+                boundary_collection.left_with_arm
+                if SpatialArms.LEFT in v.spatial_arms
+                else boundary_collection.left_without_arm
+            )
+            plaquettes |= {1: boundary.top, 3: boundary.bottom}
+        else:
+            boundary = (
+                boundary_collection.right_with_arm
+                if SpatialArms.RIGHT in u.spatial_arms
+                else boundary_collection.right_without_arm
+            )
+            plaquettes |= {2: boundary.top, 4: boundary.bottom}
+        return Plaquettes(
+            FrozenDefaultDict(
+                plaquettes,
+                default_value=self._mapper.get_plaquette(RPNGDescription.empty()),
+            )
+        )
+
+    def _get_up_down_spatial_hadamard_cube_arm_plaquettes(
+            self,
+            spatial_boundary_basis: Basis,
+            linked_cubes: tuple[CubeSpec, CubeSpec],
+            is_reversed: bool,
+            reset: Basis | None = None,
+            measurement: Basis | None = None,
+    ) -> Plaquettes:
+        if not FixedBoundaryConventionGenerator.pipe_needs_extended_stabilizers(linked_cubes):
+            # Special case, a little bit simpler, not using extended stabilizers.
+            return self._get_up_and_down_spatial_hadamard_cube_arm_plaquettes(
                 spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
             )
         # General case, need extended stabilizers.
@@ -1312,6 +1411,87 @@ class FixedBoundaryConventionGenerator:
         one spatial cube.
 
         The pipe implemented by this method links two cubes such as:
+
+        - at least one of the two cube is a spatial cube (both can be),
+        - either none of both of the two linked cubes have pipes in both spatial
+          dimensions.
+
+        In particular, the following situations can be encountered (list is not
+        exhaustive):
+
+        - a straight line ending on a spatial cube, meaning that the pipe links
+          a spatial cube with a single arm and a regular cube (case where none
+          of the 2 linked cubes have pipes in both spatial dimensions),
+        - a "rotated-H" shape (case where both of the 2 linked cubes have pipes
+          in both spatial dimensions),
+        - ...
+
+        These pipes have in common the fact that they do not require extended
+        stabilizers to be implemented.
+        """
+        # Aliases to shorten line length.
+        r, m = reset, measurement
+        _sbb = spatial_boundary_basis
+        # Generating the plaquette descriptions we will need later
+        up_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, (2, 3))
+        down_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, (0, 1))
+        corner_descriptions = self.get_3_body_rpng_descriptions(_sbb, is_reversed, r, m)
+        two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
+        # Here, depending on the linked cubes, we might insert regular two-body
+        # plaquettes or three-body plaquettes.
+        u, v = linked_cubes
+        both_cubes_have_spatial_pipes_in_both_dimensions = (
+            u.has_spatial_pipe_in_both_dimensions and v.has_spatial_pipe_in_both_dimensions
+        )
+        right_plaquette = (
+            corner_descriptions[3]
+            if SpatialArms.RIGHT in u.spatial_arms
+            else two_body_descriptions[_sbb][PlaquetteOrientation.RIGHT]
+        )
+        left_plaquette = (
+            corner_descriptions[0]
+            if SpatialArms.LEFT in v.spatial_arms
+            else two_body_descriptions[_sbb][PlaquetteOrientation.LEFT]
+        )
+        # tlb, otb: Top-Left Basis, Other Basis
+        tlb = _sbb if both_cubes_have_spatial_pipes_in_both_dimensions else _sbb.flipped()
+        otb = tlb.flipped()
+        left, right = (3, 2) if both_cubes_have_spatial_pipes_in_both_dimensions else (1, 4)
+        return FrozenDefaultDict(
+            {
+                right: right_plaquette,
+                left: left_plaquette,
+                5: up_bulk_plaquettes[tlb][Orientation.VERTICAL],
+                6: up_bulk_plaquettes[otb][Orientation.HORIZONTAL],
+                7: down_bulk_plaquettes[otb][Orientation.HORIZONTAL],
+                8: down_bulk_plaquettes[tlb][Orientation.VERTICAL],
+            },
+            default_value=RPNGDescription.empty(),
+        )
+    def _get_up_and_down_spatial_hadamard_cube_arm_plaquettes(
+        self,
+        spatial_boundary_basis: Basis,
+        linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
+    ) -> Plaquettes:
+        return self._mapper(self._get_up_and_down_spatial_hadamard_cube_arm_rpng_descriptions)(
+            spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
+        )
+
+    def _get_up_and_down_spatial_hadamard_cube_arm_rpng_descriptions(
+        self,
+        spatial_boundary_basis: Basis,
+        linked_cubes: tuple[CubeSpec, CubeSpec],
+        is_reversed: bool,
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
+    ) -> FrozenDefaultDict[int, RPNGDescription]:
+        """Return the RPNG descriptions to implement a hadamard pipe connecting at least
+        one spatial cube.
+
+        The hadamard pipe implemented by this method links two cubes such as:
 
         - at least one of the two cube is a spatial cube (both can be),
         - either none of both of the two linked cubes have pipes in both spatial
@@ -1781,10 +1961,10 @@ class FixedBoundaryConventionGenerator:
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(is_reversed, reset, measurement)
         bulk=dict()
-        bulk[ltb]= extended_plaquette_collection[ltb]["bulk"]
+        bulk[tlb]= extended_plaquette_collection[tlb]["bulk"]
         bulk[otb] = extended_plaquette_collection[otb]["bulk"]
         bottom_triangle = dict()
-        bottom_triangle[ltb] = extended_plaquette_collection[ltb]["left_with_arm"]
+        bottom_triangle[tlb] = extended_plaquette_collection[tlb]["left_with_arm"]
         bottom_triangle[otb] = extended_plaquette_collection[otb]["left_with_arm"]
 
         return FrozenDefaultDict(
@@ -1792,10 +1972,10 @@ class FixedBoundaryConventionGenerator:
                 1: bottom_triangle[tlb]["top"],
                 2: bulk[otb]["top"],
                 3: bottom_triangle[otb]["down"],
-                4: bulk[ltb]["bottom"],
+                4: bulk[tlb]["bottom"],
                 5: bulk[otb]["top"],
-                6: bulk[ltb]["top"],
-                7: bulk[ltb]["bottom"],
+                6: bulk[tlb]["top"],
+                7: bulk[tlb]["bottom"],
                 8: bulk[otb]["bottom"],
             },
             default_value=RPNGDescription.empty(),
@@ -1905,10 +2085,10 @@ class FixedBoundaryConventionGenerator:
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(is_reversed, reset, measurement)
         bulk=dict()
-        bulk[ltb]= extended_plaquette_collection[ltb]["bulk"]
+        bulk[tlb]= extended_plaquette_collection[tlb]["bulk"]
         bulk[otb] = extended_plaquette_collection[otb]["bulk"]
         top_triangle = dict()
-        top_triangle[ltb] = extended_plaquette_collection[ltb]["right_with_arm"]
+        top_triangle[tlb] = extended_plaquette_collection[tlb]["right_with_arm"]
         top_triangle[otb] = extended_plaquette_collection[otb]["right_with_arm"]
 
         return FrozenDefaultDict(
@@ -1916,10 +2096,10 @@ class FixedBoundaryConventionGenerator:
                 1: bulk[tlb]["top"],
                 2: top_triangle[otb]["top"],
                 3: bulk[otb]["bottom"],
-                4: top_triangle[ltb]["down"],
+                4: top_triangle[tlb]["down"],
                 5: bulk[otb]["top"],
-                6: bulk[ltb]["top"],
-                7: bulk[ltb]["bottom"],
+                6: bulk[tlb]["top"],
+                7: bulk[tlb]["bottom"],
                 8: bulk[otb]["bottom"],
             },
             default_value=RPNGDescription.empty(),
@@ -2031,10 +2211,10 @@ class FixedBoundaryConventionGenerator:
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(is_reversed, reset, measurement)
         bulk = dict()
-        bulk[ltb] = extended_plaquette_collection[ltb]["bulk"]
+        bulk[tlb] = extended_plaquette_collection[tlb]["bulk"]
         bulk[otb] = extended_plaquette_collection[otb]["bulk"]
         right_rectangle = dict() # ie it is the right half of a 'normal' plaquette
-        right_rectangle[ltb] = extended_plaquette_collection[ltb]["left_without_arm"]
+        right_rectangle[tlb] = extended_plaquette_collection[tlb]["left_without_arm"]
         right_rectangle[otb] = extended_plaquette_collection[otb]["left_without_arm"]
 
         return FrozenDefaultDict(
@@ -2042,10 +2222,10 @@ class FixedBoundaryConventionGenerator:
                 1: right_rectangle[tlb]["top"],
                 2: bulk[otb]["top"],
                 3: right_rectangle[otb]["down"],
-                4: bulk[ltb]["bottom"],
+                4: bulk[tlb]["bottom"],
                 5: bulk[otb]["top"],
-                6: bulk[ltb]["top"],
-                7: bulk[ltb]["bottom"],
+                6: bulk[tlb]["top"],
+                7: bulk[tlb]["bottom"],
                 8: bulk[otb]["bottom"],
             },
             default_value=RPNGDescription.empty(),
@@ -2159,10 +2339,10 @@ class FixedBoundaryConventionGenerator:
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(is_reversed, reset, measurement)
         bulk=dict()
-        bulk[ltb]= extended_plaquette_collection[ltb]["bulk"]
+        bulk[tlb]= extended_plaquette_collection[tlb]["bulk"]
         bulk[otb] = extended_plaquette_collection[otb]["bulk"]
         left_rectangle = dict() #ie only the left hand side of a normal plaquette
-        left_rectangle[ltb] = extended_plaquette_collection[ltb]["right_without_arm"]
+        left_rectangle[tlb] = extended_plaquette_collection[tlb]["right_without_arm"]
         left_rectangle[otb] = extended_plaquette_collection[otb]["right_without_arm"]
 
         return FrozenDefaultDict(
@@ -2170,10 +2350,10 @@ class FixedBoundaryConventionGenerator:
                 1: bulk[tlb]["top"],
                 2: left_rectangle[otb]["top"],
                 3: bulk[otb]["down"],
-                4: left_rectangle[ltb]["bottom"],
+                4: left_rectangle[tlb]["bottom"],
                 5: bulk[otb]["top"],
-                6: bulk[ltb]["top"],
-                7: bulk[ltb]["bottom"],
+                6: bulk[tlb]["top"],
+                7: bulk[tlb]["bottom"],
                 8: bulk[otb]["bottom"],
             },
             default_value=RPNGDescription.empty(),

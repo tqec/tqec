@@ -294,7 +294,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
 
         def plaquettes_generator(is_reversed: bool, r: Basis | None, m: Basis | None) -> Plaquettes:
             return self._generator.get_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis, arms, spec.cube_specs, is_reversed, r, m
+                spatial_boundary_basis, arms, spec.cube_specs, is_reversed, r, m, is_hadamard
             )
 
         return _get_block(
