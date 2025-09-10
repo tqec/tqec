@@ -24,7 +24,7 @@ jobs:
       - name: Create virtual environment and install dependencies
         run: |
           uv venv
-          uv pip install --upgrade pip pre-commit
+          uv sync --group dev
       - name: Run pre-commit hooks
         run: uv run pre-commit run --all-files
 
@@ -44,9 +44,9 @@ jobs:
       - name: Install dependencies after creating a virtual environment
         run: |
           uv venv
-          uv pip install --group all
+          uv sync --group all
       - name: Build
-        run: uv pip install --editable .
+        run: uv sync --editable .
       # Type check the code base.
       - name: Mypy type checking
         run: uv run mypy src/tqec/
@@ -74,8 +74,7 @@ jobs:
       - name: Install dependencies and tqec package after creating virtual environment
         run: |
           uv venv
-          uv pip install --upgrade pip
-          uv pip install -e '.[test]'
+          uv sync --group test
       # Only perform quick tests when pushing on a PR
       - name: Code health - format
         uses: astral-sh/ruff-action@v3

@@ -45,7 +45,7 @@ python -m pip install git+https://github.com/tqec/tqec.git
 ```
 
 ```{code-block} uv
-uv pip install git+https://github.com/tqec/tqec.git
+uv sync git+https://github.com/tqec/tqec.git
 ```
 
 ````

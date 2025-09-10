@@ -29,10 +29,9 @@ jobs:
       - name: Install dependencies
         run: |
           uv venv
-          uv pip install --upgrade pip
-          uv pip install --group all
+          uv sync --group all
       - name: Build
-        run: uv pip install --editable .
+        run: uv sync --editable .
       # Perform type checking before testing because that is quicker.
       - name: Mypy type checking
         run: uv run mypy src/tqec/

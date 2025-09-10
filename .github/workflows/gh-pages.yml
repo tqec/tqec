@@ -31,9 +31,8 @@ jobs:
           uv venv
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pandoc
-          uv pip install --upgrade pip
-          uv pip install --group all
-          uv pip install --editable .
+          uv sync --group all
+          uv sync --editable .
       - uses: actions/cache@v4
         id: cache-docs
         with:
