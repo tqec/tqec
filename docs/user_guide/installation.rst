@@ -16,23 +16,37 @@ please update your Python installation.
 Installation procedure
 ----------------------
 
-(optional) Create a new environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(optional but highly recommended) Create a new environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It is a good practice to create a new virtual environment for managing the dependencies of the ``tqec`` package.
 
-One way of doing that is using the native ``venv`` package of your python installation:
+One way of doing that is using the native ``venv`` package of your python installation or ``uv``. For more information,
+refer to the official documentation for each: `venv <https://docs.python.org/3/library/venv.html>`_, `uv <https://docs.astral.sh/uv/>`_.
 
-.. code-block:: bash
+.. tab-set::
 
-    python -m venv .venv
-    # On GNU/Linux and MacOS
-    source .venv/bin/activate
-    # On Windows
-    ## In cmd.exe
-    .venv\Scripts\activate.bat
-    ## In PowerShell
-    .venv\Scripts\Activate.ps1
+    .. tab-item:: venv
+
+        .. code-block:: bash
+
+                python -m venv .venv
+                # On GNU/Linux and MacOS
+                source .venv/bin/activate
+                # On Windows
+                ## In cmd.exe
+                .venv\Scripts\activate.bat
+                ## In PowerShell
+                .venv\Scripts\Activate.ps1
+
+    .. tab-item:: uv
+
+        .. code-block:: bash
+
+                # create a virtual environment for Python 3.12
+                uv venv tqec_312 --python 3.12
+                # On GNU/Linux and MacOS
+                source tqec_312/bin/activate
 
 Install the ``tqec`` package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,9 +56,20 @@ The ``tqec`` package is a regular Python package that can be installed using ``p
 It is not (yet) available on the official Python Package Index PyPI, so you will have
 to manually provide the URL to install the package:
 
-.. code-block:: bash
+.. tab-set::
 
-    python -m pip install git+https://github.com/tqec/tqec.git
+    .. tab-item:: pip
+
+        .. code-block:: bash
+
+                python -m pip install git+https://github.com/tqec/tqec.git
+
+    .. tab-item:: uv
+
+        .. code-block:: bash
+
+                uv pip install git+https://github.com/tqec/tqec.git
+
 
 And that's it! You can test the installation by running
 

@@ -65,6 +65,7 @@ extensions = [
     "jupyter_sphinx",
     # add code tabs; required by the pydata sphinx theme
     # https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/web-components.html#tabs
+    # https://sphinx-design.readthedocs.io/en/pydata-theme/tabs.html
     "sphinx_design",
 ]
 
@@ -198,7 +199,8 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 
 
-# Map 'uv' and 'pip' to use bash syntax highlighting
+# Map 'uv' and 'pip' to use bash syntax highlighting in the readme
+# or any other markdown documents.
 def setup(app):
     app.add_lexer("uv", BashLexer)
     app.add_lexer("pip", BashLexer)
