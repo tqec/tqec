@@ -327,9 +327,9 @@ class FixedBoundaryConventionGenerator:
             a tuple ``(bulk1, bulk2, left)`` containing:
 
             - ``bulk1``, a square plaquette with its two top-most data-qubits
-              measuring ``top_left_basis`` stabilizer.
-            - ``bulk2``, a square plaquette with its two left-most data-qubits
               measuring ``top_left_basis.flipped()`` stabilizer.
+            - ``bulk2``, a square plaquette with its two top-most data-qubits
+              measuring ``top_left_basis`` stabilizer.
             - ``left``, a plaquette measuring a weight 2 stabilizer with its
               top-most data-qubit measuring ``top_left_basis`` stabilizer and
               bottom-most data-qubit measuring ``top_left_basis.flipped()``
