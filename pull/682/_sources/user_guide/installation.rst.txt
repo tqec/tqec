@@ -68,7 +68,7 @@ to manually provide the URL to install the package:
 
         .. code-block:: bash
 
-                uv sync git+https://github.com/tqec/tqec.git
+                uv pip install git+https://github.com/tqec/tqec.git
 
 
 And that's it! You can test the installation by running

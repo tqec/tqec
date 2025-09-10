@@ -502,14 +502,13 @@ pre-commit<span class="w"> </span>install
 </div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">--editable</span></code> option to the <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> call is <strong>important</strong> as it installs an editable version
-of <code class="docutils literal notranslate"><span class="pre">tqec</span></code>. Without that option, changes made in the folder <code class="docutils literal notranslate"><span class="pre">tqec</span></code> will <strong>not</strong> be reflected on the
-<code class="docutils literal notranslate"><span class="pre">tqec</span></code> package installed.</p>
-<p>Without the <code class="docutils literal notranslate"><span class="pre">--editable</span></code> option, <code class="docutils literal notranslate"><span class="pre">uv</span></code> copies all the files it needs (mainly, the code) to the current Python
+<p>Note that compared to <code class="docutils literal notranslate"><span class="pre">pip</span></code>, we do not need to explicitly provide a flag for an editable installation in <code class="docutils literal notranslate"><span class="pre">uv</span></code>.
+By default, <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> will install an editable version of <code class="docutils literal notranslate"><span class="pre">tqec</span></code>. Without the editable installation, changes
+made in the folder <code class="docutils literal notranslate"><span class="pre">tqec</span></code> will <strong>not</strong> be reflected on the installed <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package.</p>
+<p>Without <code class="docutils literal notranslate"><span class="pre">sync</span></code>, <code class="docutils literal notranslate"><span class="pre">uv</span></code> copies all the files it needs (mainly, the code) to the current Python
 package folder. Any modification to the original <code class="docutils literal notranslate"><span class="pre">tqec</span></code> folder you installed the package from
 will not be reflected automatically on the copied files, which will limit your ability to test new
-changes on the code base. The <code class="docutils literal notranslate"><span class="pre">--editable</span></code> option tells <code class="docutils literal notranslate"><span class="pre">uv</span></code> to create a link instead of copying, which means
-that the code in the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> folder will be the code used when importing <code class="docutils literal notranslate"><span class="pre">tqec</span></code>.</p>
+changes on the code base.</p>
 </div>
 </div>
 </div>
