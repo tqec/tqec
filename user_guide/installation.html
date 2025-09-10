@@ -34,6 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -49,6 +50,7 @@
     <script src="../_static/thebelab-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/installation';</script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -469,10 +471,15 @@ please update your Python installation.</p>
 </section>
 <section id="installation-procedure">
 <h2>Installation procedure<a class="headerlink" href="#installation-procedure" title="Link to this heading">#</a></h2>
-<section id="optional-create-a-new-environment">
-<h3>(optional) Create a new environment<a class="headerlink" href="#optional-create-a-new-environment" title="Link to this heading">#</a></h3>
+<section id="optional-but-highly-recommended-create-a-new-environment">
+<h3>(optional but highly recommended) Create a new environment<a class="headerlink" href="#optional-but-highly-recommended-create-a-new-environment" title="Link to this heading">#</a></h3>
 <p>It is a good practice to create a new virtual environment for managing the dependencies of the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package.</p>
-<p>One way of doing that is using the native <code class="docutils literal notranslate"><span class="pre">venv</span></code> package of your python installation:</p>
+<p>One way of doing that is using the native <code class="docutils literal notranslate"><span class="pre">venv</span></code> package of your python installation or <code class="docutils literal notranslate"><span class="pre">uv</span></code>. For more information,
+refer to the official documentation for each: <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a>, <a class="reference external" href="https://docs.astral.sh/uv/">uv</a>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+venv</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
 <span class="c1"># On GNU/Linux and MacOS</span>
 <span class="nb">source</span><span class="w"> </span>.venv/bin/activate
@@ -483,14 +490,39 @@ please update your Python installation.</p>
 .venv<span class="se">\S</span>cripts<span class="se">\A</span>ctivate.ps1
 </pre></div>
 </div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a virtual environment for Python 3.12</span>
+uv<span class="w"> </span>venv<span class="w"> </span>tqec_312<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12
+<span class="c1"># On GNU/Linux and MacOS</span>
+<span class="nb">source</span><span class="w"> </span>tqec_312/bin/activate
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 <section id="install-the-tqec-package">
 <h3>Install the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package<a class="headerlink" href="#install-the-tqec-package" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package is a regular Python package that can be installed using <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
 <p>It is not (yet) available on the official Python Package Index PyPI, so you will have
 to manually provide the URL to install the package:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+pip</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tqec/tqec.git
 </pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tqec/tqec.git
+</pre></div>
+</div>
+</div>
 </div>
 <p>And that’s it! You can test the installation by running</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import tqec&quot;</span>
@@ -560,7 +592,7 @@ Else, a message like</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-procedure">Installation procedure</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-create-a-new-environment">(optional) Create a new environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-but-highly-recommended-create-a-new-environment">(optional but highly recommended) Create a new environment</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-tqec-package">Install the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package</a></li>
 </ul>
 </li>

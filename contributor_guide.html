@@ -34,6 +34,7 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -49,6 +50,7 @@
     <script src="_static/thebelab-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'contributor_guide';</script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -456,25 +458,24 @@
 <p>If you want to help maintaining and improving the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package, you will need
 to install a few more packages than the regular installation. It is also
 recommended to use an editable installation.</p>
-<p>Currently, <code class="docutils literal notranslate"><span class="pre">tqec</span></code> is compatible with Python 3.10, 3.11 and 3.12. Some dependencies limit the project’s
-compatibility with Python 3.13.</p>
+<p>Currently, <code class="docutils literal notranslate"><span class="pre">tqec</span></code> is compatible with Python 3.10, 3.11, 3.12 and 3.13. You can install the editable version
+of <code class="docutils literal notranslate"><span class="pre">tqec</span></code> through <code class="docutils literal notranslate"><span class="pre">pip</span></code> or <code class="docutils literal notranslate"><span class="pre">uv</span></code>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+pip</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the repository to have local files to work on</span>
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/tqec.git
-<span class="c1"># Install the library with developer dependencies</span>
-<span class="c1"># Note the &quot;-e&quot; option, that&#39;s important.</span>
-python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;tqec[all]&#39;</span>
-<span class="c1"># Go in the tqec directory and enable pre-commit</span>
-<span class="nb">cd</span><span class="w"> </span>tqec
-pre-commit<span class="w"> </span>install
+<span class="w">  </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/tqec.git
+<span class="w">  </span><span class="c1"># Install the library with developer dependencies</span>
+<span class="w">  </span><span class="c1"># Note the &quot;-e&quot; option, that&#39;s important.</span>
+<span class="w">  </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;tqec[all]&#39;</span>
+<span class="w">  </span><span class="c1"># Go in the tqec directory and enable pre-commit</span>
+<span class="w">  </span><span class="nb">cd</span><span class="w"> </span>tqec
+<span class="w">  </span>pre-commit<span class="w"> </span>install
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>You will have to install <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> separately as the instructions above only install a <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> wrapper.
-See <a class="reference external" href="https://stackoverflow.com/a/71585691">https://stackoverflow.com/a/71585691</a> for more info.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">-e</span></code> option to the <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span></code> call is <strong>important</strong> as it installs an editable version
 of <code class="docutils literal notranslate"><span class="pre">tqec</span></code>. Without that option, changes made in the folder <code class="docutils literal notranslate"><span class="pre">tqec</span></code> will <strong>not</strong> be reflected on the
 <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package installed.</p>
@@ -483,6 +484,38 @@ package folder. Any modification to the original <code class="docutils literal n
 will not be reflected automatically on the copied files, which will limit your ability to test new
 changes on the code base. The <code class="docutils literal notranslate"><span class="pre">-e</span></code> option tells <code class="docutils literal notranslate"><span class="pre">pip</span></code> to create a link instead of copying, which means
 that the code in the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> folder will be the code used when importing <code class="docutils literal notranslate"><span class="pre">tqec</span></code>.</p>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the repository to have local files to work on</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/tqec.git
+<span class="c1"># Go in the tqec directory</span>
+<span class="nb">cd</span><span class="w"> </span>tqec
+<span class="c1"># Install the library with developer dependencies</span>
+<span class="c1"># Note the &quot;-editable&quot; option, that&#39;s important.</span>
+uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>all
+<span class="c1"># enable pre-commit</span>
+uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Note that compared to <code class="docutils literal notranslate"><span class="pre">pip</span></code>, we do not need to explicitly provide a flag for an editable installation in <code class="docutils literal notranslate"><span class="pre">uv</span></code>.
+By default, <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> will install an editable version of <code class="docutils literal notranslate"><span class="pre">tqec</span></code>. Without the editable installation, changes
+made in the folder <code class="docutils literal notranslate"><span class="pre">tqec</span></code> will <strong>not</strong> be reflected on the installed <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package.</p>
+<p>Without <code class="docutils literal notranslate"><span class="pre">sync</span></code>, <code class="docutils literal notranslate"><span class="pre">uv</span></code> copies all the files it needs (mainly, the code) to the current Python
+package folder. Any modification to the original <code class="docutils literal notranslate"><span class="pre">tqec</span></code> folder you installed the package from
+will not be reflected automatically on the copied files, which will limit your ability to test new
+changes on the code base.</p>
+</div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You might have to install <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> separately as the instructions above only install a <code class="docutils literal notranslate"><span class="pre">pandoc</span></code> wrapper.
+See <a class="reference external" href="https://stackoverflow.com/a/71585691">https://stackoverflow.com/a/71585691</a> for more info.</p>
 </div>
 <p>If you encounter any issue during the installation, please refer to <a class="reference internal" href="user_guide/installation.html#installation"><span class="std std-ref">How to install tqec</span></a> for more information.</p>
 <p>You can now start contributing, following the rules explained in the next sections.</p>
