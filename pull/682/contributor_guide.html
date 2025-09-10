@@ -495,15 +495,14 @@ git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/
 <span class="nb">cd</span><span class="w"> </span>tqec
 <span class="c1"># Install the library with developer dependencies</span>
 <span class="c1"># Note the &quot;-editable&quot; option, that&#39;s important.</span>
-uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--group<span class="w"> </span>all
-uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--editable<span class="w"> </span>.
+uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>all
 <span class="c1"># enable pre-commit</span>
 pre-commit<span class="w"> </span>install
 </pre></div>
 </div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">--editable</span></code> option to the <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">pip</span> <span class="pre">install</span></code> call is <strong>important</strong> as it installs an editable version
+<p>The <code class="docutils literal notranslate"><span class="pre">--editable</span></code> option to the <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> call is <strong>important</strong> as it installs an editable version
 of <code class="docutils literal notranslate"><span class="pre">tqec</span></code>. Without that option, changes made in the folder <code class="docutils literal notranslate"><span class="pre">tqec</span></code> will <strong>not</strong> be reflected on the
 <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package installed.</p>
 <p>Without the <code class="docutils literal notranslate"><span class="pre">--editable</span></code> option, <code class="docutils literal notranslate"><span class="pre">uv</span></code> copies all the files it needs (mainly, the code) to the current Python

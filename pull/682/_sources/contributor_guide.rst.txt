@@ -57,13 +57,12 @@ of ``tqec`` through ``pip`` or ``uv``.
             cd tqec
             # Install the library with developer dependencies
             # Note the "-editable" option, that's important.
-            uv pip install --group all
-            uv pip install --editable .
+            uv sync --group all
             # enable pre-commit
             pre-commit install
 
         .. attention::
-            The ``--editable`` option to the ``uv pip install`` call is **important** as it installs an editable version
+            The ``--editable`` option to the ``uv sync`` call is **important** as it installs an editable version
             of ``tqec``. Without that option, changes made in the folder ``tqec`` will **not** be reflected on the
             ``tqec`` package installed.
 
