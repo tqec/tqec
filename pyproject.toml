@@ -64,7 +64,6 @@ Issues = "https://github.com/tqec/tqec/issues"
 [dependency-groups]
 test = [
   "pytest<=8.4.1",
-  "mypy<=1.17.0",
   "pytest-cov<=7.0.0",
   "types-networkx<=3.5.0.20250610",
   "scipy-stubs<=1.16.0.0",
@@ -88,7 +87,6 @@ bench = ["pyinstrument"]
 
 dev = [
     "jupyterlab<=4.4.3",
-    "mypy<=1.17.0",
     "myst-parser<=4.0.1",
     "nbsphinx<=0.9.7",
     "pandoc<=2.4",
