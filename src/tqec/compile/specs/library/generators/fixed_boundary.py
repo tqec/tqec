@@ -1267,11 +1267,9 @@ class FixedBoundaryConventionGenerator:
         # This is a regular hadamard arm, except that we should make sure that one
         # of the boundary does not override the extended stabilizer (in the 'corner'
         # between the arms).
-        z_orientation = (
-            Orientation.VERTICAL if spatial_boundary_basis == Basis.Z else Orientation.HORIZONTAL
-        )
+
         regular_hadamard = self.get_spatial_vertical_hadamard_plaquettes(
-            top_left_basis, is_reversed, z_orientation, reset, measurement
+            top_left_basis, is_reversed, reset, measurement
         )
         u, v = linked_cubes
         if SpatialArms.LEFT in arms and SpatialArms.UP in v.spatial_arms:
@@ -1429,12 +1427,7 @@ class FixedBoundaryConventionGenerator:
                 )
             )
 
-        return Plaquettes(
-            FrozenDefaultDict(
-                plaquettes,
-                default_value=self._mapper.get_plaquette(RPNGDescription.empty()),
-            )
-        )
+        return plaquettes
 
     def _get_up_and_down_spatial_cube_arm_plaquettes(
         self,
@@ -1579,7 +1572,7 @@ class FixedBoundaryConventionGenerator:
         bulk1_h, bulk2_h, left_h = self.get_spatial_y_hadamard_rpng_descriptions(
             tlb, is_reversed, r, m
         )
-        two_body_h = self.get_2_body_rpng_descriptions(tlb, is_reversed, r, m, hadamard=True)
+        two_body_h = self.get_2_body_rpng_descriptions(is_reversed, hadamard=True)
         # Here, depending on the linked cubes, we might insert two-body
         # plaquettes or three-body plaquettes.
         u, v = linked_cubes
@@ -2028,14 +2021,14 @@ class FixedBoundaryConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(
-            is_reversed, reset, measurement
+            reset, measurement, is_reversed
         )
         bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb]["bulk"]
-        bulk[otb] = extended_plaquette_collection[otb]["bulk"]
+        bulk[tlb] = extended_plaquette_collection[tlb].bulk
+        bulk[otb] = extended_plaquette_collection[otb].bulk
         bottom_triangle = dict()
-        bottom_triangle[tlb] = extended_plaquette_collection[tlb]["left_with_arm"]
-        bottom_triangle[otb] = extended_plaquette_collection[otb]["left_with_arm"]
+        bottom_triangle[tlb] = extended_plaquette_collection[tlb].left_with_arm
+        bottom_triangle[otb] = extended_plaquette_collection[otb].left_with_arm
 
         return FrozenDefaultDict(
             {
@@ -2158,14 +2151,14 @@ class FixedBoundaryConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(
-            is_reversed, reset, measurement
+            reset, measurement, is_reversed
         )
         bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb]["bulk"]
-        bulk[otb] = extended_plaquette_collection[otb]["bulk"]
+        bulk[tlb] = extended_plaquette_collection[tlb].bulk
+        bulk[otb] = extended_plaquette_collection[otb].bulk
         top_triangle = dict()
-        top_triangle[tlb] = extended_plaquette_collection[tlb]["right_with_arm"]
-        top_triangle[otb] = extended_plaquette_collection[otb]["right_with_arm"]
+        top_triangle[tlb] = extended_plaquette_collection[tlb].right_with_arm
+        top_triangle[otb] = extended_plaquette_collection[otb].right_with_arm
 
         return FrozenDefaultDict(
             {
@@ -2288,14 +2281,14 @@ class FixedBoundaryConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(
-            is_reversed, reset, measurement
+            reset, measurement, is_reversed
         )
         bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb]["bulk"]
-        bulk[otb] = extended_plaquette_collection[otb]["bulk"]
+        bulk[tlb] = extended_plaquette_collection[tlb].bulk
+        bulk[otb] = extended_plaquette_collection[otb].bulk
         right_rectangle = dict()  # ie it is the right half of a 'normal' plaquette
-        right_rectangle[tlb] = extended_plaquette_collection[tlb]["left_without_arm"]
-        right_rectangle[otb] = extended_plaquette_collection[otb]["left_without_arm"]
+        right_rectangle[tlb] = extended_plaquette_collection[tlb].left_without_arm
+        right_rectangle[otb] = extended_plaquette_collection[otb].left_without_arm
 
         return FrozenDefaultDict(
             {
@@ -2418,14 +2411,14 @@ class FixedBoundaryConventionGenerator:
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
         extended_plaquette_collection = self.get_extended_plaquettes(
-            is_reversed, reset, measurement
+            reset, measurement, is_reversed
         )
         bulk = dict()
-        bulk[tlb] = extended_plaquette_collection[tlb]["bulk"]
-        bulk[otb] = extended_plaquette_collection[otb]["bulk"]
+        bulk[tlb] = extended_plaquette_collection[tlb].bulk
+        bulk[otb] = extended_plaquette_collection[otb].bulk
         left_rectangle = dict()  # ie only the left hand side of a normal plaquette
-        left_rectangle[tlb] = extended_plaquette_collection[tlb]["right_without_arm"]
-        left_rectangle[otb] = extended_plaquette_collection[otb]["right_without_arm"]
+        left_rectangle[tlb] = extended_plaquette_collection[tlb].right_without_arm
+        left_rectangle[otb] = extended_plaquette_collection[otb].right_without_arm
 
         return FrozenDefaultDict(
             {
