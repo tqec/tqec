@@ -274,7 +274,7 @@ class NoiseModel:
             return self.any_clifford_1q_rule
         if self.any_clifford_2q_rule is not None and t == CLIFFORD_2Q:
             return self.any_clifford_2q_rule
-        if self.measure_rules is not None:
+        if self.measure_rules is not None and t in (MPP, JUST_MEASURE_1Q):
             measure_basis = _measure_basis(split_op=split_op)
             assert measure_basis is not None
             rule = self.measure_rules.get(measure_basis)
@@ -542,8 +542,8 @@ def _measure_basis(*, split_op: stim.CircuitInstruction) -> str | None:
 
     """
     result = OP_MEASURE_BASES.get(split_op.name)
-    targets = split_op.targets_copy()
     if result == "":
+        targets = split_op.targets_copy()
         for k in range(0, len(targets), 2):
             t = targets[k]
             if t.is_x_target:
