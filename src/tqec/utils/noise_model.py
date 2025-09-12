@@ -220,9 +220,11 @@ class NoiseModel:
             any_clifford_2q_rule=NoiseRule(after={"DEPOLARIZE2": p}),
             measure_rules={
                 "Z": NoiseRule(after={}, flip_result=p * 5),
+                "X": NoiseRule(after={}, flip_result=p * 5),
             },
             gate_rules={
                 "R": NoiseRule(after={"X_ERROR": p * 2}),
+                "RX": NoiseRule(after={"Z_ERROR": p * 2}),
             },
         )
 
