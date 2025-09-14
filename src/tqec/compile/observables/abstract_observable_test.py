@@ -5,10 +5,11 @@ from tqec.compile.observables.abstract_observable import (
     compile_correlation_surface_to_abstract_observable,
 )
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, ZXCube
+from tqec.computation.cube import Cube, YHalfCube, ZXCube
 from tqec.computation.pipe import Pipe
 from tqec.gallery.cnot import cnot
 from tqec.gallery.memory import memory
+from tqec.gallery.move_rotation import move_rotation
 from tqec.gallery.stability import stability
 from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
@@ -72,6 +73,20 @@ def test_abstract_observable_for_single_horizontal_pipe() -> None:
         top_readout_cubes=frozenset(CubeWithArms(cube) for cube in g.cubes),
         top_readout_pipes=frozenset(PipeWithArms(pipe) for pipe in g.pipes),
     )
+
+
+def test_abstract_observable_for_y_move_rotation() -> None:
+    g = move_rotation()
+    g.fill_ports(YHalfCube())
+    correlation_surfaces = g.find_correlation_surfaces()
+    abstract_observable = compile_correlation_surface_to_abstract_observable(
+        g, correlation_surfaces[0]
+    )
+    assert len(abstract_observable.top_readout_cubes) == 3
+    assert len(abstract_observable.top_readout_pipes) == 2
+    assert len(abstract_observable.bottom_stabilizer_pipes) == 2
+    assert len(abstract_observable.bottom_stabilizer_cubes) == 0
+    assert len(abstract_observable.temporal_hadamard_pipes) == 0
 
 
 def test_abstract_observable_for_logical_cnot() -> None:
