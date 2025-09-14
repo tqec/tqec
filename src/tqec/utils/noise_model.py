@@ -24,7 +24,8 @@ Modifications to the original code:
 5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and
    REPEAT blocks (not before the block, the first instruction in the repeated
    inner block, and after the block).
-6. Re-phrase the docstrings slightly .
+6. Re-phrase the docstrings slightly.
+7. Add X basis reset and measurement noise rules to the ``si1000`` noise model.
 
 """
 
