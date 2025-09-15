@@ -29,11 +29,15 @@ of ``tqec`` through ``pip`` or ``uv``.
 
             # Clone the repository to have local files to work on
               git clone https://github.com/tqec/tqec.git
-              # Install the library with developer dependencies
-              # Note the "-e" option, that's important.
-              python -m pip install -e 'tqec[all]'
-              # Go in the tqec directory and enable pre-commit
+              # Update pip to at least v25.1
+              python -m pip install --upgrade pip>=25.1
+              # Go in the tqec directory
               cd tqec
+              # Install developer dependencies
+              python -m pip install --group all
+              # Install tqec in editable mode (the "-e" option)
+              python -m pip install -e .
+              # enable pre-commit
               pre-commit install
 
         .. attention::
