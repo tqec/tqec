@@ -466,11 +466,15 @@ of <code class="docutils literal notranslate"><span class="pre">tqec</span></cod
 pip</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the repository to have local files to work on</span>
 <span class="w">  </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tqec/tqec.git
-<span class="w">  </span><span class="c1"># Install the library with developer dependencies</span>
-<span class="w">  </span><span class="c1"># Note the &quot;-e&quot; option, that&#39;s important.</span>
-<span class="w">  </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;tqec[all]&#39;</span>
-<span class="w">  </span><span class="c1"># Go in the tqec directory and enable pre-commit</span>
+<span class="w">  </span><span class="c1"># Update pip to at least v25.1</span>
+<span class="w">  </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip&gt;<span class="o">=</span><span class="m">25</span>.1
+<span class="w">  </span><span class="c1"># Go in the tqec directory</span>
 <span class="w">  </span><span class="nb">cd</span><span class="w"> </span>tqec
+<span class="w">  </span><span class="c1"># Install developer dependencies</span>
+<span class="w">  </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--group<span class="w"> </span>all
+<span class="w">  </span><span class="c1"># Install tqec in editable mode (the &quot;-e&quot; option)</span>
+<span class="w">  </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="w">  </span><span class="c1"># enable pre-commit</span>
 <span class="w">  </span>pre-commit<span class="w"> </span>install
 </pre></div>
 </div>
