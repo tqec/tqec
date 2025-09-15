@@ -2034,7 +2034,7 @@ class FixedBoundaryConventionGenerator:
             {
                 1: bottom_triangle[tlb].top,
                 2: bulk[otb].top,
-                3: bottom_triangle[otb].down,
+                3: bottom_triangle[otb].bottom,
                 4: bulk[tlb].bottom,
                 5: bulk[otb].top,
                 6: bulk[tlb].top,
@@ -2165,7 +2165,7 @@ class FixedBoundaryConventionGenerator:
                 1: bulk[tlb].top,
                 2: top_triangle[otb].top,
                 3: bulk[otb].bottom,
-                4: top_triangle[tlb].down,
+                4: top_triangle[tlb].bottom,
                 5: bulk[otb].top,
                 6: bulk[tlb].top,
                 7: bulk[tlb].bottom,
@@ -2294,7 +2294,7 @@ class FixedBoundaryConventionGenerator:
             {
                 1: right_rectangle[tlb].top,
                 2: bulk[otb].top,
-                3: right_rectangle[otb].down,
+                3: right_rectangle[otb].bottom,
                 4: bulk[tlb].bottom,
                 5: bulk[otb].top,
                 6: bulk[tlb].top,
@@ -2424,7 +2424,7 @@ class FixedBoundaryConventionGenerator:
             {
                 1: bulk[tlb].top,
                 2: left_rectangle[otb].top,
-                3: bulk[otb].down,
+                3: bulk[otb].bottom,
                 4: left_rectangle[tlb].bottom,
                 5: bulk[otb].top,
                 6: bulk[tlb].top,
