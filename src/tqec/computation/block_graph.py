@@ -940,6 +940,7 @@ class BlockGraph:
                 if new_label in assigned_new_labels:
                     raise TQECError(f"Port label '{new_label}' is reused multiple times.")
                 assigned_new_labels.add(new_label)
+                self._ports[new_label] = self._ports.pop(matching_cubes[0].label)
             elif new_label in port_labels:
                 raise TQECError(
                     f"The label '{new_label}' belongs to a port and "
