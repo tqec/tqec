@@ -2032,14 +2032,14 @@ class FixedBoundaryConventionGenerator:
 
         return FrozenDefaultDict(
             {
-                1: bottom_triangle[tlb]["top"],
-                2: bulk[otb]["top"],
-                3: bottom_triangle[otb]["down"],
-                4: bulk[tlb]["bottom"],
-                5: bulk[otb]["top"],
-                6: bulk[tlb]["top"],
-                7: bulk[tlb]["bottom"],
-                8: bulk[otb]["bottom"],
+                1: bottom_triangle[tlb].top,
+                2: bulk[otb].top,
+                3: bottom_triangle[otb].down,
+                4: bulk[tlb].bottom,
+                5: bulk[otb].top,
+                6: bulk[tlb].top,
+                7: bulk[tlb].bottom,
+                8: bulk[otb].bottom,
             },
             default_value=RPNGDescription.empty(),
         )
@@ -2162,14 +2162,14 @@ class FixedBoundaryConventionGenerator:
 
         return FrozenDefaultDict(
             {
-                1: bulk[tlb]["top"],
-                2: top_triangle[otb]["top"],
-                3: bulk[otb]["bottom"],
-                4: top_triangle[tlb]["down"],
-                5: bulk[otb]["top"],
-                6: bulk[tlb]["top"],
-                7: bulk[tlb]["bottom"],
-                8: bulk[otb]["bottom"],
+                1: bulk[tlb].top,
+                2: top_triangle[otb].top,
+                3: bulk[otb].bottom,
+                4: top_triangle[tlb].down,
+                5: bulk[otb].top,
+                6: bulk[tlb].top,
+                7: bulk[tlb].bottom,
+                8: bulk[otb].bottom,
             },
             default_value=RPNGDescription.empty(),
         )
@@ -2292,14 +2292,14 @@ class FixedBoundaryConventionGenerator:
 
         return FrozenDefaultDict(
             {
-                1: right_rectangle[tlb]["top"],
-                2: bulk[otb]["top"],
-                3: right_rectangle[otb]["down"],
-                4: bulk[tlb]["bottom"],
-                5: bulk[otb]["top"],
-                6: bulk[tlb]["top"],
-                7: bulk[tlb]["bottom"],
-                8: bulk[otb]["bottom"],
+                1: right_rectangle[tlb].top,
+                2: bulk[otb].top,
+                3: right_rectangle[otb].down,
+                4: bulk[tlb].bottom,
+                5: bulk[otb].top,
+                6: bulk[tlb].top,
+                7: bulk[tlb].bottom,
+                8: bulk[otb].bottom,
             },
             default_value=RPNGDescription.empty(),
         )
@@ -2422,14 +2422,14 @@ class FixedBoundaryConventionGenerator:
 
         return FrozenDefaultDict(
             {
-                1: bulk[tlb]["top"],
-                2: left_rectangle[otb]["top"],
-                3: bulk[otb]["down"],
-                4: left_rectangle[tlb]["bottom"],
-                5: bulk[otb]["top"],
-                6: bulk[tlb]["top"],
-                7: bulk[tlb]["bottom"],
-                8: bulk[otb]["bottom"],
+                1: bulk[tlb].top,
+                2: left_rectangle[otb].top,
+                3: bulk[otb].down,
+                4: left_rectangle[tlb].bottom,
+                5: bulk[otb].top,
+                6: bulk[tlb].top,
+                7: bulk[tlb].bottom,
+                8: bulk[otb].bottom,
             },
             default_value=RPNGDescription.empty(),
         )
