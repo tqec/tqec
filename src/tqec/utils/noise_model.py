@@ -24,8 +24,7 @@ Modifications to the original code:
 5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and
    REPEAT blocks (not before the block, the first instruction in the repeated
    inner block, and after the block).
-6. Re-phrase the docstrings slightly.
-7. Add X basis reset and measurement noise rules to the ``si1000`` noise model.
+6. Re-phrase the docstrings and error messages slightly.
 
 """
 
@@ -213,6 +212,8 @@ class NoiseModel:
         Small tweak from the paper: The measurement result is probabilistically flipped instead of
         the input qubit.
 
+        Note that this noise model only allows Z basis measurements and resets. Currently,
+        tqec does not automatically compile to compatible physical circuits.
         """
         return NoiseModel(
             idle_depolarization=p / 10,
@@ -221,11 +222,9 @@ class NoiseModel:
             any_clifford_2q_rule=NoiseRule(after={"DEPOLARIZE2": p}),
             measure_rules={
                 "Z": NoiseRule(after={}, flip_result=p * 5),
-                "X": NoiseRule(after={}, flip_result=p * 5),
             },
             gate_rules={
                 "R": NoiseRule(after={"X_ERROR": p * 2}),
-                "RX": NoiseRule(after={"Z_ERROR": p * 2}),
             },
         )
 
@@ -284,7 +283,10 @@ class NoiseModel:
             if rule is not None:
                 return rule
 
-        raise ValueError(f"No noise (or lack of noise) specified for {split_op=}.")
+        raise ValueError(
+            f"No noise (or lack of noise) specified for {split_op=}. Please make "
+            "sure the noise model covers all operations in the compiled circuit."
+        )
 
     def _append_idle_error(
         self,
