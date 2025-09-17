@@ -463,7 +463,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and</span>
 <span class="sd">   REPEAT blocks (not before the block, the first instruction in the repeated</span>
 <span class="sd">   inner block, and after the block).</span>
-<span class="sd">6. Re-phrase the docstrings slightly .</span>
+<span class="sd">6. Re-phrase the docstrings and error messages slightly.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -658,6 +658,8 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Small tweak from the paper: The measurement result is probabilistically flipped instead of</span>
 <span class="sd">        the input qubit.</span>
 
+<span class="sd">        Note that this noise model only allows Z basis measurements and resets. Currently,</span>
+<span class="sd">        tqec does not automatically compile to compatible physical circuits.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">NoiseModel</span><span class="p">(</span>
             <span class="n">idle_depolarization</span><span class="o">=</span><span class="n">p</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span>
@@ -724,14 +726,17 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_1q_rule</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_2q_rule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">==</span> <span class="n">CLIFFORD_2Q</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">any_clifford_2q_rule</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">measure_rules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">measure_rules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="n">MPP</span><span class="p">,</span> <span class="n">JUST_MEASURE_1Q</span><span class="p">):</span>
             <span class="n">measure_basis</span> <span class="o">=</span> <span class="n">_measure_basis</span><span class="p">(</span><span class="n">split_op</span><span class="o">=</span><span class="n">split_op</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">measure_basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">rule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measure_rules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">measure_basis</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">rule</span>
 
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No noise (or lack of noise) specified for </span><span class="si">{</span><span class="n">split_op</span><span class="si">=}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No noise (or lack of noise) specified for </span><span class="si">{</span><span class="n">split_op</span><span class="si">=}</span><span class="s2">. Please make &quot;</span>
+            <span class="s2">&quot;sure the noise model covers all operations in the compiled circuit.&quot;</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_append_idle_error</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -996,8 +1001,8 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">OP_MEASURE_BASES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">split_op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">targets</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">split_op</span><span class="o">.</span><span class="n">targets_copy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">is_x_target</span><span class="p">:</span>
