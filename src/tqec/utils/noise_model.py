@@ -24,7 +24,7 @@ Modifications to the original code:
 5. Changes to NoiseModel.noisy_circuit to respect TQEC convention with TICKs and
    REPEAT blocks (not before the block, the first instruction in the repeated
    inner block, and after the block).
-6. Re-phrase the docstrings slightly .
+6. Re-phrase the docstrings and error messages slightly.
 
 """
 
@@ -212,6 +212,8 @@ class NoiseModel:
         Small tweak from the paper: The measurement result is probabilistically flipped instead of
         the input qubit.
 
+        Note that this noise model only allows Z basis measurements and resets. Currently,
+        tqec does not automatically compile to compatible physical circuits.
         """
         return NoiseModel(
             idle_depolarization=p / 10,
@@ -274,14 +276,17 @@ class NoiseModel:
             return self.any_clifford_1q_rule
         if self.any_clifford_2q_rule is not None and t == CLIFFORD_2Q:
             return self.any_clifford_2q_rule
-        if self.measure_rules is not None:
+        if self.measure_rules is not None and t in (MPP, JUST_MEASURE_1Q):
             measure_basis = _measure_basis(split_op=split_op)
             assert measure_basis is not None
             rule = self.measure_rules.get(measure_basis)
             if rule is not None:
                 return rule
 
-        raise ValueError(f"No noise (or lack of noise) specified for {split_op=}.")
+        raise ValueError(
+            f"No noise (or lack of noise) specified for {split_op=}. Please make "
+            "sure the noise model covers all operations in the compiled circuit."
+        )
 
     def _append_idle_error(
         self,
@@ -542,8 +547,8 @@ def _measure_basis(*, split_op: stim.CircuitInstruction) -> str | None:
 
     """
     result = OP_MEASURE_BASES.get(split_op.name)
-    targets = split_op.targets_copy()
     if result == "":
+        targets = split_op.targets_copy()
         for k in range(0, len(targets), 2):
             t = targets[k]
             if t.is_x_target:
