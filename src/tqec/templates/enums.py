@@ -22,3 +22,5 @@ class TemplateBorder(Enum):
                 return TemplateBorder.RIGHT
             case TemplateBorder.RIGHT:
                 return TemplateBorder.LEFT
+            case _:
+                raise ValueError("Unexpected case.")
