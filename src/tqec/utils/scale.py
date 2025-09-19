@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
+from typing import cast
 
 from typing_extensions import Self
 
@@ -316,16 +317,18 @@ class Scalable2D:
     ) -> tuple[LinearFunction | int, LinearFunction | int]:
         if isinstance(other, tuple):
             return other
-        else:
+        elif isinstance(other, (Scalable2D, Shift2D)):
             return other.x, other.y
+        else:
+            raise TypeError("Unsupported input provided.")
 
     def __add__(self: Self, other: Self | Shift2D | tuple[int, int]) -> Self:
         x, y = Scalable2D._get_x_y(other)
-        return self.__class__(self.x + x, self.y + y)
+        return cast(Self, self.__class__(self.x + x, self.y + y))
 
     def __sub__(self: Self, other: Self | Shift2D | tuple[int, int]) -> Self:
         x, y = Scalable2D._get_x_y(other)
-        return self.__class__(self.x - x, self.y - y)
+        return cast(Self, self.__class__(self.x - x, self.y - y))
 
 
 class PlaquetteScalable2D(Scalable2D):

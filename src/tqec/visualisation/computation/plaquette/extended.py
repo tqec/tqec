@@ -28,6 +28,8 @@ class ExtendedPlaquettePosition(Enum):
                 return ExtendedPlaquettePosition.DOWN
             case ExtendedPlaquettePosition.DOWN:
                 return ExtendedPlaquettePosition.UP
+            case _:
+                raise ValueError("Unexpected input provided.")
 
 
 class ExtendedPlaquetteType(Enum):
@@ -202,6 +204,8 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
                 return ExtendedPlaquetteDrawer._get_weight_three_extended_plaquette_shape(
                     self._position, self._plaquette_type, fill, configuration
                 )
+            case _:
+                raise ValueError("Unsupported input provided.")
 
     def get_interaction_order_text(
         self,

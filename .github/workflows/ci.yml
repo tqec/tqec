@@ -54,8 +54,8 @@ jobs:
           uv venv
           uv sync --group all
       # Type check the code base.
-      - name: Mypy type checking
-        run: uv run mypy src/tqec/
+      - name: Type checking
+        run: uv run ty check
       # Perform the full tests (including slow ones) when pushing on main.
       - name: Complete tests
         if: github.ref == 'refs/heads/main'
