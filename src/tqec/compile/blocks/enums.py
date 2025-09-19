@@ -23,6 +23,10 @@ class SpatialBlockBorder(Enum):
                 return TemplateBorder.TOP
             case SpatialBlockBorder.Y_POSITIVE:
                 return TemplateBorder.BOTTOM
+            # add a wildcard pattern when function returns `None`
+            # flagged by ty
+            case _:
+                raise ValueError("Something unexpected happened.")
 
 
 class TemporalBlockBorder(Enum):

@@ -12,7 +12,8 @@ import sys
 import typing as ty
 from pathlib import Path
 
-from pygments.lexers import BashLexer
+from pygments.lexers import BashLexer  # type: ignore
+from pygments.formatters import HtmlFormatter  # type: ignore
 
 DOCUMENTATION_DIRECTORY = Path(__file__).parent
 PROJECT_DIRECTORY = DOCUMENTATION_DIRECTORY.parent
