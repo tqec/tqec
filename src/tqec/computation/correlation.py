@@ -174,7 +174,7 @@ class CorrelationSurface:
         from pyzx.pauliweb import multiply_paulis  # noqa: PLC0415
 
         paulis = [
-            reduce(multiply_paulis, {b.value for b in self.bases_at(port)}, "I")
+            reduce(multiply_paulis, {b.value for b in self.bases_at(port)}, "I")  # type: ignore
             for port in io_ports
         ]
         return "".join(paulis)

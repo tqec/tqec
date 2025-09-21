@@ -69,7 +69,7 @@ class ScheduledCircuit:
         if isinstance(schedule, int):
             schedule = list(range(schedule, schedule + len(moments)))
         if isinstance(schedule, list):
-            schedule = Schedule(schedule)
+            schedule = Schedule(schedule)  # type: ignore
 
         if len(moments) != len(schedule):
             raise ScheduleError(
@@ -125,7 +125,7 @@ class ScheduledCircuit:
         if isinstance(schedule, int):
             schedule = list(range(schedule, schedule + circuit.num_ticks + 1))
         if isinstance(schedule, list):
-            schedule = Schedule(schedule)
+            schedule = Schedule(schedule)  # type: ignore
 
         # Ensure that the provided circuit does not contain any
         # `stim.CircuitRepeatBlock` instance.

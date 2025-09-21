@@ -57,11 +57,11 @@ class PlaquetteMapper:
 
         # Because the function name have to change, we need to explicitly change
         # it here.
-        wrapped_func_name = f.__name__
+        wrapped_func_name = f.__name__  # type: ignore
         expected_end = "_rpng_descriptions"
         if not wrapped_func_name.endswith(expected_end):
             raise TQECError(
-                f"Cannot wrap function {f.__module__}.{f.__name__}: its name "
+                f"Cannot wrap function {f.__module__}.{f.__name__}: its name "  # type: ignore
                 f"does not end with '{expected_end}'."
             )
         wrapped_name = wrapped_func_name[: -len(expected_end)] + "_plaquettes"

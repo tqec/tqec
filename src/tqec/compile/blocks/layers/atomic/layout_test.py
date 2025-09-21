@@ -146,7 +146,7 @@ def test_to_template_and_plaquettes_multiple(empty_plaquette_layer: PlaquetteLay
     for t in template._layout.values():
         assert type(t) is type(empty_plaquette_layer.template)
     assert plaquettes.collection == (
-        plaquettes.collection
+        plaquettes.collection  # type: ignore
         | FrozenDefaultDict(
             {
                 i + empty_plaquette_layer.template.expected_plaquettes_number: plaq
