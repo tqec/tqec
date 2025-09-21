@@ -316,7 +316,7 @@ class Scalable2D:
         other: Scalable2D | Shift2D | tuple[LinearFunction | int, LinearFunction | int],
     ) -> tuple[LinearFunction | int, LinearFunction | int]:
         if isinstance(other, tuple):
-            return other
+            return cast(tuple[LinearFunction | int, LinearFunction | int], other)
         elif isinstance(other, (Scalable2D, Shift2D)):
             return other.x, other.y
         else:
