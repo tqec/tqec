@@ -258,13 +258,17 @@ def _find_spans_with_flood_fill(
         if parity == 0 and not edges_in_span and len(edges_left) <= 1:
             return None
         branches_at_node: list[tuple[set[ZXNode], set[ZXEdge]]] = []
-        for n in range(parity, len(edges_left) + 1, 2):
+
+        # If the parity is even, we can either include no edge, or select additional two edges
+        # to include in the span.
+        # If the parity is odd, we must select one additional edge to include in the span.
+        for num_edges_to_choose in range(parity, 3, 2):
             branches_at_node.extend(
                 (
                     {e.u if e.u != cur else e.v for e in branch_edges},
                     set(branch_edges),
                 )
-                for branch_edges in itertools.combinations(edges_left, n)
+                for branch_edges in itertools.combinations(edges_left, num_edges_to_choose)
             )
         branches_at_different_nodes.append(branches_at_node)
 
