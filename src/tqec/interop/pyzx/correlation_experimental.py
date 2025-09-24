@@ -7,6 +7,7 @@ from functools import partial, reduce
 from itertools import chain, combinations, product
 
 import networkx as nx
+import numpy as np
 import stim
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb, multiply_paulis
@@ -19,7 +20,6 @@ from tqec.interop.pyzx.utils import (
     is_s,
     is_x_no_phase,
     is_z_no_phase,
-    is_zx_no_phase,
 )
 from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
@@ -140,10 +140,8 @@ def _find_correlation_surfaces_from_leaf(
             bases_at_leaves[closed_leaf] = Pauli.Y
         elif is_z_no_phase(g, closed_leaf):
             bases_at_leaves[closed_leaf] = Pauli.X
-        elif is_x_no_phase(g, closed_leaf):
-            bases_at_leaves[closed_leaf] = Pauli.Z
         else:
-            raise TQECError(f"Unsupported leaf node type: {g.type(closed_leaf)}.")
+            bases_at_leaves[closed_leaf] = Pauli.Z
     neighbor = next(iter(g.neighbors(leaf)))
     pauli_graphs = []
     for basis in (
@@ -159,48 +157,115 @@ def _find_correlation_surfaces_from_leaf(
     if g.vertex_degree(neighbor) == 1:  # make sure no leaf node will be in the frontier
         frontier = []
         if neighbor in bases_at_leaves:
-            pauli_graphs = filter(
-                lambda pg: pg.nodes[neighbor][leaf] in (bases_at_leaves[neighbor], Pauli.I),
-                pauli_graphs,
+            pauli_graphs = list(
+                filter(
+                    lambda pg: pg.nodes[neighbor][leaf] in (bases_at_leaves[neighbor], Pauli.I),
+                    pauli_graphs,
+                )
             )
     else:
         frontier = [neighbor]
         explored_leaves = [leaf]
 
     while frontier:
+        stabilizer_nodes = explored_leaves + frontier
         cur = frontier.pop()
         unconnected_neighbors = sorted(
             filter(lambda n: n not in pauli_graphs[0][cur], g.neighbors(cur))
         )
-        neighbor_leaves_bases = {
-            n: _flip_pauli_based_on_edge_type(g, (cur, n), bases_at_leaves[n])
-            for n in unconnected_neighbors
-            if n in bases_at_leaves
-        }
+        # neighbor_leaves_bases = {
+        #     n: _flip_pauli_based_on_edge_type(g, (cur, n), bases_at_leaves[n])
+        #     for n in unconnected_neighbors
+        #     if n in bases_at_leaves
+        # }
         unexplored_neighbors = [n for n in unconnected_neighbors if n not in pauli_graphs[0]]
+        broadcast_basis = "X" if g.type(cur) == VertexType.Z else "Z"
+        passthrough_basis = Basis[broadcast_basis].flipped()
 
-        new_pauli_graphs = []
+        valid_graphs, invalid_graphs, syndromes = [], [], []
         stabilizer_list = []
         for pauli_graph in pauli_graphs:
-            incident_paulis = list(pauli_graph.nodes[cur].values())
-            if not is_zx_no_phase(g, cur):
-                raise TQECError(
-                    f"Unsupported non-leaf node type: {g.type(cur)} with phase {g.phase(cur)}."
-                )
-            broadcast_basis = "X" if g.type(cur) == VertexType.Z else "Z"
+            incident_paulis = pauli_graph.nodes[cur].values()
+            passthrough_parity = sum(p.has_basis(passthrough_basis) for p in incident_paulis) % 2
             broadcast_supports = [p.has_basis(broadcast_basis) for p in incident_paulis]
+            valid = True
             if all(broadcast_supports):
                 broadcast_pauli = Pauli[broadcast_basis]
             elif not any(broadcast_supports):
                 broadcast_pauli = Pauli.I
             else:  # invalid broadcast
-                continue
-
-            passthrough_basis = Basis[broadcast_basis].flipped()
-            passthrough_parity = sum(p.has_basis(passthrough_basis) for p in incident_paulis) % 2
+                valid = False
             if not unconnected_neighbors and passthrough_parity:  # invalid passthrough
-                continue
+                valid = False
+                broadcast_supports += [True]
 
+            stabilizer = stim.PauliString(
+                "".join(
+                    pauli.value
+                    for pauli in chain.from_iterable(
+                        pauli_graph.nodes[n].values() for n in stabilizer_nodes
+                    )
+                )
+            )
+            if _can_be_generated_by(stabilizer, stabilizer_list):
+                continue
+            if valid:
+                if stabilizer != stim.PauliString("I" * len(stabilizer)):
+                    stabilizer_list.append(stabilizer)
+                valid_graphs.append((pauli_graph, broadcast_pauli, passthrough_parity))
+                if len(stabilizer_list) == 2 * len(stabilizer_nodes):
+                    break
+            else:
+                invalid_graphs.append(pauli_graph)
+                syndromes.append(
+                    np.array(broadcast_supports).dot(1 << np.arange(len(broadcast_supports)))
+                )
+
+        for i, (pauli_graph, syndrome) in enumerate(zip(invalid_graphs, syndromes)):
+            if len(stabilizer_list) == 2 * len(stabilizer_nodes):
+                break
+            for indices in chain.from_iterable(
+                combinations(range(len(invalid_graphs)), num_flips)
+                for num_flips in range(1, len(invalid_graphs) + 1)
+            ):
+                if i in indices:
+                    continue
+                new_pauli_graph = reduce(
+                    _multiply_pauli_graphs, [invalid_graphs[j] for j in indices]
+                )
+
+                incident_paulis = new_pauli_graph.nodes[cur].values()
+                passthrough_parity = (
+                    sum(p.has_basis(passthrough_basis) for p in incident_paulis) % 2
+                )
+                broadcast_supports = [p.has_basis(broadcast_basis) for p in incident_paulis]
+                valid = True
+                if all(broadcast_supports):
+                    broadcast_pauli = Pauli[broadcast_basis]
+                elif not any(broadcast_supports):
+                    broadcast_pauli = Pauli.I
+                else:  # invalid broadcast
+                    continue
+                if not unconnected_neighbors and passthrough_parity:  # invalid passthrough
+                    continue
+
+                stabilizer = stim.PauliString(
+                    "".join(
+                        pauli.value
+                        for pauli in chain.from_iterable(
+                            new_pauli_graph.nodes[n].values() for n in stabilizer_nodes
+                        )
+                    )
+                )
+                if _can_be_generated_by(stabilizer, stabilizer_list):
+                    continue
+                if stabilizer != stim.PauliString("I" * len(stabilizer)):
+                    stabilizer_list.append(stabilizer)
+                valid_graphs.append((new_pauli_graph, broadcast_pauli, passthrough_parity))
+                break
+
+        new_pauli_graphs = []
+        for pauli_graph, broadcast_pauli, passthrough_parity in valid_graphs:
             passthrough_nodes_list = list(
                 chain.from_iterable(
                     combinations(unconnected_neighbors, num_passthrough)
@@ -224,26 +289,11 @@ def _find_correlation_surfaces_from_leaf(
             ]
 
             for out_paulis in out_paulis_list:
-                if any(
-                    out_paulis[n] not in (pauli, Pauli.I)
-                    for n, pauli in neighbor_leaves_bases.items()
-                ):
-                    continue
-                stabilizer = stim.PauliString(
-                    "".join(
-                        pauli.value
-                        for pauli in list(
-                            chain.from_iterable(
-                                pauli_graph.nodes[n].values() for n in explored_leaves + frontier
-                            )
-                        )
-                        + list(out_paulis.values())
-                    )
-                )
-                if _can_be_generated_by(stabilizer, stabilizer_list):
-                    continue
-                if stabilizer != stim.PauliString("I" * len(stabilizer)):
-                    stabilizer_list.append(stabilizer)
+                # if any(
+                #     out_paulis[n] not in (pauli, Pauli.I)
+                #     for n, pauli in neighbor_leaves_bases.items()
+                # ):
+                #     continue
                 new_pauli_graph = pauli_graph.copy()
                 for n, pauli in out_paulis.items():
                     if n not in new_pauli_graph:
@@ -267,7 +317,19 @@ def _find_correlation_surfaces_from_leaf(
         explored_leaves.extend(filter(lambda n: g.vertex_degree(n) == 1, unexplored_neighbors))
 
     correlation_surfaces = list(map(partial(_pauli_graph_to_correlation_surface, g), pauli_graphs))
-    return correlation_surfaces
+    return list(filter(lambda s: _leaf_nodes_can_support_span(g, s.span), correlation_surfaces))
+
+
+def _multiply_pauli_graphs(
+    pauli_graph_a: nx.Graph,
+    pauli_graph_b: nx.Graph,
+) -> nx.Graph:
+    """Multiply two Pauli graphs of the same scope to form a new Pauli graph."""
+    new_pauli_graph = pauli_graph_a.copy()
+    for v in new_pauli_graph:
+        for n in new_pauli_graph.neighbors(v):
+            new_pauli_graph.nodes[v][n] *= pauli_graph_b.nodes[v][n]
+    return new_pauli_graph
 
 
 def _pauli_graph_to_correlation_surface(
