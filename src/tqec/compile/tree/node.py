@@ -45,7 +45,7 @@ class NodeWalker:
 class LayerNode:
     def __init__(
         self,
-        layer: LayoutLayer | BaseComposedLayer,
+        layer: BaseLayer | LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
     ) -> None:
         """Represent a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
@@ -62,7 +62,7 @@ class LayerNode:
         self._annotations = dict(annotations) if annotations is not None else {}
 
     @staticmethod
-    def _get_children(layer: LayoutLayer | BaseComposedLayer) -> list[LayerNode]:
+    def _get_children(layer: BaseLayer | LayoutLayer | BaseComposedLayer) -> list[LayerNode]:
         if isinstance(layer, LayoutLayer):
             return []
         if isinstance(layer, SequencedLayers):
@@ -72,14 +72,14 @@ class LayerNode:
                     f"{LayoutLayer.__name__}. This should not happen and is a "
                     "logical error."
                 )
-            return [LayerNode(lay) for lay in layer.layer_sequence]  # type: ignore
+            return [LayerNode(lay) for lay in layer.layer_sequence]
         if isinstance(layer, RepeatedLayer):
             if not isinstance(layer.internal_layer, LayoutLayer | BaseComposedLayer):
                 raise TQECError(
                     "The layer that is being repeated is not an instance of "
                     f"{LayoutLayer.__name__} or {BaseComposedLayer.__name__}."
                 )
-            return [LayerNode(layer.internal_layer)]  # type: ignore
+            return [LayerNode(layer.internal_layer)]
         if isinstance(layer, (PlaquetteLayer, RawCircuitLayer)):
             raise TQECError(
                 f"Unsupported layer type found: {type(layer).__name__}. Expected "
