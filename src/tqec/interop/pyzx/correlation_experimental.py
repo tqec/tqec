@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from fractions import Fraction
 from functools import partial, reduce
 from itertools import chain, combinations, product
 
-import networkx as nx
 import numpy as np
 import stim
 from pyzx.graph.graph_s import GraphS
@@ -14,13 +14,7 @@ from pyzx.pauliweb import PauliWeb, multiply_paulis
 from pyzx.utils import FractionLike, VertexType
 
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
-from tqec.interop.pyzx.utils import (
-    is_boundary,
-    is_hardmard,
-    is_s,
-    is_x_no_phase,
-    is_z_no_phase,
-)
+from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_x_no_phase, is_z_no_phase
 from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
 
@@ -147,19 +141,18 @@ def _find_correlation_surfaces_from_leaf(
     for basis in (
         [bases_at_leaves[leaf]] if leaf in bases_at_leaves else [Pauli.X, Pauli.Z, Pauli.Y]
     ) + [Pauli.I]:
-        graph = nx.Graph()
-        graph.add_node(leaf)
-        graph.nodes[leaf][neighbor] = basis
-        graph.add_node(neighbor)
-        graph.nodes[neighbor][leaf] = _flip_pauli_based_on_edge_type(g, (leaf, neighbor), basis)
-        graph.add_edge(leaf, neighbor)
+        graph = {}
+        graph[leaf] = {}
+        graph[leaf][neighbor] = basis
+        graph[neighbor] = {}
+        graph[neighbor][leaf] = _flip_pauli_based_on_edge_type(g, (leaf, neighbor), basis)
         pauli_graphs.append(graph)
     if g.vertex_degree(neighbor) == 1:  # make sure no leaf node will be in the frontier
         frontier = []
         if neighbor in bases_at_leaves:
             pauli_graphs = list(
                 filter(
-                    lambda pg: pg.nodes[neighbor][leaf] in (bases_at_leaves[neighbor], Pauli.I),
+                    lambda pg: pg[neighbor][leaf] in (bases_at_leaves[neighbor], Pauli.I),
                     pauli_graphs,
                 )
             )
@@ -185,7 +178,7 @@ def _find_correlation_surfaces_from_leaf(
         valid_graphs, invalid_graphs, syndromes = [], [], []
         stabilizer_list = []
         for pauli_graph in pauli_graphs:
-            incident_paulis = pauli_graph.nodes[cur].values()
+            incident_paulis = pauli_graph[cur].values()
             passthrough_parity = sum(p.has_basis(passthrough_basis) for p in incident_paulis) % 2
             broadcast_supports = [p.has_basis(broadcast_basis) for p in incident_paulis]
             valid = True
@@ -203,7 +196,7 @@ def _find_correlation_surfaces_from_leaf(
                 "".join(
                     pauli.value
                     for pauli in chain.from_iterable(
-                        pauli_graph.nodes[n].values() for n in stabilizer_nodes
+                        pauli_graph[n].values() for n in stabilizer_nodes
                     )
                 )
             )
@@ -234,7 +227,7 @@ def _find_correlation_surfaces_from_leaf(
                     _multiply_pauli_graphs, [invalid_graphs[j] for j in indices]
                 )
 
-                incident_paulis = new_pauli_graph.nodes[cur].values()
+                incident_paulis = new_pauli_graph[cur].values()
                 passthrough_parity = (
                     sum(p.has_basis(passthrough_basis) for p in incident_paulis) % 2
                 )
@@ -253,7 +246,7 @@ def _find_correlation_surfaces_from_leaf(
                     "".join(
                         pauli.value
                         for pauli in chain.from_iterable(
-                            new_pauli_graph.nodes[n].values() for n in stabilizer_nodes
+                            new_pauli_graph[n].values() for n in stabilizer_nodes
                         )
                     )
                 )
@@ -294,15 +287,12 @@ def _find_correlation_surfaces_from_leaf(
                 #     for n, pauli in neighbor_leaves_bases.items()
                 # ):
                 #     continue
-                new_pauli_graph = pauli_graph.copy()
+                new_pauli_graph = deepcopy(pauli_graph)
                 for n, pauli in out_paulis.items():
                     if n not in new_pauli_graph:
-                        new_pauli_graph.add_node(n)
-                    new_pauli_graph.nodes[n][cur] = _flip_pauli_based_on_edge_type(
-                        g, (cur, n), pauli
-                    )
-                    new_pauli_graph.add_edge(cur, n)
-                    new_pauli_graph.nodes[cur][n] = pauli
+                        new_pauli_graph[n] = {}
+                    new_pauli_graph[n][cur] = _flip_pauli_based_on_edge_type(g, (cur, n), pauli)
+                    new_pauli_graph[cur][n] = pauli
                 new_pauli_graphs.append(new_pauli_graph)
 
         pauli_graphs = new_pauli_graphs
@@ -321,26 +311,26 @@ def _find_correlation_surfaces_from_leaf(
 
 
 def _multiply_pauli_graphs(
-    pauli_graph_a: nx.Graph,
-    pauli_graph_b: nx.Graph,
-) -> nx.Graph:
+    pauli_graph_a: dict[int, dict[int, Pauli]],
+    pauli_graph_b: dict[int, dict[int, Pauli]],
+) -> dict[int, dict[int, Pauli]]:
     """Multiply two Pauli graphs of the same scope to form a new Pauli graph."""
-    new_pauli_graph = pauli_graph_a.copy()
+    new_pauli_graph = deepcopy(pauli_graph_a)
     for v in new_pauli_graph:
-        for n in new_pauli_graph.neighbors(v):
-            new_pauli_graph.nodes[v][n] *= pauli_graph_b.nodes[v][n]
+        for n in new_pauli_graph[v]:
+            new_pauli_graph[v][n] *= pauli_graph_b[v][n]
     return new_pauli_graph
 
 
 def _pauli_graph_to_correlation_surface(
     g: GraphS,
-    pauli_graph: nx.Graph,
+    pauli_graph: dict[int, dict[int, Pauli]],
 ) -> CorrelationSurface:
     """Convert a Pauli graph to a correlation surface."""
     span: set[ZXEdge] = set()
-    for u, v in pauli_graph.edges():
-        pauli_u = pauli_graph.nodes[u][v]
-        pauli_v = pauli_graph.nodes[v][u]
+    for u, v in g.edges():
+        pauli_u = pauli_graph[u][v]
+        pauli_v = pauli_graph[v][u]
         for basis_u, basis_v in product(Basis, repeat=2):
             if (
                 (is_hardmard(g, (u, v)) ^ (basis_u == basis_v))
