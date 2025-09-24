@@ -66,10 +66,12 @@ class ScheduledCircuit:
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
 
         """
+        # Handle each input type explicitly due to type checker
         if isinstance(schedule, int):
-            schedule = list(range(schedule, schedule + len(moments)))
-        if isinstance(schedule, list):
-            schedule = Schedule(schedule)  # type: ignore
+            schedule_temp = list(range(schedule, schedule + len(moments)))
+            schedule = Schedule(schedule=schedule_temp)
+        elif isinstance(schedule, list) and not isinstance(schedule, Schedule):
+            schedule = Schedule(schedule=schedule)
 
         if len(moments) != len(schedule):
             raise ScheduleError(
@@ -122,10 +124,12 @@ class ScheduledCircuit:
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
 
         """
+        # Handle each input type explicitly due to type checker
         if isinstance(schedule, int):
-            schedule = list(range(schedule, schedule + circuit.num_ticks + 1))
-        if isinstance(schedule, list):
-            schedule = Schedule(schedule)  # type: ignore
+            schedule_temp = list(range(schedule, schedule + circuit.num_ticks + 1))
+            schedule = Schedule(schedule=schedule_temp)
+        elif isinstance(schedule, list) and not isinstance(schedule, Schedule):
+            schedule = Schedule(schedule=schedule)
 
         # Ensure that the provided circuit does not contain any
         # `stim.CircuitRepeatBlock` instance.
