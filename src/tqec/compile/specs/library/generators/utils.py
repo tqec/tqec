@@ -10,7 +10,8 @@ from one that returns `FrozenDefaultDict[int, RPNGDescription]`.
 
 from collections.abc import Callable
 from functools import wraps
-from typing import Final, ParamSpec
+from types import FunctionType
+from typing import Final, ParamSpec, cast
 
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
@@ -48,6 +49,7 @@ class PlaquetteMapper:
         :class:`.Plaquette`.
 
         """
+        func = cast(FunctionType, f)
 
         # The wraps decorator make sure that the original function name, module,
         # docstring, ... is correctly transmitted to the wrapper.
@@ -57,11 +59,11 @@ class PlaquetteMapper:
 
         # Because the function name have to change, we need to explicitly change
         # it here.
-        wrapped_func_name = f.__name__  # type: ignore
+        wrapped_func_name = func.__name__
         expected_end = "_rpng_descriptions"
         if not wrapped_func_name.endswith(expected_end):
             raise TQECError(
-                f"Cannot wrap function {f.__module__}.{f.__name__}: its name "  # type: ignore
+                f"Cannot wrap function {func.__module__}.{func.__name__}: its name "
                 f"does not end with '{expected_end}'."
             )
         wrapped_name = wrapped_func_name[: -len(expected_end)] + "_plaquettes"
