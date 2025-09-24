@@ -320,6 +320,7 @@ class Scalable2D:
         elif isinstance(other, (Scalable2D, Shift2D)):
             return other.x, other.y
         else:
+            # added because flagged by ty
             raise TypeError("Unsupported input provided.")
 
     def __add__(self: Self, other: Self | Shift2D | tuple[int, int]) -> Self:

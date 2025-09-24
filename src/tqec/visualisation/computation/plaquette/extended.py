@@ -28,6 +28,7 @@ class ExtendedPlaquettePosition(Enum):
                 return ExtendedPlaquettePosition.DOWN
             case ExtendedPlaquettePosition.DOWN:
                 return ExtendedPlaquettePosition.UP
+            # wildcard entry added as it was flagged by ty
             case _:
                 raise ValueError("Unexpected input provided.")
 
@@ -204,6 +205,7 @@ class ExtendedPlaquetteDrawer(SVGPlaquetteDrawer):
                 return ExtendedPlaquetteDrawer._get_weight_three_extended_plaquette_shape(
                     self._position, self._plaquette_type, fill, configuration
                 )
+            # wildcard entry added as it was flagged by ty
             case _:
                 raise ValueError("Unsupported input provided.")
 
