@@ -26,7 +26,7 @@ class SpatialBlockBorder(Enum):
             # add a wildcard pattern when function returns `None`
             # flagged by ty
             case _:
-                raise ValueError("Something unexpected happened.")
+                raise ValueError(f"Cannot find the template border corresponding to {self} .")
 
 
 class TemporalBlockBorder(Enum):
