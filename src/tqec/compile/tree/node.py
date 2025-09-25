@@ -45,7 +45,7 @@ class NodeWalker:
 class LayerNode:
     def __init__(
         self,
-        layer: BaseLayer | LayoutLayer | BaseComposedLayer,
+        layer: LayoutLayer | BaseComposedLayer,
         annotations: Mapping[int, LayerNodeAnnotations] | None = None,
     ) -> None:
         """Represent a node in a :class:`~tqec.compile.tree.tree.LayerTree`.
