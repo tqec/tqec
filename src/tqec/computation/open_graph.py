@@ -203,14 +203,11 @@ def _iter_stabilizer_group(
     # powerset of the generators
     for r in range(1, len(generators) + 1):
         for comb in combinations(generators, r):
-            yield (
-                reduce(
-                    _multiply_unsigned_paulis,
-                    comb,
-                    identity,
-                ),
-                comb,
-            )
+            output = identity
+            for gen in comb:
+                output = _multiply_unsigned_paulis(output, gen)
+
+            yield (output, comb)
 
 
 def _is_compatible_paulis(s1: str, s2: str) -> bool:

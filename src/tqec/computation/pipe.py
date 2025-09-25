@@ -71,8 +71,11 @@ class PipeKind:
         """
         string = string.upper()
         has_hadamard = len(string) == 4 and string[3] == "H"
+        bases = list(Basis(s) if s != "O" else None for s in string[:3])
         return PipeKind(
-            *(Basis(s) if s != "O" else None for s in string[:3]),  # type: ignore
+            bases[0],
+            bases[1],
+            bases[2],
             has_hadamard=has_hadamard,
         )
 

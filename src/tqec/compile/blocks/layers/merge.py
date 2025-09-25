@@ -1,5 +1,5 @@
 from itertools import chain, repeat
-from typing import TypeGuard
+from typing import TypeGuard, cast
 
 import numpy
 
@@ -86,9 +86,11 @@ def merge_composed_layers(
             f"Found the following different lengths: {different_timesteps}."
         )
     if contains_only_repeated_layers(layers):
-        return merge_repeated_layers(layers, scalable_qubit_shape)
+        repeated_layers = cast(dict[LayoutPosition2D, RepeatedLayer], layers)
+        return merge_repeated_layers(repeated_layers, scalable_qubit_shape)
     if contains_only_sequenced_layers(layers):
-        return merge_sequenced_layers(layers, scalable_qubit_shape)
+        sequenced_layers = cast(dict[LayoutPosition2D, SequencedLayers], layers)
+        return merge_sequenced_layers(sequenced_layers, scalable_qubit_shape)
     # We are left here with a mix of RepeatedLayer and SequencedLayers.
     # Check that, in case a new subclass of BaseComposedLayer has been introduced.
     if not contains_only_repeated_or_sequenced_layers(layers):
@@ -101,7 +103,8 @@ def merge_composed_layers(
             f"Found instances of {unknown_types_names} that are not yet "
             "implemented in _merge_composed_layers."
         )
-    return merge_repeated_and_sequenced_layers(layers, scalable_qubit_shape)
+    mixed_layers = cast(dict[LayoutPosition2D, SequencedLayers | RepeatedLayer], layers)
+    return merge_repeated_and_sequenced_layers(mixed_layers, scalable_qubit_shape)
 
 
 def merge_repeated_layers(
