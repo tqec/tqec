@@ -62,7 +62,7 @@ class LayerNode:
         self._annotations = dict(annotations) if annotations is not None else {}
 
     @staticmethod
-    def _get_children(layer: BaseLayer | LayoutLayer | BaseComposedLayer) -> list[LayerNode]:
+    def _get_children(layer: LayoutLayer | BaseComposedLayer) -> list[LayerNode]:
         if isinstance(layer, LayoutLayer):
             return []
         if isinstance(layer, SequencedLayers):
