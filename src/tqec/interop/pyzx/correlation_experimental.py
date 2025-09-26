@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from copy import deepcopy
 from fractions import Fraction
 from functools import partial, reduce
 from itertools import chain, combinations, product
 
-import numpy as np
 import stim
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb, multiply_paulis
@@ -137,6 +137,7 @@ def _find_correlation_surfaces_from_leaf(
         else:
             bases_at_leaves[closed_leaf] = Pauli.Z
     neighbor = next(iter(g.neighbors(leaf)))
+
     pauli_graphs = []
     for basis in (
         [bases_at_leaves[leaf]] if leaf in bases_at_leaves else [Pauli.X, Pauli.Z, Pauli.Y]
@@ -147,6 +148,7 @@ def _find_correlation_surfaces_from_leaf(
         graph[neighbor] = {}
         graph[neighbor][leaf] = _flip_pauli_based_on_edge_type(g, (leaf, neighbor), basis)
         pauli_graphs.append(graph)
+
     if g.vertex_degree(neighbor) == 1:  # make sure no leaf node will be in the frontier
         frontier = []
         if neighbor in bases_at_leaves:
@@ -162,124 +164,99 @@ def _find_correlation_surfaces_from_leaf(
 
     while frontier:
         stabilizer_nodes = explored_leaves + frontier
-        cur = frontier.pop()
-        unconnected_neighbors = sorted(
-            filter(lambda n: n not in pauli_graphs[0][cur], g.neighbors(cur))
+        stabilizer_length = sum(len(pauli_graphs[0][n]) for n in stabilizer_nodes)
+        current_node = frontier.pop()
+        unconnected_neighbors = list(
+            filter(
+                lambda n: n not in pauli_graphs[0][current_node],
+                g.neighbors(current_node),
+            )
         )
-        # neighbor_leaves_bases = {
-        #     n: _flip_pauli_based_on_edge_type(g, (cur, n), bases_at_leaves[n])
-        #     for n in unconnected_neighbors
-        #     if n in bases_at_leaves
-        # }
         unexplored_neighbors = [n for n in unconnected_neighbors if n not in pauli_graphs[0]]
-        broadcast_basis = "X" if g.type(cur) == VertexType.Z else "Z"
-        passthrough_basis = Basis[broadcast_basis].flipped()
+        flip_basis = g.type(current_node) == VertexType.X
+        broadcast_basis = Basis.Z if flip_basis else Basis.X
+        passthrough_basis = broadcast_basis.flipped()
 
-        valid_graphs, invalid_graphs, syndromes = [], [], []
-        stabilizer_list = []
+        # check if each Pauli graph candidate satisfies broadcast and passthrough constraints
+        # on the current node and is not a product of previously checked valid Pauli graphs
+        valid_graphs, invalid_graphs, syndromes, stabilizer_list = [], [], [], []
         for pauli_graph in pauli_graphs:
-            incident_paulis = pauli_graph[cur].values()
-            passthrough_parity = sum(p.has_basis(passthrough_basis) for p in incident_paulis) % 2
-            broadcast_supports = [p.has_basis(broadcast_basis) for p in incident_paulis]
+            supports = _pauli_support_on_nodes(pauli_graph, [current_node])
+            passthrough_parity = sum(supports[1 - flip_basis]) % 2
             valid = True
-            if all(broadcast_supports):
-                broadcast_pauli = Pauli[broadcast_basis]
-            elif not any(broadcast_supports):
+            syndrome = supports[flip_basis]
+            if all(syndrome):
+                broadcast_pauli = Pauli[broadcast_basis.value]
+            elif not any(syndrome):
                 broadcast_pauli = Pauli.I
             else:  # invalid broadcast
                 valid = False
-            if not unconnected_neighbors:  # invalid passthrough
-                broadcast_supports += [passthrough_parity]
-                if passthrough_parity:
+            if not unconnected_neighbors:
+                syndrome += [passthrough_parity]
+                if passthrough_parity:  # invalid passthrough
                     valid = False
 
-            # if any(
-            #     out_paulis[n] not in (pauli, Pauli.I)
-            #     for n, pauli in neighbor_leaves_bases.items()
-            # ):
-            #     continue
-
-            stabilizer = stim.PauliString(
-                "".join(
-                    pauli.value
-                    for pauli in chain.from_iterable(
-                        pauli_graph[n].values() for n in stabilizer_nodes
-                    )
-                )
+            stabilizer = _bits_to_int(
+                chain.from_iterable(_pauli_support_on_nodes(pauli_graph, stabilizer_nodes))
             )
-            if _can_be_generated_by(stabilizer, stabilizer_list):
+            if _find_subset_xor(stabilizer, stabilizer_list) is not None:
                 continue
             if valid:
-                if stabilizer != stim.PauliString("I" * len(stabilizer)):
+                if stabilizer:
                     stabilizer_list.append(stabilizer)
                 valid_graphs.append((pauli_graph, broadcast_pauli, passthrough_parity))
-                # if len(stabilizer_list) == 2 * len(stabilizer_nodes):
-                #     break
+                if len(stabilizer_list) == 2 * stabilizer_length:
+                    break
             else:
                 invalid_graphs.append(pauli_graph)
-                syndromes.append(
-                    int(np.array(broadcast_supports).dot(1 << np.arange(len(broadcast_supports))))
-                )
+                syndromes.append(sum(b << i for i, b in enumerate(syndrome)))
 
-        all_one = (1 << len(broadcast_supports)) - 1
+        # try to fix local constraint violations by multiplying with other invalid graphs
+        all_one = (1 << len(syndrome)) - 1
         if not unconnected_neighbors:
-            all_one ^= 1 << (len(broadcast_supports) - 1)
-
+            all_one ^= 1 << (len(syndrome) - 1)
         for i, (pauli_graph, syndrome) in enumerate(zip(invalid_graphs, syndromes)):
-            # if len(stabilizer_list) == 2 * len(stabilizer_nodes):
-            #     break
+            if len(stabilizer_list) == 2 * stabilizer_length:
+                break
             for target in (syndrome, syndrome ^ all_one):
                 indices = _find_subset_xor(target, syndromes[:i] + syndromes[i + 1 :])
                 if indices is None:
                     continue
                 indices = [j if j < i else j + 1 for j in indices]
                 new_pauli_graph = reduce(
-                    _multiply_pauli_graphs, [pauli_graph] + [invalid_graphs[j] for j in indices]
+                    _multiply_pauli_graphs,
+                    [pauli_graph] + [invalid_graphs[j] for j in indices],
                 )
 
-                incident_paulis = new_pauli_graph[cur].values()
-                passthrough_parity = (
-                    sum(p.has_basis(passthrough_basis) for p in incident_paulis) % 2
-                )
-                broadcast_supports = [p.has_basis(broadcast_basis) for p in incident_paulis]
-                valid = True
-                if all(broadcast_supports):
-                    broadcast_pauli = Pauli[broadcast_basis]
-                elif not any(broadcast_supports):
+                supports = _pauli_support_on_nodes(new_pauli_graph, [current_node])
+                passthrough_parity = sum(supports[1 - flip_basis]) % 2
+                if all(supports[flip_basis]):
+                    broadcast_pauli = Pauli[broadcast_basis.value]
+                else:
                     broadcast_pauli = Pauli.I
-                else:  # invalid broadcast
-                    raise TQECError("This should not happen.")
-                if not unconnected_neighbors and passthrough_parity:  # invalid passthrough
-                    raise TQECError("This should not happen.")
 
-                stabilizer = stim.PauliString(
-                    "".join(
-                        pauli.value
-                        for pauli in chain.from_iterable(
-                            new_pauli_graph[n].values() for n in stabilizer_nodes
-                        )
-                    )
+                stabilizer = _bits_to_int(
+                    chain.from_iterable(_pauli_support_on_nodes(new_pauli_graph, stabilizer_nodes))
                 )
-                if _can_be_generated_by(stabilizer, stabilizer_list):
+                if _find_subset_xor(stabilizer, stabilizer_list) is not None:
                     continue
-                if stabilizer != stim.PauliString("I" * len(stabilizer)):
+                if stabilizer:
                     stabilizer_list.append(stabilizer)
                 valid_graphs.append((new_pauli_graph, broadcast_pauli, passthrough_parity))
                 break
 
-        new_pauli_graphs = []
+        # enumerate new branches
+        pauli_graphs = []
         for pauli_graph, broadcast_pauli, passthrough_parity in valid_graphs:
-            passthrough_nodes_list = list(
-                chain.from_iterable(
-                    combinations(unconnected_neighbors, num_passthrough)
-                    for num_passthrough in range(
-                        passthrough_parity,
-                        len(unconnected_neighbors) + 1,
-                        2,
-                    )
+            passthrough_nodes_list = chain.from_iterable(
+                combinations(unconnected_neighbors, num_passthrough)
+                for num_passthrough in range(
+                    passthrough_parity,
+                    len(unconnected_neighbors) + 1,
+                    2,
                 )
             )
-            out_paulis_list = [
+            out_paulis_list = (
                 {
                     n: (
                         broadcast_pauli * Pauli[passthrough_basis.value]
@@ -289,19 +266,20 @@ def _find_correlation_surfaces_from_leaf(
                     for n in unconnected_neighbors
                 }
                 for passthrough_nodes in passthrough_nodes_list
-            ]
+            )
 
             for out_paulis in out_paulis_list:
                 new_pauli_graph = deepcopy(pauli_graph)
                 for n, pauli in out_paulis.items():
                     if n not in new_pauli_graph:
                         new_pauli_graph[n] = {}
-                    new_pauli_graph[n][cur] = _flip_pauli_based_on_edge_type(g, (cur, n), pauli)
-                    new_pauli_graph[cur][n] = pauli
-                new_pauli_graphs.append(new_pauli_graph)
+                    new_pauli_graph[n][current_node] = _flip_pauli_based_on_edge_type(
+                        g, (current_node, n), pauli
+                    )
+                    new_pauli_graph[current_node][n] = pauli
+                pauli_graphs.append(new_pauli_graph)
 
-        pauli_graphs = new_pauli_graphs
-        if not pauli_graphs:  # there is no valid correlation surface on this ZX graph
+        if not pauli_graphs:  # no valid correlation surface exists on this ZX graph
             return []
         frontier.extend(
             filter(
@@ -310,16 +288,34 @@ def _find_correlation_surfaces_from_leaf(
             )
         )
         explored_leaves.extend(filter(lambda n: g.vertex_degree(n) == 1, unexplored_neighbors))
+    return list(
+        filter(
+            lambda s: _leaf_nodes_can_support_span(g, s.span),
+            map(partial(_pauli_graph_to_correlation_surface, g), pauli_graphs),
+        )
+    )
 
-    correlation_surfaces = list(map(partial(_pauli_graph_to_correlation_surface, g), pauli_graphs))
-    return list(filter(lambda s: _leaf_nodes_can_support_span(g, s.span), correlation_surfaces))
+
+def _bits_to_int(bits: Iterable[bool]) -> int:
+    """Convert a list of bits to an integer."""
+    return sum(b << i for i, b in enumerate(bits))
+
+
+def _pauli_support_on_nodes(
+    pauli_graph: dict[int, dict[int, Pauli]], nodes: list[int]
+) -> tuple[list[bool], list[bool]]:
+    """Get the Pauli support on the given nodes from the Pauli graph."""
+    incident_paulis = list(chain.from_iterable(pauli_graph[n].values() for n in nodes))
+    return [p.has_basis(Basis.X) for p in incident_paulis], [
+        p.has_basis(Basis.Z) for p in incident_paulis
+    ]
 
 
 def _find_subset_xor(target: int, candidates: list[int]) -> list[int] | None:
-    # """Given target (int with n bits) and candidates list of ints (k vectors),
-    # return list of indices i (0-based) such that XOR of candidates[i] over indices = target,
-    # or None if no such subset exists.
-    # """
+    """Given target and candidates list of ints, return list of indices i
+    such that XOR of candidates[i] over indices = target,
+    or None if no such subset exists.
+    """  # noqa: D205
     # Build XOR basis: pivot_bit -> (basis_vector, combination_mask)
     basis = {}  # pivot_bit -> (vec, mask) where mask is int with bits for indices
     for i, vec in enumerate(candidates):
@@ -510,7 +506,4 @@ def _can_be_generated_by(
     inv = tableau.inverse(unsigned=True)
     out_paulis = inv(pauli_string)
     # use `bool()` to avoid type error
-    return bool(
-        out_paulis[len(basis) :].weight == 0
-        # and all(xy not in str(out_paulis[: len(basis)]) for xy in "XY")
-    )
+    return bool(out_paulis[len(basis) :].weight == 0)
