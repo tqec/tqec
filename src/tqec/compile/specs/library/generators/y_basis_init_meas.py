@@ -12,10 +12,10 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 DIRS: list[complex] = [(0.5 + 0.5j) * 1j**d for d in range(4)]
 DR, DL, UL, UR = DIRS
-ORDER_S = [UR, UL, DR, DL]
-ORDER_N = [UR, DR, UL, DL]
 # ORDER_S = [UL, UR, DL, DR]
 # ORDER_N = [UL, DL, UR, DR]
+ORDER_S = [UR, UL, DR, DL]
+ORDER_N = [UR, DR, UL, DL]
 
 
 def surface_code_patch(
@@ -185,8 +185,6 @@ def standard_surface_code_chunk(
     init_data_basis: str | dict[complex, str] | None = None,
     measure_data_basis: str | dict[complex, str] | None = None,
     obs: gen.PauliMap | None = None,
-    wants_to_merge_with_prev: bool = False,
-    wants_to_merge_with_next: bool = False,
 ) -> gen.Chunk:
     """Make a standard surface code round circuit chunk."""
     if init_data_basis is None:
@@ -261,10 +259,7 @@ def standard_surface_code_chunk(
             ms=ms,
         )
 
-    return builder.finish_chunk(
-        wants_to_merge_with_prev=wants_to_merge_with_prev,
-        wants_to_merge_with_next=wants_to_merge_with_next,
-    )
+    return builder.finish_chunk()
 
 
 def _m_basis(m: complex) -> str | None:
