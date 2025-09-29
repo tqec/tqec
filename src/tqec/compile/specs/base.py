@@ -11,6 +11,7 @@ from tqec.computation.pipe import PipeKind
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
+from tqec.utils.scale import LinearFunction
 
 
 @dataclass(frozen=True)
@@ -87,11 +88,13 @@ class CubeSpec:
 class CubeBuilder(Protocol):
     """Protocol for building a `Block` based on a `CubeSpec`."""
 
-    def __call__(self, spec: CubeSpec) -> Block:
+    def __call__(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
         """Build a ``Block`` instance from a ``CubeSpec``.
 
         Args:
             spec: Specification of the cube in the block graph.
+            block_temporal_height: the number of rounds of stabilizer measurements
+            (ignoring one layer for initialization and another for final measurement).
 
         Returns:
             a ``Block`` based on the provided ``CubeSpec``.
@@ -103,11 +106,13 @@ class CubeBuilder(Protocol):
 class PipeBuilder(Protocol):
     """Protocol for building a `Block` based on a `PipeSpec`."""
 
-    def __call__(self, spec: PipeSpec) -> Block:
+    def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
         """Build a `CompiledBlock` instance from a `PipeSpec`.
 
         Args:
             spec: Specification of the cube in the block graph.
+            block_temporal_height: the number of rounds of stabilizer measurements
+            (ignoring one layer for initialization and another for final measurement).
 
         Returns:
             a `CompiledBlock` based on the provided `PipeSpec`.
