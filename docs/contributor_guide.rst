@@ -28,17 +28,27 @@ of ``tqec`` through ``pip`` or ``uv``.
         .. code-block:: bash
 
             # Clone the repository to have local files to work on
-              git clone https://github.com/tqec/tqec.git
-              # Update pip to at least v25.1
-              python -m pip install --upgrade pip>=25.1
-              # Go in the tqec directory
-              cd tqec
-              # Install developer dependencies
-              python -m pip install --group all
-              # Install tqec in editable mode (the "-e" option)
-              python -m pip install -e .
-              # enable pre-commit
-              pre-commit install
+            git clone https://github.com/tqec/tqec.git
+
+            # Go in the tqec directory
+            cd tqec
+
+            # Create an environment (optional but highly recommended)
+            python -m venv .venv
+            # Activate the environment
+            source .venv/bin/activate  # GNU/Linux and MacOS
+            .venv\Scripts\activate.bat # Windows (CMD)
+            .venv\Scripts\Activate.ps1 # Windows (PowerShell)
+
+            # Update pip to at least v25.1
+            python -m pip install --upgrade pip>=25.1
+
+            # Install developer dependencies
+            python -m pip install --group all
+            # Install tqec in editable mode (the "-e" option)
+            python -m pip install -e .
+            # enable pre-commit
+            pre-commit install
 
         .. attention::
             The ``-e`` option to the ``python -m pip install`` call is **important** as it installs an editable version
