@@ -2,7 +2,7 @@ import pytest
 import pyzx as zx
 
 from tqec.gallery.move_rotation import move_rotation
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, PauliBasis
 
 
 def test_move_rotation_open() -> None:
@@ -29,7 +29,7 @@ def test_move_rotation_open_zx() -> None:
     assert zx.compare_tensors(c, g)
 
 
-@pytest.mark.parametrize("obs_basis", [Basis.X, Basis.Z])
+@pytest.mark.parametrize("obs_basis", [Basis.X, Basis.Z, PauliBasis.Y])
 def test_move_rotation_filled(obs_basis: Basis) -> None:
     g = move_rotation(obs_basis)
     assert g.num_ports == 0
@@ -43,6 +43,7 @@ def test_move_rotation_filled(obs_basis: Basis) -> None:
     [
         (Basis.X, 1, {"XX"}),
         (Basis.Z, 1, {"ZZ"}),
+        (PauliBasis.Y, 1, {"YY"}),
         (None, 2, {"XX", "ZZ"}),
     ],
 )
