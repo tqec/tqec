@@ -14,7 +14,7 @@ from tqec.plaquette.debug import DrawPolygon, PlaquetteDebugInformation
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.plaquette.qubit import SquarePlaquetteQubits
-from tqec.plaquette.rpng.rpng import PauliBasis, RPNGDescription
+from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.templates.qubit import (
@@ -23,7 +23,7 @@ from tqec.templates.qubit import (
     QubitTemplate,
     QubitVerticalBorders,
 )
-from tqec.utils.enums import Basis, Orientation
+from tqec.utils.enums import Basis, Orientation, PauliBasis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 

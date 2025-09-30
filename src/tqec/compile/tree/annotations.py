@@ -12,8 +12,8 @@ from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.detectors.detector import Detector
 from tqec.compile.observables.builder import Observable
-from tqec.plaquette.rpng.rpng import PauliBasis
 from tqec.utils.coordinates import StimCoordinates
+from tqec.utils.enums import PauliBasis
 from tqec.utils.exceptions import TQECError
 
 

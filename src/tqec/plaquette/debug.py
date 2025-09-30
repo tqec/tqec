@@ -5,7 +5,8 @@ from typing import Any
 
 from tqec.circuit.qubit import GridQubit
 from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
+from tqec.plaquette.rpng.rpng import RPNG, RPNGDescription
+from tqec.utils.enums import PauliBasis
 from tqec.visualisation.computation.plaquette.base import (
     EmptySVGPlaquetteDrawer,
     SVGPlaquetteDrawer,

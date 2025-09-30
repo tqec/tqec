@@ -2,34 +2,10 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from enum import Enum
 from typing import Any
 
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.utils.enums import Basis
-
-
-class PauliBasis(Enum):
-    X = "x"
-    Y = "y"
-    Z = "z"
-
-    def __str__(self) -> str:
-        return self.value  # pragma: no cover
-
-    def to_extended_basis(self) -> ExtendedBasis:
-        """Return ``self`` as an extended basis."""
-        return ExtendedBasis(self.value)
-
-
-class ExtendedBasis(Enum):
-    X = PauliBasis.X.value
-    Y = PauliBasis.Y.value
-    Z = PauliBasis.Z.value
-    H = "h"
-
-    def __str__(self) -> str:
-        return self.value  # pragma: no cover
+from tqec.utils.enums import Basis, ExtendedBasis, PauliBasis
 
 
 @dataclass(frozen=True)
