@@ -37,7 +37,6 @@ def generate_graphs(convention: Convention, observable_basis: Basis) -> None:
         manhattan_radius=2,
         convention=convention,
         observables=correlation_surfaces,
-        num_workers=20,
         max_shots=10_000_000,
         max_errors=5_000,
         decoders=["pymatching"],
