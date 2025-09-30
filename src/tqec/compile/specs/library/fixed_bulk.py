@@ -19,7 +19,7 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import (
     FixedBulkConventionGenerator,
 )
-from tqec.compile.specs.library.generators.y_basis_init_meas import get_y_half_cube_block
+from tqec.compile.specs.library.generators.y_basis import get_y_half_cube_block
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
