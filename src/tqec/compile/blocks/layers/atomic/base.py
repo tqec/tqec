@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import Mapping
+from collections.abc import Mapping
 
 from typing_extensions import override
 
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.spatial import WithSpatialFootprint
 from tqec.compile.blocks.layers.temporal import WithTemporalFootprint
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction
 
 
@@ -21,6 +21,7 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
     footprint remains fixed at ``1``, representing a single layer. To stack layers
     over time or repeat them in a scalable manner, use
     :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer` instead.
+
     """
 
     @property
@@ -38,7 +39,7 @@ class BaseLayer(WithSpatialFootprint, WithTemporalFootprint):
         if len(border_replacements) > 1 and any(
             replacement is not None for replacement in border_replacements.values()
         ):
-            raise TQECException(
+            raise TQECError(
                 "Unclear semantic: trying to replace the two temporal borders of "
                 "an atomic layer that, by definition, only contain one layer."
             )

@@ -1,16 +1,14 @@
 from abc import ABC, abstractmethod
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 class CompilationPass(ABC):
     """Base interface that should be implemented by all compilation passes."""
 
     @abstractmethod
-    def run(
-        self, circuit: ScheduledCircuit, check_all_flows: bool = False
-    ) -> ScheduledCircuit:
+    def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
         """Run the compilation pass.
 
         Args:
@@ -23,6 +21,7 @@ class CompilationPass(ABC):
 
         Returns:
             the compiled quantum circuit.
+
         """
         pass
 
@@ -42,10 +41,11 @@ class CompilationPass(ABC):
                 applying the compilation pass.
 
         Raises:
-            TQECException: if the two provided circuits are not functionally
+            TQECError: if the two provided circuits are not functionally
                 equivalent (i.e. ``modified_circuit`` does not have at least
                 one of flow of ``original_circuit``).
+
         """
         original_flows = original_circuit.get_circuit().flow_generators()
         if not modified_circuit.get_circuit().has_all_flows(original_flows):
-            raise TQECException("Modified circuit does not contain")
+            raise TQECError("Modified circuit does not contain")

@@ -19,8 +19,7 @@ def test_remove_duplicate_instructions() -> None:
     )  # type: ignore
     expected_instructions = set(iter(stim.Circuit("H 0 1 2 3")))  # type: ignore
     assert (
-        set(remove_duplicate_instructions(instructions, frozenset(["H"])))
-        == expected_instructions
+        set(remove_duplicate_instructions(instructions, frozenset(["H"]))) == expected_instructions
     )
     with pytest.warns(TQECWarning):
         # Several H gates are overlapping, which means that the returned instruction
@@ -29,16 +28,16 @@ def test_remove_duplicate_instructions() -> None:
 
     instructions = list(iter(stim.Circuit("H 0 1 2 3 0 1 2 3\nM 4 5 6 4 5 6 4 5 6")))  # type: ignore
     with pytest.warns(TQECWarning):
-        assert set(
-            remove_duplicate_instructions(instructions, frozenset(["M"]))
-        ) == set(iter(stim.Circuit("H 0 1 2 3 0 1 2 3\nM 4 5 6")))
+        assert set(remove_duplicate_instructions(instructions, frozenset(["M"]))) == set(
+            iter(stim.Circuit("H 0 1 2 3 0 1 2 3\nM 4 5 6"))
+        )
     with pytest.warns(TQECWarning):
-        assert set(
-            remove_duplicate_instructions(instructions, frozenset(["H"]))
-        ) == set(iter(stim.Circuit("H 0 1 2 3\nM 4 5 6 4 5 6 4 5 6")))
-    assert set(
-        remove_duplicate_instructions(instructions, frozenset(["H", "M"]))
-    ) == set(iter(stim.Circuit("H 0 1 2 3\nM 4 5 6")))
+        assert set(remove_duplicate_instructions(instructions, frozenset(["H"]))) == set(
+            iter(stim.Circuit("H 0 1 2 3\nM 4 5 6 4 5 6 4 5 6"))
+        )
+    assert set(remove_duplicate_instructions(instructions, frozenset(["H", "M"]))) == set(
+        iter(stim.Circuit("H 0 1 2 3\nM 4 5 6"))
+    )
 
 
 def test_relabel_circuits_qubit_indices() -> None:
@@ -54,9 +53,7 @@ def test_relabel_circuits_qubit_indices() -> None:
     with pytest.raises(KeyError):
         relabel_circuits_qubit_indices(
             [
-                ScheduledCircuit.from_circuit(
-                    stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")
-                ),
+                ScheduledCircuit.from_circuit(stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0")),
                 ScheduledCircuit.from_circuit(stim.Circuit("H 0")),
             ]
         )

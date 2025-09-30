@@ -1,4 +1,7 @@
-from typing import Callable, Final
+from collections.abc import Callable
+from typing import Final
+
+from typing_extensions import override
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -22,7 +25,7 @@ from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.utils.enums import Basis, Orientation
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
 
@@ -30,19 +33,18 @@ _DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
 
 
 class FixedBulkCubeBuilder(CubeBuilder):
-    """Implementation of the :class:`~tqec.compile.specs.base.CubeBuilder`
-    interface for the fixed bulk convention.
-
-    This class provides an implementation following the fixed-bulk convention.
-    This convention consists in the fact that the top-left most plaquette in the
-    bulk always measures a known-basis stabilizer (Z-basis for this class).
-    """
-
     def __init__(
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
+        """Implement the :class:`.CubeBuilder` interface for the fixed bulk convention.
+
+        This class provides an implementation following the fixed-bulk convention. This convention
+        consists in the fact that the top-left most plaquette in the bulk always measures a known-
+        basis stabilizer (Z-basis for this class).
+
+        """
         self._generator = FixedBulkConventionGenerator(translator, compiler)
 
     def _get_template_and_plaquettes(
@@ -57,13 +59,12 @@ class FixedBulkCubeBuilder(CubeBuilder):
             the template and list of 3 mappings from plaquette indices to RPNG
             descriptions that are needed to implement the cube corresponding to
             the provided ``spec``.
+
         """
         assert isinstance(spec.kind, ZXCube)
         x, _, z = spec.kind.as_tuple()
         if not spec.is_spatial:
-            orientation = (
-                Orientation.HORIZONTAL if x == Basis.Z else Orientation.VERTICAL
-            )
+            orientation = Orientation.HORIZONTAL if x == Basis.Z else Orientation.VERTICAL
             return self._generator.get_memory_qubit_raw_template(), (
                 self._generator.get_memory_qubit_plaquettes(orientation, z, None),
                 self._generator.get_memory_qubit_plaquettes(orientation, None, None),
@@ -71,63 +72,55 @@ class FixedBulkCubeBuilder(CubeBuilder):
             )
         # else:
         return self._generator.get_spatial_cube_qubit_raw_template(), (
-            self._generator.get_spatial_cube_qubit_plaquettes(
-                x, spec.spatial_arms, z, None
-            ),
-            self._generator.get_spatial_cube_qubit_plaquettes(
-                x, spec.spatial_arms, None, None
-            ),
-            self._generator.get_spatial_cube_qubit_plaquettes(
-                x, spec.spatial_arms, None, z
-            ),
+            self._generator.get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, z, None),
+            self._generator.get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, None, None),
+            self._generator.get_spatial_cube_qubit_plaquettes(x, spec.spatial_arms, None, z),
         )
 
+    @override
     def __call__(self, spec: CubeSpec) -> Block:
         kind = spec.kind
         if isinstance(kind, Port):
-            raise TQECException("Cannot build a block for a Port.")
+            raise TQECError("Cannot build a block for a Port.")
         elif isinstance(kind, YHalfCube):
             raise NotImplementedError("Y cube is not implemented.")
         # else
         template, (init, repeat, measure) = self._get_template_and_plaquettes(spec)
         layers: list[BaseLayer | BaseComposedLayer] = [
             PlaquetteLayer(template, init),
-            RepeatedLayer(
-                PlaquetteLayer(template, repeat), repetitions=_DEFAULT_BLOCK_REPETITIONS
-            ),
+            RepeatedLayer(PlaquetteLayer(template, repeat), repetitions=_DEFAULT_BLOCK_REPETITIONS),
             PlaquetteLayer(template, measure),
         ]
         return Block(layers)
 
 
 class FixedBulkPipeBuilder(PipeBuilder):
-    """Implementation of the :class:`~tqec.compile.specs.base.PipeBuilder`
-    interface for the fixed bulk convention.
-
-    This class provides an implementation following the fixed-bulk convention.
-    This convention consists in the fact that the top-left most plaquette in the
-    bulk always measures a known-parity stabilizer (Z-basis for this class).
-    """
-
     def __init__(
         self,
         compiler: PlaquetteCompiler,
         translator: RPNGTranslator = DefaultRPNGTranslator(),
     ) -> None:
+        """Implement the :class:`.PipeBuilder` interface for the fixed bulk convention.
+
+        This class provides an implementation following the fixed-bulk convention. This convention
+        consists in the fact that the top-left most plaquette in the bulk always measures a known-
+        parity stabilizer (Z-basis for this class).
+
+        """
         self._generator = FixedBulkConventionGenerator(translator, compiler)
 
+    @override
     def __call__(self, spec: PipeSpec) -> Block:
         if spec.pipe_kind.is_temporal:
-            return self.get_temporal_pipe_block(spec)
-        return self.get_spatial_pipe_block(spec)
+            return self._get_temporal_pipe_block(spec)
+        return self._get_spatial_pipe_block(spec)
 
     #######################
     #    TEMPORAL PIPE    #
     #######################
 
-    def get_temporal_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a temporal pipe based on the
-        provided ``spec``.
+    def _get_temporal_pipe_block(self, spec: PipeSpec) -> Block:
+        """Return the block to implement a temporal pipe based on the provided ``spec``.
 
         Args:
             spec: description of the pipe that should be implemented by this
@@ -139,6 +132,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         Returns:
             the block to implement a temporal pipe based on the
         provided ``spec``..
+
         """
         assert spec.pipe_kind.is_temporal
         if spec.pipe_kind.has_hadamard:
@@ -147,8 +141,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         return self._get_temporal_non_hadamard_pipe_block(spec)
 
     def _get_temporal_non_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a regular temporal junction
-        without Hadamard transition.
+        """Return the block to implement a regular temporal junction without Hadamard transition.
 
         Args:
             spec: description of the pipe that should be implemented by this
@@ -161,14 +154,13 @@ class FixedBulkPipeBuilder(PipeBuilder):
         Returns:
             the block to implement the provided
             ``spec``.
+
         """
         assert spec.pipe_kind.is_temporal
         assert not spec.pipe_kind.has_hadamard
 
         z_observable_orientation = (
-            Orientation.HORIZONTAL
-            if spec.pipe_kind.x == Basis.Z
-            else Orientation.VERTICAL
+            Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
         )
         memory_plaquettes = self._generator.get_memory_qubit_plaquettes(
             z_observable_orientation, None, None
@@ -182,7 +174,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         )
 
     def _get_temporal_hadamard_pipe_block(self, spec: PipeSpec) -> Block:
-        """Returns the block to implement a temporal Hadamard pipe.
+        """Return the block to implement a temporal Hadamard pipe.
 
         Note:
             This method performs the realignment and Hadamard transition at the
@@ -199,22 +191,19 @@ class FixedBulkPipeBuilder(PipeBuilder):
 
         Returns:
             the block to implement the provided ``spec``.
+
         """
         assert spec.pipe_kind.is_temporal
         assert spec.pipe_kind.has_hadamard
 
         z_observable_orientation = (
-            Orientation.HORIZONTAL
-            if spec.pipe_kind.x == Basis.Z
-            else Orientation.VERTICAL
+            Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
         )
         memory_plaquettes_before = self._generator.get_memory_qubit_plaquettes(
             z_observable_orientation, None, None
         )
-        realignment_plaquettes = (
-            self._generator.get_temporal_hadamard_realignment_plaquettes(
-                z_observable_orientation
-            )
+        realignment_plaquettes = self._generator.get_temporal_hadamard_realignment_plaquettes(
+            z_observable_orientation
         )
         memory_plaquettes_after = self._generator.get_memory_qubit_plaquettes(
             z_observable_orientation.flip(), None, None
@@ -233,13 +222,13 @@ class FixedBulkPipeBuilder(PipeBuilder):
     ##############################
     @staticmethod
     def _get_spatial_cube_arms(spec: PipeSpec) -> SpatialArms:
-        """Returns the arm(s) corresponding to the provided ``spec``.
+        """Return the arm(s) corresponding to the provided ``spec``.
 
         Args:
             spec: pipe specification to get the arm(s) from.
 
         Raises:
-            TQECException: if the provided ``spec`` is not a spatial pipe.
+            TQECError: if the provided ``spec`` is not a spatial pipe.
 
         Returns:
             the :class:`~tqec.compile.specs.enums.SpatialArms` instance
@@ -247,6 +236,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
             either one or two flags. If two flags are returned, they should be
             on the same line (e.g., it cannot be ``SpatialArms.RIGHT | SpatialArms.UP``
             but can be ``SpatialArms.RIGHT | SpatialArms.LEFT``).
+
         """
         assert spec.pipe_kind.is_spatial
         # Check that we do have a spatial junction.
@@ -288,8 +278,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
         )
 
     def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
-        """Returns the ``Template`` instance needed to implement the pipe
-        representing the provided ``spec``."""
+        """Return the template needed to implement the pipe representing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         match spec.pipe_kind.direction, spec.pipe_kind.has_hadamard:
             case Direction3D.X, False:
@@ -301,9 +290,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
             case Direction3D.Y, True:
                 return self._generator.get_spatial_horizontal_hadamard_raw_template()
             case _:
-                raise TQECException(
-                    "Spatial pipes cannot have a direction equal to Direction3D.Z."
-                )
+                raise TQECError("Spatial pipes cannot have a direction equal to Direction3D.Z.")
 
     def _get_spatial_regular_pipe_plaquettes_factory(
         self, spec: PipeSpec
@@ -313,56 +300,34 @@ class FixedBulkPipeBuilder(PipeBuilder):
             case Direction3D.X, False:
                 # Non-Hadamard pipe in the X direction.
                 z_observable_orientation = (
-                    Orientation.HORIZONTAL
-                    if spec.pipe_kind.y == Basis.X
-                    else Orientation.VERTICAL
+                    Orientation.HORIZONTAL if spec.pipe_kind.y == Basis.X else Orientation.VERTICAL
                 )
-                return (
-                    lambda r,
-                    m: self._generator.get_memory_vertical_boundary_plaquettes(
-                        z_observable_orientation, r, m
-                    )
+                return lambda r, m: self._generator.get_memory_vertical_boundary_plaquettes(
+                    z_observable_orientation, r, m
                 )
             case Direction3D.X, True:
                 # Hadamard pipe in the X direction.
-                top_left_basis = spec.pipe_kind.get_basis_along(
-                    Direction3D.Y, at_head=True
-                )
-                return (
-                    lambda r,
-                    m: self._generator.get_spatial_vertical_hadamard_plaquettes(
-                        top_left_basis == Basis.Z, r, m
-                    )
+                top_left_basis = spec.pipe_kind.get_basis_along(Direction3D.Y, at_head=True)
+                return lambda r, m: self._generator.get_spatial_vertical_hadamard_plaquettes(
+                    top_left_basis == Basis.Z, r, m
                 )
             case Direction3D.Y, False:
                 # Non-Hadamard pipe in the Y direction.
                 z_observable_orientation = (
-                    Orientation.HORIZONTAL
-                    if spec.pipe_kind.x == Basis.Z
-                    else Orientation.VERTICAL
+                    Orientation.HORIZONTAL if spec.pipe_kind.x == Basis.Z else Orientation.VERTICAL
                 )
-                return (
-                    lambda r,
-                    m: self._generator.get_memory_horizontal_boundary_plaquettes(
-                        z_observable_orientation, r, m
-                    )
+                return lambda r, m: self._generator.get_memory_horizontal_boundary_plaquettes(
+                    z_observable_orientation, r, m
                 )
 
             case Direction3D.Y, True:
                 # Hadamard pipe in the Y direction.
-                top_left_basis = spec.pipe_kind.get_basis_along(
-                    Direction3D.X, at_head=True
-                )
-                return (
-                    lambda r,
-                    m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
-                        top_left_basis == Basis.Z, r, m
-                    )
+                top_left_basis = spec.pipe_kind.get_basis_along(Direction3D.X, at_head=True)
+                return lambda r, m: self._generator.get_spatial_horizontal_hadamard_plaquettes(
+                    top_left_basis == Basis.Z, r, m
                 )
             case _:
-                raise TQECException(
-                    "Spatial pipes cannot have a direction equal to Direction3D.Z."
-                )
+                raise TQECError("Spatial pipes cannot have a direction equal to Direction3D.Z.")
 
     def _get_spatial_regular_pipe_block(self, spec: PipeSpec) -> Block:
         assert all(not spec.is_spatial for spec in spec.cube_specs)
@@ -388,7 +353,20 @@ class FixedBulkPipeBuilder(PipeBuilder):
         ]
         return Block(layers)
 
-    def get_spatial_pipe_block(self, spec: PipeSpec) -> Block:
+    def _get_spatial_pipe_block(self, spec: PipeSpec) -> Block:
+        """Return the block to implement a spatial pipe based on the provided ``spec``.
+
+        Args:
+            spec: description of the pipe that should be implemented by this method. Should be a
+                spatial pipe.
+
+        Raises:
+            AssertionError: if ``spec`` does not represent a spatial pipe.
+
+        Returns:
+            the block to implement a spatial pipe based on the provided ``spec``.
+
+        """
         assert spec.pipe_kind.is_spatial
         cube_specs = spec.cube_specs
         if cube_specs[0].is_spatial or cube_specs[1].is_spatial:

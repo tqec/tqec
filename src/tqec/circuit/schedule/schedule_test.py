@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from tqec.circuit.schedule.exception import ScheduleException
+from tqec.circuit.schedule.exception import ScheduleError
 from tqec.circuit.schedule.schedule import Schedule
 
 
@@ -12,11 +12,11 @@ def test_schedule_construction() -> None:
     Schedule([0, 2, 4, 6])
     Schedule(list(range(100000)))
 
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         Schedule([-2, 0, 1])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         Schedule([0, 1, 1, 2])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         Schedule([1, 0])
 
 
@@ -26,11 +26,11 @@ def test_schedule_from_offset() -> None:
     Schedule.from_offsets([0, 2, 4, 6])
     Schedule.from_offsets(list(range(100000)))
 
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         Schedule.from_offsets([-2, 0, 1])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         Schedule.from_offsets([0, 1, 1, 2])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         Schedule.from_offsets([1, 0])
 
 
@@ -68,7 +68,7 @@ def test_schedule_append_schedule() -> None:
 
 def test_schedule_insert() -> None:
     schedule = Schedule([0, 3])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         schedule.insert(0, -1)
     assert schedule.schedule == [0, 3]
     schedule.insert(1, 1)
@@ -79,10 +79,16 @@ def test_schedule_insert() -> None:
 
 def test_schedule_append() -> None:
     schedule = Schedule([0, 3])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         schedule.append(-1)
     assert schedule.schedule == [0, 3]
     schedule.append(4)
     assert schedule.schedule == [0, 3, 4]
     schedule.append(5)
     assert schedule.schedule == [0, 3, 4, 5]
+
+
+def test_max_schedule() -> None:
+    assert Schedule([]).max_schedule == 0
+    assert Schedule([0, 1, 3, 4]).max_schedule == 4
+    assert Schedule(list(range(0, 1000, 2))).max_schedule == 998

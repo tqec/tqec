@@ -1,5 +1,4 @@
-"""Block graph that rotates boundary types by moving logical qubit in
-spacetime."""
+"""Block graph that rotates boundary types by moving logical qubit in spacetime."""
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
@@ -17,6 +16,7 @@ def move_rotation(observable_basis: Basis | None = None) -> BlockGraph:
     Returns:
         A :py:class:`~tqec.computation.block_graph.BlockGraph` instance representing
         the move-rotation operation.
+
     """
     g = BlockGraph("Move Rotation")
     nodes = [

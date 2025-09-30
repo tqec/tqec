@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build >= 0.7.19, <0.9.0"]
+build-backend = "uv_build"
 
 [project]
 name = "tqec"
@@ -12,7 +12,7 @@ description = "A design automation framework for Topological Quantum Error Corre
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["topological quantum error correction", "qec"]
-requires-python = ">= 3.10"
+requires-python = ">= 3.10, <3.14"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -29,12 +29,31 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Quantum Computing",
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: User Interfaces",
   "Topic :: Utilities",
   "Typing :: Typed",
 ]
-dynamic = ["dependencies"]
+dependencies = [
+    "matplotlib<=3.10.3",
+    "networkx<=3.5",
+    "numpy<=2.2.6",
+    "platformdirs<=4.4.0",
+    "pycollada<=0.9.1",
+    "pycryptosat<=5.11.21",
+    "python-sat[cryptosat]<=1.8.dev22",
+    "pyzx<=0.9.0",
+    "scipy<=1.15.3",
+    "semver<=3.0.4",
+    "sinter<=1.15.0",
+    "sphinx-design>=0.6.1",
+    "stim<=1.15.0",
+    "svg-py<=1.8.0",
+    "tqecd<=0.1.2",
+    "typing-extensions<=4.15.0",
+]
+
 
 [project.urls]
 Website = "https://tqec.app"
@@ -42,23 +61,57 @@ Documentation = "https://tqec.github.io/tqec/"
 Repository = "https://github.com/tqec/tqec"
 Issues = "https://github.com/tqec/tqec/issues"
 
-[project.optional-dependencies]
-test = ["pytest", "mypy", "pytest-cov", "types-networkx", "scipy-stubs"]
-dev = ["pymatching", "jupyterlab", "tqec[test, doc, bench]", "pre-commit"]
-doc = [
-    "sphinx",
-    "myst-parser",
-    "pydata-sphinx-theme",
-    "nbsphinx",
-    "pandoc",
-    "sphinxcontrib-mermaid",
-    "docformatter",
-    "sphinx-autobuild",
-    "sphinx-copybutton",
-    "sphinxcontrib-bibtex",
+[dependency-groups]
+test = [
+  "pytest<=8.4.1",
+  "pytest-cov<=7.0.0",
+  "types-networkx<=3.5.0.20250610",
+  "scipy-stubs<=1.16.0.0",
 ]
+
+docs = [
+  "sphinx<=8.1.3",
+  "myst-parser<=4.0.1",
+  "pydata-sphinx-theme<=0.16.1",
+  "nbsphinx<=0.9.7",
+  "pandoc<=2.4",
+  "sphinxcontrib-mermaid<=1.0.0",
+  "docformatter<=1.7.7",
+  "sphinx-autobuild<=2024.10.3",
+  "sphinx-copybutton<=0.5.2",
+  "sphinxcontrib-bibtex<=2.64",
+  "jupyter-sphinx<=0.5.3",
+]
+
 bench = ["pyinstrument"]
-all = ["tqec[test, dev, doc, bench]"]
+
+dev = [
+    "jupyterlab<=4.4.3",
+    "myst-parser<=4.0.1",
+    "nbsphinx<=0.9.7",
+    "pandoc<=2.4",
+    "pre-commit<=4.3.0",
+    "pydata-sphinx-theme<=0.16.1",
+    "pymatching<=2.3.0",
+    "pytest<=8.4.1",
+    "pytest-cov<=6.2.1",
+    # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
+    # cannot afford someone installing a different version of ruff and being forbidden to commit
+    # anything because the different version sees some errors in the code.
+    "ruff==0.12.5",
+    "ty>=0.0.1a20",
+    "scipy-stubs<=1.16.0.0",
+    "sphinx<=8.1.3",
+    "sphinxcontrib-mermaid<=1.0.0",
+    "types-networkx<=3.5.0.20250610",
+]
+
+all = [
+    {include-group = "test"},
+    {include-group = "docs"},
+    {include-group = "dev"},
+    {include-group = "bench"},
+]
 
 [project.scripts]
 tqec = "tqec._cli.tqec:main"
@@ -137,7 +190,7 @@ module = ["tqec.interop.pyzx.*"]
 disallow_untyped_calls = false
 
 [tool.coverage.run]
-omit = ["*/*_test.py"]
+omit = ["*/*_test.py", "*/simulation/*", "*/visualisation/*"]
 
 [tool.coverage.report]
 exclude_also = [
@@ -198,3 +251,57 @@ typeCheckingMode = "standard"
 # that is not meant to be exported from that module. The default value for this
 # setting is "error".
 reportPrivateImportUsage = false
+
+[tool.ruff]
+# exclude = ["__init__.py"]
+line-length = 100
+target-version = "py310"
+exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["I", "E", "W", "D", "F", "PL", "NPY", "N", "PERF", "RUF", "UP"]
+
+# ruff configuration
+# I -- isort
+# E, W -- pycodestyle
+# D -- pydocstyle
+# F -- pyflakes
+# PL -- pylint
+# NPY -- Numpy specific rules
+# N -- pep8-naming
+# PERF -- Perflint
+# RUF -- ruff specific rules
+# UP -- pyupgrade
+# Rules considered over other incompatible ones
+exclude = ["docs/conf.py", "setup.py"]
+
+ignore = [
+  # D100 & D104 - For the moment, we do not require documenting all public modules & packages.
+  # D101 - By convention, class docstrings are on the __init__ method, so we do not document classes.
+  # D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
+  "D100", "D101", "D104", "D105",
+  # D203 - Requires a blank line between class declaration and its docstring. Incompatible with D211. We prefer D211.
+  # D203 - Requires multiline docstrings to start on the second line. Incompatible with D212. We prefer D212.
+  "D203", "D213",
+  # D407 - Ignored because ==== under a section heading is considered as a missing underline.
+  "D407",
+  # PLR091{2,3,5} - A few code blocks have too many {branches,arguments,statements}. Ignored for the moment.
+  # PLR2004 - Replace magic values, not a priority at the moment.
+  "PLR0912", "PLR0913", "PLR0915", "PLR2004",
+  # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
+  "N802",
+  # UP038 - Soon-to-be-deprecated rule, we prefer using isinstance(obj, (A, B)).
+  "UP038"
+]
+
+# Specific per-file ignores
+[tool.ruff.lint.per-file-ignores]
+# We do not need tests functions to have a valid docstring
+"**/*_test.py" = ["D103"]
+# Some summary lines are long and hard to condense to a single line without loosing the precision and expressivity here.
+# Disabling for the moment, will see in the future if these warnings can be re-enabled without hurting the documentation.
+"src/tqec/compile/specs/library/generators/*" = ["D205"]
+"src/tqec/compile/observables/*" = ["D205"]
+
+[tool.pytest.ini_options]
+markers = ["slow: mark a test that takes a long time to run."]

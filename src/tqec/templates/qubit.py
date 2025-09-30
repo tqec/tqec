@@ -1,6 +1,6 @@
 """Defines templates representing logical qubits and its constituent parts."""
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy
 import numpy.typing as npt
@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from tqec.templates.base import BorderIndices, RectangularTemplate
 from tqec.templates.enums import TemplateBorder
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PlaquetteScalable2D
 
 
@@ -23,6 +23,7 @@ class QubitTemplate(RectangularTemplate):
         7  9 10  9 10 11
         8 10  9 10  9 12
         3 13 14 13 14  4
+
     """
 
     @override
@@ -102,6 +103,7 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
         For ``k == 1``, this template does not include any of the plaquette
         that have an index in ``[13, 17]`` and so its instantiation has a "hole"
         in the plaquette indices.
+
     """
 
     @override
@@ -185,8 +187,7 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
 
 
 class QubitVerticalBorders(RectangularTemplate):
-    """Two vertical sides of neighbouring error-corrected qubits glued
-    together.
+    """Two vertical sides of neighbouring error-corrected qubits glued together.
 
     The below text represents this template for an input ``k == 2`` ::
         1 2
@@ -195,6 +196,7 @@ class QubitVerticalBorders(RectangularTemplate):
         5 7
         6 8
         3 4
+
     """
 
     @override
@@ -220,7 +222,7 @@ class QubitVerticalBorders(RectangularTemplate):
     @property
     @override
     def scalable_shape(self) -> PlaquetteScalable2D:
-        """Returns a scalable version of the template shape."""
+        """Return a scalable version of the template shape."""
         return PlaquetteScalable2D(LinearFunction(0, 2), LinearFunction(2, 2))
 
     @property
@@ -232,9 +234,9 @@ class QubitVerticalBorders(RectangularTemplate):
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
         match border:
             case TemplateBorder.TOP | TemplateBorder.BOTTOM:
-                raise TQECException(
-                    f"Template {self.__class__.__name__} does not have repeating "
-                    f"elements on the {border.name} border."
+                raise TQECError(
+                    f"Template {self.__class__.__name__} does not have "
+                    f"repeating elements on the {border.name} border."
                 )
             case TemplateBorder.LEFT:
                 return BorderIndices(1, 5, 6, 3)
@@ -243,12 +245,12 @@ class QubitVerticalBorders(RectangularTemplate):
 
 
 class QubitHorizontalBorders(RectangularTemplate):
-    """Two horizontal sides of neighbouring error-corrected qubits glued
-    together.
+    """Two horizontal sides of neighbouring error-corrected qubits glued together.
 
     The below text represents this template for an input ``k == 2`` ::
         1 5 6 5 6 2
         3 7 8 7 8 4
+
     """
 
     @override
@@ -289,7 +291,7 @@ class QubitHorizontalBorders(RectangularTemplate):
             case TemplateBorder.BOTTOM:
                 return BorderIndices(3, 7, 8, 4)
             case TemplateBorder.LEFT | TemplateBorder.RIGHT:
-                raise TQECException(
+                raise TQECError(
                     f"Template {self.__class__.__name__} does not have repeating "
                     f"elements on the {border.name} border."
                 )

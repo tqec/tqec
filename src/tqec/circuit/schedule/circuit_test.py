@@ -4,8 +4,8 @@ import stim
 from tqec.circuit.moment import Moment
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
-from tqec.circuit.schedule import Schedule, ScheduledCircuit, ScheduleException
-from tqec.utils.exceptions import TQECException
+from tqec.circuit.schedule import Schedule, ScheduledCircuit, ScheduleError
+from tqec.utils.exceptions import TQECError
 
 _VALID_SCHEDULED_CIRCUITS = [
     stim.Circuit(""),
@@ -15,8 +15,7 @@ _VALID_SCHEDULED_CIRCUITS = [
     stim.Circuit("QUBIT_COORDS(0.0, 0.0) 0\nQUBIT_COORDS(0.0, 1.0) 1\nH 0 1"),
     stim.Circuit("QUBIT_COORDS(0.0, 0.0) 0\nH 0\nTICK\nM 0"),
     stim.Circuit(
-        "QUBIT_COORDS(0.0, 0.0) 0\nQUBIT_COORDS(0.0, 1.0) 1\nH 0\n"
-        "TICK\nCX 0 1\nTICK\nM 0 1"
+        "QUBIT_COORDS(0.0, 0.0) 0\nQUBIT_COORDS(0.0, 1.0) 1\nH 0\nTICK\nCX 0 1\nTICK\nM 0 1"
     ),
 ]
 
@@ -32,13 +31,13 @@ def test_scheduled_circuit_construction() -> None:
         stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), Schedule.from_offsets([0, 3])
     )
 
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), -1)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), [1])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), [1, 2, 3])
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit.from_circuit(stim.Circuit("REPEAT 10{\nH 0 1 2\n}"), [1])
 
     ScheduledCircuit([], 0, QubitMap())
@@ -47,22 +46,20 @@ def test_scheduled_circuit_construction() -> None:
     ScheduledCircuit(moments, 0, i2q)
     ScheduledCircuit(moments, [0, 1], i2q)
     ScheduledCircuit(moments, Schedule.from_offsets([0, 1]), i2q)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, -1, i2q)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, [0], i2q)
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, [0, 1, 2], i2q)
 
-    with pytest.raises(ScheduleException):
-        ScheduledCircuit.from_circuit(
-            stim.Circuit("H 0 1 2\nTICK\nQUBIT_COORDS(0, 0) 0\nH 0 1 2")
-        )
+    with pytest.raises(ScheduleError):
+        ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nQUBIT_COORDS(0, 0) 0\nH 0 1 2"))
     moments = [
         Moment(stim.Circuit("H 0 1 2")),
         Moment(stim.Circuit("QUBIT_COORDS(0, 0) 0\nH 0 1 2")),
     ]
-    with pytest.raises(ScheduleException):
+    with pytest.raises(ScheduleError):
         ScheduledCircuit(moments, 0, i2q)
 
 
@@ -93,35 +90,18 @@ def test_scheduled_circuit_get_qubit_coords_definition_preamble() -> None:
     ).get_qubit_coords_definition_preamble() == stim.Circuit("QUBIT_COORDS(0, 0) 0")
     assert ScheduledCircuit.from_circuit(
         stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(-2345, 3456) 1\nH 0 1")
+    ).get_qubit_coords_definition_preamble(shift_to_positive=True) == stim.Circuit(
+        "QUBIT_COORDS(2345, 0) 0\nQUBIT_COORDS(0, 3456) 1"
+    )
+    assert ScheduledCircuit.from_circuit(
+        stim.Circuit("QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(-2345, 3456) 1\nH 0 1")
     ).get_qubit_coords_definition_preamble() == stim.Circuit(
         "QUBIT_COORDS(0, 0) 0\nQUBIT_COORDS(-2345, 3456) 1"
     )
 
 
-@pytest.mark.parametrize("circuit", _VALID_SCHEDULED_CIRCUITS)
-def test_scheduled_circuit_get_repeated_circuit(circuit: stim.Circuit) -> None:
-    for repetitions in [2, 6, 1345]:
-        scheduled_circuit = ScheduledCircuit.from_circuit(circuit)
-        coords_preamble = scheduled_circuit.get_qubit_coords_definition_preamble()
-        body_without_coords = scheduled_circuit.get_circuit(include_qubit_coords=False)
-        expected_circuit = stim.Circuit(
-            f"REPEAT {repetitions} {{\n{body_without_coords}\nTICK\n}}"
-        )
-        assert (
-            ScheduledCircuit.from_circuit(circuit).get_repeated_circuit(
-                repetitions, include_qubit_coords=False
-            )
-            == expected_circuit
-        )
-        assert ScheduledCircuit.from_circuit(circuit).get_repeated_circuit(
-            repetitions
-        ) == (coords_preamble + expected_circuit)
-
-
 def test_scheduled_circuit_get_circuit_with_schedule() -> None:
-    circuit = ScheduledCircuit.from_circuit(
-        stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), [0, 3]
-    )
+    circuit = ScheduledCircuit.from_circuit(stim.Circuit("H 0 1 2\nTICK\nH 0 1 2"), [0, 3])
     assert circuit.get_circuit() == stim.Circuit("H 0 1 2\nTICK\nTICK\nTICK\nH 0 1 2")
 
 
@@ -188,9 +168,9 @@ def test_scheduled_circuit_moment_at_schedule() -> None:
     assert circuit.moment_at_schedule(1).circuit == stim.Circuit("H 2 1 0")
     assert circuit.moment_at_schedule(-1).circuit == stim.Circuit("H 2 1 0")
     assert circuit.moment_at_schedule(-2).circuit == stim.Circuit("H 0 1 2")
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         circuit.moment_at_schedule(2)
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         circuit.moment_at_schedule(-3)
 
 
@@ -221,12 +201,10 @@ def test_scheduled_circuit_modification() -> None:
 def test_scheduled_circuit_append_annotation() -> None:
     circuit = ScheduledCircuit.empty()
     circuit.append_new_moment(Moment(stim.Circuit("H 0 1 2")))
-    circuit.append_annotation(
-        stim.CircuitInstruction("DETECTOR", [stim.target_rec(-1)], [0, 0])
-    )
+    circuit.append_annotation(stim.CircuitInstruction("DETECTOR", [stim.target_rec(-1)], [0, 0]))
     circuit.append_observable(0, [stim.target_rec(-1)])
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="^The provided instruction is not an annotation, which is "
         "disallowed by the append_annotation method.$",
     ):

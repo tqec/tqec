@@ -16,6 +16,7 @@ Modifications to the original code:
 3. Removing the line "DEPOLARIZE1(0.001) 0 1 2 3" from test_si_1000 and
    test_si_1000_repeat_block due to the removal of that noise from the main
    noise_model.py file.
+
 """
 
 import stim
@@ -132,12 +133,8 @@ def test_iter_split_op_moments() -> None:
 
 def test_occurs_in_classical_control_system() -> None:
     assert not occurs_in_classical_control_system(op=stim.CircuitInstruction("H", [0]))
-    assert not occurs_in_classical_control_system(
-        op=stim.CircuitInstruction("CX", [0, 1, 2, 3])
-    )
-    assert not occurs_in_classical_control_system(
-        op=stim.CircuitInstruction("M", [0, 1, 2, 3])
-    )
+    assert not occurs_in_classical_control_system(op=stim.CircuitInstruction("CX", [0, 1, 2, 3]))
+    assert not occurs_in_classical_control_system(op=stim.CircuitInstruction("M", [0, 1, 2, 3]))
 
     assert occurs_in_classical_control_system(
         op=stim.CircuitInstruction("CX", [stim.target_rec(-1), 0])
@@ -146,9 +143,7 @@ def test_occurs_in_classical_control_system() -> None:
         op=stim.CircuitInstruction("DETECTOR", [stim.target_rec(-1)])
     )
     assert occurs_in_classical_control_system(op=stim.CircuitInstruction("TICK", []))
-    assert occurs_in_classical_control_system(
-        op=stim.CircuitInstruction("SHIFT_COORDS", [])
-    )
+    assert occurs_in_classical_control_system(op=stim.CircuitInstruction("SHIFT_COORDS", []))
 
 
 def test_si_1000() -> None:
@@ -220,6 +215,5 @@ def test_si_1000_repeat_block() -> None:
             M(0.005) 0 1 2 3
             DEPOLARIZE1(0.0001) 4 5 6 7
             DEPOLARIZE1(0.002) 4 5 6 7
-            TICK
         }
     """)

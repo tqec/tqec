@@ -54,9 +54,7 @@ def test_move_rotation_correlation_surface(
     g = move_rotation(obs_basis)
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert {
-        s.external_stabilizer(io_ports) for s in correlation_surfaces
-    } == external_stabilizers
+    assert {s.external_stabilizer(io_ports) for s in correlation_surfaces} == external_stabilizers
 
 
 def test_move_rotation_ports_filling() -> None:

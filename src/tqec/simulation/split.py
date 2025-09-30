@@ -1,18 +1,21 @@
 """Split the statistics for multiple observables."""
 
 import collections
-from typing import Mapping
+from collections.abc import Mapping
 
 import sinter
+
+# Import of a private module not marked as explicitly typed, type ignore for mypy.
+from sinter._data import ExistingData  # type: ignore
 
 from tqec.computation.correlation import CorrelationSurface
 
 
-def split_counts_for_observables(
-    counts: Mapping[str, int], num_observables: int
-) -> list[int]:
-    """Split the error counts for each individual observable when
-    specifying ``count_observable_error_combos=True`` for ``sinter``.
+def split_counts_for_observables(counts: Mapping[str, int], num_observables: int) -> list[int]:
+    """Split the error counts for each individual observable.
+
+    This function should only be used when specifying ``count_observable_error_combos=True`` to
+    ``sinter`` functions.
 
     Args:
         counts: The error counts for different observable error combinations.
@@ -20,6 +23,7 @@ def split_counts_for_observables(
 
     Returns:
         A list of error counts for each individual observable.
+
     """
     split_counts: list[int] = [0] * num_observables
     for key, count in counts.items():
@@ -37,17 +41,19 @@ def split_stats_for_observables(
     stats: list[sinter.TaskStats],
     num_observables: int,
 ) -> list[list[sinter.TaskStats]]:
-    """Split the statistics for each individual observable when specifying
-    ``count_observable_error_combos=True`` for ``sinter``.
+    """Split the statistics for each individual observable.
+
+    This function should only be used when specifying ``count_observable_error_combos=True`` to
+    ``sinter`` functions.
 
     Args:
         stats: The statistics for different observable error combinations.
+        num_observables: number of observables contained in the provided ``stats``.
 
     Returns:
         A list of statistics for each individual observable.
-    """
-    from sinter._data import ExistingData  # type: ignore
 
+    """
     # Combine the stats for each task
     data = ExistingData()
     for s in stats:
@@ -55,13 +61,9 @@ def split_stats_for_observables(
     combined_stats = list(data.data.values())
 
     # For each task, split the stats by observable
-    stats_by_observables: list[list[sinter.TaskStats]] = [
-        [] for _ in range(num_observables)
-    ]
+    stats_by_observables: list[list[sinter.TaskStats]] = [[] for _ in range(num_observables)]
     for task_stats in combined_stats:
-        split_counts = split_counts_for_observables(
-            task_stats.custom_counts, num_observables
-        )
+        split_counts = split_counts_for_observables(task_stats.custom_counts, num_observables)
         for obs_idx, count in enumerate(split_counts):
             stats_by_observables[obs_idx].append(
                 task_stats.with_edits(
@@ -120,6 +122,7 @@ def heuristic_custom_error_key(observables: list[CorrelationSurface]) -> str:
 
     Returns:
         The heuristic custom error key.
+
     """
     # observable with minimal correlation surface area
     minimal_area_obs = min(observables, key=lambda x: x.area())
@@ -128,9 +131,7 @@ def heuristic_custom_error_key(observables: list[CorrelationSurface]) -> str:
     # the least frequent observable
     obs_comb_to_prob: dict[str, int] = {}
     for fragment in minimal_area_obs.span:
-        obs_comb: list[str] = []
-        for obs in observables:
-            obs_comb.append("E" if fragment in obs.span else "_")
+        obs_comb: list[str] = ["E" if fragment in obs.span else "_" for obs in observables]
         key = "obs_mistake_mask=" + "".join(obs_comb)
         obs_comb_to_prob[key] = obs_comb_to_prob.get(key, 0) + 1
     # return the most frequent observable combination

@@ -8,35 +8,33 @@ from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import LayoutPosition2D
 from tqec.compile.tree.node import LayerNode, NodeWalker
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 LOGICAL_QUBIT_SIDE: Final = LinearFunction(4, 5)
-LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
-    LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE
-)
+LOGICAL_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(LOGICAL_QUBIT_SIDE, LOGICAL_QUBIT_SIDE)
+
+_TRANSLATOR = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
 
 
 @pytest.fixture(name="plaquette_layer")
 def plaquette_layer_fixture() -> PlaquetteLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_value=empty_square_plaquette())
-    )
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     return PlaquetteLayer(template, plaquettes)
 
 
 @pytest.fixture(name="layout_layer")
 def layout_layer_fixture() -> LayoutLayer:
     template = QubitTemplate()
-    plaquettes = Plaquettes(
-        FrozenDefaultDict({}, default_value=empty_square_plaquette())
-    )
+    plaquettes = Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE))
     return LayoutLayer(
         {
             LayoutPosition2D.from_block_position(BlockPosition2D(x, y)): PlaquetteLayer(
@@ -53,12 +51,13 @@ def test_creation(plaquette_layer: PlaquetteLayer, layout_layer: LayoutLayer) ->
     LayerNode(RepeatedLayer(layout_layer, LinearFunction(2, 0)))
     LayerNode(SequencedLayers([layout_layer for _ in range(3)]))
     with pytest.raises(
-        TQECException,
-        match="The layer that is being repeated is not an instance of LayoutLayer or BaseComposedLayer.",
+        TQECError,
+        match="The layer that is being repeated is not an instance of "
+        "LayoutLayer or BaseComposedLayer.",
     ):
         LayerNode(RepeatedLayer(plaquette_layer, LinearFunction(2, 0)))
     with pytest.raises(
-        TQECException,
+        TQECError,
         match="Found a leaf node that is not an instance of LayoutLayer..*",
     ):
         LayerNode(SequencedLayers([plaquette_layer for _ in range(4)]))
@@ -94,17 +93,12 @@ def test_walk_see_all_leaf_nodes(layout_layer: LayoutLayer) -> None:
     assert (
         count_leaves(LayerNode(RepeatedLayer(layout_layer, LinearFunction(2, 0)))) == 1
     )  # Because RepeatedLayer has only its repeated node as child.
-    assert (
-        count_leaves(LayerNode(SequencedLayers([layout_layer for _ in range(3)]))) == 3
-    )
+    assert count_leaves(LayerNode(SequencedLayers([layout_layer for _ in range(3)]))) == 3
     assert (
         count_leaves(
             LayerNode(
                 SequencedLayers(
-                    [
-                        SequencedLayers([layout_layer for _ in range(3)])
-                        for _ in range(5)
-                    ]
+                    [SequencedLayers([layout_layer for _ in range(3)]) for _ in range(5)]
                 )
             )
         )

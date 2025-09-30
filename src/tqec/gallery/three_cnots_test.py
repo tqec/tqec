@@ -5,7 +5,7 @@ from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 
 
-def test_three_cnots_OPEN() -> None:
+def test_three_cnots_open() -> None:
     g = three_cnots()
     assert g.num_ports == 6
     assert g.num_cubes == 12
@@ -60,9 +60,7 @@ def test_three_cnots_correlation_surface(
     io_ports = [1, 4, 8, 0, 7, 11]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert external_stabilizers == {
-        s.external_stabilizer(io_ports) for s in correlation_surfaces
-    }
+    assert external_stabilizers == {s.external_stabilizer(io_ports) for s in correlation_surfaces}
 
 
 def test_three_cnots_ports_filling() -> None:

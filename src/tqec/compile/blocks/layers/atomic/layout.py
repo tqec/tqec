@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import cached_property
-from typing import Final, Iterable, TypeGuard
+from typing import Final, TypeGuard
 
 from typing_extensions import override
 
@@ -18,9 +19,9 @@ from tqec.compile.generation import generate_circuit
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.enums import TemplateBorder
 from tqec.templates.layout import LayoutTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition2D, Direction3D, Shift2D
-from tqec.utils.scale import PhysicalQubitScalable2D
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER: Final[int] = 1
 """Default number of qubits that are shared between two neighbouring layers."""
@@ -29,6 +30,7 @@ DEFAULT_SHARED_QUBIT_DEPTH_AT_BORDER: Final[int] = 1
 def contains_only_plaquette_layers(
     layers: dict[LayoutPosition2D, BaseLayer],
 ) -> TypeGuard[dict[LayoutPosition2D, PlaquetteLayer]]:
+    """Ensure correct typing when used in a conditional block."""
     return all(isinstance(layer, PlaquetteLayer) for layer in layers.values())
 
 
@@ -38,7 +40,7 @@ class LayoutLayer(BaseLayer):
         layers: dict[LayoutPosition2D, BaseLayer],
         element_shape: PhysicalQubitScalable2D,
     ) -> None:
-        """A layer gluing several other layers together on a 2-dimensional grid.
+        """Glue several other layers together on a 2-dimensional grid.
 
         Args:
             layers: a mapping from positions on the 2-dimensional space to
@@ -49,8 +51,9 @@ class LayoutLayer(BaseLayer):
                 in the provided ``layers``.
 
         Raises:
-            TQECException: if ``layers`` is empty.
-            TQECException: if ``trimmed_spatial_borders`` is not empty.
+            TQECError: if ``layers`` is empty.
+            TQECError: if ``trimmed_spatial_borders`` is not empty.
+
         """
         super().__init__(frozenset())
         self._layers = layers
@@ -59,20 +62,18 @@ class LayoutLayer(BaseLayer):
 
     def _post_init_check(self) -> None:
         if not self.layers:
-            raise TQECException(
-                f"An instance of {type(self).__name__} should have at least one layer."
-            )
+            raise TQECError(f"An instance of {type(self).__name__} should have at least one layer.")
         if self.trimmed_spatial_borders:
-            raise TQECException(
-                f"{LayoutLayer.__name__} cannot have trimmed spatial borders."
-            )
+            raise TQECError(f"{LayoutLayer.__name__} cannot have trimmed spatial borders.")
 
     @property
     def layers(self) -> dict[LayoutPosition2D, BaseLayer]:
+        """Return the layers composing ``self``."""
         return self._layers
 
     @property
     def element_shape(self) -> PhysicalQubitScalable2D:
+        """Return the scalable shape of each stored elements."""
         return self._element_shape
 
     @cached_property
@@ -109,12 +110,8 @@ class LayoutLayer(BaseLayer):
         )
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> LayoutLayer:
-        raise TQECException(
-            f"Cannot trim spatial borders of a {type(self).__name__} instance."
-        )
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> LayoutLayer:
+        raise TQECError(f"Cannot trim spatial borders of a {type(self).__name__} instance.")
 
     def __eq__(self, value: object) -> bool:
         return (
@@ -123,9 +120,11 @@ class LayoutLayer(BaseLayer):
             and self.layers == value.layers
         )
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
-        """Return an equivalent representation of ``self`` with a template and some
-        plaquettes.
+        """Return an equivalent representation of ``self`` with a template and some plaquettes.
 
         Raises:
             NotImplementedError: if not all layers composing ``self`` are instances
@@ -135,6 +134,7 @@ class LayoutLayer(BaseLayer):
             a tuple ``(template, plaquettes)`` that is ready to be used with
             :meth:`~tqec.compile.generation.generate_circuit` to obtain the quantum
             circuit representing ``self``.
+
         """
         if not contains_only_plaquette_layers(self.layers):
             raise NotImplementedError(
@@ -156,9 +156,7 @@ class LayoutLayer(BaseLayer):
             if isinstance(pos, LayoutPipePosition2D)
         }
         for (u, v), pipe_layer in pipes.items():
-            pipe_direction = Direction3D.from_neighbouring_positions(
-                u.to_3d(), v.to_3d()
-            )
+            pipe_direction = Direction3D.from_neighbouring_positions(u.to_3d(), v.to_3d())
             # {u,v}_border: border of the respective node that is touched by the
             # the pipe.
             u_border: TemplateBorder
@@ -169,20 +167,21 @@ class LayoutLayer(BaseLayer):
                 case Direction3D.Y:
                     u_border, v_border = TemplateBorder.BOTTOM, TemplateBorder.TOP
                 case Direction3D.Z:
-                    raise TQECException("Should not happen. This is a logical error.")
+                    raise TQECError("Should not happen. This is a logical error.")
 
             # Updating plaquettes in plaquettes_dict
             for pos, (cube_border, pipe_border) in [
                 (u, (u_border, v_border)),
                 (v, (v_border, u_border)),
             ]:
-                plaquette_indices_mapping = pipe_layer.template.get_border_indices(
-                    pipe_border
-                ).to(template_dict[pos].get_border_indices(cube_border))
+                plaquette_indices_mapping = pipe_layer.template.get_border_indices(pipe_border).to(
+                    template_dict[pos].get_border_indices(cube_border)
+                )
+                pipe_plaquette_collection = pipe_layer.plaquettes.collection
                 plaquettes_dict[pos] = plaquettes_dict[pos].with_updated_plaquettes(
                     {
                         plaquette_indices_mapping[pipe_plaquette_index]: plaquette
-                        for pipe_plaquette_index, plaquette in pipe_layer.plaquettes.collection.items()
+                        for pipe_plaquette_index, plaquette in pipe_plaquette_collection.items()
                         # Filtering only plaquette indices that are on the side we are
                         # interested in.
                         if pipe_plaquette_index in plaquette_indices_mapping
@@ -200,6 +199,7 @@ class LayoutLayer(BaseLayer):
 
         Returns:
             quantum circuit representing the layer.
+
         """
         template, plaquettes = self.to_template_and_plaquettes()
         scheduled_circuit = generate_circuit(template, k, plaquettes)
@@ -212,3 +212,29 @@ class LayoutLayer(BaseLayer):
         shift = Shift2D(mincube.x * (eshape.x - 1), mincube.y * (eshape.y - 1))
         shifted_circuit = scheduled_circuit.map_to_qubits(lambda q: q + shift)
         return shifted_circuit
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return LinearFunction.unambiguous_max_on_positives(
+            layer.scalable_num_moments for layer in self.layers.values()
+        )
+
+    @property
+    def qubit_bounds(self) -> tuple[PhysicalQubitScalable2D, PhysicalQubitScalable2D]:
+        """Return the top-left and bottom-right qubits representing the bounding box of ``self``.
+
+        Returns:
+            the ``(top_left, bottom_right)`` qubits.
+
+        """
+        tlb, brb = self.bounds
+        eshape = self.element_shape
+        increments = PhysicalQubitScalable2D(eshape.x, eshape.y) - (1, 1)
+        tlq = PhysicalQubitScalable2D(tlb.x * increments.x, tlb.y * increments.y)
+        brq = PhysicalQubitScalable2D((brb.x + 1) * increments.x, (brb.y + 1) * increments.y)
+        # Note: for the moment, plaquette origin is defined as the CENTER of the
+        # plaquette, which lead the above computations to be off-by-1. Correct that
+        # before returning.
+        shift = (-1, -1)
+        return tlq + shift, brq + shift

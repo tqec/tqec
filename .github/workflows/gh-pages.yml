@@ -6,6 +6,10 @@ on:
       - main
   pull_request:
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,22 +20,35 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-          cache: "pip"
+          python-version: "3.13"
       - name: Install dependencies
         run: |
+          uv venv
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pandoc
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt -r requirements-dev.txt
-          python -m pip install '.[all]'
+          uv sync --group all
+      - uses: actions/cache@v4
+        id: cache-docs
+        with:
+          path: docs/_examples_database/
+          # See https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
+          key: docs_database_and_stim_results_cache-${{ github.run_id }}
+          enableCrossOsArchive: true
+          restore-keys: |
+            docs_database_and_stim_results_cache
       - name: Generate the documentation
         run: |
-          cd docs/
-          make html
+          uv run --group all make html
+        working-directory: docs/
+        # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
+        # this is used to reduce the docs build time in the CI.
       - name: Deploy if 'main' branch
         uses: peaceiris/actions-gh-pages@v4
         # Only publish if we are on main!

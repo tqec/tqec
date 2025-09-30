@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass, field
 
 import stim
 from typing_extensions import override
@@ -19,17 +19,14 @@ class InstructionCreator:
     """Create an instruction from targets and arguments."""
 
     name: str
-    targets: Callable[[list[stim.GateTarget]], list[stim.GateTarget]] = (
-        lambda trgts: trgts
-    )
+    targets: Callable[[list[stim.GateTarget]], list[stim.GateTarget]] = lambda trgts: trgts
     arguments: Callable[[list[float]], list[float]] = lambda args: args
 
     def __call__(
         self, targets: list[stim.GateTarget], arguments: list[float]
     ) -> stim.CircuitInstruction:
-        return stim.CircuitInstruction(
-            self.name, self.targets(targets), self.arguments(arguments)
-        )
+        """Create a ``stim.CircuitInstruction`` from the provided arguments."""
+        return stim.CircuitInstruction(self.name, self.targets(targets), self.arguments(arguments))
 
 
 @dataclass
@@ -48,13 +45,17 @@ class ScheduledCircuitTransformation:
         instruction_simplifier: a simplifier applied before trying to create a
             :class:`~tqec.circuit.moment.Moment` instance with the instructions
             resulting from the application of ``self``.
+
     """
 
     source_name: str
     transformation: dict[ScheduleFunction, list[InstructionCreator]]
-    instruction_simplifier: InstructionSimplifier = NoInstructionSimplification()
+    instruction_simplifier: InstructionSimplifier = field(
+        default_factory=NoInstructionSimplification
+    )
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        """Apply the transformation to ``circuit`` and return the result."""
         # moment_instructions: schedule_index -> instruction list.
         moment_instructions: dict[int, list[stim.CircuitInstruction]] = {}
         for schedule, moment in circuit.scheduled_moments:
@@ -87,46 +88,47 @@ class ScheduledCircuitTransformation:
 
 
 class ScheduledCircuitTransformer:
-    """Describes a list of :class:`ScheduledCircuitTransformation` instances.
+    def __init__(self, transformations: Sequence[ScheduledCircuitTransformation]) -> None:
+        """Describe a list of :class:`ScheduledCircuitTransformation` instances.
 
-    Note:
-        This class has been introduced for convenience and for future
-        optimisation. Right now, a new scheduled circuit is created for each
-        :class:`ScheduledCircuitTransformation` instance in ``self``. This is
-        unoptimal as we might be able to apply all the transformations by
-        iterating the original quantum circuit once.
+        Note:
+            This class has been introduced for convenience and for future
+            optimisation. Right now, a new scheduled circuit is created for each
+            :class:`ScheduledCircuitTransformation` instance in ``self``. This is
+            suboptimal as we might be able to apply all the transformations by
+            iterating the original quantum circuit once.
 
-        Due to the very limited size of the circuits given to the compilation
-        pipeline, this performance issue does not seem to have a measurable
-        impact at the moment.
-    """
+            Due to the very limited size of the circuits given to the compilation
+            pipeline, this performance issue does not seem to have a measurable
+            impact at the moment.
 
-    def __init__(
-        self, transformations: Sequence[ScheduledCircuitTransformation]
-    ) -> None:
+        """
         self._transformations = transformations
 
     def apply(self, circuit: ScheduledCircuit) -> ScheduledCircuit:
+        """Apply the transformations stored in ``self`` to ``circuit`` and return the result."""
         for transformation in self._transformations:
             circuit = transformation.apply(circuit)
         return circuit
 
 
 class ScheduledCircuitTransformationPass(CompilationPass):
-    """Apply the provided transformations as a compilation pass."""
-
     def __init__(
         self,
         transformations: Sequence[ScheduledCircuitTransformation],
     ) -> None:
+        """Apply the provided transformations as a compilation pass.
+
+        Args:
+            transformations: a sequence of transformation that are applied one after the other.
+
+        """
         super().__init__()
         self._transformations = ScheduledCircuitTransformer(transformations)
 
     @override
-    def run(
-        self, circuit: ScheduledCircuit, check_all_flows: bool = False
-    ) -> ScheduledCircuit:
+    def run(self, circuit: ScheduledCircuit, check_all_flows: bool = False) -> ScheduledCircuit:
         modified_circuit = self._transformations.apply(circuit)
         if check_all_flows:
-            self.check_flows(circuit, modified_circuit)
+            self.check_flows(circuit, modified_circuit)  # pragma: no cover
         return modified_circuit

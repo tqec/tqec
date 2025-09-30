@@ -10,6 +10,7 @@
 
    Introduction <self>
    User Guide <user_guide/index>
-   Contributor Guide <contributor_guide>
    Gallery <gallery/index>
+   Contributor Guide <contributor_guide>
    API Reference <api>
+   Ethical Notice <ethical_notice>

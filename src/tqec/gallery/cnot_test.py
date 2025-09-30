@@ -1,5 +1,4 @@
 import pytest
-
 import pyzx as zx
 
 from tqec.gallery.cnot import cnot
@@ -58,9 +57,7 @@ def test_cnot_correlation_surface(
     io_ports = [0, 6, 3, 9]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert {
-        s.external_stabilizer(io_ports) for s in correlation_surfaces
-    } == external_stabilizers
+    assert {s.external_stabilizer(io_ports) for s in correlation_surfaces} == external_stabilizers
 
 
 def test_compose_two_cnots() -> None:

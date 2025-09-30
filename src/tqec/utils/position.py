@@ -22,6 +22,7 @@ we have
 This is particularly useful when we, as humans, are mostly used to always have
 (x, y) coordinates but some libraries (such as numpy) reverse that order for
 indexing.
+
 """
 
 from __future__ import annotations
@@ -34,7 +35,7 @@ import numpy as np
 import numpy.typing as npt
 from typing_extensions import Self
 
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 
 @dataclass(frozen=True, order=True)
@@ -51,75 +52,79 @@ class Vec3D:
 
 
 class Position2D(Vec2D):
-    """Represents a position on a 2-dimensional plane.
+    """Represent a position on a 2-dimensional plane.
 
     Warning:
         This class represents a position without any knowledge of the coordinate
         system being used. As such, it should only be used when the coordinate
         system is meaningless or in localised places where the coordinate system
         is obvious. In particular, this class should be avoided in interfaces.
+
     """
 
     def with_block_coordinate_system(self) -> BlockPosition2D:
-        return BlockPosition2D(self.x, self.y)
+        """Return a :class:`.BlockPosition2D` from ``self``."""
+        return BlockPosition2D(self.x, self.y)  # pragma: no cover
 
     def is_neighbour(self, other: Position2D) -> bool:
-        """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1."""
+        """Check if the other position is near to this position, i.e. Manhattan distance is 1."""
         return abs(self.x - other.x) + abs(self.y - other.y) == 1
 
     def to_3d(self, z: int = 0) -> Position3D:
+        """Get a 3-dimensional position with the ``x`` and ``y`` coordinates from ``self``."""
         return Position3D(self.x, self.y, z)
 
 
 class PhysicalQubitPosition2D(Position2D):
-    """Represents the position of a physical qubit on a 2-dimensional plane."""
+    """Represent the position of a physical qubit on a 2-dimensional plane."""
 
 
 class PlaquettePosition2D(Position2D):
-    """Represents the position of a plaquette on a 2-dimensional plane."""
+    """Represent the position of a plaquette on a 2-dimensional plane."""
 
     def get_origin_position(self, shift: Shift2D) -> PhysicalQubitPosition2D:
-        """Returns the position of the plaquette origin."""
-        return PhysicalQubitPosition2D(shift.x * self.x, shift.y * self.y)
+        """Return the position of the plaquette origin."""
+        return PhysicalQubitPosition2D(shift.x * self.x, shift.y * self.y)  # pragma: no cover
 
 
 class BlockPosition2D(Position2D):
-    """Represents the position of a block on a 2-dimensional plane."""
+    """Represent the position of a block on a 2-dimensional plane."""
 
-    def get_top_left_plaquette_position(
-        self, block_shape: PlaquetteShape2D
-    ) -> PlaquettePosition2D:
-        """Returns the position of the top-left plaquette of the block."""
+    def get_top_left_plaquette_position(self, block_shape: PlaquetteShape2D) -> PlaquettePosition2D:
+        """Return the position of the top-left plaquette of the block."""
         return PlaquettePosition2D(block_shape.x * self.x, block_shape.y * self.y)
 
 
 class Shape2D(Vec2D):
     def to_numpy_shape(self) -> tuple[int, int]:
-        """Returns the shape according to numpy indexing.
+        """Return the shape according to numpy indexing.
 
-        In the coordinate system used in this library, numpy indexes
-        arrays using (y, x) coordinates. This method is here to
-        translate a Shape instance to a numpy shape transparently for
-        the user.
+        In the coordinate system used in this library, numpy indexes arrays using (y, x)
+        coordinates. This method is here to translate a Shape instance to a numpy shape
+        transparently for the user.
+
+        In the coordinate system used in this library, numpy indexes arrays using (y, x)
+        coordinates. This method is here to translate a ``Shape`` instance to a numpy shape
+        transparently for the user.
+
         """
         return (self.y, self.x)
 
 
 class PlaquetteShape2D(Shape2D):
-    """Represents a 2-dimensional shape using plaquette coordinate system."""
+    """Represent a 2-dimensional shape using plaquette coordinate system."""
 
 
 class PhysicalQubitShape2D(Shape2D):
-    """Represents a 2-dimensional shape using physical qubit coordinate system."""
+    """Represent a 2-dimensional shape using physical qubit coordinate system."""
 
 
 class Shift2D(Vec2D):
     def __mul__(self, factor: int) -> Shift2D:
-        return Shift2D(factor * self.x, factor * self.y)
+        return Shift2D(factor * self.x, factor * self.y)  # pragma: no cover
 
     def __rmul__(self, factor: int) -> Shift2D:
-        return self.__mul__(factor)
+        return self.__mul__(factor)  # pragma: no cover
 
 
 class Position3D(Vec3D):
@@ -143,11 +148,8 @@ class Position3D(Vec3D):
             return self.shift_by(dz=shift)
 
     def is_neighbour(self, other: Position3D) -> bool:
-        """Check if the other position is near to this position, i.e. Manhattan
-        distance is 1."""
-        return (
-            abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z) == 1
-        )
+        """Check if the other position is near to this position, i.e. Manhattan distance is 1."""
+        return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z) == 1
 
     def as_tuple(self) -> tuple[int, int, int]:
         """Return the position as a tuple."""
@@ -162,9 +164,10 @@ class Position3D(Vec3D):
 
 
 class BlockPosition3D(Position3D):
-    """Represents the position of a block in 3D space."""
+    """Represent the position of a block in 3D space."""
 
     def as_2d(self) -> BlockPosition2D:
+        """Return ``self`` as a 2-dimensional position, ignoring the ``z`` coordinate."""
         return BlockPosition2D(self.x, self.y)
 
 
@@ -182,32 +185,33 @@ class Direction3D(Enum):
 
     @staticmethod
     def spatial_directions() -> list[Direction3D]:
+        """Return all the spatial directions."""
         return [Direction3D.X, Direction3D.Y]
 
     @staticmethod
     def temporal_directions() -> list[Direction3D]:
+        """Return all the temporal directions."""
         return [Direction3D.Z]
 
     def __str__(self) -> str:
         return self.name
 
     @staticmethod
-    def from_neighbouring_positions(
-        source: Position3D, sink: Position3D
-    ) -> Direction3D:
+    def from_neighbouring_positions(source: Position3D, sink: Position3D) -> Direction3D:
+        """Return the direction to go from ``source`` to ``sink``."""
         assert source.is_neighbour(sink)
         for direction, (source_coord, sink_coord) in zip(
             Direction3D.all_directions(), zip(source.as_tuple(), sink.as_tuple())
         ):
             if source_coord != sink_coord:
                 return direction
-        raise TQECException(
-            "Could not find the direction from two neighbouring positions "
-            f"{source:=} and {sink:=}."
+        raise TQECError(
+            f"Could not find the direction from two neighbouring positions {source:=} and {sink:=}."
         )
 
     @property
     def orthogonal_directions(self) -> tuple[Direction3D, Direction3D]:
+        """Return the two directions orthogonal to ``self``."""
         i = self.value
         return Direction3D((i + 1) % 3), Direction3D((i + 2) % 3)
 
@@ -238,13 +242,12 @@ class SignedDirection3D:
             The signed direction.
 
         Raises:
-            TQECException: If the string does not match the expected format.
+            TQECError: If the string does not match the expected format.
+
         """
         match = re.match(r"([+-])([XYZ])", s)
         if match is None:
-            raise TQECException(
-                f"Invalid signed direction: {s}, expected format: [+/-][XYZ]"
-            )
+            raise TQECError(f"Invalid signed direction: {s}, expected format: [+/-][XYZ]")
         sign, direction = match.groups()
         return SignedDirection3D(Direction3D("XYZ".index(direction)), sign == "+")
 
@@ -261,9 +264,7 @@ class FloatPosition3D:
         """Shift the position by the given offset."""
         return FloatPosition3D(self.x + dx, self.y + dy, self.z + dz)
 
-    def shift_in_direction(
-        self, direction: Direction3D, shift: float
-    ) -> FloatPosition3D:
+    def shift_in_direction(self, direction: Direction3D, shift: float) -> FloatPosition3D:
         """Shift the position in the given direction by the given shift."""
         if direction == Direction3D.X:
             return self.shift_by(dx=shift)

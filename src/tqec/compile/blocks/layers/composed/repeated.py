@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from itertools import chain
-from typing import Iterable, Mapping
 
 from typing_extensions import override
 
@@ -9,7 +9,7 @@ from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D, round_or_fail
 
 
@@ -32,13 +32,13 @@ class RepeatedLayer(BaseComposedLayer):
                 removed from the layer.
 
         Raises:
-            TQECException: if the total number of timesteps is not a linear
+            TQECError: if the total number of timesteps is not a linear
                 function (i.e., ``internal_layer.scalable_timesteps.slope != 0``
                 and ``repetitions.slope != 0``).
-            TQECException: if the total number of timesteps is strictly
+            TQECError: if the total number of timesteps is strictly
                 decreasing.
-        """
 
+        """
         super().__init__(trimmed_spatial_borders)
         self._internal_layer = internal_layer
         self._repetitions = repetitions
@@ -46,19 +46,18 @@ class RepeatedLayer(BaseComposedLayer):
 
     @property
     def internal_layer(self) -> BaseLayer | BaseComposedLayer:
+        """Get the internal layer that is being repeated by ``self``."""
         return self._internal_layer
 
     @property
     def repetitions(self) -> LinearFunction:
+        """Get the number of repetitions of the internal layer."""
         return self._repetitions
 
     def _post_init_check(self) -> None:
         # Check that the number of timesteps of self is a linear function.
-        if (
-            self.internal_layer.scalable_timesteps.slope != 0
-            and self.repetitions.slope != 0
-        ):
-            raise TQECException(
+        if self.internal_layer.scalable_timesteps.slope != 0 and self.repetitions.slope != 0:
+            raise TQECError(
                 "Layers with a non-constant number of timesteps cannot be "
                 "repeated a non-constant number of times as that would lead to "
                 "a non-linear number of timesteps, which is not supported yet. "
@@ -66,11 +65,8 @@ class RepeatedLayer(BaseComposedLayer):
                 f"and tried to repeat it {self.repetitions} times."
             )
         # Check that the number of timesteps of ``self`` is not strictly decreasing.
-        if (
-            self.repetitions.slope < 0
-            or self.internal_layer.scalable_timesteps.slope < 0
-        ):
-            raise TQECException(
+        if self.repetitions.slope < 0 or self.internal_layer.scalable_timesteps.slope < 0:
+            raise TQECError(
                 f"Cannot create a {RepeatedLayer.__name__} instance with a decreasing "
                 f"number of timesteps. Got repeated layer with "
                 f"{self.internal_layer.scalable_timesteps} timesteps that is repeated "
@@ -92,9 +88,7 @@ class RepeatedLayer(BaseComposedLayer):
         return self.internal_layer.scalable_shape
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> RepeatedLayer:
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> RepeatedLayer:
         return RepeatedLayer(
             self.internal_layer.with_spatial_borders_trimmed(borders),
             self.repetitions,
@@ -181,7 +175,7 @@ class RepeatedLayer(BaseComposedLayer):
     ) -> SequencedLayers:
         duration = sum(schedule, start=LinearFunction(0, 0))
         if self.scalable_timesteps != duration:
-            raise TQECException(
+            raise TQECError(
                 f"Cannot transform the {RepeatedLayer.__name__} instance to a "
                 f"{SequencedLayers.__name__} instance with the provided schedule. "
                 f"The provided schedule has a duration of {duration} but the "
@@ -198,7 +192,7 @@ class RepeatedLayer(BaseComposedLayer):
         for s in schedule:
             try:
                 repetitions = s.exact_integer_div(body_duration)
-            except TQECException as e:
+            except TQECError as e:
                 raise NotImplementedError(
                     f"The ability to split the body of a {RepeatedLayer.__name__} "
                     "instance has not been implemented yet. Trying to fit an "
@@ -219,6 +213,14 @@ class RepeatedLayer(BaseComposedLayer):
             and self.internal_layer == value.internal_layer
         )
 
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
     @override
     def get_temporal_layer_on_border(self, border: TemporalBlockBorder) -> BaseLayer:
         return self.internal_layer.get_temporal_layer_on_border(border)
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return LinearFunction.safe_mul(self.internal_layer.scalable_num_moments, self.repetitions)

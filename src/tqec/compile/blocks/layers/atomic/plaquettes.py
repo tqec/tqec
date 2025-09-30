@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Final, Iterable, Literal
+from collections.abc import Iterable
+from typing import Final, Literal
 
 from typing_extensions import override
 
@@ -9,7 +10,7 @@ from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.spatial import EXPECTED_SPATIAL_BORDER_WIDTH
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import RectangularTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
 from tqec.utils.scale import (
     LinearFunction,
@@ -25,7 +26,7 @@ class PlaquetteLayer(BaseLayer):
         plaquettes: Plaquettes,
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
     ) -> None:
-        """Represents a layer with a template and some plaquettes.
+        """Represent a layer with a template and some plaquettes.
 
         This class implements the layer interface by using a template and some
         plaquettes. This is the preferred way of representing a layer.
@@ -39,11 +40,12 @@ class PlaquetteLayer(BaseLayer):
                 removed from the layer.
 
         Raises:
-            TQECException: if the provided ``template`` increments do not match
+            TQECError: if the provided ``template`` increments do not match
                 with the expected spatial border width.
-            TQECException: if the provided ``template`` and
+            TQECError: if the provided ``template`` and
                 ``trimmed_spatial_borders`` can lead to empty instantiations for
                 ``k >= 1``.
+
         """
         super().__init__(trimmed_spatial_borders)
         self._template = template
@@ -52,24 +54,22 @@ class PlaquetteLayer(BaseLayer):
 
     def _post_init_check(self) -> None:
         # Shortening variable name for convenience
-        EW: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
-        expected_shifts = Shift2D(EW, EW)
+        _ew: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
+        expected_shifts = Shift2D(_ew, _ew)
         if (shifts := self._template.get_increments()) != expected_shifts:
-            raise TQECException(
-                f"Spatial borders are expected to be {EW} qubits large. Got a "
+            raise TQECError(
+                f"Spatial borders are expected to be {_ew} qubits large. Got a "
                 f"Template instance with {shifts:=}. Removing a border from "
-                f"such a template instance would remove more than {EW} qubits, "
+                f"such a template instance would remove more than {_ew} qubits, "
                 "which is not supported."
             )
         # We require the template shape to be strictly positive for any value of
         # k > 0.
-        shape = PlaquetteLayer._get_template_shape(
-            self._template, self.trimmed_spatial_borders
-        )
+        shape = PlaquetteLayer._get_template_shape(self._template, self.trimmed_spatial_borders)
         shape1 = shape.to_numpy_shape(1)
         # Check that the shape is valid (i.e., strictly positive) for k == 1.
         if not all(coord > 0 for coord in shape1):
-            raise TQECException(
+            raise TQECError(
                 "The provided template/trimmed_spatial_borders combo leads to an "
                 f"invalid template shape ({shape1}) for k == 1. "
                 f"{PlaquetteLayer.__name__} instances do not support empty templates."
@@ -77,7 +77,7 @@ class PlaquetteLayer(BaseLayer):
         # Check that the shape is either increasing or is constant for both
         # coordinates.
         if shape.x.slope < 0 or shape.y.slope < 0:
-            raise TQECException(
+            raise TQECError(
                 "The provided template does have a strictly decreasing shape, "
                 "which will eventually lead to an empty instantiation, which is "
                 f"not supported by {PlaquetteLayer.__name__} instances."
@@ -86,23 +86,22 @@ class PlaquetteLayer(BaseLayer):
     @staticmethod
     def _get_number_of_plaquettes(axis: Literal["X", "Y"], increments: int) -> int:
         # Shortening variable name for convenience
-        EW: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
-        if EW % increments != 0:
-            raise TQECException(
-                f"Trying to remove {EW} qubits from the {axis} border of a template "
-                f"with increments {increments} in that axis. {EW} % {increments} "
+        _ew: Final[int] = EXPECTED_SPATIAL_BORDER_WIDTH
+        if _ew % increments != 0:
+            raise TQECError(
+                f"Trying to remove {_ew} qubits from the {axis} border of a template "
+                f"with increments {increments} in that axis. {_ew} % {increments} "
                 "!= 0, which means that we would remove a non-integer number of "
                 "plaquettes, which is not supported."
             )
-        return EW // increments
+        return _ew // increments
 
     @staticmethod
     def _get_template_shape(
         template: RectangularTemplate,
         spatial_borders_removed: frozenset[SpatialBlockBorder],
     ) -> PlaquetteScalable2D:
-        """Get the shape of the provided ``template``, taking into account the
-        removed spatial borders.
+        """Get the shape of the provided ``template``, taking into account removed spatial borders.
 
         Args:
             template: template to get the shape from.
@@ -111,6 +110,7 @@ class PlaquetteLayer(BaseLayer):
 
         Returns:
             the shape of the provided template with the provided borders removed.
+
         """
         base_shape = template.scalable_shape
         # We return a shape in plaquette-coordinates. In order to know exactly the
@@ -130,35 +130,29 @@ class PlaquetteLayer(BaseLayer):
 
     @property
     def template(self) -> RectangularTemplate:
+        """Get the template stored by ``self``."""
         return self._template
 
     @property
     def plaquettes(self) -> Plaquettes:
+        """Get the plaquettes stored by ``self``."""
         return self._plaquettes
 
     @property
     @override
     def scalable_shape(self) -> PhysicalQubitScalable2D:
-        tshape = PlaquetteLayer._get_template_shape(
-            self.template, self.trimmed_spatial_borders
-        )
-        initial_qubit_offset = PhysicalQubitScalable2D(
-            LinearFunction(0, 1), LinearFunction(0, 1)
-        )
+        tshape = PlaquetteLayer._get_template_shape(self.template, self.trimmed_spatial_borders)
+        initial_qubit_offset = PhysicalQubitScalable2D(LinearFunction(0, 1), LinearFunction(0, 1))
         return tshape * self.template.get_increments() + initial_qubit_offset
 
     @override
-    def with_spatial_borders_trimmed(
-        self, borders: Iterable[SpatialBlockBorder]
-    ) -> PlaquetteLayer:
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> PlaquetteLayer:
         # Warning: depends on the fact that plaquette indices on the border of
         # a template are ONLY on this border.
         borders = frozenset(borders)
         border_indices: set[int] = set()
         for border in borders:
-            border_indices.update(
-                self.template.get_border_indices(border.to_template_border())
-            )
+            border_indices.update(self.template.get_border_indices(border.to_template_border()))
         return PlaquetteLayer(
             self.template,
             self.plaquettes.without_plaquettes(border_indices),
@@ -170,4 +164,18 @@ class PlaquetteLayer(BaseLayer):
             isinstance(value, PlaquetteLayer)
             and self._template == value._template
             and self._plaquettes == value._plaquettes
+        )
+
+    def __hash__(self) -> int:
+        raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
+
+    @property
+    @override
+    def scalable_num_moments(self) -> LinearFunction:
+        return LinearFunction(
+            0,
+            max(
+                (plaquette.num_moments for plaquette in self.plaquettes.collection.values()),
+                default=0,
+            ),
         )

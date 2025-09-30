@@ -1,11 +1,11 @@
-"""Defines the base classes for templates: :class:`Template` and
-:class:`RectangularTemplate`."""
+"""Defines the base classes for templates: :class:`Template` and :class:`RectangularTemplate`."""
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
-from typing import Iterator, Sequence
+from typing import Any
 
 import numpy
 import numpy.typing as npt
@@ -27,9 +27,9 @@ from tqec.utils.scale import PlaquetteScalable2D, round_or_fail
 class Template(ABC):
     """Base class for all the templates.
 
-    This class is the base of all templates and provide the necessary
-    interface that all templates should implement to be usable by the
-    library.
+    This class is the base of all templates and provide the necessary interface that all templates
+    should implement to be usable by the library.
+
     """
 
     def __init__(self, default_increments: Shift2D | None = None) -> None:
@@ -38,9 +38,16 @@ class Template(ABC):
         Args:
             default_increments: default increments between two plaquettes. Defaults
                 to ``Displacement(2, 2)`` when ``None``
+
         """
         super().__init__()
         self._default_shift = default_increments or Shift2D(2, 2)
+
+    def __hash__(self) -> int:
+        return hash((type(self), self._default_shift))
+
+    def __eq__(self, value: Any) -> bool:
+        return type(self) is type(value) and self._default_shift == value._default_shift
 
     @abstractmethod
     def instantiate(
@@ -57,26 +64,57 @@ class Template(ABC):
         Returns:
             a numpy array with the given plaquette indices arranged according to
             the underlying shape of the template.
+
         """
 
+    def instantiate_list(
+        self, k: int, plaquette_indices: Sequence[int] | None = None
+    ) -> list[list[int]]:
+        """Generate a 2-dimensional list of integers representing the template.
+
+        This method is equivalent to
+        ``self.instantiate(k, plaquette_indices).tolist()`` but has a stricter
+        and more correct typing than calling ``tolist`` on a numpy array.
+
+        Args:
+            k: scaling parameter used to instantiate the template.
+            plaquette_indices: the plaquette indices that will be forwarded to
+                the underlying Shape instance's instantiate method. Defaults
+                to ``range(1, self.expected_plaquettes_number + 1)`` if ``None``.
+
+        Returns:
+            a 2-dimensional list (i.e., a list of lists) with the given
+            plaquette indices arranged according to the underlying shape of the
+            template.
+
+        """
+        instantiation = self.instantiate(k, plaquette_indices=plaquette_indices)
+        m, n = instantiation.shape
+        ret: list[list[int]] = []
+        for i in range(m):
+            ret.append([])
+            for j in range(n):
+                ret[-1].append(int(instantiation[i, j]))
+        return ret
+
     def shape(self, k: int) -> PlaquetteShape2D:
-        """Returns the current template shape."""
+        """Return the current template shape."""
         sshape = self.scalable_shape
         return PlaquetteShape2D(round_or_fail(sshape.x(k)), round_or_fail(sshape.y(k)))
 
     @property
     @abstractmethod
     def scalable_shape(self) -> PlaquetteScalable2D:
-        """Returns a scalable version of the template shape."""
+        """Return a scalable version of the template shape."""
 
     @property
     @abstractmethod
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the
-        :py:meth:`instantiate` method.
+        """Return the number of plaquettes expected from the :py:meth:`instantiate` method.
 
         Returns:
             the number of plaquettes expected from the :py:meth:`instantiate` method.
+
         """
 
     def get_increments(self) -> Shift2D:
@@ -84,14 +122,14 @@ class Template(ABC):
 
         Returns:
             a displacement of the default increments in the x and y directions.
+
         """
         return self._default_shift
 
     def get_spatially_distinct_subtemplates(
         self, k: int, manhattan_radius: int = 1, avoid_zero_plaquettes: bool = True
     ) -> UniqueSubTemplates:
-        """Returns a representation of all the distinct sub-templates of the
-        provided manhattan radius.
+        """Return a representation of the distinct sub-templates of the provided Manhattan radius.
 
         Note:
             This method will likely be inefficient for large templates (i.e., large
@@ -112,8 +150,9 @@ class Template(ABC):
 
         Returns:
             a representation of all the sub-templates found.
+
         """
-        return get_spatially_distinct_subtemplates(
+        return get_spatially_distinct_subtemplates(  # pragma: no cover
             self.instantiate(k), manhattan_radius, avoid_zero_plaquettes
         )
 
@@ -139,6 +178,7 @@ class Template(ABC):
             (:class:`~tqec.plaquette.plaquette.Plaquette.origin`) that corresponds
             to the top-left entry of the array returned by
             :meth:`~tqec.templates.base.Template.instantiate`.
+
         """
         return BlockPosition2D(0, 0).get_top_left_plaquette_position(self.shape(k))
 
@@ -154,6 +194,7 @@ class BorderIndices:
         second_repeating: second repeating index on the border "bulk".
         bottom_right_corner: non-repeating index at the bottom or right part of
             the border.
+
     """
 
     top_left_corner: int
@@ -162,7 +203,7 @@ class BorderIndices:
     bottom_right_corner: int
 
     def to(self, other: BorderIndices) -> dict[int, int]:
-        """Returns a mapping from ``self`` to ``other``.
+        """Return a mapping from ``self`` to ``other``.
 
         This method returns a mapping from the indices stored in ``self`` to the
         indices stored in ``other``.
@@ -173,6 +214,7 @@ class BorderIndices:
         Returns:
             a mapping from the indices stored in ``self`` to the indices stored
             in ``other``.
+
         """
         return {s: o for s, o in zip(self, other)}
 
@@ -190,7 +232,7 @@ class RectangularTemplate(Template):
 
     @abstractmethod
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
-        """Returns the indices on the provided ``border``.
+        """Return the indices on the provided ``border``.
 
         Args:
             border: side of the template instance for which the indices are
@@ -199,5 +241,6 @@ class RectangularTemplate(Template):
         Returns:
             a description of the indices present on the provided ``border`` of
             the represented template.
+
         """
         pass

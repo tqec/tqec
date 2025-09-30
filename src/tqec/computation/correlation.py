@@ -1,11 +1,10 @@
-"""Defines the ``CorrelationSurface`` class and the functions to find the
-correlation surfaces in the ZX graph."""
+"""Defines :class:`CorrelationSurface` and functions to find and build them from a ZX graph."""
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass
-from functools import reduce
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.utils.enums import Basis
@@ -27,6 +26,7 @@ class ZXNode:
     Attributes:
         id: The index of the vertex in the graph.
         basis: The Pauli operator on the half edge incident to the node.
+
     """
 
     id: int
@@ -46,6 +46,7 @@ class ZXEdge:
     Note that the Pauli operators are represented by `Basis` enum, which only
     contains `X` and `Z` operators. The `Y` operator is represented by two
     edges with `X` and `Z` operators respectively.
+
     """
 
     u: ZXNode
@@ -64,9 +65,9 @@ class ZXEdge:
     def is_self_loop(self) -> bool:
         """Whether the edge is a self-loop edge.
 
-        By definition, a self-loop edge represents a correlation surface
-        within a single node. This is an edge case where the ZX graph
-        only contains a single node.
+        By definition, a self-loop edge represents a correlation surface within a single node. This
+        is an edge case where the ZX graph only contains a single node.
+
         """
         return self.u.id == self.v.id
 
@@ -78,9 +79,10 @@ class ZXEdge:
 
 @dataclass(frozen=True)
 class CorrelationSurface:
-    """A correlation surface in a computation is a set of measurements whose
-    values determine the parity of the logical operators at the inputs and
-    outputs associated with the surface.
+    """Represent a set of measurements whose values determine the parity of the logical operators.
+
+    A correlation surface in a computation is a set of measurements whose values determine the
+    parity of the logical operators at the inputs and outputs associated with the surface.
 
     Note:
         We use the term "correlation surface", "pauli web" and "observable" interchangeably in
@@ -100,6 +102,7 @@ class CorrelationSurface:
 
     Attributes:
         span: A set of ``ZXEdge`` representing the span of the correlation surface.
+
     """
 
     span: frozenset[ZXEdge]
@@ -123,15 +126,18 @@ class CorrelationSurface:
 
         Returns:
             A `PauliWeb` representation of the correlation surface.
+
         """
-        from tqec.interop.pyzx.correlation import correlation_surface_to_pauli_web
+        # Avoid pulling pyzx when importing that module.
+        from tqec.interop.pyzx.correlation import correlation_surface_to_pauli_web  # noqa: PLC0415
 
         return correlation_surface_to_pauli_web(self, g)
 
     @staticmethod
     def from_pauli_web(pauli_web: PauliWeb[int, tuple[int, int]]) -> CorrelationSurface:
         """Create a correlation surface from a Pauli web."""
-        from tqec.interop.pyzx.correlation import pauli_web_to_correlation_surface
+        # Avoid pulling pyzx when importing that module.
+        from tqec.interop.pyzx.correlation import pauli_web_to_correlation_surface  # noqa: PLC0415
 
         return pauli_web_to_correlation_surface(pauli_web)
 
@@ -139,9 +145,9 @@ class CorrelationSurface:
     def is_single_node(self) -> bool:
         """Whether the correlation surface contains only a single node.
 
-        This is an edge case where the ZX graph only contains a single
-        node. The span of the correlation surface is a self-loop edge at
-        the node.
+        This is an edge case where the ZX graph only contains a single node. The span of the
+        correlation surface is a self-loop edge at the node.
+
         """
         return len(self.span) == 1 and next(iter(self.span)).is_self_loop()
 
@@ -150,8 +156,7 @@ class CorrelationSurface:
         return {v.id for edge in self.span for v in edge}
 
     def edges_at(self, v: int) -> set[ZXEdge]:
-        """Return the set of edges incident to the vertex in the correlation
-        surface."""
+        """Return the set of edges incident to the vertex in the correlation surface."""
         return {edge for edge in self.span if any(n.id == v for n in edge)}
 
     def external_stabilizer(self, io_ports: list[int]) -> str:
@@ -162,13 +167,19 @@ class CorrelationSurface:
 
         Returns:
             The Pauli operator supported on the given ports.
-        """
-        from pyzx.pauliweb import multiply_paulis
 
-        paulis = [
-            reduce(multiply_paulis, {b.value for b in self.bases_at(port)}, "I")
-            for port in io_ports
-        ]
+        """
+        # Avoid pulling pyzx when importing that module.
+        from pyzx.pauliweb import multiply_paulis  # noqa: PLC0415
+
+        paulis = []
+        for port in io_ports:
+            basis_set = {b.value for b in self.bases_at(port)}
+            result = "I"
+            for basis in basis_set:
+                result = multiply_paulis(result, basis)
+            paulis.append(result)
+
         return "".join(paulis)
 
     def external_stabilizer_on_graph(self, graph: BlockGraph) -> str:
@@ -180,10 +191,11 @@ class CorrelationSurface:
         graph.
 
         Args:
-            g: The block graph to consider.
+            graph: The block graph to consider.
 
         Returns:
             The Pauli operator that is the external stabilizer of the correlation surface.
+
         """
         supports: list[Position3D]
         if graph.is_open:
@@ -199,8 +211,9 @@ class CorrelationSurface:
     def area(self) -> int:
         """Return the area of the correlation surface.
 
-        The area of the correlation surface is the number of nodes it spans.
-        A X node and a Z node with the same id are counted as two nodes.
+        The area of the correlation surface is the number of nodes it spans. A X node and a Z node
+        with the same id are counted as two nodes.
+
         """
         span_nodes = {node for edge in self.span for node in edge}
         return len(span_nodes)

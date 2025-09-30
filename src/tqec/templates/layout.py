@@ -1,5 +1,4 @@
-"""Defines a high-level template composing several sub-templates:
-:class:`LayoutTemplate`.
+r"""Defines a high-level template composing several sub-templates: :class:`LayoutTemplate`.
 
 This module defines a :class:`~tqec.templates.base.Template` child class that
 is able to represent several :class:`~tqec.templates.base.RectangularTemplate`
@@ -7,10 +6,9 @@ instances with the same scalable shape. Each of the managed
 :class:`~tqec.templates.base.RectangularTemplate` instance is linked to a unique
 2-dimensional position on an infinite 2-dimensional grid.
 
-Example
+Example:
 -------
-
-A grid of :math:`2 \\times 2` logical qubits can be represented with
+A grid of :math:`2 \times 2` logical qubits can be represented with
 
 .. code-block:: python
 
@@ -62,10 +60,11 @@ which outputs
     21  23  24  23  24  25  49  51  52  51  52  53
     22  24  23  24  23  26  50  52  51  52  51  54
     17  27  28  27  28  18  45  55  56  55  56  46
+
 """
 
+from collections.abc import Mapping, Sequence
 from copy import deepcopy
-from typing import Mapping, Sequence
 
 import numpy
 import numpy.typing as npt
@@ -73,7 +72,7 @@ from typing_extensions import override
 
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
 from tqec.templates.base import RectangularTemplate, Template
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import (
     BlockPosition2D,
@@ -90,7 +89,7 @@ class LayoutTemplate(Template):
         element_layout: dict[BlockPosition2D, RectangularTemplate],
         default_increments: Shift2D | None = None,
     ) -> None:
-        """A template representing a layout of other templates.
+        """Implement a template representing a layout of other templates.
 
         Each element template in the layout is placed at a specific position in
         the 2D grid.
@@ -107,18 +106,15 @@ class LayoutTemplate(Template):
                 templates in the layout as keys and the templates as values.
             default_increments: default increments between two plaquettes. Defaults
                 to ``Displacement(2, 2)`` when ``None``.
+
         """
         super().__init__(default_increments)
         if not element_layout:
-            raise TQECException("Cannot create a layout with an empty template map.")
+            raise TQECError("Cannot create a layout with an empty template map.")
 
-        scalable_shapes = {
-            template.scalable_shape for template in element_layout.values()
-        }
+        scalable_shapes = {template.scalable_shape for template in element_layout.values()}
         if len(scalable_shapes) != 1:
-            raise TQECException(
-                "All templates in the layout should have the same scalable shape."
-            )
+            raise TQECError("All templates in the layout should have the same scalable shape.")
         self._element_scalable_shape = scalable_shapes.pop()
 
         all_positions = list(element_layout.keys())
@@ -158,6 +154,7 @@ class LayoutTemplate(Template):
             from ``N`` to ``N + template.expected_plaquettes_number - 1`` where
             ``N`` depends on the other :class:`~tqec.templates.base.Template`
             instances managed by ``self``).
+
         """
         if instantiate_indices is None:
             instantiate_indices = list(range(1, self.expected_plaquettes_number + 1))
@@ -174,15 +171,15 @@ class LayoutTemplate(Template):
     def get_global_plaquettes(
         self, individual_plaquettes: Mapping[BlockPosition2D, Plaquettes]
     ) -> Plaquettes:
-        """Merge the provided ``individual_plaquettes`` into a single
-        :class:`~tqec.plaquette.plaquette.Plaquettes` instance that can be used
-        to instantiate ``self``.
+        """Merge ``individual_plaquettes`` into a single :class:`.Plaquettes` instance.
+
+        The returned :class:`.Plaquettes` instance can then be used to instantiate ``self``.
 
         Raises:
-            TQECException: if the provided ``individual_plaquettes`` does not
+            TQECError: if the provided ``individual_plaquettes`` does not
                 cover all the :class:`~tqec.utils.position.BlockPosition2D` where
                 there is a template in ``self``.
-            TQECException: if the provided ``individual_plaquettes`` have
+            TQECError: if the provided ``individual_plaquettes`` have
                 different values for their ``default_factory``.
 
         Args:
@@ -194,12 +191,11 @@ class LayoutTemplate(Template):
             a unique :class:`~tqec.plaquette.plaquette.Plaquettes` instance that
             can be used with ``self`` to generate a quantum circuit with
             :meth:`~tqec.compile.generation.generate_circuit`.
+
         """
-        missing_positions = frozenset(self._layout.keys()) - frozenset(
-            individual_plaquettes.keys()
-        )
+        missing_positions = frozenset(self._layout.keys()) - frozenset(individual_plaquettes.keys())
         if missing_positions:
-            raise TQECException(
+            raise TQECError(
                 "The following expected positions were not found in the "
                 f"provided individual_plaquettes: {missing_positions}."
             )
@@ -209,30 +205,24 @@ class LayoutTemplate(Template):
         for position, index_map in index_maps.items():
             global_plaquettes |= {
                 index_map[local_index]: plaquette
-                for local_index, plaquette in individual_plaquettes[
-                    position
-                ].collection.items()
+                for local_index, plaquette in individual_plaquettes[position].collection.items()
             }
-            default_values.append(
-                individual_plaquettes[position].collection.default_value
-            )
+            default_values.append(individual_plaquettes[position].collection.default_value)
         unique_default_values = frozenset(default_values)
         if len(unique_default_values) != 1:
-            raise TQECException(
+            raise TQECError(
                 "Found several different default factories: "
                 f"{unique_default_values}. Cannot pick one for the merged "
                 f"{Plaquettes.__name__} instance."
             )
         return Plaquettes(
-            FrozenDefaultDict(
-                global_plaquettes, default_value=next(iter(unique_default_values))
-            )
+            FrozenDefaultDict(global_plaquettes, default_value=next(iter(unique_default_values)))
         )
 
     @property
     @override
     def scalable_shape(self) -> PlaquetteScalable2D:
-        """Returns a scalable version of the template shape."""
+        """Return a scalable version of the template shape."""
         return PlaquetteScalable2D(
             self._nx * self._element_scalable_shape.x,
             self._ny * self._element_scalable_shape.y,
@@ -245,15 +235,13 @@ class LayoutTemplate(Template):
     @property
     @override
     def expected_plaquettes_number(self) -> int:
-        """Returns the number of plaquettes expected from the `instantiate`
-        method.
+        """Return the number of plaquettes expected from the ``instantiate`` method.
 
         Returns:
             the number of plaquettes expected from the `instantiate` method.
+
         """
-        return sum(
-            template.expected_plaquettes_number for template in self._layout.values()
-        )
+        return sum(template.expected_plaquettes_number for template in self._layout.values())
 
     @override
     def instantiate(
@@ -270,6 +258,7 @@ class LayoutTemplate(Template):
         Returns:
             a numpy array with the given plaquette indices arranged according to
             the underlying shape of the template.
+
         """
         indices_map = self.get_indices_map_for_instantiation(plaquette_indices)
 
@@ -277,18 +266,14 @@ class LayoutTemplate(Template):
         ret = numpy.zeros(self.shape(k).to_numpy_shape(), dtype=numpy.int_)
         for pos, element in self._layout.items():
             imap = indices_map[pos]
-            indices = [
-                imap[i] for i in range(1, element.expected_plaquettes_number + 1)
-            ]
+            indices = [imap[i] for i in range(1, element.expected_plaquettes_number + 1)]
             element_instantiation = element.instantiate(k, indices)
             shifted_pos = BlockPosition2D(
                 pos.x - self._block_origin.x, pos.y - self._block_origin.y
             )
             ret[
-                shifted_pos.y * element_shape[0] : (shifted_pos.y + 1)
-                * element_shape[0],
-                shifted_pos.x * element_shape[1] : (shifted_pos.x + 1)
-                * element_shape[1],
+                shifted_pos.y * element_shape[0] : (shifted_pos.y + 1) * element_shape[0],
+                shifted_pos.x * element_shape[1] : (shifted_pos.x + 1) * element_shape[1],
             ] = element_instantiation
         return ret
 

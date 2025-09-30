@@ -1,5 +1,4 @@
-"""Provides interoperability between ``tqec`` and external frameworks /
-formats."""
+"""Provides interoperability between ``tqec`` and external frameworks / formats."""
 
 from tqec.interop.collada import (
     display_collada_model as display_collada_model,

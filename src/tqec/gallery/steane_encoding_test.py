@@ -4,7 +4,7 @@ from tqec.gallery.steane_encoding import steane_encoding
 from tqec.utils.enums import Basis
 
 
-def test_steane_encoding_OPEN() -> None:
+def test_steane_encoding_open() -> None:
     g = steane_encoding()
     assert g.num_ports == 7
     assert g.num_cubes == 19
@@ -37,9 +37,7 @@ def test_steane_encoding_correlation_surface(
     io_ports = [18, 12, 17, 4, 7, 9, 14]
     correlation_surfaces = g.find_correlation_surfaces()
     assert len(correlation_surfaces) == num_surfaces
-    assert external_stabilizers == {
-        s.external_stabilizer(io_ports) for s in correlation_surfaces
-    }
+    assert external_stabilizers == {s.external_stabilizer(io_ports) for s in correlation_surfaces}
 
 
 def test_steane_encoding_ports_filling() -> None:

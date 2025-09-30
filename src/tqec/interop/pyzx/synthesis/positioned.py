@@ -11,13 +11,12 @@ from tqec.computation.pipe import PipeKind
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.interop.pyzx.utils import is_boundary, is_zx_no_phase
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
 
 
 def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
-    """Convert a positioned ZX graph to a
-    :py:class:`~tqec.computation.block_graph.BlockGraph`.
+    """Convert a positioned ZX graph to a :py:class:`~tqec.computation.block_graph.BlockGraph`.
 
     This strategy requires specifying the 3D positions of each vertex explicitly
     in the ZX graph. Then the conversion converts each vertex by looking at its
@@ -41,7 +40,8 @@ def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
         converted from the ZX graph.
 
     Raises:
-        TQECException: A valid block graph cannot be constructed.
+        TQECError: A valid block graph cannot be constructed.
+
     """
     nodes_to_handle = set(g.g.vertices())
     edges_to_handle = set(g.g.edges())
@@ -65,17 +65,13 @@ def positioned_block_synthesis(g: PositionedZX) -> BlockGraph:
     return bg
 
 
-def _handle_corners(
-    pg: PositionedZX, bg: BlockGraph, nodes_to_handle: set[int]
-) -> None:
+def _handle_corners(pg: PositionedZX, bg: BlockGraph, nodes_to_handle: set[int]) -> None:
     g = pg.g
     for v in g.vertices():
         directions = {pg.get_direction(u, v) for u in g.neighbors(v)}
         if len(directions) != 2:
             continue
-        normal_direction = (
-            set(Direction3D.all_directions()).difference(directions).pop()
-        )
+        normal_direction = set(Direction3D.all_directions()).difference(directions).pop()
         normal_direction_basis = Basis.Z if g.type(v) == zx.VertexType.Z else Basis.X
         bases = [normal_direction_basis.flipped() for _ in range(3)]
         bases[normal_direction.value] = normal_direction_basis
@@ -153,7 +149,7 @@ def _try_to_handle_edges(
             if other_node not in nodes_to_handle:
                 existing_kind = bg[opos].kind
                 if not other_cube_kind == existing_kind:
-                    raise TQECException(f"Encounter conflicting cube kinds at {opos}: ")
+                    raise TQECError(f"Encounter conflicting cube kinds at {opos}: ")
             other_cube = Cube(opos, other_cube_kind)
         else:
             other_cube = _port_or_y_cube(pg, other_node)
@@ -177,9 +173,7 @@ def _fix_kind_for_one_node(
     # Special case: single node ZXGraph
     if g.vertex_degree(fix_node) == 0:
         specified_kind = (
-            ZXCube.from_str("ZXZ")
-            if fix_type == zx.VertexType.X
-            else ZXCube.from_str("ZXX")
+            ZXCube.from_str("ZXZ") if fix_type == zx.VertexType.X else ZXCube.from_str("ZXX")
         )
     else:
         # the basis along the edge direction must be the opposite of the node kind
@@ -225,9 +219,7 @@ def _infer_cube_kind_from_pipe(
         for direction in Direction3D.all_directions()
     ]
     assert vertex_is_zx(vertex_type)
-    bases[pipe_kind.direction.value] = (
-        Basis.Z if vertex_type == zx.VertexType.X else Basis.X
-    )
+    bases[pipe_kind.direction.value] = Basis.Z if vertex_type == zx.VertexType.X else Basis.X
     return ZXCube(*cast(list[Basis], bases))
 
 

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from fractions import Fraction
-from typing import Mapping
 
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d.axes3d import Axes3D
@@ -12,13 +12,13 @@ from pyzx.utils import EdgeType, VertexType
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.interop.pyzx.utils import cube_kind_to_zx
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 
 class PositionedZX:
     def __init__(self, g: GraphS, positions: Mapping[int, Position3D]) -> None:
-        """A ZX graph with 3D positions and additional constraints.
+        """Represent a ZX graph with 3D positions and additional constraints.
 
         The constraints are:
 
@@ -34,9 +34,9 @@ class PositionedZX:
             positions: A dictionary mapping vertex IDs to their 3D positions.
 
         Raises:
-            TQECException: If the constraints are not satisfied.
-        """
+            TQECError: If the constraints are not satisfied.
 
+        """
         self.check_preconditions(g, positions)
 
         self._g = g
@@ -47,14 +47,12 @@ class PositionedZX:
         """Check the preconditions for the ZX graph with 3D positions."""
         # 1. Check the vertex IDs in the graph match the positions
         if g.vertex_set() != set(positions.keys()):
-            raise TQECException(
-                "The vertex IDs in the ZX graph and the positions do not match."
-            )
+            raise TQECError("The vertex IDs in the ZX graph and the positions do not match.")
         # 2. Check the neighbors are all shifted by 1 in the 3D positions
         for s, t in g.edge_set():
             ps, pt = positions[s], positions[t]
             if not ps.is_neighbour(pt):
-                raise TQECException(
+                raise TQECError(
                     f"The 3D positions of the endpoints of the edge {s}--{t} "
                     f"must be neighbors, but got {ps} and {pt}."
                 )
@@ -68,30 +66,28 @@ class PositionedZX:
                 (VertexType.Z, Fraction(1, 2)),
                 (VertexType.BOUNDARY, 0),
             ]:
-                raise TQECException(
-                    f"Unsupported vertex type and phase: {vt} and {phase}."
-                )
+                raise TQECError(f"Unsupported vertex type and phase: {vt} and {phase}.")
             # 4. Check Boundary and Z(1/2) spiders are dangling, additionally
             # Z(1/2) connects to time direction
             if vt == VertexType.BOUNDARY or phase == Fraction(1, 2):
                 if g.vertex_degree(v) != 1:
-                    raise TQECException(
-                        "Boundary or Z(1/2) spider must be dangling, but got "
-                        f"{len(g.neighbors(v))} neighbors."
+                    raise TQECError(
+                        "Boundary or Z(1/2) spider must be dangling, but "
+                        f"got {len(g.neighbors(v))} neighbors."
                     )
                 if phase == Fraction(1, 2):
                     nb = next(iter(g.neighbors(v)))
                     vp, nbp = positions[v], positions[nb]
                     if abs(nbp.z - vp.z) != 1:
-                        raise TQECException(
-                            f"Z(1/2) spider must connect to the time direction, "
+                        raise TQECError(
+                            "Z(1/2) spider must connect to the time direction, "
                             f"but Z(1/2) at {vp} connects to {nbp}."
                         )
         # 5. Check there are no 3D corners
         for v in g.vertices():
             vp = positions[v]
             if len({_get_direction(vp, positions[u]) for u in g.neighbors(v)}) == 3:
-                raise TQECException(f"ZX graph has a 3D corner at node {v}.")
+                raise TQECError(f"ZX graph has a 3D corner at node {v}.")
 
     def __getitem__(self, v: int) -> Position3D:
         return self._positions[v]
@@ -118,20 +114,21 @@ class PositionedZX:
 
     @staticmethod
     def from_block_graph(block_graph: BlockGraph) -> PositionedZX:
-        """Convert a :py:class:`~tqec.computation.block_graph.BlockGraph` to a
-        ZX graph with 3D positions.
+        """Convert a :py:class:`.BlockGraph` to a ZX graph with 3D positions.
 
         The conversion process is as follows:
 
         1. For each cube in the block graph, convert it to a ZX vertex.
-        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding endpoints and Hadamard flag.
+        2. For each pipe in the block graph, add an edge to the ZX graph with the corresponding
+           endpoints and Hadamard flag.
 
         Args:
             block_graph: The block graph to be converted to a ZX graph.
 
         Returns:
-            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from the block
-            graph.
+            The :py:class:`~tqec.interop.pyzx.positioned_zx.PositionedZX` object converted from
+            the block graph.
+
         """
         v2p: dict[int, Position3D] = {}
         p2v: dict[Position3D, int] = {}
@@ -149,9 +146,12 @@ class PositionedZX:
 
         return PositionedZX(g, v2p)
 
-    def to_block_graph(self) -> BlockGraph:
+    def to_block_graph(self) -> BlockGraph:  # pragma: no cover
         """Convert the positioned ZX graph to a block graph."""
-        from tqec.interop.pyzx.synthesis.positioned import positioned_block_synthesis
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.synthesis.positioned import (  # noqa: PLC0415
+            positioned_block_synthesis,
+        )
 
         return positioned_block_synthesis(self)
 
@@ -163,9 +163,8 @@ class PositionedZX:
         node_size: int = 400,
         hadamard_size: int = 200,
         edge_width: int = 1,
-    ) -> tuple[Figure, Axes3D]:
-        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX`
-        using matplotlib.
+    ) -> tuple[Figure, Axes3D]:  # pragma: no cover
+        """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.
 
         Args:
             graph: The ZX graph to plot.
@@ -178,8 +177,10 @@ class PositionedZX:
 
         Returns:
             A tuple of the figure and the axes.
+
         """
-        from tqec.interop.pyzx.plot import plot_positioned_zx_graph
+        # Needs to be imported here to avoid pulling pyzx when importing this module.
+        from tqec.interop.pyzx.plot import plot_positioned_zx_graph  # noqa: PLC0415
 
         return plot_positioned_zx_graph(
             self,

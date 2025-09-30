@@ -1,20 +1,22 @@
 """Utilities for working with graphs with open ports."""
 
+import warnings
+from collections.abc import Iterator
 from dataclasses import dataclass
 from functools import reduce
 from itertools import combinations
-from typing import Iterator
-import warnings
+from typing import Final
 
 import networkx as nx
+from pyzx.pauliweb import multiply_paulis
 
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import YHalfCube, ZXCube
-from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException, TQECWarning
-from tqec.utils.position import Direction3D
 from tqec.interop.pyzx.correlation import reduce_observables_to_minimal_generators
+from tqec.utils.enums import Basis
+from tqec.utils.exceptions import TQECError, TQECWarning
+from tqec.utils.position import Direction3D
 
 
 @dataclass(frozen=True)
@@ -27,6 +29,7 @@ class FilledGraph:
         observables: The correlation surfaces that can be used as logical observables
             for the simulation. A list of independent correlation surfaces with the
             area as small as possible is chosen.
+
     """
 
     graph: BlockGraph
@@ -35,26 +38,23 @@ class FilledGraph:
 
     def __post_init__(self) -> None:
         if self.graph.num_ports != 0:
-            raise TQECException("The filled graph should not have open ports.")
+            raise TQECError("The filled graph should not have open ports.")
         if len(self.stabilizers) != len(self.observables):
-            raise TQECException(
-                "The number of stabilizers and observables should match."
-            )
+            raise TQECError("The number of stabilizers and observables should match.")
 
     def get_external_stabilizers(self) -> list[str]:
         """Return the external stabilizers of the correlation surfaces."""
-        return [
-            obs.external_stabilizer_on_graph(self.graph) for obs in self.observables
-        ]
+        return [obs.external_stabilizer_on_graph(self.graph) for obs in self.observables]
 
 
 def fill_ports_for_minimal_simulation(
     graph: BlockGraph,
     search_small_area_observables: bool = False,
 ) -> list[FilledGraph]:
-    """Given a block graph with open ports, fill in the ports with the appropriate
-    cubes that will minimize the number of simulation runs needed for the complete
-    logical observable set.
+    """Fill the ports of the provided ``graph`` to minimize the number of simulation runs.
+
+    Given a block graph with open ports, fill in the ports with the appropriate cubes that will
+    minimize the number of simulation runs needed for the complete logical observable set.
 
     The key idea is that stabilizers within the same clique should have compatible
     Paulis at their ports. This allows a single simulation run to simultaneously
@@ -77,13 +77,14 @@ def fill_ports_for_minimal_simulation(
         containing a block graph with all ports filled and a set of correlation
         surfaces that can be used as logical observables for the simulation on that
         block graph.
+
     """
     num_ports = graph.num_ports
     if num_ports == 0:
-        raise TQECException("The provided graph has no open ports.")
+        raise TQECError("The provided graph has no open ports.")
     # heuristic threshold for large number of ports
-    HEURISTIC_THRESHOLD = 16
-    if search_small_area_observables and num_ports > HEURISTIC_THRESHOLD:
+    _heuristic_threshold: Final[int] = 16
+    if search_small_area_observables and num_ports > _heuristic_threshold:
         warnings.warn(
             "The algorithm will construct all exponentially many correlation "
             "surfaces, which can be slow for graphs with large number of ports. "
@@ -92,9 +93,7 @@ def fill_ports_for_minimal_simulation(
             TQECWarning,
         )
 
-    correlation_surfaces = graph.find_correlation_surfaces(
-        reduce_to_minimal_generators=True
-    )
+    correlation_surfaces = graph.find_correlation_surfaces(reduce_to_minimal_generators=True)
     stab_to_surface: dict[str, CorrelationSurface] = {
         s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces
     }
@@ -155,7 +154,7 @@ def fill_ports_for_minimal_simulation(
         port_basis = ports_basis_for_clique(clique)
         for port, basis in zip(ports, port_basis):
             port_pos = graph.ports[port]
-            if basis == "Y":
+            if basis == "Y":  # pragma: no cover
                 fg.fill_ports({port: YHalfCube()})
                 continue
             assert basis in ["Z", "X"]
@@ -183,28 +182,32 @@ def fill_ports_for_minimal_simulation(
 
 
 def _multiply_unsigned_paulis(p1: str, p2: str) -> str:
-    from pyzx.pauliweb import multiply_paulis
-
-    return "".join(multiply_paulis(p1[i], p2[i]) for i in range(len(p1)))
+    return "".join(
+        multiply_paulis(
+            p1[i],
+            p2[i],
+        )
+        for i in range(len(p1))
+    )
 
 
 def _iter_stabilizer_group(
     generators: list[str],
 ) -> Iterator[tuple[str, tuple[str, ...]]]:
-    """Iterate over the stabilizer group generated by the given generators. Return
-    the stabilizer and the generators that generate it."""
+    """Iterate over the stabilizer group generated by the given generators.
+
+    Return the stabilizer and the generators that generate it.
+
+    """
     identity = "I" * len(generators[0])
     # powerset of the generators
     for r in range(1, len(generators) + 1):
         for comb in combinations(generators, r):
-            yield (
-                reduce(
-                    _multiply_unsigned_paulis,
-                    comb,
-                    identity,
-                ),
-                comb,
-            )
+            output = identity
+            for gen in comb:
+                output = _multiply_unsigned_paulis(output, gen)
+
+            yield (output, comb)
 
 
 def _is_compatible_paulis(s1: str, s2: str) -> bool:

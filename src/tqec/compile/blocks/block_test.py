@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 import pytest
 import stim
 
@@ -11,20 +13,24 @@ from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import LayoutPosition2D
-from tqec.plaquette.library.empty import empty_square_plaquette
 from tqec.plaquette.plaquette import Plaquettes
+from tqec.plaquette.rpng.rpng import RPNGDescription
+from tqec.plaquette.rpng.translators.default import DefaultRPNGTranslator
 from tqec.templates.qubit import QubitSpatialCubeTemplate, QubitTemplate
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import BlockPosition2D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
+
+_TRANSLATOR = DefaultRPNGTranslator()
+_EMPTY_PLAQUETTE = _TRANSLATOR.translate(RPNGDescription.empty())
 
 
 @pytest.fixture(name="plaquette_layer")
 def plaquette_layer_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitTemplate(),
-        Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+        Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
     )
 
 
@@ -32,7 +38,7 @@ def plaquette_layer_fixture() -> PlaquetteLayer:
 def plaquette_layer2_fixture() -> PlaquetteLayer:
     return PlaquetteLayer(
         QubitSpatialCubeTemplate(),
-        Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+        Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
     )
 
 
@@ -41,6 +47,7 @@ def raw_circuit_layer_fixture() -> RawCircuitLayer:
     return RawCircuitLayer(
         lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
         PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5)),
+        LinearFunction(0, 0),
     )
 
 
@@ -49,23 +56,25 @@ def raw_circuit_fixed_size_layer_fixture() -> RawCircuitLayer:
     return RawCircuitLayer(
         lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
         PhysicalQubitScalable2D(LinearFunction(0, 1), LinearFunction(0, 1)),
+        LinearFunction(0, 0),
     )
 
 
 @pytest.fixture(name="base_layers")
-def base_layers_fixture() -> list[BaseLayer]:
+def base_layers_fixture() -> Sequence[BaseLayer]:
     return [
         PlaquetteLayer(
             QubitTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+            Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
         ),
         PlaquetteLayer(
             QubitSpatialCubeTemplate(),
-            Plaquettes(FrozenDefaultDict({}, default_value=empty_square_plaquette())),
+            Plaquettes(FrozenDefaultDict({}, default_value=_EMPTY_PLAQUETTE)),
         ),
         RawCircuitLayer(
             lambda k: ScheduledCircuit.from_circuit(stim.Circuit()),
             PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5)),
+            LinearFunction(0, 0),
         ),
     ]
 
@@ -75,12 +84,10 @@ def logical_qubit_shape_fixture() -> PhysicalQubitScalable2D:
     return PhysicalQubitScalable2D(LinearFunction(4, 5), LinearFunction(4, 5))
 
 
-def test_creation(
-    plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer
-) -> None:
+def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer) -> None:
     # Invalid sequences due to duration < 1
     err_regex = ".*expected to have at least one layer.*"
-    with pytest.raises(TQECException, match=err_regex):
+    with pytest.raises(TQECError, match=err_regex):
         Block([])
 
     Block([plaquette_layer for _ in range(10)])
@@ -107,8 +114,7 @@ def test_with_spatial_borders_trimmed(
     trimmed_block = block.with_spatial_borders_trimmed(borders)
     trimmed_internal_layer = plaquette_layer.with_spatial_borders_trimmed(borders)
     assert all(
-        internal_layer == trimmed_internal_layer
-        for internal_layer in trimmed_block.layer_sequence
+        internal_layer == trimmed_internal_layer for internal_layer in trimmed_block.layer_sequence
     )
 
 
@@ -119,12 +125,12 @@ def test_with_temporal_borders_replaced_none(
 ) -> None:
     block = Block([plaquette_layer, plaquette_layer2, raw_circuit_layer])
     assert block.with_temporal_borders_replaced({}) == block
-    assert block.with_temporal_borders_replaced(
-        {TemporalBlockBorder.Z_NEGATIVE: None}
-    ) == Block([plaquette_layer2, raw_circuit_layer])
-    assert block.with_temporal_borders_replaced(
-        {TemporalBlockBorder.Z_POSITIVE: None}
-    ) == Block([plaquette_layer, plaquette_layer2])
+    assert block.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: None}) == Block(
+        [plaquette_layer2, raw_circuit_layer]
+    )
+    assert block.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: None}) == Block(
+        [plaquette_layer, plaquette_layer2]
+    )
     assert block.with_temporal_borders_replaced(
         {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
     ) == Block([plaquette_layer2])
@@ -172,8 +178,8 @@ def test_get_temporal_border(
     raw_circuit_layer: RawCircuitLayer,
 ) -> None:
     block = Block([plaquette_layer, raw_circuit_layer, plaquette_layer2])
-    assert block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE) == plaquette_layer
-    assert block.get_temporal_border(TemporalBlockBorder.Z_POSITIVE) == plaquette_layer2
+    assert block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE) == plaquette_layer
+    assert block.get_atomic_temporal_border(TemporalBlockBorder.Z_POSITIVE) == plaquette_layer2
 
     block = Block(
         [
@@ -183,11 +189,11 @@ def test_get_temporal_border(
         ]
     )
     with pytest.raises(
-        TQECException,
+        TQECError,
         match=r"^Expected to recover a temporal \*\*border\*\* \(i.e. an atomic layer\) "
         "but got an instance of RepeatedLayer instead.$",
     ):
-        block.get_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
+        block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
 
 
 def test_dimensions(
@@ -276,9 +282,7 @@ def test_merge_parallel_block_layers(
                         {b00: plaquette_layer, b01: plaquette_layer2},
                         logical_qubit_shape,
                     ),
-                    LayoutLayer(
-                        {b00: plaquette_layer, b01: raw_layer}, logical_qubit_shape
-                    ),
+                    LayoutLayer({b00: plaquette_layer, b01: raw_layer}, logical_qubit_shape),
                 ]
             ),
             LinearFunction(1, 0),

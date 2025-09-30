@@ -11,6 +11,7 @@ from tqec.templates.subtemplates import (
     get_spatially_distinct_3d_subtemplates,
     get_spatially_distinct_subtemplates,
 )
+from tqec.utils.array import to2dlist
 from tqec.utils.position import BlockPosition2D
 
 _TEMPLATES_TO_TEST = [
@@ -53,9 +54,7 @@ def test_get_spatially_distinct_subtemplates(
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    subtemplate_indices_list: list[list[int]] = (
-        unique_subtemplates.subtemplate_indices.tolist()
-    )
+    subtemplate_indices_list: list[list[int]] = to2dlist(unique_subtemplates.subtemplate_indices)
     for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_index in enumerate(row):
             if subtemplate_index == 0:
@@ -70,9 +69,7 @@ def test_get_spatially_distinct_subtemplates(
             # corresponding entry in `subtemplate`. Any zero entry can be
             # overridden by anything.
             nzx, nzy = ir_subarray.nonzero()
-            numpy.testing.assert_array_equal(
-                subtemplate[nzx, nzy], ir_subarray[nzx, nzy]
-            )
+            numpy.testing.assert_array_equal(subtemplate[nzx, nzy], ir_subarray[nzx, nzy])
             instantiation_reconstruction[
                 i : i + 2 * r + 1,
                 j : j + 2 * r + 1,
@@ -113,25 +110,19 @@ _TEMPLATE_PAIRS_TO_TEST = [
 
 @pytest.mark.filterwarnings("ignore:Instantiating Qubit4WayJunctionTemplate")
 @pytest.mark.parametrize(
-    "templates,k,r,avoid_zero_plaquettes",
+    "templates,k,r",
     itertools.product(
         _TEMPLATE_PAIRS_TO_TEST,
         _VALUES_OF_K_TO_TEST,
         _VALUES_OF_MANHATTAN_RADIUS_TO_TEST,
-        [True, False],
     ),
 )
 def test_get_spatially_distinct_3d_subtemplates(
-    templates: tuple[Template, ...],
-    k: int,
-    r: int,
-    avoid_zero_plaquettes: bool,
+    templates: tuple[Template, ...], k: int, r: int
 ) -> None:
     instantiations = tuple(t.instantiate(k) for t in templates)
     instantiation_3d = numpy.stack(instantiations, axis=2)
-    unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(
-        instantiations, r, avoid_zero_plaquettes
-    )
+    unique_3d_subtemplates = get_spatially_distinct_3d_subtemplates(instantiations, r)
     # Check that the radius is correctly recovered.
     assert unique_3d_subtemplates.manhattan_radius == r
 
@@ -143,29 +134,23 @@ def test_get_spatially_distinct_3d_subtemplates(
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    subtemplate_indices_list: list[list[list[int]]] = (
-        unique_3d_subtemplates.subtemplate_indices.tolist()
-    )
+    subtemplate_indices_list: list[list[list[int]]] = [
+        to2dlist(arr) for arr in unique_3d_subtemplates.subtemplate_indices
+    ]
     for i, row in enumerate(subtemplate_indices_list):
         for j, subtemplate_index_arr in enumerate(row):
             if all(subti == 0 for subti in subtemplate_index_arr):
                 continue
             subt_index_tup = tuple(subtemplate_index_arr)
             subtemplate = unique_3d_subtemplates.subtemplates[subt_index_tup]
-            ir_subarray = instantiation_reconstruction[
-                i : i + 2 * r + 1, j : j + 2 * r + 1, :
-            ]
+            ir_subarray = instantiation_reconstruction[i : i + 2 * r + 1, j : j + 2 * r + 1, :]
             # Try to superimpose `subtemplate` on `ir_subarray`.
             # Any non-zero entry in `ir_subarray` should exactly match with the
             # corresponding entry in `subtemplate`. Any zero entry can be
             # overridden by anything.
             nzx, nzy, nzt = ir_subarray.nonzero()
-            numpy.testing.assert_array_equal(
-                subtemplate[nzx, nzy, nzt], ir_subarray[nzx, nzy, nzt]
-            )
-            instantiation_reconstruction[i : i + 2 * r + 1, j : j + 2 * r + 1, :] = (
-                subtemplate
-            )
+            numpy.testing.assert_array_equal(subtemplate[nzx, nzy, nzt], ir_subarray[nzx, nzy, nzt])
+            instantiation_reconstruction[i : i + 2 * r + 1, j : j + 2 * r + 1, :] = subtemplate
     # `instantiation` should now be exactly reconstructed in the inner part of
     # `instantiation_reconstruction`.
     numpy.testing.assert_array_equal(

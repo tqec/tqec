@@ -1,6 +1,4 @@
-"""Provides
-:class:`~tqec.plaquette.compilation.passes.transformer.transformer.ScheduledCircuitTransformationPass`,
-a generic compilation pass to replace one instruction by several others."""
+"""Provides :class:`.ScheduledCircuitTransformationPass`, a generic compilation pass."""
 
 from .schedule import ScheduleConstant as ScheduleConstant
 from .schedule import ScheduleFunction as ScheduleFunction

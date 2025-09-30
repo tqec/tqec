@@ -5,10 +5,10 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import Cube, ZXCube
 from tqec.computation.correlation import CorrelationSurface, ZXEdge
-from tqec.utils.enums import Basis
+from tqec.computation.cube import Cube, ZXCube
 from tqec.interop.collada.read_write import _Transformation
+from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, FloatPosition3D, Position3D
 
 TransformationResult = tuple[Basis, _Transformation]
@@ -16,13 +16,11 @@ TransformationResult = tuple[Basis, _Transformation]
 
 class CorrelationSurfaceTransformationHelper:
     def __init__(self, block_graph: BlockGraph, pipe_length: float):
-        """Helper class to compute transformations of each piece of a correlation
-        surfaces in a COLLADA model.
+        """Help computing transformations of correlation surfaces pieces in a :class:`.BlockGraph`.
 
-        The correlation surface is decomposed into small pieces of surfaces
-        that can be transformed from a single 1x1 square surface in the XY-plane.
-        This class computes the transformations for each piece of the correlation
-        surface.
+        The correlation surface is decomposed into small pieces of surfaces that can be transformed
+        from a single 1x1 square surface in the XY-plane. This class computes the transformations
+        for each piece of the correlation surface.
 
         """
         self.block_graph = block_graph
@@ -33,9 +31,7 @@ class CorrelationSurfaceTransformationHelper:
         self,
         correlation_surface: CorrelationSurface,
     ) -> list[TransformationResult]:
-        """Compute the list of transformations (with corresponding bases) that
-        represent each piece of the given correlation surface in the COLLADA
-        model."""
+        """Return the transformations representing each piece of the ``correlation_surface``."""
         transformations: list[TransformationResult] = []
 
         # Surfaces in the pipes
@@ -93,8 +89,11 @@ class CorrelationSurfaceTransformationHelper:
         return FloatPosition3D(*(p * (1 + self.pipe_length) for p in pos.as_tuple()))
 
     def _compute_pipe_transformations(self, edge: ZXEdge) -> list[TransformationResult]:
-        """Compute the surface transformations within a pipe. If the edge is a
-        Hadamard edge, two surfaces with different basis are created."""
+        """Compute the surface transformations within a pipe.
+
+        If the edge is a Hadamard edge, two surfaces with different basis are created.
+
+        """
         transformations: list[TransformationResult] = []
         normal_direction = self._surface_normal_direction(edge)
         edge_direction = self._edge_direction(edge)
@@ -102,14 +101,12 @@ class CorrelationSurfaceTransformationHelper:
         # Compute the translation for the surface.
         base_position = self._get_position(edge.u.id)
         scaled_position = self._scale_position(base_position)
-        surface_position = scaled_position.shift_in_direction(
-            edge_direction, 1
-        ).shift_in_direction(normal_direction, 0.5)
+        surface_position = scaled_position.shift_in_direction(edge_direction, 1).shift_in_direction(
+            normal_direction, 0.5
+        )
         rotation = _rotation_to_plane(normal_direction)
         scale_factor = self.pipe_length / 2 if edge.has_hadamard else self.pipe_length
-        scale_direction = (
-            edge_direction if edge_direction != Direction3D.Z else normal_direction
-        )
+        scale_direction = edge_direction if edge_direction != Direction3D.Z else normal_direction
         scale = _get_scale(scale_direction, scale_factor)
 
         transformations.append(
@@ -152,9 +149,14 @@ class CorrelationSurfaceTransformationHelper:
 
         # Surfaces with even parity constraint
         if kind.normal_basis in surface_bases:
-            assert len(correlation_edges) in {2, 4}, "Even parity constraint violated"
-            if len(correlation_edges) == 2:
-                e1, e2 = sorted(correlation_edges)
+            normal_basis_edges: set[ZXEdge] = set()
+            for edge in correlation_edges:
+                this_node = edge.u if edge.u.id == v else edge.v
+                if this_node.basis == kind.normal_basis:
+                    normal_basis_edges.add(edge)
+            assert len(normal_basis_edges) in {2, 4}, "Even parity constraint violated"
+            if len(normal_basis_edges) == 2:
+                e1, e2 = sorted(normal_basis_edges)
                 # passthrough
                 if self._edge_direction(e1) == self._edge_direction(e2):
                     normal_direction = self._surface_normal_direction(e1)
@@ -175,13 +177,9 @@ class CorrelationSurfaceTransformationHelper:
                         self._compute_turn_transformation(scaled_pos, v, (e1, e2))
                     )
             else:
-                e1, e2, e3, e4 = sorted(correlation_edges)
-                transformations.extend(
-                    self._compute_turn_transformation(scaled_pos, v, (e1, e2))
-                )
-                transformations.extend(
-                    self._compute_turn_transformation(scaled_pos, v, (e3, e4))
-                )
+                e1, e2, e3, e4 = sorted(normal_basis_edges)
+                transformations.extend(self._compute_turn_transformation(scaled_pos, v, (e1, e2)))
+                transformations.extend(self._compute_turn_transformation(scaled_pos, v, (e3, e4)))
 
         # Surfaces that can broadcast to all the neighbors
         if len(surface_bases) == 2 or kind.normal_basis not in surface_bases:
@@ -206,8 +204,8 @@ class CorrelationSurfaceTransformationHelper:
     ) -> list[TransformationResult]:
         """Compute the transformations for the surfaces in a L-shape turn.
 
-        At turn, two surfaces in the same basis are created and form a 90 degree
-        angle.
+        At turn, two surfaces in the same basis are created and form a 90 degree angle.
+
         """
         cube_kind = self._get_cube(v).kind
         assert isinstance(cube_kind, ZXCube)
@@ -240,13 +238,13 @@ class CorrelationSurfaceTransformationHelper:
 def _rotation_to_plane(
     plane_normal_direction: Direction3D,
 ) -> npt.NDArray[np.float32]:
-    """Starting from a surface in the XY-plane, rotate to the given plane."""
+    """Rotate a surface in the XY-plane to the given plane."""
     if plane_normal_direction == Direction3D.Z:
         return _rotation_matrix(Direction3D.Z, 0.0)
     elif plane_normal_direction == Direction3D.X:
         return _rotation_matrix(Direction3D.Y, 90.0)
     else:
-        return _rotation_matrix(Direction3D.X, 90.0)
+        return _rotation_matrix(Direction3D.X, 90.0)  # pragma: no cover
 
 
 def _rotation_matrix(
@@ -258,14 +256,12 @@ def _rotation_matrix(
     axis_vec = np.zeros(3, dtype=np.float32)
     axis_vec[axis.value] = 1.0
     return np.asarray(
-        collada.scene.RotateTransform(*axis_vec, angle=angle).matrix[:3, :3],
+        collada.scene.RotateTransform(axis_vec[0], axis_vec[1], axis_vec[2], angle).matrix[:3, :3],
         dtype=np.float32,
     )
 
 
-def _get_scale(
-    scale_direction: Direction3D, scale_factor: float
-) -> npt.NDArray[np.float32]:
+def _get_scale(scale_direction: Direction3D, scale_factor: float) -> npt.NDArray[np.float32]:
     scale = np.ones(3, dtype=np.float32)
     scale[scale_direction.value] = scale_factor
     return scale

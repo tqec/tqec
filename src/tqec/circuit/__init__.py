@@ -1,5 +1,4 @@
-"""Defines core classes and functions to represent and manipulate quantum
-circuits.
+"""Defines core classes and functions to represent and manipulate quantum circuits.
 
 This package defines the core class :class:`~schedule.circuit.ScheduledCircuit`
 that is used to represent a quantum circuit in the `tqec` library. It also
@@ -16,4 +15,5 @@ defines a few core functions:
 
 Functions from this package are really the backbone of the :mod:`tqec`
 library and are re-used in higher-level packages (such as :mod:`tqec.compile`).
+
 """

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Iterable
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.spatial import WithSpatialFootprint
@@ -19,15 +20,17 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
     such, composed layers are expected to have either a scalable time footprint
     (i.e., that grows with ``k``) or a constant time footprint that is strictly
     greater than ``1``.
+
     """
 
     @abstractmethod
     def all_layers(self, k: int) -> Iterable[BaseLayer]:
-        """Returns all the base layers represented by the instance.
+        """Return all the base layers represented by the instance.
 
         Returns:
             All the base layers represented by the instance. The returned
             iterable should have as many entries as ``self.timesteps(k)``.
+
         """
         pass
 
@@ -35,17 +38,15 @@ class BaseComposedLayer(WithSpatialFootprint, WithTemporalFootprint):
     def to_sequenced_layer_with_schedule(
         self, schedule: tuple[LinearFunction, ...]
     ) -> SequencedLayers:
-        """Splits ``self`` into a :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
-        instance with the provided schedule.
+        """Split ``self`` into a :class:`.SequencedLayers` instance with the provided schedule.
 
         Args:
-            schedule: duration of each of the layers in the returned
-                :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
+            schedule: duration of each of the layers in the returned :class:`.SequencedLayers`
                 instance.
 
         Returns:
-            an instance of :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`
-            that is equivalent to ``self`` (same duration, same layers applied,
-            ...) and that has the provided ``schedule``.
+            an instance of :class:`.SequencedLayers` that is equivalent to ``self`` (same duration,
+            same layers applied, ...) and that has the provided ``schedule``.
+
         """
         pass

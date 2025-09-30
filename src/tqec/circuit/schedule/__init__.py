@@ -1,5 +1,4 @@
-"""Defines :class:`~.circuit.ScheduledCircuit`, used to represent quantum
-circuits all over the :mod:`tqec` package.
+"""Defines :class:`.ScheduledCircuit` used to represent quantum circuits in the :mod:`tqec` package.
 
 This module defines one of the main class of the :mod:`tqec` package,
 :class:`~.circuit.ScheduledCircuit`, and several functions to modify or create
@@ -13,10 +12,11 @@ instances:
 - :func:`~.manipulation.remove_duplicate_instructions` that removes some
   instructions when they are duplicated in a :class:`~tqec.circuit.moment.Moment`
   instance.
+
 """
 
 from .circuit import ScheduledCircuit as ScheduledCircuit
-from .exception import ScheduleException as ScheduleException
+from .exception import ScheduleError as ScheduleError
 from .manipulation import merge_scheduled_circuits as merge_scheduled_circuits
 from .manipulation import (
     relabel_circuits_qubit_indices as relabel_circuits_qubit_indices,

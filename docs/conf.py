@@ -5,10 +5,15 @@
 
 from __future__ import annotations
 
+import datetime
+
 # -- Updating sys.path to let autodoc find the tqec package ------------------
 import sys
 import typing as ty
 from pathlib import Path
+
+from pygments.lexers import BashLexer  # type: ignore
+from pygments.formatters import HtmlFormatter  # type: ignore
 
 DOCUMENTATION_DIRECTORY = Path(__file__).parent
 PROJECT_DIRECTORY = DOCUMENTATION_DIRECTORY.parent
@@ -20,7 +25,7 @@ sys.path.append(str(SOURCE_DIRECTORY))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "TQEC"
-copyright = "2024, TQEC Community"
+copyright = f"2024 - {datetime.date.today().year}, TQEC Community"
 author = "TQEC Community"
 
 # -- General configuration ---------------------------------------------------
@@ -57,6 +62,15 @@ extensions = [
     # Allows us to add references to a page
     # https://sphinxcontrib-bibtex.readthedocs.io/en/latest/
     "sphinxcontrib.bibtex",
+    # measure documentation build time
+    "sphinx.ext.duration",
+    # make code blocks in the documentation executable
+    # https://jupyter-sphinx.readthedocs.io/en/latest/
+    "jupyter_sphinx",
+    # add code tabs; required by the pydata sphinx theme
+    # https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/web-components.html#tabs
+    # https://sphinx-design.readthedocs.io/en/pydata-theme/tabs.html
+    "sphinx_design",
 ]
 
 templates_path = ["_templates"]
@@ -138,6 +152,11 @@ def setup(app):
     # Connect the autodoc-skip-member event from apidoc to the callback
     app.connect("autodoc-skip-member", autodoc_skip_member_handler)
 
+    # Map 'uv' and 'pip' to use bash syntax highlighting in the readme
+    # or any other markdown documents.
+    app.add_lexer("uv", BashLexer)
+    app.add_lexer("pip", BashLexer)
+
 
 autodoc_member_order = "groupwise"
 # See https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autoclass_content
@@ -169,6 +188,7 @@ nbsphinx_thumbnails = {
     "gallery/three_cnots": "_static/media/gallery/three_cnots.png",
     "gallery/steane_encoding": "_static/media/gallery/steane_encoding.png",
 }
+
 
 # -- Options for autosummary extension ---------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html

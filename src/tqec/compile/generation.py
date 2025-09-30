@@ -1,5 +1,4 @@
-"""Defines :meth:`~tqec.compile.generation.generate_circuit`, one of the core
-method of the :mod:`tqec` package.
+"""Defines :meth:`.generate_circuit`, one of the core method of the :mod:`tqec` package.
 
 This module defines two of core methods of the :mod:`tqec` package:
 
@@ -14,6 +13,7 @@ expected to call these methods several times and concatenate the output
 ``stim.Circuit`` instances in time to obtain a full QEC implementation.
 
 Note that these methods do not work with ``REPEAT`` instructions.
+
 """
 
 from __future__ import annotations
@@ -28,12 +28,11 @@ from tqec.circuit.schedule import (
 )
 from tqec.plaquette.plaquette import Plaquettes
 from tqec.templates.base import Template
+from tqec.utils.array import to2dlist
 from tqec.utils.position import Shift2D
 
 
-def generate_circuit(
-    template: Template, k: int, plaquettes: Plaquettes
-) -> ScheduledCircuit:
+def generate_circuit(template: Template, k: int, plaquettes: Plaquettes) -> ScheduledCircuit:
     """Generate a quantum circuit from a template and its plaquettes.
 
     This is one of the core methods of the :mod:`tqec` package. It generates a
@@ -63,6 +62,7 @@ def generate_circuit(
         a :class:`~.schedule.circuit.ScheduledCircuit` instance implementing the
         (part of) quantum error correction experiment represented by the
         provided inputs.
+
     """
     # instantiate the template with the appropriate plaquette indices.
     # Index 0 is "no plaquette" by convention and should not be included here.
@@ -70,9 +70,7 @@ def generate_circuit(
     template_plaquettes = template.instantiate(k, _indices)
     increments = template.get_increments()
 
-    return generate_circuit_from_instantiation(
-        template_plaquettes, plaquettes, increments
-    )
+    return generate_circuit_from_instantiation(template_plaquettes, plaquettes, increments)
 
 
 def generate_circuit_from_instantiation(
@@ -80,8 +78,7 @@ def generate_circuit_from_instantiation(
     plaquettes: Plaquettes,
     increments: Shift2D,
 ) -> ScheduledCircuit:
-    """Generate a quantum circuit from an array of plaquette indices and the
-    associated plaquettes.
+    """Generate a quantum circuit from an array of plaquette indices and the associated plaquettes.
 
     This is one of the core methods of the :mod:`tqec` package. It generates a
     quantum circuit from a spatial description of where the plaquettes should be
@@ -112,8 +109,9 @@ def generate_circuit_from_instantiation(
         provided inputs.
 
     Raises:
-        TQECException: if any index in ``plaquette_array`` is not correctly
+        TQECError: if any index in ``plaquette_array`` is not correctly
             associated to a plaquette in ``plaquettes``.
+
     """
     # Collect all the used plaquette indices, removing 0 if present.
     indices = numpy.unique(plaquette_array)
@@ -122,9 +120,7 @@ def generate_circuit_from_instantiation(
 
     # Plaquettes indices are starting at 1 in template_plaquettes. To avoid
     # offsets in the following code, we add an empty circuit at position 0.
-    plaquette_circuits = {0: ScheduledCircuit.empty()} | {
-        i: plaquettes[i].circuit for i in indices
-    }
+    plaquette_circuits = {0: ScheduledCircuit.empty()} | {i: plaquettes[i].circuit for i in indices}
 
     # Generate the ScheduledCircuit instances for each plaquette instantiation
     all_scheduled_circuits: list[ScheduledCircuit] = []
@@ -132,7 +128,7 @@ def generate_circuit_from_instantiation(
     # The below line is not strictly needed, but makes type checkers happy with
     # type inference. See https://numpy.org/doc/stable/reference/typing.html#d-arrays
     # for more information on why this should be done.
-    plaquette_array_list: list[list[int]] = plaquette_array.tolist()
+    plaquette_array_list: list[list[int]] = to2dlist(plaquette_array)
     for row_index, line in enumerate(plaquette_array_list):
         for column_index, plaquette_index in enumerate(line):
             if plaquette_index != 0:
@@ -160,9 +156,7 @@ def generate_circuit_from_instantiation(
     # Note that relabel_circuits_qubit_indices guarantees in its documentation
     # that the input circuits are not mutated but rather copied. This allows us
     # to not deepcopy the circuits earlier in the function.
-    all_scheduled_circuits, qubit_map = relabel_circuits_qubit_indices(
-        all_scheduled_circuits
-    )
+    all_scheduled_circuits, qubit_map = relabel_circuits_qubit_indices(all_scheduled_circuits)
     return merge_scheduled_circuits(
         all_scheduled_circuits, qubit_map, additional_mergeable_instructions
     )

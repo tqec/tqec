@@ -34,7 +34,8 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
         )
         parser.add_argument(
             "--out-dir",
-            help="An optional argument providing the directory in which to export images representing the observables found.",
+            help="An optional argument providing the directory in which to "
+            "export images representing the observables found.",
             type=Path,
         )
         parser.set_defaults(func=Dae2ObservablesTQECSubCommand.execute)
@@ -43,9 +44,7 @@ class Dae2ObservablesTQECSubCommand(TQECSubCommand):
     @override
     def execute(args: argparse.Namespace) -> None:
         dae_absolute_path: Path = args.dae_file.resolve()
-        block_graph = BlockGraph.from_dae_file(
-            dae_absolute_path, graph_name=str(dae_absolute_path)
-        )
+        block_graph = BlockGraph.from_dae_file(dae_absolute_path, graph_name=str(dae_absolute_path))
         zx_graph = block_graph.to_zx_graph()
         correlation_surfaces = block_graph.find_correlation_surfaces()
 
@@ -65,6 +64,15 @@ def save_correlation_surfaces_to(
     out_dir: Path,
     correlation_surfaces: list[CorrelationSurface],
 ) -> None:
+    """Save the provided correlation surfaces to ``out_dir``.
+
+    Args:
+        zx_graph: ZX graph supporting the provided ``correlation_surfaces``. Plotted as background
+            so that correlation surfaces appear on the ZX-graph.
+        out_dir: filepath to save the drawing to.
+        correlation_surfaces: correlation surfaces to draw over ``zx_graph``.
+
+    """
     for i, correlation_surface in enumerate(correlation_surfaces):
         fig = plt.figure(figsize=(5, 6))
         ax = cast(Axes3D, fig.add_subplot(111, projection="3d"))

@@ -33,7 +33,7 @@ TICK
 MZ 4
 H 0 1 2 3
 """)
-    assert plaquette.debug_information.get_basis() == PauliBasis.X
+    assert plaquette.debug_information.get_polygons() == PauliBasis.X
 
     plaquette = make_fixed_bulk_realignment_plaquette(
         stabilizer_basis=Basis.Z,
@@ -59,4 +59,4 @@ TICK
 MX 4
 H 0 1 2 3
 """)
-    assert plaquette.debug_information.get_basis() == PauliBasis.Z
+    assert plaquette.debug_information.get_polygons() == PauliBasis.Z

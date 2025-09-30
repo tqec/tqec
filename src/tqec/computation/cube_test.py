@@ -2,12 +2,12 @@ import pytest
 
 from tqec.computation.cube import Cube, Port, ZXCube
 from tqec.utils.enums import Basis
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 
 def test_zx_cube_kind() -> None:
-    with pytest.raises(TQECException):
+    with pytest.raises(TQECError):
         ZXCube(Basis.Z, Basis.Z, Basis.Z)
 
     kind = ZXCube.from_str("ZXZ")
@@ -39,9 +39,7 @@ def test_port() -> None:
     assert cube.is_port
     assert str(cube) == "PORT(0,0,0)"
 
-    with pytest.raises(
-        TQECException, match="A port cube must have a non-empty port label."
-    ):
+    with pytest.raises(TQECError, match="A port cube must have a non-empty port label."):
         Cube(Position3D(0, 0, 0), Port())
 
     assert cube == Cube(Position3D(0, 0, 0), Port(), "p")
@@ -50,3 +48,12 @@ def test_port() -> None:
         "kind": "PORT",
         "label": "p",
     }
+
+
+def test_cube_from_dict() -> None:
+    cube_dict = {
+        "position": (0, 0, 0),
+        "kind": "ZXZ",
+        "label": "",
+    }
+    assert Cube.from_dict(cube_dict) == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))

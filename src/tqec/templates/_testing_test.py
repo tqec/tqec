@@ -13,9 +13,7 @@ def test_construction() -> None:
 
 
 def test_instantiation() -> None:
-    numpy.testing.assert_array_equal(
-        FixedTemplate([[0]]).instantiate(plaquette_indices=[1]), [[1]]
-    )
+    numpy.testing.assert_array_equal(FixedTemplate([[0]]).instantiate(plaquette_indices=[1]), [[1]])
     numpy.testing.assert_array_equal(FixedTemplate([[0]]).instantiate(), [[1]])
     numpy.testing.assert_array_equal(
         FixedTemplate([[1]]).instantiate(plaquette_indices=[1, 2]), [[2]]
@@ -36,6 +34,4 @@ def test_shape() -> None:
 def test_number_of_expected_plaquettes() -> None:
     for i in range(10):
         assert FixedTemplate([[i]]).expected_plaquettes_number == i + 1
-        assert FixedTemplate([[0, 3], [i, i]]).expected_plaquettes_number == max(
-            i + 1, 3 + 1
-        )
+        assert FixedTemplate([[0, 3], [i, i]]).expected_plaquettes_number == max(i + 1, 3 + 1)

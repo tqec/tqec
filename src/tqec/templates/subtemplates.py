@@ -3,21 +3,20 @@
 from __future__ import annotations
 
 import typing
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 import numpy
 import numpy.typing as npt
 
-from tqec.utils.exceptions import TQECException
+from tqec.utils.exceptions import TQECError
 
 SubTemplateType = npt.NDArray[numpy.int_]
 
 
 @dataclass(frozen=True)
 class UniqueSubTemplates:
-    """Stores information on the sub-templates of a specific radius present on
-    a larger :class:`~tqec.templates.base.Template` instance.
+    """Stores information on the sub-templates of a specific Manhattan radius present on a template.
 
     A sub-template is defined here as a portion of a
     :class:`~tqec.templates.base.Template` instantiation. In other words, a
@@ -74,12 +73,13 @@ class UniqueSubTemplates:
             template instantiation thanks to ``subtemplate_indices``.
 
     Raises:
-        TQECException: if any index in ``self.subtemplate_indices`` is
+        TQECError: if any index in ``self.subtemplate_indices`` is
             not present in ``self.subtemplates.keys()``.
-        TQECException: if any of the sub-template shapes is non-square
+        TQECError: if any of the sub-template shapes is non-square
             or of even width or length.
-        TQECException: if not all the sub-template shapes in
+        TQECError: if not all the sub-template shapes in
             ``self.subtemplates.values()`` are equal.
+
     """
 
     subtemplate_indices: npt.NDArray[numpy.int_]
@@ -87,35 +87,32 @@ class UniqueSubTemplates:
 
     def __post_init__(self) -> None:
         # We do not need a valid subtemplate for the 0 index.
-        indices = frozenset(numpy.unique(self.subtemplate_indices)) - {
-            typing.cast(numpy.int_, 0)
-        }
+        indices = frozenset(numpy.unique(self.subtemplate_indices)) - {typing.cast(numpy.int_, 0)}
         if not indices.issubset(self.subtemplates.keys()):
-            raise TQECException(
-                "Found an index in subtemplate_indices that does "
-                "not correspond to a valid subtemplate."
+            raise TQECError(
+                "Found an index in subtemplate_indices that does not "
+                "correspond to a valid subtemplate."
             )
         shape = next(iter(self.subtemplates.values())).shape
         if shape[0] != shape[1]:
-            raise TQECException(
-                "Subtemplate shapes are expected to be square. "
-                f"Found the shape {shape} that is not a square."
+            raise TQECError(
+                "Subtemplate shapes are expected to be square. Found the "
+                f"shape {shape} that is not a square."
             )
         if shape[0] % 2 == 0:
-            raise TQECException(
-                "Subtemplate shapes are expected to be squares with an "
-                f"odd size length. Found size length {shape[0]}."
+            raise TQECError(
+                "Subtemplate shapes are expected to be squares with an odd "
+                f"size length. Found size length {shape[0]}."
             )
-        if not all(
-            subtemplate.shape == shape for subtemplate in self.subtemplates.values()
-        ):
-            raise TQECException(
+        if not all(subtemplate.shape == shape for subtemplate in self.subtemplates.values()):
+            raise TQECError(
                 "All the subtemplates should have the exact same shape. "
                 "Found one with a differing shape."
             )
 
     @property
     def manhattan_radius(self) -> int:
+        """Return the Manhattan radius of the stored subtemplate."""
         any_subtemplate = next(iter(self.subtemplates.values()))
         height: int = any_subtemplate.shape[0]
         # height should be `2 * manhattan_radius + 1` so `height // 2` is
@@ -128,8 +125,7 @@ def get_spatially_distinct_subtemplates(
     manhattan_radius: int = 1,
     avoid_zero_plaquettes: bool = True,
 ) -> UniqueSubTemplates:
-    """Returns a representation of all the distinct sub-templates of the
-    provided manhattan radius.
+    r"""Return a representation of all the distinct sub-templates of the provided Manhattan radius.
 
     Note:
         This function will likely be inefficient for large templates (i.e.,
@@ -145,7 +141,7 @@ def get_spatially_distinct_subtemplates(
         it takes of the order of :math:`n m (2r+1)^2` memory and has to sort an
         array of :math:`nm` elements of size :math:`(2r+1)^2` in lexicographic
         order so require, in the worst case,
-        :math:`O\\left(nm\\log(nm) (2r+1)^2\\right)` runtime.
+        :math:`O\left(nm\log(nm) (2r+1)^2\right)` runtime.
 
         Subclasses are invited to reimplement that method using a specialized
         algorithm (or hard-coded values) to speed things up.
@@ -190,6 +186,7 @@ def get_spatially_distinct_subtemplates(
 
     Returns:
         a representation of all the sub-templates found.
+
     """
     y, x = instantiation.shape
     extended_instantiation = numpy.pad(
@@ -208,9 +205,7 @@ def get_spatially_distinct_subtemplates(
                     (i - manhattan_radius) * x + (j - manhattan_radius)
                 )
                 continue
-            considered_flattened_indices.append(
-                (i - manhattan_radius) * x + (j - manhattan_radius)
-            )
+            considered_flattened_indices.append((i - manhattan_radius) * x + (j - manhattan_radius))
             all_possible_subarrays.append(
                 extended_instantiation[
                     i - manhattan_radius : i + manhattan_radius + 1,
@@ -248,12 +243,11 @@ def get_spatially_distinct_subtemplates(
 
 @dataclass(frozen=True)
 class Unique3DSubTemplates:
-    """Stores information on the sub-templates of a specific spatial radius
-    present on a time concatenation of `Template` instances.
+    """Stores the 3D sub-templates of a specific Manhattan radius in some templates.
 
-    This class is a generalization of :class:`UniqueSubTemplates` when several
-    :class:`Template` instances are concatenated in time. In that case,
-    sub-templates of the last (in time) :class:`Template` instance are not enough
+    This class is a generalization of :class:`.UniqueSubTemplates` when several
+    :class:`.Template` instances are concatenated in time. In that case,
+    sub-templates of the last (in time) :class:`.Template` instance are not enough
     to represent the different "situations" that can be encountered.
 
     Attributes:
@@ -266,6 +260,7 @@ class Unique3DSubTemplates:
         subtemplates: a store of sub-template (values) indexed by `t`-tuples of
             integers (keys) that link the sub-template center to the original
             template instantiation thanks to `subtemplate_indices`.
+
     """
 
     subtemplate_indices: npt.NDArray[numpy.int_]
@@ -275,7 +270,7 @@ class Unique3DSubTemplates:
         # Check that we have a 3-dimensional subtemplate_indices.
         shape = self.subtemplate_indices.shape
         if len(shape) != 3:
-            raise TQECException(
+            raise TQECError(
                 f"Expecting a 3-dimensional array but got the shape {shape} "
                 f"that represents a {len(shape)}-dimensional array."
             )
@@ -283,7 +278,7 @@ class Unique3DSubTemplates:
         # subtemplates keys contain exactly the right number of entries.
         n, m, t = shape
         if any(len(k) != t for k in self.subtemplates.keys()):
-            raise TQECException(
+            raise TQECError(
                 f"Found {t} time slices in subtemplate_indices but got a key "
                 f"in self.subtemplates that do not contain {t} entries."
             )
@@ -291,13 +286,12 @@ class Unique3DSubTemplates:
         # all the other indices have their corresponding entry.
         zero = tuple(0 for _ in range(t))
         indices: frozenset[tuple[int, ...]] = frozenset(
-            tuple(arr)
-            for arr in numpy.unique(self.subtemplate_indices.reshape(n * m, t), axis=0)
+            tuple(arr) for arr in numpy.unique(self.subtemplate_indices.reshape(n * m, t), axis=0)
         ) - {zero}
         if not indices.issubset(self.subtemplates.keys()):
-            raise TQECException(
-                "Found an index in subtemplate_indices that does "
-                "not correspond to a valid subtemplate."
+            raise TQECError(
+                "Found an index in subtemplate_indices that does not correspond "
+                "to a valid subtemplate."
             )
         # Check that the provided subtemplate shapes are valid:
         # - square with odd sides in the spatial dimensions,
@@ -305,30 +299,29 @@ class Unique3DSubTemplates:
         # - all equal
         shape = next(iter(self.subtemplates.values())).shape
         if shape[0] != shape[1]:
-            raise TQECException(
-                "Subtemplate shapes are expected to be square. "
-                f"Found the shape {shape} that is not a square."
+            raise TQECError(
+                "Subtemplate shapes are expected to be square. Found the shape "
+                f"{shape} that is not a square."
             )
         if shape[0] % 2 == 0:
-            raise TQECException(
-                "Subtemplate shapes are expected to be squares with an "
-                f"odd size length. Found size length {shape[0]}."
+            raise TQECError(
+                "Subtemplate shapes are expected to be squares with an odd size "
+                f"length. Found size length {shape[0]}."
             )
         if len(shape) != 3:
-            raise TQECException(
+            raise TQECError(
                 "Expecting 3-dimensional subtemplates but got a template with "
                 f"{len(shape)} dimensions."
             )
-        if not all(
-            subtemplate.shape == shape for subtemplate in self.subtemplates.values()
-        ):
-            raise TQECException(
+        if not all(subtemplate.shape == shape for subtemplate in self.subtemplates.values()):
+            raise TQECError(
                 "All the subtemplates should have the exact same shape. "
                 "Found one with a differing shape."
             )
 
     @property
     def manhattan_radius(self) -> int:
+        """Return the Manhattan radius of the stored subtemplate."""
         any_subtemplate = next(iter(self.subtemplates.values()))
         height: int = any_subtemplate.shape[0]
         # height should be `2 * manhattan_radius + 1` so `height // 2` is
@@ -337,12 +330,9 @@ class Unique3DSubTemplates:
 
 
 def get_spatially_distinct_3d_subtemplates(
-    instantiations: Sequence[npt.NDArray[numpy.int_]],
-    manhattan_radius: int = 1,
-    avoid_zero_plaquettes: bool = True,
+    instantiations: Sequence[npt.NDArray[numpy.int_]], manhattan_radius: int = 1
 ) -> Unique3DSubTemplates:
-    """Returns a representation of all the distinct 3-dimensional sub-templates
-    of the provided manhattan radius.
+    r"""Return all the distinct 3-dimensional sub-templates of the provided Manhattan radius.
 
     Note:
         This function will likely be inefficient for large templates (i.e.,
@@ -359,7 +349,7 @@ def get_spatially_distinct_3d_subtemplates(
         it takes of the order of up to :math:`nmt(2r+1)^2` memory, has to sort
         :math:`t` arrays of :math:`nm` elements of size :math:`(2r+1)^2` in
         lexicographic order, so require, in the worst case,
-        :math:`O\\left(tnm\\log(nm)(2r+1)^2\\right)` runtime.
+        :math:`O\left(tnm\log(nm)(2r+1)^2\right)` runtime.
 
     Warning:
         This function assumes that the provided ``instantiations`` are compatible
@@ -376,20 +366,24 @@ def get_spatially_distinct_3d_subtemplates(
         manhattan_radius: radius of the considered ball using the Manhattan
             distance. Only squares with sides of ``2*manhattan_radius+1``
             plaquettes will be considered.
-        avoid_zero_plaquettes: ``True`` if sub-templates with an empty plaquette
-            (i.e., 0 value in the instantiation of the Template instance) at
-            its center should be ignored. Default to ``True``.
 
     Returns:
         a representation of all the sub-templates found.
+
     """
-    unique_2d_subtemplates = [
+    # Note: we explicitly do not avoid 0-indexed plaquette in the individual
+    # 2-dimensional sub-templates (except the last one) because that led to
+    # issues. The problem is that the computation is done independently for each
+    # timeslice here, but we cannot "ignore" (i.e., return a 0-filled array) one
+    # timeslice (again, except the last one) directly because the other
+    # timeslices might need the potentially non-0 plaquettes around the center.
+    # That issue arose when extending a qubit to perform a spatial junction with
+    # stretched stabilizers (i.e., in fixed-parity convention).
+    unique_2d_subtemplates: list[UniqueSubTemplates] = [
         get_spatially_distinct_subtemplates(
-            inst,
-            manhattan_radius=manhattan_radius,
-            avoid_zero_plaquettes=avoid_zero_plaquettes,
+            inst, manhattan_radius=manhattan_radius, avoid_zero_plaquettes=False
         )
-        for inst in instantiations
+        for i, inst in enumerate(instantiations)
     ]
 
     subtemplates_indices = numpy.stack(
@@ -402,9 +396,7 @@ def get_spatially_distinct_3d_subtemplates(
     # We might have 0 indices on some 2-dimensional slices. Because 0 will not be
     # a valid index for the 2-dimensional subtemplates we got from
     # get_spatially_distinct_subtemplates, pre-generate the corresponding array.
-    zeros_2d = numpy.zeros(
-        (2 * manhattan_radius + 1, 2 * manhattan_radius + 1), dtype=numpy.int_
-    )
+    zeros_2d = numpy.zeros((2 * manhattan_radius + 1, 2 * manhattan_radius + 1), dtype=numpy.int_)
     for indices in unique_3d_indices:
         if all(i == 0 for i in indices):
             continue
@@ -414,9 +406,7 @@ def get_spatially_distinct_3d_subtemplates(
             if i == 0:
                 subtemplates_2d_to_stack.append(zeros_2d)
             else:
-                subtemplates_2d_to_stack.append(
-                    unique_2d_subtemplates[t].subtemplates[i]
-                )
+                subtemplates_2d_to_stack.append(unique_2d_subtemplates[t].subtemplates[i])
         # Stack the 2-dimensional subtemplates into a 3-dimensional one.
         subtemplate = numpy.stack(subtemplates_2d_to_stack, axis=2)
         # Add the 3-dimensional subtemplate to the mapping.
