@@ -33,9 +33,9 @@ class Basis(Enum):
 
 
 class PauliBasis(Enum):
-    X = "x"
-    Y = "y"
-    Z = "z"
+    X = "X"
+    Y = "Y"
+    Z = "Z"
 
     def __str__(self) -> str:
         return self.value  # pragma: no cover
@@ -49,7 +49,7 @@ class ExtendedBasis(Enum):
     X = PauliBasis.X.value
     Y = PauliBasis.Y.value
     Z = PauliBasis.Z.value
-    H = "h"
+    H = "H"
 
     def __str__(self) -> str:
         return self.value  # pragma: no cover
