@@ -64,7 +64,6 @@ from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.blocks.positioning import (
     LayoutPipePosition2D,
-    LayoutPosition2D,
     LayoutPosition3D,
 )
 from tqec.compile.detectors.database import DetectorDatabase
@@ -466,30 +465,27 @@ class TopologicalComputationGraph:
             :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
 
         """
-        zs = [pos.z for pos in self._layered_blocks.keys()]
-        min_z, max_z = min(zs), max(zs)
-        blocks_by_z: list[dict[LayoutPosition2D, LayeredBlock]] = [
-            {} for _ in range(min_z, max_z + 1)
-        ]
-        temporal_pipes_by_z: list[dict[LayoutPosition2D, LayeredBlock]] = [
-            {} for _ in range(min_z, max_z + 1)
-        ]
-        for pos, block in self._layered_blocks.items():
-            blocks_by_z[pos.z - min_z][pos.as_2d()] = block
-        for pos, pipe in self._temporal_pipes_at_hadamard_layer.items():
-            temporal_pipes_by_z[pos.z - min_z][pos.as_2d()] = pipe
+        ordered_zs = sorted(pos.z for pos in self._layered_blocks)
+        sublayers_by_z: list[SequencedLayers] = []
+        for z in ordered_zs:
+            blocks_at_z = {
+                pos.as_2d(): block for pos, block in self._layered_blocks.items() if pos.z == z
+            }
+            hadamard_pipe_at_z = {
+                pos.as_2d(): pipe for pos, pipe in self._temporal_pipes_at_hadamard_layer.items()
+            }
+            sublayers_by_z.append(
+                SequencedLayers(
+                    merge_parallel_block_layers(blocks_at_z, self._scalable_qubit_shape)
+                    + merge_parallel_block_layers(hadamard_pipe_at_z, self._scalable_qubit_shape),
+                    additional_metadata={"z": z},
+                )
+            )
         return LayerTree(
-            SequencedLayers(
-                [
-                    SequencedLayers(
-                        merge_parallel_block_layers(blocks, self._scalable_qubit_shape)
-                        + merge_parallel_block_layers(pipes, self._scalable_qubit_shape),
-                    )
-                    for blocks, pipes in zip(blocks_by_z, temporal_pipes_by_z)
-                ]
-            ),
+            root=SequencedLayers(sublayers_by_z),
             abstract_observables=self._observables,
             observable_builder=self._observable_builder,
+            injected_blocks=self._injected_blocks,
         )
 
     def generate_stim_circuit(

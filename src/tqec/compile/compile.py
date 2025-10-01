@@ -109,11 +109,6 @@ def compile_block_graph(
     # x-axis are shadowed by the connected pipes.
     block_graph = block_graph.fix_shadowed_faces()
 
-    # Set the minimum z of block graph to 0.(time starts from zero)
-    minz = min(cube.position.z for cube in block_graph.cubes)
-    if minz != 0:
-        block_graph = block_graph.shift_by(dz=-minz)
-
     # We need to know exactly which spatial pipes will be placed on a time slice where extended
     # plaquettes will be used, in order to adapt the schedule of the measurement layer.
     def has_pipes_in_both_spatial_dimensions(cube: Cube) -> bool:

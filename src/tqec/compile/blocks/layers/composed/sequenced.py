@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 from itertools import chain
+from typing import Any
 
 from typing_extensions import override
 
@@ -18,6 +19,7 @@ class SequencedLayers(BaseComposedLayer):
         self,
         layer_sequence: Sequence[BaseLayer | BaseComposedLayer],
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
+        additional_metadata: dict[str, Any] | None = None,
     ):
         """Composed layer implementing a fixed sequence of layers.
 
@@ -29,6 +31,8 @@ class SequencedLayers(BaseComposedLayer):
                 spatial footprint.
             trimmed_spatial_borders: all the spatial borders that have been
                 removed from the layer.
+            additional_metadata: optional dictionary of additional metadata to
+                attach to the instance.
 
         Raises:
             TQECError: if the provided ``layer_sequence`` is empty.
@@ -36,7 +40,13 @@ class SequencedLayers(BaseComposedLayer):
         """
         super().__init__(trimmed_spatial_borders)
         self._layer_sequence = layer_sequence
+        self._additional_metadata = additional_metadata or {}
         self._post_init_check()
+
+    @property
+    def additional_metadata(self) -> dict[str, Any]:
+        """Get the additional metadata attached to ``self``."""
+        return self._additional_metadata
 
     @property
     def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:
