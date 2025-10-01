@@ -465,7 +465,7 @@ class TopologicalComputationGraph:
             :class:`~tqec.compile.blocks.layers.composed.sequenced.SequencedLayers`.
 
         """
-        ordered_zs = sorted(pos.z for pos in self._layered_blocks)
+        ordered_zs = sorted({pos.z for pos in self._layered_blocks})
         sublayers_by_z: list[SequencedLayers] = []
         for z in ordered_zs:
             blocks_at_z = {
