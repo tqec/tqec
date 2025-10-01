@@ -3,7 +3,7 @@ from typing import Final
 
 from typing_extensions import override
 
-from tqec.compile.blocks.block import LayeredBlock
+from tqec.compile.blocks.block import Block, LayeredBlock
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
@@ -18,6 +18,7 @@ from tqec.compile.specs.enums import SpatialArms
 from tqec.compile.specs.library.generators.fixed_bulk import (
     FixedBulkConventionGenerator,
 )
+from tqec.compile.specs.library.generators.y_basis import get_y_half_cube_block
 from tqec.computation.cube import Port, YHalfCube, ZXCube
 from tqec.plaquette.compilation.base import IdentityPlaquetteCompiler, PlaquetteCompiler
 from tqec.plaquette.plaquette import Plaquettes
@@ -78,12 +79,14 @@ class FixedBulkCubeBuilder(CubeBuilder):
         )
 
     @override
-    def __call__(self, spec: CubeSpec) -> LayeredBlock:
+    def __call__(self, spec: CubeSpec) -> Block:
         kind = spec.kind
         if isinstance(kind, Port):
             raise TQECError("Cannot build a block for a Port.")
         elif isinstance(kind, YHalfCube):
-            raise NotImplementedError("Y cube is not implemented.")
+            y_spec = spec.y_half_cube_spec
+            assert y_spec is not None
+            return get_y_half_cube_block(y_spec, "fixed_bulk")
         # else
         template, (init, repeat, measure) = self._get_template_and_plaquettes(spec)
         layers: list[BaseLayer | BaseComposedLayer] = [

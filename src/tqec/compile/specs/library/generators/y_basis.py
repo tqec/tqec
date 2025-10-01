@@ -10,7 +10,11 @@ from typing import Any, Literal, cast
 
 import gen
 
+from tqec.compile.blocks.block import CircuitWithInterface, InjectedBlock
+from tqec.compile.blocks.enums import Alignment
+from tqec.compile.specs.base import YHalfCubeSpec
 from tqec.utils.enums import Basis
+from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 DIRS: list[complex] = [(0.5 + 0.5j) * 1j**d for d in range(4)]
 DR, DL, UL, UR = DIRS
@@ -604,3 +608,71 @@ def _without_in_det_flows(chunk: gen.Chunk) -> gen.Chunk:
     """Return a copy of the chunk with all input flows removed."""
     kept_flows = [flow for flow in chunk.flows if not flow.start or flow.obs_key is not None]
     return chunk.with_edits(flows=kept_flows)
+
+
+def _make_y_basis_init_or_meas_interface(
+    distance: int,
+    top_boundary_basis: Basis,
+    convention: Literal["fixed_boundary", "fixed_bulk"],
+    transform: Callable[[complex], complex] = lambda x: x,
+) -> tuple[gen.ChunkInterface, gen.ChunkInterface]:
+    """Make the (det, obs) start/end chunk interface for Y-basis measurement/initialization."""
+    qubit_to_boundary_round = _make_y_transition_round(distance, top_boundary_basis, convention)
+    flows = qubit_to_boundary_round.flows
+    det_flows = [f for f in flows if f.obs_key is None]
+    obs_flows = [f for f in flows if f.obs_key is not None]
+
+    det_interface = gen.ChunkInterface(
+        ports=[flow.key_start for flow in det_flows if flow.start],
+    ).with_transformed_coords(transform)
+    obs_interface = gen.ChunkInterface(
+        ports=[flow.key_start for flow in obs_flows if flow.start],
+    ).with_transformed_coords(transform)
+    return det_interface, obs_interface
+
+
+def get_y_half_cube_block(
+    y_spec: YHalfCubeSpec, convention: Literal["fixed_bulk", "fixed_boundary"]
+) -> InjectedBlock:
+    """Get a chunks factory for Y-basis initialization and measurement circuit."""
+    top_boundary_basis = y_spec.horizontal_boundary_basis
+
+    def scale_transform(q: complex) -> complex:
+        """Transform the coordinates to match the scale used in TQEC."""
+        return 2 * q + 1 + 1j
+
+    def factory(k: int) -> CircuitWithInterface:
+        distance = 2 * k + 1
+        padding_rounds = distance // 2
+        if y_spec.initialization:
+            chunks = _make_y_basis_initialization_chunks(
+                distance,
+                top_boundary_basis_after_init=top_boundary_basis,
+                convention=convention,
+                padding_rounds=padding_rounds,
+                transform=scale_transform,
+                include_observable_flow=False,
+                include_open_flows=False,
+            )
+        else:
+            chunks = _make_y_basis_measurement_chunks(
+                distance,
+                top_boundary_basis_before_measure=top_boundary_basis,
+                convention=convention,
+                padding_rounds=padding_rounds,
+                transform=scale_transform,
+                include_observable_flow=False,
+                include_open_flows=False,
+            )
+        circuit = gen.compile_chunks_into_circuit(chunks)  # type: ignore[arg-type]
+        det_interface, obs_interface = _make_y_basis_init_or_meas_interface(
+            distance, top_boundary_basis, convention, scale_transform
+        )
+        return CircuitWithInterface(circuit, det_interface, obs_interface)
+
+    return InjectedBlock(
+        factory,
+        scalable_timesteps=LinearFunction(1, 2),
+        scalable_shape=PhysicalQubitScalable2D(x=LinearFunction(4, 5), y=LinearFunction(4, 5)),
+        alignment=Alignment.TAIL if y_spec.initialization else Alignment.HEAD,
+    )
