@@ -21,6 +21,10 @@ recommended to use an editable installation.
 Currently, ``tqec`` is compatible with Python 3.10, 3.11, 3.12 and 3.13. You can install the editable version
 of ``tqec`` through ``pip`` or ``uv``.
 
+.. NB!::
+    Creating an environment before running `pip install` is optional but recommended to avoid everything installing globally.
+    Click [here](https://docs.python.org/3/library/venv.html) for a common approach.
+
 .. tab-set::
 
     .. tab-item:: pip
@@ -32,13 +36,6 @@ of ``tqec`` through ``pip`` or ``uv``.
 
             # Go in the tqec directory
             cd tqec
-
-            # Create an environment (optional but highly recommended)
-            python -m venv .venv
-            # Activate the environment
-            source .venv/bin/activate  # GNU/Linux and MacOS
-            .venv\Scripts\activate.bat # Windows (CMD)
-            .venv\Scripts\Activate.ps1 # Windows (PowerShell)
 
             # Update pip to at least v25.1
             python -m pip install --upgrade pip>=25.1
