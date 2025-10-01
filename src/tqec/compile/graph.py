@@ -472,7 +472,9 @@ class TopologicalComputationGraph:
                 pos.as_2d(): block for pos, block in self._layered_blocks.items() if pos.z == z
             }
             hadamard_pipe_at_z = {
-                pos.as_2d(): pipe for pos, pipe in self._temporal_pipes_at_hadamard_layer.items()
+                pos.as_2d(): pipe
+                for pos, pipe in self._temporal_pipes_at_hadamard_layer.items()
+                if pos.z == z
             }
             sublayers_by_z.append(
                 SequencedLayers(
