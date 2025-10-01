@@ -48,7 +48,7 @@ from typing import Final
 
 import stim
 
-from tqec.compile.blocks.block import Block, merge_parallel_block_layers
+from tqec.compile.blocks.block import LayeredBlock, merge_parallel_block_layers
 from tqec.compile.blocks.enums import (
     SpatialBlockBorder,
     TemporalBlockBorder,
@@ -115,18 +115,18 @@ class TopologicalComputationGraph:
         observables: list[AbstractObservable] | None = None,
     ) -> None:
         """Represent a topological computation with :class:`.Block` instances."""
-        self._blocks: dict[LayoutPosition3D, Block] = {}
+        self._blocks: dict[LayoutPosition3D, LayeredBlock] = {}
         # For fixed-bulk convention, temporal Hadamard pipe has its on space-time
         # extent. We need to keep track of the temporal pipes that are at the
         # same layer of at least one temporal Hadamard pipe.
         # We use the bottom cube position `z` to store the temporal pipe, s.t.
         # the pipe is actually at the position `z+0.5`
-        self._temporal_pipes_at_hadamard_layer: dict[LayoutPosition3D, Block] = {}
+        self._temporal_pipes_at_hadamard_layer: dict[LayoutPosition3D, LayeredBlock] = {}
         self._scalable_qubit_shape: Final[PhysicalQubitScalable2D] = scalable_qubit_shape
         self._observables: list[AbstractObservable] | None = observables
         self._observable_builder = observable_builder
 
-    def add_cube(self, position: BlockPosition3D, block: Block) -> None:
+    def add_cube(self, position: BlockPosition3D, block: LayeredBlock) -> None:
         """Add a new cube at ``position`` implemented by the provided ``block``."""
         if not block.is_cube:
             raise TQECError(
@@ -142,7 +142,7 @@ class TopologicalComputationGraph:
             )
         self._blocks[layout_position] = block
 
-    def get_cube(self, position: BlockPosition3D) -> Block:
+    def get_cube(self, position: BlockPosition3D) -> LayeredBlock:
         """Recover the :class:`.Block` instance at the provided ``position``.
 
         Args:
@@ -221,7 +221,7 @@ class TopologicalComputationGraph:
                 f"There is already a pipe at {layout_position}."
             )
 
-    def _check_block_spatial_shape(self, block: Block) -> None:
+    def _check_block_spatial_shape(self, block: LayeredBlock) -> None:
         if block.scalable_shape != self._scalable_qubit_shape:
             raise TQECError(
                 f"Expected a block shaped like a logical qubit "
@@ -355,7 +355,7 @@ class TopologicalComputationGraph:
             )
 
     def _replace_temporal_borders(
-        self, source: BlockPosition3D, sink: BlockPosition3D, block: Block
+        self, source: BlockPosition3D, sink: BlockPosition3D, block: LayeredBlock
     ) -> None:
         self._check_any_pipe(source, sink)
         juncdir = Direction3D.from_neighbouring_positions(source, sink)
@@ -378,7 +378,7 @@ class TopologicalComputationGraph:
             block.get_atomic_temporal_border(TemporalBlockBorder.Z_POSITIVE),
         )
 
-    def add_pipe(self, source: BlockPosition3D, sink: BlockPosition3D, block: Block) -> None:
+    def add_pipe(self, source: BlockPosition3D, sink: BlockPosition3D, block: LayeredBlock) -> None:
         """Add the provided block as a pipe between ``source`` and ``sink``.
 
         Raises:
@@ -440,8 +440,10 @@ class TopologicalComputationGraph:
         """
         zs = [pos.z for pos in self._blocks.keys()]
         min_z, max_z = min(zs), max(zs)
-        blocks_by_z: list[dict[LayoutPosition2D, Block]] = [{} for _ in range(min_z, max_z + 1)]
-        temporal_pipes_by_z: list[dict[LayoutPosition2D, Block]] = [
+        blocks_by_z: list[dict[LayoutPosition2D, LayeredBlock]] = [
+            {} for _ in range(min_z, max_z + 1)
+        ]
+        temporal_pipes_by_z: list[dict[LayoutPosition2D, LayeredBlock]] = [
             {} for _ in range(min_z, max_z + 1)
         ]
         for pos, block in self._blocks.items():

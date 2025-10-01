@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import Final, Protocol
 
-from tqec.compile.blocks.block import Block
+from tqec.compile.blocks.block import LayeredBlock
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
@@ -36,7 +36,7 @@ def _get_block(
     template: RectangularTemplate,
     plaquettes_generator: _PlaquettesGenerator,
     repetitions: LinearFunction,
-) -> Block:
+) -> LayeredBlock:
     """Get the block implemented with the provided ``template`` and ``plaquettes_generator``.
 
     This helper function handles all the complexity linked to generating a :class:`.Block` instance
@@ -63,7 +63,7 @@ def _get_block(
     bmeas = plaquettes_generator(True, None, z_basis)
 
     if not has_spatial_junction_in_timeslice:
-        return Block(
+        return LayeredBlock(
             [
                 PlaquetteLayer(template, finit),
                 RepeatedLayer(PlaquetteLayer(template, fmemory), repetitions),
@@ -98,7 +98,7 @@ def _get_block(
     if remainder == 1:  # Note that remainder can only be 0 or 1.
         loop_replacement.append(PlaquetteLayer(template, bmemory))
 
-    return Block(
+    return LayeredBlock(
         [
             PlaquetteLayer(template, finit),
             SequencedLayers(loop_replacement),
@@ -157,7 +157,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
             _spatial_plaquettes_generator,
         )
 
-    def __call__(self, spec: CubeSpec) -> Block:
+    def __call__(self, spec: CubeSpec) -> LayeredBlock:
         """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
         kind = spec.kind
         if isinstance(kind, Port):
@@ -193,7 +193,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         """
         self._generator = FixedBoundaryConventionGenerator(translator, compiler)
 
-    def __call__(self, spec: PipeSpec) -> Block:
+    def __call__(self, spec: PipeSpec) -> LayeredBlock:
         """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
         if spec.pipe_kind.is_temporal:
             return self.get_temporal_pipe_block(spec)
@@ -202,7 +202,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
     #######################
     #    TEMPORAL PIPE    #
     #######################
-    def get_temporal_pipe_block(self, spec: PipeSpec) -> Block:
+    def get_temporal_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
         """Return the block to implement a temporal pipe based on the provided ``spec``.
 
         Args:
@@ -237,9 +237,9 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
                 False, z_orientation
             )
             hadamard_layer = PlaquetteLayer(hadamard_template, hadamard_plaquettes)
-            return Block([hadamard_layer, memory_layer])
+            return LayeredBlock([hadamard_layer, memory_layer])
         # Else, it is a regular temporal junction
-        return Block([memory_layer for _ in range(2)])
+        return LayeredBlock([memory_layer for _ in range(2)])
 
     ##############################
     #       SPATIAL PIPE         #
@@ -278,7 +278,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             arms |= SpatialArms.LEFT if pipedir == Direction3D.X else SpatialArms.UP
         return arms
 
-    def _get_spatial_cube_pipe_block(self, spec: PipeSpec) -> Block:
+    def _get_spatial_cube_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
@@ -365,7 +365,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             )
         )
 
-    def _get_spatial_regular_pipe_block(self, spec: PipeSpec) -> Block:
+    def _get_spatial_regular_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
         assert all(not spec.is_spatial for spec in spec.cube_specs)
         plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
         template = self._get_spatial_regular_pipe_template(spec)
@@ -379,7 +379,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             _DEFAULT_BLOCK_REPETITIONS,
         )
 
-    def get_spatial_pipe_block(self, spec: PipeSpec) -> Block:
+    def get_spatial_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
         """Return a :class:`.Block` instance implementing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         cube_specs = spec.cube_specs

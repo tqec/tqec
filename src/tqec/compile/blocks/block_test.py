@@ -4,7 +4,7 @@ import pytest
 import stim
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.compile.blocks.block import Block, merge_parallel_block_layers
+from tqec.compile.blocks.block import LayeredBlock, merge_parallel_block_layers
 from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
@@ -88,17 +88,17 @@ def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuit
     # Invalid sequences due to duration < 1
     err_regex = ".*expected to have at least one layer.*"
     with pytest.raises(TQECError, match=err_regex):
-        Block([])
+        LayeredBlock([])
 
-    Block([plaquette_layer for _ in range(10)])
-    Block(
+    LayeredBlock([plaquette_layer for _ in range(10)])
+    LayeredBlock(
         [
             plaquette_layer,
             RepeatedLayer(raw_circuit_layer, LinearFunction(2, 0)),
             plaquette_layer,
         ]
     )
-    Block(
+    LayeredBlock(
         [
             SequencedLayers([plaquette_layer, raw_circuit_layer, plaquette_layer]),
             RepeatedLayer(raw_circuit_layer, LinearFunction(2, 0)),
@@ -110,7 +110,7 @@ def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuit
 def test_with_spatial_borders_trimmed(
     borders: tuple[SpatialBlockBorder, ...], plaquette_layer: PlaquetteLayer
 ) -> None:
-    block = Block([plaquette_layer for _ in range(5)])
+    block = LayeredBlock([plaquette_layer for _ in range(5)])
     trimmed_block = block.with_spatial_borders_trimmed(borders)
     trimmed_internal_layer = plaquette_layer.with_spatial_borders_trimmed(borders)
     assert all(
@@ -123,20 +123,20 @@ def test_with_temporal_borders_replaced_none(
     plaquette_layer2: PlaquetteLayer,
     raw_circuit_layer: RawCircuitLayer,
 ) -> None:
-    block = Block([plaquette_layer, plaquette_layer2, raw_circuit_layer])
+    block = LayeredBlock([plaquette_layer, plaquette_layer2, raw_circuit_layer])
     assert block.with_temporal_borders_replaced({}) == block
-    assert block.with_temporal_borders_replaced({TemporalBlockBorder.Z_NEGATIVE: None}) == Block(
-        [plaquette_layer2, raw_circuit_layer]
-    )
-    assert block.with_temporal_borders_replaced({TemporalBlockBorder.Z_POSITIVE: None}) == Block(
-        [plaquette_layer, plaquette_layer2]
-    )
+    assert block.with_temporal_borders_replaced(
+        {TemporalBlockBorder.Z_NEGATIVE: None}
+    ) == LayeredBlock([plaquette_layer2, raw_circuit_layer])
+    assert block.with_temporal_borders_replaced(
+        {TemporalBlockBorder.Z_POSITIVE: None}
+    ) == LayeredBlock([plaquette_layer, plaquette_layer2])
     assert block.with_temporal_borders_replaced(
         {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
-    ) == Block([plaquette_layer2])
+    ) == LayeredBlock([plaquette_layer2])
     # Shorter to cover one edge-case:
     assert (
-        Block([plaquette_layer, raw_circuit_layer]).with_temporal_borders_replaced(
+        LayeredBlock([plaquette_layer, raw_circuit_layer]).with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_NEGATIVE: None, TemporalBlockBorder.Z_POSITIVE: None}
         )
         is None
@@ -148,28 +148,28 @@ def test_with_temporal_borders_replaced(
     plaquette_layer2: PlaquetteLayer,
     raw_circuit_layer: RawCircuitLayer,
 ) -> None:
-    block = Block([plaquette_layer, plaquette_layer2, raw_circuit_layer])
+    block = LayeredBlock([plaquette_layer, plaquette_layer2, raw_circuit_layer])
 
     assert block.with_temporal_borders_replaced({}) == block
     for replacement in [plaquette_layer, plaquette_layer2, raw_circuit_layer]:
         assert block.with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_NEGATIVE: replacement}
-        ) == Block([replacement, plaquette_layer2, raw_circuit_layer])
+        ) == LayeredBlock([replacement, plaquette_layer2, raw_circuit_layer])
         assert block.with_temporal_borders_replaced(
             {TemporalBlockBorder.Z_POSITIVE: replacement}
-        ) == Block([plaquette_layer, plaquette_layer2, replacement])
+        ) == LayeredBlock([plaquette_layer, plaquette_layer2, replacement])
         assert block.with_temporal_borders_replaced(
             {
                 TemporalBlockBorder.Z_NEGATIVE: replacement,
                 TemporalBlockBorder.Z_POSITIVE: replacement,
             }
-        ) == Block([replacement, plaquette_layer2, replacement])
+        ) == LayeredBlock([replacement, plaquette_layer2, replacement])
     assert block.with_temporal_borders_replaced(
         {
             TemporalBlockBorder.Z_NEGATIVE: None,
             TemporalBlockBorder.Z_POSITIVE: plaquette_layer2,
         }
-    ) == Block([plaquette_layer2, plaquette_layer2])
+    ) == LayeredBlock([plaquette_layer2, plaquette_layer2])
 
 
 def test_get_temporal_border(
@@ -177,11 +177,11 @@ def test_get_temporal_border(
     plaquette_layer2: PlaquetteLayer,
     raw_circuit_layer: RawCircuitLayer,
 ) -> None:
-    block = Block([plaquette_layer, raw_circuit_layer, plaquette_layer2])
+    block = LayeredBlock([plaquette_layer, raw_circuit_layer, plaquette_layer2])
     assert block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE) == plaquette_layer
     assert block.get_atomic_temporal_border(TemporalBlockBorder.Z_POSITIVE) == plaquette_layer2
 
-    block = Block(
+    block = LayeredBlock(
         [
             RepeatedLayer(plaquette_layer, LinearFunction(0, 2)),
             plaquette_layer2,
@@ -201,12 +201,12 @@ def test_dimensions(
     plaquette_layer2: PlaquetteLayer,
     raw_circuit_layer: RawCircuitLayer,
 ) -> None:
-    assert Block([plaquette_layer, raw_circuit_layer, plaquette_layer2]).dimensions == (
+    assert LayeredBlock([plaquette_layer, raw_circuit_layer, plaquette_layer2]).dimensions == (
         LinearFunction(4, 5),
         LinearFunction(4, 5),
         LinearFunction(0, 3),
     )
-    assert Block(
+    assert LayeredBlock(
         [
             RepeatedLayer(plaquette_layer, LinearFunction(56, 2)),
             plaquette_layer2,
@@ -220,29 +220,29 @@ def test_dimensions(
 
 
 def test_is_cube(plaquette_layer: PlaquetteLayer) -> None:
-    assert Block(
+    assert LayeredBlock(
         [
             plaquette_layer,
             RepeatedLayer(plaquette_layer, LinearFunction(2, 0)),
             plaquette_layer,
         ]
     ).is_cube
-    assert not Block([plaquette_layer, plaquette_layer]).is_cube
+    assert not LayeredBlock([plaquette_layer, plaquette_layer]).is_cube
 
 
 def test_is_pipe(plaquette_layer: PlaquetteLayer) -> None:
-    assert not Block(
+    assert not LayeredBlock(
         [
             plaquette_layer,
             RepeatedLayer(plaquette_layer, LinearFunction(2, 0)),
             plaquette_layer,
         ]
     ).is_pipe
-    assert Block([plaquette_layer, plaquette_layer]).is_pipe
+    assert LayeredBlock([plaquette_layer, plaquette_layer]).is_pipe
 
 
 def test_is_temporal_pipe(plaquette_layer: PlaquetteLayer) -> None:
-    assert Block([plaquette_layer, plaquette_layer]).is_temporal_pipe
+    assert LayeredBlock([plaquette_layer, plaquette_layer]).is_temporal_pipe
 
 
 def test_merge_parallel_block_layers(
@@ -253,14 +253,14 @@ def test_merge_parallel_block_layers(
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     merged_layers = merge_parallel_block_layers(
         {
-            b00: Block(
+            b00: LayeredBlock(
                 [
                     plaquette_layer,
                     RepeatedLayer(plaquette_layer, LinearFunction(2, 0)),
                     plaquette_layer,
                 ]
             ),
-            b01: Block(
+            b01: LayeredBlock(
                 [
                     plaquette_layer,
                     RepeatedLayer(

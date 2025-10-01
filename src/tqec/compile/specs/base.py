@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, Protocol, cast
 
-from tqec.compile.blocks.block import Block
+from tqec.compile.blocks.block import LayeredBlock
 from tqec.compile.specs.enums import SpatialArms
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import Cube, CubeKind, ZXCube
@@ -87,7 +87,7 @@ class CubeSpec:
 class CubeBuilder(Protocol):
     """Protocol for building a `Block` based on a `CubeSpec`."""
 
-    def __call__(self, spec: CubeSpec) -> Block:
+    def __call__(self, spec: CubeSpec) -> LayeredBlock:
         """Build a ``Block`` instance from a ``CubeSpec``.
 
         Args:
@@ -103,7 +103,7 @@ class CubeBuilder(Protocol):
 class PipeBuilder(Protocol):
     """Protocol for building a `Block` based on a `PipeSpec`."""
 
-    def __call__(self, spec: PipeSpec) -> Block:
+    def __call__(self, spec: PipeSpec) -> LayeredBlock:
         """Build a `CompiledBlock` instance from a `PipeSpec`.
 
         Args:
