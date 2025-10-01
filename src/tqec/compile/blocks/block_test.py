@@ -4,8 +4,13 @@ import pytest
 import stim
 
 from tqec.circuit.schedule.circuit import ScheduledCircuit
-from tqec.compile.blocks.block import LayeredBlock, merge_parallel_block_layers
-from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
+from tqec.compile.blocks.block import (
+    CircuitWithInterface,
+    InjectedBlock,
+    LayeredBlock,
+    merge_parallel_block_layers,
+)
+from tqec.compile.blocks.enums import Alignment, SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
@@ -289,3 +294,16 @@ def test_merge_parallel_block_layers(
         ),
         LayoutLayer({b00: plaquette_layer, b01: plaquette_layer2}, logical_qubit_shape),
     ]
+
+
+def test_injected_block() -> None:
+    block = InjectedBlock(
+        injection_factory=lambda k: CircuitWithInterface(
+            stim.Circuit(f"R {' '.join(map(str, range(k)))}"),
+        ),
+        scalable_shape=PhysicalQubitScalable2D(LinearFunction(1, 0), LinearFunction(0, 1)),
+        scalable_timesteps=LinearFunction(0, 1),
+        alignment=Alignment.TAIL,
+    )
+    assert block.is_cube
+    assert not block.is_pipe
