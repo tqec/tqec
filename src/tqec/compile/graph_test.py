@@ -29,7 +29,9 @@ def scalable_qubit_shape_fixture() -> PhysicalQubitScalable2D:
 
 @pytest.fixture(name="xzz")
 def xzz_fixture() -> LayeredBlock:
-    return FIXED_BULK_CUBE_BUILDER(CubeSpec(ZXCube.from_str("xzz")))
+    block = FIXED_BULK_CUBE_BUILDER(CubeSpec(ZXCube.from_str("xzz")))
+    assert isinstance(block, LayeredBlock)
+    return block
 
 
 @pytest.fixture(name="xzo")
