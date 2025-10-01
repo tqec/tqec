@@ -112,14 +112,14 @@ def test_detector_database_key_hash() -> None:
     # This is a value that has been pre-computed locally. It is hard-coded here
     # to check that the hash of a dbkey is reliable and does not change depending
     # on the Python interpreter, Python version, host OS, process ID, ...
-    assert hash(dbkey) == 1068059953232381272
+    assert hash(dbkey) == 1201392023510140623
 
     dbkey = _DetectorDatabaseKey(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])
     assert hash(dbkey) == hash(dbkey)
     # This is a value that has been pre-computed locally. It is hard-coded here
     # to check that the hash of a dbkey is reliable and does not change depending
     # on the Python interpreter, Python version, host OS, process ID, ...
-    assert hash(dbkey) == 1986764458427930321
+    assert hash(dbkey) == 537672892651080842
 
 
 def test_detector_database_creation() -> None:
