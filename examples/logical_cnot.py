@@ -1,5 +1,6 @@
 """Example of compiling a logical CNOT `.dae` model to `stim.Circuit`."""
 
+from multiprocessing import cpu_count
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -37,6 +38,7 @@ def generate_graphs(convention: Convention, observable_basis: Basis) -> None:
         manhattan_radius=2,
         convention=convention,
         observables=correlation_surfaces,
+        num_workers=cpu_count(),
         max_shots=10_000_000,
         max_errors=5_000,
         decoders=["pymatching"],

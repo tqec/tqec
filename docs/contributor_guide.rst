@@ -21,7 +21,7 @@ recommended to use an editable installation.
 Currently, ``tqec`` is compatible with Python 3.10, 3.11, 3.12 and 3.13. You can install the editable version
 of ``tqec`` through ``pip`` or ``uv``.
 
-.. NB!::
+.. hint::
     Creating an environment before running `pip install` is optional but recommended to avoid everything installing globally.
     Click [here](https://docs.python.org/3/library/venv.html) for a common approach.
 
