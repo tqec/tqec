@@ -23,7 +23,7 @@ of ``tqec`` through ``pip`` or ``uv``.
 
 .. hint::
     Creating an environment before running `pip install` is optional but recommended to avoid everything installing globally.
-    Click [here](https://docs.python.org/3/library/venv.html) for a common approach.
+    Click `here <https://docs.python.org/3/library/venv.html>`_ for a common approach.
 
 .. tab-set::
 
