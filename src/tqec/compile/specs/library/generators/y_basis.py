@@ -326,7 +326,7 @@ def _make_y_transition_round(
     distance: int,
     top_boundary_basis_before_transition: Basis,
     convention: Literal["fixed_boundary", "fixed_bulk"],
-    include_observable_flow: bool = True,
+    include_observables: Iterable[int] = (0,),
 ) -> gen.Chunk:
     """Make the circuit chunk for transition from qubit patch to degenerate patch."""
     start = _make_qubit_patch(distance, top_boundary_basis_before_transition, convention)
@@ -447,7 +447,8 @@ def _make_y_transition_round(
     # Annotate how observable flows through the system.
     # Contrast to the observable in the paper, the annotated observable is composed
     # of the two X/Z midline operators.
-    if include_observable_flow:
+    observables = sorted(include_observables)
+    if observables:
         half_d = distance // 2
         center_dq = complex(half_d, half_d)
         vertical_basis = top_boundary_basis_before_transition
@@ -455,33 +456,32 @@ def _make_y_transition_round(
 
         mset_ur = xs if top_basis == "Z" else zs
         mset_dl = xs if top_basis == "X" else zs
-        builder.add_flow(
-            center=center_dq,
-            start=gen.PauliMap(
-                {
-                    center_dq: "Y",
-                    **{
-                        complex(q, half_d): str(horizontal_basis)
-                        for q in range(distance)
-                        if q != half_d
-                    },
-                    **{
-                        complex(half_d, q): str(vertical_basis)
-                        for q in range(distance)
-                        if q != half_d
-                    },
-                }
-            ),
-            ms=[
-                (m, "solo")
-                for m in [
-                    my_target,
-                    *[q for q in mset_ur | top_row if q.real > half_d and q.imag < half_d],
-                    *[q for q in mset_dl | left_col if q.real < half_d and q.imag > half_d],
-                ]
-            ],
-            obs_key=0,
+        start = gen.PauliMap(
+            {
+                center_dq: "Y",
+                **{
+                    complex(q, half_d): str(horizontal_basis)
+                    for q in range(distance)
+                    if q != half_d
+                },
+                **{complex(half_d, q): str(vertical_basis) for q in range(distance) if q != half_d},
+            }
         )
+        ms = [
+            (m, "solo")
+            for m in [
+                my_target,
+                *[q for q in mset_ur | top_row if q.real > half_d and q.imag < half_d],
+                *[q for q in mset_dl | left_col if q.real < half_d and q.imag > half_d],
+            ]
+        ]
+        for idx in observables:
+            builder.add_flow(
+                center=center_dq,
+                start=start,
+                ms=ms,
+                obs_key=idx,
+            )
 
     return builder.finish_chunk()
 
@@ -540,7 +540,8 @@ def _make_y_basis_measurement_chunks(
     convention: Literal["fixed_boundary", "fixed_bulk"],
     padding_rounds: int,
     transform: Callable[[complex], complex] = lambda x: x,
-    include_observable_flow: bool = True,
+    include_observables: Iterable[int] = (0,),
+    close_obs_flows: bool = False,
     include_open_flows: bool = True,
 ) -> list[gen.Chunk | gen.ChunkLoop]:
     """Make circuit chunks for Y-basis measurement."""
@@ -548,7 +549,7 @@ def _make_y_basis_measurement_chunks(
         distance, top_boundary_basis_before_measure, convention
     )
     qubit_to_boundary_round = _make_y_transition_round(
-        distance, top_boundary_basis_before_measure, convention, include_observable_flow
+        distance, top_boundary_basis_before_measure, convention, include_observables
     )
     boundary_round = _standard_surface_code_chunk(boundary_patch)
     final_round = _standard_surface_code_chunk(
@@ -559,6 +560,13 @@ def _make_y_basis_measurement_chunks(
     )
     if not include_open_flows:
         qubit_to_boundary_round = _without_in_det_flows(qubit_to_boundary_round)
+    if close_obs_flows:
+        det_flows = [f for f in qubit_to_boundary_round.flows if f.obs_key is None]
+        obs_flows = [f for f in qubit_to_boundary_round.flows if f.obs_key is not None]
+        closed_obs_flows = [f.with_edits(start=gen.PauliMap({})) for f in obs_flows]
+        qubit_to_boundary_round = qubit_to_boundary_round.with_edits(
+            flows=det_flows + closed_obs_flows
+        )
     return [
         qubit_to_boundary_round.with_transformed_coords(transform),
         boundary_round.with_transformed_coords(transform).with_repetitions(padding_rounds),
@@ -584,7 +592,8 @@ def _make_y_basis_initialization_chunks(
     convention: Literal["fixed_boundary", "fixed_bulk"],
     padding_rounds: int,
     transform: Callable[[complex], complex] = lambda x: x,
-    include_observable_flow: bool = True,
+    include_observables: Iterable[int] = (0,),
+    close_obs_flows: bool = False,
     include_open_flows: bool = True,
 ) -> list[gen.Chunk | gen.ChunkLoop]:
     """Make circuit chunks for Y-basis initialization."""
@@ -594,13 +603,23 @@ def _make_y_basis_initialization_chunks(
         convention,
         padding_rounds,
         transform=transform,
-        include_observable_flow=include_observable_flow,
+        include_observables=include_observables,
+        close_obs_flows=False,
         include_open_flows=include_open_flows,
     )
+    boundary_to_qubit_round = qubit_to_boundary_round.time_reversed()
+    if close_obs_flows:
+        assert isinstance(boundary_to_qubit_round, gen.Chunk)
+        det_flows = [f for f in boundary_to_qubit_round.flows if f.obs_key is None]
+        obs_flows = [f for f in boundary_to_qubit_round.flows if f.obs_key is not None]
+        closed_obs_flows = [f.with_edits(end=gen.PauliMap({})) for f in obs_flows]
+        boundary_to_qubit_round = boundary_to_qubit_round.with_edits(
+            flows=det_flows + closed_obs_flows
+        )
     return [
         final_round.time_reversed(),
         boundary_rounds.time_reversed(),
-        qubit_to_boundary_round.time_reversed(),
+        boundary_to_qubit_round,
     ]
 
 
@@ -615,20 +634,16 @@ def _make_y_basis_init_or_meas_interface(
     top_boundary_basis: Basis,
     convention: Literal["fixed_boundary", "fixed_bulk"],
     transform: Callable[[complex], complex] = lambda x: x,
-) -> tuple[gen.ChunkInterface, gen.ChunkInterface]:
-    """Make the (det, obs) start/end chunk interface for Y-basis measurement/initialization."""
+) -> gen.ChunkInterface:
+    """Make the start/end chunk interface for Y-basis measurement/initialization."""
     qubit_to_boundary_round = _make_y_transition_round(distance, top_boundary_basis, convention)
     flows = qubit_to_boundary_round.flows
     det_flows = [f for f in flows if f.obs_key is None]
-    obs_flows = [f for f in flows if f.obs_key is not None]
 
     det_interface = gen.ChunkInterface(
         ports=[flow.key_start for flow in det_flows if flow.start],
     ).with_transformed_coords(transform)
-    obs_interface = gen.ChunkInterface(
-        ports=[flow.key_start for flow in obs_flows if flow.start],
-    ).with_transformed_coords(transform)
-    return det_interface, obs_interface
+    return det_interface
 
 
 def get_y_half_cube_block(
@@ -641,7 +656,7 @@ def get_y_half_cube_block(
         """Transform the coordinates to match the scale used in TQEC."""
         return 2 * q + 1 + 1j
 
-    def factory(k: int) -> CircuitWithInterface:
+    def factory(k: int, annotate_observables: list[int] | None = None) -> CircuitWithInterface:
         distance = 2 * k + 1
         padding_rounds = distance // 2
         if y_spec.initialization:
@@ -651,7 +666,8 @@ def get_y_half_cube_block(
                 convention=convention,
                 padding_rounds=padding_rounds,
                 transform=scale_transform,
-                include_observable_flow=False,
+                include_observables=annotate_observables or [],
+                close_obs_flows=True,
                 include_open_flows=False,
             )
         else:
@@ -661,14 +677,15 @@ def get_y_half_cube_block(
                 convention=convention,
                 padding_rounds=padding_rounds,
                 transform=scale_transform,
-                include_observable_flow=False,
+                include_observables=annotate_observables or [],
+                close_obs_flows=True,
                 include_open_flows=False,
             )
         circuit = gen.compile_chunks_into_circuit(chunks)  # type: ignore[arg-type]
-        det_interface, obs_interface = _make_y_basis_init_or_meas_interface(
+        det_interface = _make_y_basis_init_or_meas_interface(
             distance, top_boundary_basis, convention, scale_transform
         )
-        return CircuitWithInterface(circuit, det_interface, obs_interface)
+        return CircuitWithInterface(circuit, det_interface)
 
     return InjectedBlock(
         factory,

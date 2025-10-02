@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Final, Protocol
 
@@ -223,28 +223,50 @@ class CircuitWithInterface:
 
     Attributes:
         circuit: the quantum circuit.
-        det_interface: the expected detector flows interface of the circuit.
-        obs_interface: the expected observable flow interface of the circuit.
+        interface: the expected flow interface of the circuit.
 
     """
 
     circuit: stim.Circuit
-    det_interface: gen.ChunkInterface = field(default_factory=lambda: gen.ChunkInterface(()))
-    obs_interface: gen.ChunkInterface = field(default_factory=lambda: gen.ChunkInterface(()))
+    interface: gen.ChunkInterface = field(default_factory=lambda: gen.ChunkInterface(()))
 
     def __post_init__(self) -> None:
         if not self.circuit:
             raise TQECError("The provided circuit is empty.")
-        if len(self.obs_interface.ports) > 1:
-            raise TQECError("At most one observable flow is supported at each injection block.")
+
+    def with_transformed_coords(
+        self, transform: Callable[[complex], complex]
+    ) -> CircuitWithInterface:
+        """Return a copy of ``self`` with transformed coordinates.
+
+        Args:
+            transform: the coordinate transformation to apply to the detector and observable flows.
+
+        Returns:
+            a copy of ``self`` with transformed coordinates.
+
+        """
+        return CircuitWithInterface(
+            gen.stim_circuit_with_transformed_coords(self.circuit, transform),
+            self.interface.with_transformed_coords(transform),
+        )
 
 
 class InjectionFactory(Protocol):
-    def __call__(self, k: int) -> CircuitWithInterface:
+    def __call__(
+        self,
+        k: int,
+        annotate_observables: list[int] | None = None,
+    ) -> CircuitWithInterface:
         """Generate the quantum circuit with expected flow interface from the scaling factor.
 
         Args:
             k: The scaling factor.
+            annotate_observables: If provided, the list of observables will be annotated
+                in the generated circuit. Note that the injection block will typically
+                only support a single unique observable flow. Therefore, if multiple
+                observables are provided, they will be replicates of the same observable flow
+                with different observable ids.
 
         Returns:
             A quantum circuit with expected flow interface.
