@@ -22,7 +22,7 @@ Currently, ``tqec`` is compatible with Python 3.10, 3.11, 3.12 and 3.13. You can
 of ``tqec`` through ``pip`` or ``uv``.
 
 .. hint::
-    Creating an environment before running `pip install` is optional but recommended to avoid everything installing globally.
+    Creating an environment before running ``pip install`` is optional but recommended to avoid everything installing globally.
     Click `here <https://docs.python.org/3/library/venv.html>`_ for a common approach.
 
 .. tab-set::
