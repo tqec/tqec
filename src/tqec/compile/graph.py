@@ -398,7 +398,7 @@ class TopologicalComputationGraph:
                 block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
             )
         # Sink
-        if source not in self._injected_blocks:
+        if sink not in self._injected_blocks:
             self._replace_temporal_border(
                 sink,
                 TemporalBlockBorder.Z_NEGATIVE,
