@@ -152,11 +152,6 @@ def setup(app):
     # Connect the autodoc-skip-member event from apidoc to the callback
     app.connect("autodoc-skip-member", autodoc_skip_member_handler)
 
-    # Map 'uv' and 'pip' to use bash syntax highlighting in the readme
-    # or any other markdown documents.
-    app.add_lexer("uv", BashLexer)
-    app.add_lexer("pip", BashLexer)
-
 
 autodoc_member_order = "groupwise"
 # See https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autoclass_content
