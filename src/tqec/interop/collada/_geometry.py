@@ -10,7 +10,7 @@ import numpy.typing as npt
 
 from tqec.computation.cube import YHalfCube, ZXCube
 from tqec.computation.pipe import PipeKind
-from tqec.interop.color import TQECColor
+from tqec.interop.shared import TQECColor
 from tqec.utils.enums import Basis
 from tqec.utils.position import Direction3D, FloatPosition3D, SignedDirection3D
 

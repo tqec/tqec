@@ -4,7 +4,7 @@ import stim
 import svg
 
 from tqec.circuit.qubit import GridQubit
-from tqec.interop.color import TQECColor
+from tqec.interop.shared import TQECColor
 from tqec.visualisation.exception import TQECDrawingError
 
 

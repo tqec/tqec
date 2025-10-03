@@ -13,9 +13,9 @@ from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb
 
 from tqec.computation.correlation import CorrelationSurface
-from tqec.interop.color import RGBA, TQECColor
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phase
+from tqec.interop.shared import RGBA, TQECColor
 from tqec.utils.position import Position3D
 
 
