@@ -256,7 +256,7 @@ class InjectionFactory(Protocol):
     def __call__(
         self,
         k: int,
-        annotate_observables: list[int] | None = None,
+        annotate_observables: list[int] | None,
     ) -> CircuitWithInterface:
         """Generate the quantum circuit with expected flow interface from the scaling factor.
 

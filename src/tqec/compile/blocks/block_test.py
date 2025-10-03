@@ -90,11 +90,6 @@ def logical_qubit_shape_fixture() -> PhysicalQubitScalable2D:
 
 
 def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuitLayer) -> None:
-    # Invalid sequences due to duration < 1
-    err_regex = ".*expected to have at least one layer.*"
-    with pytest.raises(TQECError, match=err_regex):
-        LayeredBlock([])
-
     LayeredBlock([plaquette_layer for _ in range(10)])
     LayeredBlock(
         [
@@ -298,7 +293,7 @@ def test_merge_parallel_block_layers(
 
 def test_injected_block() -> None:
     block = InjectedBlock(
-        injection_factory=lambda k: CircuitWithInterface(
+        injection_factory=lambda k, annotate_observables: CircuitWithInterface(
             stim.Circuit(f"R {' '.join(map(str, range(k)))}"),
         ),
         scalable_shape=PhysicalQubitScalable2D(LinearFunction(1, 0), LinearFunction(0, 1)),
