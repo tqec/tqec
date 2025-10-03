@@ -7,6 +7,7 @@ import stim
 from gen._layers._det_obs_annotation_layer import DetObsAnnotationLayer
 from gen._layers._empty_layer import EmptyLayer
 from gen._layers._layer import Layer
+from tqecd.fragment import Fragment, FragmentLoop, split_stim_circuit_into_fragments
 
 from tqec.compile.blocks.block import InjectedBlock
 from tqec.compile.blocks.enums import Alignment
@@ -81,15 +82,22 @@ class InjectionBuilder:
         builder is ready for the next slice.
         """
         if self._prev_circuit:
-            # solve the measurement indices that should be included in the flows
-            chunk = gen.ChunkSemiAuto(
-                circuit=self._prev_circuit,
-                flows=self._prev_flows,
-                q2i=self._q2i,
-                o2i=self._o2i,
-            ).solve()
-            chunk.verify()
-            self._chunks.append(chunk)
+            fragments = _split_circuit_into_fragment_circuits(self._prev_circuit)
+            for i, fragment in enumerate(fragments):
+                flows = []
+                if i == 0:
+                    flows.extend(flow for flow in self._prev_flows if flow.start)
+                if i == len(fragments) - 1:
+                    flows.extend(flow for flow in self._prev_flows if flow.end)
+                # solve the measurement indices that should be included in the flows
+                chunk = gen.ChunkSemiAuto(
+                    circuit=fragment,
+                    flows=flows,
+                    q2i=self._q2i,
+                    o2i=self._o2i,
+                ).solve()
+                chunk.verify()
+                self._chunks.append(chunk)
 
         # commit the measurement indices from the tree circuit
         num_commit_measurements = self._mtracker.commit_current_slice()
@@ -513,3 +521,18 @@ def _pair_layer_circuits(
 
 def _add_unique_flows(flows: Iterable[gen.FlowSemiAuto], add_to: list[gen.FlowSemiAuto]) -> None:
     add_to.extend(flow for flow in flows if flow not in add_to)
+
+
+def _split_circuit_into_fragment_circuits(circuit: stim.Circuit) -> list[stim.Circuit]:
+    """Split a stim circuit into a list of fragment circuits."""
+    fragments = split_stim_circuit_into_fragments(circuit)
+    return [_get_fragment_circuit(f) for f in fragments]
+
+
+def _get_fragment_circuit(fragment: Fragment | FragmentLoop) -> stim.Circuit:
+    if isinstance(fragment, Fragment):
+        return fragment.circuit
+    circuit = stim.Circuit()
+    for f in fragment.fragments:
+        circuit += _get_fragment_circuit(f)
+    return circuit * fragment.repetitions
