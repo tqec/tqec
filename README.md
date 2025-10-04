@@ -37,18 +37,15 @@ Documentation is available at <https://tqec.github.io/tqec/index.html>
 
 Currently, you need to install `tqec` from source with `pip` or [`uv`](https://docs.astral.sh/uv/):
 
-````{tab-set-code}
-
-
-```{code-block} pip
+**With pip:**
+```bash
 python -m pip install git+https://github.com/tqec/tqec.git
 ```
 
-```{code-block} uv
+**With uv:**
+```bash
 uv pip install git+https://github.com/tqec/tqec.git
 ```
-
-````
 
 For a more detailed installation guide and common troubleshooting tips, see the [installation page](https://tqec.github.io/tqec/user_guide/installation.html) in the documentation.
 
