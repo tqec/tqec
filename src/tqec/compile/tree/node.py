@@ -72,14 +72,14 @@ class LayerNode:
                     f"{LayoutLayer.__name__}. This should not happen and is a "
                     "logical error."
                 )
-            return [LayerNode(lay) for lay in layer.layer_sequence]
+            return [LayerNode(lay) for lay in layer.layer_sequence]  # type: ignore
         if isinstance(layer, RepeatedLayer):
             if not isinstance(layer.internal_layer, LayoutLayer | BaseComposedLayer):
                 raise TQECError(
                     "The layer that is being repeated is not an instance of "
                     f"{LayoutLayer.__name__} or {BaseComposedLayer.__name__}."
                 )
-            return [LayerNode(layer.internal_layer)]
+            return [LayerNode(layer.internal_layer)]  # type: ignore
         if isinstance(layer, (PlaquetteLayer, RawCircuitLayer)):
             raise TQECError(
                 f"Unsupported layer type found: {type(layer).__name__}. Expected "

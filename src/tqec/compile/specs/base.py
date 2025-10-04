@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Literal, Protocol, cast
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.specs.enums import SpatialArms
@@ -76,7 +76,7 @@ class CubeSpec:
             dimensions.append(Direction3D.X)
         if SpatialArms.UP in self.spatial_arms or SpatialArms.DOWN in self.spatial_arms:
             dimensions.append(Direction3D.Y)
-        return frozenset(dimensions)
+        return cast(frozenset[Literal[Direction3D.X, Direction3D.Y]], frozenset(dimensions))
 
     @property
     def has_spatial_pipe_in_both_dimensions(self) -> bool:

@@ -33,8 +33,8 @@ jobs:
           uv venv
           uv sync --group all
       # Perform type checking before testing because that is quicker.
-      - name: Mypy type checking
-        run: uv run mypy src/tqec/
+      - name: Type checking
+        run: uv run ty check
       # Only perform quick tests to avoid paying too much minutes on that.
       - name: Partial tests
         run: uv run pytest $(git ls-files '*_test.py') -m "not slow"

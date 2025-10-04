@@ -4,7 +4,7 @@ import hashlib
 import warnings
 from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import stim
 
@@ -378,12 +378,15 @@ class Plaquettes:
                 else plaquettes[item["plaquette"]]
             )
 
-        collection = FrozenDefaultDict(
-            {int(item["index"]): convert(item) for item in data["plaquettes"]},
-            default_value=(
-                (Plaquette.from_dict(data["default"]) if data["default"] else None)
-                if plaquettes is None
-                else (plaquettes[data["default"]] if data["default"] is not None else None)
+        collection = cast(
+            FrozenDefaultDict[int, Plaquette],
+            FrozenDefaultDict(
+                {int(item["index"]): convert(item) for item in data["plaquettes"]},
+                default_value=(
+                    (Plaquette.from_dict(data["default"]) if data["default"] else None)
+                    if plaquettes is None
+                    else (plaquettes[data["default"]] if data["default"] is not None else None)
+                ),
             ),
         )
         # If the default value is None, print a WARNING (this should not happen in practice)
