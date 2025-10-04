@@ -160,7 +160,7 @@ class FixedBoundaryConventionGenerator:
                 reversed or not. Useful to limit the loss of code distance when
                 hook errors are not correctly oriented by alternating regular
                 and reversed plaquettes.
-            hadamard: ``True`` if the plaquette should contain a Hadamard gate.
+            hadamard: ``True`` if the plaquette should contain a temporal Hadamard gate.
 
         Note:
             The 2-body stabilizer measurement plaquettes returned by this function
@@ -246,6 +246,63 @@ class FixedBoundaryConventionGenerator:
             }
             for basis in Basis
         }
+
+    def get_2_body_horizontal_hadamard_rpng_descriptions(
+        self, is_reversed: bool
+    ) -> dict[Basis, dict[PlaquetteOrientation, RPNGDescription]]:
+        """Get plaquettes that are supposed to be used on the boundaries.
+
+        This function returns the four 2-body stabilizer measurement plaquettes
+        which could be needed in a horizontal hadamard (ie only LEFT and RIGHT
+        orientations).
+
+        Args:
+            is_reversed: flag indicating if the plaquette schedule should be
+                reversed or not. Useful to limit the loss of code distance when
+                hook errors are not correctly oriented by alternating regular
+                and reversed plaquettes.
+
+        Note:
+            The 2-body stabilizer measurement plaquettes returned by this function
+            all follow the same schedule: ``1-2-3-5``.
+
+        Warning:
+            By convention, the 2-body stabilizers never reset/measure any
+            data-qubit. This is done because it is way simpler to reset the correct
+            data-qubits in 4-body stabilizers, and the resets/measurements in 2-body
+            stabilizers would be redundant.
+
+        Warning:
+            This function uses the :class:`~tqec.plaquette.enums.PlaquetteOrientation`
+            class. For a 2-body stabilizer measurement plaquette, the "orientation"
+            corresponds to the direction in which the rounded side is pointing.
+            So a plaquette with the orientation ``PlaquetteOrientation.DOWN`` has the
+            following properties:
+            - it measures the 2 data-qubits on the **top** side of the usual 4-body
+            stabilizer measurement plaquette,
+            - it can be used for a bottom boundary,
+            - its rounded side points downwards.
+
+        Returns:
+            a mapping with 4 plaquettes: one for each top-left basis
+            (either ``X`` or ``Z``) and for each plaquette orientation
+            (``LEFT`` or ``RIGHT``).
+
+        """
+        _po = PlaquetteOrientation
+        ret: dict[Basis, dict[PlaquetteOrientation, RPNGDescription]] = {}
+        # Note: the schedule of CNOT gates in weight-2 plaquettes is less
+        # important because hook errors do not exist. We arbitrarily chose the
+        # vertical schedule.
+        s = VERTICAL_HOOK_SCHEDULES[is_reversed]
+        for basis in Basis:
+            b = basis.value.lower()
+            o = basis.flipped().value.lower()
+            ret[basis] = {
+                _po.LEFT: RPNGDescription.from_string(f"---- -{b}{s[1]}- ---- -{o}{s[3]}-"),
+                _po.RIGHT: RPNGDescription.from_string(f"-{b}{s[0]}- ---- -{o}{s[2]}- ----"),
+            }
+        return ret
 
     def get_spatial_x_hadamard_rpng_descriptions(
         self,
@@ -1118,7 +1175,6 @@ class FixedBoundaryConventionGenerator:
     def get_spatial_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
-        top_left_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
         is_reversed: bool,
@@ -1147,8 +1203,6 @@ class FixedBoundaryConventionGenerator:
         Arguments:
             spatial_boundary_basis: stabilizers that are measured at each
                 boundary of the spatial cube.
-            top_left_basis: basis of the top-left-most stabilizer. Needed for
-                the hadamard branches.
             arms: arm(s) of the spatial cube(s) linked by the pipe.
             linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
                 specifications of the two ends of the pipe to generate RPNG
@@ -1190,7 +1244,6 @@ class FixedBoundaryConventionGenerator:
             if is_hadamard:
                 return self._get_left_right_spatial_hadamard_cube_arm_plaquettes(
                     spatial_boundary_basis,
-                    top_left_basis,
                     arms,
                     linked_cubes,
                     is_reversed,
@@ -1257,7 +1310,6 @@ class FixedBoundaryConventionGenerator:
     def _get_left_right_spatial_hadamard_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
-        top_left_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
         is_reversed: bool,
@@ -1267,10 +1319,11 @@ class FixedBoundaryConventionGenerator:
         # This is a regular hadamard arm, except that we should make sure that one
         # of the boundary does not override the extended stabilizer (in the 'corner'
         # between the arms).
-
         regular_hadamard = self.get_spatial_vertical_hadamard_plaquettes(
-            top_left_basis, is_reversed, reset, measurement
+            spatial_boundary_basis, is_reversed, reset, measurement
         )
+        # For the left-right pipe, the top left basis of the hadamard pipe should be
+        # the spatial_boundary_basis.
         u, v = linked_cubes
         if SpatialArms.LEFT in arms and SpatialArms.UP in v.spatial_arms:
             regular_hadamard = regular_hadamard.without_plaquettes([2])
@@ -1399,14 +1452,13 @@ class FixedBoundaryConventionGenerator:
             )
         # General case, need extended stabilizers.
         sbb = spatial_boundary_basis
-
         has_left_boundary = (
             FixedBoundaryConventionGenerator.pipe_has_boundary_extended_stabilizer_at_left(
                 linked_cubes
             )
         )
         u, v = linked_cubes
-        if has_left_boundary:
+        if has_left_boundary:  # tlb = sbb
             plaquettes = (
                 self.get_spatial_above_left_arm_and_double_armed_extended_stabiliser_hadamard_plaquettes(
                     sbb, is_reversed, reset, measurement
@@ -1416,7 +1468,7 @@ class FixedBoundaryConventionGenerator:
                     sbb, is_reversed, reset, measurement
                 )
             )
-        else:
+        else:  # tlb is also sbb for these two cases
             plaquettes = (
                 self.get_spatial_below_right_arm_and_double_armed_extended_stabiliser_hadamard_plaquettes(
                     sbb, is_reversed, reset, measurement
@@ -1495,18 +1547,22 @@ class FixedBoundaryConventionGenerator:
             if SpatialArms.LEFT in v.spatial_arms
             else two_body_descriptions[_sbb][PlaquetteOrientation.LEFT]
         )
-        # tlb, otb: Top-Left Basis, Other Basis
-        tlb = _sbb if both_cubes_have_spatial_pipes_in_both_dimensions else _sbb.flipped()
-        otb = tlb.flipped()
+        # tlbb, otbb: Top-Left bulk basis, Other bulk Basis
+        # I add bulk to these names, because tlbb is the basis of the top left 4-body plaquette
+        # (ie bulk plaquette).
+        # It isn't necessarily the basis of the absolute top-left plaquette. That is the basis of
+        # the plaquette in position 1, if it is occupied.
+        tlbb = _sbb if both_cubes_have_spatial_pipes_in_both_dimensions else _sbb.flipped()
+        otbb = tlbb.flipped()
         left, right = (3, 2) if both_cubes_have_spatial_pipes_in_both_dimensions else (1, 4)
         return FrozenDefaultDict(
             {
                 right: right_plaquette,
                 left: left_plaquette,
-                5: up_bulk_plaquettes[tlb][Orientation.VERTICAL],
-                6: up_bulk_plaquettes[otb][Orientation.HORIZONTAL],
-                7: down_bulk_plaquettes[otb][Orientation.HORIZONTAL],
-                8: down_bulk_plaquettes[tlb][Orientation.VERTICAL],
+                5: up_bulk_plaquettes[tlbb][Orientation.VERTICAL],
+                6: up_bulk_plaquettes[otbb][Orientation.HORIZONTAL],
+                7: down_bulk_plaquettes[otbb][Orientation.HORIZONTAL],
+                8: down_bulk_plaquettes[tlbb][Orientation.VERTICAL],
             },
             default_value=RPNGDescription.empty(),
         )
@@ -1556,29 +1612,36 @@ class FixedBoundaryConventionGenerator:
         # Aliases to shorten line length.
         r, m = reset, measurement
         _sbb = spatial_boundary_basis
+        otb = _sbb.flipped()
         u, v = linked_cubes
         both_cubes_have_spatial_pipes_in_both_dimensions = (
             u.has_spatial_pipe_in_both_dimensions and v.has_spatial_pipe_in_both_dimensions
         )
-        tlb = _sbb if both_cubes_have_spatial_pipes_in_both_dimensions else _sbb.flipped()
-        otb = tlb.flipped()
-        # Generating the plaquette descriptions we will need later
+        tlbb = _sbb if both_cubes_have_spatial_pipes_in_both_dimensions else _sbb.flipped()
+        otbb = tlbb.flipped()
+        # tlbb, otbb: Top-Left bulk basis, Other bulk Basis
+        # I add bulk to these names, because tlbb is the basis of the top left 4-body plaquette
+        # (ie bulk plaquette).
+        # It isn't necessarily the basis of the absolute top-left plaquette. That is the basis
+        # of the plaquette in position 1, if it is occupied.
+        # tlb is _sbb.
         down_bulk_plaquettes = self.get_bulk_rpng_descriptions(is_reversed, r, m, (0, 1))
         corner_descriptions = self.get_3_body_rpng_descriptions(_sbb, is_reversed, r, m)
         corner_hadamard_descriptions = self.get_3_body_horizontal_hadamard_rpng_descriptions(
-            tlb, is_reversed, r, m
+            _sbb, is_reversed, r, m
         )
         two_body_descriptions = self.get_2_body_rpng_descriptions(is_reversed)
         bulk1_h, bulk2_h, left_h = self.get_spatial_y_hadamard_rpng_descriptions(
-            tlb, is_reversed, r, m
+            _sbb, is_reversed, r, m
         )
-        two_body_h = self.get_2_body_rpng_descriptions(is_reversed, hadamard=True)
+        # Save these in a different format, for use later on:
+        bulk_h = dict()
+        bulk_h[otb] = bulk1_h  # the top two qubits are in basis otb
+        bulk_h[_sbb] = bulk2_h  # the top two qubits are in basis _sbb
+        two_body_h = self.get_2_body_horizontal_hadamard_rpng_descriptions(is_reversed)
         # Here, depending on the linked cubes, we might insert two-body
-        # plaquettes or three-body plaquettes.
-        u, v = linked_cubes
-        both_cubes_have_spatial_pipes_in_both_dimensions = (
-            u.has_spatial_pipe_in_both_dimensions and v.has_spatial_pipe_in_both_dimensions
-        )
+        # plaquettes or three-body plaquettes at the edges.
+        # NB the two-body/corner plaquettes will all have _sbb basis, on both 'ends'.
         if both_cubes_have_spatial_pipes_in_both_dimensions:
             left, right = (3, 2)  # ie right needs hadamard, left is normal
             right_plaquette = (
@@ -1601,15 +1664,14 @@ class FixedBoundaryConventionGenerator:
             left_plaquette = (
                 corner_hadamard_descriptions[0] if SpatialArms.LEFT in v.spatial_arms else left_h
             )
-
         return FrozenDefaultDict(
             {
                 right: right_plaquette,
                 left: left_plaquette,
-                5: bulk2_h,
-                6: bulk1_h,
-                7: down_bulk_plaquettes[otb][Orientation.HORIZONTAL],
-                8: down_bulk_plaquettes[tlb][Orientation.VERTICAL],
+                5: bulk_h[tlbb],
+                6: bulk_h[otbb],
+                7: down_bulk_plaquettes[otbb][Orientation.HORIZONTAL],
+                8: down_bulk_plaquettes[tlbb][Orientation.VERTICAL],
             },
             default_value=RPNGDescription.empty(),
         )
