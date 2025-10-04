@@ -495,6 +495,17 @@ tqec<span class="w"> </span>dae2circuits<span class="w"> </span><span class="s2"
 </section>
 <section id="dae-to-observables">
 <h2>DAE to observables<a class="headerlink" href="#dae-to-observables" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="nv">PARENT_PATH</span><span class="o">=</span><span class="k">$(</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nb">pwd</span><span class="w"> </span>-P<span class="w"> </span><span class="k">)</span>
+<span class="nv">EXAMPLE_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PARENT_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="nv">TQEC_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXAMPLE_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="nv">ASSETS_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TQEC_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+
+tqec<span class="w"> </span>dae2observables<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ASSETS_PATH</span><span class="si">}</span><span class="s2">/logical_cnot.dae&quot;</span><span class="w"> </span><span class="se">\</span>
+--out-dir<span class="w"> </span>out
+</pre></div>
+</div>
 </section>
 </section>
 
