@@ -41,7 +41,7 @@ DAE to circuits
 DAE to observables
 ------------------
 
-.. code-block::bash
+.. code-block:: bash
 
     #!/usr/bin/env bash
 
