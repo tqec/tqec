@@ -23,3 +23,4 @@ User Guide
    Build Computations <build_computation>
    Collada <collada_interop>
    Detailed plotting <detailed_plots>
+   tqec CLI <cli_examples>
