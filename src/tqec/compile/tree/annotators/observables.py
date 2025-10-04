@@ -1,5 +1,6 @@
 from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
+from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.observables.abstract_observable import AbstractObservable
 from tqec.compile.observables.builder import (
     ObservableBuilder,
@@ -34,7 +35,12 @@ def annotate_observable(
             measurements will be included in the logical observable.
 
     """
-    for z, subtree_root in enumerate(root.children):
+    for subtree_root in root.children:
+        layer = subtree_root._layer
+        assert isinstance(layer, SequencedLayers)
+        z = layer.additional_metadata.get("z")
+        assert isinstance(z, int)
+
         leaves = _get_ordered_leaves(subtree_root)
         obs_slice = observable.slice_at_z(z)
         # Annotate the observable at the bottom of the blocks

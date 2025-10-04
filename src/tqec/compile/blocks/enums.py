@@ -58,3 +58,8 @@ def border_from_signed_direction(
             return TemporalBlockBorder(direction)
         case _:
             return SpatialBlockBorder(direction)
+
+
+class Alignment(Enum):
+    HEAD = "head"
+    TAIL = "tail"

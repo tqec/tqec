@@ -36,6 +36,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
+    "gen @ git+https://github.com/inmzhang/gen.git",
     "matplotlib<=3.10.3",
     "networkx<=3.5",
     "numpy<=2.2.6",

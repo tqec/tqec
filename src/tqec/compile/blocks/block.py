@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
-from typing import Final
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterable, Mapping
+from dataclasses import dataclass, field
+from typing import Final, Protocol
 
+import gen
+import stim
 from typing_extensions import override
 
-from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
+from tqec.compile.blocks.enums import Alignment, SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
@@ -21,8 +25,40 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
-class Block(SequencedLayers):
-    """Encodes the implementation of a block.
+class Block(ABC):
+    """Base class for all block instantiations in the compilation framework.
+
+    A block represents a unit of quantum computation with a defined spatial
+    and temporal footprint that scales with the scaling factor ``k``.
+    """
+
+    @property
+    @abstractmethod
+    def scalable_timesteps(self) -> LinearFunction:
+        """Get the scalable timesteps (temporal extent) of the block."""
+        pass
+
+    @property
+    @abstractmethod
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
+        """Get the scalable shape (spatial extent) of the block."""
+        pass
+
+    @property
+    @abstractmethod
+    def is_cube(self) -> bool:
+        """Return ``True`` if ``self`` represents a cube, else ``False``."""
+        pass
+
+    @property
+    @abstractmethod
+    def is_pipe(self) -> bool:
+        """Return ``True`` if ``self`` represents a pipe, else ``False``."""
+        pass
+
+
+class LayeredBlock(SequencedLayers, Block):
+    """Encodes the implementation of a block with a sequence of layers.
 
     This data structure is voluntarily very generic. It represents blocks as a
     sequence of layers that can be instances of either
@@ -36,8 +72,8 @@ class Block(SequencedLayers):
     """
 
     @override
-    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> Block:
-        return Block(
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> LayeredBlock:
+        return LayeredBlock(
             self._layers_with_spatial_borders_trimmed(borders),
             self.trimmed_spatial_borders | frozenset(borders),
         )
@@ -46,11 +82,11 @@ class Block(SequencedLayers):
     def with_temporal_borders_replaced(
         self,
         border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None],
-    ) -> Block | None:
+    ) -> LayeredBlock | None:
         if not border_replacements:
             return self
         layers = self._layers_with_temporal_borders_replaced(border_replacements)
-        return Block(layers) if layers else None
+        return LayeredBlock(layers) if layers else None
 
     def get_atomic_temporal_border(self, border: TemporalBlockBorder) -> BaseLayer:
         """Get the layer at the provided temporal ``border``.
@@ -118,14 +154,14 @@ class Block(SequencedLayers):
         return self.is_pipe and self.dimensions[2].is_constant()
 
     def __eq__(self, value: object) -> bool:
-        return isinstance(value, Block) and super().__eq__(value)
+        return isinstance(value, LayeredBlock) and super().__eq__(value)
 
     def __hash__(self) -> int:
         raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
 
 def merge_parallel_block_layers(
-    blocks_in_parallel: Mapping[LayoutPosition2D, Block],
+    blocks_in_parallel: Mapping[LayoutPosition2D, LayeredBlock],
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> list[LayoutLayer | BaseComposedLayer]:
     """Merge several stacks of layers executed in parallel into one stack of larger layers.
@@ -179,3 +215,133 @@ def merge_parallel_block_layers(
                 f"\n{list(layers.values())}"
             )
     return merged_layers
+
+
+@dataclass(frozen=True)
+class CircuitWithInterface:
+    """A quantum circuit with its expected flow interface.
+
+    Attributes:
+        circuit: the quantum circuit.
+        interface: the expected flow interface of the circuit.
+
+    """
+
+    circuit: stim.Circuit
+    interface: gen.ChunkInterface = field(default_factory=lambda: gen.ChunkInterface(()))
+
+    def __post_init__(self) -> None:
+        if not self.circuit:
+            raise TQECError("The provided circuit is empty.")
+
+    def with_transformed_coords(
+        self, transform: Callable[[complex], complex]
+    ) -> CircuitWithInterface:
+        """Return a copy of ``self`` with transformed coordinates.
+
+        Args:
+            transform: the coordinate transformation to apply to the detector and observable flows.
+
+        Returns:
+            a copy of ``self`` with transformed coordinates.
+
+        """
+        return CircuitWithInterface(
+            gen.stim_circuit_with_transformed_coords(self.circuit, transform),
+            self.interface.with_transformed_coords(transform),
+        )
+
+
+class InjectionFactory(Protocol):
+    def __call__(
+        self,
+        k: int,
+        annotate_observables: list[int] | None,
+    ) -> CircuitWithInterface:
+        """Generate the quantum circuit with expected flow interface from the scaling factor.
+
+        Args:
+            k: The scaling factor.
+            annotate_observables: If provided, the list of observables will be annotated
+                in the generated circuit. Note that the injection block will typically
+                only support a single unique observable flow. Therefore, if multiple
+                observables are provided, they will be replicates of the same observable flow
+                with different observable ids.
+
+        Returns:
+            A quantum circuit with expected flow interface.
+
+        """
+        ...
+
+
+class InjectedBlock(Block):
+    """Represent temporally injected block like ``YHalfCube``.
+
+    Some blocks like ``YHalfCube`` are connected to the computation in time
+    direction and do not have timestep schedules that are consistent with
+    the rest of the blocks if represented as a sequence of layers. This class
+    provides a direct circuit representation of such blocks that can be
+    injected into the computation during compilation.
+    """
+
+    def __init__(
+        self,
+        injection_factory: InjectionFactory,
+        scalable_timesteps: LinearFunction,
+        scalable_shape: PhysicalQubitScalable2D,
+        alignment: Alignment,
+    ) -> None:
+        """Initialize an instance of ``InjectedBlock``.
+
+        Args:
+            injection_factory: a callable that generates a quantum circuit
+                with expected flow interface from the scaling factor.
+            scalable_timesteps: the duration of the injected block as a
+                function of the scaling factor ``k``.
+            scalable_shape: the scalable shape of the injected block.
+            alignment: the alignment of the injected block with the computation
+                it is injected into. If ``Alignment.HEAD``, the first timestep
+                of the injected block follows the last timestep of the block
+                preceding it. If ``Alignment.TAIL``, the last timestep of the
+                injected block precedes the first timestep of the block
+                following it.
+
+        Returns:
+            An instance of ``InjectedBlock``.
+
+        """
+        self._injection_factory = injection_factory
+        self._scalable_timesteps = scalable_timesteps
+        self._scalable_shape = scalable_shape
+        self._alignment = alignment
+
+    @property
+    @override
+    def scalable_timesteps(self) -> LinearFunction:
+        return self._scalable_timesteps
+
+    @property
+    @override
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
+        return self._scalable_shape
+
+    @property
+    def injection_factory(self) -> InjectionFactory:
+        """Get the callable used to generate a scalable quantum circuit from the scaling factor."""
+        return self._injection_factory
+
+    @property
+    def alignment(self) -> Alignment:
+        """Get the alignment of the injected block."""
+        return self._alignment
+
+    @property
+    @override
+    def is_cube(self) -> bool:
+        return True
+
+    @property
+    @override
+    def is_pipe(self) -> bool:
+        return False

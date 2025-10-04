@@ -1,12 +1,13 @@
 """Block graph that rotates boundary types by moving logical qubit in spacetime."""
 
 from tqec.computation.block_graph import BlockGraph
-from tqec.computation.cube import ZXCube
-from tqec.utils.enums import Basis
+from tqec.computation.cube import YHalfCube, ZXCube
+from tqec.utils.enums import Basis, PauliBasis
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Position3D
 
 
-def move_rotation(observable_basis: Basis | None = None) -> BlockGraph:
+def move_rotation(observable_basis: Basis | PauliBasis | None = None) -> BlockGraph:
     """Create a block graph for moving and rotating the spatial boundaries of a logical qubit.
 
     Args:
@@ -33,9 +34,15 @@ def move_rotation(observable_basis: Basis | None = None) -> BlockGraph:
     for p0, p1 in pipes:
         g.add_pipe(nodes[p0][0], nodes[p1][0])
 
-    if observable_basis == Basis.Z:
-        g.fill_ports({"In": ZXCube.from_str("ZXZ"), "Out": ZXCube.from_str("XZZ")})
-    elif observable_basis == Basis.X:
-        g.fill_ports({"In": ZXCube.from_str("ZXX"), "Out": ZXCube.from_str("XZX")})
+    if observable_basis is None:
+        return g
 
+    if str(observable_basis) == "Z":
+        g.fill_ports({"In": ZXCube.from_str("ZXZ"), "Out": ZXCube.from_str("XZZ")})
+    elif str(observable_basis) == "X":
+        g.fill_ports({"In": ZXCube.from_str("ZXX"), "Out": ZXCube.from_str("XZX")})
+    elif str(observable_basis) == "Y":
+        g.fill_ports({"In": YHalfCube(), "Out": YHalfCube()})
+    else:
+        raise TQECError(f"Unknown observable basis {observable_basis} for move_rotation.")
     return g

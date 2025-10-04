@@ -26,10 +26,11 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
 from tqec.gallery.move_rotation import move_rotation
+from tqec.gallery.s_gate_teleportation import s_gate_teleportation
 from tqec.gallery.stability import stability
 from tqec.gallery.steane_encoding import steane_encoding
 from tqec.gallery.three_cnots import three_cnots
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, PauliBasis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Direction3D, Position3D
 
@@ -613,4 +614,43 @@ def test_compile_steane_encoding(convention: Convention, observable_basis: Basis
         convention,
         expected_distance=d,
         expected_num_observables=expected_num_observables,
+    )
+
+
+@pytest.mark.parametrize(
+    ("k", "convention", "pipe_kind"),
+    generate_inputs(CONVENTIONS, ("ZXO", "XZO")),
+)
+def test_compile_y_basis_memory(convention: Convention, pipe_kind: str, k: int) -> None:
+    g = BlockGraph("Y-basis Memory Experiment")
+    n1 = g.add_cube(Position3D(0, 0, 0), "Y")
+    n2 = g.add_cube(Position3D(0, 0, 1), "Y")
+    g.add_pipe(n1, n2, pipe_kind)
+
+    d = 2 * k + 1
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        expected_distance=d,
+        expected_num_observables=1,
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize(
+    ("k", "convention", "in_obs_basis"),
+    generate_inputs(CONVENTIONS, (PauliBasis.X, PauliBasis.Z, PauliBasis.Y)),
+)
+def test_compile_s_gate_teleportation(
+    convention: Convention, in_obs_basis: PauliBasis, k: int
+) -> None:
+    g = s_gate_teleportation(in_obs_basis)
+
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        expected_distance=2 * k + 1,
+        expected_num_observables=1,
     )
