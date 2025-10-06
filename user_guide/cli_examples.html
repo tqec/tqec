@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to install tqec &#8212; TQEC  documentation</title>
+    <title>tqec CLI &#8212; TQEC  documentation</title>
   
   
   
@@ -52,11 +52,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/installation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/cli_examples';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Quick start using tqec" href="quick_start.html" />
-    <link rel="prev" title="User Guide" href="index.html" />
+    <link rel="next" title="Computation Gallery" href="../gallery/index.html" />
+    <link rel="prev" title="Detailed plots with tqec" href="detailed_plots.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -384,8 +384,8 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get started</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="terminology.html">Terminology</a></li>
 <li class="toctree-l1"><a class="reference internal" href="current_limitations.html">Current limitations</a></li>
@@ -395,11 +395,11 @@
 <li class="toctree-l1"><a class="reference internal" href="extended_stabilizers_implementation.html">Extended stabilizers implementation</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="build_computation.html">Build Computations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="collada_interop.html">Collada</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detailed_plots.html">Detailed plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli_examples.html">tqec CLI</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">tqec CLI</a></li>
 </ul>
 </div>
 </nav></div>
@@ -443,7 +443,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to install <code class="docutils literal notranslate"><span class="pre">tqec</span></code></span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">tqec CLI</span></li>
   </ul>
 </nav>
 </div>
@@ -460,84 +460,52 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="how-to-install-tqec">
-<span id="installation"></span><h1>How to install <code class="docutils literal notranslate"><span class="pre">tqec</span></code><a class="headerlink" href="#how-to-install-tqec" title="Link to this heading">#</a></h1>
-<section id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h2>
-<section id="python-version">
-<h3>Python version<a class="headerlink" href="#python-version" title="Link to this heading">#</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package only supports Python 3.10 and later. If you have Python 3.9 or earlier,
-please update your Python installation.</p>
-</section>
-</section>
-<section id="installation-procedure">
-<h2>Installation procedure<a class="headerlink" href="#installation-procedure" title="Link to this heading">#</a></h2>
-<section id="optional-but-highly-recommended-create-a-new-environment">
-<h3>(optional but highly recommended) Create a new environment<a class="headerlink" href="#optional-but-highly-recommended-create-a-new-environment" title="Link to this heading">#</a></h3>
-<p>It is a good practice to create a new virtual environment for managing the dependencies of the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package.</p>
-<p>One way of doing that is using the native <code class="docutils literal notranslate"><span class="pre">venv</span></code> package of your python installation or <code class="docutils literal notranslate"><span class="pre">uv</span></code>. For more information,
-refer to the official documentation for each: <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a>, <a class="reference external" href="https://docs.astral.sh/uv/">uv</a>.</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-0">
-venv</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
-<span class="c1"># On GNU/Linux and MacOS</span>
-<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-<span class="c1"># On Windows</span>
-<span class="c1">## In cmd.exe</span>
-.venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate.bat
-<span class="c1">## In PowerShell</span>
-.venv<span class="se">\S</span>cripts<span class="se">\A</span>ctivate.ps1
+  <section id="tqec-cli">
+<h1>tqec CLI<a class="headerlink" href="#tqec-cli" title="Link to this heading">#</a></h1>
+<p>The following provide example scripts of the tqec CLI.</p>
+<section id="check-dae">
+<h2>Check DAE<a class="headerlink" href="#check-dae" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="nv">PARENT_PATH</span><span class="o">=</span><span class="k">$(</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nb">pwd</span><span class="w"> </span>-P<span class="w"> </span><span class="k">)</span>
+<span class="nv">EXAMPLE_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PARENT_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="nv">TQEC_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXAMPLE_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="nv">ASSETS_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TQEC_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+
+tqec<span class="w"> </span>check_dae<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ASSETS_PATH</span><span class="si">}</span><span class="s2">/logical_cnot.dae&quot;</span>
 </pre></div>
-</div>
-</div>
-<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
-uv</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a virtual environment for Python 3.12</span>
-uv<span class="w"> </span>venv<span class="w"> </span>tqec_312<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12
-<span class="c1"># On GNU/Linux and MacOS</span>
-<span class="nb">source</span><span class="w"> </span>tqec_312/bin/activate
-</pre></div>
-</div>
-</div>
 </div>
 </section>
-<section id="install-the-tqec-package">
-<h3>Install the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package<a class="headerlink" href="#install-the-tqec-package" title="Link to this heading">#</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package is a regular Python package that can be installed using <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
-<p>It is not (yet) available on the official Python Package Index PyPI, so you will have
-to manually provide the URL to install the package:</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-2">
-pip</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tqec/tqec.git
+<section id="dae-to-circuits">
+<h2>DAE to circuits<a class="headerlink" href="#dae-to-circuits" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="nv">PARENT_PATH</span><span class="o">=</span><span class="k">$(</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nb">pwd</span><span class="w"> </span>-P<span class="w"> </span><span class="k">)</span>
+<span class="nv">EXAMPLE_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PARENT_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="nv">TQEC_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXAMPLE_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="nv">ASSETS_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TQEC_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+
+tqec<span class="w"> </span>dae2circuits<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ASSETS_PATH</span><span class="si">}</span><span class="s2">/logical_cnot.dae&quot;</span><span class="w"> </span><span class="se">\</span>
+--out-dir<span class="w"> </span>out<span class="w"> </span><span class="se">\</span>
+-k<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+--obs-include<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+--add-detectors
 </pre></div>
 </div>
-</div>
-<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-3">
-uv</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/tqec/tqec.git
-</pre></div>
-</div>
-</div>
-</div>
-<p>And that’s it! You can test the installation by running</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import tqec&quot;</span>
-</pre></div>
-</div>
-<p>If the installation succeeded, the command should return without any message displayed.
-Else, a message like</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
-  <span class="n">File</span> <span class="s2">&quot;&lt;string&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-<span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="s1">&#39;tqec&#39;</span>
-</pre></div>
-</div>
-<p>should appear.</p>
 </section>
+<section id="dae-to-observables">
+<h2>DAE to observables<a class="headerlink" href="#dae-to-observables" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="nv">PARENT_PATH</span><span class="o">=</span><span class="k">$(</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nb">pwd</span><span class="w"> </span>-P<span class="w"> </span><span class="k">)</span>
+<span class="nv">EXAMPLE_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PARENT_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="nv">TQEC_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EXAMPLE_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+<span class="nv">ASSETS_PATH</span><span class="o">=</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TQEC_PATH</span><span class="s2">&quot;</span><span class="k">)</span>
+
+tqec<span class="w"> </span>dae2observables<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ASSETS_PATH</span><span class="si">}</span><span class="s2">/logical_cnot.dae&quot;</span><span class="w"> </span><span class="se">\</span>
+--out-dir<span class="w"> </span>out
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -552,20 +520,20 @@ Else, a message like</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="detailed_plots.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">User Guide</p>
+        <p class="prev-next-title">Detailed plots with <code class="code docutils literal notranslate"><span class="pre">tqec</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="quick_start.html"
+       href="../gallery/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Quick start using <code class="docutils literal notranslate"><span class="pre">tqec</span></code></p>
+        <p class="prev-next-title">Computation Gallery</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -588,15 +556,9 @@ Else, a message like</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-version">Python version</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-procedure">Installation procedure</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-but-highly-recommended-create-a-new-environment">(optional but highly recommended) Create a new environment</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-tqec-package">Install the <code class="docutils literal notranslate"><span class="pre">tqec</span></code> package</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#check-dae">Check DAE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dae-to-circuits">DAE to circuits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dae-to-observables">DAE to observables</a></li>
 </ul>
   </nav></div>
 
@@ -604,7 +566,7 @@ Else, a message like</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/user_guide/installation.rst.txt"
+      <li><a href="../_sources/user_guide/cli_examples.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
