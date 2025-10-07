@@ -12,9 +12,6 @@ import sys
 import typing as ty
 from pathlib import Path
 
-from pygments.lexers import BashLexer  # type: ignore
-from pygments.formatters import HtmlFormatter  # type: ignore
-
 DOCUMENTATION_DIRECTORY = Path(__file__).parent
 PROJECT_DIRECTORY = DOCUMENTATION_DIRECTORY.parent
 SOURCE_DIRECTORY = PROJECT_DIRECTORY / "src"
@@ -151,11 +148,6 @@ def autodoc_skip_member_handler(
 def setup(app):
     # Connect the autodoc-skip-member event from apidoc to the callback
     app.connect("autodoc-skip-member", autodoc_skip_member_handler)
-
-    # Map 'uv' and 'pip' to use bash syntax highlighting in the readme
-    # or any other markdown documents.
-    app.add_lexer("uv", BashLexer)
-    app.add_lexer("pip", BashLexer)
 
 
 autodoc_member_order = "groupwise"
