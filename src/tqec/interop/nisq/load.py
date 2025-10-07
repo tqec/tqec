@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from qiskit import QuantumCircuit, qasm2
+from qiskit import qasm2, qpy
 from qrisp import QuantumBool, cx, h
 from qrisp.jasp import make_jaspr
 
@@ -40,31 +40,9 @@ def load_from_qiskit(path_to_c: Path, display_source_c: bool = False) -> str:
         qasm_c: string containing the QASM version of the incoming .qpy (Qiskit) circuit.
 
     """
-    # START REPLACEABLE SECTION
-    # THIS SECTION NEEDS TO BE REPLACED BY AN IMPORT OF AN APPLICABLE FILE
-    qc = QuantumCircuit(10)
-
-    qc.h(0)
-    qc.cx(0, 3)
-    qc.cx(0, 4)
-    qc.cx(0, 5)
-    qc.cx(0, 6)
-    qc.h(0)
-
-    qc.h(1)
-    qc.cx(1, 3)
-    qc.cx(1, 4)
-    qc.cx(1, 7)
-    qc.cx(1, 8)
-    qc.h(1)
-
-    qc.h(2)
-    qc.cx(2, 3)
-    qc.cx(2, 5)
-    qc.cx(2, 7)
-    qc.cx(2, 9)
-    qc.h(2)
-    # END REPLACEABLE SECTION
+    # LOAD CIRCUIT BASED ON PATH
+    with open(path_to_c, "rb") as f:
+        qc = qpy.load(f)[0]
 
     # Update user
     if display_source_c:
@@ -91,8 +69,8 @@ def load_from_qrisp(path_to_c: Path, display_source_c: bool = False) -> str:
     """
     # START REPLACEABLE SECTION
     # CHECK IF THIS SECTION CAN BE REPLACED BY AN IMPORT OF AN APPLICABLE FILE
-    # HOWEVER, BASED ON SOME RESEARCH INTO THE MATTER QRISP DOES NOT HAVE A NATIVE FILE FORMAT.
-    # THEY REALLY DO SEEM TO SAVE THEIR DESIGNS AS PYTHON CODE OR EXPORT DIRECTLY TO QASM.
+    # Qrisp does not seem to have native file format.
+    # Maybe import from assets/ as object from a .py file?
     num_ancilla = 3
     num_data = 7
 
