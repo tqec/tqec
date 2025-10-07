@@ -109,6 +109,8 @@ dev = [
 ]
 
 integration = [
+  "topologiq@git+https://github.com/tqec/topologiq.git",
+  "qiskit>=2.1.1",
   "qrisp>=0.7.9"
 ]
 
