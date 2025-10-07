@@ -81,6 +81,8 @@ docs = [
   "sphinx-copybutton<=0.5.2",
   "sphinxcontrib-bibtex<=2.64",
   "jupyter-sphinx<=0.5.3",
+  "qiskit>=2.1.1",
+  "topologiq@git+https://github.com/tqec/topologiq.git"
 ]
 
 bench = ["pyinstrument"]
@@ -106,11 +108,16 @@ dev = [
     "types-networkx<=3.5.0.20250610",
 ]
 
+integration = [
+  "qrisp>=0.7.9"
+]
+
 all = [
     {include-group = "test"},
     {include-group = "docs"},
     {include-group = "dev"},
     {include-group = "bench"},
+    {include-group = "integration"},
 ]
 
 [project.scripts]
