@@ -1,0 +1,643 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "695f75d2",
+   "metadata": {},
+   "source": [
+    "# Using circuits designed with external NISQ frameworks"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5986b007",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import sys\n",
+    "import random\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "from IPython.display import display\n",
+    "from pathlib import Path\n",
+    "\n",
+    "ASSETS_FOLDER = Path(\"../../assets/\").resolve()\n",
+    "\n",
+    "# To display interactive 3D visualisations, uncomment the following line.\n",
+    "# %matplotlib widget"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "27f0f36b",
+   "metadata": {},
+   "source": [
+    "This notebook illustrates the process of importing into TQEC circuits originally created with external NISQ circuit design software/frameworks, such as, for instance, Qiskit and Qrisp.\n",
+    "\n",
+    "> **NB!** Run `uv add --only-group integration` to install all libraries used in this notebook (ignore if you installed all dependency groups when setting up TQEC)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2be0a675",
+   "metadata": {},
+   "source": [
+    "## Load the foundational circuit"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2f541923",
+   "metadata": {},
+   "source": [
+    "The first step is, naturally, to load your foundational circuit. This step varies slightly according the your chosen framework, but it comes down to loading the circuit and converting it into OpenQASM.\n",
+    "\n",
+    "So, let's start by selecting the NISQ framework used to design the foundational circuit (currently supported: qiskit, qrisp)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "50825bec",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# SELECT NISQ FRAMEWORK AND NAME OF CIRCUIT\n",
+    "# Note. This block assumes the corresponding circuit is saved using the circuit name\n",
+    "source_nisq_framework = \"qiskit\"  # options currently available [\"qiskit\", \"qrisp\"]\n",
+    "circuit_name = \"steane\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "98aeab11",
+   "metadata": {},
+   "source": [
+    "Let's now load the circuit!\n",
+    "\n",
+    "> **NB!** We use conditionals in the block below to allow anyone who downloads the notebook to easily run tests using any supported framework. In your own notebook, you would use only the method for your chosen framework."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "66009227",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# LOAD CORRESPONDING CIRCUIT AS QASM\n",
+    "qc = None\n",
+    "qasm_str = None\n",
+    "\n",
+    "if source_nisq_framework == \"qiskit\":\n",
+    "    \n",
+    "    # Load applicable Qiskit modules\n",
+    "    from qiskit import qasm2, qpy\n",
+    "    \n",
+    "    # Load circuit\n",
+    "    path_to_c = ASSETS_FOLDER / f\"{circuit_name}_{source_nisq_framework}.qpy\"\n",
+    "    with open(path_to_c, \"rb\") as f:\n",
+    "        qc = qpy.load(f)[0]\n",
+    "\n",
+    "    # Convert to QASM\n",
+    "    qasm_str = qasm2.dumps(qc)\n",
+    "\n",
+    "elif source_nisq_framework == \"qrisp\":\n",
+    "\n",
+    "    # Load applicable Qrisp modules\n",
+    "    from qrisp.jasp import make_jaspr\n",
+    "\n",
+    "    # Import function defining circuit (Qrisp doesn't have a native file format)\n",
+    "    sys.path.insert(0, str(ASSETS_FOLDER))\n",
+    "    import steane_qrisp # type: ignore[reportMissingImports]\n",
+    "\n",
+    "    # Generate encoding\n",
+    "    qc_encoding_function = getattr(steane_qrisp, f\"{circuit_name}_{source_nisq_framework}\")\n",
+    "    qc = qc_encoding_function()[0].qs\n",
+    "\n",
+    "    # Convert to QASM\n",
+    "    jaspr = make_jaspr(qc_encoding_function)()\n",
+    "    qasm_str = jaspr.to_qasm()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3fac4bac",
+   "metadata": {},
+   "source": [
+    "For completeness, we can print the original circuit for inspection."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3bdc28c4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# PRINT CIRCUIT FOR INSPECTION\n",
+    "print(f\"\\n=> Imported {source_nisq_framework.capitalize()} circuit of name {circuit_name.capitalize()}:\\n\")\n",
+    "print(qc) if qc else print(\"ERROR. Failed to load a circuit\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea56a685",
+   "metadata": {},
+   "source": [
+    "And let's also inspect the QASM string resulting from the circuit before moving on."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bee986d0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(f\"\\n=> Converted {source_nisq_framework.capitalize()} circuit of name {circuit_name.capitalize()} into the following QASM string:\\n\")\n",
+    "print(qasm_str) if qasm_str else print(\"ERROR. Failed to convert circuit to QASM\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4fa1cf21",
+   "metadata": {},
+   "source": [
+    "## QASM to PyZX"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "17863a3d",
+   "metadata": {},
+   "source": [
+    "To be able to perform algorithmic lattice surgery on a QASM string, we need to import it into PyZX and convert it into a PyZX graph. \n",
+    "\n",
+    "So, let's start by turning `qasm_str` into a PyZX circuit."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dfe92cf4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if qasm_str:\n",
+    "    import pyzx as zx\n",
+    "    zx.settings.colors = zx.rgb_colors\n",
+    "\n",
+    "    # Import QASM into PyZX\n",
+    "    zx_circuit = zx.Circuit.from_qasm(qasm_str)\n",
+    "\n",
+    "    # Convert incoming circuit into graph\n",
+    "    zx_graph = zx_circuit.to_graph()\n",
+    "\n",
+    "    # Draw graph of incoming circuit\n",
+    "    zx.draw(zx_graph, labels = True)\n",
+    "\n",
+    "else:\n",
+    "    print(\"ERROR. Block didn't run because there is no QASM string to convert into a PyZX graph.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "de2c9b1d",
+   "metadata": {},
+   "source": [
+    "The incoming circuit is not optimised. Topologiq can handle an unoptimised circuit, but the space-time volume of the diagram produced by topologiq is increasingly proportional to the size of the input graph. It is therefore a good idea to optimise the incoming circuit. \n",
+    "\n",
+    "For this, since PyZX's QASM compatibility is still in-development, we need to start by initialising the qubits after converting the circuit into a graph and adding measurement bases for the ancilla qubits."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ad835257",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if zx_graph:\n",
+    "    # Apply states\n",
+    "    num_apply_state = zx_graph.num_inputs()\n",
+    "    zx_graph.apply_state('0' * num_apply_state)\n",
+    "\n",
+    "    # Apply post-select only to the outputs of the ancilla qubits\n",
+    "    zx_graph.apply_effect('000///////')\n",
+    "    zx.draw(zx_graph, labels = True)\n",
+    "\n",
+    "else:\n",
+    "    print(\"ERROR. Block didn't run because there is no PyZX graph to manipulate.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7deecf1c",
+   "metadata": {},
+   "source": [
+    "It is now possible to use more-standard PyZX methods to optimise the circuit/graph further."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c5ed1cc6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if zx_graph:\n",
+    "    # From Aleks Kissinger's notebook: https://nbviewer.org/github/zxcalc/pyzx/blob/master/demos/example-circuit-simp.ipynb\n",
+    "    zx.full_reduce(zx_graph)\n",
+    "    zx.to_rg(zx_graph)\n",
+    "\n",
+    "    random.seed(12)\n",
+    "    zx.draw(zx_graph, labels = True, auto_layout=True)\n",
+    "\n",
+    "    # Object below is not typical in a PyZX workflow but useful for visualisations in the next section.\n",
+    "    fig_data = zx.draw_matplotlib(zx_graph, labels=True)\n",
+    "\n",
+    "else:\n",
+    "    print(\"ERROR. Block didn't run because there is no PyZX graph to manipulate.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "25cd1c27",
+   "metadata": {},
+   "source": [
+    "## Algorithmic lattice surgery"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "38775219",
+   "metadata": {},
+   "source": [
+    "It is now possible to convert this graph into `block_graph` compatible objects by giving it to topologiq. \n",
+    "\n",
+    "The first is to convert the graph into topologiq's native graph object, a `simple_graph`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8914774a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if zx_graph:\n",
+    "\n",
+    "    from topologiq.utils.interop_pyzx import pyzx_g_to_simple_g\n",
+    "\n",
+    "    # Transform ZX-graph into topologiq's native `simple_graph`\n",
+    "    simple_graph = pyzx_g_to_simple_g(zx_graph)\n",
+    "\n",
+    "    # Print `simple_graph for inspection`\n",
+    "    for k, v in simple_graph.items():\n",
+    "        print(f\"{k}: {v}\")\n",
+    "\n",
+    "else:\n",
+    "    print(\"ERROR. Block didn't run because there is no PyZX graph for Topologiq to work with.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "02dc5da3",
+   "metadata": {},
+   "source": [
+    "After, we can run the `simple_graph` by topologiq."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "68dd7bc9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if zx_graph:\n",
+    "\n",
+    "    from topologiq.scripts.runner import runner\n",
+    "\n",
+    "    # Parameters & hyper-parameters\n",
+    "    full_circuit_name = f\"{source_nisq_framework}_{circuit_name}\"\n",
+    "    visualisation = \"final\"  # Calls 3D visualisation at the end. `None` to deactivate.\n",
+    "    animation = None  # Change to \"GIF\" or \"MP4\" for a summary animation (significant runtime costs).\n",
+    "\n",
+    "    VALUE_FUNCTION_HYPERPARAMS = (\n",
+    "        -1,  # Weight for length of path\n",
+    "        -1,  # Weight for number of \"beams\" broken by path\n",
+    "    )\n",
+    "\n",
+    "    kwargs = {\n",
+    "        \"weights\": VALUE_FUNCTION_HYPERPARAMS,\n",
+    "        \"length_of_beams\": 9,\n",
+    "    }\n",
+    "\n",
+    "    # Run topologiq\n",
+    "    simple_graph_after_use, edge_pths, lattice_nodes, lattice_edges = runner(\n",
+    "        simple_graph,  # The PyZX input graph, simplified\n",
+    "        full_circuit_name,  # The name of the circuit\n",
+    "        visualise=(visualisation, animation),\n",
+    "        fig_data=fig_data,\n",
+    "        **kwargs\n",
+    "    )\n",
+    "\n",
+    "else:\n",
+    "    print(\"ERROR. Block didn't run because there is no PyZX graph for Topologiq to work with.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2ff52fdc",
+   "metadata": {},
+   "source": [
+    "And we can print topologiq's outputs to inspect them, in particular, `lattice_nodes` and `lattice_edges`, which will become a TQEC `block_graph`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "85b91dcf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if lattice_nodes and lattice_edges:\n",
+    "    print(\"\\nCubes in final output:\")\n",
+    "    for k, v in lattice_nodes.items():\n",
+    "        print(f\"{k}:{v}\")\n",
+    "\n",
+    "    print(\"\\nPipes in final output:\")\n",
+    "    for k, v in lattice_edges.items():\n",
+    "        print(f\"{k}:{v}\")\n",
+    "\n",
+    "else:\n",
+    "    print(\"WARNING! Some key objects needed to create the block_graph do not exist. Please check that topologiq ran and succeeded.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4128579f",
+   "metadata": {},
+   "source": [
+    "## Importing to TQEC"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7d784a93",
+   "metadata": {},
+   "source": [
+    "The structure of `lattice_nodes` and `lattice_edges` is essentially the same as TQEC's `block_graph`, with one caveat.\n",
+    "\n",
+    "There is a need to perform some re-scaling and re-indexing of edges. In TQEC's `block_graph`, pipes occupy no space, which leads to adjacent cubes being closer to one another than in a space-time diagram where pipes do occupy space for the purposes of visualising things clearly.\n",
+    "\n",
+    "Fortunately, TQEC already has a way to import 3D objects like `lattice_nodes` and `lattice_edges`. TQEC can import 3D models encoded in COLLADA format (.dae), which use the same kind of coordinates and artifacts as `lattice_nodes` and `lattice_edges`. Accordingly, the following block of code relies on TQEC's COLLADA interoperability to realise similar transformations for `lattice_nodes` and `lattice_edges`, leading into a `block_graph`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c9d0c38",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if lattice_nodes and lattice_edges:\n",
+    "\n",
+    "    from tqec.interop.pyzx.topologiq import read_from_lattice_dicts\n",
+    "    from tqec.computation.block_graph import BlockGraph\n",
+    "\n",
+    "    # Import using standardised method for importing lattice surgeries / space-time diagram into TQEC\n",
+    "    lattice_edges_min = dict([(k,v[0]) for k,v in lattice_edges.items()])\n",
+    "    block_graph: BlockGraph = read_from_lattice_dicts(lattice_nodes, lattice_edges_min, graph_name=full_circuit_name)\n",
+    "    \n",
+    "    # Visualise using TQEC methods\n",
+    "    html = block_graph.view_as_html()\n",
+    "    display(html)\n",
+    "\n",
+    "else:\n",
+    "    print(\"ERROR. Block didn't run because Topologiq did not run or otherwise failed to produce the objects needed to create a block_graph.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "85ed6942",
+   "metadata": {},
+   "source": [
+    "You may have noticed the imported blockgraph lacks the boundary nodes / port cubes, the ones seen in gray in topologiq's 3D visualisation. \n",
+    "\n",
+    "This is normal. The TQEC import adds transparent placeholder objects at those coordinates.\n",
+    "\n",
+    "To enable computation, these need to be \"filled\", which is done as follows."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0dfe32fe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if block_graph:\n",
+    "    \n",
+    "    # Fill ports using function that yields minimal set of block_graphs needed for simulation\n",
+    "    filled_block_graphs = block_graph.fill_ports_for_minimal_simulation()\n",
+    "    \n",
+    "    # Show all block_graphs in minimal set\n",
+    "    for i, block_graph in enumerate(filled_block_graphs):\n",
+    "\n",
+    "        for j, correlation_surface in enumerate(block_graph.observables):\n",
+    "            block_graph.graph.view_as_html(\n",
+    "                pop_faces_at_directions=(\"-Y\", \"+X\"),\n",
+    "                show_correlation_surface=block_graph.observables[j],\n",
+    "            )\n",
+    "\n",
+    "            html = block_graph.graph.view_as_html(\n",
+    "                pop_faces_at_directions=(\"-Y\", \"+X\"),\n",
+    "                show_correlation_surface=block_graph.observables[j],\n",
+    "            )\n",
+    "\n",
+    "            display(html)\n",
+    "\n",
+    "else:\n",
+    "    print(\"ERROR. Block didn't run because there is no block_graph.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "52d064df",
+   "metadata": {},
+   "source": [
+    "And we can now use the blockgraph to perform TQEC operations. \n",
+    "\n",
+    "Let's start by getting the Stim circuit for different bases. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "72f6ec7e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if block_graph and filled_block_graphs:\n",
+    "\n",
+    "    from tqec import compile_block_graph, NoiseModel\n",
+    "    from tqec.utils.enums import Basis\n",
+    "\n",
+    "    # Function to get the correct filled_graphs for each basis\n",
+    "    def graphs_for_given_basis(pre_filled_block_graphs, observable_basis: Basis) -> BlockGraph | None:\n",
+    "        \n",
+    "        filled_graphs = pre_filled_block_graphs\n",
+    "        assert len(filled_graphs) == 2\n",
+    "        if observable_basis == Basis.X:\n",
+    "            return filled_graphs[0].graph\n",
+    "        elif observable_basis == Basis.Z:\n",
+    "            return filled_graphs[1].graph\n",
+    "\n",
+    "    # Function to get Stim circuit for given basis\n",
+    "    def get_stim_circuit(pre_filled_block_graphs):\n",
+    "\n",
+    "        block_graph_for_computation = graphs_for_given_basis(pre_filled_block_graphs, Basis.X)\n",
+    "        if block_graph_for_computation:\n",
+    "            compiled_graph = compile_block_graph(block_graph_for_computation)\n",
+    "            stim_circuit = compiled_graph.generate_stim_circuit(\n",
+    "                k=1, noise_model=NoiseModel.uniform_depolarizing(p=0.001)\n",
+    "            )\n",
+    "            print(\"\\nFirst 10 lines of Stim circuit (Basis X):\\n\")\n",
+    "            print(stim_circuit[:10])\n",
+    "        \n",
+    "        block_graph_for_computation = graphs_for_given_basis(pre_filled_block_graphs, Basis.Z)\n",
+    "        if block_graph_for_computation:\n",
+    "            compiled_graph = compile_block_graph(block_graph_for_computation)\n",
+    "            stim_circuit = compiled_graph.generate_stim_circuit(\n",
+    "                k=1, noise_model=NoiseModel.uniform_depolarizing(p=0.001)\n",
+    "            )\n",
+    "            print(\"\\nFirst 10 lines of Stim circuit (Basis Z):\\n\")\n",
+    "            print(stim_circuit[:10])\n",
+    "\n",
+    "    # Call Stim circuit generation for all relevant bases\n",
+    "    if filled_block_graphs:\n",
+    "        get_stim_circuit(filled_block_graphs)\n",
+    "\n",
+    "else:\n",
+    "    print(\"ERROR. Block didn't run because there is no block_graph or it was not possible to create filled block_graphs from it.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "497faf0f",
+   "metadata": {},
+   "source": [
+    "And let's now run a simulation. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "503d3333",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if block_graph and filled_block_graphs:\n",
+    "\n",
+    "    import sinter\n",
+    "    from tqec.simulation.plotting.inset import plot_observable_as_inset\n",
+    "    from tqec.simulation.simulation import start_simulation_using_sinter\n",
+    "    \n",
+    "    # Function to generate simulation graphs\n",
+    "    def generate_graphs(pre_filled_block_graphs, support_observable_basis: Basis, SAVE_DIR) -> None:\n",
+    "\n",
+    "        # Get block_graph from set of pre_filled block_graphs\n",
+    "        block_graph_for_simulation = graphs_for_given_basis(pre_filled_block_graphs, support_observable_basis)\n",
+    "        \n",
+    "        # Start sinter\n",
+    "        if block_graph_for_simulation:\n",
+    "\n",
+    "            # ZX-graph to overlay over output\n",
+    "            zx_graph_for_simulation = block_graph_for_simulation.to_zx_graph()\n",
+    "\n",
+    "            # Correlation surfaces for simulation\n",
+    "            correlation_surfaces_for_simulation = block_graph_for_simulation.find_correlation_surfaces()\n",
+    "            \n",
+    "            # Call Sinter\n",
+    "            stats = start_simulation_using_sinter(\n",
+    "                block_graph_for_simulation,\n",
+    "                range(1, 4),\n",
+    "                list(np.logspace(-4, -1, 10)),\n",
+    "                NoiseModel.uniform_depolarizing,\n",
+    "                manhattan_radius=2,\n",
+    "                observables=correlation_surfaces_for_simulation,\n",
+    "                max_shots=1_000_000,\n",
+    "                max_errors=5_000,\n",
+    "                decoders=[\"pymatching\"],\n",
+    "                print_progress=False,\n",
+    "                save_resume_filepath=Path(\n",
+    "                    f\"../_examples_database/{full_circuit_name}_{support_observable_basis.value}.csv\"\n",
+    "                ),\n",
+    "                database_path=Path(\"../_examples_database/database.pkl\"),\n",
+    "            )\n",
+    "\n",
+    "            # Visualise output\n",
+    "            for i, stat in enumerate(stats):\n",
+    "                fig, ax = plt.subplots()\n",
+    "                sinter.plot_error_rate(\n",
+    "                    ax=ax,\n",
+    "                    stats=stat,\n",
+    "                    x_func=lambda stat: stat.json_metadata[\"p\"],\n",
+    "                    group_func=lambda stat: stat.json_metadata[\"d\"],\n",
+    "                )\n",
+    "                plot_observable_as_inset(ax, zx_graph_for_simulation, correlation_surfaces_for_simulation[i])\n",
+    "                ax.grid(axis=\"both\")\n",
+    "                ax.legend()\n",
+    "                ax.loglog()\n",
+    "                ax.set_title(\"Logical CNOT Error Rate\")\n",
+    "                ax.set_xlabel(\"Physical Error Rate\")\n",
+    "                ax.set_ylabel(\"Logical Error Rate\")\n",
+    "                fig.savefig(\n",
+    "                    SAVE_DIR /\n",
+    "                    f\"{full_circuit_name}_{support_observable_basis}_{i}.png\"\n",
+    "                )\n",
+    "\n",
+    "    # Function to call the simulation cycle for all relevant bases\n",
+    "    def run_simulation(pre_filled_block_graphs, SAVE_DIR):\n",
+    "        SAVE_DIR.mkdir(exist_ok=True)\n",
+    "        generate_graphs(pre_filled_block_graphs, Basis.Z, SAVE_DIR)\n",
+    "        generate_graphs(pre_filled_block_graphs, Basis.X, SAVE_DIR)\n",
+    "\n",
+    "    # Call simulation cycle\n",
+    "    if filled_block_graphs:\n",
+    "        SAVE_DIR = Path(\"results\")\n",
+    "        run_simulation(filled_block_graphs, SAVE_DIR)\n",
+    "\n",
+    "\n",
+    "else:\n",
+    "    print(\"ERROR. Block didn't run because there is no block_graph or it was not possible to create filled block_graphs from it.\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "tqec",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
