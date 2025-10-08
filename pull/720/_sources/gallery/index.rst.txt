@@ -12,4 +12,5 @@ This section contains a collection of constructed logical computations and their
    move_rotation.ipynb
    three_cnots.ipynb
    steane_encoding.ipynb
-   using_nisq_circuits.ipynb
+   qiskit_integration.ipynb
+   qrisp_integration.ipynb
