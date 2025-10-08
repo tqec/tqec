@@ -1,9 +1,8 @@
-# Native circuits for NISQ frameworks that do not have their own native file format
-# Currently in this file: Qrisp Steane.
+# The following is how you would generate a Steane code using Qrisp.
 from qrisp import QuantumBool, cx, h
 
 
-def qrisp_steane():
+def steane_qrisp():
     """Create a Steane code encoding using Qrisp.
 
     Returns:
