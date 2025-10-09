@@ -74,7 +74,7 @@ def compile_block_graph(
     block_graph: BlockGraph,
     convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
-    block_temporal_height: LinearFunction = LinearFunction(2, -1),
+    block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
 ) -> TopologicalComputationGraph:
     """Compile a block graph.
 

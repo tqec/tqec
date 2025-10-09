@@ -20,8 +20,12 @@ from typing import Any
 import pytest
 from typing_extensions import TypeVarTuple, Unpack
 
-from tqec.compile.compile import compile_block_graph
-from tqec.compile.convention import FIXED_BOUNDARY_CONVENTION, FIXED_BULK_CONVENTION, Convention
+from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
+from tqec.compile.convention import (
+    FIXED_BOUNDARY_CONVENTION,
+    FIXED_BULK_CONVENTION,
+    Convention,
+)
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.pipe import PipeKind
 from tqec.gallery.cnot import cnot
@@ -32,6 +36,7 @@ from tqec.gallery.three_cnots import three_cnots
 from tqec.utils.enums import Basis
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.position import Direction3D, Position3D
+from tqec.utils.scale import LinearFunction
 
 Ts = TypeVarTuple("Ts")
 
@@ -58,6 +63,7 @@ def generate_circuit_and_assert(
     expected_num_detectors: int | None = None,
     expected_num_observables: int | None = None,
     debug_output_dir: str | Path | None = None,
+    block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
 ) -> None:
     if debug_output_dir is not None:
         debug_output_dir = Path(debug_output_dir)
@@ -75,7 +81,7 @@ def generate_circuit_and_assert(
                 pop_faces_at_directions=("-Y",),
             )
 
-    compiled_graph = compile_block_graph(g, convention, correlation_surfaces)
+    compiled_graph = compile_block_graph(g, convention, correlation_surfaces, block_temporal_height)
     layer_tree = compiled_graph.to_layer_tree()
     if debug_output_dir is not None:
         svg_out_dir = debug_output_dir / "layers" / "raw"
@@ -289,7 +295,11 @@ def test_compile_move_rotation(convention: Convention, obs_basis: Basis, k: int)
     else:
         expected_distance = d - 1 if obs_basis == Basis.X else d
     generate_circuit_and_assert(
-        g, k, convention, expected_distance=expected_distance, expected_num_observables=1
+        g,
+        k,
+        convention,
+        expected_distance=expected_distance,
+        expected_num_observables=1,
     )
 
 
@@ -313,7 +323,8 @@ def test_compile_L_spatial_junction_with_time_pipe(
 
 
 @pytest.mark.parametrize(
-    ("k", "convention", "in_obs_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
+    ("k", "convention", "in_obs_basis"),
+    generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
 )
 def test_compile_temporal_hadamard(convention: Convention, in_obs_basis: Basis, k: int) -> None:
     g = BlockGraph("Test Temporal Hadamard")
@@ -533,7 +544,12 @@ def test_compile_H_shape_stability_experiment(
 
     d = 2 * k + 1
     generate_circuit_and_assert(
-        g, k, convention, expected_distance=d, expected_num_observables=1, debug_output_dir="debug"
+        g,
+        k,
+        convention,
+        expected_distance=d,
+        expected_num_observables=1,
+        debug_output_dir="debug",
     )
 
 
@@ -584,13 +600,19 @@ def test_compile_H_shape_junctions_with_regular_cube_endpoints(
 
     d = 2 * k if shape == "H" and convention.name == "fixed_boundary" else 2 * k + 1
     generate_circuit_and_assert(
-        g, k, convention, expected_distance=d, expected_num_observables=3, debug_output_dir="debug"
+        g,
+        k,
+        convention,
+        expected_distance=d,
+        expected_num_observables=3,
+        debug_output_dir="debug",
     )
 
 
 @pytest.mark.slow
 @pytest.mark.parametrize(
-    ("k", "convention", "observable_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
+    ("k", "convention", "observable_basis"),
+    generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
 )
 def test_compile_three_cnots(convention: Convention, observable_basis: Basis, k: int) -> None:
     g = three_cnots(observable_basis)
@@ -600,7 +622,8 @@ def test_compile_three_cnots(convention: Convention, observable_basis: Basis, k:
 
 @pytest.mark.slow
 @pytest.mark.parametrize(
-    ("k", "convention", "observable_basis"), generate_inputs(CONVENTIONS, (Basis.X, Basis.Z))
+    ("k", "convention", "observable_basis"),
+    generate_inputs(CONVENTIONS, (Basis.X, Basis.Z)),
 )
 def test_compile_steane_encoding(convention: Convention, observable_basis: Basis, k: int) -> None:
     g = steane_encoding(observable_basis)
@@ -613,4 +636,35 @@ def test_compile_steane_encoding(convention: Convention, observable_basis: Basis
         convention,
         expected_distance=d,
         expected_num_observables=expected_num_observables,
+    )
+
+
+@pytest.mark.parametrize(
+    ("k", "convention", "kind", "block_temporal_height"),
+    generate_inputs(
+        CONVENTIONS,
+        ("ZXZ", "ZXX", "XZX", "XZZ"),
+        (
+            LinearFunction(2, -1),
+            LinearFunction(3, -1),
+            LinearFunction(5, -1),
+            LinearFunction(4, 3),
+        ),
+    ),
+)
+def test_compile_memory_custom_temporal_height(
+    convention: Convention, kind: str, k: int, block_temporal_height: LinearFunction
+) -> None:
+    g = BlockGraph("Memory Experiment")
+    g.add_cube(Position3D(0, 0, 0), kind)
+
+    d = 2 * k + 1
+    generate_circuit_and_assert(
+        g,
+        k,
+        convention,
+        expected_distance=d,
+        expected_num_detectors=(d**2 - 1) * int(block_temporal_height(k) + 2),
+        expected_num_observables=1,
+        block_temporal_height=block_temporal_height,
     )
