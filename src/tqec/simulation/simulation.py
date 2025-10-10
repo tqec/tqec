@@ -4,7 +4,7 @@ from pathlib import Path
 
 import sinter
 
-from tqec.compile.compile import compile_block_graph
+from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS, compile_block_graph
 from tqec.compile.convention import FIXED_BULK_CONVENTION, Convention
 from tqec.compile.detectors.database import DetectorDatabase
 from tqec.computation.block_graph import BlockGraph
@@ -16,6 +16,7 @@ from tqec.simulation.split import (
 )
 from tqec.utils.noise_model import NoiseModel
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
+from tqec.utils.scale import LinearFunction
 
 
 def start_simulation_using_sinter(
@@ -38,6 +39,7 @@ def start_simulation_using_sinter(
     save_resume_filepath: str | Path | None = None,
     existing_data_filepaths: Iterable[str | Path] = (),
     split_observable_stats: bool = True,
+    block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
 ) -> list[list[sinter.TaskStats]]:
     """Run `stim` simulations using `sinter`.
 
@@ -111,6 +113,9 @@ def start_simulation_using_sinter(
             post-processed to get individual statistics for each observable in
             `observables`. If False, the results are returned as they are
             collected.
+        block_temporal_height: the number of rounds of stabilizer measurements
+            (ignoring one layer for initialization and another for final measurement).
+            Defaults to `2k-1`.
 
     Returns:
         A list of lists of `sinter.TaskStats`. If `split_observable_stats` is
@@ -125,7 +130,12 @@ def start_simulation_using_sinter(
     if split_observable_stats and len(observables) > 1:
         custom_error_count_key = heuristic_custom_error_key(observables)
 
-    compiled_graph = compile_block_graph(block_graph, convention, observables)
+    compiled_graph = compile_block_graph(
+        block_graph,
+        convention,
+        observables,
+        block_temporal_height,
+    )
     stats = sinter.collect(
         num_workers=num_workers,
         tasks=generate_sinter_tasks(

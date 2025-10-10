@@ -26,6 +26,8 @@ _DEFAULT_SCALABLE_QUBIT_SHAPE: Final = PhysicalQubitScalable2D(
     LinearFunction(4, 5), LinearFunction(4, 5)
 )
 
+_DEFAULT_BLOCK_REPETITIONS: LinearFunction = LinearFunction(2, -1)
+
 
 def _get_template_from_layer(
     root: BaseLayer | BaseComposedLayer,
@@ -72,6 +74,7 @@ def compile_block_graph(
     block_graph: BlockGraph,
     convention: Convention = FIXED_BULK_CONVENTION,
     observables: list[CorrelationSurface] | Literal["auto"] | None = "auto",
+    block_temporal_height: LinearFunction = _DEFAULT_BLOCK_REPETITIONS,
 ) -> TopologicalComputationGraph:
     """Compile a block graph.
 
@@ -85,6 +88,9 @@ def compile_block_graph(
             is provided, only those surfaces will be compiled into observables
             and included in the compiled circuit. If set to ``None``, no
             observables will be included in the compiled circuit.
+        block_temporal_height: the number of rounds of stabilizer measurements
+            (ignoring one layer for initialization and another for final measurement).
+            Defaults to `2k-1`.
 
     Returns:
         A :class:`TopologicalComputationGraph` object that can be used to generate a
@@ -160,7 +166,7 @@ def compile_block_graph(
     for cube in block_graph.cubes:
         spec = cube_specs[cube]
         position = BlockPosition3D(cube.position.x, cube.position.y, cube.position.z)
-        graph.add_cube(position, convention.triplet.cube_builder(spec))
+        graph.add_cube(position, convention.triplet.cube_builder(spec, block_temporal_height))
 
     # 3. Add pipes to the graph
     # Note that the order of the pipes to add is important.
@@ -189,6 +195,6 @@ def compile_block_graph(
                 pipe.kind.is_temporal and pos1.z in temporal_hadamard_z_positions
             ),
         )
-        graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key))
+        graph.add_pipe(pos1, pos2, convention.triplet.pipe_builder(key, block_temporal_height))
 
     return graph
