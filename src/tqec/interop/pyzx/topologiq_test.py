@@ -248,10 +248,10 @@ def test_port_labels_are_unique() -> None:
     """
     # Create a linear chain with ports at both ends
     lattice_nodes = {
-        0: ((0, 0, 0), "ooo"),   # Port at start
+        0: ((0, 0, 0), "ooo"),  # Port at start
         1: ((3, 0, 0), "ZXZ"),
         2: ((6, 0, 0), "ZXX"),
-        3: ((9, 0, 0), "ooo"),   # Port at end
+        3: ((9, 0, 0), "ooo"),  # Port at end
         4: ((12, 0, 0), "ooo"),  # Another port
     }
     lattice_edges = {

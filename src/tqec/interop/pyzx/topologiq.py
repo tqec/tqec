@@ -111,13 +111,9 @@ def read_from_lattice_dicts(
     """
     # Validate inputs
     if not isinstance(lattice_nodes, dict):
-        raise ValueError(
-            f"lattice_nodes must be a dictionary, got {type(lattice_nodes).__name__}"
-        )
+        raise ValueError(f"lattice_nodes must be a dictionary, got {type(lattice_nodes).__name__}")
     if not isinstance(lattice_edges, dict):
-        raise ValueError(
-            f"lattice_edges must be a dictionary, got {type(lattice_edges).__name__}"
-        )
+        raise ValueError(f"lattice_edges must be a dictionary, got {type(lattice_edges).__name__}")
     # Reject malforned inputs
     if not lattice_nodes.values():
         raise ValueError(
