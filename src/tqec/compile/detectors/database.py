@@ -492,7 +492,6 @@ class DetectorDatabase:
 
         Args:
             filepath: path to a file where a :class:`.DetectorDatabase` instance has been saved.
-            format: how the database was saved in ``filepath``.
 
         Returns:
             a new :class:`.DetectorDatabase` instance read from the provided ``filepath``.
