@@ -8,7 +8,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, ClassVar, Final, Literal
+from typing import Any, ClassVar, Final
 
 import numpy
 import semver
@@ -254,6 +254,18 @@ class _DetectorDatabaseIO:
             json.dump(database.to_dict(), f)
 
 
+def _get_database_format(filepath: Path) -> str:
+    suffix = filepath.suffix.lower()
+    if suffix in {".pkl", ".pickle"}:
+        return "pickle"
+    if suffix in {".json"}:
+        return "json"
+    raise TQECError(
+        f"Could not infer the database format from the provided filepath ('{filepath}'). "
+        "Supported formats are:\n  -" + "\n  -".join(DetectorDatabase._WRITERS.keys())
+    )
+
+
 class DetectorDatabase:
     version: semver.Version = semver.Version(0, 0, 0)
 
@@ -462,27 +474,20 @@ class DetectorDatabase:
         }
         return DetectorDatabase(mapping, data["frozen"])
 
-    def to_file(self, filepath: Path, format: Literal["pickle", "json"] = "pickle") -> None:
+    def to_file(self, filepath: Path) -> None:
         """Save the database to a file.
 
         Args:
             filepath: path to the file where the database should be saved.
-            format: format to use to save the database. Currently only
-                "pickle" and "json" are supported.
 
         """
         if not filepath.parent.exists():
             filepath.parent.mkdir(parents=True)
-        if format not in DetectorDatabase._WRITERS:
-            raise TQECError(
-                f"Could not save the database: the provided format {format} is not supported. "
-                + "Supported formats are:\n  -"
-                + "\n  -".join(DetectorDatabase._WRITERS.keys())
-            )
+        format = _get_database_format(filepath)
         DetectorDatabase._WRITERS[format](filepath, self)
 
     @staticmethod
-    def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
+    def from_file(filepath: Path) -> DetectorDatabase:
         """Initialise a new instance from a file.
 
         Args:
@@ -498,10 +503,5 @@ class DetectorDatabase:
                 f"Could not read the database: the provided filepath ('{filepath}') does not exist "
                 "on disk."
             )
-        if format not in DetectorDatabase._READERS:
-            raise TQECError(
-                f"Could not read the database: the provided format {format} is not supported. "
-                + "Supported formats are:\n  -"
-                + "\n  -".join(DetectorDatabase._READERS.keys())
-            )
+        format = _get_database_format(filepath)
         return DetectorDatabase._READERS[format](filepath)
