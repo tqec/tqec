@@ -61,7 +61,7 @@ class PositionedZX:
         for s, t in g.edge_set():
             ps, pt = positions[s], positions[t]
             if not ps.is_neighbour(pt):
-                distance = ps.manhattan_distance(pt)
+                distance = abs(ps.x - pt.x) + abs(ps.y - pt.y) + abs(ps.z - pt.z)
                 raise TQECError(
                     f"Edge {s}--{t} connects non-neighboring positions {ps} and {pt}. "
                     f"Manhattan distance: {distance} (expected: 1). "

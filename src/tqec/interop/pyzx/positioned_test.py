@@ -13,12 +13,12 @@ from tqec.utils.position import Position3D
 def test_positions_not_specified() -> None:
     g = GraphS()
     g.add_vertex(VertexType.Z)
-    with pytest.raises(TQECError, match=r".* do not match.*"):
+    with pytest.raises(TQECError, match=r"Vertex ID mismatch.*"):
         PositionedZX(g, {})
 
 
 def test_positions_not_neighbors() -> None:
-    with pytest.raises(TQECError, match=r".* must be neighbors.*"):
+    with pytest.raises(TQECError, match=r".*connects non-neighboring positions.*"):
         make_positioned_zx_graph(
             vertex_types=[VertexType.Z, VertexType.Z],
             positions=[Position3D(0, 0, 0), Position3D(2, 0, 0)],
@@ -28,7 +28,7 @@ def test_positions_not_neighbors() -> None:
 
 
 def test_unsupported_vertex_type() -> None:
-    with pytest.raises(TQECError, match=r"Unsupported vertex type and phase.*"):
+    with pytest.raises(TQECError, match=r"Unsupported ZX vertex type and phase combination.*"):
         make_positioned_zx_graph(
             vertex_types=[VertexType.Z],
             positions=[Position3D(0, 0, 0)],
@@ -37,7 +37,7 @@ def test_unsupported_vertex_type() -> None:
 
 
 def test_boundary_not_dangle() -> None:
-    with pytest.raises(TQECError, match=r".* must be dangling.*"):
+    with pytest.raises(TQECError, match=r".*must have exactly 1 neighbor.*dangling.*"):
         make_positioned_zx_graph(
             vertex_types=[VertexType.BOUNDARY, VertexType.Z, VertexType.X],
             positions=[Position3D(0, 0, 0), Position3D(1, 0, 0), Position3D(0, 1, 0)],
@@ -48,7 +48,7 @@ def test_boundary_not_dangle() -> None:
 
 
 def test_y_connect_in_space() -> None:
-    with pytest.raises(TQECError, match=r".* must connect to the time direction.*"):
+    with pytest.raises(TQECError, match=r".*must connect in the time direction.*"):
         make_positioned_zx_graph(
             vertex_types=[VertexType.Z, VertexType.Z],
             positions=[Position3D(0, 0, 0), Position3D(1, 0, 0)],
