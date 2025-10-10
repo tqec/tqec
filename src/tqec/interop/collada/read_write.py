@@ -154,7 +154,8 @@ def read_block_graph_from_dae_file(
                 if not np.allclose(transformation.scale, expected_scale, atol=1e-9):
                     raise TQECError(
                         f"Invalid pipe scaling at {translation} in '{filepath}'. "
-                        f"Pipe '{name}' in {pipe_direction} direction has scale {transformation.scale}, "
+                        f"Pipe '{name}' in {pipe_direction} direction "
+                        f"has scale {transformation.scale}, "
                         f"but expected {expected_scale}. "
                         "Only the dimension along the pipe direction can be scaled."
                     )
@@ -315,9 +316,7 @@ def read_block_graph_from_json(
             "Ensure the file contains valid JSON."
         ) from e
     except Exception as e:
-        raise TQECError(
-            f"Could not read JSON file '{filepath}': {e}"
-        ) from e
+        raise TQECError(f"Could not read JSON file '{filepath}': {e}") from e
 
     # Check JSON file has cubes and pipes
     try:
@@ -335,9 +334,7 @@ def read_block_graph_from_json(
             "Expected format: {'cubes': [...], 'pipes': [...]}"
         ) from e
     except Exception as e:
-        raise TQECError(
-            f"Invalid JSON structure in '{filepath}': {e}"
-        ) from e
+        raise TQECError(f"Invalid JSON structure in '{filepath}': {e}") from e
 
     # Initialise list of cubes and pipes
     parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
@@ -351,7 +348,7 @@ def read_block_graph_from_json(
 
         # Enforce integers for position and transformation
         if not all([isinstance(i, int) for i in cube["position"]]):
-            non_int_values = [v for v in cube['position'] if not isinstance(v, int)]
+            non_int_values = [v for v in cube["position"] if not isinstance(v, int)]
             raise TQECError(
                 f"Invalid cube position {cube['position']} in '{filepath}'. "
                 f"Non-integer values found: {non_int_values}. "

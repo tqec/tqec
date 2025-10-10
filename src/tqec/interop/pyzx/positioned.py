@@ -53,7 +53,8 @@ class PositionedZX:
             extra = position_keys - graph_vertices
             raise TQECError(
                 f"Vertex ID mismatch between ZX graph and positions. "
-                f"Graph has {len(graph_vertices)} vertices, positions has {len(position_keys)} keys. "
+                f"Graph has {len(graph_vertices)} vertices, "
+                f"positions has {len(position_keys)} keys. "
                 f"Missing in positions: {missing}, Extra in positions: {extra}"
             )
         # 2. Check the neighbors are all shifted by 1 in the 3D positions
@@ -87,16 +88,18 @@ class PositionedZX:
             if vt == VertexType.BOUNDARY or phase == Fraction(1, 2):
                 if g.vertex_degree(v) != 1:
                     neighbor_positions = [positions[n] for n in g.neighbors(v)]
+                    spider_type = "Boundary" if vt == VertexType.BOUNDARY else "Z(1/2)"
                     raise TQECError(
-                        f"{'Boundary' if vt == VertexType.BOUNDARY else 'Z(1/2)'} spider at vertex {v} "
+                        f"{spider_type} spider at vertex {v} "
                         f"(position {positions[v]}) must have exactly 1 neighbor (dangling), "
-                        f"but has {len(g.neighbors(v))} neighbors at positions {neighbor_positions}."
+                        f"but has {len(g.neighbors(v))} neighbors "
+                        f"at positions {neighbor_positions}."
                     )
                 if phase == Fraction(1, 2):
                     nb = next(iter(g.neighbors(v)))
                     vp, nbp = positions[v], positions[nb]
                     if abs(nbp.z - vp.z) != 1:
-                        direction = 'X' if nbp.x != vp.x else ('Y' if nbp.y != vp.y else 'unknown')
+                        direction = "X" if nbp.x != vp.x else ("Y" if nbp.y != vp.y else "unknown")
                         raise TQECError(
                             f"Z(1/2) spider at vertex {v} (position {vp}) must connect "
                             f"in the time direction (Z), but connects to neighbor {nb} at {nbp} "
