@@ -465,6 +465,8 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="p">)</span>
 
+<span class="n">_DEFAULT_BLOCK_REPETITIONS</span><span class="p">:</span> <span class="n">LinearFunction</span> <span class="o">=</span> <span class="n">LinearFunction</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_template_from_layer</span><span class="p">(</span>
     <span class="n">root</span><span class="p">:</span> <span class="n">BaseLayer</span> <span class="o">|</span> <span class="n">BaseComposedLayer</span><span class="p">,</span>
@@ -513,6 +515,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="n">block_graph</span><span class="p">:</span> <span class="n">BlockGraph</span><span class="p">,</span>
     <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span> <span class="o">=</span> <span class="n">FIXED_BULK_CONVENTION</span><span class="p">,</span>
     <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CorrelationSurface</span><span class="p">]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">block_temporal_height</span><span class="p">:</span> <span class="n">LinearFunction</span> <span class="o">=</span> <span class="n">_DEFAULT_BLOCK_REPETITIONS</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopologicalComputationGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a block graph.</span>
 
@@ -526,6 +529,9 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">            is provided, only those surfaces will be compiled into observables</span>
 <span class="sd">            and included in the compiled circuit. If set to ``None``, no</span>
 <span class="sd">            observables will be included in the compiled circuit.</span>
+<span class="sd">        block_temporal_height: the number of rounds of stabilizer measurements</span>
+<span class="sd">            (ignoring one layer for initialization and another for final measurement).</span>
+<span class="sd">            Defaults to `2k-1`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`TopologicalComputationGraph` object that can be used to generate a</span>
@@ -601,7 +607,7 @@ window.addEventListener("load", () => mermaid.run());
     <span class="k">for</span> <span class="n">cube</span> <span class="ow">in</span> <span class="n">block_graph</span><span class="o">.</span><span class="n">cubes</span><span class="p">:</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">cube_specs</span><span class="p">[</span><span class="n">cube</span><span class="p">]</span>
         <span class="n">position</span> <span class="o">=</span> <span class="n">BlockPosition3D</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">cube</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">convention</span><span class="o">.</span><span class="n">triplet</span><span class="o">.</span><span class="n">cube_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_cube</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">convention</span><span class="o">.</span><span class="n">triplet</span><span class="o">.</span><span class="n">cube_builder</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">block_temporal_height</span><span class="p">))</span>
 
     <span class="c1"># 3. Add pipes to the graph</span>
     <span class="c1"># Note that the order of the pipes to add is important.</span>
@@ -630,7 +636,7 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="n">pipe</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">is_temporal</span> <span class="ow">and</span> <span class="n">pos1</span><span class="o">.</span><span class="n">z</span> <span class="ow">in</span> <span class="n">temporal_hadamard_z_positions</span>
             <span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">convention</span><span class="o">.</span><span class="n">triplet</span><span class="o">.</span><span class="n">pipe_builder</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_pipe</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">convention</span><span class="o">.</span><span class="n">triplet</span><span class="o">.</span><span class="n">pipe_builder</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">block_temporal_height</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">graph</span></div>
 
