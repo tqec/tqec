@@ -157,3 +157,240 @@ Once your code has been reviewed and accepted by at least one of the developers,
 will be able to merge it to the ``main`` branch.
 You (the PR owner) are responsible to click on the "Merge" button. If you prefer someone
 else to do it, you should send a clear comment asking for it.
+
+Contributing to Documentation
+------------------------------
+
+The ``tqec`` documentation is built using Sphinx and includes both a user guide and an
+example gallery. This section explains how to add new content to either.
+
+How to add a page to the user guide
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The user guide pages are located in ``docs/user_guide/`` and written in reStructuredText
+(``.rst``) format. Here's how to add a new page:
+
+1. **Create a new .rst file** in ``docs/user_guide/``
+
+   Name your file descriptively (e.g., ``advanced_compilation.rst``). Start with a title:
+
+   .. code-block:: rst
+
+       My Page Title
+       =============
+
+2. **Add your content using reStructuredText**
+
+   See the `Sphinx reStructuredText documentation <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_
+   for syntax reference. Common elements include:
+
+   - **Sections**: Use ``=====`` under titles, ``-----`` for subsections
+   - **Code blocks**: Use ``.. code-block:: python`` for static code
+   - **Executable code**: Use ``.. jupyter-execute::`` for code that runs during the docs build
+   - **Links**: Use ``:ref:`label-name``` to reference other pages
+
+3. **Use executable code blocks when possible**
+
+   The ``tqec`` documentation uses `jupyter-sphinx <https://jupyter-sphinx.readthedocs.io/en/latest/>`_
+   to execute code during the documentation build. This ensures examples stay up-to-date:
+
+   .. code-block:: rst
+
+       .. jupyter-execute::
+
+           from tqec import BlockGraph
+           # Your working code here
+           print("This code will be executed during docs build")
+
+   .. warning::
+       Make sure your code executes quickly (< 30 seconds) to avoid slowing down the docs build.
+
+4. **Add references if needed**
+
+   If you cite academic papers or external resources:
+
+   a. Add the reference to ``docs/refs.bib`` in alphabetical order by last name:
+
+      .. code-block:: bibtex
+
+          @article{AuthorName_2024,
+             title={Paper Title},
+             ...
+          }
+
+   b. Cite in your ``.rst`` file using ``footcite``:
+
+      .. code-block:: rst
+
+          This approach was introduced by [<cite data-footcite-t="AuthorName_2024"></cite>].
+
+   c. Add a References section at the bottom of your page:
+
+      .. code-block:: rst
+
+          References
+          ----------
+          .. footbibliography::
+
+5. **Add your page to the index**
+
+   Edit ``docs/user_guide/index.rst`` and add your page to the ``toctree``:
+
+   .. code-block:: rst
+
+       .. toctree::
+          :maxdepth: 2
+
+          installation
+          quick_start
+          my_new_page
+
+6. **Build the docs locally to verify**
+
+   .. code-block:: bash
+
+       # From the repository root
+       cd docs
+       make html
+       # View the result by opening docs/_build/html/index.html in a browser
+
+   Check that:
+
+   - Your page appears in the navigation
+   - All code blocks execute successfully
+   - Images and links work correctly
+   - References render properly
+
+How to add an example to the docs gallery
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The gallery showcases complete computation examples and is located in ``docs/gallery/``.
+All gallery examples are Jupyter notebooks that are executed during the documentation build.
+
+1. **Create a Jupyter notebook**
+
+   Create your notebook in ``docs/gallery/`` with a descriptive name (e.g., ``my_computation.ipynb``).
+
+2. **Structure your notebook**
+
+   Start with a markdown cell containing the title and description:
+
+   .. code-block:: markdown
+
+       # My Computation Title
+
+       This notebook demonstrates how to [describe your example].
+
+   Follow with sections:
+
+   - **Construction**: Show how to build the block graph
+   - **Observables**: Demonstrate finding correlation surfaces
+   - **Compilation**: Compile and generate the circuit
+   - **Visualization**: Show plots or interactive views
+
+3. **Clear all outputs before committing**
+
+   .. important::
+       Gallery notebooks **must** have their outputs cleared before committing.
+       This allows the documentation build process to execute them and ensures
+       they remain up-to-date with code changes.
+
+   To clear outputs:
+
+   - In Jupyter: ``Cell > All Output > Clear``
+   - Command line: ``jupyter nbconvert --clear-output --inplace your_notebook.ipynb``
+
+4. **Use references if needed**
+
+   Add citations using the ``footcite`` format in markdown cells:
+
+   .. code-block:: markdown
+
+       This technique is from [<cite data-footcite-t="Fowler_2012"></cite>].
+
+   Add a References section at the end:
+
+   .. code-block:: markdown
+
+       ## References
+
+   .. code-block:: rst
+
+       .. footbibliography::
+
+   Remember to add any new references to ``docs/refs.bib``.
+
+5. **Add your notebook to the gallery index**
+
+   Edit ``docs/gallery/index.rst`` and add your notebook:
+
+   .. code-block:: rst
+
+       .. nbgallery::
+
+          memory.ipynb
+          cnot.ipynb
+          my_computation.ipynb
+
+6. **(Optional) Add a thumbnail**
+
+   If you want a custom thumbnail for your example:
+
+   a. Create a PNG image (recommended size: 400x300px)
+   b. Place it in ``docs/_static/media/gallery/``
+   c. Edit ``docs/conf.py`` and add to ``nbsphinx_thumbnails``:
+
+      .. code-block:: python
+
+          nbsphinx_thumbnails = {
+              "gallery/my_computation": "_static/media/gallery/my_computation.png",
+              ...
+          }
+
+7. **Test your notebook**
+
+   Ensure your notebook executes cleanly:
+
+   .. code-block:: bash
+
+       # Test the notebook runs without errors
+       jupyter nbconvert --execute --to notebook my_computation.ipynb
+
+       # Build the docs to verify integration
+       cd docs
+       make html
+
+   .. warning::
+       Keep execution time reasonable (< 2 minutes per notebook) to avoid
+       slowing down the documentation build.
+
+Best Practices for Documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**For both user guide pages and gallery examples:**
+
+- **Keep code executable**: Use ``jupyter-execute`` in user guide pages and ensure
+  gallery notebooks run successfully. This catches breaking changes automatically.
+- **Be concise**: Focus on demonstrating one concept or workflow per page/notebook.
+- **Test thoroughly**: Always build the docs locally before submitting a PR.
+- **Use clear titles**: Make it easy for users to find what they need.
+- **Add context**: Explain why someone would use this approach, not just how.
+- **Cross-reference**: Link to related pages using ``:ref:`` directives.
+
+**Code examples should:**
+
+- Import all necessary modules explicitly
+- Use realistic but simple examples
+- Include comments explaining non-obvious steps
+- Avoid long-running computations in docs builds
+- Handle any required assets (like ``.dae`` files) appropriately
+
+Common pitfalls to avoid
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. **Committing notebooks with outputs**: Always clear outputs before committing.
+2. **Long execution times**: Keep code blocks fast to avoid slow documentation builds.
+3. **Hard-coded paths**: Use relative paths that work in the docs build environment.
+4. **Missing dependencies**: Ensure all imports work with the standard dev installation.
+5. **Forgetting to update indices**: Always add new pages to the appropriate index file.
+6. **Inconsistent formatting**: Follow the style of existing pages for consistency.
