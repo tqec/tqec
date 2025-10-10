@@ -47,14 +47,24 @@ class PositionedZX:
         """Check the preconditions for the ZX graph with 3D positions."""
         # 1. Check the vertex IDs in the graph match the positions
         if g.vertex_set() != set(positions.keys()):
-            raise TQECError("The vertex IDs in the ZX graph and the positions do not match.")
+            graph_vertices = g.vertex_set()
+            position_keys = set(positions.keys())
+            missing = graph_vertices - position_keys
+            extra = position_keys - graph_vertices
+            raise TQECError(
+                f"Vertex ID mismatch between ZX graph and positions. "
+                f"Graph has {len(graph_vertices)} vertices, positions has {len(position_keys)} keys. "
+                f"Missing in positions: {missing}, Extra in positions: {extra}"
+            )
         # 2. Check the neighbors are all shifted by 1 in the 3D positions
         for s, t in g.edge_set():
             ps, pt = positions[s], positions[t]
             if not ps.is_neighbour(pt):
+                distance = ps.manhattan_distance(pt)
                 raise TQECError(
-                    f"The 3D positions of the endpoints of the edge {s}--{t} "
-                    f"must be neighbors, but got {ps} and {pt}."
+                    f"Edge {s}--{t} connects non-neighboring positions {ps} and {pt}. "
+                    f"Manhattan distance: {distance} (expected: 1). "
+                    "Edges must connect positions that differ by exactly 1 in one dimension."
                 )
         # 3. Check all the spiders are Z(0) or X(0) or Z(1/2) or Boundary spiders
         for v in g.vertices():
@@ -66,28 +76,42 @@ class PositionedZX:
                 (VertexType.Z, Fraction(1, 2)),
                 (VertexType.BOUNDARY, 0),
             ]:
-                raise TQECError(f"Unsupported vertex type and phase: {vt} and {phase}.")
+                raise TQECError(
+                    f"Unsupported ZX vertex type and phase combination at vertex {v}. "
+                    f"Found: {vt} with phase {phase}. "
+                    f"Supported combinations: Z(0), X(0), Z(1/2), or Boundary(0). "
+                    f"Position: {positions[v]}"
+                )
             # 4. Check Boundary and Z(1/2) spiders are dangling, additionally
             # Z(1/2) connects to time direction
             if vt == VertexType.BOUNDARY or phase == Fraction(1, 2):
                 if g.vertex_degree(v) != 1:
+                    neighbor_positions = [positions[n] for n in g.neighbors(v)]
                     raise TQECError(
-                        "Boundary or Z(1/2) spider must be dangling, but "
-                        f"got {len(g.neighbors(v))} neighbors."
+                        f"{'Boundary' if vt == VertexType.BOUNDARY else 'Z(1/2)'} spider at vertex {v} "
+                        f"(position {positions[v]}) must have exactly 1 neighbor (dangling), "
+                        f"but has {len(g.neighbors(v))} neighbors at positions {neighbor_positions}."
                     )
                 if phase == Fraction(1, 2):
                     nb = next(iter(g.neighbors(v)))
                     vp, nbp = positions[v], positions[nb]
                     if abs(nbp.z - vp.z) != 1:
+                        direction = 'X' if nbp.x != vp.x else ('Y' if nbp.y != vp.y else 'unknown')
                         raise TQECError(
-                            "Z(1/2) spider must connect to the time direction, "
-                            f"but Z(1/2) at {vp} connects to {nbp}."
+                            f"Z(1/2) spider at vertex {v} (position {vp}) must connect "
+                            f"in the time direction (Z), but connects to neighbor {nb} at {nbp} "
+                            f"in the {direction} direction. Δz={abs(nbp.z - vp.z)} (expected: 1)"
                         )
         # 5. Check there are no 3D corners
         for v in g.vertices():
             vp = positions[v]
-            if len({_get_direction(vp, positions[u]) for u in g.neighbors(v)}) == 3:
-                raise TQECError(f"ZX graph has a 3D corner at node {v}.")
+            neighbor_directions = {_get_direction(vp, positions[u]) for u in g.neighbors(v)}
+            if len(neighbor_directions) == 3:
+                raise TQECError(
+                    f"ZX graph has a 3D corner at vertex {v} (position {vp}). "
+                    f"Vertex connects in all three directions: {neighbor_directions}. "
+                    "3D corners are not supported in the positioned ZX graph representation."
+                )
 
     def __getitem__(self, v: int) -> Position3D:
         return self._positions[v]

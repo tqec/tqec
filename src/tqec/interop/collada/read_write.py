@@ -74,12 +74,19 @@ def read_block_graph_from_dae_file(
 
     # Check some invariants about the DAE file
     if mesh.scene is None:
-        raise TQECError("No scene found in the DAE file.")
+        raise TQECError(
+            f"No scene found in the COLLADA file '{filepath}'. "
+            "The DAE file must contain a <visual_scene> element. "
+            "Ensure the file was exported correctly from SketchUp or your modeling tool."
+        )
     scene: collada.scene.Scene = mesh.scene
 
     if not (len(scene.nodes) == 1 and scene.nodes[0].name == "SketchUp"):
+        actual_nodes = [node.name for node in scene.nodes] if scene.nodes else []
         raise TQECError(
-            "The <visual_scene> node must have a single child node with the name 'SketchUp'."
+            f"Invalid scene structure in '{filepath}'. "
+            f"Expected single 'SketchUp' node, found {len(scene.nodes)} node(s): {actual_nodes}. "
+            "The COLLADA file must be exported from SketchUp with default settings."
         )
 
     sketchup_node: collada.scene.Node = scene.nodes[0]
@@ -136,13 +143,20 @@ def read_block_graph_from_dae_file(
                 if pipe_length is None:
                     pipe_length = scale * 2.0
                 elif not np.isclose(pipe_length, scale * 2.0, atol=1e-9):
-                    raise TQECError("All pipes must have the same length.")
+                    raise TQECError(
+                        f"Inconsistent pipe lengths in '{filepath}'. "
+                        f"Expected length {pipe_length:.4f}, but pipe '{name}' at {translation} "
+                        f"has length {scale * 2.0:.4f}. "
+                        "All pipes in the COLLADA model must have identical scaling."
+                    )
                 expected_scale = np.ones(3)
                 expected_scale[pipe_direction.value] = scale
                 if not np.allclose(transformation.scale, expected_scale, atol=1e-9):
                     raise TQECError(
-                        "Only the dimension along the pipe can be scaled, "
-                        f"which is not the case at {translation}."
+                        f"Invalid pipe scaling at {translation} in '{filepath}'. "
+                        f"Pipe '{name}' in {pipe_direction} direction has scale {transformation.scale}, "
+                        f"but expected {expected_scale}. "
+                        "Only the dimension along the pipe direction can be scaled."
                     )
                 # Append
                 parsed_pipes.append((translation, kind, axes_directions))
@@ -150,7 +164,12 @@ def read_block_graph_from_dae_file(
             else:
                 # Checks
                 if not np.allclose(transformation.scale, np.ones(3), atol=1e-9):
-                    raise TQECError(f"Cube at {translation} has a non-identity scale.")
+                    raise TQECError(
+                        f"Invalid cube scaling in '{filepath}'. "
+                        f"Cube '{name}' at {translation} has scale {transformation.scale}, "
+                        "but cubes must have identity scale [1.0, 1.0, 1.0]. "
+                        "Ensure cubes are not scaled in SketchUp."
+                    )
                 # Append
                 parsed_cubes.append((translation, kind, axes_directions))
 
@@ -285,17 +304,40 @@ def read_block_graph_from_json(
     try:
         with open(filepath) as f:
             data = json.load(f)
-    except Exception:
-        raise TQECError("JSON file not found.")
+    except FileNotFoundError as e:
+        raise TQECError(
+            f"JSON file not found at '{filepath}'. "
+            "Verify the file path is correct and the file exists."
+        ) from e
+    except json.JSONDecodeError as e:
+        raise TQECError(
+            f"Invalid JSON format in '{filepath}' at line {e.lineno}, column {e.colno}: {e.msg}. "
+            "Ensure the file contains valid JSON."
+        ) from e
+    except Exception as e:
+        raise TQECError(
+            f"Could not read JSON file '{filepath}': {e}"
+        ) from e
 
     # Check JSON file has cubes and pipes
     try:
         cubes = data["cubes"]
         pipes = data["pipes"]
         if not len(cubes) > 0 or not len(pipes) > 0:
-            raise TQECError("No cubes or pipes found.")
-    except Exception:
-        raise TQECError("JSON file is not appropriately formatted.")
+            raise TQECError(
+                f"Empty block graph in '{filepath}'. "
+                f"Found {len(cubes)} cubes and {len(pipes)} pipes. "
+                "A valid block graph requires at least one cube and one pipe."
+            )
+    except KeyError as e:
+        raise TQECError(
+            f"Missing required field {e} in JSON file '{filepath}'. "
+            "Expected format: {'cubes': [...], 'pipes': [...]}"
+        ) from e
+    except Exception as e:
+        raise TQECError(
+            f"Invalid JSON structure in '{filepath}': {e}"
+        ) from e
 
     # Initialise list of cubes and pipes
     parsed_cubes: list[tuple[FloatPosition3D, CubeKind, dict[str, int]]] = []
@@ -309,15 +351,24 @@ def read_block_graph_from_json(
 
         # Enforce integers for position and transformation
         if not all([isinstance(i, int) for i in cube["position"]]):
+            non_int_values = [v for v in cube['position'] if not isinstance(v, int)]
             raise TQECError(
-                f"Incorrect positioning for cube at {cube['position']}. All positional "
-                "information must be composed of integer values."
+                f"Invalid cube position {cube['position']} in '{filepath}'. "
+                f"Non-integer values found: {non_int_values}. "
+                "Cube positions must be integers (e.g., [0, 1, 2])."
             )
 
         if not all([isinstance(i, int) for row in cube["transform"] for i in row]):
+            non_int_elements = [
+                (i, j, cube["transform"][i][j])
+                for i in range(len(cube["transform"]))
+                for j in range(len(cube["transform"][i]))
+                if not isinstance(cube["transform"][i][j], int)
+            ]
             raise TQECError(
-                f"Incorrect transformation matrix for cube at {cube['position']}. All "
-                "elements in transformation matrix need to be integers."
+                f"Invalid transformation matrix for cube at {cube['position']} in '{filepath}'. "
+                f"Non-integer elements at positions: {non_int_elements[:3]}. "
+                "Transformation matrices must contain only integers."
             )
 
         # Get key spatial info
@@ -342,17 +393,27 @@ def read_block_graph_from_json(
     # Get pipes data
     for pipe in data["pipes"]:
         # Enforce integers for position and transformation
-        for pos in [pipe["u"], pipe["v"]]:
+        for pos_key in ["u", "v"]:
+            pos = pipe[pos_key]
             if not all([isinstance(i, int) for i in pos]):
+                non_int_values = [v for v in pos if not isinstance(v, int)]
                 raise TQECError(
-                    f"Incorrect positioning for pipe at ({pipe['u']}). All positional "
-                    "information must be composed of integer values."
+                    f"Invalid pipe endpoint position '{pos_key}'={pos} in '{filepath}'. "
+                    f"Non-integer values: {non_int_values}. "
+                    f"Pipe connecting {pipe['u']} to {pipe['v']} has invalid coordinates."
                 )
 
         if not all([isinstance(i, int) for row in pipe["transform"] for i in row]):
+            non_int_elements = [
+                (i, j, pipe["transform"][i][j])
+                for i in range(len(pipe["transform"]))
+                for j in range(len(pipe["transform"][i]))
+                if not isinstance(pipe["transform"][i][j], int)
+            ]
             raise TQECError(
-                f"Incorrect transformation for pipe at ({pipe['u']}). All elements in "
-                "transformation matrix need to be integers."
+                f"Invalid transformation matrix for pipe {pipe['u']}→{pipe['v']} in '{filepath}'. "
+                f"Non-integer elements at positions: {non_int_elements[:3]}. "
+                "Transformation matrices must contain only integers."
             )
 
         # Get key spatial info
