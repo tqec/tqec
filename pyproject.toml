@@ -314,3 +314,8 @@ ignore = [
 
 [tool.pytest.ini_options]
 markers = ["slow: mark a test that takes a long time to run."]
+
+# ty configuration
+# https://docs.astral.sh/ty/exclusions/
+[tool.ty.src]
+include = ["src/"]
