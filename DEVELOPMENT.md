@@ -4,8 +4,8 @@ This document describes the development strategy and branching model used in thi
 
 ## Fork Strategy
 
-**Fork Owner**: Sean Collins (SMC17)  
-**Upstream**: [tqec/tqec](https://github.com/tqec/tqec)  
+**Fork Owner**: Sean Collins (SMC17)
+**Upstream**: [tqec/tqec](https://github.com/tqec/tqec)
 **Fork**: [SMC17/tqec](https://github.com/SMC17/tqec)
 
 ## Philosophy
@@ -34,9 +34,9 @@ Examples:
 ## Current Active Branches
 
 ### 1. `feature/docs-contributing-guide`
-**Status**: ✅ Complete, pushed  
-**Related Issue**: [#718](https://github.com/tqec/tqec/issues/718)  
-**Description**: Adds comprehensive documentation on how to contribute to the user guide and gallery  
+**Status**: ✅ Complete, pushed
+**Related Issue**: [#718](https://github.com/tqec/tqec/issues/718)
+**Description**: Adds comprehensive documentation on how to contribute to the user guide and gallery
 
 **Changes**:
 - Added "Contributing to Documentation" section to `docs/contributor_guide.rst`
@@ -52,8 +52,8 @@ Examples:
 ---
 
 ### 2. `feature/improve-error-messages`
-**Status**: ✅ Complete, pushed  
-**Related Issue**: [#262](https://github.com/tqec/tqec/issues/262) (complementary)  
+**Status**: ✅ Complete, pushed
+**Related Issue**: [#262](https://github.com/tqec/tqec/issues/262) (complementary)
 **Description**: Improves error message clarity and actionability across user-facing modules
 
 **Changes**:
@@ -68,7 +68,7 @@ Examples:
 
 **Testing**: Need to run existing test suite to ensure error messages appear correctly
 
-**Next Steps**: 
+**Next Steps**:
 1. Run tests: `pytest src/tqec/interop/`
 2. Document any test failures
 3. Wait for #262 exception type refactoring to complete
@@ -77,8 +77,8 @@ Examples:
 ---
 
 ### 3. `fix/topologiq-coordinate-transformation`
-**Status**: ✅ Complete, PR #726 open  
-**Related Issue**: [#723](https://github.com/tqec/tqec/issues/723)  
+**Status**: ✅ Complete, PR #726 open
+**Related Issue**: [#723](https://github.com/tqec/tqec/issues/723)
 **Description**: Fixes critical bug in PyZX → COLLADA pipe position calculations
 
 **Changes**:
@@ -111,10 +111,10 @@ Examples:
    ```bash
    git add <files>
    git commit -m "type: description
-   
+
    - Bullet point changes
    - More details
-   
+
    Addresses issue #<number>"
    ```
 
@@ -325,5 +325,5 @@ git push origin --delete feature/<name>
 
 ---
 
-**Last Updated**: 2025-01-10  
+**Last Updated**: 2025-01-10
 **Author**: Sean Collins (SMC17)

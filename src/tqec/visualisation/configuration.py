@@ -60,6 +60,10 @@ class DrawerConfiguration:
     observable_fill_opacity: float = 0.5
     observable_stroke_width_multiplier: float = 0.01
     observable_star_color: TQECColor = TQECColor.H
+    # General opacity controls for visualization elements
+    node_opacity: float = 1.0
+    edge_opacity: float = 1.0
+    hadamard_opacity: float = 1.0
     # Default size of some of the elements drawn
     reset_square_radius: float = 0.05
     measurement_circle_radius: float = 0.1

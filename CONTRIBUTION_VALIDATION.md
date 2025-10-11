@@ -1,5 +1,5 @@
 # Contribution Validation & Self-Review
-**Date**: October 10, 2025  
+**Date**: October 10, 2025
 **Purpose**: Ensure all contributions meet TQEC standards and actually solve problems
 
 ---
@@ -22,8 +22,8 @@ Before submitting ANY PR, we must prove:
 
 ### Problem Statement (Issue #718)
 
-**Requested by**: @purva-thakre  
-**Issue**: Contributors don't know how to add documentation  
+**Requested by**: @purva-thakre
+**Issue**: Contributors don't know how to add documentation
 
 **Specific Requirements from Issue:**
 - [ ] How to add a page in the user guide?
@@ -89,8 +89,8 @@ Before submitting ANY PR, we must prove:
 
 ### Problem Analysis
 
-**Related to**: Issue #262 (Exception refactoring)  
-**Status**: @purva-thakre is working on exception TYPES  
+**Related to**: Issue #262 (Exception refactoring)
+**Status**: @purva-thakre is working on exception TYPES
 **Our angle**: Improve error message CONTENT (complementary, not conflicting)
 
 **Files Modified:**
@@ -304,7 +304,7 @@ python -m memory_profiler test_error_messages.py
 **For Docs Guide (Branch 1):**
 
 **Challenge**: "This is too basic / obvious"
-**Response**: 
+**Response**:
 - Issue #718 was opened by a maintainer (@purva-thakre)
 - It's labeled "good first issue" - meant to be accessible
 - Current contributor_guide.rst has NO docs info
@@ -429,4 +429,3 @@ ruff format src/ --check
 ---
 
 **Philosophy**: We don't submit PRs to "try things out". We submit PRs because we've proven they're correct.
-

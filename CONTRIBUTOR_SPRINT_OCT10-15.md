@@ -1,6 +1,6 @@
 # 5-Day Sprint: Becoming a TQEC Contributor
-**Goal**: Establish myself as a trusted contributor by October 15, 2025  
-**Author**: Sean Collins (SMC17)  
+**Goal**: Establish myself as a trusted contributor by October 15, 2025
+**Author**: Sean Collins (SMC17)
 **Start**: October 10, 2025
 
 ---
@@ -11,10 +11,10 @@
 > "This is outstanding! Will merge into `framework_integration` branch as given. Any errors that may arise we'll fix once in the branch because **your implementation is better than what there is currently in place**."
 
 ### Key Takeaways:
-✅ **Quality matters more than speed** - Comprehensive tests won approval  
-✅ **Clear documentation wins** - Detailed PR description was appreciated  
-✅ **Don't be afraid to improve existing code** - They want better solutions  
-✅ **Thorough testing = trust** - 17 tests showed I care about correctness  
+✅ **Quality matters more than speed** - Comprehensive tests won approval
+✅ **Clear documentation wins** - Detailed PR description was appreciated
+✅ **Don't be afraid to improve existing code** - They want better solutions
+✅ **Thorough testing = trust** - 17 tests showed I care about correctness
 
 ---
 
@@ -68,7 +68,7 @@
 
 ### ❌ AVOID (Stepping on Toes)
 - **Issue #262**: Exception refactoring - @purva-thakre assigned
-- **Issue #696**: Performance - @Zhaoyilunnn assigned  
+- **Issue #696**: Performance - @Zhaoyilunnn assigned
 - **Issue #681**: Mac/Linux DB - @KabirDubey assigned
 - **Issue #637**: Correlation surfaces doc - 2 people assigned
 - **PR #720**: Framework integration - @jbolns's main work (draft)
@@ -212,7 +212,7 @@
 ```markdown
 Hi! I'd like to work on this issue.
 
-Context: I recently had PR #726 merged (topologiq coordinate fix) and have 
+Context: I recently had PR #726 merged (topologiq coordinate fix) and have
 experience with [relevant area]. I have a solution ready that:
 - [Specific improvement 1]
 - [Specific improvement 2]
@@ -260,7 +260,7 @@ Would you like me to open a PR? Happy to coordinate with any ongoing work.
 
 **Be gracious:**
 ```markdown
-No problem! Happy to help with testing/review if needed. 
+No problem! Happy to help with testing/review if needed.
 I'll work on [other issue] instead.
 ```
 
@@ -268,7 +268,7 @@ I'll work on [other issue] instead.
 
 **Stay professional:**
 ```markdown
-Thanks for the feedback! I see your point about [concern]. 
+Thanks for the feedback! I see your point about [concern].
 I'll revise to [solution]. Should have it ready in [timeframe].
 ```
 
@@ -355,7 +355,7 @@ Which direction would you prefer? Happy to implement either way.
 ```markdown
 I noticed this issue is marked high priority and I might be able to help.
 
-Background: My recent PR #726 fixed [related issue]. I have experience with 
+Background: My recent PR #726 fixed [related issue]. I have experience with
 [relevant area] and could contribute [specific value].
 
 If this would be helpful, I could:
@@ -371,7 +371,7 @@ Let me know if you'd like me to take a crack at it!
 
 ### PRs Opened
 - [ ] #718 - Documentation contributing guide
-- [ ] #723 - Additional topologiq testing  
+- [ ] #723 - Additional topologiq testing
 - [ ] #690 - Opacity control
 - [ ] #673 - Dark mode text
 - [ ] [Other]: _________________
@@ -381,7 +381,7 @@ Let me know if you'd like me to take a crack at it!
 
 ### Issues Engaged
 - [ ] #718 - Commented
-- [ ] #723 - Commented  
+- [ ] #723 - Commented
 - [ ] #690 - Claimed
 - [ ] #673 - Claimed
 
@@ -390,7 +390,7 @@ Let me know if you'd like me to take a crack at it!
 ## Reflection Notes
 
 **What's Working:**
-- 
+-
 
 **What Needs Improvement:**
 -
@@ -403,6 +403,6 @@ Let me know if you'd like me to take a crack at it!
 
 ---
 
-**Last Updated**: October 10, 2025, 9:15 AM  
-**Status**: Sprint Active  
+**Last Updated**: October 10, 2025, 9:15 AM
+**Status**: Sprint Active
 **Next Review**: October 15, 2025

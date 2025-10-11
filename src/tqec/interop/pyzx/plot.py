@@ -39,6 +39,9 @@ def draw_positioned_zx_graph_on(
     node_size: int = 400,
     hadamard_size: int = 200,
     edge_width: int = 1,
+    node_opacity: float = 1.0,
+    edge_opacity: float = 1.0,
+    hadamard_opacity: float = 1.0,
 ) -> None:
     """Draw the :py:class:`~tqec.interop.pyzx.PositionedZX` on the provided axes.
 
@@ -48,6 +51,10 @@ def draw_positioned_zx_graph_on(
         node_size: The size of the node. Default is 400.
         hadamard_size: The size of the Hadamard transition. Default is 200.
         edge_width: The width of the edge. Default is 1.
+        node_opacity: The opacity of the nodes (0.0 = transparent, 1.0 = opaque). Default is 1.0.
+        edge_opacity: The opacity of the edges (0.0 = transparent, 1.0 = opaque). Default is 1.0.
+        hadamard_opacity: The opacity of the Hadamard squares (0.0 = transparent, 1.0 = opaque).
+            Default is 1.0.
 
     """
     g = graph.g
@@ -59,7 +66,7 @@ def draw_positioned_zx_graph_on(
             *vis_nodes_array,
             s=node_size,
             c=[_node_color(g, n).as_floats() for n in vis_nodes],
-            alpha=1.0,
+            alpha=node_opacity,
             edgecolors="black",
         )
 
@@ -69,6 +76,7 @@ def draw_positioned_zx_graph_on(
             *pos_array,
             color="tab:gray",
             linewidth=edge_width,
+            alpha=edge_opacity,
         )
         if is_hardmard(g, edge):
             hadamard_position = numpy.mean(pos_array, axis=1)
@@ -77,7 +85,7 @@ def draw_positioned_zx_graph_on(
                 *hadamard_position,
                 s=hadamard_size,
                 c="yellow",
-                alpha=1.0,
+                alpha=hadamard_opacity,
                 edgecolors="black",
                 marker="s",
             )
@@ -134,6 +142,9 @@ def plot_positioned_zx_graph(
     node_size: int = 400,
     hadamard_size: int = 200,
     edge_width: int = 1,
+    node_opacity: float = 1.0,
+    edge_opacity: float = 1.0,
+    hadamard_opacity: float = 1.0,
 ) -> tuple[Figure, Axes3D]:
     """Plot the :py:class:`~tqec.interop.pyzx.positioned.PositionedZX` using matplotlib.
 
@@ -144,6 +155,10 @@ def plot_positioned_zx_graph(
         node_size: The size of the node in the plot. Default is 400.
         hadamard_size: The size of the Hadamard square in the plot. Default is 200.
         edge_width: The width of the edge in the plot. Default is 1.
+        node_opacity: The opacity of the nodes (0.0 = transparent, 1.0 = opaque). Default is 1.0.
+        edge_opacity: The opacity of the edges (0.0 = transparent, 1.0 = opaque). Default is 1.0.
+        hadamard_opacity: The opacity of the Hadamard squares (0.0 = transparent, 1.0 = opaque).
+            Default is 1.0.
 
     Returns:
         A tuple of the figure and the axes.
@@ -158,6 +173,9 @@ def plot_positioned_zx_graph(
         node_size=node_size,
         hadamard_size=hadamard_size,
         edge_width=edge_width,
+        node_opacity=node_opacity,
+        edge_opacity=edge_opacity,
+        hadamard_opacity=hadamard_opacity,
     )
 
     if title:
