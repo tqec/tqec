@@ -46,7 +46,12 @@ correct detector annotations via flow interfaces from Gidney's gen library.
 See Also
 ========
 
-- :mod:`tqec.compile.blocks.layers` for layer representations
+All these restrictions are handled by representing
+:class:`~tqec.compile.blocks.block.Block` instances with
+:class:`~tqec.compile.blocks.layers.atomic.base.BaseLayer` and
+:class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer` instances.
+
+- See :mod:`tqec.compile.blocks.layers` for more layered block details.
 - :mod:`tqec.compile.tree.injection` for injection mechanics
 - :mod:`tqec.compile.blocks.enums` for alignment and border enumerations
 
