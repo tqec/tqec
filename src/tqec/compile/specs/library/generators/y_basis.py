@@ -421,27 +421,33 @@ def _make_y_transition_round(
     builder.append("MZ", (zs - old_z_boundary) | new_z_boundary, measure_key_func=measure_key_func)
 
     # Annotate input stabilizers that get measured.
+    # For each stabilizer entering the Y-transition (e.g., X0*X1*X2*X3 for an X-plaquette),
+    # we specify which measurements must be XOR'd to detect stabilizer violations.
+    # The "mids" (measurement IDs) are the qubit positions whose measurements contribute
+    # to the detector. This is geometry-dependent due to non-uniform entanglement in Y-transition.
     for tile in start.tiles:
         m = tile.measure_qubit
         assert m is not None
         assert tile.basis in ("X", "Z")
         mids = _get_mids_for_in_flow(m, tile.basis, distance, top_basis, convention)
         builder.add_flow(
-            start=tile.to_pauli_map(),
+            start=tile.to_pauli_map(),  # Input stabilizer (e.g., X₀X₁X₂X₃)
             center=m,
-            ms=[(k, "solo") for k in mids],
+            ms=[(k, "solo") for k in mids],  # Measurements to XOR for detector
         )
 
     # Annotate output stabilizers that get prepared.
+    # For each stabilizer exiting the Y-transition to continue into subsequent computation,
+    # we specify which measurements initialize/prepare that stabilizer.
     for tile in end.tiles:
         m = tile.measure_qubit
         assert m is not None
         mids = _get_mids_for_out_flow(m, distance, top_basis, convention)
 
         builder.add_flow(
-            end=tile.to_pauli_map(),
+            end=tile.to_pauli_map(),  # Output stabilizer
             center=m,
-            ms=[(k, "solo") for k in mids],
+            ms=[(k, "solo") for k in mids],  # Measurements that prepare this stabilizer
         )
 
     # Annotate how observable flows through the system.
@@ -493,6 +499,20 @@ def _get_mids_for_in_flow(
     top_basis: str,
     convention: Literal["fixed_boundary", "fixed_bulk"],
 ) -> list[complex]:
+    """Get measurement qubit positions whose measurements must be XOR'd for input stabilizer flow.
+
+    Args:
+        m: Position of the tile's measurement qubit (ancilla).
+        tile_basis: Basis of the stabilizer ("X" or "Z").
+        distance: Code distance.
+        top_basis: Basis of the top boundary.
+        convention: Boundary convention used.
+
+    Returns:
+        List of qubit positions (mids = "measurement IDs") whose measurement outcomes
+        must be XOR'd together to verify the input stabilizer. The stabilizer enters
+        the Y-transition circuit and these measurements detect if it was violated.
+    """
     if m.real + m.imag == distance - 1:
         return [m, m - 1j] if top_basis == "X" and convention == "fixed_bulk" else [m, m - 1]
     elif m.real == -0.5 or m.imag == -0.5:
@@ -513,6 +533,19 @@ def _get_mids_for_out_flow(
     top_basis: str,
     convention: Literal["fixed_boundary", "fixed_bulk"],
 ) -> list[complex]:
+    """Get measurement qubit positions whose measurements must be XOR'd for output stabilizer flow.
+
+    Args:
+        m: Position of the tile's measurement qubit (ancilla).
+        distance: Code distance.
+        top_basis: Basis of the top boundary.
+        convention: Boundary convention used.
+
+    Returns:
+        List of qubit positions (mids = "measurement IDs") whose measurement outcomes
+        must be XOR'd together to prepare the output stabilizer. The stabilizer exits
+        the Y-transition circuit to continue into subsequent computation.
+    """
     is_fixed_bulk_xtop = top_basis == "X" and convention == "fixed_bulk"
 
     if m == distance - 1.5 + 0.5j and not is_fixed_bulk_xtop:
