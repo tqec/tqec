@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 from itertools import chain
-from typing import Any
 
 from typing_extensions import override
 
@@ -19,7 +18,7 @@ class SequencedLayers(BaseComposedLayer):
         self,
         layer_sequence: Sequence[BaseLayer | BaseComposedLayer],
         trimmed_spatial_borders: frozenset[SpatialBlockBorder] = frozenset(),
-        additional_metadata: dict[str, Any] | None = None,
+        z_coordinate: int | None = None,
     ):
         """Composed layer implementing a fixed sequence of layers.
 
@@ -31,8 +30,12 @@ class SequencedLayers(BaseComposedLayer):
                 spatial footprint.
             trimmed_spatial_borders: all the spatial borders that have been
                 removed from the layer.
-            additional_metadata: optional dictionary of additional metadata to
-                attach to the instance.
+            z_coordinate: The temporal position (z-slice) of this layer sequence
+                in the block graph. Required when layers are used with
+                :class:`~tqec.compile.tree.injection.InjectionBuilder` for
+                coordinating with :class:`~tqec.compile.blocks.block.InjectedBlock`
+                instances. ``None`` for standalone usage or when temporal position
+                is not relevant.
 
         Raises:
             TQECError: if the provided ``layer_sequence`` is empty.
@@ -40,12 +43,18 @@ class SequencedLayers(BaseComposedLayer):
         """
         super().__init__(trimmed_spatial_borders)
         self._layer_sequence = layer_sequence
-        self._additional_metadata = additional_metadata or {}
+        self._z_coordinate = z_coordinate
 
     @property
-    def additional_metadata(self) -> dict[str, Any]:
-        """Get the additional metadata attached to ``self``."""
-        return self._additional_metadata
+    def z_coordinate(self) -> int | None:
+        """Get the z-coordinate (temporal position) of this layer sequence.
+
+        Returns:
+            The z-coordinate if set, or ``None`` if temporal position is not tracked.
+            The z-coordinate represents the temporal slice in the block graph where
+            this layer sequence executes, used for coordinating with injected blocks.
+        """
+        return self._z_coordinate
 
     @property
     def layer_sequence(self) -> Sequence[BaseLayer | BaseComposedLayer]:

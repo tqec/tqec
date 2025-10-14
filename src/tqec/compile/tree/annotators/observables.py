@@ -38,8 +38,8 @@ def annotate_observable(
     for subtree_root in root.children:
         layer = subtree_root._layer
         assert isinstance(layer, SequencedLayers)
-        z = layer.additional_metadata.get("z")
-        assert isinstance(z, int)
+        z = layer.z_coordinate
+        assert z is not None, "z_coordinate must be set for observable annotation"
 
         leaves = _get_ordered_leaves(subtree_root)
         obs_slice = observable.slice_at_z(z)

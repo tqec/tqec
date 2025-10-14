@@ -480,7 +480,7 @@ class TopologicalComputationGraph:
                 SequencedLayers(
                     merge_parallel_block_layers(blocks_at_z, self._scalable_qubit_shape)
                     + merge_parallel_block_layers(hadamard_pipe_at_z, self._scalable_qubit_shape),
-                    additional_metadata={"z": z},
+                    z_coordinate=z,
                 )
             )
         return LayerTree(

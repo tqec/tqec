@@ -382,8 +382,8 @@ class LayerTree:
         circuits_by_z: dict[int, stim.Circuit] = {}
         for node in self._root.children:
             assert isinstance(node._layer, SequencedLayers)
-            layer_z = node._layer.additional_metadata.get("z")
-            assert isinstance(layer_z, int)
+            layer_z = node._layer.z_coordinate
+            assert layer_z is not None, "z_coordinate must be set for temporal injection coordination"
             circuits_by_z[layer_z] = node.generate_circuit(k, qubit_map)
 
         # included observable indices at each injection position
