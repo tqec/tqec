@@ -239,6 +239,10 @@ class ExtendedPlaquette:
 
 @dataclass(frozen=True)
 class ExtendedPlaquetteCollection:
+    """Left and right here refer to which end of the row of extended plaquettes the given plaquette
+    is at.
+    """
+
     bulk: ExtendedPlaquette
     left_with_arm: ExtendedPlaquette
     left_without_arm: ExtendedPlaquette
