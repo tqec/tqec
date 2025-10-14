@@ -17,19 +17,15 @@ abstract base class:
 1. **LayeredBlock** - Represents blocks as a sequence of layers that can be instances
    of :class:`~tqec.compile.blocks.layers.atomic.base.BaseLayer` or
    :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer`. This is the
-   standard representation for blocks that follow a layer-synchronous schedule. Note that different blocks may have different schedules. 
-
-2. **InjectedBlock** - Represents blocks via direct circuit representation using
-   :class:`~tqec.compile.blocks.block.CircuitWithInterface`. 
+   standard representation for blocks that follow a layer-synchronous schedule. 
    
-The regular memory block follows the schedule::
+   Note that different blocks may have different schedules. For example, the regular memory block follows the schedule:
 
     1. initialisation layer,
     2. repeat [memory layer],
     3. measurement layer,
 
-whereas a spatial pipe in the ``Y`` axis needs to alternate plaquettes in its
-repeated layer, leading to a schedule that is::
+whereas a spatial pipe in the ``Y`` axis needs to alternate plaquettes in its repeated layer, leading to a schedule that is::
 
     1. initialisation layer,
     2. repeat [memory layer 1 alternated with memory layer 2],
@@ -37,6 +33,9 @@ repeated layer, leading to a schedule that is::
 
 Both of these can be represented as LayeredBlock instances.
 
+2. **InjectedBlock** - Represents blocks via direct circuit representation using
+   :class:`~tqec.compile.blocks.block.CircuitWithInterface`. 
+   
 Block Compilation
 ==================
 
