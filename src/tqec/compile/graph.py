@@ -390,14 +390,16 @@ class TopologicalComputationGraph:
                 "valid temporal pipe. Spatial and temporal pipes should "
                 "be handled separately."
             )
-        # Source
+        # Source: replace temporal border to connect with pipe
+        # Skip if source is an injected block (handles its own temporal boundaries)
         if source not in self._injected_blocks:
             self._replace_temporal_border(
                 source,
                 TemporalBlockBorder.Z_POSITIVE,
                 block.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE),
             )
-        # Sink
+        # Sink: replace temporal border to connect with pipe
+        # Skip if sink is an injected block (handles its own temporal boundaries)
         if sink not in self._injected_blocks:
             self._replace_temporal_border(
                 sink,
