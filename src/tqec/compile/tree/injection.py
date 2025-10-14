@@ -101,6 +101,7 @@ class InjectionBuilder:
 
         # commit the measurement indices from the tree circuit
         num_commit_measurements = self._mtracker.commit_current_slice()
+        # Only increment global count if NO injection occurred. When injection happens, measurements were already counted via _add_global_measurement during weaving.
         if not self._current_slice_has_injection:
             self._num_global_measurements += num_commit_measurements
 
@@ -115,11 +116,14 @@ class InjectionBuilder:
         The slice becomes the active ``cur`` circuit. Tree measurements are
         registered with the tracker so that subsequent injections can safely
         remap their lookbacks against the updated global indices.
+
+        Performance note: Flattening only occurs in _weave_into_cur_circuit
+        when injection requires merging circuits.
         """
         # commit the previous circuit
         self._commit_prev_circuit()
         self._mtracker.start_new_slice(circuit.num_measurements)
-        self._cur_circuit = circuit.flattened()
+        self._cur_circuit = circuit
         self._current_slice_has_injection = False
         self._remap_tree_circuit_det_obs()
 
@@ -138,6 +142,7 @@ class InjectionBuilder:
         block_qubit_shape = block.scalable_shape.to_numpy_shape(self._k)
 
         def transform(q: complex) -> complex:
+            # Transform block coordinates to global tree coordinates.
             return complex(
                 q.real + position.x * (block_qubit_shape[0] - 1),
                 q.imag + position.y * (block_qubit_shape[1] - 1),
@@ -188,8 +193,12 @@ class InjectionBuilder:
         The method pairs layer sequences, remaps detector lookbacks, and updates
         measurement tracking so that subsequent slices observe the correct
         global indices when referencing tree measurements.
+
+        Performance note: Both circuits are flattened here because weaving requires
+        matching layer sequences, which cannot preserve REPEAT loops across circuits.
         """
-        layers0 = gen.LayerCircuit.from_stim_circuit(self._cur_circuit)
+        # Flatten both circuits for layer-by-layer merging
+        layers0 = gen.LayerCircuit.from_stim_circuit(self._cur_circuit.flattened())
         layers1 = gen.LayerCircuit.from_stim_circuit(circuit.flattened())
         paired_layers0, paired_layers1 = _pair_layer_circuits(layers0, layers1, alignment)
         stacked_layers: list[Layer] = []
@@ -330,14 +339,17 @@ class InjectionBuilder:
         """Reindex the qubits of the given circuit according to the global qubit map.
 
         If a qubit is not in the global qubit map, a new index is assigned to it.
+
         """
         reindexed_circuit = stim.Circuit()
         index_map: dict[int, int] = {}
         for i, coords in circuit.get_final_qubit_coordinates().items():
             q = complex(*coords)
             if q in self._q2i:
+                # Qubit already in global map - use existing index
                 index_map[i] = self._q2i[q]
             else:
+                # New qubit from injection - register it in global map
                 ni = len(self._q2i)
                 self._q2i[q] = ni
                 index_map[i] = ni
@@ -520,7 +532,15 @@ def _pair_layer_circuits(
 
 
 def _add_unique_flows(flows: Iterable[gen.FlowSemiAuto], add_to: list[gen.FlowSemiAuto]) -> None:
-    add_to.extend(flow for flow in flows if flow not in add_to)
+    """Add flows to add_to, skipping duplicates.
+
+    Performance note: FlowSemiAuto is not directly hashable
+    """
+    existing_ids = {id(flow) for flow in add_to}
+    # Also check equality to handle equivalent flows with different ids
+    for flow in flows:
+        if id(flow) not in existing_ids and flow not in add_to:
+            add_to.append(flow)
 
 
 def _split_circuit_into_fragment_circuits(circuit: stim.Circuit) -> list[stim.Circuit]:
