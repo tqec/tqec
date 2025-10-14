@@ -1,8 +1,15 @@
 """Provide a flexible representation to define blocks.
 
 The main data-structure provided by this module is
-:class:`~tqec.compile.blocks.block.Block`, an abstract base class representing
-a unit of quantum computation with defined spatial and temporal footprint.
+:class:`~tqec.compile.blocks.block.Block`. It is able to represent in a flexible
+manner anything that looks like a block in a topological computation represented
+using SketchUp. In particular, that data-structure can be used to represent both
+cubes and pipes.
+
+In a topological computation, :class:`~tqec.compile.blocks.block.Block`
+instances will happen in parallel, and ``tqec`` needs to account for that:
+operations happening in parallel should be encoded in the same moment (i.e.,
+between the same two ``TICK`` instructions) in the resulting ``.stim`` file.
 
 This module provides two implementations of the :class:`~tqec.compile.blocks.block.Block`
 abstract base class:
@@ -10,7 +17,7 @@ abstract base class:
 1. **LayeredBlock** - Represents blocks as a sequence of layers that can be instances
    of :class:`~tqec.compile.blocks.layers.atomic.base.BaseLayer` or
    :class:`~tqec.compile.blocks.layers.composed.base.BaseComposedLayer`. This is the
-   standard representation for blocks that follow a layer-synchronous schedule.
+   standard representation for blocks that follow a layer-synchronous schedule. Note that different blocks may have different schedules. 
 
 2. **InjectedBlock** - Represents blocks via direct circuit representation using
    :class:`~tqec.compile.blocks.block.CircuitWithInterface`. 

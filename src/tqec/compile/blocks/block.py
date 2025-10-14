@@ -253,19 +253,6 @@ class CircuitWithInterface:
             :class:`gen.ChunkInterface` with ports (stabilizer Pauli products)
             and discards (rejected flows).
 
-    Example:
-        For a Y-basis measurement block::
-
-            circuit = stim.Circuit()
-            # ... build Y-measurement circuit with gate teleportation ...
-
-            interface = gen.ChunkInterface(ports=[
-                gen.PauliMap({(0,0): 'X', (1,0): 'X'}),  # X stabilizer
-                gen.PauliMap({(0,0): 'Z', (1,0): 'Z'}),  # Z stabilizer
-            ])
-
-            circuit_with_interface = CircuitWithInterface(circuit, interface)
-
     See Also:
         - :class:`InjectedBlock` for usage in block representation
         - :class:`InjectionFactory` protocol for circuit generation
@@ -301,31 +288,10 @@ class InjectionFactory(Protocol):
     """Protocol for callables that generate scalable injected circuits.
 
     An InjectionFactory is a callable that produces a :class:`CircuitWithInterface`
-    from a scaling factor and optional observable annotations. This protocol enables
-    :class:`InjectedBlock` to defer circuit generation until compilation time when
-    the actual scaling factor is known.
-
-    Implementations of this protocol typically encapsulate the logic for generating
-    circuits that don't fit the layer model, such as Y-basis measurements via gate
-    teleportation or other protocols with complex temporal dependencies.
+    from a scaling factor and optional observable annotations. 
 
     The factory pattern allows the same block specification to be used at different
     scaling factors without regenerating the factory itself.
-
-    Example:
-        A Y-basis measurement factory might be implemented as::
-
-            def make_y_half_cube(
-                k: int,
-                annotate_observables: list[int] | None
-            ) -> CircuitWithInterface:
-                # Build circuit for Y-basis measurement at scaling factor k
-                circuit = generate_y_basis_circuit(k)
-
-                # Define the stabilizer interface
-                interface = gen.ChunkInterface(ports=[...])
-
-                return CircuitWithInterface(circuit, interface)
 
     See Also:
         - :class:`InjectedBlock` for usage of factories
@@ -357,27 +323,6 @@ class InjectionFactory(Protocol):
 
 class InjectedBlock(Block):
     """Represent temporally injected blocks like ``YHalfCube`` that don't fit the layer model.
-
-    Some blocks like ``YHalfCube`` (Y-basis measurement via gate teleportation) have
-    temporal dependencies that span multiple layers and cannot be cleanly decomposed
-    into a sequence of layer-synchronous operations. This class provides a direct
-    circuit representation with flow interfaces for such blocks.
-
-    Unlike :class:`LayeredBlock`, which exposes layer sequences that can be spatially
-    merged and temporally manipulated, :class:`InjectedBlock` represents blocks as
-    opaque circuits that are woven into tree-generated circuits at specific temporal
-    alignment points using :class:`~tqec.compile.tree.injection.InjectionBuilder`.
-
-    The block's :class:`InjectionFactory` generates circuits at compilation time when
-    the scaling factor is known, and the :class:`gen.ChunkInterface` specifies which
-    stabilizer flows enter and exit the block, enabling proper detector annotation
-    via flow matching with surrounding computation.
-
-    Limitations:
-        - Cannot be spatially trimmed or temporally manipulated like LayeredBlock
-        - No layer-level access or manipulation
-        - Must be injected whole into computation
-        - Requires gen library for flow-based detector annotation
 
     See Also:
         - :class:`LayeredBlock` for layer-based block representation
