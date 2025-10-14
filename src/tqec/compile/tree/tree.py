@@ -376,9 +376,30 @@ class LayerTree:
         return self._get_circuit_after_injection(k)
 
     def _get_circuit_after_injection(self, k: int) -> stim.Circuit:
-        qubit_map = self._get_annotation(k).qubit_map
-        assert qubit_map is not None
+        """Generate circuit by weaving injected blocks into layer tree circuits.
 
+        This method implements temporal injection: it walks through z-slices in order,
+        alternating between tree-generated circuits and injected blocks while maintaining correct detector lookbacks and flow annotations.
+
+        Algorithm:
+        1. Generate circuits for all layer tree z-slices
+        2. Map observables to their Y-basis injection positions
+        3. Pre-group injected blocks by z-coordinate for efficiency
+        4. For each z in sorted order:
+           a. Append tree circuit (if any) for this z
+           b. Inject all blocks at this z-coordinate
+        5. Finalize with InjectionBuilder to produce complete circuit
+
+        Args:
+            k: The scaling factor
+
+        Returns:
+            Complete circuit with injected blocks woven in at appropriate z-slices
+        """
+        qubit_map = self._get_annotation(k).qubit_map
+        assert qubit_map is not None, "Qubit map must be annotated before injection"
+
+        # Generate tree circuits for each z-slice
         circuits_by_z: dict[int, stim.Circuit] = {}
         for node in self._root.children:
             assert isinstance(node._layer, SequencedLayers)
@@ -389,24 +410,38 @@ class LayerTree:
         # included observable indices at each injection position
         injection_obs_indices: dict[BlockPosition3D, list[int]] = {}
         for obs_idx, obs in enumerate(self._abstract_observables):
-            for cube in obs.y_half_cubes:
-                pos = BlockPosition3D(*cube.position.as_tuple())
-                injection_obs_indices.setdefault(pos, []).append(obs_idx)
+            if hasattr(obs, 'y_half_cubes'):
+                for cube in obs.y_half_cubes:
+                    pos = BlockPosition3D(*cube.position.as_tuple())
+                    injection_obs_indices.setdefault(pos, []).append(obs_idx)
 
+        # Convert coordinate systems for InjectionBuilder
         q2i = {complex(q.x, q.y): i for q, i in qubit_map.q2i.items()}
         o2i = {i: i for i in range(len(self._abstract_observables))}
         builder = InjectionBuilder(k, q2i, o2i)
 
-        all_zs = sorted(set(circuits_by_z.keys()) | {pos.z for pos in self._injected_blocks})
+        # Pre-group injected blocks by z-coordinate for efficient lookup
+        injections_by_z: dict[int, dict[BlockPosition3D, InjectedBlock]] = {}
+        for pos, block in self._injected_blocks.items():
+            injections_by_z.setdefault(pos.z, {})[pos] = block
+
+        # Walk through all z-slices in order
+        all_zs = sorted(set(circuits_by_z.keys()) | set(injections_by_z.keys()))
         for z in all_zs:
-            injection_blocks = {
-                pos: block for pos, block in self._injected_blocks.items() if pos.z == z
-            }
+            # Get tree circuit (empty if injection-only slice)
             circuit_at_z = circuits_by_z.get(z, stim.Circuit())
-            assert injection_blocks or circuit_at_z
+            injection_blocks = injections_by_z.get(z, {})
+
+            if not injection_blocks and not circuit_at_z:
+                raise TQECError(
+                    f"Empty z-slice at z={z}. Each slice must have either "
+                    "a tree circuit or injected blocks."
+                )
+
             builder.append_tree_circuit(circuit_at_z)
             for pos, block in injection_blocks.items():
                 builder.inject(pos.as_2d(), block, injection_obs_indices.get(pos, []))
+
         return builder.finish()
 
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
