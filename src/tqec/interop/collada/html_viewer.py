@@ -31,8 +31,8 @@ class _ColladaHTMLViewer:
     </script>
     <style>
       body {
-        background-color: white;                       
-      }                         
+        background-color: white;
+      }
     </style>
 </head>
 
