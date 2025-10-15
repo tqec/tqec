@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Final, Protocol
+from typing import Protocol
 
 from tqec.compile.blocks.block import Block, LayeredBlock
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -21,8 +21,6 @@ from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
-
-_DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
 
 
 class _PlaquettesGenerator(Protocol):
@@ -158,7 +156,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
             _spatial_plaquettes_generator,
         )
 
-    def __call__(self, spec: CubeSpec) -> Block:
+    def __call__(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
         """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
         kind = spec.kind
         if isinstance(kind, Port):
@@ -173,7 +171,7 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
             has_spatial_junction_in_timeslice=spec.has_spatial_up_or_down_pipe_in_timeslice,
             template=template,
             plaquettes_generator=pgen,
-            repetitions=_DEFAULT_BLOCK_REPETITIONS,
+            repetitions=block_temporal_height,
         )
 
 
@@ -196,11 +194,11 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         """
         self._generator = FixedBoundaryConventionGenerator(translator, compiler)
 
-    def __call__(self, spec: PipeSpec) -> LayeredBlock:
+    def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> LayeredBlock:
         """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
         if spec.pipe_kind.is_temporal:
             return self.get_temporal_pipe_block(spec)
-        return self.get_spatial_pipe_block(spec)
+        return self.get_spatial_pipe_block(spec, block_temporal_height)
 
     #######################
     #    TEMPORAL PIPE    #
@@ -281,7 +279,9 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             arms |= SpatialArms.LEFT if pipedir == Direction3D.X else SpatialArms.UP
         return arms
 
-    def _get_spatial_cube_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
+    def _get_spatial_cube_pipe_block(
+        self, spec: PipeSpec, block_temporal_height: LinearFunction
+    ) -> LayeredBlock:
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
@@ -299,7 +299,7 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             spec.has_spatial_up_or_down_pipe_in_timeslice,
             pipe_template,
             plaquettes_generator,
-            _DEFAULT_BLOCK_REPETITIONS,
+            block_temporal_height,
         )
 
     def _get_spatial_regular_pipe_template(self, spec: PipeSpec) -> RectangularTemplate:
@@ -368,7 +368,9 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             )
         )
 
-    def _get_spatial_regular_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
+    def _get_spatial_regular_pipe_block(
+        self, spec: PipeSpec, block_temporal_height: LinearFunction
+    ) -> LayeredBlock:
         assert all(not spec.is_spatial for spec in spec.cube_specs)
         plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
         template = self._get_spatial_regular_pipe_template(spec)
@@ -379,16 +381,18 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
             spec.has_spatial_up_or_down_pipe_in_timeslice,
             template,
             plaquettes_factory,
-            _DEFAULT_BLOCK_REPETITIONS,
+            block_temporal_height,
         )
 
-    def get_spatial_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
+    def get_spatial_pipe_block(
+        self, spec: PipeSpec, block_temporal_height: LinearFunction
+    ) -> LayeredBlock:
         """Return a :class:`.Block` instance implementing the provided ``spec``."""
         assert spec.pipe_kind.is_spatial
         cube_specs = spec.cube_specs
         if cube_specs[0].is_spatial or cube_specs[1].is_spatial:
-            return self._get_spatial_cube_pipe_block(spec)
-        return self._get_spatial_regular_pipe_block(spec)
+            return self._get_spatial_cube_pipe_block(spec, block_temporal_height)
+        return self._get_spatial_regular_pipe_block(spec, block_temporal_height)
 
 
 FIXED_BOUNDARY_CUBE_BUILDER = FixedBoundaryCubeBuilder(IdentityPlaquetteCompiler)

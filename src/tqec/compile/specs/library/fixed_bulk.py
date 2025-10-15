@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from typing import Final
 
 from typing_extensions import override
 
@@ -29,8 +28,6 @@ from tqec.utils.enums import Basis, Orientation
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D
 from tqec.utils.scale import LinearFunction
-
-_DEFAULT_BLOCK_REPETITIONS: Final[LinearFunction] = LinearFunction(2, -1)
 
 
 class FixedBulkCubeBuilder(CubeBuilder):
@@ -79,7 +76,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
         )
 
     @override
-    def __call__(self, spec: CubeSpec) -> Block:
+    def __call__(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
         kind = spec.kind
         if isinstance(kind, Port):
             raise TQECError("Cannot build a block for a Port.")
@@ -91,7 +88,7 @@ class FixedBulkCubeBuilder(CubeBuilder):
         template, (init, repeat, measure) = self._get_template_and_plaquettes(spec)
         layers: list[BaseLayer | BaseComposedLayer] = [
             PlaquetteLayer(template, init),
-            RepeatedLayer(PlaquetteLayer(template, repeat), repetitions=_DEFAULT_BLOCK_REPETITIONS),
+            RepeatedLayer(PlaquetteLayer(template, repeat), repetitions=block_temporal_height),
             PlaquetteLayer(template, measure),
         ]
         return LayeredBlock(layers)
@@ -113,10 +110,10 @@ class FixedBulkPipeBuilder(PipeBuilder):
         self._generator = FixedBulkConventionGenerator(translator, compiler)
 
     @override
-    def __call__(self, spec: PipeSpec) -> LayeredBlock:
+    def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> LayeredBlock:
         if spec.pipe_kind.is_temporal:
             return self._get_temporal_pipe_block(spec)
-        return self._get_spatial_pipe_block(spec)
+        return self._get_spatial_pipe_block(spec, block_temporal_height)
 
     #######################
     #    TEMPORAL PIPE    #
@@ -253,7 +250,9 @@ class FixedBulkPipeBuilder(PipeBuilder):
             arms |= SpatialArms.LEFT if pipedir == Direction3D.X else SpatialArms.UP
         return arms
 
-    def _get_spatial_cube_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
+    def _get_spatial_cube_pipe_block(
+        self, spec: PipeSpec, block_temporal_height: LinearFunction
+    ) -> LayeredBlock:
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
@@ -274,7 +273,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
                 PlaquetteLayer(pipe_template, initialisation_plaquettes),
                 RepeatedLayer(
                     PlaquetteLayer(pipe_template, temporal_bulk_plaquettes),
-                    repetitions=_DEFAULT_BLOCK_REPETITIONS,
+                    repetitions=block_temporal_height,
                 ),
                 PlaquetteLayer(pipe_template, measurement_plaquettes),
             ]
@@ -332,7 +331,9 @@ class FixedBulkPipeBuilder(PipeBuilder):
             case _:
                 raise TQECError("Spatial pipes cannot have a direction equal to Direction3D.Z.")
 
-    def _get_spatial_regular_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
+    def _get_spatial_regular_pipe_block(
+        self, spec: PipeSpec, block_temporal_height: LinearFunction
+    ) -> LayeredBlock:
         assert all(not spec.is_spatial for spec in spec.cube_specs)
         plaquettes_factory = self._get_spatial_regular_pipe_plaquettes_factory(spec)
         template = self._get_spatial_regular_pipe_template(spec)
@@ -347,7 +348,7 @@ class FixedBulkPipeBuilder(PipeBuilder):
                     template,
                     plaquettes_factory(None, None),
                 ),
-                repetitions=_DEFAULT_BLOCK_REPETITIONS,
+                repetitions=block_temporal_height,
             ),
             PlaquetteLayer(
                 template,
@@ -356,12 +357,16 @@ class FixedBulkPipeBuilder(PipeBuilder):
         ]
         return LayeredBlock(layers)
 
-    def _get_spatial_pipe_block(self, spec: PipeSpec) -> LayeredBlock:
+    def _get_spatial_pipe_block(
+        self, spec: PipeSpec, block_temporal_height: LinearFunction
+    ) -> LayeredBlock:
         """Return the block to implement a spatial pipe based on the provided ``spec``.
 
         Args:
             spec: description of the pipe that should be implemented by this method. Should be a
                 spatial pipe.
+            block_temporal_height: the number of rounds of stabilizer measurements
+            (ignoring one layer for initialization and another for final measurement).
 
         Raises:
             AssertionError: if ``spec`` does not represent a spatial pipe.
@@ -373,8 +378,8 @@ class FixedBulkPipeBuilder(PipeBuilder):
         assert spec.pipe_kind.is_spatial
         cube_specs = spec.cube_specs
         if cube_specs[0].is_spatial or cube_specs[1].is_spatial:
-            return self._get_spatial_cube_pipe_block(spec)
-        return self._get_spatial_regular_pipe_block(spec)
+            return self._get_spatial_cube_pipe_block(spec, block_temporal_height)
+        return self._get_spatial_regular_pipe_block(spec, block_temporal_height)
 
 
 FIXED_BULK_CUBE_BUILDER: CubeBuilder = FixedBulkCubeBuilder(IdentityPlaquetteCompiler)
