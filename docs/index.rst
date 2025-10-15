@@ -11,6 +11,7 @@
    Introduction <self>
    User Guide <user_guide/index>
    Gallery <gallery/index>
+   Integration <integration/index>
    Contributor Guide <contributor_guide>
    API Reference <api>
    Ethical Notice <ethical_notice>

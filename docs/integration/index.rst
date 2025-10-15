@@ -3,11 +3,9 @@
 Integration Gallery
 ===================
 
-This section contains examples of how to use (NISQ) circuits designed with external frameworks including, but not limited to, Qiskit and Cirq.
+Examples of how to use NISQ circuits designed with external frameworks (e.g., Qiskit, Qrisp, etc.).
 
-.. nbintegration::
+.. nbgallery::
 
-   cirq.ipynb
-   pytket.ipynb
    qiskit.ipynb
    qrisp.ipynb
