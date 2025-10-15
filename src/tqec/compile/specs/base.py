@@ -87,7 +87,7 @@ class CubeSpec:
                     "The `spatial_arms` attribute should be `SpatialArms.NONE` "
                     "for non-spatial cubes."
                 )
-        if isinstance(self.kind, YHalfCube) + (self.y_half_cube_spec is not None) == 1:
+        if isinstance(self.kind, YHalfCube) != (self.y_half_cube_spec is not None):
             raise TQECError(
                 "The ``y_half_cube_spec`` attribute should be set if and only if "
                 "the cube is a ``YHalfCube``."
@@ -167,7 +167,7 @@ class PipeBuilder(Protocol):
         """Build a ``LayeredBlock`` instance from a ``PipeSpec``.
 
         Args:
-            spec: Specification of the cube in the block graph.
+            spec: Specification of the pipe in the block graph.
 
         Returns:
             a ``LayeredBlock`` based on the provided `PipeSpec`.
