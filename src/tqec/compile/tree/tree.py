@@ -410,10 +410,9 @@ class LayerTree:
         # included observable indices at each injection position
         injection_obs_indices: dict[BlockPosition3D, list[int]] = {}
         for obs_idx, obs in enumerate(self._abstract_observables):
-            if hasattr(obs, 'y_half_cubes'):
-                for cube in obs.y_half_cubes:
-                    pos = BlockPosition3D(*cube.position.as_tuple())
-                    injection_obs_indices.setdefault(pos, []).append(obs_idx)
+            for cube in obs.y_half_cubes:
+                pos = BlockPosition3D(*cube.position.as_tuple())
+                injection_obs_indices.setdefault(pos, []).append(obs_idx)
 
         # Convert coordinate systems for InjectionBuilder
         q2i = {complex(q.x, q.y): i for q, i in qubit_map.q2i.items()}
