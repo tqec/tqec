@@ -38,7 +38,7 @@ of ``tqec`` through ``pip`` or ``uv``.
             cd tqec
 
             # Update pip to at least v25.1
-            python -m pip install --upgrade pip>=25.1
+            python -m pip install --upgrade "pip>=25.1"
 
             # Install developer dependencies
             python -m pip install --group all

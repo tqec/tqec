@@ -8,7 +8,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any, ClassVar, Final, Literal
+from typing import Any, ClassVar, Final
 
 import numpy
 import semver
@@ -27,7 +27,7 @@ from tqec.templates.subtemplates import SubTemplateType
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Shift2D
 
-CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(2, 0, 0)
+CURRENT_DATABASE_VERSION: Final[semver.Version] = semver.Version(1, 1, 0)
 
 
 @dataclass(frozen=True)
@@ -216,18 +216,23 @@ class _DetectorDatabaseKey:
 
 class _DetectorDatabaseIO:
     @staticmethod
+    def _handle_load_error(filepath: Path, exception: Exception, ext: str) -> DetectorDatabase:
+        moving_location = filepath.parent / f"faulty_database_{hash(exception)}.{ext}"
+        warnings.warn(
+            f"Error ({type(exception).__name__}) "
+            f"when reading the database at {filepath}: {exception}. "
+            f"Moving the database to {moving_location} and returning an empty database."
+        )
+        filepath.rename(moving_location)
+        return DetectorDatabase()
+
+    @staticmethod
     def from_pickle_file(filepath: Path) -> DetectorDatabase:
         try:
             with open(filepath, "rb") as f:
                 database = pickle.load(f)
-        except pickle.PickleError as e:
-            moving_location = filepath.parent / f"faulty_database_{hash(e)}.pkl"
-            warnings.warn(
-                f"Error when reading the database at {filepath}: {e}. Moving the database to "
-                f"{moving_location} and returning an empty database."
-            )
-            filepath.rename(moving_location)
-            return DetectorDatabase()
+        except Exception as e:
+            return _DetectorDatabaseIO._handle_load_error(filepath, e, "pkl")
 
         if not isinstance(database, DetectorDatabase):
             raise TQECError(
@@ -239,9 +244,20 @@ class _DetectorDatabaseIO:
 
     @staticmethod
     def from_json_file(filepath: Path) -> DetectorDatabase:
-        with open(filepath) as f:
-            data = json.load(f)
-            return DetectorDatabase.from_dict(data)
+        try:
+            with open(filepath) as f:
+                data = json.load(f)
+                database = DetectorDatabase.from_dict(data)
+        except Exception as e:
+            return _DetectorDatabaseIO._handle_load_error(filepath, e, "json")
+
+        if not isinstance(database, DetectorDatabase):
+            raise TQECError(
+                f"Found the Python type {type(database).__name__} in the "
+                f"provided file but {type(DetectorDatabase).__name__} was "
+                "expected."
+            )
+        return database
 
     @staticmethod
     def to_pickle_file(filepath: Path, database: DetectorDatabase) -> None:
@@ -252,6 +268,18 @@ class _DetectorDatabaseIO:
     def to_json_file(filepath: Path, database: DetectorDatabase) -> None:
         with open(filepath, "w") as f:
             json.dump(database.to_dict(), f)
+
+
+def _get_database_format(filepath: Path) -> str:
+    suffix = filepath.suffix.lower()
+    if suffix in {".pkl", ".pickle"}:
+        return "pickle"
+    if suffix in {".json"}:
+        return "json"
+    raise TQECError(
+        f"Could not infer the database format from the provided filepath ('{filepath}'). "
+        "Supported formats are:\n  -" + "\n  -".join(DetectorDatabase._WRITERS.keys())
+    )
 
 
 class DetectorDatabase:
@@ -462,32 +490,24 @@ class DetectorDatabase:
         }
         return DetectorDatabase(mapping, data["frozen"])
 
-    def to_file(self, filepath: Path, format: Literal["pickle", "json"] = "pickle") -> None:
+    def to_file(self, filepath: Path) -> None:
         """Save the database to a file.
 
         Args:
             filepath: path to the file where the database should be saved.
-            format: format to use to save the database. Currently only
-                "pickle" and "json" are supported.
 
         """
         if not filepath.parent.exists():
             filepath.parent.mkdir(parents=True)
-        if format not in DetectorDatabase._WRITERS:
-            raise TQECError(
-                f"Could not save the database: the provided format {format} is not supported. "
-                + "Supported formats are:\n  -"
-                + "\n  -".join(DetectorDatabase._WRITERS.keys())
-            )
+        format = _get_database_format(filepath)
         DetectorDatabase._WRITERS[format](filepath, self)
 
     @staticmethod
-    def from_file(filepath: Path, format: Literal["pickle", "json"] = "pickle") -> DetectorDatabase:
+    def from_file(filepath: Path) -> DetectorDatabase:
         """Initialise a new instance from a file.
 
         Args:
             filepath: path to a file where a :class:`.DetectorDatabase` instance has been saved.
-            format: how the database was saved in ``filepath``.
 
         Returns:
             a new :class:`.DetectorDatabase` instance read from the provided ``filepath``.
@@ -498,10 +518,5 @@ class DetectorDatabase:
                 f"Could not read the database: the provided filepath ('{filepath}') does not exist "
                 "on disk."
             )
-        if format not in DetectorDatabase._READERS:
-            raise TQECError(
-                f"Could not read the database: the provided format {format} is not supported. "
-                + "Supported formats are:\n  -"
-                + "\n  -".join(DetectorDatabase._READERS.keys())
-            )
+        format = _get_database_format(filepath)
         return DetectorDatabase._READERS[format](filepath)

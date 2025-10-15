@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build >= 0.7.19, <0.9.0"]
+requires = ["uv_build >= 0.7.19, < 0.10.0"]
 build-backend = "uv_build"
 
 [project]
@@ -43,7 +43,7 @@ dependencies = [
     "platformdirs<=4.4.0",
     "pycollada<=0.9.1",
     "pycryptosat<=5.11.21",
-    "python-sat[cryptosat]<=1.8.dev23",
+    "python-sat[cryptosat]<=1.8.dev24",
     "pyzx<=0.9.0",
     "scipy<=1.15.3",
     "semver<=3.0.4",
@@ -82,6 +82,7 @@ docs = [
   "sphinx-copybutton<=0.5.2",
   "sphinxcontrib-bibtex<=2.64",
   "jupyter-sphinx<=0.5.3",
+  "pymatching>=2.3.1",
 ]
 
 bench = ["pyinstrument"]
@@ -93,7 +94,7 @@ dev = [
     "pandoc<=2.4",
     "pre-commit<=4.3.0",
     "pydata-sphinx-theme<=0.16.1",
-    "pymatching<=2.3.0",
+    "pymatching>=2.3.1",
     "pytest<=8.4.1",
     "pytest-cov<=6.2.1",
     # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we

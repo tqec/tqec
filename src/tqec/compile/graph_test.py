@@ -3,6 +3,7 @@ import pytest
 from tqec.compile.blocks.block import LayeredBlock
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
+from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS
 from tqec.compile.graph import TopologicalComputationGraph
 from tqec.compile.observables.builder import ObservableBuilder
 from tqec.compile.observables.fixed_bulk_builder import FIXED_BULK_OBSERVABLE_BUILDER
@@ -29,7 +30,7 @@ def scalable_qubit_shape_fixture() -> PhysicalQubitScalable2D:
 
 @pytest.fixture(name="xzz")
 def xzz_fixture() -> LayeredBlock:
-    block = FIXED_BULK_CUBE_BUILDER(CubeSpec(ZXCube.from_str("xzz")))
+    block = FIXED_BULK_CUBE_BUILDER(CubeSpec(ZXCube.from_str("xzz")), _DEFAULT_BLOCK_REPETITIONS)
     assert isinstance(block, LayeredBlock)
     return block
 
@@ -41,7 +42,8 @@ def xzo_fixture(xzz: LayeredBlock) -> LayeredBlock:
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
     return FIXED_BULK_PIPE_BUILDER(
-        PipeSpec((spec, spec), (template, template), PipeKind.from_str("xzo"))
+        PipeSpec((spec, spec), (template, template), PipeKind.from_str("xzo")),
+        _DEFAULT_BLOCK_REPETITIONS,
     )
 
 
@@ -52,7 +54,8 @@ def ozz_fixture(xzz: LayeredBlock) -> LayeredBlock:
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
     return FIXED_BULK_PIPE_BUILDER(
-        PipeSpec((spec, spec), (template, template), PipeKind.from_str("OZZ"))
+        PipeSpec((spec, spec), (template, template), PipeKind.from_str("OZZ")),
+        _DEFAULT_BLOCK_REPETITIONS,
     )
 
 
@@ -63,7 +66,8 @@ def xoz_fixture(xzz: LayeredBlock) -> LayeredBlock:
     assert isinstance(first_layer, PlaquetteLayer)
     template = first_layer.template
     return FIXED_BULK_PIPE_BUILDER(
-        PipeSpec((spec, spec), (template, template), PipeKind.from_str("xoz"))
+        PipeSpec((spec, spec), (template, template), PipeKind.from_str("xoz")),
+        _DEFAULT_BLOCK_REPETITIONS,
     )
 
 
