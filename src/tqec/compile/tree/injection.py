@@ -85,7 +85,13 @@ class InjectionBuilder:
         builder is ready for the next slice.
         """
         if self._prev_circuit:
-            fragments = _split_circuit_into_fragment_circuits(self._prev_circuit)
+            # Flatten the circuit if there are flows to resolve across REPEAT boundaries.
+            # Without flows, REPEAT loops can be preserved for efficiency.
+            circuit_to_split = (
+                self._prev_circuit.flattened() if self._prev_flows
+                else self._prev_circuit
+            )
+            fragments = _split_circuit_into_fragment_circuits(circuit_to_split)
             for i, fragment in enumerate(fragments):
                 flows = []
                 if i == 0:
