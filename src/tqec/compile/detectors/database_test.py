@@ -188,6 +188,17 @@ def test_detector_database_translation_invariance() -> None:
     assert detectors == DETECTORS[0]
 
 
+def test_load_database_pickle_error(tmp_path):
+    bad_pickle = tmp_path / "bad.pkl"
+    bad_pickle.write_bytes(b"not a pickle")
+    with pytest.warns(UserWarning, match="Error"):
+        db = DetectorDatabase.from_file(bad_pickle)
+    assert isinstance(db, DetectorDatabase)
+    assert len(db) == 0
+    assert not bad_pickle.exists()
+    assert list(tmp_path.glob("faulty_database_*.pkl"))
+
+
 def test_detector_database_dict() -> None:
     db = DetectorDatabase()
     db.add_situation(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1], DETECTORS[0])

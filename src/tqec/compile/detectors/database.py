@@ -216,18 +216,23 @@ class _DetectorDatabaseKey:
 
 class _DetectorDatabaseIO:
     @staticmethod
+    def _handle_load_error(filepath: Path, exception: Exception, ext: str) -> DetectorDatabase:
+        moving_location = filepath.parent / f"faulty_database_{hash(exception)}.{ext}"
+        warnings.warn(
+            f"Error ({type(exception).__name__}) "
+            f"when reading the database at {filepath}: {exception}. "
+            f"Moving the database to {moving_location} and returning an empty database."
+        )
+        filepath.rename(moving_location)
+        return DetectorDatabase()
+
+    @staticmethod
     def from_pickle_file(filepath: Path) -> DetectorDatabase:
         try:
             with open(filepath, "rb") as f:
                 database = pickle.load(f)
-        except pickle.PickleError as e:
-            moving_location = filepath.parent / f"faulty_database_{hash(e)}.pkl"
-            warnings.warn(
-                f"Error when reading the database at {filepath}: {e}. Moving the database to "
-                f"{moving_location} and returning an empty database."
-            )
-            filepath.rename(moving_location)
-            return DetectorDatabase()
+        except Exception as e:
+            return _DetectorDatabaseIO._handle_load_error(filepath, e, "pkl")
 
         if not isinstance(database, DetectorDatabase):
             raise TQECError(
@@ -239,9 +244,20 @@ class _DetectorDatabaseIO:
 
     @staticmethod
     def from_json_file(filepath: Path) -> DetectorDatabase:
-        with open(filepath) as f:
-            data = json.load(f)
-            return DetectorDatabase.from_dict(data)
+        try:
+            with open(filepath) as f:
+                data = json.load(f)
+                database = DetectorDatabase.from_dict(data)
+        except Exception as e:
+            return _DetectorDatabaseIO._handle_load_error(filepath, e, "json")
+
+        if not isinstance(database, DetectorDatabase):
+            raise TQECError(
+                f"Found the Python type {type(database).__name__} in the "
+                f"provided file but {type(DetectorDatabase).__name__} was "
+                "expected."
+            )
+        return database
 
     @staticmethod
     def to_pickle_file(filepath: Path, database: DetectorDatabase) -> None:
