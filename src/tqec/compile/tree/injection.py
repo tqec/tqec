@@ -11,6 +11,7 @@ from tqecd.fragment import Fragment, FragmentLoop, split_stim_circuit_into_fragm
 
 from tqec.compile.blocks.block import InjectedBlock
 from tqec.compile.blocks.enums import Alignment
+from tqec.post_processing.remove import remove_empty_moments
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition2D
 
@@ -72,7 +73,9 @@ class InjectionBuilder:
         # commit 2 extra times for prev and cur circuits
         for _ in range(2):
             self._commit_prev_circuit()
-        return gen.compile_chunks_into_circuit(self._chunks)  # type: ignore
+
+        circuit = gen.compile_chunks_into_circuit(self._chunks)  # type: ignore
+        return remove_empty_moments(circuit)
 
     def _commit_prev_circuit(self) -> None:
         """Commit the previous circuit slice and related metadata.
