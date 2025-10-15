@@ -33,7 +33,7 @@ class DiagonalType(Enum):
 
 @dataclass(frozen=True)
 class TwistLine:
-    """Represents a domain wall in the Y-basis transition.
+    """Represents a twist line in the Y-basis transition.
     
     Attributes:
         diagonal: Whether this is a main diagonal or anti-diagonal
