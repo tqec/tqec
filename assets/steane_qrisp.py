@@ -1,4 +1,7 @@
-# The following is how you would generate a Steane code using Qrisp.
+# Below a function that mimics how one would generate a Steane encoding using Qrisp.
+# The function is called by `./docs/integration/qrisp.ipynb`,
+# which shows how to import a Qrisp circuit into TQEC.
+
 from qrisp import QuantumBool, cx, h
 
 
