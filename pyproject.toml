@@ -82,6 +82,7 @@ docs = [
   "sphinx-copybutton<=0.5.2",
   "sphinxcontrib-bibtex<=2.64",
   "jupyter-sphinx<=0.5.3",
+  "pymatching>=2.3.1",
 ]
 
 bench = ["pyinstrument"]
@@ -93,7 +94,7 @@ dev = [
     "pandoc<=2.4",
     "pre-commit<=4.3.0",
     "pydata-sphinx-theme<=0.16.1",
-    "pymatching<=2.3.0",
+    "pymatching>=2.3.1",
     "pytest<=8.4.1",
     "pytest-cov<=6.2.1",
     # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
