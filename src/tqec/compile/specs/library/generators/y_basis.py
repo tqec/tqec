@@ -72,6 +72,42 @@ class TwistLine:
         else:
             return m.real - m.imag > self.position
 
+    def split_qubits_by_region(
+        self, qubits: set[complex]
+    ) -> tuple[set[complex], set[complex], set[complex]]:
+        """Split qubits into upper-left (before), middle (on/near), down-right (after) regions.
+
+        The middle region includes qubits on the twist line (position) and
+        qubits one position before it (position-1), which form the transition zone.
+
+        Returns:
+            (upper_left, middle, down_right) sets of qubits
+        """
+        upper_left: set[complex] = set()
+        middle: set[complex] = set()
+        down_right: set[complex] = set()
+
+        for q in qubits:
+            if self.diagonal == DiagonalType.MAIN:
+                coord_sum = q.real + q.imag
+                # Middle includes twist line (position) and one before (position-1)
+                if coord_sum < self.position - 1:
+                    upper_left.add(q)
+                elif coord_sum > self.position:
+                    down_right.add(q)
+                else:
+                    middle.add(q)
+            else:  # ANTI diagonal
+                coord_diff = q.real - q.imag
+                if coord_diff < self.position - 1:
+                    upper_left.add(q)
+                elif coord_diff > self.position:
+                    down_right.add(q)
+                else:
+                    middle.add(q)
+
+        return upper_left, middle, down_right
+
 
 @dataclass(frozen=True)
 class BoundaryRegion:
@@ -485,25 +521,6 @@ def _standard_surface_code_chunk(
     return builder.finish_chunk()
 
 
-def _split_ul_md_dr(
-    ps: Set[complex], distance: int
-) -> tuple[set[complex], set[complex], set[complex]]:
-    """Split the qubits into sets by their positions: upper-left, middle, down-right."""
-    ul: set[complex] = set()
-    md: set[complex] = set()
-    dr: set[complex] = set()
-    for m in ps:
-        dst: set[complex]
-        if m.real + m.imag < distance - 2:
-            dst = ul
-        elif m.real + m.imag >= distance:
-            dst = dr
-        else:
-            dst = md
-        dst.add(m)
-    return ul, md, dr
-
-
 def _make_y_transition_round(
     distance: int,
     top_boundary_basis_before_transition: Basis,
@@ -542,8 +559,9 @@ def _make_y_transition_round(
                 result.add(cast(tuple[complex, complex], (q, q + delta)[::sign]))
         return result
 
-    xs_ul, xs_md, xs_dr = _split_ul_md_dr(xs, distance)
-    zs_ul, zs_md, zs_dr = _split_ul_md_dr(zs, distance)
+    # Use TwistLine to split qubits by region
+    xs_ul, xs_md, xs_dr = geometry.twist_line.split_qubits_by_region(xs)
+    zs_ul, zs_md, zs_dr = geometry.twist_line.split_qubits_by_region(zs)
 
     if top_basis == "X":
         normal_x_order, normal_z_order = ORDER_H, ORDER_V
