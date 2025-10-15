@@ -80,11 +80,6 @@ class Alignment(Enum):
             next layer. Flow termination happens at the end of the current slice,
             and flow creation happens at the start of the next slice.
 
-    Example:
-        For Y-basis measurement via gate teleportation, HEAD alignment is typically
-        used because the measurement circuit must observe the state prepared in the
-        previous layer and create new stabilizers for continuing computation.
-
     See Also:
         - :class:`~tqec.compile.blocks.block.InjectedBlock` for usage context
         - :class:`~tqec.compile.tree.injection.InjectionBuilder` for implementation details

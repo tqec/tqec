@@ -33,12 +33,8 @@ class DiagonalType(Enum):
 
 @dataclass(frozen=True)
 class TwistLine:
-    """Represents a twist/domain wall line in the Y-basis transition.
-
-    A twist line is where the code patch undergoes a topological twist during
-    the Y-basis transition, changing from a normal surface code patch to a
-    degenerate boundary patch.
-
+    """Represents a domain wall in the Y-basis transition.
+    
     Attributes:
         diagonal: Whether this is a main diagonal or anti-diagonal
         position: Which diagonal line (as an offset from origin)
@@ -170,39 +166,40 @@ class TransitionGeometry:
             top_left_tile_basis=top_left_tile_basis,
         )
 
-    def get_new_boundary_for_basis(self, tile_basis: str) -> frozenset[complex]:
+    def get_new_boundary_for_basis(self, tile_basis: Basis | str) -> frozenset[complex]:
         """Get the new boundary qubits for a given tile basis after transition.
 
         During Y-transition, boundaries change. This computes which boundary
         becomes active for X-type or Z-type stabilizers after transition.
+
+        Args:
+            tile_basis: Basis as Basis enum or string "X"/"Z"
         """
+        # Normalize to Basis enum for consistent comparison
+        basis_enum = tile_basis if isinstance(tile_basis, Basis) else Basis(tile_basis)
+
         if self.top_boundary_basis == Basis.X:
             # X-top transitions to having Z on top and X on left
-            if tile_basis == "X":
-                return self.boundary.left_col
-            else:  # Z
-                return self.boundary.top_row
+            return self.boundary.left_col if basis_enum == Basis.X else self.boundary.top_row
         else:  # Z-top
             # Z-top transitions to having X on top and Z on left
-            if tile_basis == "X":
-                return self.boundary.top_row
-            else:  # Z
-                return self.boundary.left_col
+            return self.boundary.top_row if basis_enum == Basis.X else self.boundary.left_col
 
-    def get_old_boundary_for_basis(self, tile_basis: str) -> frozenset[complex]:
-        """Get the old boundary qubits for a given tile basis before transition."""
+    def get_old_boundary_for_basis(self, tile_basis: Basis | str) -> frozenset[complex]:
+        """Get the old boundary qubits for a given tile basis before transition.
+
+        Args:
+            tile_basis: Basis as Basis enum or string "X"/"Z"
+        """
+        # Normalize to Basis enum for consistent comparison
+        basis_enum = tile_basis if isinstance(tile_basis, Basis) else Basis(tile_basis)
+
         if self.top_boundary_basis == Basis.X:
             # Before transition: X on top, Z on left
-            if tile_basis == "X":
-                return self.boundary.top_row
-            else:  # Z
-                return self.boundary.left_col
+            return self.boundary.top_row if basis_enum == Basis.X else self.boundary.left_col
         else:  # Z-top
             # Before transition: Z on top, X on left
-            if tile_basis == "X":
-                return self.boundary.left_col
-            else:  # Z
-                return self.boundary.top_row
+            return self.boundary.left_col if basis_enum == Basis.X else self.boundary.top_row
 # Interaction orderings that are consistent with the plaquette
 # orderings used across TQEC
 ORDER_H = [UL, UR, DL, DR]

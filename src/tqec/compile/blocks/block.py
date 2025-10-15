@@ -241,10 +241,10 @@ class CircuitWithInterface:
 
     This dataclass pairs a Stim circuit with a flow interface from Gidney's gen
     library, enabling :class:`InjectedBlock` instances to specify both the quantum
-    operations and their stabilizer flow contracts.
+    gates and their stabilizer flow.
 
     The interface describes which stabilizers (Pauli products) enter and exit the
-    circuit, allowing the compilation framework to properly connect injected blocks
+    circuit, allowing the linker to properly connect injected blocks
     with tree-generated circuits while maintaining correct detector annotations.
 
     Attributes:
@@ -310,7 +310,7 @@ class InjectionFactory(Protocol):
             annotate_observables: If provided, the list of observable indices to
                 annotate in the generated circuit with OBSERVABLE_INCLUDE instructions.
                 Note that injection blocks typically support only a single unique
-                observable flow, so multiple indices will annotate replicates of the
+                observable flow, so multiple indices will annotate the
                 same observable flow with different observable IDs.
 
         Returns:
