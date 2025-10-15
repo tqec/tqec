@@ -53,6 +53,7 @@ class SequencedLayers(BaseComposedLayer):
             The z-coordinate if set, or ``None`` if temporal position is not tracked.
             The z-coordinate represents the temporal slice in the block graph where
             this layer sequence executes, used for coordinating with injected blocks.
+
         """
         return self._z_coordinate
 

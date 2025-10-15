@@ -378,8 +378,9 @@ class LayerTree:
     def _get_circuit_after_injection(self, k: int) -> stim.Circuit:
         """Generate circuit by weaving injected blocks into layer tree circuits.
 
-        This method implements temporal injection: it walks through z-slices in order,
-        alternating between tree-generated circuits and injected blocks while maintaining correct detector lookbacks and flow annotations.
+        This method implements temporal injection: it walks through z-slices in
+        order, alternating between tree-generated circuits and injected blocks
+        while maintaining correct detector lookbacks and flow annotations.
 
         Algorithm:
         1. Generate circuits for all layer tree z-slices
@@ -395,6 +396,7 @@ class LayerTree:
 
         Returns:
             Complete circuit with injected blocks woven in at appropriate z-slices
+
         """
         qubit_map = self._get_annotation(k).qubit_map
         assert qubit_map is not None, "Qubit map must be annotated before injection"
@@ -404,7 +406,9 @@ class LayerTree:
         for node in self._root.children:
             assert isinstance(node._layer, SequencedLayers)
             layer_z = node._layer.z_coordinate
-            assert layer_z is not None, "z_coordinate must be set for temporal injection coordination"
+            assert layer_z is not None, (
+                "z_coordinate must be set for temporal injection coordination."
+            )
             circuits_by_z[layer_z] = node.generate_circuit(k, qubit_map)
 
         # included observable indices at each injection position

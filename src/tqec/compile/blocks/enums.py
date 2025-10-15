@@ -83,6 +83,8 @@ class Alignment(Enum):
     See Also:
         - :class:`~tqec.compile.blocks.block.InjectedBlock` for usage context
         - :class:`~tqec.compile.tree.injection.InjectionBuilder` for implementation details
+
     """
+
     HEAD = "head"
     TAIL = "tail"

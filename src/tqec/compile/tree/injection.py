@@ -88,8 +88,7 @@ class InjectionBuilder:
             # Flatten the circuit if there are flows to resolve across REPEAT boundaries.
             # Without flows, REPEAT loops can be preserved for efficiency.
             circuit_to_split = (
-                self._prev_circuit.flattened() if self._prev_flows
-                else self._prev_circuit
+                self._prev_circuit.flattened() if self._prev_flows else self._prev_circuit
             )
             fragments = _split_circuit_into_fragment_circuits(circuit_to_split)
             for i, fragment in enumerate(fragments):
@@ -110,7 +109,9 @@ class InjectionBuilder:
 
         # commit the measurement indices from the tree circuit
         num_commit_measurements = self._mtracker.commit_current_slice()
-        # Only increment global count if NO injection occurred. When injection happens, measurements were already counted via _add_global_measurement during weaving.
+        # Only increment global count if NO injection occurred. When injection
+        # happens, measurements were already counted via _add_global_measurement
+        # during weaving.
         if not self._current_slice_has_injection:
             self._num_global_measurements += num_commit_measurements
 

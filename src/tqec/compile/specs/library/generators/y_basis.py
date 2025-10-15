@@ -21,12 +21,14 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 DIRS: list[complex] = [(0.5 + 0.5j) * 1j**d for d in range(4)]
 DR, DL, UL, UR = DIRS
 
+
 class DiagonalType(Enum):
     """Type of diagonal in the surface code patch.
 
     MAIN: Top-left to bottom-right diagonal where real + imag = constant
     ANTI: Bottom-left to top-right diagonal where real - imag = constant
     """
+
     MAIN = "main"
     ANTI = "anti"
 
@@ -34,12 +36,14 @@ class DiagonalType(Enum):
 @dataclass(frozen=True)
 class TwistLine:
     """Represents a twist line in the Y-basis transition.
-    
+
     Attributes:
         diagonal: Whether this is a main diagonal or anti-diagonal
         position: Which diagonal line (as an offset from origin)
         orientation: The stabilizer basis orientation along the twist (X or Z)
+
     """
+
     diagonal: DiagonalType
     position: int
     orientation: Basis
@@ -52,6 +56,7 @@ class TwistLine:
 
         Returns:
             True if m is on the twist line
+
         """
         if self.diagonal == DiagonalType.MAIN:
             return int(m.real + m.imag) == self.position
@@ -82,6 +87,7 @@ class TwistLine:
 
         Returns:
             (upper_left, middle, down_right) sets of qubits
+
         """
         upper_left: set[complex] = set()
         middle: set[complex] = set()
@@ -118,7 +124,9 @@ class BoundaryRegion:
         bottom_row: Set of qubits on the bottom boundary
         left_col: Set of qubits on the left boundary (real = -0.5)
         right_col: Set of qubits on the right boundary
+
     """
+
     top_row: frozenset[complex]
     bottom_row: frozenset[complex]
     left_col: frozenset[complex]
@@ -126,7 +134,9 @@ class BoundaryRegion:
 
     def is_boundary(self, m: complex) -> bool:
         """Check if qubit m is on any boundary."""
-        return m in self.top_row or m in self.bottom_row or m in self.left_col or m in self.right_col
+        return (
+            m in self.top_row or m in self.bottom_row or m in self.left_col or m in self.right_col
+        )
 
 
 @dataclass(frozen=True)
@@ -139,12 +149,14 @@ class TransitionGeometry:
 
     Attributes:
         distance: Code distance
-        top_boundary_basis: Basis of the top boundary 
-        convention: Boundary convention 
+        top_boundary_basis: Basis of the top boundary
+        convention: Boundary convention
         twist_line: The twist line in the transition
         boundary: Boundary regions of the patch
         top_left_tile_basis: Basis of the top-left tile in checkerboard
+
     """
+
     distance: int
     top_boundary_basis: Basis
     convention: Literal["fixed_boundary", "fixed_bulk"]
@@ -168,6 +180,7 @@ class TransitionGeometry:
 
         Returns:
             Geometric description of the transition
+
         """
         # Determine top-left tile basis (same logic as _get_top_left_tile_basis)
         if convention == "fixed_boundary" and top_boundary_basis == Basis.X:
@@ -210,6 +223,7 @@ class TransitionGeometry:
 
         Args:
             tile_basis: Basis as Basis enum or string "X"/"Z"
+
         """
         # Normalize to Basis enum for consistent comparison
         basis_enum = tile_basis if isinstance(tile_basis, Basis) else Basis(tile_basis)
@@ -226,6 +240,7 @@ class TransitionGeometry:
 
         Args:
             tile_basis: Basis as Basis enum or string "X"/"Z"
+
         """
         # Normalize to Basis enum for consistent comparison
         basis_enum = tile_basis if isinstance(tile_basis, Basis) else Basis(tile_basis)
@@ -236,6 +251,8 @@ class TransitionGeometry:
         else:  # Z-top
             # Before transition: Z on top, X on left
             return self.boundary.left_col if basis_enum == Basis.X else self.boundary.top_row
+
+
 # Interaction orderings that are consistent with the plaquette
 # orderings used across TQEC
 ORDER_H = [UL, UR, DL, DR]
@@ -698,11 +715,11 @@ def _make_y_transition_round(
 
 
 def _get_mids_for_in_flow(
-    m: complex,
-    tile_basis: str,
-    geometry: TransitionGeometry,
+    m: complex, tile_basis: str, geometry: TransitionGeometry
 ) -> list[complex]:
-    """Get measurement qubit positions whose measurements must be XOR'd for input stabilizer flow. The measurement positions depend on the qubit's relationship to the twist line and boundaries.
+    """Get measurement qubit positions whose measurements must be XOR'd for input
+    stabilizer flow. The measurement positions depend on the qubit's relationship
+    to the twist line and boundaries.
 
     Args:
         m: Position of the tile's measurement qubit (ancilla).
@@ -713,6 +730,7 @@ def _get_mids_for_in_flow(
         List of qubit positions (mids = "measurement IDs") whose measurement outcomes
         must be XOR'd together to verify the input stabilizer. The stabilizer enters
         the Y-transition circuit and these measurements detect if it was violated.
+
     """
     # On the twist line: need two measurements
     if geometry.twist_line.contains(m):
@@ -756,20 +774,20 @@ def _get_mids_for_out_flow(
         List of qubit positions (mids = "measurement IDs") whose measurement outcomes
         must be XOR'd together to prepare the output stabilizer. The stabilizer exits
         the Y-transition circuit to continue into subsequent computation.
+
     """
-    is_fixed_bulk_xtop = (geometry.convention == "fixed_bulk" and
-                         geometry.top_boundary_basis == Basis.X)
+    is_fixed_bulk_xtop = (
+        geometry.convention == "fixed_bulk" and geometry.top_boundary_basis == Basis.X
+    )
 
     # Special corner positions that need extra measurements
     corner_with_extra = (
-        complex(0.5, geometry.distance - 1.5) if is_fixed_bulk_xtop
+        complex(0.5, geometry.distance - 1.5)
+        if is_fixed_bulk_xtop
         else complex(geometry.distance - 1.5, 0.5)
     )
 
-    opposite_corner = (
-        complex(-0.5, 0.5) if is_fixed_bulk_xtop
-        else complex(0.5, -0.5)
-    )
+    opposite_corner = complex(-0.5, 0.5) if is_fixed_bulk_xtop else complex(0.5, -0.5)
 
     # Corner with four measurements (complex boundary interaction)
     if m == corner_with_extra:

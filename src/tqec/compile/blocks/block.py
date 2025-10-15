@@ -48,6 +48,7 @@ class Block(ABC):
         - :class:`LayeredBlock` for layer-based block implementation
         - :class:`InjectedBlock` for injection-based block implementation
         - :mod:`tqec.compile.blocks` module documentation for usage guidance
+
     """
 
     @property
@@ -257,6 +258,7 @@ class CircuitWithInterface:
         - :class:`InjectedBlock` for usage in block representation
         - :class:`InjectionFactory` protocol for circuit generation
         - :mod:`tqec.compile.tree.injection` for injection mechanics
+
     """
 
     circuit: stim.Circuit
@@ -288,7 +290,7 @@ class InjectionFactory(Protocol):
     """Protocol for callables that generate scalable injected circuits.
 
     An InjectionFactory is a callable that produces a :class:`CircuitWithInterface`
-    from a scaling factor and optional observable annotations. 
+    from a scaling factor and optional observable annotations.
 
     The factory pattern allows the same block specification to be used at different
     scaling factors without regenerating the factory itself.
@@ -296,7 +298,9 @@ class InjectionFactory(Protocol):
     See Also:
         - :class:`InjectedBlock` for usage of factories
         - :class:`CircuitWithInterface` for return type details
+
     """
+
     def __call__(
         self,
         k: int,
@@ -330,6 +334,7 @@ class InjectedBlock(Block):
         - :class:`InjectionFactory` for circuit generation
         - :class:`~tqec.compile.tree.injection.InjectionBuilder` for injection mechanics
         - :class:`~tqec.compile.blocks.enums.Alignment` for temporal alignment options
+
     """
 
     def __init__(
