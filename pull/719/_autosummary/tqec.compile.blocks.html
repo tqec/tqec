@@ -517,25 +517,62 @@ cubes and pipes.</p>
 instances will happen in parallel, and <code class="docutils literal notranslate"><span class="pre">tqec</span></code> needs to account for that:
 operations happening in parallel should be encoded in the same moment (i.e.,
 between the same two <code class="docutils literal notranslate"><span class="pre">TICK</span></code> instructions) in the resulting <code class="docutils literal notranslate"><span class="pre">.stim</span></code> file.</p>
-<p>Moreover, blocks might have different “schedules”. For example, the regular
-memory block follow the schedule:</p>
-<ol class="arabic simple">
+<p>This module provides two implementations of the <code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code>
+abstract base class:</p>
+<ol class="arabic">
+<li><p><strong>LayeredBlock</strong> - Represents blocks as a sequence of layers that can be instances
+of <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLayer</span></code> or
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComposedLayer</span></code>. This is the
+standard representation for blocks that follow a layer-synchronous schedule.</p>
+<p>Note that different blocks may have different schedules. For example, the
+regular memory block follows the schedule:</p>
+<blockquote>
+<div><ol class="arabic simple">
 <li><p>initialisation layer,</p></li>
 <li><p>repeat [memory layer],</p></li>
 <li><p>measurement layer,</p></li>
 </ol>
-<p>whereas a spatial pipe in the <code class="docutils literal notranslate"><span class="pre">Y</span></code> axis needs to alternate plaquettes in its
-repeated layer, leading to a schedule that is:</p>
-<ol class="arabic simple">
-<li><p>initialisation layer,</p></li>
-<li><p>repeat [memory layer 1 alternated with memory layer 2],</p></li>
-<li><p>measurement layer.</p></li>
+</div></blockquote>
+</li>
 </ol>
+<dl>
+<dt>whereas a spatial pipe in the <code class="docutils literal notranslate"><span class="pre">Y</span></code> axis needs to alternate plaquettes in its</dt><dd><p>repeated layer, leading to a schedule that is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1.</span> <span class="n">initialisation</span> <span class="n">layer</span><span class="p">,</span>
+<span class="mf">2.</span> <span class="n">repeat</span> <span class="p">[</span><span class="n">memory</span> <span class="n">layer</span> <span class="mi">1</span> <span class="n">alternated</span> <span class="k">with</span> <span class="n">memory</span> <span class="n">layer</span> <span class="mi">2</span><span class="p">],</span>
+<span class="mf">3.</span> <span class="n">measurement</span> <span class="n">layer</span><span class="o">.</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>Both of these can be represented as LayeredBlock instances.</p>
+<ol class="arabic simple" start="2">
+<li><p><strong>InjectedBlock</strong> - Represents blocks via direct circuit representation using
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CircuitWithInterface</span></code>.</p></li>
+</ol>
+<section id="block-compilation">
+<h2>Block Compilation<a class="headerlink" href="#block-compilation" title="Link to this heading">#</a></h2>
+<p>In a topological computation, <code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code> instances
+execute in parallel, and <code class="docutils literal notranslate"><span class="pre">tqec</span></code> must ensure that operations happening in parallel
+are encoded in the same moment (i.e., between the same two <code class="docutils literal notranslate"><span class="pre">TICK</span></code> instructions)
+in the resulting <code class="docutils literal notranslate"><span class="pre">.stim</span></code> file.</p>
+<p>For LayeredBlock instances, this is handled by the layer merging system. For
+InjectedBlock instances, this is handled by the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">InjectionBuilder</span></code> which weaves injected
+circuits into layer-generated circuits while maintaining correct detector
+annotations via flow interfaces from Gidney’s gen library.</p>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <p>All these restrictions are handled by representing
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Block</span></code> instances with
 <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLayer</span></code> and
-<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComposedLayer</span></code> instances.
-See <code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec.compile.blocks.layers</span></code> for more details.</p>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComposedLayer</span></code> instances.</p>
+<ul class="simple">
+<li><p>See <code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec.compile.blocks.layers</span></code> for more layered block details.</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec.compile.tree.injection</span></code> for injection mechanics</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">tqec.compile.blocks.enums</span></code> for alignment and border enumerations</p></li>
+</ul>
+</section>
 </section>
 
 
@@ -576,6 +613,19 @@ See <code class="xref py py-mod docutils literal notranslate"><span class="pre">
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#block-compilation">Block Compilation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">
