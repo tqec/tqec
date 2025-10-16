@@ -39,7 +39,7 @@
     "\n",
     "The notebook assumes you have already designed a Qrisp circuit. \n",
     "\n",
-    "> **NB!** Run `uv add --only-group integration` to install the libraries used in this notebook (ignore if you installed all dependency groups when setting up TQEC)."
+    "**NB!** Run `uv add --only-group integration` or `python -m pip install --group all` to install the libraries used in this notebook (ignore if you installed all dependency groups when setting up TQEC)."
    ]
   },
   {
@@ -100,7 +100,7 @@
    "outputs": [],
    "source": [
     "print(f\"\\n=> Imported Qrisp circuit of name {circuit_name.capitalize()}:\\n\")\n",
-    "print(qc) if qc else print(\"ERROR. Failed to load a circuit\")"
+    "print(qc)"
    ]
   },
   {
@@ -119,7 +119,7 @@
    "outputs": [],
    "source": [
     "print(f\"\\n=> Converted Qrisp circuit of name {circuit_name.capitalize()} into the following QASM string:\\n\")\n",
-    "print(qasm_str) if qasm_str else print(\"ERROR. Failed to convert circuit to QASM\")"
+    "print(qasm_str)"
    ]
   },
   {
@@ -347,7 +347,7 @@
     "\n",
     "There is a need to perform some re-scaling and re-indexing of edges. In TQEC's `block_graph`, pipes occupy no space, which leads to adjacent cubes being closer to one another than in a space-time diagram where pipes do occupy space for the purposes of visualising things clearly.\n",
     "\n",
-    "Fortunately, TQEC already has a way to import 3D objects like `lattice_nodes` and `lattice_edges`. TQEC can import 3D models encoded in COLLADA format (.dae), which use the same kind of coordinates and artifacts as `lattice_nodes` and `lattice_edges`. Accordingly, the following block of code relies on TQEC's COLLADA interoperability to realise similar transformations for `lattice_nodes` and `lattice_edges`, leading into a `block_graph`."
+    "Fortunately, TQEC already has a way to import 3D objects like `lattice_nodes` and `lattice_edges`. TQEC can import 3D models encoded in COLLADA format (`.dae`), which use the same kind of coordinates and artifacts as `lattice_nodes` and `lattice_edges`. Accordingly, the following block of code relies on TQEC's COLLADA interoperability to realise similar transformations for `lattice_nodes` and `lattice_edges`, leading into a `block_graph`."
    ]
   },
   {
