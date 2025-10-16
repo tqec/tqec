@@ -9,8 +9,6 @@ from tqec.interop.collada import (
 from tqec.interop.collada import (
     write_block_graph_to_dae_file as write_block_graph_to_dae_file,
 )
-from tqec.interop.color import RGBA as RGBA
-from tqec.interop.color import TQECColor as TQECColor
 from tqec.interop.pyzx import (
     PositionedZX as PositionedZX,
 )
@@ -23,3 +21,5 @@ from tqec.interop.pyzx import (
 from tqec.interop.pyzx import (
     positioned_block_synthesis as positioned_block_synthesis,
 )
+from tqec.interop.shared import RGBA as RGBA
+from tqec.interop.shared import TQECColor as TQECColor
