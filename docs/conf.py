@@ -179,6 +179,7 @@ nbsphinx_thumbnails = {
     "gallery/move_rotation": "_static/media/gallery/move_rotation.png",
     "gallery/three_cnots": "_static/media/gallery/three_cnots.png",
     "gallery/steane_encoding": "_static/media/gallery/steane_encoding.png",
+    "gallery/s_gate": "_static/media/gallery/s_gate.png",
 }
 
 

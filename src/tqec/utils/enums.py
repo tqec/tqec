@@ -32,6 +32,29 @@ class Basis(Enum):
         return self.value < other.value
 
 
+class PauliBasis(Enum):
+    X = "X"
+    Y = "Y"
+    Z = "Z"
+
+    def __str__(self) -> str:
+        return self.value  # pragma: no cover
+
+    def to_extended_basis(self) -> ExtendedBasis:
+        """Return ``self`` as an extended basis."""
+        return ExtendedBasis(self.value)
+
+
+class ExtendedBasis(Enum):
+    X = PauliBasis.X.value
+    Y = PauliBasis.Y.value
+    Z = PauliBasis.Z.value
+    H = "H"
+
+    def __str__(self) -> str:
+        return self.value  # pragma: no cover
+
+
 class PatchStyle(Enum):
     FixedBulk = auto()
     FixedBoundaryParity = auto()
