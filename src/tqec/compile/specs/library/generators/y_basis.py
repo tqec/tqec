@@ -6,6 +6,8 @@ with modification to support different boundary conditions and conventions.
 
 import functools
 from collections.abc import Callable, Iterable, Set
+from dataclasses import dataclass
+from enum import Enum
 from typing import Any, Literal, cast
 
 import gen
@@ -18,6 +20,239 @@ from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 DIRS: list[complex] = [(0.5 + 0.5j) * 1j**d for d in range(4)]
 DR, DL, UL, UR = DIRS
+
+
+class DiagonalType(Enum):
+    """Type of diagonal in the surface code patch.
+
+    MAIN: Top-left to bottom-right diagonal where real + imag = constant
+    ANTI: Bottom-left to top-right diagonal where real - imag = constant
+    """
+
+    MAIN = "main"
+    ANTI = "anti"
+
+
+@dataclass(frozen=True)
+class TwistLine:
+    """Represents a twist line in the Y-basis transition.
+
+    Attributes:
+        diagonal: Whether this is a main diagonal or anti-diagonal
+        position: Which diagonal line (as an offset from origin)
+        orientation: The stabilizer basis orientation along the twist (X or Z)
+
+    """
+
+    diagonal: DiagonalType
+    position: int
+    orientation: Basis
+
+    def contains(self, m: complex) -> bool:
+        """Check if measurement qubit m lies on this twist line.
+
+        Args:
+            m: Complex number representing qubit position
+
+        Returns:
+            True if m is on the twist line
+
+        """
+        if self.diagonal == DiagonalType.MAIN:
+            return int(m.real + m.imag) == self.position
+        else:
+            return int(m.real - m.imag) == self.position
+
+    def is_before(self, m: complex) -> bool:
+        """Check if measurement qubit m is before (above/left of) the twist line."""
+        if self.diagonal == DiagonalType.MAIN:
+            return m.real + m.imag < self.position
+        else:
+            return m.real - m.imag < self.position
+
+    def is_after(self, m: complex) -> bool:
+        """Check if measurement qubit m is after (below/right of) the twist line."""
+        if self.diagonal == DiagonalType.MAIN:
+            return m.real + m.imag > self.position
+        else:
+            return m.real - m.imag > self.position
+
+    def split_qubits_by_region(
+        self, qubits: set[complex]
+    ) -> tuple[set[complex], set[complex], set[complex]]:
+        """Split qubits into upper-left (before), middle (on/near), down-right (after) regions.
+
+        The middle region includes qubits on the twist line (position) and
+        qubits one position before it (position-1), which form the transition zone.
+
+        Returns:
+            (upper_left, middle, down_right) sets of qubits
+
+        """
+        upper_left: set[complex] = set()
+        middle: set[complex] = set()
+        down_right: set[complex] = set()
+
+        for q in qubits:
+            if self.diagonal == DiagonalType.MAIN:
+                coord_sum = q.real + q.imag
+                # Middle includes twist line (position) and one before (position-1)
+                if coord_sum < self.position - 1:
+                    upper_left.add(q)
+                elif coord_sum > self.position:
+                    down_right.add(q)
+                else:
+                    middle.add(q)
+            else:  # ANTI diagonal
+                coord_diff = q.real - q.imag
+                if coord_diff < self.position - 1:
+                    upper_left.add(q)
+                elif coord_diff > self.position:
+                    down_right.add(q)
+                else:
+                    middle.add(q)
+
+        return upper_left, middle, down_right
+
+
+@dataclass(frozen=True)
+class BoundaryRegion:
+    """Represents boundary regions in the surface code patch.
+
+    Attributes:
+        top_row: Set of qubits on the top boundary (imag = -0.5)
+        bottom_row: Set of qubits on the bottom boundary
+        left_col: Set of qubits on the left boundary (real = -0.5)
+        right_col: Set of qubits on the right boundary
+
+    """
+
+    top_row: frozenset[complex]
+    bottom_row: frozenset[complex]
+    left_col: frozenset[complex]
+    right_col: frozenset[complex]
+
+    def is_boundary(self, m: complex) -> bool:
+        """Check if qubit m is on any boundary."""
+        return (
+            m in self.top_row or m in self.bottom_row or m in self.left_col or m in self.right_col
+        )
+
+
+@dataclass(frozen=True)
+class TransitionGeometry:
+    """Geometric description of a Y-basis transition circuit.
+
+    This class encapsulates all the geometric information needed to understand
+    and generate a Y-basis transition circuit, making the implicit geometric
+    constraints explicit.
+
+    Attributes:
+        distance: Code distance
+        top_boundary_basis: Basis of the top boundary
+        convention: Boundary convention
+        twist_line: The twist line in the transition
+        boundary: Boundary regions of the patch
+        top_left_tile_basis: Basis of the top-left tile in checkerboard
+
+    """
+
+    distance: int
+    top_boundary_basis: Basis
+    convention: Literal["fixed_boundary", "fixed_bulk"]
+    twist_line: TwistLine
+    boundary: BoundaryRegion
+    top_left_tile_basis: Basis
+
+    @classmethod
+    def from_convention(
+        cls,
+        distance: int,
+        top_boundary_basis: Basis,
+        convention: Literal["fixed_boundary", "fixed_bulk"],
+    ) -> "TransitionGeometry":
+        """Construct transition geometry from convention parameters.
+
+        Args:
+            distance: Code distance
+            top_boundary_basis: Basis of top boundary (X or Z)
+            convention: "fixed_boundary" or "fixed_bulk"
+
+        Returns:
+            Geometric description of the transition
+
+        """
+        # Determine top-left tile basis (same logic as _get_top_left_tile_basis)
+        if convention == "fixed_boundary" and top_boundary_basis == Basis.X:
+            top_left_tile_basis = Basis.X
+        else:
+            top_left_tile_basis = Basis.Z
+
+        # Determine twist line placement
+        # Main diagonal (real + imag = const)
+        # The position is always at distance - 1
+        twist_line = TwistLine(
+            diagonal=DiagonalType.MAIN,
+            position=distance - 1,
+            orientation=Basis.X if top_left_tile_basis == Basis.Z else Basis.Z,
+        )
+
+        # Build boundary regions
+        # These are measurement qubit positions (at half-integer coordinates)
+        top_row = frozenset(complex(x + 0.5, -0.5) for x in range(-1, distance))
+        bottom_row = frozenset(complex(x + 0.5, distance - 0.5) for x in range(-1, distance))
+        left_col = frozenset(complex(-0.5, y + 0.5) for y in range(-1, distance))
+        right_col = frozenset(complex(distance - 0.5, y + 0.5) for y in range(-1, distance))
+
+        boundary = BoundaryRegion(top_row, bottom_row, left_col, right_col)
+
+        return cls(
+            distance=distance,
+            top_boundary_basis=top_boundary_basis,
+            convention=convention,
+            twist_line=twist_line,
+            boundary=boundary,
+            top_left_tile_basis=top_left_tile_basis,
+        )
+
+    def get_new_boundary_for_basis(self, tile_basis: Basis | str) -> frozenset[complex]:
+        """Get the new boundary qubits for a given tile basis after transition.
+
+        During Y-transition, boundaries change. This computes which boundary
+        becomes active for X-type or Z-type stabilizers after transition.
+
+        Args:
+            tile_basis: Basis as Basis enum or string "X"/"Z"
+
+        """
+        # Normalize to Basis enum for consistent comparison
+        basis_enum = tile_basis if isinstance(tile_basis, Basis) else Basis(tile_basis)
+
+        if self.top_boundary_basis == Basis.X:
+            # X-top transitions to having Z on top and X on left
+            return self.boundary.left_col if basis_enum == Basis.X else self.boundary.top_row
+        else:  # Z-top
+            # Z-top transitions to having X on top and Z on left
+            return self.boundary.top_row if basis_enum == Basis.X else self.boundary.left_col
+
+    def get_old_boundary_for_basis(self, tile_basis: Basis | str) -> frozenset[complex]:
+        """Get the old boundary qubits for a given tile basis before transition.
+
+        Args:
+            tile_basis: Basis as Basis enum or string "X"/"Z"
+
+        """
+        # Normalize to Basis enum for consistent comparison
+        basis_enum = tile_basis if isinstance(tile_basis, Basis) else Basis(tile_basis)
+
+        if self.top_boundary_basis == Basis.X:
+            # Before transition: X on top, Z on left
+            return self.boundary.top_row if basis_enum == Basis.X else self.boundary.left_col
+        else:  # Z-top
+            # Before transition: Z on top, X on left
+            return self.boundary.left_col if basis_enum == Basis.X else self.boundary.top_row
+
+
 # Interaction orderings that are consistent with the plaquette
 # orderings used across TQEC
 ORDER_H = [UL, UR, DL, DR]
@@ -303,25 +538,6 @@ def _standard_surface_code_chunk(
     return builder.finish_chunk()
 
 
-def _split_ul_md_dr(
-    ps: Set[complex], distance: int
-) -> tuple[set[complex], set[complex], set[complex]]:
-    """Split the qubits into sets by their positions: upper-left, middle, down-right."""
-    ul: set[complex] = set()
-    md: set[complex] = set()
-    dr: set[complex] = set()
-    for m in ps:
-        dst: set[complex]
-        if m.real + m.imag < distance - 2:
-            dst = ul
-        elif m.real + m.imag >= distance:
-            dst = dr
-        else:
-            dst = md
-        dst.add(m)
-    return ul, md, dr
-
-
 def _make_y_transition_round(
     distance: int,
     top_boundary_basis_before_transition: Basis,
@@ -329,13 +545,18 @@ def _make_y_transition_round(
     include_observables: Iterable[int] = (0,),
 ) -> gen.Chunk:
     """Make the circuit chunk for transition from qubit patch to degenerate patch."""
+    # Create explicit geometry object to make constraints clear
+    geometry = TransitionGeometry.from_convention(
+        distance, top_boundary_basis_before_transition, convention
+    )
+
     start = _make_qubit_patch(distance, top_boundary_basis_before_transition, convention)
     end = _make_yboundary_degenerate_patch(
         distance, top_boundary_basis_before_transition, convention
     )
     used = start.used_set | end.used_set
 
-    top_left_tile_basis = _get_top_left_tile_basis(top_boundary_basis_before_transition, convention)
+    top_left_tile_basis = geometry.top_left_tile_basis
     top_basis = str(top_boundary_basis_before_transition)
 
     def _m_basis(m: complex) -> Basis | None:
@@ -355,8 +576,9 @@ def _make_y_transition_round(
                 result.add(cast(tuple[complex, complex], (q, q + delta)[::sign]))
         return result
 
-    xs_ul, xs_md, xs_dr = _split_ul_md_dr(xs, distance)
-    zs_ul, zs_md, zs_dr = _split_ul_md_dr(zs, distance)
+    # Use TwistLine to split qubits by region
+    xs_ul, xs_md, xs_dr = geometry.twist_line.split_qubits_by_region(xs)
+    zs_ul, zs_md, zs_dr = geometry.twist_line.split_qubits_by_region(zs)
 
     if top_basis == "X":
         normal_x_order, normal_z_order = ORDER_H, ORDER_V
@@ -421,27 +643,33 @@ def _make_y_transition_round(
     builder.append("MZ", (zs - old_z_boundary) | new_z_boundary, measure_key_func=measure_key_func)
 
     # Annotate input stabilizers that get measured.
+    # For each stabilizer entering the Y-transition (e.g., X0*X1*X2*X3 for an X-plaquette),
+    # we specify which measurements must be XOR'd to detect stabilizer violations.
+    # The "mids" (measurement IDs) are the qubit positions whose measurements contribute
+    # to the detector.
     for tile in start.tiles:
         m = tile.measure_qubit
         assert m is not None
         assert tile.basis in ("X", "Z")
-        mids = _get_mids_for_in_flow(m, tile.basis, distance, top_basis, convention)
+        mids = _get_mids_for_in_flow(m, tile.basis, geometry)
         builder.add_flow(
-            start=tile.to_pauli_map(),
+            start=tile.to_pauli_map(),  # Input stabilizer (e.g., X₀X₁X₂X₃)
             center=m,
-            ms=[(k, "solo") for k in mids],
+            ms=[(k, "solo") for k in mids],  # Measurements to XOR for detector
         )
 
     # Annotate output stabilizers that get prepared.
+    # For each stabilizer exiting the Y-transition to continue into subsequent computation,
+    # we specify which measurements initialize/prepare that stabilizer.
     for tile in end.tiles:
         m = tile.measure_qubit
         assert m is not None
-        mids = _get_mids_for_out_flow(m, distance, top_basis, convention)
+        mids = _get_mids_for_out_flow(m, geometry)
 
         builder.add_flow(
-            end=tile.to_pauli_map(),
+            end=tile.to_pauli_map(),  # Output stabilizer
             center=m,
-            ms=[(k, "solo") for k in mids],
+            ms=[(k, "solo") for k in mids],  # Measurements that prepare this stabilizer
         )
 
     # Annotate how observable flows through the system.
@@ -487,51 +715,104 @@ def _make_y_transition_round(
 
 
 def _get_mids_for_in_flow(
-    m: complex,
-    tile_basis: str,
-    distance: int,
-    top_basis: str,
-    convention: Literal["fixed_boundary", "fixed_bulk"],
+    m: complex, tile_basis: str, geometry: TransitionGeometry
 ) -> list[complex]:
-    if m.real + m.imag == distance - 1:
-        return [m, m - 1j] if top_basis == "X" and convention == "fixed_bulk" else [m, m - 1]
-    elif m.real == -0.5 or m.imag == -0.5:
+    """Get measurement qubit positions whose measurements must be XOR'd for input
+    stabilizer flow. The measurement positions depend on the qubit's relationship
+    to the twist line and boundaries.
+
+    Args:
+        m: Position of the tile's measurement qubit (ancilla).
+        tile_basis: Basis of the stabilizer ("X" or "Z").
+        geometry: Geometric description of the transition.
+
+    Returns:
+        List of qubit positions (mids = "measurement IDs") whose measurement outcomes
+        must be XOR'd together to verify the input stabilizer. The stabilizer enters
+        the Y-transition circuit and these measurements detect if it was violated.
+
+    """
+    # On the twist line: need two measurements
+    if geometry.twist_line.contains(m):
+        # For fixed_bulk with X-top, use different offset
+        if geometry.convention == "fixed_bulk" and geometry.top_boundary_basis == Basis.X:
+            return [m, m - 1j]
+        else:
+            return [m, m - 1]
+
+    # On boundary: single measurement suffices
+    elif geometry.boundary.is_boundary(m):
         return [m]
-    elif m.real + m.imag < distance - 1 and tile_basis == "X":
-        return [m - 1] if top_basis == "Z" else [m - 1j]
-    elif m.real + m.imag < distance - 1 and tile_basis == "Z":
-        return [m - 1j] if top_basis == "Z" else [m - 1]
-    elif m.real + m.imag > distance - 1:
+
+    # Before twist line (upper-left region): measurement with offset
+    elif geometry.twist_line.is_before(m):
+        if tile_basis == "X":
+            # X stabilizers: offset depends on top basis
+            return [m - 1] if geometry.top_boundary_basis == Basis.Z else [m - 1j]
+        else:  # Z stabilizers
+            return [m - 1j] if geometry.top_boundary_basis == Basis.Z else [m - 1]
+
+    # After twist line (lower-right region): single measurement
+    elif geometry.twist_line.is_after(m):
         return [m]
+
     else:
-        raise NotImplementedError(f"{m=!r}")
+        raise NotImplementedError(f"{m=!r}, geometry={geometry}")
 
 
 def _get_mids_for_out_flow(
     m: complex,
-    distance: int,
-    top_basis: str,
-    convention: Literal["fixed_boundary", "fixed_bulk"],
+    geometry: TransitionGeometry,
 ) -> list[complex]:
-    is_fixed_bulk_xtop = top_basis == "X" and convention == "fixed_bulk"
+    """Get measurement qubit positions whose measurements must be XOR'd for output stabilizer flow.
 
-    if m == distance - 1.5 + 0.5j and not is_fixed_bulk_xtop:
-        mids = [m, m - 1, m - 1j, m + UR]
-    elif m == complex(0.5, distance - 1.5) and is_fixed_bulk_xtop:
-        mids = [m, m - 1, m - 1j, m + DL]
-    elif m == 0.5 - 0.5j and not is_fixed_bulk_xtop:
-        mids = [m]
-    elif m == -0.5 + 0.5j and is_fixed_bulk_xtop:
-        mids = [m]
+    Args:
+        m: Position of the tile's measurement qubit (ancilla).
+        geometry: Geometric description of the transition.
+
+    Returns:
+        List of qubit positions (mids = "measurement IDs") whose measurement outcomes
+        must be XOR'd together to prepare the output stabilizer. The stabilizer exits
+        the Y-transition circuit to continue into subsequent computation.
+
+    """
+    is_fixed_bulk_xtop = (
+        geometry.convention == "fixed_bulk" and geometry.top_boundary_basis == Basis.X
+    )
+
+    # Special corner positions that need extra measurements
+    corner_with_extra = (
+        complex(0.5, geometry.distance - 1.5)
+        if is_fixed_bulk_xtop
+        else complex(geometry.distance - 1.5, 0.5)
+    )
+
+    opposite_corner = complex(-0.5, 0.5) if is_fixed_bulk_xtop else complex(0.5, -0.5)
+
+    # Corner with four measurements (complex boundary interaction)
+    if m == corner_with_extra:
+        offset = DL if is_fixed_bulk_xtop else UR
+        return [m, m - 1, m - 1j, m + offset]
+
+    # Opposite corner (single measurement)
+    elif m == opposite_corner:
+        return [m]
+
+    # Top row boundary
     elif m.imag == -0.5:
-        mids = [m, m - 1]
+        return [m, m - 1]
+
+    # Left column boundary
     elif m.real == -0.5:
-        mids = [m, m - 1j]
-    elif m.real + m.imag == distance - 1:
-        mids = [m, m - 1, m - 1j]
+        return [m, m - 1j]
+
+    # On the twist line after transition
+    elif geometry.twist_line.contains(m):
+        return [m, m - 1, m - 1j]
+
+    # All other positions (single measurement)
     else:
-        mids = [m]
-    return mids
+        return [m]
 
 
 def _make_y_basis_measurement_chunks(

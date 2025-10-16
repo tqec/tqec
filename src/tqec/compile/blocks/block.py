@@ -30,6 +30,25 @@ class Block(ABC):
 
     A block represents a unit of quantum computation with a defined spatial
     and temporal footprint that scales with the scaling factor ``k``.
+
+    This abstract base class defines the interface that all block types must
+    implement. Concrete implementations include:
+
+    - :class:`LayeredBlock`: Blocks represented as sequences of layers, suitable
+      for standard memory blocks, pipes, and other layer-synchronous operations.
+    - :class:`InjectedBlock`: Blocks represented as raw circuits with flow interfaces,
+      used for operations like Y-basis measurements that cannot be decomposed into
+      simple layer sequences.
+
+    The abstraction allows the compilation framework to handle blocks uniformly
+    while supporting both template-based layer composition and direct circuit
+    injection with flow-based detector annotation.
+
+    See Also:
+        - :class:`LayeredBlock` for layer-based block implementation
+        - :class:`InjectedBlock` for injection-based block implementation
+        - :mod:`tqec.compile.blocks` module documentation for usage guidance
+
     """
 
     @property
@@ -221,9 +240,24 @@ def merge_parallel_block_layers(
 class CircuitWithInterface:
     """A quantum circuit with its expected flow interface.
 
+    This dataclass pairs a Stim circuit with a flow interface from Gidney's gen
+    library, enabling :class:`InjectedBlock` instances to specify both the quantum
+    gates and their stabilizer flow.
+
+    The interface describes which stabilizers (Pauli products) enter and exit the
+    circuit, allowing the linker to properly connect injected blocks
+    with tree-generated circuits while maintaining correct detector annotations.
+
     Attributes:
-        circuit: the quantum circuit.
-        interface: the expected flow interface of the circuit.
+        circuit: The quantum circuit implementing the block's operations.
+        interface: The flow interface specifying input/output stabilizers as
+            :class:`gen.ChunkInterface` with ports (stabilizer Pauli products)
+            and discards (rejected flows).
+
+    See Also:
+        - :class:`InjectedBlock` for usage in block representation
+        - :class:`InjectionFactory` protocol for circuit generation
+        - :mod:`tqec.compile.tree.injection` for injection mechanics
 
     """
 
@@ -253,6 +287,20 @@ class CircuitWithInterface:
 
 
 class InjectionFactory(Protocol):
+    """Protocol for callables that generate scalable injected circuits.
+
+    An InjectionFactory is a callable that produces a :class:`CircuitWithInterface`
+    from a scaling factor and optional observable annotations.
+
+    The factory pattern allows the same block specification to be used at different
+    scaling factors without regenerating the factory itself.
+
+    See Also:
+        - :class:`InjectedBlock` for usage of factories
+        - :class:`CircuitWithInterface` for return type details
+
+    """
+
     def __call__(
         self,
         k: int,
@@ -261,28 +309,32 @@ class InjectionFactory(Protocol):
         """Generate the quantum circuit with expected flow interface from the scaling factor.
 
         Args:
-            k: The scaling factor.
-            annotate_observables: If provided, the list of observables will be annotated
-                in the generated circuit. Note that the injection block will typically
-                only support a single unique observable flow. Therefore, if multiple
-                observables are provided, they will be replicates of the same observable flow
-                with different observable ids.
+            k: The scaling factor for the circuit. Determines the physical size of
+                the generated circuit (e.g., distance-k surface code).
+            annotate_observables: If provided, the list of observable indices to
+                annotate in the generated circuit with OBSERVABLE_INCLUDE instructions.
+                Note that injection blocks typically support only a single unique
+                observable flow, so multiple indices will annotate the
+                same observable flow with different observable IDs.
 
         Returns:
-            A quantum circuit with expected flow interface.
+            A :class:`CircuitWithInterface` containing the generated circuit and its
+            stabilizer flow interface.
 
         """
         ...
 
 
 class InjectedBlock(Block):
-    """Represent temporally injected block like ``YHalfCube``.
+    """Represent temporally injected blocks like ``YHalfCube`` that don't fit the layer model.
 
-    Some blocks like ``YHalfCube`` are connected to the computation in time
-    direction and do not have timestep schedules that are consistent with
-    the rest of the blocks if represented as a sequence of layers. This class
-    provides a direct circuit representation of such blocks that can be
-    injected into the computation during compilation.
+    See Also:
+        - :class:`LayeredBlock` for layer-based block representation
+        - :class:`CircuitWithInterface` for circuit/interface pairing
+        - :class:`InjectionFactory` for circuit generation
+        - :class:`~tqec.compile.tree.injection.InjectionBuilder` for injection mechanics
+        - :class:`~tqec.compile.blocks.enums.Alignment` for temporal alignment options
+
     """
 
     def __init__(

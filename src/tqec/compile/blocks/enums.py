@@ -61,5 +61,30 @@ def border_from_signed_direction(
 
 
 class Alignment(Enum):
+    """Specifies temporal alignment for injected blocks relative to surrounding computation.
+
+    When an :class:`~tqec.compile.blocks.block.InjectedBlock` is woven into a
+    layer-generated circuit, its alignment determines how its timesteps align with
+    the tree-generated timesteps.
+
+    Attributes:
+        HEAD: The injected block's first timestep immediately follows the last
+            timestep of the preceding block. Used when the injection must observe
+            stabilizers from the previous layer and create new stabilizers for the
+            current layer. Flow termination happens at the end of the previous slice,
+            and flow creation happens at the start of the current slice.
+
+        TAIL: The injected block's last timestep immediately precedes the first
+            timestep of the following block. Used when the injection must observe
+            stabilizers from the current layer and create new stabilizers for the
+            next layer. Flow termination happens at the end of the current slice,
+            and flow creation happens at the start of the next slice.
+
+    See Also:
+        - :class:`~tqec.compile.blocks.block.InjectedBlock` for usage context
+        - :class:`~tqec.compile.tree.injection.InjectionBuilder` for implementation details
+
+    """
+
     HEAD = "head"
     TAIL = "tail"
