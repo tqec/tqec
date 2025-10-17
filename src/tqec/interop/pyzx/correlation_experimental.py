@@ -165,7 +165,7 @@ def _find_correlation_surfaces_from_leaf(
     while frontier:
         stabilizer_nodes = explored_leaves + frontier
         stabilizer_length = sum(len(pauli_graphs[0][n]) for n in stabilizer_nodes)
-        current_node = frontier.pop()
+        current_node = frontier.pop(0)
         unconnected_neighbors = list(
             filter(
                 lambda n: n not in pauli_graphs[0][current_node],
@@ -205,7 +205,7 @@ def _find_correlation_surfaces_from_leaf(
                 if stabilizer:
                     stabilizer_list.append(stabilizer)
                 valid_graphs.append((pauli_graph, broadcast_pauli, passthrough_parity))
-                if len(stabilizer_list) == 2 * stabilizer_length:
+                if len(stabilizer_list) == stabilizer_length:
                     break
             else:
                 invalid_graphs.append(pauli_graph)
@@ -216,7 +216,7 @@ def _find_correlation_surfaces_from_leaf(
         if not unconnected_neighbors:
             all_one ^= 1 << (len(syndrome) - 1)
         for i, (pauli_graph, syndrome) in enumerate(zip(invalid_graphs, syndromes)):
-            if len(stabilizer_list) == 2 * stabilizer_length:
+            if len(stabilizer_list) == stabilizer_length:
                 break
             for target in (syndrome, syndrome ^ all_one):
                 indices = _find_subset_xor(target, syndromes[:i] + syndromes[i + 1 :])
@@ -289,10 +289,10 @@ def _find_correlation_surfaces_from_leaf(
         )
         explored_leaves.extend(filter(lambda n: g.vertex_degree(n) == 1, unexplored_neighbors))
     return list(
-        filter(
-            lambda s: _leaf_nodes_can_support_span(g, s.span),
-            map(partial(_pauli_graph_to_correlation_surface, g), pauli_graphs),
-        )
+        # filter(
+        # lambda s: _leaf_nodes_can_support_span(g, s.span),
+        map(partial(_pauli_graph_to_correlation_surface, g), pauli_graphs),
+        # )
     )
 
 
