@@ -201,8 +201,8 @@ def _leaf_nodes_can_support_span(g: GraphS, span: frozenset[ZXEdge]) -> bool:
     for leaf, bases in bases_at_leaves.items():
         # If there is correlation surface touching a Y leaf node, then the
         # correlation surface must support both X and Z type logical observable.
-        if is_s(g, leaf):
-            return bases == {Basis.X, Basis.Z}
+        if is_s(g, leaf) and bases != {Basis.X, Basis.Z}:
+            return False
         # Z(X) type leaf node can only support the X(Z) type logical observable.
         if is_z_no_phase(g, leaf) and bases != {Basis.X}:
             return False
@@ -260,16 +260,13 @@ def _find_spans_with_flood_fill(
             return None
         branches_at_node: list[tuple[set[ZXNode], set[ZXEdge]]] = []
 
-        # If the parity is even, we can either include no edge, or select additional two edges
-        # to include in the span.
-        # If the parity is odd, we must select one additional edge to include in the span.
-        for num_edges_to_choose in range(parity, 3, 2):
+        for n in range(parity, len(edges_left) + 1, 2):
             branches_at_node.extend(
                 (
                     {e.u if e.u != cur else e.v for e in branch_edges},
                     set(branch_edges),
                 )
-                for branch_edges in itertools.combinations(edges_left, num_edges_to_choose)
+                for branch_edges in itertools.combinations(edges_left, n)
             )
         branches_at_different_nodes.append(branches_at_node)
 
