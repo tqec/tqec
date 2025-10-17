@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Protocol, cast
+from typing import Protocol
 
 from tqec.compile.blocks.block import Block, LayeredBlock
 from tqec.compile.specs.enums import SpatialArms
@@ -128,16 +128,6 @@ class CubeSpec:
             )
         spatial_arms = SpatialArms.from_cube_in_graph(cube, graph)
         return CubeSpec(cube.kind, spatial_arms, has_spatial_up_or_down_pipe_in_timeslice)
-
-    @property
-    def pipe_dimensions(self) -> frozenset[Literal[Direction3D.X, Direction3D.Y]]:
-        """Return the dimension(s) in which ``self`` has at least one pipe."""
-        dimensions: list[Literal[Direction3D.X, Direction3D.Y]] = []
-        if SpatialArms.LEFT in self.spatial_arms or SpatialArms.RIGHT in self.spatial_arms:
-            dimensions.append(Direction3D.X)
-        if SpatialArms.UP in self.spatial_arms or SpatialArms.DOWN in self.spatial_arms:
-            dimensions.append(Direction3D.Y)
-        return cast(frozenset[Literal[Direction3D.X, Direction3D.Y]], frozenset(dimensions))
 
     @property
     def has_spatial_pipe_in_both_dimensions(self) -> bool:

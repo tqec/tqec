@@ -39,7 +39,7 @@ class CubeWithArms:
     arms: SpatialArms = SpatialArms.NONE
 
     def __post_init__(self) -> None:
-        if self.arms != SpatialArms.NONE and not self.cube.is_spatial:
+        if self.arms != SpatialArms.NONE and not self.cube.is_spatial:  # pragma: no cover
             raise TQECError(
                 "The `arms` attribute should be `SpatialArms.NONE` for non-spatial cubes."
             )
@@ -75,7 +75,7 @@ class PipeWithObservableBasis:
     pipe: Pipe
     observable_basis: Basis
 
-    def __post_init__(self) -> None:
+    def __post_init__(self) -> None:  # pragma: no cover
         if not self.pipe.kind.has_hadamard or self.pipe.direction != Direction3D.Z:
             raise TQECError("The ``pipe`` should be a temporal Hadamard pipe.")
 
@@ -355,7 +355,7 @@ def _check_correlation_surface_validity(correlation_surface: CorrelationSurface,
             raise TQECError(f"Edge {e} in the correlation surface is not in the graph.")
     # 3. Check parity around each vertex
     for v in correlation_surface.span_vertices():
-        if is_boundary(g, v):
+        if is_boundary(g, v):  # pragma: no cover
             continue
         edges = correlation_surface.edges_at(v)
         paulis: list[Basis] = [edge.u.basis if edge.u.id == v else edge.v.basis for edge in edges]

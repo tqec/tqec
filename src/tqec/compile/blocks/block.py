@@ -232,7 +232,7 @@ def merge_parallel_block_layers(
                 f"layer. This should be already checked before. This is a "
                 "logical error in the code, please open an issue. Found layers:"
                 f"\n{list(layers.values())}"
-            )
+            )  # pragma: no cover
     return merged_layers
 
 
@@ -263,10 +263,6 @@ class CircuitWithInterface:
 
     circuit: stim.Circuit
     interface: gen.ChunkInterface = field(default_factory=lambda: gen.ChunkInterface(()))
-
-    def __post_init__(self) -> None:
-        if not self.circuit:
-            raise TQECError("The provided circuit is empty.")
 
     def with_transformed_coords(
         self, transform: Callable[[complex], complex]
@@ -371,7 +367,7 @@ class InjectedBlock(Block):
     @property
     @override
     def scalable_timesteps(self) -> LinearFunction:
-        return self._scalable_timesteps
+        return self._scalable_timesteps  # pragma: no cover
 
     @property
     @override

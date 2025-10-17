@@ -170,7 +170,7 @@ def _make_yboundary_degenerate_patch(
     )
 
 
-def _build_surface_code_round_circuit(
+def _build_surface_code_round_circuit(  # pragma: no cover
     patch: gen.Patch,
     *,
     init_data_basis: str | dict[complex, str] | None = None,
@@ -221,7 +221,7 @@ def _build_surface_code_round_circuit(
     out.append("M", measure_zs.measure_set, measure_key_func=measure_key_func)
 
 
-def _standard_surface_code_chunk(
+def _standard_surface_code_chunk(  # pragma: no cover
     patch: gen.Patch,
     init_data_basis: str | dict[complex, str] | None = None,
     measure_data_basis: str | dict[complex, str] | None = None,

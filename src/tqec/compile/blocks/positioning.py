@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import Generic
 
-from typing_extensions import Self, TypeVar
+from typing_extensions import TypeVar
 
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition2D, BlockPosition3D, SignedDirection3D
@@ -45,12 +45,6 @@ class LayoutPosition2D(ABC):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(x={self._x},y={self._y})"
-
-    def __add__(self, other: Self | tuple[int, int]) -> Self:
-        if isinstance(other, tuple):
-            x, y = other
-            return self.__class__(self._x + x, self._y + y)
-        return self.__class__(self._x + other._x, self._y + other._y)
 
 
 class LayoutCubePosition2D(LayoutPosition2D):
