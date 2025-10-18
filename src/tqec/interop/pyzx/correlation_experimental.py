@@ -6,7 +6,7 @@ import operator
 from collections.abc import Iterable
 from copy import copy
 from fractions import Fraction
-from functools import reduce
+from functools import partial, reduce
 from itertools import chain, pairwise, product
 
 import stim
@@ -161,13 +161,14 @@ class PauliGraph(dict[int, dict[int, tuple[bool, bool]]]):
                     span.append(ZXEdge(ZXNode(u, bases[basis_u]), ZXNode(v, bases[basis_v])))
         return CorrelationSurface(frozenset(span))
 
-    def __mul__(self, other: PauliGraph) -> PauliGraph:
-        new_pauli_graph = PauliGraph()
-        for (v, neighbors_a), neighbors_b in zip(self.items(), other.values()):
-            new_pauli_graph[v] = {}
-            for (n, support_a), support_b in zip(neighbors_a.items(), neighbors_b.values()):
-                new_pauli_graph[v][n] = tuple(map(operator.xor, support_a, support_b))
-        return new_pauli_graph
+
+def _multiply_pauli_graphs(pauli_graphs: list[PauliGraph]) -> PauliGraph:
+    new_pauli_graph = PauliGraph()
+    for v, neighbors in zip(pauli_graphs[0], zip(*(pg.values() for pg in pauli_graphs))):
+        new_pauli_graph[v] = {}
+        for n, supports in zip(neighbors[0], zip(*(neighbor.values() for neighbor in neighbors))):
+            new_pauli_graph[v][n] = tuple(reduce(partial(map, operator.xor), supports))
+    return new_pauli_graph
 
 
 def _find_correlation_surfaces_from_leaf(
@@ -292,8 +293,7 @@ def _find_correlation_surfaces_from_leaf(
                 if indices is None:
                     continue
                 indices = [j if j < i else j + 1 for j in indices]
-                new_pauli_graph = reduce(
-                    operator.mul,
+                new_pauli_graph = _multiply_pauli_graphs(
                     [pauli_graph] + [invalid_graphs[j] for j in indices],
                 )
 
