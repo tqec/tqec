@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from copy import deepcopy
 from fractions import Fraction
 from functools import partial, reduce
-from itertools import chain, combinations, product
+from itertools import chain, pairwise, product
 
 import stim
 from pyzx.graph.graph_s import GraphS
@@ -90,7 +90,7 @@ def find_correlation_surfaces(
         A list of `CorrelationSurface` in the graph.
 
     """
-    _check_spiders_are_supported(g)
+    # _check_spiders_are_supported(g)
     # Edge case: single node graph
     if g.num_vertices() == 1:
         v = next(iter(g.vertices()))
@@ -248,25 +248,23 @@ def _find_correlation_surfaces_from_leaf(
         # enumerate new branches
         pauli_graphs = []
         for pauli_graph, broadcast_pauli, passthrough_parity in valid_graphs:
-            passthrough_nodes_list = chain.from_iterable(
-                combinations(unconnected_neighbors, num_passthrough)
-                for num_passthrough in range(
-                    passthrough_parity,
-                    len(unconnected_neighbors) + 1,
-                    2,
-                )
-            )
-            out_paulis_list = (
-                {
-                    n: (
-                        broadcast_pauli * Pauli[passthrough_basis.value]
-                        if n in passthrough_nodes
-                        else broadcast_pauli
-                    )
-                    for n in unconnected_neighbors
-                }
-                for passthrough_nodes in passthrough_nodes_list
-            )
+            combined_pauli = broadcast_pauli * Pauli[passthrough_basis.value]
+            if passthrough_parity:
+                out_paulis_list = [
+                    {
+                        n: combined_pauli if n == m else broadcast_pauli
+                        for n in unconnected_neighbors
+                    }
+                    for m in unconnected_neighbors
+                ] or [{}]
+            else:
+                out_paulis_list = [
+                    {
+                        n: combined_pauli if n in m else broadcast_pauli
+                        for n in unconnected_neighbors
+                    }
+                    for m in pairwise(unconnected_neighbors)
+                ] + [{n: broadcast_pauli for n in unconnected_neighbors}]
 
             for out_paulis in out_paulis_list:
                 new_pauli_graph = deepcopy(pauli_graph)
