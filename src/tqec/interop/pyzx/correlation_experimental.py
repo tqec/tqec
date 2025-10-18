@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from copy import deepcopy
+from copy import copy
 from fractions import Fraction
 from functools import partial, reduce
 from itertools import chain, pairwise, product
@@ -179,7 +179,13 @@ def _find_correlation_surfaces_from_leaf(
 
         # check if each Pauli graph candidate satisfies broadcast and passthrough constraints
         # on the current node and is not a product of previously checked valid Pauli graphs
-        valid_graphs, invalid_graphs, syndromes, stabilizer_list = [], [], [], []
+        valid_graphs, invalid_graphs, syndromes, stabilizer_list, stabilizer_basis = (
+            [],
+            [],
+            [],
+            [],
+            [],
+        )
         for pauli_graph in pauli_graphs:
             supports = _pauli_support_on_nodes(pauli_graph, [current_node])
             passthrough_parity = sum(supports[1 - flip_basis]) % 2
@@ -199,10 +205,13 @@ def _find_correlation_surfaces_from_leaf(
             stabilizer = _bits_to_int(
                 chain.from_iterable(_pauli_support_on_nodes(pauli_graph, stabilizer_nodes))
             )
-            if _find_subset_xor(stabilizer, stabilizer_list) is not None:
+            # if _find_subset_xor(stabilizer, stabilizer_list) is not None:
+            #     continue
+            if _in_basis(stabilizer, stabilizer_basis):
                 continue
             if valid:
                 if stabilizer:
+                    stabilizer_basis = _build_basis(stabilizer_basis, stabilizer)
                     stabilizer_list.append(stabilizer)
                 valid_graphs.append((pauli_graph, broadcast_pauli, passthrough_parity))
                 if len(stabilizer_list) == stabilizer_length:
@@ -238,9 +247,12 @@ def _find_correlation_surfaces_from_leaf(
                 stabilizer = _bits_to_int(
                     chain.from_iterable(_pauli_support_on_nodes(new_pauli_graph, stabilizer_nodes))
                 )
-                if _find_subset_xor(stabilizer, stabilizer_list) is not None:
+                # if _find_subset_xor(stabilizer, stabilizer_list) is not None:
+                #     continue
+                if _in_basis(stabilizer, stabilizer_basis):
                     continue
                 if stabilizer:
+                    stabilizer_basis = _build_basis(stabilizer_basis, stabilizer)
                     stabilizer_list.append(stabilizer)
                 valid_graphs.append((new_pauli_graph, broadcast_pauli, passthrough_parity))
                 break
@@ -267,10 +279,13 @@ def _find_correlation_surfaces_from_leaf(
                 ] + [{n: broadcast_pauli for n in unconnected_neighbors}]
 
             for out_paulis in out_paulis_list:
-                new_pauli_graph = deepcopy(pauli_graph)
+                new_pauli_graph = copy(pauli_graph)
+                new_pauli_graph[current_node] = copy(pauli_graph[current_node])
                 for n, pauli in out_paulis.items():
                     if n not in new_pauli_graph:
                         new_pauli_graph[n] = {}
+                    else:
+                        new_pauli_graph[n] = copy(pauli_graph[n])
                     new_pauli_graph[n][current_node] = _flip_pauli_based_on_edge_type(
                         g, (current_node, n), pauli
                     )
@@ -307,6 +322,20 @@ def _pauli_support_on_nodes(
     return [p.has_basis(Basis.X) for p in incident_paulis], [
         p.has_basis(Basis.Z) for p in incident_paulis
     ]
+
+
+def _build_basis(basis: list[int], x: int) -> list[int]:
+    for b in basis:
+        x = min(x, x ^ b)
+    if x:
+        basis.append(x)
+    return basis
+
+
+def _in_basis(x: int, basis: list[int]) -> bool:
+    for b in basis:
+        x = min(x, x ^ b)
+    return x == 0
 
 
 def _find_subset_xor(target: int, candidates: list[int]) -> list[int] | None:
@@ -346,10 +375,11 @@ def _multiply_pauli_graphs(
     pauli_graph_b: dict[int, dict[int, Pauli]],
 ) -> dict[int, dict[int, Pauli]]:
     """Multiply two Pauli graphs of the same scope to form a new Pauli graph."""
-    new_pauli_graph = deepcopy(pauli_graph_a)
-    for v in new_pauli_graph:
-        for n in new_pauli_graph[v]:
-            new_pauli_graph[v][n] *= pauli_graph_b[v][n]
+    new_pauli_graph = {}
+    for (v, neighbors_a), neighbors_b in zip(pauli_graph_a.items(), pauli_graph_b.values()):
+        new_pauli_graph[v] = {}
+        for (n, pauli_a), pauli_b in zip(neighbors_a.items(), neighbors_b.values()):
+            new_pauli_graph[v][n] = pauli_a * pauli_b
     return new_pauli_graph
 
 
