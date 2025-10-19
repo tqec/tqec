@@ -109,15 +109,6 @@ def find_correlation_surfaces(
     if CorrelationSurface(frozenset()) in correlation_surfaces:
         correlation_surfaces.remove(CorrelationSurface(frozenset()))
 
-    if reduce_to_minimal_generators:
-        stabilizers_to_surfaces = {
-            surface.external_stabilizer(sorted(leaves)): surface for surface in correlation_surfaces
-        }
-        stabilizers_to_surfaces.pop("I" * len(leaves), None)
-        correlation_surfaces = set(
-            reduce_observables_to_minimal_generators(stabilizers_to_surfaces).values()
-        )
-
     # sort the correlation surfaces to make the result deterministic
     return sorted(correlation_surfaces, key=lambda x: sorted(x.span))
 
@@ -141,9 +132,12 @@ class PauliGraph(dict[int, dict[int, tuple[bool, bool]]]):
             self[u][v] = support
         return self
 
-    def support_on_nodes(self, nodes: list[int]) -> tuple[tuple[bool], tuple[bool]]:
+    def support_on_nodes(
+        self, nodes: list[int], transpose: bool = True
+    ) -> tuple[tuple[bool], tuple[bool]] | tuple[tuple[bool, bool]]:
         """Get the X and Z supports on the given nodes."""
-        return tuple(zip(*chain.from_iterable(self[n].values() for n in nodes)))
+        supports = chain.from_iterable(self[n].values() for n in nodes)
+        return tuple(zip(*supports)) if transpose else tuple(supports)
 
     def to_correlation_surface(self, zx_graph: GraphS) -> CorrelationSurface:
         """Convert a Pauli graph to a correlation surface."""
@@ -171,10 +165,43 @@ def _multiply_pauli_graphs(pauli_graphs: list[PauliGraph]) -> PauliGraph:
     return new_pauli_graph
 
 
-def _find_correlation_surfaces_from_leaf(
-    zx_graph: GraphS,
-    leaf: int,
-) -> list[CorrelationSurface]:
+def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[CorrelationSurface]:
+    x_leaves, y_leaves, z_leaves = [], [], []
+    for closed_leaf in filter(
+        lambda v: zx_graph.vertex_degree(v) == 1 and not is_boundary(zx_graph, v),
+        zx_graph.vertices(),
+    ):
+        if is_s(zx_graph, closed_leaf):
+            y_leaves.append(closed_leaf)
+        elif is_z_no_phase(zx_graph, closed_leaf):
+            z_leaves.append(closed_leaf)
+        else:
+            x_leaves.append(closed_leaf)
+    pauli_graphs = _find_pauli_graph_generator_set_from_leaf(zx_graph, leaf)
+    if sum(len(leaves) for leaves in (x_leaves, y_leaves, z_leaves)) == 0:
+        basis_pauli_graphs = pauli_graphs
+    stabilizer_basis, basis_pauli_graphs, valid_pauli_graphs = {}, [], []
+    for pauli_graph in pauli_graphs:
+        stabilizer = _bits_to_int(
+            chain.from_iterable(
+                map(func, pauli_graph.support_on_nodes(leaves, transpose=False))
+                for leaves, func in zip(
+                    (x_leaves, y_leaves, z_leaves),
+                    (lambda a: a[0], lambda a: a[0] ^ a[1], lambda a: a[1]),
+                )
+            )
+        )
+        indices = _solve_linear_system(stabilizer_basis, stabilizer, update_basis=True)
+        if indices is None:
+            basis_pauli_graphs.append(pauli_graph)
+            continue
+        valid_pauli_graphs.append(
+            _multiply_pauli_graphs([basis_pauli_graphs[k] for k in indices] + [pauli_graph])
+        )
+    return [pg.to_correlation_surface(zx_graph) for pg in valid_pauli_graphs]
+
+
+def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph]:
     """Find the correlation surfaces starting from a leaf node in the graph."""
     neighbor: int = next(iter(zx_graph.neighbors(leaf)))
     pauli_graphs: list[PauliGraph] = [
@@ -313,13 +340,7 @@ def _find_correlation_surfaces_from_leaf(
             filter(lambda n: zx_graph.vertex_degree(n) == 1, unexplored_neighbors)
         )
         explored_nodes.add(current_node)
-    return [pg.to_correlation_surface(zx_graph) for pg in pauli_graphs]
-    # return list(
-    #     # filter(
-    #     # lambda s: _leaf_nodes_can_support_span(g, s.span),
-    #     map(partial(_pauli_graph_to_correlation_surface, g), pauli_graphs),
-    #     # )
-    # )
+    return pauli_graphs
 
 
 def _bits_to_int(bits: Iterable[bool]) -> int:
