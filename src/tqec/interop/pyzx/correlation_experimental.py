@@ -145,16 +145,16 @@ class PauliGraph(dict[int, dict[int, tuple[bool, bool]]]):
         """Get the X and Z supports on the given nodes."""
         return tuple(zip(*chain.from_iterable(self[n].values() for n in nodes)))
 
-    def to_correlation_surface(self, g: GraphS) -> CorrelationSurface:
+    def to_correlation_surface(self, zx_graph: GraphS) -> CorrelationSurface:
         """Convert a Pauli graph to a correlation surface."""
         span = []
         bases = (Basis.X, Basis.Z)
-        for u, v in g.edges():
+        for u, v in zx_graph.edges():
             pauli_u = self[u][v]
             pauli_v = self[v][u]
             for basis_u, basis_v in product(range(2), repeat=2):
                 if (
-                    (is_hardmard(g, (u, v)) ^ (basis_u == basis_v))
+                    (is_hardmard(zx_graph, (u, v)) ^ (basis_u == basis_v))
                     and pauli_u[basis_u]
                     and pauli_v[basis_v]
                 ):
@@ -172,55 +172,20 @@ def _multiply_pauli_graphs(pauli_graphs: list[PauliGraph]) -> PauliGraph:
 
 
 def _find_correlation_surfaces_from_leaf(
-    g: GraphS,
+    zx_graph: GraphS,
     leaf: int,
 ) -> list[CorrelationSurface]:
     """Find the correlation surfaces starting from a leaf node in the graph."""
-    # bases_at_leaves: dict[int, Pauli] = {}
-    # for closed_leaf in filter(
-    #     lambda v: g.vertex_degree(v) == 1 and not is_boundary(g, v), g.vertices()
-    # ):
-    #     if is_s(g, closed_leaf):
-    #         bases_at_leaves[closed_leaf] = Pauli.Y
-    #     elif is_z_no_phase(g, closed_leaf):
-    #         bases_at_leaves[closed_leaf] = Pauli.X
-    #     else:
-    #         bases_at_leaves[closed_leaf] = Pauli.Z
-    # neighbor = next(iter(g.neighbors(leaf)))
-
-    # pauli_graphs = []
-    # for basis in (
-    #     [bases_at_leaves[leaf]]
-    #     if leaf in bases_at_leaves
-    #     else [Pauli.X, Pauli.Z, Pauli.Y]
-    # ) + [Pauli.I]:
-    #     graph = {}
-    #     graph[leaf] = {}
-    #     graph[leaf][neighbor] = basis
-    #     graph[neighbor] = {}
-    #     graph[neighbor][leaf] = _flip_pauli_based_on_edge_type(
-    #         g, (leaf, neighbor), basis
-    #     )
-    #     pauli_graphs.append(graph)
-
-    neighbor: int = next(iter(g.neighbors(leaf)))
+    neighbor: int = next(iter(zx_graph.neighbors(leaf)))
     pauli_graphs: list[PauliGraph] = [
-        PauliGraph().add_support(g, (leaf, neighbor), support)
+        PauliGraph().add_support(zx_graph, (leaf, neighbor), support)
         for support in [(True, False), (False, True)]
     ]
 
-    if g.vertex_degree(neighbor) == 1:  # make sure no leaf node will be in the frontier
-        frontier: list[int] = []
-        # if neighbor in bases_at_leaves:
-        #     pauli_graphs = list(
-        #         filter(
-        #             lambda pg: pg[neighbor][leaf] in (bases_at_leaves[neighbor], Pauli.I),
-        #             pauli_graphs,
-        #         )
-        #     )
-    else:
-        frontier: list[int] = [neighbor]
-        explored_leaves: list[int] = [leaf]
+    frontier: list[int] = []
+    if zx_graph.vertex_degree(neighbor) != 1:  # make sure no leaf node will be in the frontier
+        frontier.append(neighbor)
+        explored_leaves = [leaf]
         explored_nodes = {leaf}
 
     while frontier:
@@ -230,28 +195,22 @@ def _find_correlation_surfaces_from_leaf(
         unconnected_neighbors: list[int] = list(
             filter(
                 lambda n: n not in pauli_graphs[0][current_node],
-                g.neighbors(current_node),
+                zx_graph.neighbors(current_node),
             )
         )
         unexplored_neighbors = [n for n in unconnected_neighbors if n not in pauli_graphs[0]]
-        flip_basis: bool = g.type(current_node) == VertexType.X
-        broadcast_basis = (False, True) if flip_basis else (True, False)
+        is_x_node: bool = zx_graph.type(current_node) == VertexType.X
+        broadcast_basis = (False, True) if is_x_node else (True, False)
         passthrough_basis = broadcast_basis[::-1]
 
         # check if each Pauli graph candidate satisfies broadcast and passthrough constraints
         # on the current node and is not a product of previously checked valid Pauli graphs
-        valid_graphs, invalid_graphs, syndromes, stabilizer_list, stabilizer_basis = (
-            [],
-            [],
-            [],
-            [],
-            [],
-        )
+        valid_graphs, invalid_graphs, syndromes, stabilizer_basis = [], [], [], {}
         for pauli_graph in pauli_graphs:
             supports: tuple[tuple[bool], tuple[bool]] = pauli_graph.support_on_nodes([current_node])
-            passthrough_parity = sum(supports[1 - flip_basis]) % 2
+            passthrough_parity = sum(supports[1 - is_x_node]) % 2
             valid = True
-            syndrome: tuple[bool] = supports[flip_basis]
+            syndrome: tuple[bool] = supports[is_x_node]
             if all(syndrome):
                 broadcast_pauli = broadcast_basis
             elif not any(syndrome):
@@ -266,16 +225,11 @@ def _find_correlation_surfaces_from_leaf(
             stabilizer = _bits_to_int(
                 chain.from_iterable(pauli_graph.support_on_nodes(stabilizer_nodes))
             )
-            # if _find_subset_xor(stabilizer, stabilizer_list) is not None:
-            #     continue
-            if _in_basis(stabilizer, stabilizer_basis):
+            if _solve_linear_system(stabilizer_basis, stabilizer, update_basis=valid) is not None:
                 continue
             if valid:
-                if stabilizer:
-                    stabilizer_basis = _build_basis(stabilizer_basis, stabilizer)
-                    stabilizer_list.append(stabilizer)
                 valid_graphs.append((pauli_graph, broadcast_pauli, passthrough_parity))
-                if len(stabilizer_list) == stabilizer_length:
+                if len(stabilizer_basis) == stabilizer_length:
                     break
             else:
                 invalid_graphs.append(pauli_graph)
@@ -285,21 +239,23 @@ def _find_correlation_surfaces_from_leaf(
         all_one = (1 << len(syndrome)) - 1
         if not unconnected_neighbors:
             all_one ^= 1 << (len(syndrome) - 1)
+        syndrome_basis, basis_pauli_graphs = {}, []
         for i, (pauli_graph, syndrome) in enumerate(zip(invalid_graphs, syndromes)):
-            if len(stabilizer_list) == stabilizer_length:
+            if len(stabilizer_basis) == stabilizer_length:
                 break
-            for target in (syndrome, syndrome ^ all_one):
-                indices = _find_subset_xor(target, syndromes[:i] + syndromes[i + 1 :])
+            for j, target in enumerate((syndrome ^ all_one, syndrome)):
+                indices = _solve_linear_system(syndrome_basis, target, update_basis=j == 1)
                 if indices is None:
+                    if j == 1:
+                        basis_pauli_graphs.append(pauli_graph)
                     continue
-                indices = [j if j < i else j + 1 for j in indices]
                 new_pauli_graph = _multiply_pauli_graphs(
-                    [pauli_graph] + [invalid_graphs[j] for j in indices],
+                    [basis_pauli_graphs[k] for k in indices] + [pauli_graph]
                 )
 
                 supports = new_pauli_graph.support_on_nodes([current_node])
-                passthrough_parity = sum(supports[1 - flip_basis]) % 2
-                if all(supports[flip_basis]):
+                passthrough_parity = sum(supports[1 - is_x_node]) % 2
+                if all(supports[is_x_node]):
                     broadcast_pauli = broadcast_basis
                 else:
                     broadcast_pauli = (False, False)
@@ -307,13 +263,8 @@ def _find_correlation_surfaces_from_leaf(
                 stabilizer = _bits_to_int(
                     chain.from_iterable(new_pauli_graph.support_on_nodes(stabilizer_nodes))
                 )
-                # if _find_subset_xor(stabilizer, stabilizer_list) is not None:
-                #     continue
-                if _in_basis(stabilizer, stabilizer_basis):
+                if _solve_linear_system(stabilizer_basis, stabilizer) is not None:
                     continue
-                if stabilizer:
-                    stabilizer_basis = _build_basis(stabilizer_basis, stabilizer)
-                    stabilizer_list.append(stabilizer)
                 valid_graphs.append((new_pauli_graph, broadcast_pauli, passthrough_parity))
                 break
 
@@ -347,20 +298,22 @@ def _find_correlation_surfaces_from_leaf(
                 for n, pauli in out_paulis.items():
                     if i:
                         new_pauli_graph[n] = copy(pauli_graph[n])
-                    new_pauli_graph.add_support(g, (current_node, n), pauli)
+                    new_pauli_graph.add_support(zx_graph, (current_node, n), pauli)
                 pauli_graphs.append(new_pauli_graph)
 
         if not pauli_graphs:  # no valid correlation surface exists on this ZX graph
             return []
         frontier.extend(
             filter(
-                lambda n: g.vertex_degree(n) > 1 and n not in explored_nodes,
+                lambda n: zx_graph.vertex_degree(n) > 1 and n not in explored_nodes,
                 unexplored_neighbors,
             )
         )
-        explored_leaves.extend(filter(lambda n: g.vertex_degree(n) == 1, unexplored_neighbors))
+        explored_leaves.extend(
+            filter(lambda n: zx_graph.vertex_degree(n) == 1, unexplored_neighbors)
+        )
         explored_nodes.add(current_node)
-    return [pg.to_correlation_surface(g) for pg in pauli_graphs]
+    return [pg.to_correlation_surface(zx_graph) for pg in pauli_graphs]
     # return list(
     #     # filter(
     #     # lambda s: _leaf_nodes_can_support_span(g, s.span),
@@ -374,50 +327,20 @@ def _bits_to_int(bits: Iterable[bool]) -> int:
     return sum(b << i for i, b in enumerate(bits))
 
 
-def _build_basis(basis: list[int], x: int) -> list[int]:
-    for b in basis:
-        x = min(x, x ^ b)
-    if x:
-        basis.append(x)
-    return basis
-
-
-def _in_basis(x: int, basis: list[int]) -> bool:
-    for b in basis:
-        x = min(x, x ^ b)
-    return x == 0
-
-
-def _find_subset_xor(target: int, candidates: list[int]) -> list[int] | None:
-    """Given target and candidates list of ints, return list of indices i
-    such that XOR of candidates[i] over indices = target,
-    or None if no such subset exists.
-    """  # noqa: D205
-    # Build XOR basis: pivot_bit -> (basis_vector, combination_mask)
-    basis = {}  # pivot_bit -> (vec, mask) where mask is int with bits for indices
-    for i, vec in enumerate(candidates):
-        mask = 1 << i
-        v = vec
-        while v:
-            hb = v.bit_length() - 1  # index of highest set bit
-            if hb not in basis:
-                basis[hb] = (v, mask)
-                break
-            v ^= basis[hb][0]
-            mask ^= basis[hb][1]
-        # if v becomes 0, this vector was redundant; we just drop it
-
-    # Try to express a using the same basis
-    result_mask = 0
-    while target:
-        hb = target.bit_length() - 1
-        if hb not in basis:
-            return None  # cannot represent a
-        target ^= basis[hb][0]
-        result_mask ^= basis[hb][1]
-
-    # Convert mask to list of indices
-    return [i for i in range(len(candidates)) if (result_mask >> i) & 1]
+def _solve_linear_system(
+    basis: dict[int, tuple[int, int]], x: int, update_basis: bool = True
+) -> Iterable[int] | None:
+    mask = 1 << len(basis)
+    while x:
+        highest_bit = x.bit_length() - 1
+        if highest_bit not in basis:
+            if update_basis:
+                basis[highest_bit] = (x, mask)
+            return None
+        pivot, pivot_mask = basis[highest_bit]
+        x ^= pivot
+        mask ^= pivot_mask
+    return filter(lambda i: (mask >> i) & 1, range(len(basis)))
 
 
 def _leaf_nodes_can_support_span(g: GraphS, span: frozenset[ZXEdge]) -> bool:
