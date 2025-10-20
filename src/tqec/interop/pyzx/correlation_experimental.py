@@ -15,7 +15,7 @@ from pyzx.pauliweb import PauliWeb, multiply_paulis
 from pyzx.utils import FractionLike, VertexType
 
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
-from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_x_no_phase, is_z_no_phase
+from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phase
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 
@@ -56,7 +56,7 @@ def pauli_web_to_correlation_surface(
         (u, v), pauli_u = half_edges.popitem()
         pauli_v = half_edges.pop((v, u))
         if pauli_u == "Y":  # pragma: no cover
-            span.add(ZXEdge(ZXNode(u, Basis.X), ZXNode(v, Basis.Z)))
+            span.add(ZXEdge(ZXNode(u, Basis.X), ZXNode(v, Basis.X)))
             span.add(ZXEdge(ZXNode(u, Basis.Z), ZXNode(v, Basis.Z)))
             continue
         span.add(ZXEdge(ZXNode(u, Basis(pauli_u)), ZXNode(v, Basis(pauli_v))))
@@ -127,9 +127,8 @@ class PauliGraph(dict[int, dict[int, tuple[bool, bool]]]):
                 xz_support[::-1] if is_hardmard(zx_graph, edge) else xz_support,
             ),
         ):
-            if u not in self:
-                self[u] = {}
-            self[u][v] = support
+            edges = self.setdefault(u, {})
+            edges[v] = support
         return self
 
     def support_on_nodes(
@@ -183,9 +182,11 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[Co
             z_leaves.append(closed_leaf)
         else:
             x_leaves.append(closed_leaf)
+
     pauli_graphs = _find_pauli_graph_generator_set_from_leaf(zx_graph, leaf)
     if sum(len(leaves) for leaves in (x_leaves, y_leaves, z_leaves)) == 0:
         basis_pauli_graphs = pauli_graphs
+
     stabilizer_basis, basis_pauli_graphs, valid_pauli_graphs = {}, [], []
     for pauli_graph in pauli_graphs:
         stabilizer = _bits_to_int(
@@ -209,10 +210,11 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[Co
 
 def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph]:
     """Find the correlation surfaces starting from a leaf node in the graph."""
+    paulis_xz = ((False, True), (True, False))
+    pauli_i = (False, False)
     neighbor: int = next(iter(zx_graph.neighbors(leaf)))
     pauli_graphs: list[PauliGraph] = [
-        PauliGraph().add_support(zx_graph, (leaf, neighbor), support)
-        for support in [(True, False), (False, True)]
+        PauliGraph().add_support(zx_graph, (leaf, neighbor), support) for support in paulis_xz
     ]
 
     frontier: list[int] = []
@@ -222,8 +224,6 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
         explored_nodes = {leaf}
 
     while frontier:
-        stabilizer_nodes = explored_leaves + frontier
-        stabilizer_length = sum(len(pauli_graphs[0][n]) for n in stabilizer_nodes)
         current_node = frontier.pop(0)
         unconnected_neighbors: list[int] = list(
             filter(
@@ -231,10 +231,14 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
                 zx_graph.neighbors(current_node),
             )
         )
+        stabilizer_nodes = explored_leaves + frontier
+        if unconnected_neighbors:
+            stabilizer_nodes.append(current_node)
+        stabilizer_length = sum(len(pauli_graphs[0][n]) for n in stabilizer_nodes)
         unexplored_neighbors = [n for n in unconnected_neighbors if n not in pauli_graphs[0]]
         is_x_node: bool = zx_graph.type(current_node) == VertexType.X
-        broadcast_basis = (False, True) if is_x_node else (True, False)
-        passthrough_basis = broadcast_basis[::-1]
+        broadcast_basis = paulis_xz[1 - is_x_node]
+        passthrough_basis = paulis_xz[is_x_node]
 
         # check if each Pauli graph candidate satisfies broadcast and passthrough constraints
         # on the current node and is not a product of previously checked valid Pauli graphs
@@ -247,7 +251,7 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
             if all(syndrome):
                 broadcast_pauli = broadcast_basis
             elif not any(syndrome):
-                broadcast_pauli = (False, False)
+                broadcast_pauli = pauli_i
             else:  # invalid broadcast
                 valid = False
             if not unconnected_neighbors:
@@ -291,7 +295,7 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
                 if all(supports[is_x_node]):
                     broadcast_pauli = broadcast_basis
                 else:
-                    broadcast_pauli = (False, False)
+                    broadcast_pauli = pauli_i
 
                 stabilizer = _bits_to_int(
                     chain.from_iterable(new_pauli_graph.support_on_nodes(stabilizer_nodes))
@@ -368,41 +372,6 @@ def _solve_linear_system(
         x ^= pivot
         mask ^= pivot_mask
     return filter(lambda i: (mask >> i) & 1, range(len(basis)))
-
-
-def _leaf_nodes_can_support_span(g: GraphS, span: frozenset[ZXEdge]) -> bool:
-    """Check if the leaf nodes in the graph can support the correlation span.
-
-    The compatibility is determined by comparing the logical observable basis
-    and the node type for the leaf nodes in the graph:
-
-    - The Z/X observable must be supported on the opposite type node.
-    - The Y observable can only be supported on the Y type node.
-    - The BOUNDARY node can support any type of logical observable.
-
-    """
-    no_boundary_leaves = {
-        v for v in g.vertices() if g.vertex_degree(v) == 1 and not is_boundary(g, v)
-    }
-    bases_at_leaves: dict[int, set[Basis]] = {}
-    for edge in span:
-        u, ub = edge.u.id, edge.u.basis
-        v, vb = edge.v.id, edge.v.basis
-        if u in no_boundary_leaves:
-            bases_at_leaves.setdefault(u, set()).add(ub)
-        if v in no_boundary_leaves:
-            bases_at_leaves.setdefault(v, set()).add(vb)
-    for leaf, bases in bases_at_leaves.items():
-        # If there is correlation surface touching a Y leaf node, then the
-        # correlation surface must support both X and Z type logical observable.
-        if is_s(g, leaf):
-            return bases == {Basis.X, Basis.Z}
-        # Z(X) type leaf node can only support the X(Z) type logical observable.
-        if is_z_no_phase(g, leaf) and bases != {Basis.X}:
-            return False
-        if is_x_no_phase(g, leaf) and bases != {Basis.Z}:
-            return False
-    return True
 
 
 _SUPPORTED_SPIDERS: set[tuple[VertexType, FractionLike]] = {
