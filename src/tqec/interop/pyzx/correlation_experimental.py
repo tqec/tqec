@@ -6,7 +6,7 @@ import operator
 from collections.abc import Iterable
 from copy import copy
 from fractions import Fraction
-from functools import partial, reduce
+from functools import reduce
 from itertools import chain, pairwise, product
 
 import stim
@@ -157,12 +157,18 @@ class PauliGraph(dict[int, dict[int, tuple[bool, bool]]]):
 
 
 def _multiply_pauli_graphs(pauli_graphs: list[PauliGraph]) -> PauliGraph:
-    new_pauli_graph = PauliGraph()
-    for v, neighbors in zip(pauli_graphs[0], zip(*(pg.values() for pg in pauli_graphs))):
-        new_pauli_graph[v] = {}
-        for n, supports in zip(neighbors[0], zip(*(neighbor.values() for neighbor in neighbors))):
-            new_pauli_graph[v][n] = tuple(reduce(partial(map, operator.xor), supports))
-    return new_pauli_graph
+    result = PauliGraph()
+    others = pauli_graphs[1:]
+    for v, neighbors in pauli_graphs[0].items():
+        result_neighbors = result.setdefault(v, {})
+        other_neighbor_rows = [pg[v] for pg in others]
+        for n, (x, z) in neighbors.items():
+            for neighbor_row in other_neighbor_rows:
+                ox, oz = neighbor_row[n]
+                x ^= ox  # noqa: PLW2901
+                z ^= oz  # noqa: PLW2901
+            result_neighbors[n] = (x, z)
+    return result
 
 
 def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[CorrelationSurface]:
