@@ -43,6 +43,9 @@ jobs:
           enableCrossOsArchive: true
           restore-keys: |
             docs_database_and_stim_results_cache
+      - name: Check for broken links
+        run: |
+          uv run --group all make linkcheck
       - name: Generate the documentation
         run: |
           uv run --group all make html

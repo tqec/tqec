@@ -194,3 +194,15 @@ autosummary_imported_members = True
 bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"
 suppress_warnings = ["bibtex.duplicate_label", "bibtex.duplicate_citation"]
+
+# options for the linkcheck workflow
+# we expect these links to be externally valid all the time
+# the workflow leads to 403 if we check a link via an automated workflow
+linkcheck_ignore = [
+    r"https://arxiv\.org/.*",
+    r"https://doi\.org/.*",
+    r"https://link\.aps\.org/doi/.*",
+    r"http://dx\.doi\.org/.*",
+    r"https://www\.quantiki\.org/.*",
+    r"https://algassert.com/crumble#*",
+]
