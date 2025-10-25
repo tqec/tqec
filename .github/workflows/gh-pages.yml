@@ -46,6 +46,7 @@ jobs:
       - name: Check for broken links
         run: |
           uv run --group all make linkcheck
+        working-directory: docs/
       - name: Generate the documentation
         run: |
           uv run --group all make html
