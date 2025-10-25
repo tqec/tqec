@@ -43,13 +43,13 @@ jobs:
           enableCrossOsArchive: true
           restore-keys: |
             docs_database_and_stim_results_cache
-      - name: Check for broken links
-        run: |
-          uv run --group all make linkcheck
-        working-directory: docs/
       - name: Generate the documentation
         run: |
           uv run --group all make html
+        working-directory: docs/
+      - name: Check for broken links
+        run: |
+          uv run --group all make linkcheck
         working-directory: docs/
         # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
         # this is used to reduce the docs build time in the CI.
