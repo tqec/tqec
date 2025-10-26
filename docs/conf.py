@@ -204,5 +204,10 @@ linkcheck_ignore = [
     r"https://link\.aps\.org/doi/.*",
     r"http://dx\.doi\.org/.*",
     r"https://www\.quantiki\.org/.*",
+    # ignore crumble links as these appear as broken
+    # we are assuming the crumble links are working via crumble
     r"https://algassert.com/crumble#*",
+    # link to a github badge in the reasme showing the star history
+    # linkcheck has issues with a link with an undefined date
+    r"https://www.star-history.com/#tqec/*",
 ]
