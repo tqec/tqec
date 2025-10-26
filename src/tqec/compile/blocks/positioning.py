@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Generic
+from typing import Generic, cast
 
 from typing_extensions import Self, TypeVar
 
@@ -10,6 +10,9 @@ from tqec.utils.position import BlockPosition2D, BlockPosition3D, SignedDirectio
 
 
 class LayoutPosition2D(ABC):
+    _x: int
+    _y: int
+
     def __init__(self, x: int, y: int) -> None:
         """Represent the local indexing used to represent both cubes and pipes.
 
@@ -48,9 +51,9 @@ class LayoutPosition2D(ABC):
 
     def __add__(self, other: Self | tuple[int, int]) -> Self:
         if isinstance(other, tuple):
-            x, y = other
-            return self.__class__(self._x + x, self._y + y)
-        return self.__class__(self._x + other._x, self._y + other._y)
+            x, y = cast(tuple[int, int], other)
+            return cast(Self, self.__class__(self._x + x, self._y + y))
+        return cast(Self, self.__class__(self._x + other._x, self._y + other._y))
 
 
 class LayoutCubePosition2D(LayoutPosition2D):
