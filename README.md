@@ -62,7 +62,7 @@ from tqec import BlockGraph, compile_block_graph, NoiseModel
 # 0. Path to the logical_cnot.dae file
 cnot_dae_filepath = Path.cwd() / "assets" / "logical_cnot.dae"
 if not cnot_dae_filepath.exists():
-    print(f"The file '{cnot_dae_filepath}' does not exists.")
+    print(f"The file '{cnot_dae_filepath}' does not exist.")
 
 # 1. Construct the logical computation
 block_graph = BlockGraph.from_dae_file(cnot_dae_filepath)
