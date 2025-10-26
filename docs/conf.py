@@ -203,7 +203,6 @@ linkcheck_ignore = [
     r"https://doi\.org/.*",
     r"https://link\.aps\.org/doi/.*",
     r"http://dx\.doi\.org/.*",
-    r"https://www\.quantiki\.org/.*",
     # ignore crumble links as these appear as broken
     # we are assuming the crumble links are working via crumble
     r"https://algassert.com/crumble#*",
