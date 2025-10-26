@@ -10,9 +10,6 @@ from tqec.utils.position import BlockPosition2D, BlockPosition3D, SignedDirectio
 
 
 class LayoutPosition2D(ABC):
-    _x: int
-    _y: int
-
     def __init__(self, x: int, y: int) -> None:
         """Represent the local indexing used to represent both cubes and pipes.
 
