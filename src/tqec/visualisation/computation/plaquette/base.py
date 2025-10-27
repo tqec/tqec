@@ -8,8 +8,7 @@ from typing_extensions import override
 
 from tqec.interop.color import TQECColor
 from tqec.plaquette.enums import PlaquetteOrientation
-from tqec.plaquette.rpng.rpng import ExtendedBasis, PauliBasis
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, ExtendedBasis, PauliBasis
 from tqec.visualisation.configuration import DrawerConfiguration
 
 

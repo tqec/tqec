@@ -13,8 +13,8 @@ from tqec.circuit.schedule.schedule import Schedule
 from tqec.compile.specs.library.generators.constants import EXTENDED_PLAQUETTE_SCHEDULES
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits
-from tqec.plaquette.rpng.rpng import RPNG, PauliBasis, RPNGDescription
-from tqec.utils.enums import Basis
+from tqec.plaquette.rpng.rpng import RPNG, RPNGDescription
+from tqec.utils.enums import Basis, PauliBasis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import MEASUREMENT_INSTRUCTION_NAMES, RESET_INSTRUCTION_NAMES
 

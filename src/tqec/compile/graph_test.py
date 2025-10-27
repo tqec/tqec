@@ -1,6 +1,6 @@
 import pytest
 
-from tqec.compile.blocks.block import Block
+from tqec.compile.blocks.block import LayeredBlock
 from tqec.compile.blocks.enums import TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.plaquettes import PlaquetteLayer
 from tqec.compile.compile import _DEFAULT_BLOCK_REPETITIONS
@@ -29,12 +29,14 @@ def scalable_qubit_shape_fixture() -> PhysicalQubitScalable2D:
 
 
 @pytest.fixture(name="xzz")
-def xzz_fixture() -> Block:
-    return FIXED_BULK_CUBE_BUILDER(CubeSpec(ZXCube.from_str("xzz")), _DEFAULT_BLOCK_REPETITIONS)
+def xzz_fixture() -> LayeredBlock:
+    block = FIXED_BULK_CUBE_BUILDER(CubeSpec(ZXCube.from_str("xzz")), _DEFAULT_BLOCK_REPETITIONS)
+    assert isinstance(block, LayeredBlock)
+    return block
 
 
 @pytest.fixture(name="xzo")
-def xzo_fixture(xzz: Block) -> Block:
+def xzo_fixture(xzz: LayeredBlock) -> LayeredBlock:
     spec = CubeSpec(ZXCube.from_str("xzz"))
     first_layer = xzz.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
@@ -46,7 +48,7 @@ def xzo_fixture(xzz: Block) -> Block:
 
 
 @pytest.fixture(name="ozz")
-def ozz_fixture(xzz: Block) -> Block:
+def ozz_fixture(xzz: LayeredBlock) -> LayeredBlock:
     spec = CubeSpec(ZXCube.from_str("xzz"))
     first_layer = xzz.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
@@ -58,7 +60,7 @@ def ozz_fixture(xzz: Block) -> Block:
 
 
 @pytest.fixture(name="xoz")
-def xoz_fixture(xzz: Block) -> Block:
+def xoz_fixture(xzz: LayeredBlock) -> LayeredBlock:
     spec = CubeSpec(ZXCube.from_str("xzz"))
     first_layer = xzz.get_atomic_temporal_border(TemporalBlockBorder.Z_NEGATIVE)
     assert isinstance(first_layer, PlaquetteLayer)
@@ -72,9 +74,9 @@ def xoz_fixture(xzz: Block) -> Block:
 def test_add_temporal_pipe_with_spatial_pipe_existing(
     observable_builder: ObservableBuilder,
     scalable_qubit_shape: PhysicalQubitScalable2D,
-    xzz: Block,
-    xoz: Block,
-    xzo: Block,
+    xzz: LayeredBlock,
+    xoz: LayeredBlock,
+    xzo: LayeredBlock,
 ) -> None:
     graph = TopologicalComputationGraph(scalable_qubit_shape, observable_builder)
     graph.add_cube(BlockPosition3D(0, 0, 0), xzz)
@@ -89,9 +91,9 @@ def test_add_temporal_pipe_with_spatial_pipe_existing(
 def test_sequenced_layers_with_layout_layers_of_different_shapes(
     observable_builder: ObservableBuilder,
     scalable_qubit_shape: PhysicalQubitScalable2D,
-    xzz: Block,
-    xoz: Block,
-    xzo: Block,
+    xzz: LayeredBlock,
+    xoz: LayeredBlock,
+    xzo: LayeredBlock,
 ) -> None:
     graph = TopologicalComputationGraph(scalable_qubit_shape, observable_builder)
     graph.add_cube(BlockPosition3D(0, 0, 0), xzz)

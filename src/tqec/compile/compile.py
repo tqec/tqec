@@ -18,6 +18,7 @@ from tqec.computation.block_graph import BlockGraph
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import Cube
 from tqec.templates.base import RectangularTemplate
+from tqec.templates.qubit import QubitTemplate
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition3D, Direction3D
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
@@ -114,11 +115,6 @@ def compile_block_graph(
     # x-axis are shadowed by the connected pipes.
     block_graph = block_graph.fix_shadowed_faces()
 
-    # Set the minimum z of block graph to 0.(time starts from zero)
-    minz = min(cube.position.z for cube in block_graph.cubes)
-    if minz != 0:
-        block_graph = block_graph.shift_by(dz=-minz)
-
     # We need to know exactly which spatial pipes will be placed on a time slice where extended
     # plaquettes will be used, in order to adapt the schedule of the measurement layer.
     def has_pipes_in_both_spatial_dimensions(cube: Cube) -> bool:
@@ -182,8 +178,17 @@ def compile_block_graph(
         pos1, pos2 = pipe.u.position, pipe.v.position
         pos1 = BlockPosition3D(pos1.x, pos1.y, pos1.z)
         pos2 = BlockPosition3D(pos2.x, pos2.y, pos2.z)
-        template1 = _get_template_from_layer(graph.get_cube(pos1))
-        template2 = _get_template_from_layer(graph.get_cube(pos2))
+        # Use empty template for YHalfCube, as its template is not used in practice.
+        template1 = (
+            _get_template_from_layer(graph.get_layered_block(pos1))
+            if not pipe.u.is_y_cube
+            else QubitTemplate()
+        )
+        template2 = (
+            _get_template_from_layer(graph.get_layered_block(pos2))
+            if not pipe.v.is_y_cube
+            else QubitTemplate()
+        )
         key = PipeSpec(
             (cube_specs[pipe.u], cube_specs[pipe.v]),
             (template1, template2),
