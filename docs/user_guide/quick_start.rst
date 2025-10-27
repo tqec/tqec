@@ -202,7 +202,7 @@ This quick start guide has shown how to use the ``tqec`` library to define a com
 import it into the library, compile it to stim circuits.
 Simulations are run and visualized for multiple error rates and code distances.
 For an extensive example, see also the
-`tqec_example <https://github.com/tqec/tqec/blob/main/examples/logical_cnot.py>`_.
+`tqec_example <https://tqec.github.io/tqec/gallery/cnot.html>`_.
 
 The process can be repeated through the cli using
 
