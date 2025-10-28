@@ -166,8 +166,8 @@ class LayerVisualiser(NodeWalker):
 
         """
         return svg.Text(
-            x=0,
-            y=0,
+            x=0.25,
+            y=0.15,
             fill=self._font_color,
             font_size=self._font_size,
             text_anchor="start",

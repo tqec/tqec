@@ -30,6 +30,7 @@ from __future__ import annotations
 import re
 from dataclasses import astuple, dataclass
 from enum import Enum
+from typing import cast
 
 import numpy as np
 import numpy.typing as npt
@@ -136,7 +137,7 @@ class Position3D(Vec3D):
 
     def shift_by(self, dx: int = 0, dy: int = 0, dz: int = 0) -> Self:
         """Shift the position by the given offset."""
-        return self.__class__(self.x + dx, self.y + dy, self.z + dz)
+        return cast(Self, self.__class__(self.x + dx, self.y + dy, self.z + dz))
 
     def shift_in_direction(self, direction: Direction3D, shift: int) -> Self:
         """Shift the position in the given direction by the given shift."""
