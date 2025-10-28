@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import heapq
 import operator
 from collections.abc import Callable, Generator, Iterable
 from copy import copy
@@ -106,10 +107,10 @@ def find_correlation_surfaces(
         raise TQECError(
             "The graph must contain at least one leaf node to find correlation surfaces."
         )
-    correlation_surfaces = _find_correlation_surfaces_from_leaf(g, next(iter(leaves)))
+    correlation_surfaces = _find_correlation_surfaces_from_leaf(g, min(leaves))
 
-    if CorrelationSurface(frozenset()) in correlation_surfaces:
-        correlation_surfaces.remove(CorrelationSurface(frozenset()))
+    # if CorrelationSurface(frozenset()) in correlation_surfaces:
+    #     correlation_surfaces.remove(CorrelationSurface(frozenset()))
 
     # sort the correlation surfaces to make the result deterministic
     return sorted(correlation_surfaces, key=lambda x: sorted(x.span))
@@ -150,9 +151,9 @@ class PauliGraph(dict[int, dict[int, Pauli]]):
             edges[v] = p
         return self
 
-    def paulis_at_nodes(self, nodes: list[int]) -> list[Pauli]:
+    def paulis_at_nodes(self, nodes: list[int]) -> Iterable[Pauli]:
         """Get the Pauli operators at the given nodes."""
-        return list(chain.from_iterable(self[n].values() for n in nodes))
+        return chain.from_iterable(self[n].values() for n in nodes)
 
     def signature_at_nodes(
         self,
@@ -170,7 +171,7 @@ class PauliGraph(dict[int, dict[int, Pauli]]):
         self, node: int, node_basis: Pauli, has_unconnected_neighbors: bool
     ) -> int | tuple[Pauli, bool]:
         """Return the broadcast Pauli and passthrough parity if valid or the syndrome otherwise."""
-        paulis = self.paulis_at_nodes([node])
+        paulis = list(self.paulis_at_nodes([node]))
         passthrough_parity = node_basis in reduce(operator.xor, paulis)
         valid = True
         broadcast_basis = node_basis.flipped()
@@ -255,7 +256,7 @@ def _expand_pauli_graph_to_node(
         for n, pauli, edge_is_hadamard in zip(
             unconnected_neighbors, out_paulis, edges_are_hadamard
         ):
-            if i or always_copy:
+            if (i or always_copy) and n in pauli_graph:
                 new_pauli_graph[n] = copy(pauli_graph[n])
             new_pauli_graph.add_pauli_to_edge((node, n), pauli, edge_is_hadamard)
         yield new_pauli_graph
@@ -316,7 +317,7 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
     explored_nodes = {leaf}
 
     while frontier:
-        current_node = frontier.pop(0)
+        current_node = heapq.heappop(frontier)
         connected_neighbors = list(pauli_graphs[0][current_node].keys())
         unconnected_neighbors = list(
             filter(
@@ -393,6 +394,7 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
                         edges_are_hadamard=[
                             is_hadamard(zx_graph, (current_node, n)) for n in unconnected_neighbors
                         ],
+                        always_copy=True,  # can be False if the exploration is BFS
                     ),
                     valid_graphs,
                 )
@@ -401,12 +403,9 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
 
         if not pauli_graphs:  # no valid correlation surface exists on this ZX graph
             return []
-        frontier.extend(
-            filter(
-                lambda n: zx_graph.vertex_degree(n) > 1 and n not in explored_nodes,
-                unexplored_neighbors,
-            )
-        )
+        for n in unexplored_neighbors:
+            if n not in explored_nodes and zx_graph.vertex_degree(n) > 1:
+                heapq.heappush(frontier, n)
         explored_leaves.extend(
             filter(lambda n: zx_graph.vertex_degree(n) == 1, unexplored_neighbors)
         )
