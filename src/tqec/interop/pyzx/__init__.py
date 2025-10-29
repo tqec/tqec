@@ -22,6 +22,7 @@ from tqec.interop.pyzx.synthesis import (
 from tqec.interop.pyzx.synthesis import (
     positioned_block_synthesis as positioned_block_synthesis,
 )
+from tqec.interop.pyzx.topologiq import read_from_lattice_dicts as read_from_lattice_dicts
 from tqec.interop.pyzx.utils import (
     cube_kind_to_zx as cube_kind_to_zx,
 )
