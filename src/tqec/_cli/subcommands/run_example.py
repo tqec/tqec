@@ -43,7 +43,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             help="The scale factors applied to the circuits.",
             nargs="+",
             type=int,
-            default=[1, 2, 3, 4],
+            default=[1, 2, 3],
         )
         parser.add_argument(
             "-p",
@@ -124,7 +124,7 @@ class RunExampleTQECSubCommand(TQECSubCommand):
             convention=convention,
             observables=[correlation_surfaces[i] for i in obs_indices],
             num_workers=cpu_count(),
-            max_shots=10_000_000,
+            max_shots=1_000_000,
             max_errors=5_000,
             decoders=["pymatching"],
             print_progress=True,
