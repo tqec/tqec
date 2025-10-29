@@ -58,7 +58,7 @@ class QubitTemplate(RectangularTemplate):
         ret[-1, 1:-1:2] = plaquette_indices[12]
         ret[-1, 2:-1:2] = plaquette_indices[13]
 
-        return ret
+        return numpy.flipud(ret)
 
     @property
     @override
@@ -73,14 +73,14 @@ class QubitTemplate(RectangularTemplate):
     @override
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
         match border:
-            case TemplateBorder.TOP:
-                return BorderIndices(1, 5, 6, 2)
             case TemplateBorder.BOTTOM:
+                return BorderIndices(1, 5, 6, 2)
+            case TemplateBorder.TOP:
                 return BorderIndices(3, 13, 14, 4)
             case TemplateBorder.LEFT:
-                return BorderIndices(1, 7, 8, 3)
+                return BorderIndices(3, 8, 7, 1)
             case TemplateBorder.RIGHT:
-                return BorderIndices(2, 11, 12, 4)
+                return BorderIndices(4, 12, 11, 2)
 
 
 class QubitSpatialCubeTemplate(RectangularTemplate):
@@ -161,7 +161,7 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
         ret[-1, 1:-1:2] = plaquette_indices[22]
         ret[-1, 2:-1:2] = plaquette_indices[23]
 
-        return ret
+        return numpy.flipud(ret)
 
     @property
     @override
@@ -176,14 +176,14 @@ class QubitSpatialCubeTemplate(RectangularTemplate):
     @override
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
         match border:
-            case TemplateBorder.TOP:
-                return BorderIndices(1, 9, 10, 2)
             case TemplateBorder.BOTTOM:
+                return BorderIndices(1, 9, 10, 2)
+            case TemplateBorder.TOP:
                 return BorderIndices(3, 23, 24, 4)
             case TemplateBorder.LEFT:
-                return BorderIndices(1, 11, 12, 3)
+                return BorderIndices(3, 12, 11, 1)
             case TemplateBorder.RIGHT:
-                return BorderIndices(2, 21, 22, 4)
+                return BorderIndices(4, 22, 21, 2)
 
 
 class QubitVerticalBorders(RectangularTemplate):
@@ -217,7 +217,7 @@ class QubitVerticalBorders(RectangularTemplate):
         # The right side
         ret[1:-1:2, -1] = plaquette_indices[6]
         ret[2:-1:2, -1] = plaquette_indices[7]
-        return ret
+        return numpy.flipud(ret)
 
     @property
     @override
@@ -239,9 +239,9 @@ class QubitVerticalBorders(RectangularTemplate):
                     f"repeating elements on the {border.name} border."
                 )
             case TemplateBorder.LEFT:
-                return BorderIndices(1, 5, 6, 3)
+                return BorderIndices(3, 6, 5, 1)
             case TemplateBorder.RIGHT:
-                return BorderIndices(2, 7, 8, 4)
+                return BorderIndices(4, 8, 7, 2)
 
 
 class QubitHorizontalBorders(RectangularTemplate):
@@ -271,7 +271,7 @@ class QubitHorizontalBorders(RectangularTemplate):
         # The bottom side
         ret[-1, 1:-1:2] = plaquette_indices[6]
         ret[-1, 2:-1:2] = plaquette_indices[7]
-        return ret
+        return numpy.flipud(ret)
 
     @property
     @override
@@ -286,9 +286,9 @@ class QubitHorizontalBorders(RectangularTemplate):
     @override
     def get_border_indices(self, border: TemplateBorder) -> BorderIndices:
         match border:
-            case TemplateBorder.TOP:
-                return BorderIndices(1, 5, 6, 2)
             case TemplateBorder.BOTTOM:
+                return BorderIndices(1, 5, 6, 2)
+            case TemplateBorder.TOP:
                 return BorderIndices(3, 7, 8, 4)
             case TemplateBorder.LEFT | TemplateBorder.RIGHT:
                 raise TQECError(

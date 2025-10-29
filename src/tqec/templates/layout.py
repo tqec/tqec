@@ -275,7 +275,7 @@ class LayoutTemplate(Template):
                 shifted_pos.y * element_shape[0] : (shifted_pos.y + 1) * element_shape[0],
                 shifted_pos.x * element_shape[1] : (shifted_pos.x + 1) * element_shape[1],
             ] = element_instantiation
-        return ret
+        return numpy.flipud(ret)
 
     @override
     def instantiation_origin(self, k: int) -> PlaquettePosition2D:
