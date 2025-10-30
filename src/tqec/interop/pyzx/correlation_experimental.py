@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import heapq
 import operator
 from collections.abc import Callable, Generator, Iterable
 from copy import copy
 from enum import IntFlag
 from fractions import Fraction
-from functools import partial, reduce
-from itertools import accumulate, chain, pairwise, product, repeat, starmap
+from functools import cache, partial, reduce
+from itertools import accumulate, chain, combinations, pairwise, product, repeat, starmap
 
 import stim
 from pyzx.graph.graph_s import GraphS
@@ -223,6 +222,48 @@ def _multiply_pauli_graphs(pauli_graphs: list[PauliGraph]) -> PauliGraph:
     return result
 
 
+@cache
+def _generate_valid_local_paulis(
+    node_basis: Pauli,
+    broadcast_pauli: Pauli,
+    passthrough_parity: bool,
+    num_unconnected_neighbors: int,
+    generate_all: bool = False,
+) -> list[list[Pauli]]:
+    """Generate valid local Pauli configurations given broadcast and passthrough status."""
+    unconnected_neighbors = range(num_unconnected_neighbors)
+    combined_pauli = broadcast_pauli ^ node_basis
+    if generate_all:
+        passthrough_nodes_list = chain.from_iterable(
+            combinations(unconnected_neighbors, num_passthrough)
+            for num_passthrough in range(
+                passthrough_parity,
+                len(unconnected_neighbors) + 1,
+                2,
+            )
+        )
+        out_paulis_list = [
+            [
+                combined_pauli if n in passthrough_nodes else broadcast_pauli
+                for n in unconnected_neighbors
+            ]
+            for passthrough_nodes in passthrough_nodes_list
+        ]
+    else:
+        passthrough_nodes = (
+            ((n,) for n in unconnected_neighbors)
+            if passthrough_parity
+            else pairwise(unconnected_neighbors)
+        )
+        out_paulis_list = [
+            [combined_pauli if n in m else broadcast_pauli for n in unconnected_neighbors]
+            for m in passthrough_nodes
+        ]
+        if not passthrough_parity or not num_unconnected_neighbors:
+            out_paulis_list.append([broadcast_pauli] * num_unconnected_neighbors)
+    return out_paulis_list
+
+
 def _expand_pauli_graph_to_node(
     pauli_graph: PauliGraph,
     broadcast_pauli: Pauli,
@@ -234,20 +275,15 @@ def _expand_pauli_graph_to_node(
     always_copy: bool = False,
 ) -> Generator[PauliGraph, None]:
     """Expand to a generator set of Pauli graphs for the new node."""
-    combined_pauli = broadcast_pauli ^ node_basis
-    passthrough_nodes = (
-        ([n] for n in unconnected_neighbors)
-        if passthrough_parity
-        else pairwise(unconnected_neighbors)
-    )
-    out_paulis_list = [
-        [combined_pauli if n in m else broadcast_pauli for n in unconnected_neighbors]
-        for m in passthrough_nodes
-    ]
-    if not passthrough_parity or not unconnected_neighbors:
-        out_paulis_list.append([broadcast_pauli] * len(unconnected_neighbors))
-
-    for i, out_paulis in enumerate(out_paulis_list):
+    for i, out_paulis in enumerate(
+        _generate_valid_local_paulis(
+            node_basis,
+            broadcast_pauli,
+            passthrough_parity,
+            len(unconnected_neighbors),
+            generate_all=True,  # generate all can reduce the need for recovering and multiplication
+        )
+    ):
         if i or always_copy:
             new_pauli_graph = copy(pauli_graph)
             new_pauli_graph[node] = copy(pauli_graph[node])
@@ -317,7 +353,8 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
     explored_nodes = {leaf}
 
     while frontier:
-        current_node = heapq.heappop(frontier)
+        # current_node = heapq.heappop(frontier)
+        current_node = frontier.pop(0)
         connected_neighbors = list(pauli_graphs[0][current_node].keys())
         unconnected_neighbors = list(
             filter(
@@ -394,7 +431,7 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
                         edges_are_hadamard=[
                             is_hadamard(zx_graph, (current_node, n)) for n in unconnected_neighbors
                         ],
-                        always_copy=True,  # can be False if the exploration is BFS
+                        # always_copy=True,  # can be False if the exploration is BFS
                     ),
                     valid_graphs,
                 )
@@ -403,9 +440,15 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
 
         if not pauli_graphs:  # no valid correlation surface exists on this ZX graph
             return []
-        for n in unexplored_neighbors:
-            if n not in explored_nodes and zx_graph.vertex_degree(n) > 1:
-                heapq.heappush(frontier, n)
+        # for n in unexplored_neighbors:
+        #     if n not in explored_nodes and zx_graph.vertex_degree(n) > 1:
+        #         heapq.heappush(frontier, n)
+        frontier.extend(
+            filter(
+                lambda n: n not in explored_nodes and zx_graph.vertex_degree(n) > 1,
+                unexplored_neighbors,
+            )
+        )
         explored_leaves.extend(
             filter(lambda n: zx_graph.vertex_degree(n) == 1, unexplored_neighbors)
         )
