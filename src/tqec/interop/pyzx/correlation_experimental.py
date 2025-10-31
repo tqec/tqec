@@ -340,22 +340,23 @@ def _find_correlation_surfaces_from_leaf(zx_graph: GraphS, leaf: int) -> list[Co
 def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph]:
     """Find the correlation surfaces starting from a leaf node in the graph."""
     neighbor: int = next(iter(zx_graph.neighbors(leaf)))
-    pauli_graphs: list[PauliGraph] = [
+    pauli_graphs = (
         PauliGraph().add_pauli_to_edge(
             (leaf, neighbor), pauli, is_hadamard(zx_graph, (leaf, neighbor))
         )
         for pauli in PAULIS_XZ
-    ]
+    )
     if zx_graph.vertex_degree(neighbor) == 1:  # make sure no leaf node will be in the frontier
-        return pauli_graphs
+        return list(pauli_graphs)
     frontier = [neighbor]
     explored_leaves = [leaf]
     explored_nodes = {leaf}
+    pauli_graph = next(pauli_graphs)
 
     while frontier:
         # current_node = heapq.heappop(frontier)
         current_node = frontier.pop(0)
-        connected_neighbors = list(pauli_graphs[0][current_node].keys())
+        connected_neighbors = list(pauli_graph[current_node].keys())
         unconnected_neighbors = list(
             filter(
                 lambda n: n not in connected_neighbors,
@@ -365,14 +366,14 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
         boundary_nodes = explored_leaves + frontier
         if unconnected_neighbors:
             boundary_nodes.append(current_node)
-        generator_set_size = sum(len(pauli_graphs[0][n]) for n in boundary_nodes)
-        unexplored_neighbors = [n for n in unconnected_neighbors if n not in pauli_graphs[0]]
+        generator_set_size = sum(len(pauli_graph[n]) for n in boundary_nodes)
+        unexplored_neighbors = [n for n in unconnected_neighbors if n not in pauli_graph]
         passthrough_basis = Pauli(1 << (zx_graph.type(current_node) == VertexType.Z))
 
         # check if each Pauli graph candidate satisfies broadcast and passthrough constraints
         # on the current node and is not a product of previously checked valid Pauli graphs
         valid_graphs, invalid_graphs, syndromes, vector_basis = [], [], [], {}
-        for pauli_graph in pauli_graphs:
+        for pauli_graph in chain([pauli_graph], pauli_graphs):
             constraint_check = pauli_graph.validate_node(
                 current_node, passthrough_basis, bool(unconnected_neighbors)
             )
@@ -420,25 +421,23 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
                     break
 
         # enumerate new branches
-        pauli_graphs = list(
-            chain.from_iterable(
-                starmap(
-                    partial(
-                        _expand_pauli_graph_to_node,
-                        node=current_node,
-                        node_basis=passthrough_basis,
-                        unconnected_neighbors=unconnected_neighbors,
-                        edges_are_hadamard=[
-                            is_hadamard(zx_graph, (current_node, n)) for n in unconnected_neighbors
-                        ],
-                        # always_copy=True,  # can be False if the exploration is BFS
-                    ),
-                    valid_graphs,
-                )
+        pauli_graphs = chain.from_iterable(
+            starmap(
+                partial(
+                    _expand_pauli_graph_to_node,
+                    node=current_node,
+                    node_basis=passthrough_basis,
+                    unconnected_neighbors=unconnected_neighbors,
+                    edges_are_hadamard=[
+                        is_hadamard(zx_graph, (current_node, n)) for n in unconnected_neighbors
+                    ],
+                    # always_copy=True,  # can be False if the exploration is BFS
+                ),
+                valid_graphs,
             )
         )
-
-        if not pauli_graphs:  # no valid correlation surface exists on this ZX graph
+        pauli_graph = next(pauli_graphs, None)
+        if not pauli_graph:  # no valid correlation surface exists on this ZX graph
             return []
         # for n in unexplored_neighbors:
         #     if n not in explored_nodes and zx_graph.vertex_degree(n) > 1:
@@ -453,7 +452,7 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
             filter(lambda n: zx_graph.vertex_degree(n) == 1, unexplored_neighbors)
         )
         explored_nodes.add(current_node)
-    return pauli_graphs
+    return [pauli_graph, *pauli_graphs]
 
 
 def _concat_ints_as_bits(ints: Iterable[int], bit_length: int | Iterable[int]) -> int:
