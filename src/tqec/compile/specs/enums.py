@@ -47,19 +47,15 @@ class SpatialArms(Flag):
         shifted by ``(-1, 0)``. Hence,
         ``SpatialArms.get_map_from_arm_to_shift()[SpatialArms.LEFT] == (-1 0)``.
 
-        Warning:
-            In TQEC convention, the ``Y`` axis is pointing **downwards**. That means that UP is
-            linked to ``(0, -1)`` in the returned dictionary.
-
         Returns:
             a mapping from any single arm to the shift needed to get the cube at the other end of
             that arm.
 
         """
         return {
-            cls.UP: (0, -1),
+            cls.UP: (0, 1),
             cls.RIGHT: (1, 0),
-            cls.DOWN: (0, 1),
+            cls.DOWN: (0, -1),
             cls.LEFT: (-1, 0),
         }
 
