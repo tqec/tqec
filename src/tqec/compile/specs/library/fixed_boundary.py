@@ -280,15 +280,26 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         self, spec: PipeSpec, block_temporal_height: LinearFunction
     ) -> Block:
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
+        is_hadamard = spec.pipe_kind.has_hadamard
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
+        arms = FixedBoundaryPipeBuilder._get_spatial_cube_arms(
+            spec
+        )  # this tells me whether this is a vertical (up+down)
+        # or horizontal pipe (left+right)
+
         # Get the plaquette indices mappings
-        arms = FixedBoundaryPipeBuilder._get_spatial_cube_arms(spec)
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
 
         def plaquettes_generator(is_reversed: bool, r: Basis | None, m: Basis | None) -> Plaquettes:
             return self._generator.get_spatial_cube_arm_plaquettes(
-                spatial_boundary_basis, arms, spec.cube_specs, is_reversed, r, m
+                spatial_boundary_basis,
+                arms,
+                spec.cube_specs,
+                is_reversed,
+                r,
+                m,
+                is_hadamard,
             )
 
         return _get_block(
