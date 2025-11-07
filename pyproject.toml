@@ -117,63 +117,6 @@ all = [
 tqec = "tqec._cli.tqec:main"
 
 
-[tool.mypy]
-# See https://numpy.org/devdocs/reference/typing.html
-plugins = "numpy.typing.mypy_plugin"
-# Start off with these
-warn_unused_configs = true
-warn_redundant_casts = true
-# Explicitly disable that for the moment, will eventually be turned on again.
-warn_unused_ignores = false
-warn_unreachable = true
-
-# Getting these passing should be easy
-strict_equality = true
-extra_checks = true
-
-# Strongly recommend enabling this one as soon as you can
-check_untyped_defs = true
-
-# These shouldn't be too much additional work, but may be tricky to
-# get passing if you use a lot of untyped libraries
-disallow_subclassing_any = true
-disallow_untyped_decorators = true
-disallow_any_generics = true
-
-# These next few are various gradations of forcing use of type annotations
-disallow_untyped_calls = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-
-# This one isn't too hard to get passing, but return on investment is lower
-# Disabled due to issues with cirq not reexporting explicitly.
-no_implicit_reexport = true
-
-# This one can be tricky to get passing if you use a lot of untyped libraries
-warn_return_any = true
-
-
-# See https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml
-[[tool.mypy.overrides]]
-module = [
-  "stim",
-  "sinter",
-  "pysat",
-  "pysat.solvers",
-  "collada",
-  "collada.source",
-  "mpl_toolkits.mplot3d.axes3d",
-]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "pyzx"
-no_implicit_reexport = false
-
-[[tool.mypy.overrides]]
-module = ["tqec.interop.pyzx.*"]
-disallow_untyped_calls = false
-
 [tool.coverage.run]
 omit = ["*/*_test.py", "*/simulation/*", "*/visualisation/*"]
 
@@ -193,49 +136,6 @@ exclude_also = [
   "@(abc\\.)?abstractmethod",
 ]
 
-
-[tool.pyright]
-# Paths of directories or files that should be considered part of the project.
-# If no paths are specified, pyright defaults to the directory that contains the
-# config file. Paths may contain wildcard characters ** (a directory or multiple
-# levels of directories), * (a sequence of zero or more characters), or ? (a
-# single character). If no include paths are specified, the root path for the
-# workspace is assumed.
-include = ["src"]
-
-# Paths of directories or files that should not be considered part of the project.
-# These override the directories and files that include matched, allowing specific
-# subdirectories to be excluded. Note that files in the exclude paths may still be
-# included in the analysis if they are referenced (imported) by source files that
-# are not excluded. Paths may contain wildcard characters ** (a directory or
-# multiple levels of directories), * (a sequence of zero or more characters), or ?
-# (a single character). If no exclude paths are specified, Pyright automatically
-# excludes the following: **/node_modules, **/__pycache__, **/.*. Pylance also
-# excludes any virtual environment directories regardless of the exclude paths
-# specified. For more detail on Python environment specification and discovery,
-# refer to the import resolution documentation.
-exclude = ["/usr/**/*.py", "**/stdlib/**/*.py"]
-
-# Specifies the version of Python that will be used to execute the source code.
-# The version should be specified as a string in the format "M.m" where M is the
-# major version and m is the minor (e.g. "3.0" or "3.6"). If a version is provided,
-# pyright will generate errors if the source code makes use of language features
-# that are not supported in that version. It will also tailor its use of type stub
-# files, which conditionalizes type definitions based on the version. If no version
-# is specified, pyright will use the version of the current python interpreter, if
-# one is present.
-pythonVersion = "3.10"
-
-# Specifies the default rule set to use. Some rules can be overridden using
-# additional configuration flags documented below. The default value for this
-# setting is "standard". If set to "off", all type-checking rules are disabled, but
-# Python syntax and semantic errors are still reported.
-typeCheckingMode = "standard"
-
-# Generate or suppress diagnostics for use of a symbol from a "py.typed" module
-# that is not meant to be exported from that module. The default value for this
-# setting is "error".
-reportPrivateImportUsage = false
 
 [tool.ruff]
 # exclude = ["__init__.py"]
