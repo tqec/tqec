@@ -116,21 +116,6 @@ all = [
 [project.scripts]
 tqec = "tqec._cli.tqec:main"
 
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.packages.find]
-where = ["src"]
-exclude = ["*test.py"]
-
-[tool.setuptools.package-data]
-tqec = ["py.typed"]
-# See https://setuptools.pypa.io/en/latest/userguide/datafiles.html#subdirectory-for-data-files
-"tqec.gallery.dae" = ["*.dae"]
-
-[tool.setuptools.dynamic]
-dependencies = { file = "requirements.txt" }
-
 
 [tool.mypy]
 # See https://numpy.org/devdocs/reference/typing.html
