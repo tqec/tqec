@@ -12,7 +12,7 @@ description = "A design automation framework for Topological Quantum Error Corre
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["topological quantum error correction", "qec"]
-requires-python = ">= 3.10, <3.14"
+requires-python = ">=3.10"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
