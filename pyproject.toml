@@ -10,7 +10,8 @@ authors = [
 ]
 description = "A design automation framework for Topological Quantum Error Correction."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 keywords = ["topological quantum error correction", "qec"]
 requires-python = ">=3.10"
 classifiers = [
