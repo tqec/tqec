@@ -240,7 +240,6 @@ reportPrivateImportUsage = false
 [tool.ruff]
 # exclude = ["__init__.py"]
 line-length = 100
-target-version = "py310"
 exclude = ["*.ipynb"]
 
 [tool.ruff.lint]
