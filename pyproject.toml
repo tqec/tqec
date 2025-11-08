@@ -53,6 +53,7 @@ dependencies = [
     "stim<=1.15.0",
     "svg-py<=1.8.0",
     "tqecd<=0.1.2",
+    "ty>=0.0.1a22",
     "typing-extensions<=4.15.0",
 ]
 
@@ -71,6 +72,12 @@ test = [
   "scipy-stubs<=1.16.0.0",
 ]
 
+integration = [
+  "topologiq@git+https://github.com/tqec/topologiq.git",
+  "qiskit>=2.1.2",
+  "qrisp>=0.7.9"
+]
+
 docs = [
   "sphinx<=8.1.3",
   "myst-parser<=4.0.1",
@@ -83,6 +90,7 @@ docs = [
   "sphinx-copybutton<=0.5.2",
   "sphinxcontrib-bibtex<=2.64",
   "jupyter-sphinx<=0.5.3",
+  {include-group = "integration"}
 ]
 
 bench = ["pyinstrument"]
@@ -112,6 +120,7 @@ all = [
     {include-group = "docs"},
     {include-group = "dev"},
     {include-group = "bench"},
+    {include-group = "integration"},
 ]
 
 [project.scripts]

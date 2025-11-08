@@ -6,7 +6,7 @@ from typing import ClassVar, Final
 import svg
 from typing_extensions import override
 
-from tqec.interop.color import TQECColor
+from tqec.interop.shared import TQECColor
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.rpng.rpng import ExtendedBasis, PauliBasis
 from tqec.utils.enums import Basis

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from tqec.interop.color import TQECColor
+from tqec.interop.shared import TQECColor
 
 
 @dataclass(frozen=True)
