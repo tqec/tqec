@@ -119,7 +119,7 @@ tqec = "tqec._cli.tqec:main"
 
 
 [tool.coverage.run]
-omit = ["*/*_test.py", "*/simulation/*", "*/visualisation/*"]
+omit = ["tests/*", "*/simulation/*", "*/visualisation/*"]
 
 [tool.coverage.report]
 exclude_also = [
@@ -189,4 +189,5 @@ ignore = [
 "src/tqec/compile/observables/*" = ["D205"]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 markers = ["slow: mark a test that takes a long time to run."]
