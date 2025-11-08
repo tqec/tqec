@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 
+from tests.interop.collada.read_write_test import rotated_cnot
 from tqec.computation.block_graph import BlockGraph
 from tqec.computation.cube import ZXCube
 from tqec.computation.pipe import PipeKind
@@ -10,8 +11,6 @@ from tqec.gallery import cnot, memory
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
-
-from tests.interop.collada.read_write_test import rotated_cnot
 
 
 def test_block_graph_construction() -> None:
