@@ -13,7 +13,9 @@ readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 keywords = ["topological quantum error correction", "qec"]
-requires-python = ">=3.10"
+# Upper bound: Some packages do not build on Python 3.14 yet
+# e.g., docformatter, see https://github.com/PyCQA/docformatter/issues/327
+requires-python = ">=3.10,<3.14"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -104,6 +106,7 @@ dev = [
   # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
   # cannot afford someone installing a different version of ruff and being forbidden to commit
   # anything because the different version sees some errors in the code.
+  # This is ensured by renovate configuration when it updates the ruff version.
   "ruff==0.12.5",
   "ty>=0.0.1a20",
   "scipy-stubs>=1.15",
