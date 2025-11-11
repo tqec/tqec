@@ -1,7 +1,6 @@
 """Defines functions to plot positioned ZX graphs and correlation surfaces on 3D axes."""
 
 from dataclasses import astuple
-from typing import cast
 
 import matplotlib.pyplot as plt
 import numpy
@@ -150,7 +149,7 @@ def plot_positioned_zx_graph(
 
     """
     fig = plt.figure(figsize=figsize)
-    ax = cast(Axes3D, fig.add_subplot(111, projection="3d"))
+    ax = fig.add_subplot(111, projection="3d")
 
     draw_positioned_zx_graph_on(
         graph,
