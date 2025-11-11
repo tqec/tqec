@@ -8,5 +8,20 @@
   },
   configMigration: true,
   labels: ["dependency update"],
-  schedule: ["every weekend"]
+  schedule: ["every weekend"],
+  "pre-commit": {
+    enabled: true
+  },
+  packageRules: [
+    {
+      groupName: "ruff",
+      matchPackageNames: ["ruff", "astral-sh/ruff-pre-commit"],
+      matchManagers: ["pre-commit", "pep621"]
+    },
+    {
+      // Wait the patch in https://github.com/quantumlib/Stim/pull/965 to be released
+      matchPackageNames: ["numpy"],
+      allowedVersions: "<2.3"
+    }
+  ]
 }
