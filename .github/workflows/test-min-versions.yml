@@ -1,0 +1,55 @@
+name: Test Minimum Versions
+
+on:
+  # Manual trigger
+  workflow_dispatch:
+
+  # Run on potential dependency updates
+  push:
+    branches:
+      - main
+    paths:
+      - 'pyproject.toml'
+
+  pull_request:
+    paths:
+      - 'pyproject.toml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-minimum-versions:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install with minimum dependency versions
+        run: |
+          uv sync --group test --resolution=lowest-direct --python ${{ matrix.python-version }}
+
+      - name: Run tests with minimum versions
+        run: |
+          uv run pytest $(git ls-files '*_test.py') -m "not slow" --tb=short
+
+      - name: Report status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Minimum version constraints are valid for Python ${{ matrix.python-version }}!"
+          else
+            echo "❌ Tests failed with minimum versions on Python ${{ matrix.python-version }}"
+            echo "   Check lower bounds in pyproject.toml"
+            exit 1
+          fi

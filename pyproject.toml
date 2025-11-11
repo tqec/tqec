@@ -37,23 +37,28 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-    "matplotlib<=3.10.3",
-    "networkx<=3.5",
-    "numpy<=2.2.6",
-    "platformdirs<=4.4.0",
-    "pycollada<=0.9.1",
-    "pycryptosat<=5.11.21",
-    "python-sat[cryptosat]<=1.8.dev24",
-    "pymatching<=2.3.1",
-    "pyzx<=0.9.0",
-    "scipy<=1.15.3",
-    "semver<=3.0.4",
-    "sinter<=1.15.0",
-    "sphinx-design>=0.6.1",
-    "stim<=1.15.0",
-    "svg-py<=1.8.0",
-    "tqecd<=0.1.2",
-    "typing-extensions<=4.15.0",
+  "matplotlib>=3.9",
+  "networkx>=3.0",
+  "numpy>=1.22,<2.3",                                  # Upper bound: https://github.com/tqec/tqec/pull/659
+  "numpy>=1.24; python_version >= '3.11'",
+  "numpy>=1.26; python_version >= '3.12'",
+  "numpy>=2.1; python_version >= '3.13'",
+  "platformdirs>=4.0",
+  "pycollada>=0.8",
+  "pycryptosat>=5.11.21",
+  "python-sat[cryptosat]>=1.8.dev20",
+  "pymatching>=2.3.1",                                 # Pymathcing with correlated matching support
+  "pyzx>=0.9.0",
+  "scipy>=1.15",
+  "semver>=3.0.0",
+  "sinter>=1.14",
+  "sphinx-design>=0.6.1",
+  "stim>=1.14",
+  "stim>=1.15; python_version >= '3.13'",              # Stim only builds wheels for Python 3.13 starting from v1.15
+  "svg-py>=1.8.0",
+  "tqecd>=0.1.3",
+  "typing-extensions>=4.2",
+  "typing-extensions>=4.12; python_version >= '3.13'",
 ]
 
 
@@ -65,53 +70,53 @@ Issues = "https://github.com/tqec/tqec/issues"
 
 [dependency-groups]
 test = [
-  "pytest<=9.0.0",
-  "pytest-cov<=7.0.0",
-  "types-networkx<=3.5.0.20250610",
-  "scipy-stubs<=1.16.0.0",
+  "pytest>=8.4",
+  "pytest-cov>=7.0",
+  "types-networkx>=3.5",
+  "scipy-stubs>=1.15",
 ]
 
 docs = [
-  "sphinx<=8.1.3",
-  "myst-parser<=4.0.1",
-  "pydata-sphinx-theme<=0.16.1",
-  "nbsphinx<=0.9.7",
-  "pandoc<=2.4",
-  "sphinxcontrib-mermaid<=1.0.0",
-  "docformatter<=1.7.7",
-  "sphinx-autobuild<=2024.10.3",
-  "sphinx-copybutton<=0.5.2",
-  "sphinxcontrib-bibtex<=2.64",
-  "jupyter-sphinx<=0.5.3",
+  "sphinx>=8.1.0",
+  "myst-parser>=4.0",
+  "pydata-sphinx-theme>=0.16",
+  "nbsphinx>=0.9",
+  "pandoc>=2.4",
+  "sphinxcontrib-mermaid>=0.9",
+  "docformatter>=1.7",
+  "sphinx-autobuild>=2024.4",
+  "sphinx-copybutton>=0.5",
+  "sphinxcontrib-bibtex>=2.6",
+  "jupyter-sphinx>=0.5",
 ]
 
-bench = ["pyinstrument"]
+bench = ["pyinstrument>=4.7"]
 
 dev = [
-    "jupyterlab<=4.4.3",
-    "myst-parser<=4.0.1",
-    "nbsphinx<=0.9.7",
-    "pandoc<=2.4",
-    "pre-commit<=4.3.0",
-    "pydata-sphinx-theme<=0.16.1",
-    "pytest<=9.0.0",
-    "pytest-cov<=7.0.0",
-    # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
-    # cannot afford someone installing a different version of ruff and being forbidden to commit
-    # anything because the different version sees some errors in the code.
-    "ruff==0.12.5",
-    "ty>=0.0.1a20",
-    "scipy-stubs<=1.16.0.0",
-    "sphinx<=8.1.3",
-    "sphinxcontrib-mermaid<=1.0.0",
-    "types-networkx<=3.5.0.20250610",
+  "jupyterlab>=4.4",
+  "myst-parser>=4.0",
+  "nbsphinx>=0.9",
+  "pandoc>=2.4",
+  "pre-commit>=4.3",
+  "pydata-sphinx-theme>=0.16",
+  "pytest>=8.4",
+  "pytest-cov>=7.0",
+  # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
+  # cannot afford someone installing a different version of ruff and being forbidden to commit
+  # anything because the different version sees some errors in the code.
+  "ruff==0.12.5",
+  "ty>=0.0.1a20",
+  "scipy-stubs>=1.15",
+  "sphinx>=8.1",
+  "sphinxcontrib-mermaid>=0.9",
+  "types-networkx>=3.5",
 ]
 
 all = [
-    {include-group = "test"},
-    {include-group = "docs"},
-    {include-group = "dev"},
-    {include-group = "bench"},
+  { include-group = "test" },
+  { include-group = "docs" },
+  { include-group = "dev" },
+  { include-group = "bench" },
 ]
 
 [project.scripts]
@@ -164,19 +169,26 @@ ignore = [
   # D100 & D104 - For the moment, we do not require documenting all public modules & packages.
   # D101 - By convention, class docstrings are on the __init__ method, so we do not document classes.
   # D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
-  "D100", "D101", "D104", "D105",
+  "D100",
+  "D101",
+  "D104",
+  "D105",
   # D203 - Requires a blank line between class declaration and its docstring. Incompatible with D211. We prefer D211.
   # D203 - Requires multiline docstrings to start on the second line. Incompatible with D212. We prefer D212.
-  "D203", "D213",
+  "D203",
+  "D213",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
   "D407",
   # PLR091{2,3,5} - A few code blocks have too many {branches,arguments,statements}. Ignored for the moment.
   # PLR2004 - Replace magic values, not a priority at the moment.
-  "PLR0912", "PLR0913", "PLR0915", "PLR2004",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR2004",
   # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
   "N802",
   # UP038 - Soon-to-be-deprecated rule, we prefer using isinstance(obj, (A, B)).
-  "UP038"
+  "UP038",
 ]
 
 # Specific per-file ignores
