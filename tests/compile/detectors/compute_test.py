@@ -325,7 +325,7 @@ def test_get_or_default() -> None:
         _get_or_default(array, [(-1, 1), (0, 2)], default=42),
         [[42, 42], [0, 1]],
     )
-    with pytest.raises(TQECError, match="^The provided slices should be non-empty.$"):
+    with pytest.raises(TQECError, match=r"^The provided slices should be non-empty.$"):
         _get_or_default(array, [(10, 5)], default=34)
 
 

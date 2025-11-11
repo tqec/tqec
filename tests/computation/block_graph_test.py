@@ -28,7 +28,7 @@ def test_block_graph_add_cube() -> None:
     assert g[v].kind == ZXCube.from_str("ZXZ")
     assert v in g
 
-    with pytest.raises(TQECError, match="Cube already exists at position .*"):
+    with pytest.raises(TQECError, match=r"Cube already exists at position .*"):
         g.add_cube(Position3D(0, 0, 0), "XZX")
 
     v = g.add_cube(Position3D(1, 0, 0), "PORT", "P")
@@ -37,13 +37,13 @@ def test_block_graph_add_cube() -> None:
     assert g.spacetime_volume == 1
     assert g[v].is_port
 
-    with pytest.raises(TQECError, match=".* port with the same label .*"):
+    with pytest.raises(TQECError, match=r".* port with the same label .*"):
         g.add_cube(Position3D(10, 0, 0), "P", "P")
 
 
 def test_block_graph_add_pipe() -> None:
     g = BlockGraph()
-    with pytest.raises(TQECError, match="No cube at position .*"):
+    with pytest.raises(TQECError, match=r"No cube at position .*"):
         g.add_pipe(
             Position3D(0, 0, 0),
             Position3D(1, 0, 0),
@@ -58,7 +58,7 @@ def test_block_graph_add_pipe() -> None:
     assert g.get_degree(u) == 1
     assert len(g.pipes_at(u)) == 1
 
-    with pytest.raises(TQECError, match=".* already a pipe between .*"):
+    with pytest.raises(TQECError, match=r".* already a pipe between .*"):
         g.add_pipe(
             Position3D(0, 0, 0),
             Position3D(0, 0, 1),

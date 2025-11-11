@@ -52,13 +52,13 @@ def test_creation(plaquette_layer: PlaquetteLayer, layout_layer: LayoutLayer) ->
     LayerNode(SequencedLayers([layout_layer for _ in range(3)]))
     with pytest.raises(
         TQECError,
-        match="The layer that is being repeated is not an instance of "
-        "LayoutLayer or BaseComposedLayer.",
+        match=r"The layer that is being repeated is not an instance of "
+        r"LayoutLayer or BaseComposedLayer.",
     ):
         LayerNode(RepeatedLayer(plaquette_layer, LinearFunction(2, 0)))
     with pytest.raises(
         TQECError,
-        match="Found a leaf node that is not an instance of LayoutLayer..*",
+        match=r"Found a leaf node that is not an instance of LayoutLayer..*",
     ):
         LayerNode(SequencedLayers([plaquette_layer for _ in range(4)]))
 

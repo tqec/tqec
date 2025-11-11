@@ -190,8 +190,6 @@ ignore = [
   "PLR2004",
   # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
   "N802",
-  # UP038 - Soon-to-be-deprecated rule, we prefer using isinstance(obj, (A, B)).
-  "UP038",
 ]
 
 # Specific per-file ignores

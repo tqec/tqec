@@ -100,7 +100,7 @@ def test_moment_iadd() -> None:
 
     with pytest.raises(
         TQECError,
-        match="^Trying to add an overlapping quantum circuit to a Moment instance.$",
+        match=r"^Trying to add an overlapping quantum circuit to a Moment instance.$",
     ):
         moment += Moment(stim.Circuit("H 0"))
 
@@ -146,7 +146,7 @@ def test_moment_append_annotation() -> None:
     )
     with pytest.raises(
         TQECError,
-        match="^The method append_annotation only supports appending annotations.*",
+        match=r"^The method append_annotation only supports appending annotations.*",
     ):
         moment.append_annotation(stim.CircuitInstruction("H", [stim.GateTarget(0)], []))
 

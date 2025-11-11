@@ -1,4 +1,4 @@
-"""Provides utilitary code to help building generators.
+"""Provides utility code to help building generators.
 
 The main utility provided by this module at the moment is
 :class:`PlaquetteMapper` that is a "Funcorator" (a "functor", i.e., a callable

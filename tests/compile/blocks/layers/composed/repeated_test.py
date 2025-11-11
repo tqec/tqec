@@ -64,7 +64,7 @@ def test_creation(plaquette_layer: PlaquetteLayer, raw_circuit_layer: RawCircuit
     RepeatedLayer(plaquette_layer, LinearFunction(0, 1))
     RepeatedLayer(raw_circuit_layer, LinearFunction(1, 90))
     RepeatedLayer(SequencedLayers([plaquette_layer, plaquette_layer]), LinearFunction(1, 0))
-    with pytest.raises(TQECError, match=".*non-linear number of timesteps.*"):
+    with pytest.raises(TQECError, match=r".*non-linear number of timesteps.*"):
         RepeatedLayer(RepeatedLayer(plaquette_layer, LinearFunction(1, 0)), LinearFunction(1, 0))
 
 
@@ -139,8 +139,8 @@ def test_to_sequenced_layer_with_schedule(
 
     with pytest.raises(
         NotImplementedError,
-        match="^The ability to split the body of a RepeatedLayer instance has "
-        "not been implemented yet..*$",
+        match=r"^The ability to split the body of a RepeatedLayer instance has "
+        r"not been implemented yet..*$",
     ):
         repeated_layer.to_sequenced_layer_with_schedule(
             (LinearFunction(0, 2), LinearFunction(6, 4))
@@ -153,8 +153,8 @@ def test_to_sequenced_layer_with_schedule_raising(
     repeated_layer = RepeatedLayer(plaquette_layer, LinearFunction(2, 2))
     with pytest.raises(
         TQECError,
-        match="Cannot transform the RepeatedLayer instance to a SequencedLayers "
-        "instance with the provided schedule.*",
+        match=r"Cannot transform the RepeatedLayer instance to a SequencedLayers "
+        r"instance with the provided schedule.*",
     ):
         repeated_layer.to_sequenced_layer_with_schedule(
             (LinearFunction(0, 2), LinearFunction(2, 0), LinearFunction(0, 2))
@@ -162,8 +162,8 @@ def test_to_sequenced_layer_with_schedule_raising(
 
     with pytest.raises(
         NotImplementedError,
-        match="^Splitting a RepeatedLayer instance with a non-constant duration "
-        "body is not implemented yet.$",
+        match=r"^Splitting a RepeatedLayer instance with a non-constant duration "
+        r"body is not implemented yet.$",
     ):
         RepeatedLayer(repeated_layer, LinearFunction(0, 2)).to_sequenced_layer_with_schedule(
             (LinearFunction(2, 2), LinearFunction(2, 2))
