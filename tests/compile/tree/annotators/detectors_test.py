@@ -56,19 +56,19 @@ def test_stack_len(
     stack.enter_repeat_block()
     with pytest.raises(
         TQECError,
-        match="^Cannot get a meaningful stack length when a REPEAT block is in construction.$",
+        match=r"^Cannot get a meaningful stack length when a REPEAT block is in construction.$",
     ):
         len(stack)
     stack.enter_repeat_block()
     with pytest.raises(
         TQECError,
-        match="^Cannot get a meaningful stack length when a REPEAT block is in construction.$",
+        match=r"^Cannot get a meaningful stack length when a REPEAT block is in construction.$",
     ):
         len(stack)
     stack.close_repeat_block(1)
     with pytest.raises(
         TQECError,
-        match="^Cannot get a meaningful stack length when a REPEAT block is in construction.$",
+        match=r"^Cannot get a meaningful stack length when a REPEAT block is in construction.$",
     ):
         len(stack)
     stack.close_repeat_block(1)
@@ -100,7 +100,7 @@ def test_stack_repeat_block_append(
 
 def test_stack_erroneous_repeat_block() -> None:
     stack = LookbackStack()
-    with pytest.raises(TQECError, match="Only got 1 < 2 entries in the stack..*"):
+    with pytest.raises(TQECError, match=r"Only got 1 < 2 entries in the stack..*"):
         stack.close_repeat_block(4)
 
 
@@ -110,7 +110,7 @@ def test_stack_lookback(
     measurement_records: MeasurementRecordsMap,
 ) -> None:
     stack = LookbackStack()
-    with pytest.raises(TQECError, match="Cannot look back a negative number of rounds..*"):
+    with pytest.raises(TQECError, match=r"Cannot look back a negative number of rounds..*"):
         stack.lookback(-1)
     # Valid query on empty stack.
     ts, ps, _ = stack.lookback(0)

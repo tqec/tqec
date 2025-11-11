@@ -135,7 +135,7 @@ def test_merge_repeated_layers_wrong_duration(
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     with pytest.raises(
         TQECError,
-        match=".*Cannot merge RepeatedLayer instances that have different lengths..*",
+        match=r".*Cannot merge RepeatedLayer instances that have different lengths..*",
     ):
         merge_repeated_layers(
             {
@@ -220,8 +220,8 @@ def test_merge_sequenced_layers_composed_different_schedules(
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
     with pytest.raises(
         NotImplementedError,
-        match=".*_merge_sequenced_layers only supports merging sequences that "
-        "have layers with a matching temporal schedule..*",
+        match=r".*_merge_sequenced_layers only supports merging sequences that "
+        r"have layers with a matching temporal schedule..*",
     ):
         merge_sequenced_layers(
             {
@@ -321,14 +321,14 @@ def test_merge_composed_layers_unknown_layer_type(
         def scalable_num_moments(self) -> LinearFunction:
             raise NotImplementedError()
 
-    plaquette_layer, plaquette_layer2, raw_layer = base_layers
+    plaquette_layer, _plaquette_layer2, _raw_layer = base_layers
     b00 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     b01 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 1))
 
     with pytest.raises(
         NotImplementedError,
-        match="^Found instances of {'UnknownComposedLayerType'} that are not yet "
-        "implemented in _merge_composed_layers.$",
+        match=r"^Found instances of {'UnknownComposedLayerType'} that are not yet "
+        r"implemented in _merge_composed_layers.$",
     ):
         merge_composed_layers(
             {

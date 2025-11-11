@@ -28,15 +28,15 @@ def test_measurement_records_map_creation() -> None:
 
     with pytest.raises(
         TQECError,
-        match="^Got measurement record offsets that are not in sorted order.*",
+        match=r"^Got measurement record offsets that are not in sorted order.*",
     ):
         MeasurementRecordsMap({q: [-1, -2]})
 
     q2 = GridQubit(1, 1)
     with pytest.raises(
         TQECError,
-        match="^At least one measurement record offset has been found "
-        "twice in the provided offsets.$",
+        match=r"^At least one measurement record offset has been found "
+        r"twice in the provided offsets.$",
     ):
         MeasurementRecordsMap({q: [-1], q2: [-1]})
 

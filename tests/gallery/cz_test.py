@@ -56,14 +56,14 @@ def test_cz_resolve_ports() -> None:
 
     with pytest.raises(
         TQECError,
-        match="Y basis initialization/measurements are not supported yet.",
+        match=r"Y basis initialization/measurements are not supported yet.",
     ):
         cz("YI -> XZ")
 
-    with pytest.raises(TQECError, match="X_ -> XX is not a valid flow for the CZ gate."):
+    with pytest.raises(TQECError, match=r"X_ -> XX is not a valid flow for the CZ gate."):
         cz("XI -> XX")
 
-    with pytest.raises(TQECError, match="Port 0 fails to support both X and Z observable."):
+    with pytest.raises(TQECError, match=r"Port 0 fails to support both X and Z observable."):
         cz(["XI -> XZ", "ZI -> ZI"])
 
 

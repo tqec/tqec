@@ -1,21 +1,21 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/crate-ci/typos
-    rev: v1.26.1
+    rev: v1.39.0
     hooks:
       - id: typos
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.21.1
+    rev: v8.29.0
     hooks:
       - id: gitleaks
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.12.3
+    rev: v0.14.4
     hooks:
       # Run the linter.
       - id: ruff-check

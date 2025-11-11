@@ -20,7 +20,7 @@ def mrecords_map_fixture() -> MeasurementRecordsMap:
 
 
 def test_detector_creation(measurement: Measurement) -> None:
-    with pytest.raises(TQECError, match="^Trying to create a detector without any measurement.$"):
+    with pytest.raises(TQECError, match=r"^Trying to create a detector without any measurement.$"):
         Detector(frozenset(), StimCoordinates(0, 0, 0))
 
     Detector(frozenset([measurement]), StimCoordinates(0, 3, 0))

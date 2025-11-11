@@ -95,8 +95,8 @@ def test_detector_database_key_creation() -> None:
     _DetectorDatabaseKey(SUBTEMPLATES[1:5], PLAQUETTE_COLLECTIONS[1:5])
     with pytest.raises(
         TQECError,
-        match="^DetectorDatabaseKey can only store an equal number of "
-        "subtemplates and plaquettes. Got 4 subtemplates and 3 plaquettes.$",
+        match=r"^DetectorDatabaseKey can only store an equal number of "
+        r"subtemplates and plaquettes. Got 4 subtemplates and 3 plaquettes.$",
     ):
         _DetectorDatabaseKey(SUBTEMPLATES[1:5], PLAQUETTE_COLLECTIONS[1:4])
 
@@ -132,8 +132,8 @@ def test_detector_database_mutation() -> None:
     db.add_situation(SUBTEMPLATES[:2], PLAQUETTE_COLLECTIONS[:2], DETECTORS[1])
     with pytest.raises(
         TQECError,
-        match="^DetectorDatabaseKey can only store an equal number of "
-        "subtemplates and plaquettes. Got 1 subtemplates and 2 plaquettes.$",
+        match=r"^DetectorDatabaseKey can only store an equal number of "
+        r"subtemplates and plaquettes. Got 1 subtemplates and 2 plaquettes.$",
     ):
         db.add_situation(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:2], DETECTORS[1])
 
@@ -159,9 +159,9 @@ def test_detector_database_freeze() -> None:
     db.add_situation(SUBTEMPLATES[:2], PLAQUETTE_COLLECTIONS[:2], DETECTORS[1])
 
     db.freeze()
-    with pytest.raises(TQECError, match="^Cannot remove a situation to a frozen database.$"):
+    with pytest.raises(TQECError, match=r"^Cannot remove a situation to a frozen database.$"):
         db.remove_situation(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])
-    with pytest.raises(TQECError, match="^Cannot add a situation to a frozen database.$"):
+    with pytest.raises(TQECError, match=r"^Cannot add a situation to a frozen database.$"):
         db.add_situation(SUBTEMPLATES[:4], PLAQUETTE_COLLECTIONS[:4], DETECTORS[1])
 
     detectors = db.get_detectors(SUBTEMPLATES[:1], PLAQUETTE_COLLECTIONS[:1])

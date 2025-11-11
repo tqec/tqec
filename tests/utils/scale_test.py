@@ -116,7 +116,7 @@ def test_unambiguous_max_on_positives() -> None:
     assert LinearFunction.unambiguous_max_on_positives(
         [LinearFunction(0, i) for i in range(10)]
     ) == LinearFunction(0, 9)
-    with pytest.raises(TQECError, match="^Could not find a unambiguous maximum.*"):
+    with pytest.raises(TQECError, match=r"^Could not find a unambiguous maximum.*"):
         # Ambiguous because LinearFunction(0, 1) > LinearFunction(1, 0) for the input in [0, 1], but
         # the opposite for [1, infinity].
         LinearFunction.unambiguous_max_on_positives([LinearFunction(0, 1), LinearFunction(1, 0)])

@@ -7,13 +7,13 @@ from tqec.utils.position import Direction3D, Position3D
 
 
 def test_pipe_kind() -> None:
-    with pytest.raises(Exception, match="Exactly one basis must be None for a pipe."):
+    with pytest.raises(Exception, match=r"Exactly one basis must be None for a pipe."):
         PipeKind(Basis.X, Basis.Z, Basis.X)
 
-    with pytest.raises(Exception, match="Exactly one basis must be None for a pipe."):
+    with pytest.raises(Exception, match=r"Exactly one basis must be None for a pipe."):
         PipeKind(None, None, Basis.X)
 
-    with pytest.raises(Exception, match="Pipe must have different basis walls."):
+    with pytest.raises(Exception, match=r"Pipe must have different basis walls."):
         PipeKind(None, Basis.X, Basis.X)
 
     kind = PipeKind.from_str("OXZ")
@@ -49,7 +49,7 @@ def test_pipe_kind_from_cube_kind() -> None:
 
 
 def test_pipe() -> None:
-    with pytest.raises(Exception, match="The pipe must connect two nearby cubes in direction Y."):
+    with pytest.raises(Exception, match=r"The pipe must connect two nearby cubes in direction Y."):
         Pipe(
             Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ")),
             Cube(Position3D(1, 0, 0), ZXCube.from_str("XXZ")),

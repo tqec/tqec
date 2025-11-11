@@ -42,7 +42,7 @@ def plaquette_layer_fixture() -> PlaquetteLayer:
 
 
 def test_creation(empty_plaquette_layer: PlaquetteLayer) -> None:
-    with pytest.raises(TQECError, match=".*should have at least one layer.$"):
+    with pytest.raises(TQECError, match=r".*should have at least one layer.$"):
         LayoutLayer({}, LOGICAL_QUBIT_SHAPE)
     pos = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     LayoutLayer({pos: empty_plaquette_layer}, LOGICAL_QUBIT_SHAPE)
@@ -52,7 +52,7 @@ def test_creation(empty_plaquette_layer: PlaquetteLayer) -> None:
 
 
 def test_bounds(empty_plaquette_layer: PlaquetteLayer) -> None:
-    with pytest.raises(TQECError, match=".*should have at least one layer.$"):
+    with pytest.raises(TQECError, match=r".*should have at least one layer.$"):
         LayoutLayer({}, LOGICAL_QUBIT_SHAPE)
     pos1 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     pos2 = LayoutPosition2D.from_block_position(BlockPosition2D(-93485, 12))
@@ -94,7 +94,7 @@ def test_scalable_qubit_bound() -> None:
 
 
 def test_scalable_timesteps(empty_plaquette_layer: PlaquetteLayer) -> None:
-    with pytest.raises(TQECError, match=".*should have at least one layer.$"):
+    with pytest.raises(TQECError, match=r".*should have at least one layer.$"):
         LayoutLayer({}, LOGICAL_QUBIT_SHAPE)
     pos1 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     layer = LayoutLayer({pos1: empty_plaquette_layer}, LOGICAL_QUBIT_SHAPE)
@@ -102,7 +102,7 @@ def test_scalable_timesteps(empty_plaquette_layer: PlaquetteLayer) -> None:
 
 
 def test_scalable_shape(empty_plaquette_layer: PlaquetteLayer) -> None:
-    with pytest.raises(TQECError, match=".*should have at least one layer.$"):
+    with pytest.raises(TQECError, match=r".*should have at least one layer.$"):
         LayoutLayer({}, LOGICAL_QUBIT_SHAPE)
     pos1 = LayoutPosition2D.from_block_position(BlockPosition2D(0, 0))
     pos2 = LayoutPosition2D.from_block_position(BlockPosition2D(-1, 12))
