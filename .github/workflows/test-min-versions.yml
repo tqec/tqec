@@ -30,11 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
@@ -42,7 +37,7 @@ jobs:
 
       - name: Install with minimum dependency versions
         run: |
-          uv sync --group test --resolution=lowest-direct
+          uv sync --group test --resolution=lowest-direct --python ${{ matrix.python-version }}
 
       - name: Run tests with minimum versions
         run: |
