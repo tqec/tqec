@@ -1,0 +1,12 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended", ":gitSignOff"],
+  prHourlyLimit: 10,
+  lockFileMaintenance: {
+    enabled: true,
+    automerge: true
+  },
+  configMigration: true,
+  labels: ["dependency update"],
+  schedule: ["every weekend"]
+}
