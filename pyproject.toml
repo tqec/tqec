@@ -104,7 +104,7 @@ dev = [
   # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
   # cannot afford someone installing a different version of ruff and being forbidden to commit
   # anything because the different version sees some errors in the code.
-  "ruff==0.12.5",
+  "ruff==0.14.4",
   "ty>=0.0.1a20",
   "scipy-stubs>=1.15",
   "sphinx>=8.1",
