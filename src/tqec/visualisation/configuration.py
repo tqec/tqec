@@ -12,7 +12,7 @@ class DrawerConfiguration:
             error crosses.
         stroke_color: default stroke color used for all the drawing, except for
             error crosses.
-        thin_stroke_color: color used to draw stroke that should appear thiner,
+        thin_stroke_color: color used to draw stroke that should appear thinner,
             for example between the UP and DOWN plaquette of an extended plaquette.
         font_size: default font size of all the text in the drawing except the
             overlaid "Moments: XX -> YY" text.

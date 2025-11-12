@@ -4,15 +4,18 @@ build-backend = "uv_build"
 
 [project]
 name = "tqec"
-version = "0.0.1"
+version = "0.1.0"
 authors = [
   { name = "TQEC community", email = "tqec-design-automation@googlegroups.com" },
 ]
 description = "A design automation framework for Topological Quantum Error Correction."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 keywords = ["topological quantum error correction", "qec"]
-requires-python = ">= 3.10, <3.14"
+# Upper bound: Some packages do not build on Python 3.14 yet
+# e.g., docformatter, see https://github.com/PyCQA/docformatter/issues/327
+requires-python = ">=3.10,<3.14"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -36,23 +39,28 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-    "matplotlib<=3.10.3",
-    "networkx<=3.5",
-    "numpy<=2.2.6",
-    "platformdirs<=4.4.0",
-    "pycollada<=0.9.1",
-    "pycryptosat<=5.11.21",
-    "python-sat[cryptosat]<=1.8.dev24",
-    "pymatching<=2.3.1",
-    "pyzx<=0.9.0",
-    "scipy<=1.15.3",
-    "semver<=3.0.4",
-    "sinter<=1.15.0",
-    "sphinx-design>=0.6.1",
-    "stim<=1.15.0",
-    "svg-py<=1.8.0",
-    "tqecd<=0.1.2",
-    "typing-extensions<=4.15.0",
+  "matplotlib>=3.9",
+  "networkx>=3.0",
+  "numpy>=1.22,<2.3",                                  # Upper bound: https://github.com/tqec/tqec/pull/659
+  "numpy>=1.24; python_version >= '3.11'",
+  "numpy>=1.26; python_version >= '3.12'",
+  "numpy>=2.1; python_version >= '3.13'",
+  "platformdirs>=4.0",
+  "pycollada>=0.8",
+  "pycryptosat>=5.11.21",
+  "python-sat[cryptosat]>=1.8.dev20",
+  "pymatching>=2.3.1",                                 # Pymathcing with correlated matching support
+  "pyzx>=0.9.0",
+  "scipy>=1.15",
+  "semver>=3.0.0",
+  "sinter>=1.14",
+  "sphinx-design>=0.6.1",
+  "stim>=1.14",
+  "stim>=1.15; python_version >= '3.13'",              # Stim only builds wheels for Python 3.13 starting from v1.15
+  "svg-py>=1.8.0",
+  "tqecd>=0.1.3",
+  "typing-extensions>=4.2",
+  "typing-extensions>=4.12; python_version >= '3.13'",
 ]
 
 
@@ -64,133 +72,62 @@ Issues = "https://github.com/tqec/tqec/issues"
 
 [dependency-groups]
 test = [
-  "pytest<=8.4.1",
-  "pytest-cov<=7.0.0",
-  "types-networkx<=3.5.0.20250610",
-  "scipy-stubs<=1.16.0.0",
+  "pytest>=8.4",
+  "pytest-cov>=7.0",
+  "types-networkx>=3.5",
+  "scipy-stubs>=1.15",
 ]
 
 docs = [
-  "sphinx<=8.1.3",
-  "myst-parser<=4.0.1",
-  "pydata-sphinx-theme<=0.16.1",
-  "nbsphinx<=0.9.7",
-  "pandoc<=2.4",
-  "sphinxcontrib-mermaid<=1.0.0",
-  "docformatter<=1.7.7",
-  "sphinx-autobuild<=2024.10.3",
-  "sphinx-copybutton<=0.5.2",
-  "sphinxcontrib-bibtex<=2.64",
-  "jupyter-sphinx<=0.5.3",
+  "sphinx>=8.1.0",
+  "myst-parser>=4.0",
+  "pydata-sphinx-theme>=0.16",
+  "nbsphinx>=0.9",
+  "pandoc>=2.4",
+  "sphinxcontrib-mermaid>=0.9",
+  "docformatter>=1.7",
+  "sphinx-autobuild>=2024.4",
+  "sphinx-copybutton>=0.5",
+  "sphinxcontrib-bibtex>=2.6",
+  "jupyter-sphinx>=0.5",
 ]
 
-bench = ["pyinstrument"]
+bench = ["pyinstrument>=4.7"]
 
 dev = [
-    "jupyterlab<=4.4.3",
-    "myst-parser<=4.0.1",
-    "nbsphinx<=0.9.7",
-    "pandoc<=2.4",
-    "pre-commit<=4.3.0",
-    "pydata-sphinx-theme<=0.16.1",
-    "pytest<=8.4.1",
-    "pytest-cov<=6.2.1",
-    # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
-    # cannot afford someone installing a different version of ruff and being forbidden to commit
-    # anything because the different version sees some errors in the code.
-    "ruff==0.12.5",
-    "ty>=0.0.1a20",
-    "scipy-stubs<=1.16.0.0",
-    "sphinx<=8.1.3",
-    "sphinxcontrib-mermaid<=1.0.0",
-    "types-networkx<=3.5.0.20250610",
+  "jupyterlab>=4.4",
+  "myst-parser>=4.0",
+  "nbsphinx>=0.9",
+  "pandoc>=2.4",
+  "pre-commit>=4.3",
+  "pydata-sphinx-theme>=0.16",
+  "pytest>=8.4",
+  "pytest-cov>=7.0",
+  # Ruff version fixed to ensure replicability of results. Ruff being part of pre-commit, we
+  # cannot afford someone installing a different version of ruff and being forbidden to commit
+  # anything because the different version sees some errors in the code.
+  # This is ensured by renovate configuration when it updates the ruff version.
+  "ruff==0.14.4",
+  "ty>=0.0.1a20",
+  "scipy-stubs>=1.15",
+  "sphinx>=8.1",
+  "sphinxcontrib-mermaid>=0.9",
+  "types-networkx>=3.5",
 ]
 
 all = [
-    {include-group = "test"},
-    {include-group = "docs"},
-    {include-group = "dev"},
-    {include-group = "bench"},
+  { include-group = "test" },
+  { include-group = "docs" },
+  { include-group = "dev" },
+  { include-group = "bench" },
 ]
 
 [project.scripts]
 tqec = "tqec._cli.tqec:main"
 
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.packages.find]
-where = ["src"]
-exclude = ["*test.py"]
-
-[tool.setuptools.package-data]
-tqec = ["py.typed"]
-# See https://setuptools.pypa.io/en/latest/userguide/datafiles.html#subdirectory-for-data-files
-"tqec.gallery.dae" = ["*.dae"]
-
-[tool.setuptools.dynamic]
-dependencies = { file = "requirements.txt" }
-
-
-[tool.mypy]
-# See https://numpy.org/devdocs/reference/typing.html
-plugins = "numpy.typing.mypy_plugin"
-# Start off with these
-warn_unused_configs = true
-warn_redundant_casts = true
-# Explicitly disable that for the moment, will eventually be turned on again.
-warn_unused_ignores = false
-warn_unreachable = true
-
-# Getting these passing should be easy
-strict_equality = true
-extra_checks = true
-
-# Strongly recommend enabling this one as soon as you can
-check_untyped_defs = true
-
-# These shouldn't be too much additional work, but may be tricky to
-# get passing if you use a lot of untyped libraries
-disallow_subclassing_any = true
-disallow_untyped_decorators = true
-disallow_any_generics = true
-
-# These next few are various gradations of forcing use of type annotations
-disallow_untyped_calls = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-
-# This one isn't too hard to get passing, but return on investment is lower
-# Disabled due to issues with cirq not reexporting explicitly.
-no_implicit_reexport = true
-
-# This one can be tricky to get passing if you use a lot of untyped libraries
-warn_return_any = true
-
-
-# See https://mypy.readthedocs.io/en/stable/config_file.html#using-a-pyproject-toml
-[[tool.mypy.overrides]]
-module = [
-  "stim",
-  "sinter",
-  "pysat",
-  "pysat.solvers",
-  "collada",
-  "collada.source",
-  "mpl_toolkits.mplot3d.axes3d",
-]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "pyzx"
-no_implicit_reexport = false
-
-[[tool.mypy.overrides]]
-module = ["tqec.interop.pyzx.*"]
-disallow_untyped_calls = false
 
 [tool.coverage.run]
-omit = ["*/*_test.py", "*/simulation/*", "*/visualisation/*"]
+omit = ["tests/*", "*/simulation/*", "*/visualisation/*"]
 
 [tool.coverage.report]
 exclude_also = [
@@ -209,53 +146,9 @@ exclude_also = [
 ]
 
 
-[tool.pyright]
-# Paths of directories or files that should be considered part of the project.
-# If no paths are specified, pyright defaults to the directory that contains the
-# config file. Paths may contain wildcard characters ** (a directory or multiple
-# levels of directories), * (a sequence of zero or more characters), or ? (a
-# single character). If no include paths are specified, the root path for the
-# workspace is assumed.
-include = ["src"]
-
-# Paths of directories or files that should not be considered part of the project.
-# These override the directories and files that include matched, allowing specific
-# subdirectories to be excluded. Note that files in the exclude paths may still be
-# included in the analysis if they are referenced (imported) by source files that
-# are not excluded. Paths may contain wildcard characters ** (a directory or
-# multiple levels of directories), * (a sequence of zero or more characters), or ?
-# (a single character). If no exclude paths are specified, Pyright automatically
-# excludes the following: **/node_modules, **/__pycache__, **/.*. Pylance also
-# excludes any virtual environment directories regardless of the exclude paths
-# specified. For more detail on Python environment specification and discovery,
-# refer to the import resolution documentation.
-exclude = ["/usr/**/*.py", "**/stdlib/**/*.py"]
-
-# Specifies the version of Python that will be used to execute the source code.
-# The version should be specified as a string in the format "M.m" where M is the
-# major version and m is the minor (e.g. "3.0" or "3.6"). If a version is provided,
-# pyright will generate errors if the source code makes use of language features
-# that are not supported in that version. It will also tailor its use of type stub
-# files, which conditionalizes type definitions based on the version. If no version
-# is specified, pyright will use the version of the current python interpreter, if
-# one is present.
-pythonVersion = "3.10"
-
-# Specifies the default rule set to use. Some rules can be overridden using
-# additional configuration flags documented below. The default value for this
-# setting is "standard". If set to "off", all type-checking rules are disabled, but
-# Python syntax and semantic errors are still reported.
-typeCheckingMode = "standard"
-
-# Generate or suppress diagnostics for use of a symbol from a "py.typed" module
-# that is not meant to be exported from that module. The default value for this
-# setting is "error".
-reportPrivateImportUsage = false
-
 [tool.ruff]
 # exclude = ["__init__.py"]
 line-length = 100
-target-version = "py310"
 exclude = ["*.ipynb"]
 
 [tool.ruff.lint]
@@ -279,19 +172,24 @@ ignore = [
   # D100 & D104 - For the moment, we do not require documenting all public modules & packages.
   # D101 - By convention, class docstrings are on the __init__ method, so we do not document classes.
   # D105 - Magic methods have a clear meaning nearly everytime, so we do not require to document them.
-  "D100", "D101", "D104", "D105",
+  "D100",
+  "D101",
+  "D104",
+  "D105",
   # D203 - Requires a blank line between class declaration and its docstring. Incompatible with D211. We prefer D211.
   # D203 - Requires multiline docstrings to start on the second line. Incompatible with D212. We prefer D212.
-  "D203", "D213",
+  "D203",
+  "D213",
   # D407 - Ignored because ==== under a section heading is considered as a missing underline.
   "D407",
   # PLR091{2,3,5} - A few code blocks have too many {branches,arguments,statements}. Ignored for the moment.
   # PLR2004 - Replace magic values, not a priority at the moment.
-  "PLR0912", "PLR0913", "PLR0915", "PLR2004",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR2004",
   # N802 - functions involving {I,L,H,T}-shaped junction make more sense being names with upper-case letters.
   "N802",
-  # UP038 - Soon-to-be-deprecated rule, we prefer using isinstance(obj, (A, B)).
-  "UP038"
 ]
 
 # Specific per-file ignores
@@ -304,4 +202,5 @@ ignore = [
 "src/tqec/compile/observables/*" = ["D205"]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 markers = ["slow: mark a test that takes a long time to run."]

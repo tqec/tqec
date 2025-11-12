@@ -16,19 +16,14 @@ jobs:
   pre-commit-ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
+      - uses: actions/checkout@v5
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      - name: Create virtual environment and install dependencies
+      - name: Setup Python development environment
         run: |
-          uv venv
-          uv sync --group dev
+          uv sync --group dev --python "3.13"
       - name: Run pre-commit hooks
         run: uv run pre-commit run --all-files
 
@@ -40,19 +35,14 @@ jobs:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       # Checkout and install TQEC
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v5
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      - name: Install dependencies after creating a virtual environment
+      - name: Setup Python development environment
         run: |
-          uv venv
-          uv sync --group all
+          uv sync --group all --python ${{ matrix.python-version }}
       # Type check the code base.
       - name: Type checking
         run: uv run ty check
@@ -72,19 +62,14 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       # Checkout and install TQEC
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
+      - uses: actions/checkout@v5
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      - name: Install dependencies and tqec package after creating a virtual environment
+      - name: Setup Python development environment
         run: |
-          uv venv
-          uv sync --group test
+          uv sync --group test --python "3.13"
       # Only perform quick tests when pushing on a PR
       - name: Code health - format
         uses: astral-sh/ruff-action@v3

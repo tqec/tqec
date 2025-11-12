@@ -144,7 +144,7 @@ class LayoutLayer(BaseLayer):
         cubes: dict[BlockPosition2D, PlaquetteLayer] = {
             pos.to_block_position(): layer
             for pos, layer in self.layers.items()
-            if isinstance(pos, LayoutCubePosition2D)
+            if isinstance(pos, LayoutCubePosition2D) and isinstance(layer, PlaquetteLayer)
         }
         template_dict: Final = {pos: layer.template for pos, layer in cubes.items()}
         plaquettes_dict = {pos: layer.plaquettes for pos, layer in cubes.items()}
@@ -153,7 +153,7 @@ class LayoutLayer(BaseLayer):
         pipes: dict[tuple[BlockPosition2D, BlockPosition2D], PlaquetteLayer] = {
             pos.to_pipe(): layer
             for pos, layer in self.layers.items()
-            if isinstance(pos, LayoutPipePosition2D)
+            if isinstance(pos, LayoutPipePosition2D) and isinstance(layer, PlaquetteLayer)
         }
         for (u, v), pipe_layer in pipes.items():
             pipe_direction = Direction3D.from_neighbouring_positions(u.to_3d(), v.to_3d())
