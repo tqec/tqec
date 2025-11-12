@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "tqec"
-version = "0.0.1"
+version = "0.1.0"
 authors = [
   { name = "TQEC community", email = "tqec-design-automation@googlegroups.com" },
 ]
