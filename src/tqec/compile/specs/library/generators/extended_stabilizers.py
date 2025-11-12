@@ -244,6 +244,8 @@ class ExtendedPlaquetteCollection:
     left_without_arm: ExtendedPlaquette
     right_with_arm: ExtendedPlaquette
     right_without_arm: ExtendedPlaquette
+    bottom_left_triangle: ExtendedPlaquette
+    top_right_triangle: ExtendedPlaquette
 
     @staticmethod
     def from_description(
