@@ -242,7 +242,7 @@ class FixedBulkConventionGenerator:
         }
 
     def get_extended_plaquettes(
-        self, reset: Basis | None, measurement: Basis | None
+        self, reset: Basis | None, measurement: Basis | None, is_reversed: bool | False
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
         """Get plaquettes that are supposed to be used to implement ``UP`` or ``DOWN`` spatial
         pipes.
@@ -251,7 +251,10 @@ class FixedBulkConventionGenerator:
             a map from stabilizer basis to :class:`ExtendedPlaquetteCollection`.
 
         """
-        return {b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement)) for b in Basis}
+        return {
+            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, is_reversed))
+            for b in Basis
+        }
 
     ############################################################
     #                          Memory                          #
@@ -1553,7 +1556,7 @@ class FixedBulkConventionGenerator:
             )
         )  # do i need a default value as not all indices specified?
 
-    def get_spatial_above_lft_and_2_arm_extended_stabiliser_hadamard_raw_template(
+    def get_spatial_x_above_lft_and_2_arm_extended_stabiliser_hadamard_raw_template(
         self,
     ) -> RectangularTemplate:
         """Return the :class:`~tqec.templates.base.RectangularTemplate` instance needed to
@@ -1562,7 +1565,7 @@ class FixedBulkConventionGenerator:
         """
         return QubitHorizontalBorders()
 
-    def get_spatial_above_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
+    def get_spatial_x_above_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
         reset: Basis | None = None,
