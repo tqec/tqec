@@ -242,7 +242,7 @@ class FixedBulkConventionGenerator:
         }
 
     def get_extended_plaquettes(
-        self, reset: Basis | None, measurement: Basis | None, is_reversed: bool | False
+        self, reset: Basis | None, measurement: Basis | None
     ) -> dict[Basis, ExtendedPlaquetteCollection]:
         """Get plaquettes that are supposed to be used to implement ``UP`` or ``DOWN`` spatial
         pipes.
@@ -252,8 +252,7 @@ class FixedBulkConventionGenerator:
 
         """
         return {
-            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, is_reversed))
-            for b in Basis
+            b: (ExtendedPlaquetteCollection.from_basis(b, reset, measurement, False)) for b in Basis
         }
 
     ############################################################
@@ -1158,7 +1157,7 @@ class FixedBulkConventionGenerator:
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> FrozenDefaultDict[int, RPNGDescription]:
+    ) -> Plaquettes:
         u, v = linked_cubes
         _sbb = spatial_boundary_basis
         _sbb_f = _sbb.flipped()
@@ -1641,7 +1640,6 @@ class FixedBulkConventionGenerator:
     def get_spatial_z_below_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
-        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1666,10 +1664,6 @@ class FixedBulkConventionGenerator:
 
         Arguments:
             top_left_basis: basis of the top-left-most stabilizer.
-            is_reversed: flag indicating if the plaquette schedule should be
-                reversed or not. Useful to limit the loss of code distance when
-                hook errors are not correctly oriented by alternating regular
-                and reversed plaquettes.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1686,9 +1680,7 @@ class FixedBulkConventionGenerator:
         # tlb: top-left basis, otb: other basis.
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(
-            reset, measurement, is_reversed
-        )
+        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
         bulk = dict()
         bulk[tlb] = extended_plaquette_collection[tlb].bulk
         bulk[otb] = extended_plaquette_collection[otb].bulk
@@ -1721,7 +1713,6 @@ class FixedBulkConventionGenerator:
     def get_spatial_x_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
-        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1746,10 +1737,6 @@ class FixedBulkConventionGenerator:
 
         Arguments:
             top_left_basis: basis of the top-left-most stabilizer.
-            is_reversed: flag indicating if the plaquette schedule should be
-                reversed or not. Useful to limit the loss of code distance when
-                hook errors are not correctly oriented by alternating regular
-                and reversed plaquettes.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1766,9 +1753,7 @@ class FixedBulkConventionGenerator:
         # tlb: top-left basis, otb: other basis.
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(
-            reset, measurement, is_reversed
-        )
+        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
         bulk = dict()
         bulk[tlb] = extended_plaquette_collection[tlb].bulk
         bulk[otb] = extended_plaquette_collection[otb].bulk
@@ -1801,7 +1786,6 @@ class FixedBulkConventionGenerator:
     def get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
-        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1826,10 +1810,6 @@ class FixedBulkConventionGenerator:
 
         Arguments:
             top_left_basis: basis of the top-left-most stabilizer.
-            is_reversed: flag indicating if the plaquette schedule should be
-                reversed or not. Useful to limit the loss of code distance when
-                hook errors are not correctly oriented by alternating regular
-                and reversed plaquettes.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1846,9 +1826,7 @@ class FixedBulkConventionGenerator:
         # tlb: top-left basis, otb: other basis.
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(
-            reset, measurement, is_reversed
-        )
+        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
         bulk = dict()
         bulk[tlb] = extended_plaquette_collection[tlb].bulk
         bulk[otb] = extended_plaquette_collection[otb].bulk
@@ -1881,7 +1859,6 @@ class FixedBulkConventionGenerator:
     def get_spatial_below_left_arm_extended_stabiliser_hadamard_plqts(
         self,
         top_left_basis: Basis,
-        is_reversed: bool,
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
@@ -1906,10 +1883,6 @@ class FixedBulkConventionGenerator:
 
         Arguments:
             top_left_basis: basis of the top-left-most stabilizer.
-            is_reversed: flag indicating if the plaquette schedule should be
-                reversed or not. Useful to limit the loss of code distance when
-                hook errors are not correctly oriented by alternating regular
-                and reversed plaquettes.
             reset: basis of the reset operation performed on **internal**
                 data-qubits. Defaults to ``None`` that translates to no reset
                 being applied on data-qubits.
@@ -1926,9 +1899,7 @@ class FixedBulkConventionGenerator:
         # tlb: top-left basis, otb: other basis.
         tlb, otb = top_left_basis, top_left_basis.flipped()
         # Generating plaquette descriptions we will need later.
-        extended_plaquette_collection = self.get_extended_plaquettes(
-            reset, measurement, is_reversed
-        )
+        extended_plaquette_collection = self.get_extended_plaquettes(reset, measurement)
         bulk = dict()
         bulk[tlb] = extended_plaquette_collection[tlb].bulk
         bulk[otb] = extended_plaquette_collection[otb].bulk
