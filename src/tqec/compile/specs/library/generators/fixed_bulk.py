@@ -879,7 +879,7 @@ class FixedBulkConventionGenerator:
         else:
             raise TQECError(f"Unrecognized spatial arm(s): {arms}.")
 
-    def get_spatial_cube_arm_rpng_descriptions(
+    def get_spatial_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
@@ -887,7 +887,7 @@ class FixedBulkConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
         is_hadamard: bool = False,
-    ) -> FrozenDefaultDict[int, RPNGDescription]:
+    ) -> Plaquettes:
         """Return a description of the plaquettes needed to implement **one** pipe connecting to a
         spatial cube.
 
@@ -944,11 +944,11 @@ class FixedBulkConventionGenerator:
             SpatialArms.LEFT | SpatialArms.RIGHT,
         ]:
             if is_hadamard:
-                return self._get_left_right_spatial_hadamard_cube_arm_rpng_descriptions(
+                return self._get_left_right_spatial_hadamard_cube_arm_plaquettes(
                     spatial_boundary_basis, arms, linked_cubes, reset, measurement
                 )
             else:
-                return self._get_left_right_spatial_cube_arm_rpng_descriptions(
+                return self._get_left_right_spatial_cube_arm_plaquettes(
                     spatial_boundary_basis, arms, linked_cubes, reset, measurement
                 )
         if arms in [
@@ -957,71 +957,14 @@ class FixedBulkConventionGenerator:
             SpatialArms.UP | SpatialArms.DOWN,
         ]:
             if is_hadamard:
-                return self._get_up_down_spatial_hadamard_cube_arm_rpng_descriptions(
+                return self._get_up_down_spatial_hadamard_cube_arm_plaquettes(
                     spatial_boundary_basis, arms, linked_cubes, reset, measurement
                 )
             else:
-                return self._get_up_down_spatial_cube_arm_rpng_descriptions(
+                return self._get_up_down_spatial_cube_arm_plaquettes(
                     spatial_boundary_basis, arms, linked_cubes, reset, measurement
                 )
         raise TQECError(f"Got an invalid arm: {arms}.")
-
-    def get_spatial_cube_arm_plaquettes(
-        self,
-        spatial_boundary_basis: Basis,
-        arms: SpatialArms,
-        linked_cubes: tuple[CubeSpec, CubeSpec],
-        reset: Basis | None = None,
-        measurement: Basis | None = None,
-        is_hadamard: bool = False,
-    ) -> Plaquettes:
-        """Return the plaquettes needed to implement **one** pipe connecting to a spatial cube.
-
-        Note:
-            A spatial cube is defined as a cube with all its spatial boundaries
-            in the same basis.
-            Such a cube might appear in stability experiments (e.g.,
-            http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
-            with more than one pipe in the spatial plane) or in other QEC gadgets
-            such as the lattice surgery implementation of a ``CZ`` gate.
-
-        Warning:
-            This method is tightly coupled with
-            :meth:`FixedBulkConventionGenerator.get_spatial_cube_arm_raw_template`
-            and the returned ``RPNG`` descriptions should only be considered
-            valid when used in conjunction with the
-            :class:`~tqec.templates.base.RectangularTemplate` instance returned
-            by this method.
-
-        Arguments:
-            spatial_boundary_basis: stabilizers that are measured at each
-                boundaries of the spatial cube.
-            arms: arm(s) of the spatial cube(s) linked by the pipe.
-            linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
-                specifications of the two ends of the pipe to generate RPNG
-                descriptions for.
-            reset: basis of the reset operation performed on **internal**
-                data-qubits. Defaults to ``None`` that translates to no reset
-                being applied on data-qubits.
-            measurement: basis of the measurement operation performed on
-                **internal** data-qubits. Defaults to ``None`` that translates
-                to no measurement being applied on data-qubits.
-            is_hadamard: whether these are meant to implement a hadamard or not.
-                Defaults to False
-
-
-        Raises:
-            TQECError: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
-                if it contains 0 or 3+ flags).
-
-        Returns:
-            the plaquettes needed to implement **one** pipe connecting to a
-            spatial cube.
-
-        """
-        return self._mapper(self.get_spatial_cube_arm_rpng_descriptions)(
-            spatial_boundary_basis, arms, linked_cubes, reset, measurement, is_hadamard
-        )
 
     def _get_left_right_spatial_cube_arm_rpng_descriptions(
         self,
@@ -1082,14 +1025,67 @@ class FixedBulkConventionGenerator:
 
         return FrozenDefaultDict(mapping, default_value=RPNGDescription.empty())
 
-    def _get_left_right_spatial_hadamard_cube_arm_rpng_descriptions(
+    def _get_left_right_spatial_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
         linked_cubes: tuple[CubeSpec, CubeSpec],
         reset: Basis | None = None,
         measurement: Basis | None = None,
-    ) -> FrozenDefaultDict[int, RPNGDescription]:
+    ) -> Plaquettes:
+        """Return the plaquettes needed to implement **one** pipe connecting to a spatial cube.
+
+        Note:
+        A spatial cube is defined as a cube with all its spatial boundaries
+        in the same basis.
+        Such a cube might appear in stability experiments (e.g.,
+        http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
+        with more than one pipe in the spatial plane) or in other QEC gadgets
+        such as the lattice surgery implementation of a ``CZ`` gate.
+
+        Warning:
+        This method is tightly coupled with
+        :meth:`FixedBulkConventionGenerator.get_spatial_cube_arm_raw_template`
+        and the returned ``RPNG`` descriptions should only be considered
+        valid when used in conjunction with the
+        :class:`~tqec.templates.base.RectangularTemplate` instance returned
+        by this method.
+
+        Arguments:
+        spatial_boundary_basis: stabilizers that are measured at each
+            boundaries of the spatial cube.
+        arms: arm(s) of the spatial cube(s) linked by the pipe.
+        linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
+            specifications of the two ends of the pipe to generate RPNG
+            descriptions for.
+        reset: basis of the reset operation performed on **internal**
+            data-qubits. Defaults to ``None`` that translates to no reset
+            being applied on data-qubits.
+        measurement: basis of the measurement operation performed on
+            **internal** data-qubits. Defaults to ``None`` that translates
+            to no measurement being applied on data-qubits.
+
+        Raises:
+        TQECError: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
+            if it contains 0 or 3+ flags).
+
+        Returns:
+        the plaquettes needed to implement **one** pipe connecting to a
+        spatial cube.q
+
+        """
+        return self._mapper(self._get_left_right_spatial_cube_arm_rpng_descriptions)(
+            spatial_boundary_basis, arms, linked_cubes, reset, measurement
+        )
+
+    def _get_left_right_spatial_hadamard_cube_arm_plaquettes(
+        self,
+        spatial_boundary_basis: Basis,
+        arms: SpatialArms,
+        linked_cubes: tuple[CubeSpec, CubeSpec],
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
+    ) -> Plaquettes:
         raise NotImplementedError()
 
     def _get_up_down_spatial_cube_arm_rpng_descriptions(
@@ -1150,7 +1146,60 @@ class FixedBulkConventionGenerator:
 
         return FrozenDefaultDict(mapping, default_value=RPNGDescription.empty())
 
-    def _get_up_down_spatial_hadamard_cube_arm_rpng_descriptions(
+    def _get_up_down_spatial_cube_arm_plaquettes(
+        self,
+        spatial_boundary_basis: Basis,
+        arms: SpatialArms,
+        linked_cubes: tuple[CubeSpec, CubeSpec],
+        reset: Basis | None = None,
+        measurement: Basis | None = None,
+    ) -> Plaquettes:
+        """Return the plaquettes needed to implement **one** pipe connecting to a spatial cube.
+
+        Note:
+        A spatial cube is defined as a cube with all its spatial boundaries
+        in the same basis.
+        Such a cube might appear in stability experiments (e.g.,
+        http://arxiv.org/abs/2204.13834), in spatial junctions (i.e., a cube
+        with more than one pipe in the spatial plane) or in other QEC gadgets
+        such as the lattice surgery implementation of a ``CZ`` gate.
+
+        Warning:
+        This method is tightly coupled with
+        :meth:`FixedBulkConventionGenerator.get_spatial_cube_arm_raw_template`
+        and the returned ``RPNG`` descriptions should only be considered
+        valid when used in conjunction with the
+        :class:`~tqec.templates.base.RectangularTemplate` instance returned
+        by this method.
+
+        Arguments:
+        spatial_boundary_basis: stabilizers that are measured at each
+            boundaries of the spatial cube.
+        arms: arm(s) of the spatial cube(s) linked by the pipe.
+        linked_cubes: a tuple ``(u, v)`` where ``u`` and ``v`` are the
+            specifications of the two ends of the pipe to generate RPNG
+            descriptions for.
+        reset: basis of the reset operation performed on **internal**
+            data-qubits. Defaults to ``None`` that translates to no reset
+            being applied on data-qubits.
+        measurement: basis of the measurement operation performed on
+            **internal** data-qubits. Defaults to ``None`` that translates
+            to no measurement being applied on data-qubits.
+
+        Raises:
+        TQECError: if ``arm`` does not contain exactly 1 or 2 flags (i.e.,
+            if it contains 0 or 3+ flags).
+
+        Returns:
+        the plaquettes needed to implement **one** pipe connecting to a
+        spatial cube.
+
+        """
+        return self._mapper(self._get_up_down_spatial_cube_arm_rpng_descriptions)(
+            spatial_boundary_basis, arms, linked_cubes, reset, measurement
+        )
+
+    def _get_up_down_spatial_hadamard_cube_arm_plaquettes(
         self,
         spatial_boundary_basis: Basis,
         arms: SpatialArms,
