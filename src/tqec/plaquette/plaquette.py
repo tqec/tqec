@@ -197,7 +197,11 @@ class Plaquette:
             "Cannot reschedule measurements to an earlier time step than the "
             "current maximum schedule."
         )
-        if schedule == cur_max_schedule:
+        # If there is no measurement or if the schedule is the same, do nothing
+        if (
+            self.circuit.moment_at_schedule(cur_max_schedule).num_measurements == 0
+            or schedule == cur_max_schedule
+        ):
             return
         self.circuit.reschedule_moment(cur_max_schedule, schedule)
 

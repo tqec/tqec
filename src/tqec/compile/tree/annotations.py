@@ -43,7 +43,19 @@ class DetectorAnnotation:
         """Create a :class:`DetectorAnnotation` from a detector and measurement records."""
         return DetectorAnnotation(
             detector.coordinates,
-            sorted([measurement_records[m.qubit][m.offset] for m in detector.measurements]),
+            sorted(
+                [
+                    # (
+                    #     print(
+                    #         f"qubit={m.qubit}, offset={m.offset},
+                    #         measurement_records={measurement_records.mapping}"
+                    #     ),
+                    #     measurement_records[m.qubit][m.offset],
+                    # )[1]
+                    measurement_records[m.qubit][m.offset]
+                    for m in detector.measurements
+                ]
+            ),
         )
 
 

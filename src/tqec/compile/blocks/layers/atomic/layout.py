@@ -138,6 +138,7 @@ class LayoutLayer(BaseLayer):
 
         for plaquette in plaquettes.collection.values():
             plaquette.reschedule_measurements(max_schedule)
+            # print(plaquette.circuit.get_circuit())
 
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
         """Return an equivalent representation of ``self`` with a template and some plaquettes.

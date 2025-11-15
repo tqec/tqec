@@ -222,6 +222,8 @@ class AnnotateDetectorsOnLayerNode(NodeWalker):
             *node._layer.to_template_and_plaquettes(),
             MeasurementRecordsMap.from_scheduled_circuit(annotations.circuit),
         )
+        # FIXME:I think the bug is here? Previously plaquettes are re-scheduled but
+        # here they are not.
         templates, plaquettes, measurement_records = self._lookback_stack.lookback(
             self._lookback_size
         )
