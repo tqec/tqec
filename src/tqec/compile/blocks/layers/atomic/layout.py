@@ -123,6 +123,22 @@ class LayoutLayer(BaseLayer):
     def __hash__(self) -> int:
         raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
+    def reschedule_measurements(self, plaquettes: Plaquettes):
+        """Re-schedule measurements to be in the same moment.
+
+        Args:
+            plaquettes: collection of plaquettes to consider.
+
+        """
+        max_schedule = -1
+        for plaquette in plaquettes.collection.values():
+            # TODO: here we assume the measurement is the last instruction
+            cur_max_schedule = plaquette.circuit.schedule.max_schedule
+            max_schedule = max(max_schedule, cur_max_schedule)
+
+        for plaquette in plaquettes.collection.values():
+            plaquette.reschedule_measurements(max_schedule)
+
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
         """Return an equivalent representation of ``self`` with a template and some plaquettes.
 
@@ -202,6 +218,7 @@ class LayoutLayer(BaseLayer):
 
         """
         template, plaquettes = self.to_template_and_plaquettes()
+        self.reschedule_measurements(plaquettes)
         scheduled_circuit = generate_circuit(template, k, plaquettes)
         # Shift the qubits of the returned scheduled circuit
         mincube, _ = self.bounds

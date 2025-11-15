@@ -123,6 +123,19 @@ class Schedule:
         # if `schedule == self` a generator would induce an infinite loop.
         self.schedule.extend([starting_index + s for s in schedule.schedule])
 
+    def pop(self, i: int = -1) -> int:
+        """Remove and return the integer at index ``i`` in the schedule.
+
+        Args:
+            i: index of the integer to remove. Defaults to ``-1``, i.e., the last
+                integer in the schedule.
+
+        Returns:
+            the removed integer.
+
+        """
+        return self.schedule.pop(i)
+
     @property
     def max_schedule(self) -> int:
         """Get the maximum timestep in ``self`` or ``0`` if ``self`` is empty."""

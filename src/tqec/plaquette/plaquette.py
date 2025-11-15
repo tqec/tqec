@@ -190,6 +190,17 @@ class Plaquette:
         """Return the number of moments in the circuit representing ``self``."""
         return self.circuit.schedule.max_schedule + 1
 
+    def reschedule_measurements(self, schedule: int):
+        """Re-schedule the measurements in the plaquette circuit to the provided ``time_step``."""
+        cur_max_schedule = self.circuit.schedule.max_schedule
+        assert schedule >= cur_max_schedule, (
+            "Cannot reschedule measurements to an earlier time step than the "
+            "current maximum schedule."
+        )
+        if schedule == cur_max_schedule:
+            return
+        self.circuit.reschedule_moment(cur_max_schedule, schedule)
+
     def is_empty(self) -> bool:
         """Check if the plaquette is empty.
 

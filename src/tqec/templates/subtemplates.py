@@ -378,7 +378,7 @@ def get_spatially_distinct_3d_subtemplates(
     # timeslice (again, except the last one) directly because the other
     # timeslices might need the potentially non-0 plaquettes around the center.
     # That issue arose when extending a qubit to perform a spatial junction with
-    # stretched stabilizers (i.e., in fixed-parity convention).
+    # stretched stabilizers (i.e., in fixed-boundary convention).
     unique_2d_subtemplates: list[UniqueSubTemplates] = [
         get_spatially_distinct_subtemplates(
             inst, manhattan_radius=manhattan_radius, avoid_zero_plaquettes=False
