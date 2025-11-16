@@ -123,22 +123,22 @@ class LayoutLayer(BaseLayer):
     def __hash__(self) -> int:
         raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
-    def reschedule_measurements(self, plaquettes: Plaquettes):
-        """Re-schedule measurements to be in the same moment.
-
-        Args:
-            plaquettes: collection of plaquettes to consider.
-
-        """
-        max_schedule = -1
-        for plaquette in plaquettes.collection.values():
-            # TODO: here we assume the measurement is the last instruction
-            cur_max_schedule = plaquette.circuit.schedule.max_schedule
-            max_schedule = max(max_schedule, cur_max_schedule)
-
-        for plaquette in plaquettes.collection.values():
+    def reschedule_measurements(self):
+        """Re-schedule measurements to be in the same moment."""
+        # Collect all plaquettes from all layers
+        plaquettes = [
+            plaquette
+            for layer in self.layers.values()
+            if isinstance(layer, PlaquetteLayer)
+            for plaquette in layer.plaquettes.collection.values()
+        ]
+        if not plaquettes:
+            return
+        # Find the maximum schedule value
+        max_schedule = max(plaquette.circuit.schedule.max_schedule for plaquette in plaquettes)
+        # Reschedule all plaquettes
+        for plaquette in plaquettes:
             plaquette.reschedule_measurements(max_schedule)
-            # print(plaquette.circuit.get_circuit())
 
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
         """Return an equivalent representation of ``self`` with a template and some plaquettes.
@@ -218,8 +218,8 @@ class LayoutLayer(BaseLayer):
             quantum circuit representing the layer.
 
         """
+        self.reschedule_measurements()
         template, plaquettes = self.to_template_and_plaquettes()
-        self.reschedule_measurements(plaquettes)
         scheduled_circuit = generate_circuit(template, k, plaquettes)
         # Shift the qubits of the returned scheduled circuit
         mincube, _ = self.bounds
