@@ -208,17 +208,19 @@ class LayoutLayer(BaseLayer):
         template = LayoutTemplate(template_dict)
         return template, template.get_global_plaquettes(plaquettes_dict)
 
-    def to_circuit(self, k: int) -> ScheduledCircuit:
+    def to_circuit(self, k: int, reschedule_measurements: bool = True) -> ScheduledCircuit:
         """Return the quantum circuit representing the layer.
 
         Args:
             k: scaling factor.
+            reschedule_measurements: whether to reschedule measurements in the generated circuit.
 
         Returns:
             quantum circuit representing the layer.
 
         """
-        self.reschedule_measurements()
+        if reschedule_measurements:
+            self.reschedule_measurements()
         template, plaquettes = self.to_template_and_plaquettes()
         scheduled_circuit = generate_circuit(template, k, plaquettes)
         # Shift the qubits of the returned scheduled circuit

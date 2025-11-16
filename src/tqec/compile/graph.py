@@ -471,6 +471,7 @@ class TopologicalComputationGraph:
         database_path: str | Path = DEFAULT_DETECTOR_DATABASE_PATH,
         do_not_use_database: bool = False,
         only_use_database: bool = False,
+        reschedule_measurements: bool = True,
     ) -> stim.Circuit:
         """Generate the ``stim.Circuit`` from the compiled graph.
 
@@ -493,6 +494,8 @@ class TopologicalComputationGraph:
             only_use_database: if ``True``, only detectors from the database
                 will be used. An error will be raised if a situation that is not
                 registered in the database is encountered.
+            reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``
+                to the same moment.
 
         Returns:
             A compiled stim circuit.
@@ -505,6 +508,7 @@ class TopologicalComputationGraph:
             database_path=database_path,
             do_not_use_database=do_not_use_database,
             only_use_database=only_use_database,
+            reschedule_measurements=reschedule_measurements,
         )
         # If provided, apply the noise model.
         if noise_model is not None:
