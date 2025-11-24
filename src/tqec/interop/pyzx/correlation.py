@@ -259,7 +259,6 @@ def _find_spans_with_flood_fill(
         if parity == 0 and not edges_in_span and len(edges_left) <= 1:
             return None
         branches_at_node: list[tuple[set[ZXNode], set[ZXEdge]]] = []
-
         for n in range(parity, len(edges_left) + 1, 2):
             branches_at_node.extend(
                 (

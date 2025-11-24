@@ -19,21 +19,16 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - name: Install dependencies
+      - name: Setup Python development environment
         run: |
-          uv venv
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pandoc
-          uv sync --group all
+          uv sync --group all --python "3.13"
       - uses: actions/cache@v4
         id: cache-docs
         with:

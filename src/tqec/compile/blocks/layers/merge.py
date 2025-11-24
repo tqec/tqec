@@ -170,7 +170,9 @@ def merge_repeated_layers(
         inner_layers = {pos: layer.internal_layer for pos, layer in layers.items()}
         assert contains_only_base_layers(inner_layers)
         return RepeatedLayer(
-            merge_base_layers(inner_layers, scalable_qubit_shape),
+            merge_base_layers(
+                cast(dict[LayoutPosition2D, BaseLayer], inner_layers), scalable_qubit_shape
+            ),
             next(iter(different_repetitions)),
         )
     # Else, we need the least common multiple
@@ -251,9 +253,19 @@ def merge_sequenced_layers(
             pos: sequenced_layers.layer_sequence[i] for pos, sequenced_layers in layers.items()
         }
         if contains_only_base_layers(layers_at_timestep):
-            merged_layers.append(merge_base_layers(layers_at_timestep, scalable_qubit_shape))
+            merged_layers.append(
+                merge_base_layers(
+                    cast(dict[LayoutPosition2D, BaseLayer], layers_at_timestep),
+                    scalable_qubit_shape,
+                )
+            )
         elif contains_only_composed_layers(layers_at_timestep):
-            merged_layers.append(merge_composed_layers(layers_at_timestep, scalable_qubit_shape))
+            merged_layers.append(
+                merge_composed_layers(
+                    cast(dict[LayoutPosition2D, BaseComposedLayer], layers_at_timestep),
+                    scalable_qubit_shape,
+                )
+            )
         else:
             raise RuntimeError(
                 f"Found a mix of {BaseLayer.__name__} instances and "

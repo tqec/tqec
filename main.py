@@ -1,4 +1,5 @@
 from tqec import BlockGraph, NoiseModel, compile_block_graph
+from tqec.compile.convention import FIXED_BOUNDARY_CONVENTION
 from tqec.utils.position import Position3D
 
 g = BlockGraph()
@@ -28,8 +29,8 @@ g.view_as_html(
     "test.html", show_correlation_surface=correlation_surface, pop_faces_at_directions=("+Z", "-Y")
 )
 
-cg = compile_block_graph(g, observables=[correlation_surface])
-circuit = cg.generate_stim_circuit(k=2)
+cg = compile_block_graph(g, observables=[correlation_surface], convention=FIXED_BOUNDARY_CONVENTION)
+circuit = cg.generate_stim_circuit(k=3)
 
 # circuit.to_file("sliding_annotated.stim")
 noisy_circuit = NoiseModel.uniform_depolarizing(1e-3).noisy_circuit(circuit)
