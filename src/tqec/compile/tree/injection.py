@@ -7,7 +7,9 @@ import stim
 from gen._layers._det_obs_annotation_layer import DetObsAnnotationLayer
 from gen._layers._empty_layer import EmptyLayer
 from gen._layers._layer import Layer
+from tqecd.flow import build_flows_from_fragments
 from tqecd.fragment import Fragment, FragmentLoop, split_stim_circuit_into_fragments
+from tqecd.pauli import PauliString
 
 from tqec.compile.blocks.block import InjectedBlock
 from tqec.compile.blocks.enums import Alignment
@@ -90,7 +92,7 @@ class InjectionBuilder:
             circuit_to_split = (
                 self._prev_circuit.flattened() if self._prev_flows else self._prev_circuit
             )
-            fragments = _split_circuit_into_fragment_circuits(circuit_to_split)
+            fragments = split_stim_circuit_into_fragments(circuit_to_split)
             for i, fragment in enumerate(fragments):
                 flows = []
                 if i == 0:
@@ -98,12 +100,26 @@ class InjectionBuilder:
                 if i == len(fragments) - 1:
                     flows.extend(flow for flow in self._prev_flows if flow.end)
                 # solve the measurement indices that should be included in the flows
-                chunk = gen.ChunkSemiAuto(
-                    circuit=fragment,
+                solved_flows, unsolved_flows = _solve_semi_auto_flows_ensure_single_source(
+                    fragment=fragment,
                     flows=flows,
                     q2i=self._q2i,
-                    o2i=self._o2i,
-                ).solve()
+                )
+                circuit = _get_fragment_circuit(fragment)
+                if unsolved_flows:
+                    chunk = gen.ChunkSemiAuto(
+                        circuit=circuit,
+                        flows=solved_flows + unsolved_flows,
+                        q2i=self._q2i,
+                        o2i=self._o2i,
+                    ).solve()
+                else:
+                    chunk = gen.Chunk(
+                        circuit=circuit,
+                        flows=solved_flows,
+                        q2i=self._q2i,
+                        o2i=self._o2i,
+                    )
                 chunk.verify()
                 self._chunks.append(chunk)
 
@@ -553,12 +569,6 @@ def _add_unique_flows(flows: Iterable[gen.FlowSemiAuto], add_to: list[gen.FlowSe
             add_to.append(flow)
 
 
-def _split_circuit_into_fragment_circuits(circuit: stim.Circuit) -> list[stim.Circuit]:
-    """Split a stim circuit into a list of fragment circuits."""
-    fragments = split_stim_circuit_into_fragments(circuit)
-    return [_get_fragment_circuit(f) for f in fragments]
-
-
 def _get_fragment_circuit(fragment: Fragment | FragmentLoop) -> stim.Circuit:
     if isinstance(fragment, Fragment):
         return fragment.circuit
@@ -566,3 +576,68 @@ def _get_fragment_circuit(fragment: Fragment | FragmentLoop) -> stim.Circuit:
     for f in fragment.fragments:
         circuit += _get_fragment_circuit(f)
     return circuit * fragment.repetitions
+
+
+def _solve_semi_auto_flows_ensure_single_source(
+    fragment: Fragment | FragmentLoop,
+    flows: list[gen.FlowSemiAuto],
+    q2i: dict[complex, int],
+) -> tuple[list[gen.Flow], list[gen.FlowSemiAuto]]:
+    num_measurements = _get_fragment_circuit(fragment).num_measurements
+    fragment_flows = build_flows_from_fragments([fragment])[0]
+    solved_flows: list[gen.Flow] = []
+    unsolved_flows: list[gen.FlowSemiAuto] = []
+    for flow in flows:
+        solved = False
+        if not flow.start:
+            assert flow.end != "auto"
+            expected_end = PauliString({q2i[q]: p for q, p in flow.end.items()})
+            for boundary_stabilizer in fragment_flows.creation:
+                if boundary_stabilizer.has_anticommuting_operations:
+                    continue
+                if boundary_stabilizer.after_collapse == expected_end:
+                    solved_flows.append(
+                        gen.Flow(
+                            start=gen.PauliMap(),
+                            end=flow.end,
+                            mids=[
+                                m.offset + num_measurements
+                                for m in boundary_stabilizer.measurements
+                            ],
+                            obs_key=flow.obs_key,
+                            center=flow.center,
+                            flags=flow.flags,
+                            sign=flow.sign,
+                        )
+                    )
+                    solved = True
+                    break
+            if not solved:
+                unsolved_flows.append(flow)
+        else:
+            assert flow.start != "auto"
+            assert not flow.end
+            expected_start = PauliString({q2i[q]: p for q, p in flow.start.items()})
+            for boundary_stabilizer in fragment_flows.destruction:
+                if boundary_stabilizer.has_anticommuting_operations:
+                    continue
+                if boundary_stabilizer.after_collapse == expected_start:
+                    solved_flows.append(
+                        gen.Flow(
+                            start=flow.start,
+                            end=gen.PauliMap(),
+                            mids=[
+                                m.offset + num_measurements
+                                for m in boundary_stabilizer.measurements
+                            ],
+                            obs_key=flow.obs_key,
+                            center=flow.center,
+                            flags=flow.flags,
+                            sign=flow.sign,
+                        )
+                    )
+                    solved = True
+                    break
+            if not solved:
+                unsolved_flows.append(flow)
+    return solved_flows, unsolved_flows
