@@ -396,7 +396,7 @@ class ScheduledCircuit:
             schedule = self._schedule[-1] + 1
         self.add_to_schedule_index(schedule, moment)
 
-    def reschedule_moment(self, old_schedule, new_schedule: int) -> None:
+    def reschedule_moment(self, old_schedule: int, new_schedule: int) -> None:
         """Reschedule the moment at ``old_schedule`` to ``new_schedule``.
 
         Args:
