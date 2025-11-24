@@ -495,7 +495,9 @@ class TopologicalComputationGraph:
                 will be used. An error will be raised if a situation that is not
                 registered in the database is encountered.
             reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``
-                to the same moment.
+                to be in the same moment. Since each plaquette may have its own measurement
+                schedule, setting this may be necessary for hardware that requires
+                measurements to be synchronous.
 
         Returns:
             A compiled stim circuit.

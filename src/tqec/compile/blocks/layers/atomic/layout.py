@@ -213,7 +213,10 @@ class LayoutLayer(BaseLayer):
 
         Args:
             k: scaling factor.
-            reschedule_measurements: whether to reschedule measurements in the generated circuit.
+            reschedule_measurements: whether to reschedule measurements in the generated circuit
+                to be in the same moment.
+                Since each plaquette may have its own measurement schedule, setting this
+                may be necessary for hardware that requires measurements to be synchronous.
 
         Returns:
             quantum circuit representing the layer.

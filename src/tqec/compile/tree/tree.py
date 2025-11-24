@@ -296,7 +296,9 @@ class LayerTree:
             lookback: number of QEC rounds to consider to try to find detectors.
                 Including more rounds increases computation time.
             reschedule_measurements: whether to reschedule measurements in a ``LayoutLayer``
-                to the same moment.
+                to be in the same moment. Since each plaquette may have its own measurement
+                schedule, setting this may be necessary for hardware that requires
+                measurements to be synchronous.
 
         Returns:
             a ``stim.Circuit`` instance implementing the computation described

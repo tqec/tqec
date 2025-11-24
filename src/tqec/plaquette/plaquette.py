@@ -190,13 +190,23 @@ class Plaquette:
         """Return the number of moments in the circuit representing ``self``."""
         return self.circuit.schedule.max_schedule + 1
 
-    def reschedule_measurements(self, schedule: int):
-        """Re-schedule the measurements in the plaquette circuit to the provided ``time_step``."""
+    def reschedule_measurements(self, schedule: int) -> None:
+        """Re-schedule the measurements in the plaquette circuit to the provided ``schedule``.
+
+        Args:
+            schedule: new schedule at which measurements should be performed.
+
+        Raises:
+            TQECError: if the provided ``schedule`` is earlier than the current
+                maximum schedule of the circuit.
+
+        """
         cur_max_schedule = self.circuit.schedule.max_schedule
-        assert schedule >= cur_max_schedule, (
-            "Cannot reschedule measurements to an earlier time step than the "
-            "current maximum schedule."
-        )
+        if schedule < cur_max_schedule:
+            raise TQECError(
+                "Cannot reschedule measurements to an earlier time step than the "
+                "current maximum schedule."
+            )
         # If there is no measurement or if the schedule is the same, do nothing
         if (
             self.circuit.moment_at_schedule(cur_max_schedule).num_measurements == 0

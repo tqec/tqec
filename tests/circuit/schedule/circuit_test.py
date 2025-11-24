@@ -232,30 +232,21 @@ def test_scheduled_circuit_filter_by_qubit() -> None:
 
 
 def test_scheduled_circuit_reschedule_moment() -> None:
-    # Create a circuit with two moments at schedules 0 and 1
     moments = [Moment(stim.Circuit("H 0")), Moment(stim.Circuit("X 1"))]
     qubit_map = QubitMap({0: GridQubit(0, 0), 1: GridQubit(0, 1)})
     circuit = ScheduledCircuit(moments, [0, 1], qubit_map)
 
-    # Move moment at schedule 0 to schedule 2
     circuit.reschedule_moment(0, 2)
-
-    # The schedules should now be [1, 2]
     assert circuit.schedule.schedule == [1, 2]
-    # The moment at schedule 2 should be the original moment from schedule 0
     assert circuit.moment_at_schedule(2).circuit == stim.Circuit("H 0")
-    # The moment at schedule 1 should be unchanged
     assert circuit.moment_at_schedule(1).circuit == stim.Circuit("X 1")
-    # There should be no moment at schedule 0
     with pytest.raises(TQECError):
         circuit.moment_at_schedule(0)
 
-    # Test negative indices: move moment at last schedule (-1) to 0
     circuit.reschedule_moment(-1, 0)
     assert circuit.schedule.schedule == [0, 1]
     assert circuit.moment_at_schedule(0).circuit == stim.Circuit("H 0")
     assert circuit.moment_at_schedule(1).circuit == stim.Circuit("X 1")
 
-    # Test error: reschedule non-existent moment
     with pytest.raises(TQECError):
         circuit.reschedule_moment(99, 0)
