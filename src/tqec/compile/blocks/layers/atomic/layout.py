@@ -123,7 +123,7 @@ class LayoutLayer(BaseLayer):
     def __hash__(self) -> int:
         raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
-    def reschedule_measurements(self):
+    def reschedule_measurements(self) -> None:
         """Re-schedule measurements to be in the same moment."""
         # Collect all plaquettes from all layers
         plaquettes = [
