@@ -986,6 +986,34 @@ window.addEventListener("load", load);
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of moments in the circuit representing ``self``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">schedule</span><span class="o">.</span><span class="n">max_schedule</span> <span class="o">+</span> <span class="mi">1</span>
 
+<div class="viewcode-block" id="Plaquette.reschedule_measurements">
+<a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.reschedule_measurements">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reschedule_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-schedule the measurements in the plaquette circuit to the provided ``schedule``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            schedule: new schedule at which measurements should be performed.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TQECError: if the provided ``schedule`` is earlier than the current</span>
+<span class="sd">                maximum schedule of the circuit.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cur_max_schedule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">schedule</span><span class="o">.</span><span class="n">max_schedule</span>
+        <span class="k">if</span> <span class="n">schedule</span> <span class="o">&lt;</span> <span class="n">cur_max_schedule</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TQECError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot reschedule measurements to an earlier time step than the &quot;</span>
+                <span class="s2">&quot;current maximum schedule.&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># If there is no measurement or if the schedule is the same, do nothing</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">moment_at_schedule</span><span class="p">(</span><span class="n">cur_max_schedule</span><span class="p">)</span><span class="o">.</span><span class="n">num_measurements</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="ow">or</span> <span class="n">schedule</span> <span class="o">==</span> <span class="n">cur_max_schedule</span>
+        <span class="p">):</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">circuit</span><span class="o">.</span><span class="n">reschedule_moment</span><span class="p">(</span><span class="n">cur_max_schedule</span><span class="p">,</span> <span class="n">schedule</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Plaquette.is_empty">
 <a class="viewcode-back" href="../../../_autosummary/tqec.plaquette.Plaquette.html#tqec.plaquette.Plaquette.is_empty">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

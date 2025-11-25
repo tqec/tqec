@@ -18,6 +18,7 @@ Plaquette
       ~Plaquette.project_on_data_qubit_indices
       ~Plaquette.project_on_data_qubits
       ~Plaquette.reliable_hash
+      ~Plaquette.reschedule_measurements
       ~Plaquette.to_dict
       ~Plaquette.with_debug_information
    
@@ -52,6 +53,7 @@ Plaquette
    .. automethod:: project_on_data_qubit_indices
    .. automethod:: project_on_data_qubits
    .. automethod:: reliable_hash
+   .. automethod:: reschedule_measurements
    .. automethod:: to_dict
    .. automethod:: with_debug_information
    
