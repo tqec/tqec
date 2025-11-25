@@ -39,6 +39,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
+  "gen @ git+https://github.com/inmzhang/gen.git",
   "matplotlib>=3.9",
   "networkx>=3.0",
   "numpy>=1.22,<2.3",                                  # Upper bound: https://github.com/tqec/tqec/pull/659

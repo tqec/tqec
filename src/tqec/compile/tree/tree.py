@@ -11,6 +11,7 @@ from typing_extensions import override
 
 from tqec.circuit.qubit import GridQubit
 from tqec.circuit.qubit_map import QubitMap
+from tqec.compile.blocks.block import InjectedBlock
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
 from tqec.compile.detectors.database import CURRENT_DATABASE_VERSION, DetectorDatabase
 from tqec.compile.observables.abstract_observable import AbstractObservable
@@ -20,10 +21,12 @@ from tqec.compile.tree.annotators.circuit import AnnotateCircuitOnLayerNode
 from tqec.compile.tree.annotators.detectors import AnnotateDetectorsOnLayerNode
 from tqec.compile.tree.annotators.observables import annotate_observable
 from tqec.compile.tree.annotators.polygons import AnnotatePolygonOnLayerNode
+from tqec.compile.tree.injection import InjectionBuilder
 from tqec.compile.tree.node import LayerNode, NodeWalker
 from tqec.post_processing.shift import shift_to_only_positive
 from tqec.utils.exceptions import TQECError, TQECWarning
 from tqec.utils.paths import DEFAULT_DETECTOR_DATABASE_PATH
+from tqec.utils.position import BlockPosition3D
 from tqec.visualisation.computation.tree import LayerVisualiser
 
 
@@ -61,6 +64,7 @@ class LayerTree:
         observable_builder: ObservableBuilder,
         abstract_observables: list[AbstractObservable] | None = None,
         annotations: Mapping[int, LayerTreeAnnotations] | None = None,
+        injected_blocks: Mapping[BlockPosition3D, InjectedBlock] | None = None,
     ):
         """Represent a computation as a tree.
 
@@ -72,19 +76,23 @@ class LayerTree:
 
         Args:
             root: root node of the tree.
+            observable_builder: the style of the surface code patch.
             abstract_observables: a list of abstract observables to be compiled into
                 observables. If set to ``None``, no observables will be compiled
                 into the circuit.
             annotations: a mapping from positive integers representing the value
                 of ``k``, the scaling factor, to annotations computed for that
                 value of ``k``.
-            observable_builder: the style of the surface code patch.
+            injected_blocks: a mapping from 3D block positions to injected block
+                instances. These blocks will be injected into the compiled circuit
+                of the layer tree at the appropriate locations.
 
         """
         self._root = LayerNode(root)
         self._abstract_observables = abstract_observables or []
         self._annotations = dict(annotations) if annotations is not None else {}
         self._observable_builder = observable_builder
+        self._injected_blocks = dict(injected_blocks) if injected_blocks is not None else {}
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of ``self``."""
@@ -364,13 +372,89 @@ class LayerTree:
             reschedule_measurements=reschedule_measurements,
         )
         annotations = self._get_annotation(k)
-        assert annotations.qubit_map is not None
+        qubit_map = annotations.qubit_map
+        assert qubit_map is not None
 
         circuit = stim.Circuit()
         if include_qubit_coords:
-            circuit += annotations.qubit_map.to_circuit()
-        circuit += self._root.generate_circuit(k, annotations.qubit_map)
-        return circuit
+            circuit += qubit_map.to_circuit()
+        if not self._injected_blocks:
+            circuit += self._root.generate_circuit(k, qubit_map)
+            return circuit
+
+        return self._get_circuit_after_injection(k)
+
+    def _get_circuit_after_injection(self, k: int) -> stim.Circuit:
+        """Generate circuit by weaving injected blocks into layer tree circuits.
+
+        This method implements temporal injection: it walks through z-slices in
+        order, alternating between tree-generated circuits and injected blocks
+        while maintaining correct detector lookbacks and flow annotations.
+
+        Algorithm:
+        1. Generate circuits for all layer tree z-slices
+        2. Map observables to their Y-basis injection positions
+        3. Pre-group injected blocks by z-coordinate for efficiency
+        4. For each z in sorted order:
+           a. Append tree circuit (if any) for this z
+           b. Inject all blocks at this z-coordinate
+        5. Finalize with InjectionBuilder to produce complete circuit
+
+        Args:
+            k: The scaling factor
+
+        Returns:
+            Complete circuit with injected blocks woven in at appropriate z-slices
+
+        """
+        qubit_map = self._get_annotation(k).qubit_map
+        assert qubit_map is not None, "Qubit map must be annotated before injection"
+
+        # Generate tree circuits for each z-slice
+        circuits_by_z: dict[int, stim.Circuit] = {}
+        for node in self._root.children:
+            assert isinstance(node._layer, SequencedLayers)
+            layer_z = node._layer.z_coordinate
+            assert layer_z is not None, (
+                "z_coordinate must be set for temporal injection coordination."
+            )
+            circuits_by_z[layer_z] = node.generate_circuit(k, qubit_map)
+
+        # included observable indices at each injection position
+        injection_obs_indices: dict[BlockPosition3D, list[int]] = {}
+        for obs_idx, obs in enumerate(self._abstract_observables):
+            for cube in obs.y_half_cubes:
+                pos = BlockPosition3D(*cube.position.as_tuple())
+                injection_obs_indices.setdefault(pos, []).append(obs_idx)
+
+        # Convert coordinate systems for InjectionBuilder
+        q2i = {complex(q.x, q.y): i for q, i in qubit_map.q2i.items()}
+        o2i = {i: i for i in range(len(self._abstract_observables))}
+        builder = InjectionBuilder(k, q2i, o2i)
+
+        # Pre-group injected blocks by z-coordinate for efficient lookup
+        injections_by_z: dict[int, dict[BlockPosition3D, InjectedBlock]] = {}
+        for pos, block in self._injected_blocks.items():
+            injections_by_z.setdefault(pos.z, {})[pos] = block
+
+        # Walk through all z-slices in order
+        all_zs = sorted(set(circuits_by_z.keys()) | set(injections_by_z.keys()))
+        for z in all_zs:
+            # Get tree circuit (empty if injection-only slice)
+            circuit_at_z = circuits_by_z.get(z, stim.Circuit())
+            injection_blocks = injections_by_z.get(z, {})
+
+            if not injection_blocks and not circuit_at_z:
+                raise TQECError(
+                    f"Empty z-slice at z={z}. Each slice must have either "
+                    "a tree circuit or injected blocks."
+                )
+
+            builder.append_tree_circuit(circuit_at_z)
+            for pos, block in injection_blocks.items():
+                builder.inject(pos.as_2d(), block, injection_obs_indices.get(pos, []))
+
+        return builder.finish()
 
     def _get_annotation(self, k: int) -> LayerTreeAnnotations:
         return self._annotations.setdefault(k, LayerTreeAnnotations())

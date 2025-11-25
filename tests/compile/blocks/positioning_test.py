@@ -1,6 +1,11 @@
 import pytest
 
-from tqec.compile.blocks.positioning import LayoutPosition2D
+from tqec.compile.blocks.positioning import (
+    LayoutCubePosition2D,
+    LayoutPipePosition2D,
+    LayoutPosition2D,
+)
+from tqec.utils.exceptions import TQECError
 from tqec.utils.position import BlockPosition2D
 
 
@@ -15,6 +20,12 @@ def test_creation_raises() -> None:
         LayoutPosition2D.from_pipe_position((BlockPosition2D(0, 0), BlockPosition2D(2, 0)))
     with pytest.raises(AssertionError):
         LayoutPosition2D.from_pipe_position((BlockPosition2D(0, 0), BlockPosition2D(0, 0)))
+    with pytest.raises(TQECError):
+        LayoutCubePosition2D(1, 0)
+    with pytest.raises(TQECError):
+        LayoutPipePosition2D(0, 0)
+    with pytest.raises(TQECError):
+        LayoutPipePosition2D(1, 1)
 
 
 @pytest.mark.parametrize("x,y", ((0, 0), (1, 0), (-1, 98), (-98, 6)))

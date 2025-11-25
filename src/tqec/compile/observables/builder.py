@@ -170,24 +170,21 @@ class ObservableBuilder:
                     )
                 )
         # The readouts that will be added to the end of the last layer of circuits at z.
+        # XOR the qubits into the set to cancel out duplicates.
         elif component == ObservableComponent.TOP_READOUTS:
             for cube in observable.top_readout_cubes:
-                obs_qubits.update(
-                    self.transform_coords_into_grid(
-                        k,
-                        template,
-                        self.cube_top_readouts_builder(shape, cube),
-                        cube.cube.position,
-                    )
+                obs_qubits ^= self.transform_coords_into_grid(
+                    k,
+                    template,
+                    self.cube_top_readouts_builder(shape, cube),
+                    cube.cube.position,
                 )
             for pipe in observable.top_readout_pipes:
-                obs_qubits.update(
-                    self.transform_coords_into_grid(
-                        k,
-                        template,
-                        self.pipe_top_readouts_builder(shape, pipe),
-                        pipe.pipe.u.position,
-                    )
+                obs_qubits ^= self.transform_coords_into_grid(
+                    k,
+                    template,
+                    self.pipe_top_readouts_builder(shape, pipe),
+                    pipe.pipe.u.position,
                 )
         else:  # component == ObservableComponent.REALIGNMENT
             for hadamard_pipe in observable.temporal_hadamard_pipes:

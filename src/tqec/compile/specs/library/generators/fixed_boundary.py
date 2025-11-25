@@ -20,7 +20,7 @@ from tqec.compile.specs.library.generators.utils import PlaquetteMapper
 from tqec.plaquette.compilation.base import PlaquetteCompiler
 from tqec.plaquette.enums import PlaquetteOrientation
 from tqec.plaquette.plaquette import Plaquette, Plaquettes
-from tqec.plaquette.rpng.rpng import ExtendedBasis, RPNGDescription
+from tqec.plaquette.rpng.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
 from tqec.templates.base import RectangularTemplate
 from tqec.templates.qubit import (
@@ -29,7 +29,7 @@ from tqec.templates.qubit import (
     QubitTemplate,
     QubitVerticalBorders,
 )
-from tqec.utils.enums import Basis, Orientation
+from tqec.utils.enums import Basis, ExtendedBasis, Orientation
 from tqec.utils.exceptions import TQECError
 from tqec.utils.frozendefaultdict import FrozenDefaultDict
 from tqec.utils.position import Direction3D
