@@ -251,19 +251,20 @@ class FixedBulkPipeBuilder(PipeBuilder):
         self, spec: PipeSpec, block_temporal_height: LinearFunction
     ) -> Block:
         x, y, z = spec.pipe_kind.x, spec.pipe_kind.y, spec.pipe_kind.z
+        is_hadamard = spec.pipe_kind.has_hadamard
         assert x is not None or y is not None
         spatial_boundary_basis: Basis = x if x is not None else y  # type: ignore
         # Get the plaquette indices mappings
         arms = FixedBulkPipeBuilder._get_spatial_cube_arms(spec)
         pipe_template = self._generator.get_spatial_cube_arm_raw_template(arms)
         initialisation_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            spatial_boundary_basis, arms, spec.cube_specs, z, None
+            spatial_boundary_basis, arms, spec.cube_specs, z, None, is_hadamard
         )
         temporal_bulk_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            spatial_boundary_basis, arms, spec.cube_specs, None, None
+            spatial_boundary_basis, arms, spec.cube_specs, None, None, is_hadamard
         )
         measurement_plaquettes = self._generator.get_spatial_cube_arm_plaquettes(
-            spatial_boundary_basis, arms, spec.cube_specs, None, z
+            spatial_boundary_basis, arms, spec.cube_specs, None, z, is_hadamard
         )
         return Block(
             [
