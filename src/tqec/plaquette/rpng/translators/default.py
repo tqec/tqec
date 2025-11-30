@@ -9,8 +9,9 @@ from tqec.plaquette.constants import MEASUREMENT_SCHEDULE
 from tqec.plaquette.debug import PlaquetteDebugInformation
 from tqec.plaquette.plaquette import Plaquette
 from tqec.plaquette.qubit import PlaquetteQubits, SquarePlaquetteQubits
-from tqec.plaquette.rpng import ExtendedBasis, PauliBasis, RPNGDescription
+from tqec.plaquette.rpng import RPNGDescription
 from tqec.plaquette.rpng.translators.base import RPNGTranslator
+from tqec.utils.enums import ExtendedBasis, PauliBasis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.instructions import (
     MEASUREMENT_INSTRUCTION_NAMES,

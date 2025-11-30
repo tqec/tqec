@@ -201,8 +201,8 @@ def _leaf_nodes_can_support_span(g: GraphS, span: frozenset[ZXEdge]) -> bool:
     for leaf, bases in bases_at_leaves.items():
         # If there is correlation surface touching a Y leaf node, then the
         # correlation surface must support both X and Z type logical observable.
-        if is_s(g, leaf):
-            return bases == {Basis.X, Basis.Z}
+        if is_s(g, leaf) and bases != {Basis.X, Basis.Z}:
+            return False
         # Z(X) type leaf node can only support the X(Z) type logical observable.
         if is_z_no_phase(g, leaf) and bases != {Basis.X}:
             return False

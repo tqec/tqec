@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
-from typing import Final, cast
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterable, Mapping
+from dataclasses import dataclass, field
+from typing import Final, Protocol, cast
 
+import gen
+import stim
 from typing_extensions import override
 
-from tqec.compile.blocks.enums import SpatialBlockBorder, TemporalBlockBorder
+from tqec.compile.blocks.enums import Alignment, SpatialBlockBorder, TemporalBlockBorder
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
 from tqec.compile.blocks.layers.atomic.layout import LayoutLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
@@ -21,8 +25,59 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction, PhysicalQubitScalable2D
 
 
-class Block(SequencedLayers):
-    """Encodes the implementation of a block.
+class Block(ABC):
+    """Base class for all block instantiations in the compilation framework.
+
+    A block represents a unit of quantum computation with a defined spatial
+    and temporal footprint that scales with the scaling factor ``k``.
+
+    This abstract base class defines the interface that all block types must
+    implement. Concrete implementations include:
+
+    - :class:`LayeredBlock`: Blocks represented as sequences of layers, suitable
+      for standard memory blocks, pipes, and other layer-synchronous operations.
+    - :class:`InjectedBlock`: Blocks represented as raw circuits with flow interfaces,
+      used for operations like Y-basis measurements that cannot be decomposed into
+      simple layer sequences.
+
+    The abstraction allows the compilation framework to handle blocks uniformly
+    while supporting both template-based layer composition and direct circuit
+    injection with flow-based detector annotation.
+
+    See Also:
+        - :class:`LayeredBlock` for layer-based block implementation
+        - :class:`InjectedBlock` for injection-based block implementation
+        - :mod:`tqec.compile.blocks` module documentation for usage guidance
+
+    """
+
+    @property
+    @abstractmethod
+    def scalable_timesteps(self) -> LinearFunction:
+        """Get the scalable timesteps (temporal extent) of the block."""
+        pass
+
+    @property
+    @abstractmethod
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
+        """Get the scalable shape (spatial extent) of the block."""
+        pass
+
+    @property
+    @abstractmethod
+    def is_cube(self) -> bool:
+        """Return ``True`` if ``self`` represents a cube, else ``False``."""
+        pass
+
+    @property
+    @abstractmethod
+    def is_pipe(self) -> bool:
+        """Return ``True`` if ``self`` represents a pipe, else ``False``."""
+        pass
+
+
+class LayeredBlock(SequencedLayers, Block):
+    """Encodes the implementation of a block with a sequence of layers.
 
     This data structure is voluntarily very generic. It represents blocks as a
     sequence of layers that can be instances of either
@@ -36,8 +91,8 @@ class Block(SequencedLayers):
     """
 
     @override
-    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> Block:
-        return Block(
+    def with_spatial_borders_trimmed(self, borders: Iterable[SpatialBlockBorder]) -> LayeredBlock:
+        return LayeredBlock(
             self._layers_with_spatial_borders_trimmed(borders),
             self.trimmed_spatial_borders | frozenset(borders),
         )
@@ -46,11 +101,11 @@ class Block(SequencedLayers):
     def with_temporal_borders_replaced(
         self,
         border_replacements: Mapping[TemporalBlockBorder, BaseLayer | None],
-    ) -> Block | None:
+    ) -> LayeredBlock | None:
         if not border_replacements:
             return self
         layers = self._layers_with_temporal_borders_replaced(border_replacements)
-        return Block(layers) if layers else None
+        return LayeredBlock(layers) if layers else None
 
     def get_atomic_temporal_border(self, border: TemporalBlockBorder) -> BaseLayer:
         """Get the layer at the provided temporal ``border``.
@@ -118,14 +173,14 @@ class Block(SequencedLayers):
         return self.is_pipe and self.dimensions[2].is_constant()
 
     def __eq__(self, value: object) -> bool:
-        return isinstance(value, Block) and super().__eq__(value)
+        return isinstance(value, LayeredBlock) and super().__eq__(value)
 
     def __hash__(self) -> int:
         raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
 
 def merge_parallel_block_layers(
-    blocks_in_parallel: Mapping[LayoutPosition2D, Block],
+    blocks_in_parallel: Mapping[LayoutPosition2D, LayeredBlock],
     scalable_qubit_shape: PhysicalQubitScalable2D,
 ) -> list[LayoutLayer | BaseComposedLayer]:
     """Merge several stacks of layers executed in parallel into one stack of larger layers.
@@ -185,5 +240,164 @@ def merge_parallel_block_layers(
                 f"layer. This should be already checked before. This is a "
                 "logical error in the code, please open an issue. Found layers:"
                 f"\n{list(layers.values())}"
-            )
+            )  # pragma: no cover
     return merged_layers
+
+
+@dataclass(frozen=True)
+class CircuitWithInterface:
+    """A quantum circuit with its expected flow interface.
+
+    This dataclass pairs a Stim circuit with a flow interface from Gidney's gen
+    library, enabling :class:`InjectedBlock` instances to specify both the quantum
+    gates and their stabilizer flow.
+
+    The interface describes which stabilizers (Pauli products) enter and exit the
+    circuit, allowing the linker to properly connect injected blocks
+    with tree-generated circuits while maintaining correct detector annotations.
+
+    Attributes:
+        circuit: The quantum circuit implementing the block's operations.
+        interface: The flow interface specifying input/output stabilizers as
+            :class:`gen.ChunkInterface` with ports (stabilizer Pauli products)
+            and discards (rejected flows).
+
+    See Also:
+        - :class:`InjectedBlock` for usage in block representation
+        - :class:`InjectionFactory` protocol for circuit generation
+        - :mod:`tqec.compile.tree.injection` for injection mechanics
+
+    """
+
+    circuit: stim.Circuit
+    interface: gen.ChunkInterface = field(default_factory=lambda: gen.ChunkInterface(()))
+
+    def with_transformed_coords(
+        self, transform: Callable[[complex], complex]
+    ) -> CircuitWithInterface:
+        """Return a copy of ``self`` with transformed coordinates.
+
+        Args:
+            transform: the coordinate transformation to apply to the detector and observable flows.
+
+        Returns:
+            a copy of ``self`` with transformed coordinates.
+
+        """
+        return CircuitWithInterface(
+            gen.stim_circuit_with_transformed_coords(self.circuit, transform),
+            self.interface.with_transformed_coords(transform),
+        )
+
+
+class InjectionFactory(Protocol):
+    """Protocol for callables that generate scalable injected circuits.
+
+    An InjectionFactory is a callable that produces a :class:`CircuitWithInterface`
+    from a scaling factor and optional observable annotations.
+
+    The factory pattern allows the same block specification to be used at different
+    scaling factors without regenerating the factory itself.
+
+    See Also:
+        - :class:`InjectedBlock` for usage of factories
+        - :class:`CircuitWithInterface` for return type details
+
+    """
+
+    def __call__(
+        self,
+        k: int,
+        annotate_observables: list[int] | None,
+    ) -> CircuitWithInterface:
+        """Generate the quantum circuit with expected flow interface from the scaling factor.
+
+        Args:
+            k: The scaling factor for the circuit. Determines the physical size of
+                the generated circuit (e.g., distance-k surface code).
+            annotate_observables: If provided, the list of observable indices to
+                annotate in the generated circuit with OBSERVABLE_INCLUDE instructions.
+                Note that injection blocks typically support only a single unique
+                observable flow, so multiple indices will annotate the
+                same observable flow with different observable IDs.
+
+        Returns:
+            A :class:`CircuitWithInterface` containing the generated circuit and its
+            stabilizer flow interface.
+
+        """
+        ...
+
+
+class InjectedBlock(Block):
+    """Represent temporally injected blocks like ``YHalfCube`` that don't fit the layer model.
+
+    See Also:
+        - :class:`LayeredBlock` for layer-based block representation
+        - :class:`CircuitWithInterface` for circuit/interface pairing
+        - :class:`InjectionFactory` for circuit generation
+        - :class:`~tqec.compile.tree.injection.InjectionBuilder` for injection mechanics
+        - :class:`~tqec.compile.blocks.enums.Alignment` for temporal alignment options
+
+    """
+
+    def __init__(
+        self,
+        injection_factory: InjectionFactory,
+        scalable_timesteps: LinearFunction,
+        scalable_shape: PhysicalQubitScalable2D,
+        alignment: Alignment,
+    ) -> None:
+        """Initialize an instance of ``InjectedBlock``.
+
+        Args:
+            injection_factory: a callable that generates a quantum circuit
+                with expected flow interface from the scaling factor.
+            scalable_timesteps: the duration of the injected block as a
+                function of the scaling factor ``k``.
+            scalable_shape: the scalable shape of the injected block.
+            alignment: the alignment of the injected block with the computation
+                it is injected into. If ``Alignment.HEAD``, the first timestep
+                of the injected block follows the last timestep of the block
+                preceding it. If ``Alignment.TAIL``, the last timestep of the
+                injected block precedes the first timestep of the block
+                following it.
+
+        Returns:
+            An instance of ``InjectedBlock``.
+
+        """
+        self._injection_factory = injection_factory
+        self._scalable_timesteps = scalable_timesteps
+        self._scalable_shape = scalable_shape
+        self._alignment = alignment
+
+    @property
+    @override
+    def scalable_timesteps(self) -> LinearFunction:
+        return self._scalable_timesteps  # pragma: no cover
+
+    @property
+    @override
+    def scalable_shape(self) -> PhysicalQubitScalable2D:
+        return self._scalable_shape
+
+    @property
+    def injection_factory(self) -> InjectionFactory:
+        """Get the callable used to generate a scalable quantum circuit from the scaling factor."""
+        return self._injection_factory
+
+    @property
+    def alignment(self) -> Alignment:
+        """Get the alignment of the injected block."""
+        return self._alignment
+
+    @property
+    @override
+    def is_cube(self) -> bool:
+        return True
+
+    @property
+    @override
+    def is_pipe(self) -> bool:
+        return False

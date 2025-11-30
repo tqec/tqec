@@ -2,34 +2,10 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from enum import Enum
 from typing import Any
 
 from tqec.circuit.schedule.schedule import Schedule
-from tqec.utils.enums import Basis
-
-
-class PauliBasis(Enum):
-    X = "x"
-    Y = "y"
-    Z = "z"
-
-    def __str__(self) -> str:
-        return self.value  # pragma: no cover
-
-    def to_extended_basis(self) -> ExtendedBasis:
-        """Return ``self`` as an extended basis."""
-        return ExtendedBasis(self.value)
-
-
-class ExtendedBasis(Enum):
-    X = PauliBasis.X.value
-    Y = PauliBasis.Y.value
-    Z = PauliBasis.Z.value
-    H = "h"
-
-    def __str__(self) -> str:
-        return self.value  # pragma: no cover
+from tqec.utils.enums import Basis, ExtendedBasis, PauliBasis
 
 
 @dataclass(frozen=True)
@@ -79,7 +55,7 @@ class RPNG:
         """
         if len(rpng_string) != 4:
             raise ValueError("The rpng string must be exactly 4-character long.")
-        r_str, p_str, n_str, g_str = tuple(rpng_string)
+        r_str, p_str, n_str, g_str = tuple(rpng_string.upper())
         # Convert the characters into the enum attributes (or raise error).
         r = ExtendedBasis(r_str) if r_str in ExtendedBasis._value2member_map_ else None
         p = PauliBasis(p_str) if p_str in PauliBasis._value2member_map_ else None
@@ -102,9 +78,9 @@ class RPNG:
         if op is None:
             return None
         elif op.value in PauliBasis._value2member_map_:
-            return f"R{op.value.upper()}"
+            return f"R{op.value}"
         else:
-            return f"{op.value.upper()}"
+            return f"{op.value}"
 
     def get_g_op(self) -> str | None:
         """Get the measurement operation or Hadamard."""
@@ -112,9 +88,9 @@ class RPNG:
         if op is None:
             return None
         elif op.value in PauliBasis._value2member_map_:
-            return f"M{op.value.upper()}"
+            return f"M{op.value}"
         else:
-            return f"{op.value.upper()}"
+            return f"{op.value}"
 
     @property
     def is_null(self) -> bool:
