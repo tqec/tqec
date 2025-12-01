@@ -120,7 +120,9 @@ def generate_circuit_from_instantiation(
 
     # Plaquettes indices are starting at 1 in template_plaquettes. To avoid
     # offsets in the following code, we add an empty circuit at position 0.
-    plaquette_circuits = {0: ScheduledCircuit.empty()} | {i: plaquettes[i].circuit for i in indices}
+    plaquette_circuits = {0: ScheduledCircuit.empty()} | {
+        i: plaquettes[i].circuit for i in indices.tolist()
+    }
 
     # Generate the ScheduledCircuit instances for each plaquette instantiation
     all_scheduled_circuits: list[ScheduledCircuit] = []
