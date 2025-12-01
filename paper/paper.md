@@ -100,6 +100,8 @@ between PyZX and `tqec`: @topologiq. The functionality of the `tqec` package is 
 academic papers (@polian:2015, @fowler:2012, @mcewen:2023, @gidney:2025, @kissinger:2020), and makes
 substantial use of Craig Gidney's `Stim` package @gidney:2012.
 
+test change
+
 # Acknowledgements
 
 We thank the Unitary Foundation for a micro-grant in the early stages of the project development.
