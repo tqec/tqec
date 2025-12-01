@@ -17,7 +17,6 @@ Note that these methods do not work with ``REPEAT`` instructions.
 """
 
 from __future__ import annotations
-from typing import cast
 
 import numpy
 import numpy.typing as npt

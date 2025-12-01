@@ -6,7 +6,7 @@ import json
 import pathlib
 from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import BinaryIO, List, cast
+from typing import BinaryIO, cast
 
 import collada
 import collada.source

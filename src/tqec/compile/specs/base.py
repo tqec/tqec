@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Protocol, cast
+from typing import Literal, Protocol
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.specs.enums import SpatialArms
