@@ -5,18 +5,26 @@ from tqec.compile.tree.node import LayerNode, NodeWalker
 
 
 class AnnotateCircuitOnLayerNode(NodeWalker):
-    def __init__(self, k: int):
+    def __init__(self, k: int, reschedule_measurements: bool = True):
         """Walker annotating ``stim.Circuit`` instances implementing the node on each leaf node.
 
         Args:
             k: scaling factor.
+            reschedule_measurements: whether to reschedule measurements in the generated circuits
+                to be in the same moment. Since each plaquette may have its own measurement
+                schedule, setting this may be necessary for hardware that requires
+                measurements to be synchronous.
 
         """
         self._k = k
+        self._reschedule_measurements = reschedule_measurements
 
     @override
     def visit_node(self, node: LayerNode) -> None:
         if not node.is_leaf:
             return
         assert isinstance(node._layer, LayoutLayer)
-        node.set_circuit_annotation(self._k, node._layer.to_circuit(self._k))
+        node.set_circuit_annotation(
+            self._k,
+            node._layer.to_circuit(self._k, reschedule_measurements=self._reschedule_measurements),
+        )

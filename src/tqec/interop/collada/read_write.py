@@ -108,7 +108,7 @@ def read_block_graph_from_dae_file(
 
             # Extract transformation and translation matrix
             transformation = _Transformation.from_4d_affine_matrix(node.matrix)
-            translation = FloatPosition3D(*transformation.translation)
+            translation = FloatPosition3D(*transformation.translation.tolist())
             axes_directions = get_axes_directions(transformation.rotation)
             kind = block_kind_from_str(name)
 

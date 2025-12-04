@@ -286,8 +286,10 @@ class Unique3DSubTemplates:
         # all the other indices have their corresponding entry.
         zero = tuple(0 for _ in range(t))
         indices: frozenset[tuple[int, ...]] = frozenset(
-            tuple(arr) for arr in numpy.unique(self.subtemplate_indices.reshape(n * m, t), axis=0)
-        ) - {zero}
+            typing.cast(tuple[int, ...], tuple(arr))
+            for arr in numpy.unique(self.subtemplate_indices.reshape(n * m, t), axis=0)
+            if tuple(arr) != zero
+        )
         if not indices.issubset(self.subtemplates.keys()):
             raise TQECError(
                 "Found an index in subtemplate_indices that does not correspond "
@@ -378,7 +380,7 @@ def get_spatially_distinct_3d_subtemplates(
     # timeslice (again, except the last one) directly because the other
     # timeslices might need the potentially non-0 plaquettes around the center.
     # That issue arose when extending a qubit to perform a spatial junction with
-    # stretched stabilizers (i.e., in fixed-parity convention).
+    # stretched stabilizers (i.e., in fixed-boundary convention).
     unique_2d_subtemplates: list[UniqueSubTemplates] = [
         get_spatially_distinct_subtemplates(
             inst, manhattan_radius=manhattan_radius, avoid_zero_plaquettes=False
@@ -410,5 +412,5 @@ def get_spatially_distinct_3d_subtemplates(
         # Stack the 2-dimensional subtemplates into a 3-dimensional one.
         subtemplate = numpy.stack(subtemplates_2d_to_stack, axis=2)
         # Add the 3-dimensional subtemplate to the mapping.
-        subtemplates[tuple(indices)] = subtemplate
+        subtemplates[tuple(indices.tolist())] = subtemplate
     return Unique3DSubTemplates(subtemplates_indices, subtemplates)
