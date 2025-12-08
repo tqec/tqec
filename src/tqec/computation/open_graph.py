@@ -129,7 +129,7 @@ def fill_ports_for_minimal_simulation(
         if not _is_compatible_paulis(generators[i], generators[j]):
             g.add_edge(i, j)
     # Solve with heuristic greedy coloring
-    coloring = nx.algorithms.coloring.greedy_color(g)
+    coloring = nx.algorithms.coloring.greedy_color(g)  # type: ignore[invalid-argument-type]
     cliques: dict[int, list[str]] = {}
     for node, color in coloring.items():
         cliques.setdefault(color, []).append(generators[node])

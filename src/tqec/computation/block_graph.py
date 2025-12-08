@@ -678,7 +678,7 @@ class BlockGraph:
 
         A block graph is single-connected if there is only one connected component in the graph.
         """
-        return bool(is_connected(self._graph))
+        return bool(is_connected(self._graph))  # type: ignore[invalid-argument-type]
 
     def rotate(
         self,
