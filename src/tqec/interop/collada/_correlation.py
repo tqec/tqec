@@ -256,7 +256,7 @@ def _rotation_matrix(
     axis_vec = np.zeros(3, dtype=np.float32)
     axis_vec[axis.value] = 1.0
     return np.asarray(
-        collada.scene.RotateTransform(*axis_vec, angle=angle).matrix[:3, :3],
+        collada.scene.RotateTransform(axis_vec[0], axis_vec[1], axis_vec[2], angle).matrix[:3, :3],
         dtype=np.float32,
     )
 

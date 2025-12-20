@@ -1,0 +1,33 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended", ":gitSignOff"],
+  prHourlyLimit: 10,
+  lockFileMaintenance: {
+    enabled: true,
+    automerge: true
+  },
+  configMigration: true,
+  labels: ["dependency update"],
+  schedule: ["every weekend"],
+  "pre-commit": {
+    enabled: true
+  },
+  packageRules: [
+    {
+      groupName: "ruff",
+      matchPackageNames: ["ruff", "astral-sh/ruff-pre-commit"],
+      matchManagers: ["pre-commit", "pep621"]
+    },
+    {
+      // Wait the patch in https://github.com/quantumlib/Stim/pull/965 to be released
+      matchPackageNames: ["numpy"],
+      allowedVersions: "<2.3"
+    },
+    {
+      // Upper bound: Some packages do not build on Python 3.14 yet
+      // e.g., docformatter, see https://github.com/PyCQA/docformatter/issues/327
+      matchPackageNames: ["python"],
+      allowedVersions: ">=3.10 <3.14"
+    }
+  ]
+}

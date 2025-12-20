@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from dataclasses import dataclass
-from functools import reduce
 from typing import TYPE_CHECKING
 
 from tqec.computation.block_graph import BlockGraph
@@ -173,10 +172,14 @@ class CorrelationSurface:
         # Avoid pulling pyzx when importing that module.
         from pyzx.pauliweb import multiply_paulis  # noqa: PLC0415
 
-        paulis = [
-            reduce(multiply_paulis, {b.value for b in self.bases_at(port)}, "I")
-            for port in io_ports
-        ]
+        paulis = []
+        for port in io_ports:
+            basis_set = {b.value for b in self.bases_at(port)}
+            result = "I"
+            for basis in basis_set:
+                result = multiply_paulis(result, basis)
+            paulis.append(result)
+
         return "".join(paulis)
 
     def external_stabilizer_on_graph(self, graph: BlockGraph) -> str:

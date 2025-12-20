@@ -196,15 +196,15 @@ def binary_search_threshold(
                 "that you need more shots in order to have at least a few errors "
                 "on all the simulations."
             )
-        if all(lerr > 0.4 for lerr in logical_errors):
+        if all(lerr is not None and lerr > 0.4 for lerr in logical_errors):
             # The physical error rate is too high and the logical error rate
             # saturates around 0.5, so lower maxp
             maxp = midp
-        elif _is_sorted(logical_errors):
+        elif _is_sorted([lerr for lerr in logical_errors if lerr is not None]):
             # The smaller k is, the smaller the logical error rate is. That means
             # that midp is above the threshold.
             maxp = midp
-        elif _is_sorted(logical_errors[::-1]):
+        elif _is_sorted([lerr for lerr in logical_errors if lerr is not None][::-1]):
             # The smaller k is, the larger the logical error rate is. That means
             # that midp is below the threshold.
             minp = midp

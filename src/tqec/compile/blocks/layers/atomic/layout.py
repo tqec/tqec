@@ -123,6 +123,23 @@ class LayoutLayer(BaseLayer):
     def __hash__(self) -> int:
         raise NotImplementedError(f"Cannot hash efficiently a {type(self).__name__}.")
 
+    def reschedule_measurements(self) -> None:
+        """Re-schedule measurements to be in the same moment."""
+        # Collect all plaquettes from all layers
+        plaquettes = [
+            plaquette
+            for layer in self.layers.values()
+            if isinstance(layer, PlaquetteLayer)
+            for plaquette in layer.plaquettes.collection.values()
+        ]
+        if not plaquettes:
+            return
+        # Find the maximum schedule value
+        max_schedule = max(plaquette.circuit.schedule.max_schedule for plaquette in plaquettes)
+        # Reschedule all plaquettes
+        for plaquette in plaquettes:
+            plaquette.reschedule_measurements(max_schedule)
+
     def to_template_and_plaquettes(self) -> tuple[LayoutTemplate, Plaquettes]:
         """Return an equivalent representation of ``self`` with a template and some plaquettes.
 
@@ -144,7 +161,7 @@ class LayoutLayer(BaseLayer):
         cubes: dict[BlockPosition2D, PlaquetteLayer] = {
             pos.to_block_position(): layer
             for pos, layer in self.layers.items()
-            if isinstance(pos, LayoutCubePosition2D)
+            if isinstance(pos, LayoutCubePosition2D) and isinstance(layer, PlaquetteLayer)
         }
         template_dict: Final = {pos: layer.template for pos, layer in cubes.items()}
         plaquettes_dict = {pos: layer.plaquettes for pos, layer in cubes.items()}
@@ -153,7 +170,7 @@ class LayoutLayer(BaseLayer):
         pipes: dict[tuple[BlockPosition2D, BlockPosition2D], PlaquetteLayer] = {
             pos.to_pipe(): layer
             for pos, layer in self.layers.items()
-            if isinstance(pos, LayoutPipePosition2D)
+            if isinstance(pos, LayoutPipePosition2D) and isinstance(layer, PlaquetteLayer)
         }
         for (u, v), pipe_layer in pipes.items():
             pipe_direction = Direction3D.from_neighbouring_positions(u.to_3d(), v.to_3d())
@@ -191,16 +208,22 @@ class LayoutLayer(BaseLayer):
         template = LayoutTemplate(template_dict)
         return template, template.get_global_plaquettes(plaquettes_dict)
 
-    def to_circuit(self, k: int) -> ScheduledCircuit:
+    def to_circuit(self, k: int, reschedule_measurements: bool = True) -> ScheduledCircuit:
         """Return the quantum circuit representing the layer.
 
         Args:
             k: scaling factor.
+            reschedule_measurements: whether to reschedule measurements in the generated circuit
+                to be in the same moment.
+                Since each plaquette may have its own measurement schedule, setting this
+                may be necessary for hardware that requires measurements to be synchronous.
 
         Returns:
             quantum circuit representing the layer.
 
         """
+        if reschedule_measurements:
+            self.reschedule_measurements()
         template, plaquettes = self.to_template_and_plaquettes()
         scheduled_circuit = generate_circuit(template, k, plaquettes)
         # Shift the qubits of the returned scheduled circuit

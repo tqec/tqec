@@ -21,6 +21,10 @@ recommended to use an editable installation.
 Currently, ``tqec`` is compatible with Python 3.10, 3.11, 3.12 and 3.13. You can install the editable version
 of ``tqec`` through ``pip`` or ``uv``.
 
+.. hint::
+    Creating an environment before running ``pip install`` is optional but recommended to avoid everything installing globally.
+    Click `here <https://docs.python.org/3/library/venv.html>`_ for a common approach.
+
 .. tab-set::
 
     .. tab-item:: pip
@@ -28,17 +32,20 @@ of ``tqec`` through ``pip`` or ``uv``.
         .. code-block:: bash
 
             # Clone the repository to have local files to work on
-              git clone https://github.com/tqec/tqec.git
-              # Update pip to at least v25.1
-              python -m pip install --upgrade pip>=25.1
-              # Go in the tqec directory
-              cd tqec
-              # Install developer dependencies
-              python -m pip install --group all
-              # Install tqec in editable mode (the "-e" option)
-              python -m pip install -e .
-              # enable pre-commit
-              pre-commit install
+            git clone https://github.com/tqec/tqec.git
+
+            # Go in the tqec directory
+            cd tqec
+
+            # Update pip to at least v25.1
+            python -m pip install --upgrade "pip>=25.1"
+
+            # Install developer dependencies
+            python -m pip install --group all
+            # Install tqec in editable mode (the "-e" option)
+            python -m pip install -e .
+            # enable pre-commit
+            pre-commit install
 
         .. attention::
             The ``-e`` option to the ``python -m pip install`` call is **important** as it installs an editable version

@@ -72,7 +72,7 @@ instance/
 docs/_build/
 
 # Documentation Examples Gallery Database and Stats
-docs/_examples_database/
+*/_examples_database
 
 # PyBuilder
 .pybuilder/
@@ -188,9 +188,6 @@ docs/_autosummary
 .python-version
 requirements.lock
 requirements-dev.lock
-
-# uv
-uv.lock
 
 # Ruff
 .ruff_cache

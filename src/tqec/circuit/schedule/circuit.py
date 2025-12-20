@@ -66,10 +66,12 @@ class ScheduledCircuit:
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
 
         """
+        # Handle each input type explicitly due to type checker
         if isinstance(schedule, int):
-            schedule = list(range(schedule, schedule + len(moments)))
-        if isinstance(schedule, list):
-            schedule = Schedule(schedule)
+            schedule_temp = list(range(schedule, schedule + len(moments)))
+            schedule = Schedule(schedule=schedule_temp)
+        elif isinstance(schedule, list) and not isinstance(schedule, Schedule):
+            schedule = Schedule(schedule=schedule)
 
         if len(moments) != len(schedule):
             raise ScheduleError(
@@ -122,10 +124,12 @@ class ScheduledCircuit:
                 ``QUBIT_COORDS`` instruction after the first ``TICK`` instruction.
 
         """
+        # Handle each input type explicitly due to type checker
         if isinstance(schedule, int):
-            schedule = list(range(schedule, schedule + circuit.num_ticks + 1))
-        if isinstance(schedule, list):
-            schedule = Schedule(schedule)
+            schedule_temp = list(range(schedule, schedule + circuit.num_ticks + 1))
+            schedule = Schedule(schedule=schedule_temp)
+        elif isinstance(schedule, list) and not isinstance(schedule, Schedule):
+            schedule = Schedule(schedule=schedule)
 
         # Ensure that the provided circuit does not contain any
         # `stim.CircuitRepeatBlock` instance.
@@ -391,6 +395,34 @@ class ScheduledCircuit:
         if self._schedule:
             schedule = self._schedule[-1] + 1
         self.add_to_schedule_index(schedule, moment)
+
+    def reschedule_moment(self, old_schedule: int, new_schedule: int) -> None:
+        """Reschedule the moment at ``old_schedule`` to ``new_schedule``.
+
+        Args:
+            old_schedule: the schedule at which the moment to reschedule is
+                currently scheduled.
+            new_schedule: the new schedule at which the moment should be
+                scheduled.
+
+        Notes:
+            If the old/new schedule is negative, it is considered as an
+                index from the end. For example, ``-1`` is the last schedule
+                and ``-2`` is the ``last schedule - 1`` (which might not be
+                the second to last schedule).
+
+        Raises:
+            TQECError: if no moment exist at the provided ``old_schedule``.
+
+        """
+        moment_index = self._get_moment_index_by_schedule(old_schedule)
+        if moment_index is None:
+            raise TQECError(
+                f"No Moment instance scheduled at the provided schedule {old_schedule}."
+            )
+        moment = self._moments.pop(moment_index)
+        self._schedule.schedule.pop(moment_index)
+        self.add_to_schedule_index(new_schedule, moment)
 
     def add_to_schedule_index(self, schedule: int, moment: Moment) -> None:
         """Add the operations contained in the provided ``moment`` to the provided schedule.

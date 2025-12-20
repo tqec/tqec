@@ -60,7 +60,9 @@ def correlation_surface_to_pauli_web(
 
     pauli_web = PauliWeb(g)
     for e, bases in half_edge_bases.items():
-        pauli = reduce(multiply_paulis, bases, "I")
+        pauli = "I"
+        for basis in bases:
+            pauli = multiply_paulis(pauli, basis)
         pauli_web.add_half_edge(e, pauli)
     return pauli_web
 

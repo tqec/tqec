@@ -4,7 +4,7 @@ import hashlib
 import warnings
 from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import stim
 
@@ -189,6 +189,31 @@ class Plaquette:
     def num_moments(self) -> int:
         """Return the number of moments in the circuit representing ``self``."""
         return self.circuit.schedule.max_schedule + 1
+
+    def reschedule_measurements(self, schedule: int) -> None:
+        """Re-schedule the measurements in the plaquette circuit to the provided ``schedule``.
+
+        Args:
+            schedule: new schedule at which measurements should be performed.
+
+        Raises:
+            TQECError: if the provided ``schedule`` is earlier than the current
+                maximum schedule of the circuit.
+
+        """
+        cur_max_schedule = self.circuit.schedule.max_schedule
+        if schedule < cur_max_schedule:
+            raise TQECError(
+                "Cannot reschedule measurements to an earlier time step than the "
+                "current maximum schedule."
+            )
+        # If there is no measurement or if the schedule is the same, do nothing
+        if (
+            self.circuit.moment_at_schedule(cur_max_schedule).num_measurements == 0
+            or schedule == cur_max_schedule
+        ):
+            return
+        self.circuit.reschedule_moment(cur_max_schedule, schedule)
 
     def is_empty(self) -> bool:
         """Check if the plaquette is empty.
@@ -378,12 +403,15 @@ class Plaquettes:
                 else plaquettes[item["plaquette"]]
             )
 
-        collection = FrozenDefaultDict(
-            {int(item["index"]): convert(item) for item in data["plaquettes"]},
-            default_value=(
-                (Plaquette.from_dict(data["default"]) if data["default"] else None)
-                if plaquettes is None
-                else (plaquettes[data["default"]] if data["default"] is not None else None)
+        collection = cast(
+            FrozenDefaultDict[int, Plaquette],
+            FrozenDefaultDict(
+                {int(item["index"]): convert(item) for item in data["plaquettes"]},
+                default_value=(
+                    (Plaquette.from_dict(data["default"]) if data["default"] else None)
+                    if plaquettes is None
+                    else (plaquettes[data["default"]] if data["default"] is not None else None)
+                ),
             ),
         )
         # If the default value is None, print a WARNING (this should not happen in practice)

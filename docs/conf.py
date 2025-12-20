@@ -5,11 +5,12 @@
 
 from __future__ import annotations
 
+import datetime
+
 # -- Updating sys.path to let autodoc find the tqec package ------------------
 import sys
 import typing as ty
 from pathlib import Path
-import datetime
 
 DOCUMENTATION_DIRECTORY = Path(__file__).parent
 PROJECT_DIRECTORY = DOCUMENTATION_DIRECTORY.parent
@@ -194,13 +195,18 @@ bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "unsrt"
 suppress_warnings = ["bibtex.duplicate_label", "bibtex.duplicate_citation"]
 
-from pygments.lexers import BashLexer
-from pygments import highlight
-from pygments.formatters import HtmlFormatter
-
-
-# Map 'uv' and 'pip' to use bash syntax highlighting in the readme
-# or any other markdown documents.
-def setup(app):
-    app.add_lexer("uv", BashLexer)
-    app.add_lexer("pip", BashLexer)
+# options for the linkcheck workflow
+# we expect these links to be externally valid all the time
+# the workflow leads to 403 if we check a link via an automated workflow
+linkcheck_ignore = [
+    r"https://arxiv\.org/.*",
+    r"https://doi\.org/.*",
+    r"https://link\.aps\.org/doi/.*",
+    r"http://dx\.doi\.org/.*",
+    # ignore crumble links as these appear as broken
+    # we are assuming the crumble links are working via crumble
+    r"https://algassert.com/crumble#*",
+    # link to a github badge in the reasme showing the star history
+    # linkcheck has issues with a link with an undefined date
+    r"https://www.star-history.com/#tqec/*",
+]

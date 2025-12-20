@@ -19,22 +19,17 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - name: Install dependencies
+      - name: Setup Python development environment
         run: |
-          uv venv
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends pandoc
-          uv sync --group all
-      - uses: actions/cache@v4
+          uv sync --group all --python "3.13"
+      - uses: actions/cache@v5
         id: cache-docs
         with:
           path: docs/_examples_database/
@@ -46,6 +41,10 @@ jobs:
       - name: Generate the documentation
         run: |
           uv run --group all make html
+        working-directory: docs/
+      - name: Check for broken links
+        run: |
+          uv run --group all make linkcheck
         working-directory: docs/
         # working-directory ensures the build relies on cached statistics and database in docs/_examples_database/
         # this is used to reduce the docs build time in the CI.

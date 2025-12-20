@@ -176,7 +176,10 @@ def plaquette_grid_svg_viewer(
         assert height is not None  # For type checkers
         width = len(grid[0]) * (height / len(grid))
     elif height is None:
+        assert width is not None  # For type checkers
         height = len(grid) * (width / len(grid[0]))
+
+    assert width is not None and height is not None
 
     # By default, if either the top-left or top-right qubits is not provided, we stick to the
     # [0, 0] x [width, height] viewbox.

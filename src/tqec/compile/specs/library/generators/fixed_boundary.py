@@ -1177,9 +1177,9 @@ class FixedBoundaryConventionGenerator:
         return regular_memory
 
     @staticmethod
-    def pipe_needs_extended_stablizers(linked_cubes: tuple[CubeSpec, CubeSpec]) -> bool:
+    def pipe_needs_extended_stabilizers(linked_cubes: tuple[CubeSpec, CubeSpec]) -> bool:
         """Check if the pipe represented by the given ``arms`` and ``linked_cubes`` requires
-        extended stablizers.
+        extended stabilizers.
 
         In fixed boundary convention, spatial cubes change the boundary parity.
         That is why we need stretched stabilizers. By convention, TQEC inserts
@@ -1196,7 +1196,7 @@ class FixedBoundaryConventionGenerator:
                 specifications of the two ends of the pipe.
 
         Returns:
-            ``True`` if extended stablizers should be used, ``False`` otherwise.
+            ``True`` if extended stabilizers should be used, ``False`` otherwise.
 
         """
         return (
@@ -1224,7 +1224,7 @@ class FixedBoundaryConventionGenerator:
             boundary, ``False`` otherwise.
 
         """
-        assert FixedBoundaryConventionGenerator.pipe_needs_extended_stablizers(linked_cubes)
+        assert FixedBoundaryConventionGenerator.pipe_needs_extended_stabilizers(linked_cubes)
         return linked_cubes[1].has_spatial_pipe_in_both_dimensions
 
     def _get_up_down_spatial_cube_arm_plaquettes(
@@ -1235,7 +1235,7 @@ class FixedBoundaryConventionGenerator:
         reset: Basis | None = None,
         measurement: Basis | None = None,
     ) -> Plaquettes:
-        if not FixedBoundaryConventionGenerator.pipe_needs_extended_stablizers(linked_cubes):
+        if not FixedBoundaryConventionGenerator.pipe_needs_extended_stabilizers(linked_cubes):
             # Special case, a little bit simpler, not using extended stabilizers.
             return self._get_up_and_down_spatial_cube_arm_plaquettes(
                 spatial_boundary_basis, linked_cubes, is_reversed, reset, measurement
