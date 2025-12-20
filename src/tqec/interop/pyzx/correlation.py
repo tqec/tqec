@@ -105,6 +105,11 @@ def find_correlation_surfaces(  # noqa: D417
         A list of `CorrelationSurface` in the graph.
 
     """
+    if vertex_ordering is not None:
+        raise NotImplementedError(
+            "The `vertex_ordering` argument is reserved for an unfinished feature and should not"
+            " be used at this moment."
+        )
     _check_spiders_are_supported(g)
     # Edge case: single node graph
     if g.num_vertices() == 1:
