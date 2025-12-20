@@ -458,7 +458,7 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
 
     pauli_graphs = _find_pauli_graph_generator_set_from_leaf(zx_graph, leaf)
     if sum(len(leaves) for leaves in closed_leaves.values()):
-        stabilizer_basis, basis_pauli_graphs, valid_pauli_graphs = {}, [], []
+        stabilizer_basis, basis_graphs, valid_graphs = {}, [], []
         for pauli_graph in pauli_graphs:
             indices = _solve_linear_system(
                 stabilizer_basis,
@@ -473,12 +473,12 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
                 ),
             )
             if indices is None:
-                basis_pauli_graphs.append(pauli_graph)
+                basis_graphs.append(pauli_graph)
                 continue
-            valid_pauli_graphs.append(
-                _multiply_pauli_graphs([*(basis_pauli_graphs[k] for k in indices), pauli_graph])
+            valid_graphs.append(
+                _multiply_pauli_graphs([*(basis_graphs[k] for k in indices), pauli_graph])
             )
-        pauli_graphs = valid_pauli_graphs
+        pauli_graphs = valid_graphs
 
     if open_leaves := list(
         filter(
@@ -486,9 +486,16 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
             zx_graph.vertices(),
         )
     ):
-        valid_pauli_graphs = []
+        basis_graphs = []
         for pauli in Pauli:
-            stabilizer_basis, basis_pauli_graphs = {}, []
+            valid_graphs, stabilizer_basis = [], {}
+            for pauli_graph in basis_graphs:
+                _solve_linear_system(
+                    stabilizer_basis,
+                    pauli_graph.signature_at_nodes(
+                        open_leaves, lambda p: p not in (Pauli.I, pauli), 1
+                    ),
+                )
             for pauli_graph in pauli_graphs:
                 indices = _solve_linear_system(
                     stabilizer_basis,
@@ -497,13 +504,15 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
                     ),
                 )
                 if indices is None:
-                    basis_pauli_graphs.append(pauli_graph)
+                    basis_graphs.append(pauli_graph)
                     continue
-                valid_pauli_graphs.append(
-                    _multiply_pauli_graphs([*(basis_pauli_graphs[k] for k in indices), pauli_graph])
+                valid_graphs.append(
+                    _multiply_pauli_graphs([*(basis_graphs[k] for k in indices), pauli_graph])
                 )
-        if len(valid_pauli_graphs) == len(pauli_graphs):
-            pauli_graphs = valid_pauli_graphs
+            pauli_graphs = basis_graphs.copy()
+            basis_graphs = valid_graphs.copy()
+        pauli_graphs += basis_graphs
+
     return pauli_graphs
 
 
