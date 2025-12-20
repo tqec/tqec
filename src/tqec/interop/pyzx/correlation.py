@@ -477,6 +477,31 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
                 _multiply_pauli_graphs([*(basis_pauli_graphs[k] for k in indices), pauli_graph])
             )
         pauli_graphs = valid_pauli_graphs
+
+    if open_leaves := list(
+        filter(
+            lambda v: zx_graph.vertex_degree(v) == 1 and is_boundary(zx_graph, v),
+            zx_graph.vertices(),
+        )
+    ):
+        valid_pauli_graphs = []
+        for pauli in Pauli:
+            stabilizer_basis, basis_pauli_graphs = {}, []
+            for pauli_graph in pauli_graphs:
+                indices = _solve_linear_system(
+                    stabilizer_basis,
+                    pauli_graph.signature_at_nodes(
+                        open_leaves, lambda p: p not in (Pauli.I, pauli), 1
+                    ),
+                )
+                if indices is None:
+                    basis_pauli_graphs.append(pauli_graph)
+                    continue
+                valid_pauli_graphs.append(
+                    _multiply_pauli_graphs([*(basis_pauli_graphs[k] for k in indices), pauli_graph])
+                )
+        if len(valid_pauli_graphs) == len(pauli_graphs):
+            pauli_graphs = valid_pauli_graphs
     return pauli_graphs
 
 
@@ -492,7 +517,7 @@ def _generate_valid_local_paulis(
     unconnected_neighbors = range(num_unconnected_neighbors)
     combined_pauli = broadcast_pauli ^ node_basis
     if generate_all:
-        passthrough_nodes_list = chain.from_iterable(
+        passthrough_nodes = chain.from_iterable(
             combinations(unconnected_neighbors, num_passthrough)
             for num_passthrough in range(
                 passthrough_parity,
@@ -505,7 +530,7 @@ def _generate_valid_local_paulis(
                 combined_pauli if n in passthrough_nodes else broadcast_pauli
                 for n in unconnected_neighbors
             ]
-            for passthrough_nodes in passthrough_nodes_list
+            for passthrough_nodes in passthrough_nodes
         ]
     else:
         passthrough_nodes = (
