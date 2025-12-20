@@ -17,7 +17,15 @@ from copy import copy
 from enum import IntFlag
 from fractions import Fraction
 from functools import cache, partial, reduce
-from itertools import accumulate, chain, combinations, pairwise, product, repeat, starmap
+from itertools import (
+    accumulate,
+    chain,
+    combinations,
+    pairwise,
+    product,
+    repeat,
+    starmap,
+)
 
 import stim
 from pyzx.graph.graph_s import GraphS
@@ -123,14 +131,25 @@ def find_correlation_surfaces(  # noqa: D417
         raise TQECError(
             "The graph must contain at least one leaf node to find correlation surfaces."
         )
-    correlation_surfaces = [
-        cs.to_correlation_surface(g)
-        for cs in _find_pauli_graphs_with_vertex_ordering(g, vertex_ordering, parallel)
-    ]
 
-    # if CorrelationSurface(frozenset()) in correlation_surfaces:
-    #     correlation_surfaces.remove(CorrelationSurface(frozenset()))
+    correlation_surfaces = _find_pauli_graphs_with_vertex_ordering(g, vertex_ordering, parallel)
 
+    if not reduce_to_minimal_generators:
+        # construct all correlation surfaces from the generators
+        basis = {}
+        for cs in correlation_surfaces:
+            _solve_linear_system(basis, cs.signature_at_nodes(leaves))
+        full_set = []
+        for stabilizer in product(range(4), repeat=len(leaves)):
+            stabilizer_int = _concat_ints_as_bits(stabilizer, 2)
+            if not stabilizer_int:
+                continue
+            indices = _solve_linear_system(basis, stabilizer_int, False)
+            if indices is not None:
+                full_set.append(_multiply_pauli_graphs([correlation_surfaces[i] for i in indices]))
+        correlation_surfaces = full_set
+
+    correlation_surfaces = [cs.to_correlation_surface(g) for cs in correlation_surfaces]
     # sort the correlation surfaces to make the result deterministic
     return sorted(correlation_surfaces, key=lambda x: sorted(x.span))
 
@@ -148,7 +167,6 @@ class Pauli(IntFlag):
         return Pauli((self >> 1) | ((self % 2) << 1))
 
 
-PAULIS_XZ = (Pauli.X, Pauli.Z)
 PAULIS_XYZ = (Pauli.X, Pauli.Y, Pauli.Z)
 
 
@@ -217,7 +235,7 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
             pauli_u = self[u][v]
             pauli_v = self[v][u]
             edge_is_hadamard = is_hadamard(zx_graph, (u, v))
-            for basis_u, basis_v in product(PAULIS_XZ, repeat=2):
+            for basis_u, basis_v in product(Pauli, repeat=2):
                 if (
                     (edge_is_hadamard ^ (basis_u == basis_v))
                     and basis_u in pauli_u
@@ -545,7 +563,7 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
         PauliGraph().add_pauli_to_edge(
             (leaf, neighbor), pauli, is_hadamard(zx_graph, (leaf, neighbor))
         )
-        for pauli in PAULIS_XZ
+        for pauli in Pauli
     )
     if zx_graph.vertex_degree(neighbor) == 1:  # make sure no leaf node will be in the frontier
         return list(pauli_graphs)
