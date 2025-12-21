@@ -14,7 +14,7 @@ from pyzx.pauliweb import PauliWeb
 from tqec.computation.correlation import CorrelationSurface
 from tqec.interop.color import RGBA, TQECColor
 from tqec.interop.pyzx.positioned import PositionedZX
-from tqec.interop.pyzx.utils import is_boundary, is_hardmard, is_s, is_z_no_phase
+from tqec.interop.pyzx.utils import is_boundary, is_hadamard, is_s, is_z_no_phase
 from tqec.utils.position import Position3D
 
 
@@ -69,7 +69,7 @@ def draw_positioned_zx_graph_on(
             color="tab:gray",
             linewidth=edge_width,
         )
-        if is_hardmard(g, edge):
+        if is_hadamard(g, edge):
             hadamard_position = numpy.mean(pos_array, axis=1)
             # use yellow square to indicate Hadamard transition
             ax.scatter(
