@@ -26,6 +26,7 @@ from itertools import (
     repeat,
     starmap,
 )
+from typing import Any
 
 import stim
 from pyzx.graph.graph_s import GraphS
@@ -138,15 +139,12 @@ def find_correlation_surfaces(  # noqa: D417
 
     if not reduce_to_minimal_generators:
         # construct all correlation surfaces from the generators
-        basis = {}
-        for cs in correlation_surfaces:
-            _solve_linear_system(basis, cs.signature_at_nodes(leaves))
+        basis = _construct_basis({}, correlation_surfaces, lambda cs: cs.signature_at_nodes(leaves))
         full_set = []
-        for stabilizer in product(range(4), repeat=len(leaves)):
-            stabilizer_int = _concat_ints_as_bits(stabilizer, 2)
-            if not stabilizer_int:
-                continue
-            indices = _solve_linear_system(basis, stabilizer_int, False)
+        stabilizers = product(range(4), repeat=len(leaves))
+        next(stabilizers)
+        for stabilizer in stabilizers:
+            indices = _solve_linear_system(basis, _concat_ints_as_bits(stabilizer, 2), False)
             if indices is not None:
                 full_set.append(_multiply_pauli_graphs([correlation_surfaces[i] for i in indices]))
         correlation_surfaces = full_set
@@ -458,27 +456,18 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
 
     pauli_graphs = _find_pauli_graph_generator_set_from_leaf(zx_graph, leaf)
     if sum(len(leaves) for leaves in closed_leaves.values()):
-        stabilizer_basis, basis_graphs, valid_graphs = {}, [], []
-        for pauli_graph in pauli_graphs:
-            indices = _solve_linear_system(
-                stabilizer_basis,
-                _concat_ints_as_bits(
-                    (
-                        pauli_graph.signature_at_nodes(
-                            leaves, lambda p: p not in (Pauli.I, pauli), 1
-                        )
-                        for pauli, leaves in closed_leaves.items()
-                    ),
-                    map(len, closed_leaves.values()),
+        pauli_graphs = _reform_valid_pauli_graph_generators(
+            pauli_graphs,
+            lambda pg: _concat_ints_as_bits(
+                (
+                    pg.signature_at_nodes(leaves, lambda p: p not in (Pauli.I, pauli), 1)
+                    for pauli, leaves in closed_leaves.items()
                 ),
-            )
-            if indices is None:
-                basis_graphs.append(pauli_graph)
-                continue
-            valid_graphs.append(
-                _multiply_pauli_graphs([*(basis_graphs[k] for k in indices), pauli_graph])
-            )
-        pauli_graphs = valid_graphs
+                map(len, closed_leaves.values()),
+            ),
+            {},
+            [],
+        )
 
     if open_leaves := list(
         filter(
@@ -488,32 +477,47 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
     ):
         basis_graphs = []
         for pauli in Pauli:
-            valid_graphs, stabilizer_basis = [], {}
-            for pauli_graph in basis_graphs:
-                _solve_linear_system(
-                    stabilizer_basis,
-                    pauli_graph.signature_at_nodes(
-                        open_leaves, lambda p: p not in (Pauli.I, pauli), 1
-                    ),
-                )
-            for pauli_graph in pauli_graphs:
-                indices = _solve_linear_system(
-                    stabilizer_basis,
-                    pauli_graph.signature_at_nodes(
-                        open_leaves, lambda p: p not in (Pauli.I, pauli), 1
-                    ),
-                )
-                if indices is None:
-                    basis_graphs.append(pauli_graph)
-                    continue
-                valid_graphs.append(
-                    _multiply_pauli_graphs([*(basis_graphs[k] for k in indices), pauli_graph])
-                )
+
+            def signature_func(pg: PauliGraphBase) -> int:
+                return pg.signature_at_nodes(open_leaves, lambda p: p not in (Pauli.I, pauli), 1)
+
+            valid_graphs = _reform_valid_pauli_graph_generators(
+                pauli_graphs,
+                signature_func,
+                _construct_basis(
+                    {},
+                    basis_graphs,
+                    signature_func,
+                ),
+                basis_graphs,
+            )
             pauli_graphs = basis_graphs.copy()
-            basis_graphs = valid_graphs.copy()
+            basis_graphs = valid_graphs
         pauli_graphs += basis_graphs
 
     return pauli_graphs
+
+
+def _reform_valid_pauli_graph_generators(
+    pauli_graphs: Iterable[PauliGraphBase],
+    signature_func: Callable[[PauliGraphBase], int],
+    stabilizer_basis: dict[int, tuple[int, int]],
+    basis_graphs: list[PauliGraphBase],
+) -> list[PauliGraph]:
+    """Reform the valid Pauli graph generators based on the given signature function."""
+    valid_graphs = []
+    for pauli_graph in pauli_graphs:
+        indices = _solve_linear_system(
+            stabilizer_basis,
+            signature_func(pauli_graph),
+        )
+        if indices is None:
+            basis_graphs.append(pauli_graph)
+            continue
+        valid_graphs.append(
+            _multiply_pauli_graphs([*(basis_graphs[k] for k in indices), pauli_graph])
+        )
+    return valid_graphs
 
 
 @cache
@@ -727,6 +731,15 @@ def _solve_linear_system(
         x ^= pivot
         mask ^= pivot_mask
     return list(filter(lambda i: (mask >> i) & 1, range(len(basis))))
+
+
+def _construct_basis(
+    basis: dict[int, tuple[int, int]], items: Iterable[Any], func: Callable[[Any], int]
+) -> dict[int, tuple[int, int]]:
+    """Construct a linear basis from the given items using the provided function."""
+    for item in items:
+        _solve_linear_system(basis, func(item))
+    return basis
 
 
 _SUPPORTED_SPIDERS: set[tuple[VertexType, FractionLike]] = {
