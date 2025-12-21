@@ -85,7 +85,7 @@ def pauli_web_to_correlation_surface(
     return CorrelationSurface(frozenset(span))
 
 
-def find_correlation_surfaces(  # noqa: D417
+def find_correlation_surfaces(
     g: GraphS,
     reduce_to_minimal_generators: bool = True,
     vertex_ordering: Sequence[set[int]] | None = None,
@@ -93,10 +93,29 @@ def find_correlation_surfaces(  # noqa: D417
 ) -> list[CorrelationSurface]:
     """Find the correlation surfaces in a ZX graph.
 
-    Starting from each leaf node in the graph, the function explores how can the X/Z logical
-    observable move through the graph to form a correlation surface:
+    The function explores how can the X/Z logical observable move through the graph to form a
+    correlation surface with the following steps:
 
-    - For a X/Z type leaf node, it can only support the logical observable with the opposite type.
+    1. Identify connected components in the graph.
+    2. For each connected component, run the following algorithm from the smallest leaf node to find
+       a generating set of correlation surfaces assuming all ports are open:
+         a. Explore the graph node-by-node while keeping a generating set of correlation surfaces
+            for the subgraph explored.
+         b. Generate valid correlation surfaces given the newly explored node.
+         c. If there is a loop, recover valid correlation surfaces from invalid ones.
+         d. Prune redundant ones to keep the generating set minimal.
+         e. Repeat from step (a) until all nodes are explored.
+    3. Reform the generators so that they satisfy the closed ports.
+    4. Reform the generators so that the number of Y-terminating correlation surfaces is minimized.
+    5. Combine the generators from all connected components.
+
+    The rules for generating valid correlation surfaces at each node are as follows. For a node of
+    basis B in {X, Z}:
+    - *broadcast rule:* All or none of the incident edges supports the opposite of B.
+    - *passthrough rule:* An even number of incident edges supports B.
+
+    For leaf nodes:
+    - For an X/Z type leaf node, it can only support the logical observable with the opposite type.
       Only a single type of logical observable is explored from the leaf node.
     - For a Y type leaf node, it can only support the Y logical observable, i.e. the presence of
       both X and Z logical observable. Both X and Z type logical observable are explored from the
@@ -111,6 +130,9 @@ def find_correlation_surfaces(  # noqa: D417
             generators. Other correlation surfaces can be obtained by multiplying the generators.
             The generators are chosen to be the smallest in terms of the correlation surface area.
             Default is `True`.
+        vertex_ordering: A reserved argument for an unfinished feature. Should not be used at this
+            moment.
+        parallel: Whether to use multiprocessing to speed up the computation. Default is `False`.
 
     Returns:
         A list of `CorrelationSurface` in the graph.
