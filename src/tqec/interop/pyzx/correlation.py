@@ -35,8 +35,7 @@ from pyzx.utils import FractionLike, VertexType
 from typing_extensions import Self
 
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
-from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase
-from tqec.interop.pyzx.utils import is_hardmard as is_hadamard
+from tqec.interop.pyzx.utils import is_boundary, is_hadamard, is_s, is_z_no_phase
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 
