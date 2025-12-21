@@ -163,7 +163,7 @@ def find_correlation_surfaces(
         # construct all correlation surfaces from the generators
         basis = _construct_basis({}, correlation_surfaces, lambda cs: cs.signature_at_nodes(leaves))
         full_set = []
-        stabilizers = product(range(4), repeat=len(leaves))
+        stabilizers = product(PAULIS_IXYZ, repeat=len(leaves))
         next(stabilizers)
         for stabilizer in stabilizers:
             indices = _solve_linear_system(basis, _concat_ints_as_bits(stabilizer, 2), False)
@@ -189,7 +189,11 @@ class Pauli(IntFlag):
         return Pauli((self >> 1) | ((self % 2) << 1))
 
 
+# Directly iterating over Pauli gives X, Z in Python 3.11+ but I, X, Y, Z in 3.10 due to a behavior
+# change in Flag. So we define these tuples for consistent behavior across versions.
+PAULIS_XZ = (Pauli.X, Pauli.Z)
 PAULIS_XYZ = (Pauli.X, Pauli.Y, Pauli.Z)
+PAULIS_IXYZ = (Pauli.I, Pauli.X, Pauli.Y, Pauli.Z)
 
 
 class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
@@ -257,7 +261,7 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
             pauli_u = self[u][v]
             pauli_v = self[v][u]
             edge_is_hadamard = is_hadamard(zx_graph, (u, v))
-            for basis_u, basis_v in product(Pauli, repeat=2):
+            for basis_u, basis_v in product(PAULIS_XZ, repeat=2):
                 if (
                     (edge_is_hadamard ^ (basis_u == basis_v))
                     and basis_u in pauli_u
@@ -499,7 +503,7 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
         )
     ):
         basis_graphs = []
-        for pauli in Pauli:
+        for pauli in PAULIS_XZ:
 
             def signature_func(pg: PauliGraphBase) -> int:
                 return pg.signature_at_nodes(open_leaves, lambda p: p not in (Pauli.I, pauli), 1)
@@ -635,7 +639,7 @@ def _find_pauli_graph_generating_set_from_leaf(zx_graph: GraphS, leaf: int) -> l
         PauliGraph().add_pauli_to_edge(
             (leaf, neighbor), pauli, is_hadamard(zx_graph, (leaf, neighbor))
         )
-        for pauli in Pauli
+        for pauli in PAULIS_XZ
     )
     if zx_graph.vertex_degree(neighbor) == 1:  # make sure no leaf node will be in the frontier
         return list(pauli_graphs)
