@@ -14,7 +14,7 @@ from pyzx.utils import FractionLike, VertexType
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.utils import (
     is_boundary,
-    is_hardmard,
+    is_hadamard,
     is_s,
     is_x_no_phase,
     is_z_no_phase,
@@ -289,7 +289,7 @@ def _find_spans_with_flood_fill(
 def _iter_neighbor_nodes(g: GraphS, n: ZXNode) -> Iterator[ZXNode]:
     for edge in g.incident_edges(n.id):
         neighbor = edge[1] if edge[0] == n.id else edge[0]
-        neighbor_basis = n.basis.flipped() if is_hardmard(g, edge) else n.basis
+        neighbor_basis = n.basis.flipped() if is_hadamard(g, edge) else n.basis
         yield ZXNode(neighbor, neighbor_basis)
 
 
