@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, cast
 
 from tqec.circuit.schedule.schedule import Schedule
 from tqec.utils.enums import Basis
@@ -216,7 +216,7 @@ class RPNGDescription:
         rpng_objs = tuple([RPNG.from_string(s) for s in corners_rpng_string.split(" ")])
         if len(rpng_objs) != 4:
             raise ValueError("There must be 4 corners in the RPNG description.")
-        return cls(rpng_objs)
+        return cls(cast(tuple[RPNG, RPNG, RPNG, RPNG], rpng_objs))
 
     @classmethod
     def from_extended_string(cls, ancilla_and_corners_rpng_string: str) -> RPNGDescription:
@@ -226,7 +226,7 @@ class RPNGDescription:
         rpng_objs = tuple([RPNG.from_string(s) for s in values[1:]])
         if len(rpng_objs) != 4:
             raise ValueError("There must be 4 corners in the RPNG description.")
-        return cls(rpng_objs, ancilla_rg)
+        return cls(cast(tuple[RPNG, RPNG, RPNG, RPNG], rpng_objs), ancilla_rg)
 
     @classmethod
     def from_basis_and_schedule(
@@ -242,7 +242,7 @@ class RPNGDescription:
         rpng_objs = tuple([RPNG.from_string(f"{r}{basis.value.lower()}{s}{m}") for s in schedule])
         if len(rpng_objs) != 4:
             raise ValueError("There must be 4 corners in the RPNG description.")
-        return cls(rpng_objs)
+        return cls(cast(tuple[RPNG, RPNG, RPNG, RPNG], rpng_objs))
 
     @staticmethod
     def empty() -> RPNGDescription:
