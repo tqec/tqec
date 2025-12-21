@@ -462,6 +462,8 @@ def _find_pauli_graphs(zx_graph: GraphS, parallel: bool = False) -> list[list[Pa
 
 
 def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph]:
+    pauli_graphs = _find_pauli_graph_generating_set_from_leaf(zx_graph, leaf)
+
     closed_leaves = {pauli: [] for pauli in PAULIS_XYZ}
     for closed_leaf in filter(
         lambda v: zx_graph.vertex_degree(v) == 1 and not is_boundary(zx_graph, v),
@@ -474,9 +476,8 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
         else:
             closed_leaves[Pauli.Z].append(closed_leaf)
 
-    pauli_graphs = _find_pauli_graph_generator_set_from_leaf(zx_graph, leaf)
     if sum(len(leaves) for leaves in closed_leaves.values()):
-        pauli_graphs = _reform_valid_pauli_graph_generators(
+        pauli_graphs = _reform_pauli_graph_generators(
             pauli_graphs,
             lambda pg: _concat_ints_as_bits(
                 (
@@ -485,9 +486,9 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
                 ),
                 map(len, closed_leaves.values()),
             ),
-            {},
-            [],
-        )
+            stabilizer_basis={},
+            basis_graphs=[],
+        )[1]
 
     if open_leaves := list(
         filter(
@@ -501,7 +502,7 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
             def signature_func(pg: PauliGraphBase) -> int:
                 return pg.signature_at_nodes(open_leaves, lambda p: p not in (Pauli.I, pauli), 1)
 
-            valid_graphs = _reform_valid_pauli_graph_generators(
+            basis_graphs, valid_graphs = _reform_pauli_graph_generators(
                 pauli_graphs,
                 signature_func,
                 _construct_basis(
@@ -518,14 +519,17 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
     return pauli_graphs
 
 
-def _reform_valid_pauli_graph_generators(
-    pauli_graphs: Iterable[PauliGraphBase],
-    signature_func: Callable[[PauliGraphBase], int],
+def _reform_pauli_graph_generators(
+    pauli_graphs: Iterable[PauliGraphType],
+    signature_func: Callable[[PauliGraphType], int],
     stabilizer_basis: dict[int, tuple[int, int]],
-    basis_graphs: list[PauliGraphBase],
-) -> list[PauliGraph]:
-    """Reform the valid Pauli graph generators based on the given signature function."""
-    valid_graphs = []
+    basis_graphs: Sequence[PauliGraphType],
+    construct_new_graphs: bool = True,
+    num_new_graphs_needed: int | None = None,
+    num_basis_graphs_needed: int | None = None,
+) -> tuple[list[PauliGraphType], list[PauliGraph]]:
+    """Reform the Pauli graph generators based on the given signature function."""
+    basis_graphs, new_graphs = list(basis_graphs), []
     for pauli_graph in pauli_graphs:
         indices = _solve_linear_system(
             stabilizer_basis,
@@ -533,11 +537,16 @@ def _reform_valid_pauli_graph_generators(
         )
         if indices is None:
             basis_graphs.append(pauli_graph)
+            if num_basis_graphs_needed is not None and len(basis_graphs) >= num_basis_graphs_needed:
+                break
             continue
-        valid_graphs.append(
-            _multiply_pauli_graphs([*(basis_graphs[k] for k in indices), pauli_graph])
-        )
-    return valid_graphs
+        if construct_new_graphs:
+            new_graphs.append(
+                _multiply_pauli_graphs([*(basis_graphs[k] for k in indices), pauli_graph])
+            )
+            if num_new_graphs_needed is not None and len(new_graphs) >= num_new_graphs_needed:
+                break
+    return basis_graphs, new_graphs
 
 
 @cache
@@ -590,6 +599,7 @@ def _expand_pauli_graph_to_node(
     node_basis: Pauli,
     unconnected_neighbors: list[int],
     edges_are_hadamard: list[bool],
+    generate_all: bool = True,
     always_copy: bool = False,
 ) -> Generator[PauliGraph, None]:
     """Expand to a generator set of Pauli graphs for the new node."""
@@ -599,7 +609,7 @@ def _expand_pauli_graph_to_node(
             broadcast_pauli,
             passthrough_parity,
             len(unconnected_neighbors),
-            generate_all=True,  # generate all can reduce the need for recovering and multiplication
+            generate_all=generate_all,  # generate all can reduce the gaussian elimination overhead
         )
     ):
         if i or always_copy:
@@ -616,7 +626,7 @@ def _expand_pauli_graph_to_node(
         yield new_pauli_graph
 
 
-def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph]:
+def _find_pauli_graph_generating_set_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph]:
     """Find the correlation surfaces starting from a leaf node in the graph."""
     neighbor: int = next(iter(zx_graph.neighbors(leaf)))
     pauli_graphs = (
@@ -644,7 +654,7 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
         boundary_nodes = explored_leaves + frontier
         if unconnected_neighbors:
             boundary_nodes.append(current_node)
-        generator_set_size = sum(len(pauli_graph[n]) for n in boundary_nodes)
+        generating_set_size = sum(len(pauli_graph[n]) for n in boundary_nodes)
         unexplored_neighbors = [n for n in unconnected_neighbors if n not in pauli_graph]
         passthrough_basis = Pauli(1 << (zx_graph.type(current_node) == VertexType.Z))
 
@@ -664,23 +674,23 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
                 is None
             ):  # new independent graph
                 valid_graphs.append((pauli_graph, *constraint_check))
-                if len(vector_basis) == generator_set_size:
+                if len(vector_basis) == generating_set_size:
                     break
 
         # try to fix local constraint violations by multiplying with other invalid graphs
         all_one = (1 << len(connected_neighbors)) - 1
-        syndrome_basis, basis_pauli_graphs = {}, []
+        syndrome_basis, basis_graphs = {}, []
         for pauli_graph, syndrome in zip(invalid_graphs, syndromes):
-            if len(vector_basis) == generator_set_size:
+            if len(vector_basis) == generating_set_size:
                 break
             for j, target in enumerate((syndrome ^ all_one, syndrome)):  # two valid options
                 indices = _solve_linear_system(syndrome_basis, target, update_basis=j == 1)
                 if indices is None:
                     if j == 1:
-                        basis_pauli_graphs.append(pauli_graph)
+                        basis_graphs.append(pauli_graph)
                     continue
                 new_pauli_graph = _multiply_pauli_graphs(
-                    [*(basis_pauli_graphs[k] for k in indices), pauli_graph]
+                    [*(basis_graphs[k] for k in indices), pauli_graph]
                 )
                 if (
                     _solve_linear_system(
@@ -727,7 +737,22 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
             filter(lambda n: zx_graph.vertex_degree(n) == 1, unexplored_neighbors)
         )
         explored_nodes.add(current_node)
-    return [pauli_graph, *pauli_graphs]
+
+    return _reform_pauli_graph_generators(
+        [pauli_graph, *pauli_graphs],
+        lambda pg: pg.signature_at_nodes(
+            filter(
+                lambda v: zx_graph.vertex_degree(v) == 1,
+                zx_graph.vertices(),
+            )
+        ),
+        stabilizer_basis={},
+        basis_graphs=[],
+        construct_new_graphs=False,
+        num_basis_graphs_needed=len(
+            [v for v in zx_graph.vertices() if zx_graph.vertex_degree(v) == 1]
+        ),
+    )[0]
 
 
 def _concat_ints_as_bits(ints: Iterable[int], bit_length: int | Iterable[int]) -> int:
