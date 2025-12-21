@@ -26,12 +26,13 @@ from itertools import (
     repeat,
     starmap,
 )
-from typing import Any
+from typing import Any, TypeVar
 
 import stim
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb, multiply_paulis
 from pyzx.utils import FractionLike, VertexType
+from typing_extensions import Self
 
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.utils import is_boundary, is_s, is_z_no_phase
@@ -197,7 +198,7 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
 
     def add_pauli_to_edge(
         self, edge: tuple[int, int], pauli: Pauli, edge_is_hadamard: bool
-    ) -> PauliGraphBase:
+    ) -> Self:
         """Add Pauli operators to both ends of the given edge."""
         for (u, v), p in zip(
             (edge, edge[::-1]),
@@ -246,7 +247,7 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
             if passthrough_parity:  # invalid passthrough
                 valid = False
         if valid:
-            return broadcast_pauli, passthrough_parity
+            return broadcast_pauli, passthrough_parity  # type: ignore
         return _concat_ints_as_bits(syndrome, 1)
 
     def to_correlation_surface(self, zx_graph: GraphS) -> CorrelationSurface:
@@ -269,7 +270,10 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
         return CorrelationSurface(frozenset(span))
 
 
-class PauliGraph(dict[int, dict[int, Pauli]], PauliGraphBase):
+PauliGraphType = TypeVar("PauliGraphType", bound="PauliGraphBase")
+
+
+class PauliGraph(dict[int, dict[int, Pauli]], PauliGraphBase):  # type: ignore
     pass
 
 
@@ -304,10 +308,7 @@ def _multiply_pauli_graphs(pauli_graphs: list[PauliGraphBase]) -> PauliGraph:
 
 def _partition_graph_from_vertices(
     zx_graph: GraphS, vertices_list: Sequence[set[int]], add_cut_edge_as_boundary_node: bool = False
-) -> (
-    list[GraphS]
-    | tuple[list[GraphS], list[tuple[dict[int, tuple[int, int]], dict[int, tuple[int, int]]]]]
-):
+) -> tuple[list[GraphS], list[tuple[dict[int, tuple[int, int]], dict[int, tuple[int, int]]]]]:
     """Create a subgraph from the given vertices."""
     subgraphs = []
     cut_edges_map = {}
@@ -323,7 +324,7 @@ def _partition_graph_from_vertices(
             for u in zx_graph.neighbors(v):
                 if u in vertices:
                     if not subgraph.connected(u, v):
-                        subgraph.add_edge((u, v), zx_graph.edge_type((u, v)))
+                        subgraph.add_edge((u, v), zx_graph.edge_type((u, v)))  # type: ignore
                 elif add_cut_edge_as_boundary_node:
                     key = tuple(sorted((u, v)))
                     if key in cut_edges_map:
@@ -338,9 +339,7 @@ def _partition_graph_from_vertices(
                     subgraph.add_edge((v, new_boundary_vertex))
         subgraphs.append(subgraph)
         added_vertices_list.append((input_vertices, output_vertices))
-    if add_cut_edge_as_boundary_node:
-        return subgraphs, added_vertices_list
-    return subgraphs
+    return subgraphs, added_vertices_list
 
 
 def _partition_graph_into_connected_components(zx_graph: GraphS) -> list[GraphS]:
@@ -361,22 +360,22 @@ def _partition_graph_into_connected_components(zx_graph: GraphS) -> list[GraphS]
             stack.extend(
                 neighbor for neighbor in zx_graph.neighbors(vertex) if neighbor not in visited
             )
-        component = _partition_graph_from_vertices(zx_graph, [component_vertices], False)[0]
+        component = _partition_graph_from_vertices(zx_graph, [component_vertices], False)[0][0]
         components.append(component)
     return components
 
 
 def _product_of_disconnected_pauli_graphs(
-    pauli_graphs_list: list[list[PauliGraphBase]],
+    pauli_graphs_list: Sequence[Sequence[PauliGraphBase]],
 ) -> Iterator[PauliGraphView]:
     """Generate Pauli graphs from the product of disconnected components."""
     return starmap(PauliGraphView, product(*pauli_graphs_list))
 
 
 def _restore_pauli_graph_from_added_vertices(
-    pauli_graph: PauliGraphBase,
+    pauli_graph: PauliGraphType,
     added_vertices: dict[int, tuple[int, int]],
-) -> PauliGraphBase:
+) -> PauliGraphType:
     """Restore the Pauli graph by recovering the cut edges represented by boundary nodes."""
     for v, (u, w) in added_vertices.items():
         if u in pauli_graph and v in pauli_graph[u]:
@@ -389,7 +388,7 @@ def _restore_pauli_graph_from_added_vertices(
 
 def _find_pauli_graphs_with_vertex_ordering(
     zx_graph: GraphS, vertex_ordering: Sequence[set[int]] | None = None, parallel: bool = False
-) -> list[PauliGraphBase]:
+) -> list[PauliGraphView]:
     """Find the correlation surfaces based on a given vertex ordering."""
     if vertex_ordering is None:
         return list(_product_of_disconnected_pauli_graphs(_find_pauli_graphs(zx_graph, parallel)))
@@ -695,7 +694,7 @@ def _find_pauli_graph_generator_set_from_leaf(zx_graph: GraphS, leaf: int) -> li
                             new_pauli_graph,
                             *new_pauli_graph.validate_node(
                                 current_node, passthrough_basis, bool(unconnected_neighbors)
-                            ),
+                            ),  # type: ignore
                         )
                     )
                     break
