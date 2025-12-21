@@ -134,7 +134,7 @@ class _ScheduledCircuits:
 def _sort_target_groups(
     targets: Iterable[list[stim.GateTarget]],
 ) -> list[list[stim.GateTarget]]:
-    def _sort_key(target_group: Iterable[stim.GateTarget]) -> tuple[int, ...]:
+    def _sort_key(target_group: list[stim.GateTarget]) -> tuple[int, ...]:
         return tuple(t.value for t in target_group)
 
     return sorted(targets, key=_sort_key)
