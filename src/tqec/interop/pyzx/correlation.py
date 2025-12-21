@@ -246,7 +246,7 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
             if passthrough_parity:  # invalid passthrough
                 valid = False
         if valid:
-            return broadcast_pauli, passthrough_parity  # type: ignore
+            return broadcast_pauli, passthrough_parity  # type: ignore (broadcast_pauli is always bound here)
         return _concat_ints_as_bits(syndrome, 1)
 
     def to_correlation_surface(self, zx_graph: GraphS) -> CorrelationSurface:
@@ -272,6 +272,8 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
 PauliGraphType = TypeVar("PauliGraphType", bound="PauliGraphBase")
 
 
+# Due to subtle differences in how generics and overloads are defined in the stubs, the type
+# checker will say that dict.get is not a strictly valid replacement for MutableMapping.get.
 class PauliGraph(dict[int, dict[int, Pauli]], PauliGraphBase):  # type: ignore
     pass
 
@@ -323,7 +325,7 @@ def _partition_graph_from_vertices(
             for u in zx_graph.neighbors(v):
                 if u in vertices:
                     if not subgraph.connected(u, v):
-                        subgraph.add_edge((u, v), zx_graph.edge_type((u, v)))  # type: ignore
+                        subgraph.add_edge((u, v), zx_graph.edge_type((u, v)))  # type: ignore (PyZX issue)
                 elif add_cut_edge_as_boundary_node:
                     key = tuple(sorted((u, v)))
                     if key in cut_edges_map:
@@ -516,7 +518,7 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
             basis_graphs = valid_graphs
         pauli_graphs += basis_graphs
 
-    return pauli_graphs
+    return pauli_graphs  # ty: ignore (seems to be a false positive of ty)
 
 
 def _reform_pauli_graph_generators(
@@ -703,7 +705,7 @@ def _find_pauli_graph_generating_set_from_leaf(zx_graph: GraphS, leaf: int) -> l
                             new_pauli_graph,
                             *new_pauli_graph.validate_node(
                                 current_node, passthrough_basis, bool(unconnected_neighbors)
-                            ),  # type: ignore
+                            ),  # type: ignore (the new graph is always valid so it's always a tuple)
                         )
                     )
                     break
