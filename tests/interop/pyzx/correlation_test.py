@@ -4,6 +4,7 @@ import pytest
 from pyzx.graph.graph_s import GraphS
 from pyzx.utils import EdgeType, VertexType
 
+from tqec.compile.observables.abstract_observable import _check_correlation_surface_validity
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.correlation import (
     find_correlation_surfaces,
@@ -28,6 +29,8 @@ def test_correlation_two_xz_nodes(ty: VertexType) -> None:
     g.add_vertex(ty)
     g.add_edge((0, 1))
     surfaces = find_correlation_surfaces(g)
+    for surface in surfaces:
+        _check_correlation_surface_validity(surface, g)
     assert len(surfaces) == 1
     b = Basis.Z if ty == VertexType.X else Basis.X
     assert surfaces[0].span == frozenset([ZXEdge(ZXNode(0, b), ZXNode(1, b))])
@@ -47,6 +50,8 @@ def test_correlation_hadamard() -> None:
     g.add_vertex(VertexType.Z)
     g.add_edge((0, 1), EdgeType.HADAMARD)
     surfaces = find_correlation_surfaces(g)
+    for surface in surfaces:
+        _check_correlation_surface_validity(surface, g)
     assert len(surfaces) == 1
     assert surfaces[0].span == frozenset(
         [
@@ -64,6 +69,8 @@ def test_correlation_y_node() -> None:
     g.add_vertex()
     g.add_edge((0, 1))
     surfaces = find_correlation_surfaces(g)
+    for surface in surfaces:
+        _check_correlation_surface_validity(surface, g)
     assert len(surfaces) == 1
     assert surfaces[0].span == frozenset(
         [
@@ -86,6 +93,8 @@ def test_correlation_port_passthrough() -> None:
     g.set_type(1, VertexType.X)
 
     surfaces = find_correlation_surfaces(g)
+    for surface in surfaces:
+        _check_correlation_surface_validity(surface, g)
     assert surfaces == [
         CorrelationSurface(
             frozenset(
@@ -166,6 +175,8 @@ def test_correlation_four_node_circle() -> None:
     g.add_edges([(0, 1), (1, 2), (2, 3), (3, 4), (1, 4)])
 
     surfaces = find_correlation_surfaces(g)
+    for surface in surfaces:
+        _check_correlation_surface_validity(surface, g)
     assert len(surfaces) == 1
     surface = surfaces[0]
     pauli_web = surface.to_pauli_web(g)

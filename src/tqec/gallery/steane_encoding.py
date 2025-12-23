@@ -1,6 +1,6 @@
 """Block graph that represents a logical stability experiment."""
 
-from tqec.computation.block_graph import BlockGraph
+from tqec.computation.block_graph import BlockGraph, ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.paths import GALLERY_DAE_DIR
 
@@ -22,10 +22,12 @@ def steane_encoding(observable_basis: Basis | None = None) -> BlockGraph:
 
     """
     graph = BlockGraph.from_dae_file(STEANE_CODE_DAE)
-    filled_graphs = graph.fill_ports_for_minimal_simulation()
-    assert len(filled_graphs) == 2
-    if observable_basis == Basis.X:
-        return filled_graphs[0].graph
-    elif observable_basis == Basis.Z:
-        return filled_graphs[1].graph
+    if observable_basis is not None:
+        graph.fill_ports(
+            {f"Port{port}": ZXCube(Basis.Z, Basis.X, observable_basis) for port in (3, 4)}
+        )
+        graph.fill_ports(
+            {f"Port{port}": ZXCube(Basis.X, Basis.Z, observable_basis) for port in (1, 2, 5, 6)}
+        )
+        graph.fill_ports(ZXCube(observable_basis, Basis.X, Basis.Z))
     return graph
