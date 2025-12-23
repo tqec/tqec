@@ -132,7 +132,8 @@ def find_correlation_surfaces(
             Default is `True`.
         vertex_ordering: A reserved argument for an unfinished feature. Should not be used at this
             moment.
-        parallel: Whether to use multiprocessing to speed up the computation. Default is `False`.
+        parallel: Whether to use multiprocessing to speed up the computation. Only applies to
+            embarrassingly parallel parts of the algorithm. Default is `False`.
 
     Returns:
         A list of `CorrelationSurface` in the graph.
@@ -150,7 +151,7 @@ def find_correlation_surfaces(
         basis = Basis.X if is_z_no_phase(g, v) else Basis.Z
         node = ZXNode(v, basis)
         return [CorrelationSurface(frozenset({ZXEdge(node, node)}))]
-    # Find correlation surfaces starting from each leaf node
+
     leaves = {v for v in g.vertices() if g.vertex_degree(v) == 1}
     if not leaves:
         raise TQECError(
@@ -197,7 +198,7 @@ PAULIS_IXYZ = (Pauli.I, Pauli.X, Pauli.Y, Pauli.Z)
 
 
 class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
-    """Correlation surface represented as X and Z supports on half-edges."""
+    """Correlation surface represented as Pauli operators on half-edges."""
 
     def add_pauli_to_edge(
         self, edge: tuple[int, int], pauli: Pauli, edge_is_hadamard: bool
@@ -279,10 +280,14 @@ PauliGraphType = TypeVar("PauliGraphType", bound="PauliGraphBase")
 # Due to subtle differences in how generics and overloads are defined in the stubs, the type
 # checker will say that dict.get is not a strictly valid replacement for MutableMapping.get.
 class PauliGraph(dict[int, dict[int, Pauli]], PauliGraphBase):  # type: ignore
-    pass
+    """Correlation surface represented as Pauli operators on half-edges."""
+
+    ...
 
 
 class PauliGraphView(ChainMap[int, dict[int, Pauli]], PauliGraphBase):
+    """A view of multiple correlation surfaces representing a single one."""
+
     def __setitem__(self, key, value):
         for mapping in self.maps:
             if key in mapping:
@@ -299,6 +304,7 @@ class PauliGraphView(ChainMap[int, dict[int, Pauli]], PauliGraphBase):
 
 
 def _multiply_pauli_graphs(pauli_graphs: list[PauliGraphBase]) -> PauliGraph:
+    """Multiply multiple correlation surfaces together."""
     result = PauliGraph()
     others = pauli_graphs[1:]
     for v, neighbors in pauli_graphs[0].items():
@@ -314,7 +320,7 @@ def _multiply_pauli_graphs(pauli_graphs: list[PauliGraphBase]) -> PauliGraph:
 def _partition_graph_from_vertices(
     zx_graph: GraphS, vertices_list: Sequence[set[int]], add_cut_edge_as_boundary_node: bool = False
 ) -> tuple[list[GraphS], list[tuple[dict[int, tuple[int, int]], dict[int, tuple[int, int]]]]]:
-    """Create a subgraph from the given vertices."""
+    """Create subgraphs from given sets of vertices; optionally add boundary vertices at cuts."""
     subgraphs = []
     cut_edges_map = {}
     added_vertices_list = []
@@ -397,19 +403,25 @@ def _find_pauli_graphs_with_vertex_ordering(
     """Find the correlation surfaces based on a given vertex ordering."""
     if vertex_ordering is None:
         return list(_product_of_disconnected_pauli_graphs(_find_pauli_graphs(zx_graph, parallel)))
+
+    # partition the ZX graph and find correlation surface generators for each subgraph
     subgraphs, added_vertices_list = _partition_graph_from_vertices(zx_graph, vertex_ordering, True)
     if parallel and len(subgraphs) > 1:
         with multiprocessing.Pool() as pool:
             pauli_graphs_list = pool.map(_find_pauli_graphs, subgraphs)
     else:
         pauli_graphs_list = list(map(_find_pauli_graphs, subgraphs))
+
+    # post-process the first subgraph
     out_vertices = added_vertices_list.pop(0)[1]
     valid_graphs = list(_product_of_disconnected_pauli_graphs(pauli_graphs_list.pop(0)))
     stabilizers: list[dict[int, Pauli]] = [
         {v: p for v, p in zip(out_vertices, pauli_graph.paulis_at_nodes(out_vertices.keys()))}
         for pauli_graph in valid_graphs
-    ]
+    ]  # the stabilizers need to be derived before the boundary vertices are restored
     valid_graphs = [_restore_pauli_graph_from_added_vertices(g, out_vertices) for g in valid_graphs]
+
+    # match the boundary stabilizers for the rest of the subgraphs
     for pauli_graphs, (input_vertices, output_vertices) in zip(
         pauli_graphs_list, added_vertices_list
     ):
@@ -450,11 +462,12 @@ def _find_pauli_graphs_with_vertex_ordering(
             else:  # unsatisfiable stabilizer, remove it
                 invalid_stabilizer_indices.append(i)
         stabilizers = [s for i, s in enumerate(stabilizers) if i not in invalid_stabilizer_indices]
+
     return valid_graphs
 
 
 def _find_pauli_graphs(zx_graph: GraphS, parallel: bool = False) -> list[list[PauliGraph]]:
-    """Find the correlation surfaces for each connected component in the graph."""
+    """Find the correlation surface generators for each connected component in the graph."""
     components = [
         (component, min(v for v in component.vertices() if component.vertex_degree(v) == 1))
         for component in _partition_graph_into_connected_components(zx_graph)
@@ -468,6 +481,7 @@ def _find_pauli_graphs(zx_graph: GraphS, parallel: bool = False) -> list[list[Pa
 
 
 def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph]:
+    """Find the correlation surface generators satisfying the closed ports."""
     pauli_graphs = _find_pauli_graph_generating_set_from_leaf(zx_graph, leaf)
 
     closed_leaves = {pauli: [] for pauli in PAULIS_XYZ}
@@ -633,7 +647,7 @@ def _expand_pauli_graph_to_node(
 
 
 def _find_pauli_graph_generating_set_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph]:
-    """Find the correlation surfaces starting from a leaf node in the graph."""
+    """Find a generating set of correlation surfaces assuming all ports are open."""
     neighbor: int = next(iter(zx_graph.neighbors(leaf)))
     pauli_graphs = (
         PauliGraph().add_pauli_to_edge(
@@ -641,7 +655,8 @@ def _find_pauli_graph_generating_set_from_leaf(zx_graph: GraphS, leaf: int) -> l
         )
         for pauli in PAULIS_XZ
     )
-    if zx_graph.vertex_degree(neighbor) == 1:  # make sure no leaf node will be in the frontier
+    if zx_graph.vertex_degree(neighbor) == 1:
+        # edge case, make sure no leaf node will be in the frontier
         return list(pauli_graphs)
     frontier = [neighbor]
     explored_leaves = [leaf]
@@ -744,6 +759,7 @@ def _find_pauli_graph_generating_set_from_leaf(zx_graph: GraphS, leaf: int) -> l
         )
         explored_nodes.add(current_node)
 
+    # eliminate dependent graphs from the final expansion to get a generating set
     return _reform_pauli_graph_generators(
         [pauli_graph, *pauli_graphs],
         lambda pg: pg.signature_at_nodes(
@@ -771,6 +787,7 @@ def _concat_ints_as_bits(ints: Iterable[int], bit_length: int | Iterable[int]) -
 def _solve_linear_system(
     basis: dict[int, tuple[int, int]], x: int, update_basis: bool = True
 ) -> list[int] | None:
+    """Perform one step of Gaussian elimination over GF(2)."""
     mask = 1 << len(basis)
     while x:
         highest_bit = x.bit_length() - 1
