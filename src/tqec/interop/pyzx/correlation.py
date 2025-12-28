@@ -87,7 +87,6 @@ def pauli_web_to_correlation_surface(
 
 def find_correlation_surfaces(
     g: GraphS,
-    reduce_to_minimal_generators: bool = True,
     vertex_ordering: Sequence[set[int]] | None = None,
     parallel: bool = False,
 ) -> list[CorrelationSurface]:
@@ -126,10 +125,6 @@ def find_correlation_surfaces(
 
     Args:
         g: The ZX graph to find the correlation surfaces.
-        reduce_to_minimal_generators: Whether to reduce the correlation surfaces to the minimal
-            generators. Other correlation surfaces can be obtained by multiplying the generators.
-            The generators are chosen to be the smallest in terms of the correlation surface area.
-            Default is `True`.
         vertex_ordering: A reserved argument for an unfinished feature. Should not be used at this
             moment.
         parallel: Whether to use multiprocessing to speed up the computation. Only applies to
@@ -158,23 +153,14 @@ def find_correlation_surfaces(
             "The graph must contain at least one leaf node to find correlation surfaces."
         )
 
-    correlation_surfaces = _find_pauli_graphs_with_vertex_ordering(g, vertex_ordering, parallel)
-
-    if not reduce_to_minimal_generators:
-        # construct all correlation surfaces from the generators
-        basis = _construct_basis({}, correlation_surfaces, lambda cs: cs.signature_at_nodes(leaves))
-        full_set = []
-        stabilizers = product(PAULIS_IXYZ, repeat=len(leaves))
-        next(stabilizers)
-        for stabilizer in stabilizers:
-            indices = _solve_linear_system(basis, _concat_ints_as_bits(stabilizer, 2), False)
-            if indices is not None:
-                full_set.append(_multiply_pauli_graphs([correlation_surfaces[i] for i in indices]))
-        correlation_surfaces = full_set
-
-    correlation_surfaces = [cs.to_correlation_surface(g) for cs in correlation_surfaces]
     # sort the correlation surfaces to make the result deterministic
-    return sorted(correlation_surfaces, key=lambda x: sorted(x.span))
+    return sorted(
+        (
+            cs.to_correlation_surface(g)
+            for cs in _find_pauli_graphs_with_vertex_ordering(g, vertex_ordering, parallel)
+        ),
+        key=lambda x: sorted(x.span),
+    )
 
 
 class Pauli(IntFlag):

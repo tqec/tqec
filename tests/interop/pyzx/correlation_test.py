@@ -123,14 +123,14 @@ def test_correlation_logical_s_via_gate_teleportation() -> None:
     g.add_vertex(VertexType.Z)
     g.add_vertex(VertexType.Z, phase=Fraction(1, 2))
     g.add_edges([(0, 1), (1, 2), (1, 3), (3, 4)])
-    surfaces = set(find_correlation_surfaces(g, reduce_to_minimal_generators=False))
-    assert len(surfaces) == 3
+    surfaces = set(find_correlation_surfaces(g))
+    assert len(surfaces) == 2
     assert {
         CorrelationSurface(
             frozenset(
                 {
                     ZXEdge(ZXNode(0, Basis.X), ZXNode(1, Basis.X)),
-                    ZXEdge(ZXNode(0, Basis.Z), ZXNode(1, Basis.Z)),
+                    ZXEdge(ZXNode(1, Basis.Z), ZXNode(2, Basis.Z)),
                     ZXEdge(ZXNode(1, Basis.X), ZXNode(2, Basis.X)),
                     ZXEdge(ZXNode(1, Basis.X), ZXNode(3, Basis.X)),
                     ZXEdge(ZXNode(1, Basis.Z), ZXNode(3, Basis.Z)),
@@ -147,11 +147,7 @@ def test_correlation_logical_s_via_gate_teleportation() -> None:
                 }
             )
         ),
-    }.issubset(surfaces)
-
-    generators = set(find_correlation_surfaces(g))
-    assert len(generators) == 2
-    assert {s.external_stabilizer([0, 2]) for s in generators} == {"ZZ", "XY"}
+    } == set(surfaces)
 
 
 def test_correlation_four_node_circle() -> None:
@@ -184,4 +180,4 @@ def test_correlation_four_node_circle() -> None:
 
     g.add_vertex()
     g.add_edge((1, 5))
-    assert len(find_correlation_surfaces(g, reduce_to_minimal_generators=False)) == 3
+    assert len(find_correlation_surfaces(g)) == 2
