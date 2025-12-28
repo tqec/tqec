@@ -305,6 +305,8 @@ class PauliGraphView(ChainMap[int, dict[int, Pauli]], PauliGraphBase):
 
 def _multiply_pauli_graphs(pauli_graphs: list[PauliGraphBase]) -> PauliGraph:
     """Multiply multiple correlation surfaces together."""
+    # This method is deliberately written in this verbose manner, rather than more concisely with
+    # zip, reduce, etc., to avoid the slight overhead, which becomes noticeable at a large scale.
     result = PauliGraph()
     others = pauli_graphs[1:]
     for v, neighbors in pauli_graphs[0].items():
