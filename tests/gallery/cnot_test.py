@@ -45,9 +45,9 @@ def test_cnot_filled(obs_basis: Basis) -> None:
 @pytest.mark.parametrize(
     "obs_basis, num_surfaces, external_stabilizers",
     [
-        (Basis.X, 2, {"XIXX", "IXIX"}),
-        (Basis.Z, 2, {"ZIZI", "ZZIZ"}),
-        (None, 4, {"ZIZI", "ZZIZ", "XIXX", "IXIX"}),
+        (Basis.X, 2, {"XIXX", "XXXI"}),
+        (Basis.Z, 2, {"ZIZI", "IZZZ"}),
+        (None, 4, {"ZIZI", "IZZZ", "XIXX", "XXXI"}),
     ],
 )
 def test_cnot_correlation_surface(

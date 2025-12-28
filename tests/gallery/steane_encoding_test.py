@@ -26,8 +26,8 @@ def test_steane_encoding_filled(obs_basis: Basis) -> None:
 @pytest.mark.parametrize(
     "obs_basis, num_surfaces, external_stabilizers",
     [
-        (Basis.X, 3, {"IXXIIXX", "IXIXXXI", "XIIXIXX"}),
-        (Basis.Z, 4, {"ZZIIIZI", "IZZIZII", "ZIIZZII", "ZIZIIIZ"}),
+        (Basis.X, 3, {"IXXIIXX", "XIXIXXI", "XIIXIXX"}),
+        (Basis.Z, 4, {"ZZIIIZI", "IZZIZII", "IIZZIZI", "IZZIIZZ"}),
     ],
 )
 def test_steane_encoding_correlation_surface(
@@ -44,10 +44,10 @@ def test_steane_encoding_ports_filling() -> None:
     g = steane_encoding()
     filled_graphs = g.fill_ports_for_minimal_simulation()
     assert len(filled_graphs) == 2
-    assert set(filled_graphs[0].stabilizers) == {"IXXIIXX", "IXIXXXI", "XIIXIXX"}
+    assert set(filled_graphs[0].stabilizers) == {"IXXIIXX", "XIXIXXI", "XIIXIXX"}
     assert set(filled_graphs[1].stabilizers) == {
         "ZZIIIZI",
+        "IZZIIZZ",
+        "IIZZIZI",
         "IZZIZII",
-        "ZIIZZII",
-        "ZIZIIIZ",
     }
