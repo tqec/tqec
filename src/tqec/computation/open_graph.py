@@ -93,7 +93,7 @@ def fill_ports_for_minimal_simulation(
             TQECWarning,
         )
 
-    correlation_surfaces = graph.find_correlation_surfaces(reduce_to_minimal_generators=True)
+    correlation_surfaces = graph.find_correlation_surfaces()
     stab_to_surface: dict[str, CorrelationSurface] = {
         s.external_stabilizer_on_graph(graph): s for s in correlation_surfaces
     }

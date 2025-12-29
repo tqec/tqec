@@ -71,8 +71,8 @@ def test_cz_resolve_ports() -> None:
     "flows, num_surfaces, external_stabilizers",
     [
         (["ZZ -> ZZ"], 2, {"ZIZI", "IZIZ"}),
-        (["XI -> XZ"], 2, {"IZIZ", "XIXZ"}),
-        (None, 4, {"IXZX", "ZIZI", "IZIZ", "XIXZ"}),
+        (["XI -> XZ"], 2, {"XZXI", "XIXZ"}),
+        (None, 4, {"XZXI", "ZIZI", "ZXIX", "XIXZ"}),
     ],
 )
 def test_cz_correlation_surface(
