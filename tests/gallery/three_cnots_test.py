@@ -67,5 +67,5 @@ def test_three_cnots_ports_filling() -> None:
     g = three_cnots()
     filled_graphs = g.fill_ports_for_minimal_simulation()
     assert len(filled_graphs) == 2
-    assert set(filled_graphs[0].stabilizers) == {"IXXIXI", "XXIXIX", "XXXXII"}
-    assert set(filled_graphs[1].stabilizers) == {"ZIIZII", "ZIZIZZ", "ZZIIZI"}
+    assert set(filled_graphs[0].stabilizers) == {"XIIXXI", "XXIXIX", "XXXXII"}
+    assert set(filled_graphs[1].stabilizers) == {"ZIIZII", "IZIZZI", "IZZIIZ"}

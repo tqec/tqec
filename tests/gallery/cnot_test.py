@@ -47,7 +47,7 @@ def test_cnot_filled(obs_basis: Basis) -> None:
     [
         (Basis.X, 2, {"XIXX", "XXXI"}),
         (Basis.Z, 2, {"ZIZI", "IZZZ"}),
-        (None, 4, {"ZIZI", "IZZZ", "XIXX", "XXXI"}),
+        (None, 4, {"ZIZI", "ZZIZ", "XIXX", "XXXI"}),
     ],
 )
 def test_cnot_correlation_surface(
@@ -72,5 +72,5 @@ def test_cnot_ports_filling() -> None:
     g = cnot()
     filled_graphs = g.fill_ports_for_minimal_simulation()
     assert len(filled_graphs) == 2
-    assert set(filled_graphs[0].stabilizers) == {"XIXX", "IXIX"}
+    assert set(filled_graphs[0].stabilizers) == {"XIXX", "XXXI"}
     assert set(filled_graphs[1].stabilizers) == {"ZIZI", "ZZIZ"}

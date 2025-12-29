@@ -130,7 +130,7 @@ def test_correlation_logical_s_via_gate_teleportation() -> None:
             frozenset(
                 {
                     ZXEdge(ZXNode(0, Basis.X), ZXNode(1, Basis.X)),
-                    ZXEdge(ZXNode(1, Basis.Z), ZXNode(2, Basis.Z)),
+                    ZXEdge(ZXNode(0, Basis.Z), ZXNode(1, Basis.Z)),
                     ZXEdge(ZXNode(1, Basis.X), ZXNode(2, Basis.X)),
                     ZXEdge(ZXNode(1, Basis.X), ZXNode(3, Basis.X)),
                     ZXEdge(ZXNode(1, Basis.Z), ZXNode(3, Basis.Z)),
