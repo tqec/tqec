@@ -104,7 +104,7 @@ def find_correlation_surfaces(
          c. If there is a loop, recover valid correlation surfaces from invalid ones.
          d. Prune redundant ones to keep the generating set minimal.
          e. Repeat from step (a) until all nodes are explored.
-    3. Reform the generators so that they satisfy the closed ports.
+    3. Reform the generators so that they satisfy the closed ports (non-BOUNDARY leaf nodes).
     4. Reform the generators so that the number of Y-terminating correlation surfaces is minimized.
     5. Combine the generators from all connected components.
 
@@ -113,15 +113,12 @@ def find_correlation_surfaces(
     - *broadcast rule:* All or none of the incident edges supports the opposite of B.
     - *passthrough rule:* An even number of incident edges supports B.
 
-    For leaf nodes:
+    Leaf nodes can additionally be of both or none of the X and Z bases and also need to follow the
+      above rules. Specifically:
     - For an X/Z type leaf node, it can only support the logical observable with the opposite type.
-      Only a single type of logical observable is explored from the leaf node.
     - For a Y type leaf node, it can only support the Y logical observable, i.e. the presence of
-      both X and Z logical observable. Both X and Z type logical observable are explored from the
-      leaf node. And the two correlation surfaces are combined to form the Y type correlation
-      surface.
-    - For the BOUNDARY node, it can support any type of logical observable. Both X and Z type
-      logical observable are explored from it.
+      both X and Z logical observable.
+    - For the BOUNDARY node, it can support any type of logical observable.
 
     Args:
         g: The ZX graph to find the correlation surfaces.
@@ -153,7 +150,7 @@ def find_correlation_surfaces(
             "The graph must contain at least one leaf node to find correlation surfaces."
         )
 
-    # sort the correlation surfaces to make the result deterministic
+    # sort the correlation surfaces by area
     return sorted(
         (
             cs.to_correlation_surface(g)
@@ -289,8 +286,8 @@ class PauliGraphView(ChainMap[int, dict[int, Pauli]], PauliGraphBase):
         raise KeyError(key)
 
 
-def _multiply_pauli_graphs(pauli_graphs: list[PauliGraphBase]) -> PauliGraph:
-    """Multiply multiple correlation surfaces together."""
+def _xor_pauli_graphs(pauli_graphs: list[PauliGraphBase]) -> PauliGraph:
+    """XOR multiple correlation surfaces together."""
     # This method is deliberately written in this verbose manner, rather than more concisely with
     # zip, reduce, etc., to avoid the slight overhead, which becomes noticeable at a large scale.
     result = PauliGraph()
@@ -435,7 +432,7 @@ def _find_pauli_graphs_with_vertex_ordering(
                     False,
                 )
                 if indices is not None:
-                    new_pauli_graph = _multiply_pauli_graphs([basis_graphs[k] for k in indices])
+                    new_pauli_graph = _xor_pauli_graphs([basis_graphs[k] for k in indices])
                     stabilizer.update(
                         zip(
                             output_vertices, new_pauli_graph.paulis_at_nodes(output_vertices.keys())
@@ -505,7 +502,7 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
         )
     ):
         pauli_graphs = [
-            _multiply_pauli_graphs([pauli_graphs[i] for i in indices])
+            _xor_pauli_graphs([pauli_graphs[i] for i in indices])
             if len(indices := _int_to_bit_indices(mask)) > 1
             else pauli_graphs[indices[0]]  # type: ignore (indices is always non-empty)
             for _, mask in _normalize_basis(
@@ -542,9 +539,7 @@ def _reform_pauli_graph_generators(
                 break
             continue
         if construct_new_graphs:
-            new_graphs.append(
-                _multiply_pauli_graphs([*(basis_graphs[k] for k in indices), pauli_graph])
-            )
+            new_graphs.append(_xor_pauli_graphs([*(basis_graphs[k] for k in indices), pauli_graph]))
             if num_new_graphs_needed is not None and len(new_graphs) >= num_new_graphs_needed:
                 break
     return basis_graphs, new_graphs
@@ -679,7 +674,7 @@ def _find_pauli_graph_generating_set_from_leaf(zx_graph: GraphS, leaf: int) -> l
                 if len(vector_basis) == generating_set_size:
                     break
 
-        # try to fix local constraint violations by multiplying with other invalid graphs
+        # try to fix local constraint violations by XORing with other invalid graphs
         all_one = (1 << len(connected_neighbors)) - 1
         syndrome_basis, basis_graphs = {}, []
         for pauli_graph, syndrome in zip(invalid_graphs, syndromes):
@@ -691,7 +686,7 @@ def _find_pauli_graph_generating_set_from_leaf(zx_graph: GraphS, leaf: int) -> l
                     if j == 1:
                         basis_graphs.append(pauli_graph)
                     continue
-                new_pauli_graph = _multiply_pauli_graphs(
+                new_pauli_graph = _xor_pauli_graphs(
                     [*(basis_graphs[k] for k in indices), pauli_graph]
                 )
                 if (
@@ -800,10 +795,7 @@ def _normalize_basis(
     basis: dict[int, tuple[int, int]], in_place: bool = True
 ) -> dict[int, tuple[int, int]]:
     """Normalize the basis vectors to only have leading 1s when possible."""
-    if in_place:
-        normalized_basis = basis
-    else:
-        normalized_basis = {}
+    normalized_basis = basis if in_place else {}
     highest_bits = sorted(basis, reverse=True)
     for i, key in enumerate(highest_bits):
         vector, mask = basis[key]
