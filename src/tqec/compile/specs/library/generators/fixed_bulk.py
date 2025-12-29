@@ -1432,7 +1432,7 @@ class FixedBulkConventionGenerator:
         """Return the :class:`~tqec.templates.base.Template` instance needed to implement a spatial
         Hadamard pipe between two neighbouring logical qubits aligned on the ``Y`` axis.
         """
-        raise self._not_implemented_exception()
+        return QubitHorizontalBorders()
 
     def get_spatial_horizontal_hadamard_rpng_descriptions(
         self,
