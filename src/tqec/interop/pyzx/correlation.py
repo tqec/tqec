@@ -507,7 +507,7 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
         pauli_graphs = [
             _multiply_pauli_graphs([pauli_graphs[i] for i in indices])
             if len(indices := _int_to_bit_indices(mask)) > 1
-            else pauli_graphs[indices[0]]
+            else pauli_graphs[indices[0]]  # type: ignore (indices is always non-empty)
             for _, mask in _normalize_basis(
                 _construct_basis(
                     {},
