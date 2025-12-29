@@ -504,25 +504,18 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
             zx_graph.vertices(),
         )
     ):
-        basis_graphs = []
-        for pauli in PAULIS_XZ:
-
-            def signature_func(pg: PauliGraphBase) -> int:
-                return pg.signature_at_nodes(open_leaves, lambda p: p not in (Pauli.I, pauli), 1)
-
-            basis_graphs, valid_graphs = _reform_pauli_graph_generators(
-                pauli_graphs,
-                signature_func,
+        pauli_graphs = [
+            _multiply_pauli_graphs([pauli_graphs[i] for i in indices])
+            if len(indices := _int_to_bit_indices(mask)) > 1
+            else pauli_graphs[indices[0]]
+            for _, mask in _normalize_basis(
                 _construct_basis(
                     {},
-                    basis_graphs,
-                    signature_func,
-                ),
-                basis_graphs,
-            )
-            pauli_graphs = basis_graphs.copy()
-            basis_graphs = valid_graphs
-        pauli_graphs += basis_graphs
+                    pauli_graphs,
+                    lambda pg: pg.signature_at_nodes(open_leaves),
+                )
+            ).values()
+        ]
 
     return pauli_graphs  # ty: ignore (seems to be a false positive of ty)
 
@@ -774,19 +767,24 @@ def _concat_ints_as_bits(ints: Iterable[int], bit_length: int | Iterable[int]) -
 
 def _solve_linear_system(
     basis: dict[int, tuple[int, int]], x: int, update_basis: bool = True
-) -> list[int] | None:
-    """Perform one step of Gaussian elimination over GF(2)."""
+) -> tuple[int, ...] | None:
+    """Gaussian elimination over GF(2)."""
     mask = 1 << len(basis)
     while x:
         highest_bit = x.bit_length() - 1
         if highest_bit not in basis:
             if update_basis:
                 basis[highest_bit] = (x, mask)
-            return None
+            return
         pivot, pivot_mask = basis[highest_bit]
         x ^= pivot
         mask ^= pivot_mask
-    return list(filter(lambda i: (mask >> i) & 1, range(len(basis))))
+    return _int_to_bit_indices(mask)[:-1]
+
+
+def _int_to_bit_indices(x: int) -> tuple[int, ...]:
+    """Convert an integer to a list of indices where the bits are set."""
+    return tuple(i for i in range(x.bit_length()) if (x >> i) & 1)
 
 
 def _construct_basis(
@@ -796,6 +794,26 @@ def _construct_basis(
     for item in items:
         _solve_linear_system(basis, func(item))
     return basis
+
+
+def _normalize_basis(
+    basis: dict[int, tuple[int, int]], in_place: bool = True
+) -> dict[int, tuple[int, int]]:
+    """Normalize the basis vectors to only have leading 1s when possible."""
+    if in_place:
+        normalized_basis = basis
+    else:
+        normalized_basis = {}
+    highest_bits = sorted(basis, reverse=True)
+    for i, key in enumerate(highest_bits):
+        vector, mask = basis[key]
+        for highest_bit in highest_bits[i + 1 :]:
+            if (vector >> highest_bit) & 1:
+                pivot, pivot_mask = basis[highest_bit]
+                vector ^= pivot
+                mask ^= pivot_mask
+        normalized_basis[key] = (vector, mask)
+    return normalized_basis
 
 
 _SUPPORTED_SPIDERS: set[tuple[VertexType, FractionLike]] = {
