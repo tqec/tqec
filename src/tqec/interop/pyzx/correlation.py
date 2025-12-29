@@ -14,7 +14,6 @@ from collections.abc import (
     Sequence,
 )
 from copy import copy
-from enum import IntFlag
 from fractions import Fraction
 from functools import cache, partial, reduce
 from itertools import (
@@ -36,7 +35,7 @@ from typing_extensions import Self
 
 from tqec.computation.correlation import CorrelationSurface, ZXEdge, ZXNode
 from tqec.interop.pyzx.utils import is_boundary, is_hadamard, is_s, is_z_no_phase
-from tqec.utils.enums import Basis
+from tqec.utils.enums import Basis, Pauli
 from tqec.utils.exceptions import TQECError
 
 
@@ -160,26 +159,6 @@ def find_correlation_surfaces(
     )
 
 
-class Pauli(IntFlag):
-    """Pauli operators as bit flags of X and Z supports."""
-
-    I = 0  # noqa: E741
-    X = 1
-    Z = 2
-    Y = X | Z
-
-    def flipped(self) -> Pauli:
-        """Return the Pauli operator with X and Z supports flipped."""
-        return Pauli((self >> 1) | ((self % 2) << 1))
-
-
-# Directly iterating over Pauli gives X, Z in Python 3.11+ but I, X, Y, Z in 3.10 due to a behavior
-# change in Flag. So we define these tuples for consistent behavior across versions.
-PAULIS_XZ = (Pauli.X, Pauli.Z)
-PAULIS_XYZ = (Pauli.X, Pauli.Y, Pauli.Z)
-PAULIS_IXYZ = (Pauli.I, Pauli.X, Pauli.Y, Pauli.Z)
-
-
 class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
     """Correlation surface represented as Pauli operators on half-edges."""
 
@@ -189,10 +168,7 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
         """Add Pauli operators to both ends of the given edge."""
         for (u, v), p in zip(
             (edge, edge[::-1]),
-            (
-                pauli,
-                pauli.flipped() if edge_is_hadamard else pauli,
-            ),
+            (pauli, pauli.flipped(edge_is_hadamard)),
         ):
             edges = self.setdefault(u, {})
             edges[v] = p
@@ -205,14 +181,12 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
     def signature_at_nodes(
         self,
         nodes: Iterable[int],
-        func: Callable[[Pauli], int] | None = None,
+        func: Callable[[Pauli], int] = lambda p: p.value,
         bit_length: int = 2,
     ) -> int:
         """Compute the signature at the given nodes using the provided function."""
         ints = self.paulis_at_nodes(nodes)
-        if func is not None:
-            ints = map(func, ints)
-        return _concat_ints_as_bits(ints, bit_length)
+        return _concat_ints_as_bits(map(func, ints), bit_length)
 
     def validate_node(
         self, node: int, node_basis: Pauli, has_unconnected_neighbors: bool
@@ -245,14 +219,17 @@ class PauliGraphBase(MutableMapping[int, dict[int, Pauli]]):
             pauli_u = self[u][v]
             pauli_v = self[v][u]
             edge_is_hadamard = is_hadamard(zx_graph, (u, v))
-            for basis_u, basis_v in product(PAULIS_XZ, repeat=2):
+            for basis_u, basis_v in product(Pauli.iter_xz(), repeat=2):
                 if (
                     (edge_is_hadamard ^ (basis_u == basis_v))
                     and basis_u in pauli_u
                     and basis_v in pauli_v
                 ):
                     span.append(
-                        ZXEdge(ZXNode(u, bases[basis_u >> 1]), ZXNode(v, bases[basis_v >> 1]))
+                        ZXEdge(
+                            ZXNode(u, bases[basis_u.value >> 1]),
+                            ZXNode(v, bases[basis_v.value >> 1]),
+                        )
                     )
         return CorrelationSurface(frozenset(span))
 
@@ -415,7 +392,7 @@ def _find_pauli_graphs_with_vertex_ordering(
         for i, stabilizer in enumerate(stabilizers):
             local_stabilizer = _concat_ints_as_bits(
                 (
-                    p.flipped() if is_hadamard(zx_graph, input_vertices[v]) else p
+                    p.flipped(is_hadamard(zx_graph, input_vertices[v])).value
                     for v, p in stabilizer.items()
                     if v in input_vertices
                 ),
@@ -469,7 +446,7 @@ def _find_pauli_graphs_from_leaf(zx_graph: GraphS, leaf: int) -> list[PauliGraph
     """Find the correlation surface generators satisfying the closed ports."""
     pauli_graphs = _find_pauli_graph_generating_set_from_leaf(zx_graph, leaf)
 
-    closed_leaves = {pauli: [] for pauli in PAULIS_XYZ}
+    closed_leaves = {pauli: [] for pauli in Pauli.iter_xyz()}
     for closed_leaf in filter(
         lambda v: zx_graph.vertex_degree(v) == 1 and not is_boundary(zx_graph, v),
         zx_graph.vertices(),
@@ -629,7 +606,7 @@ def _find_pauli_graph_generating_set_from_leaf(zx_graph: GraphS, leaf: int) -> l
         PauliGraph().add_pauli_to_edge(
             (leaf, neighbor), pauli, is_hadamard(zx_graph, (leaf, neighbor))
         )
-        for pauli in PAULIS_XZ
+        for pauli in Pauli.iter_xz()
     )
     if zx_graph.vertex_degree(neighbor) == 1:
         # edge case, make sure no leaf node will be in the frontier
