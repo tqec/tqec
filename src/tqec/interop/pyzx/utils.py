@@ -34,7 +34,7 @@ def is_s(g: GraphS, v: int) -> bool:
     return g.type(v) is VertexType.Z and g.phase(v) == Fraction(1, 2)
 
 
-def is_hardmard(g: GraphS, edge: tuple[int, int]) -> bool:
+def is_hadamard(g: GraphS, edge: tuple[int, int]) -> bool:
     """Check if an edge in a PyZX graph is a Hadamard edge."""
     return g.edge_type(edge) is EdgeType.HADAMARD
 
