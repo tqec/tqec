@@ -243,7 +243,7 @@ def rotate_on_import(
     ):
         raise TQECError(  # pragma: no cover
             f"There is an invalid rotation for {kind} block at "
-            f"position {FloatPosition3D(*translation_matrix)}."
+            f"position {FloatPosition3D(*translation_matrix.tolist())}."
         )
 
     # Rotate node name

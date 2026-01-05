@@ -16,7 +16,7 @@ jobs:
   pre-commit-ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
@@ -35,7 +35,7 @@ jobs:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       # Checkout and install TQEC
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
@@ -62,7 +62,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       # Checkout and install TQEC
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
