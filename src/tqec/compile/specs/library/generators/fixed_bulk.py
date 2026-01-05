@@ -1229,21 +1229,21 @@ class FixedBulkConventionGenerator:
                 )
 
         if SpatialArms.DOWN in arms:
-            if _sbb == Basis.Z and SpatialArms.LEFT in u.spatial_arms:
+            if _sbb == Basis.X and SpatialArms.LEFT in u.spatial_arms:
                 plqts = self.get_spatial_z_below_lft_and_2_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb_f, reset, measurement
+                    _sbb, reset, measurement
                 )
-            if _sbb == Basis.X and SpatialArms.RIGHT in u.spatial_arms:
+            if _sbb == Basis.Z and SpatialArms.RIGHT in u.spatial_arms:
                 plqts = self.get_spatial_x_below_rght_and_2_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb_f, reset, measurement
+                    _sbb, reset, measurement
                 )
-            if _sbb == Basis.Z and SpatialArms.LEFT not in u.spatial_arms:
+            if _sbb == Basis.X and SpatialArms.LEFT not in u.spatial_arms:
                 plqts = self.get_spatial_above_right_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb_f, reset, measurement
+                    _sbb, reset, measurement
                 )  # confusing name, but same plaquettes as this situation
-            if _sbb == Basis.X and SpatialArms.RIGHT not in u.spatial_arms:
+            if _sbb == Basis.Z and SpatialArms.RIGHT not in u.spatial_arms:
                 plqts = self.get_spatial_below_left_arm_extended_stabiliser_hadamard_plqts(
-                    _sbb_f, reset, measurement
+                    _sbb, reset, measurement
                 )
 
         return plqts
