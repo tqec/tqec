@@ -1,6 +1,8 @@
 import functools
 from collections.abc import Callable
-from typing import Protocol, override
+from typing import Protocol
+
+from typing_extensions import override
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
