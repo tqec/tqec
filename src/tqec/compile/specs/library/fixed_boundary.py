@@ -1,5 +1,6 @@
+import functools
 from collections.abc import Callable
-from typing import Protocol
+from typing import Protocol, override
 
 from tqec.compile.blocks.block import Block
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -155,8 +156,13 @@ class FixedBoundaryCubeBuilder(CubeBuilder):
             _spatial_plaquettes_generator,
         )
 
+    @override
     def __call__(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
         """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
+        return self._call_impl(spec, block_temporal_height)
+
+    @functools.cache
+    def _call_impl(self, spec: CubeSpec, block_temporal_height: LinearFunction) -> Block:
         kind = spec.kind
         if isinstance(kind, Port):
             raise TQECError("Cannot build a block for a Port.")
@@ -191,8 +197,13 @@ class FixedBoundaryPipeBuilder(PipeBuilder):
         """
         self._generator = FixedBoundaryConventionGenerator(translator, compiler)
 
+    @override
     def __call__(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
         """Instantiate a :class:`.Block` instance implementing the provided ``spec``."""
+        return self._call_impl(spec, block_temporal_height)
+
+    @functools.cache
+    def _call_impl(self, spec: PipeSpec, block_temporal_height: LinearFunction) -> Block:
         if spec.pipe_kind.is_temporal:
             return self.get_temporal_pipe_block(spec)
         return self.get_spatial_pipe_block(spec, block_temporal_height)
