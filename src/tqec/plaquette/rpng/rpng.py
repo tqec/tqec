@@ -163,7 +163,7 @@ class RG:
         return f"{'-' if self.r is None else self.r.value}{'-' if self.g is None else self.g.value}"
 
 
-@dataclass
+@dataclass(frozen=True)
 class RPNGDescription:
     """Organize the description of a plaquette in RPNG format.
 
