@@ -1,3 +1,4 @@
+import functools
 from copy import deepcopy
 from typing import Final, Literal
 
@@ -59,6 +60,10 @@ class DefaultRPNGTranslator(RPNGTranslator):
 
     @override
     def translate(self, rpng_description: RPNGDescription) -> Plaquette:
+        return self._translate_impl(rpng_description)
+
+    @functools.lru_cache(maxsize=1024)
+    def _translate_impl(self, rpng_description: RPNGDescription) -> Plaquette:
         # The current RPNG notation is very much tied to the qubit arrangement
         # in SquarePlaquetteQubits, hence the explicit value here.
         qubits: PlaquetteQubits = deepcopy(DefaultRPNGTranslator.QUBITS)
