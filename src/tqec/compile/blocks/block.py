@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from functools import cached_property
 from typing import Final, cast
 
 from typing_extensions import override
@@ -77,7 +78,7 @@ class Block(SequencedLayers):
             )
         return layer
 
-    @property
+    @cached_property
     def dimensions(self) -> tuple[LinearFunction, LinearFunction, LinearFunction]:
         """Return the dimensions of ``self``.
 

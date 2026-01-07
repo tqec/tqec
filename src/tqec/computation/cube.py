@@ -36,7 +36,7 @@ class ZXCube:
             A tuple of ``(self.x, self.y, self.z)``.
 
         """
-        return astuple(self)
+        return (self.x, self.y, self.z)
 
     def __str__(self) -> str:
         return f"{self.x}{self.y}{self.z}"
