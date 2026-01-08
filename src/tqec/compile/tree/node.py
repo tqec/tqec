@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Mapping, Sequence
-from typing import Any, TypeGuard
+from collections.abc import Iterator, Mapping, Sequence
+from typing import Any, TypeGuard, override, Dict
 
 import stim
 
+from tqec.circuit.measurement_map import MeasurementRecordsMap
 from tqec.circuit.qubit_map import QubitMap
 from tqec.circuit.schedule.circuit import ScheduledCircuit
 from tqec.compile.blocks.layers.atomic.base import BaseLayer
@@ -15,7 +16,11 @@ from tqec.compile.blocks.layers.atomic.raw import RawCircuitLayer
 from tqec.compile.blocks.layers.composed.base import BaseComposedLayer
 from tqec.compile.blocks.layers.composed.repeated import RepeatedLayer
 from tqec.compile.blocks.layers.composed.sequenced import SequencedLayers
-from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon
+from tqec.compile.detectors import DetectorDatabase, compute_detectors_for_fixed_radius
+from tqec.compile.observables.abstract_observable import AbstractObservable
+from tqec.compile.observables.builder import ObservableComponent, ObservableBuilder, get_observable_with_measurement_records
+from tqec.compile.tree.annotations import LayerNodeAnnotations, Polygon, DetectorAnnotation
+from tqec.compile.tree.annotators.detectors import LookbackStack
 from tqec.utils.coordinates import StimCoordinates
 from tqec.utils.exceptions import TQECError
 from tqec.utils.scale import LinearFunction
@@ -40,6 +45,136 @@ class NodeWalker:
     def exit_node(self, node: LayerNode) -> None:
         """Interface called when exiting ``node``."""
         pass
+
+
+class AnnotateDetectorsOnLayerNode(NodeWalker):
+    def __init__(
+        self,
+        k: int,
+        manhattan_radius: int = 2,
+        detector_database: DetectorDatabase | None = None,
+        only_use_database: bool = False,
+        lookback: int = 2,
+        parallel_process_count: int = 1,
+    ):
+        """Walker computing and annotating detectors on leaf nodes.
+
+        This class keeps track of the ``lookback`` previous leaf nodes seen and
+        uses them to automatically compute the detectors at all the leaf nodes
+        it encounters.
+
+        Args:
+            k: scaling factor.
+            manhattan_radius: Parameter for the automatic computation of detectors.
+                Should be large enough so that flows cancelling each other to
+                form a detector are strictly contained in plaquettes that are at
+                most at a distance of ``manhattan_radius`` from the central
+                plaquette. Detector computation runtime grows with this parameter,
+                so you should try to keep it to its minimum. A value too low might
+                produce invalid detectors.
+            detector_database: existing database of detectors that is used to
+                avoid computing detectors if the database already contains them.
+                Default to `None` which result in not using any kind of database
+                and unconditionally performing the detector computation.
+            only_use_database: if ``True``, only detectors from the database will be
+                used. An error will be raised if a situation that is not registered
+                in the database is encountered. Default to ``False``.
+            lookback: number of QEC rounds to consider to try to find detectors. Including more
+                rounds increases computation time.
+            parallel_process_count: number of processes to use for parallel processing.
+                1 for sequential processing, >1 for parallel processing using
+                ``parallel_process_count`` processes, and -1 for using all available
+                CPU cores. Default to 1.
+
+        """
+        if lookback < 1:
+            raise TQECError(
+                "Cannot compute detectors without any layer. The `lookback` "
+                f"parameter should be >= 1 but got {lookback}."
+            )
+        self._k = k
+        self._manhattan_radius = manhattan_radius
+        self._database = detector_database if detector_database is not None else DetectorDatabase()
+        self._only_use_database = only_use_database
+        self._lookback_size = lookback
+        self._lookback_stack = LookbackStack()
+        self._parallel_process_count = parallel_process_count
+
+    @override
+    def visit_node(self, node: LayerNode) -> None:
+        if not isinstance(node._layer, LayoutLayer):
+            return
+        annotations = node.get_annotations(self._k)
+        if annotations.circuit is None:
+            raise TQECError("Cannot compute detectors without the circuit annotation.")
+        self._lookback_stack.append(
+            *node._layer.to_template_and_plaquettes(),
+            MeasurementRecordsMap.from_scheduled_circuit(annotations.circuit),
+        )
+        templates, plaquettes, measurement_records = self._lookback_stack.lookback(
+            self._lookback_size
+        )
+
+        detectors = compute_detectors_for_fixed_radius(
+            templates,
+            self._k,
+            plaquettes,
+            self._manhattan_radius,
+            self._database,
+            self._only_use_database,
+            self._parallel_process_count,
+        )
+
+        for detector in detectors:
+            annotations.detectors.append(
+                DetectorAnnotation.from_detector(detector, measurement_records)
+            )
+
+    @override
+    def enter_node(self, node: LayerNode) -> None:
+        if node.is_repeated:
+            self._lookback_stack.enter_repeat_block()
+
+    @override
+    def exit_node(self, node: LayerNode) -> None:
+        if not node.is_repeated:
+            return
+        # Note: this is the place to perform checks. In particular, checking that
+        # detectors computed at the first repetition of the REPEAT block are also
+        # valid at any repetitions. This is a requirement for the REPEAT block to
+        # make sense, but that would be nice to include a check to avoid
+        # misleadingly include detectors that are incorrect sometimes.
+        repetitions = node.repetitions
+        assert repetitions is not None
+        self._lookback_stack.close_repeat_block(repetitions.integer_eval(self._k))
+
+
+def _get_ordered_leaves(root: LayerNode) -> list[LayerNode]:
+    """Return the leaves of the tree in time order."""
+    if root.is_leaf:
+        return [root]
+    return [n for child in root.children for n in _get_ordered_leaves(child)]
+
+
+def _annotate_observable_at_node(
+    node: LayerNode,
+    obs_slice: AbstractObservable,
+    k: int,
+    observable_index: int,
+    observable_builder: ObservableBuilder,
+    component: ObservableComponent,
+) -> None:
+    circuit = node.get_annotations(k).circuit
+    assert circuit is not None
+    measurement_record = MeasurementRecordsMap.from_scheduled_circuit(circuit)
+    assert isinstance(node._layer, LayoutLayer)
+    template, _ = node._layer.to_template_and_plaquettes()
+    obs_qubits = observable_builder.build(k, template, obs_slice, component)
+    if obs_qubits:
+        obs_annotation = get_observable_with_measurement_records(
+            obs_qubits, measurement_record, observable_index
+        )
+        node.get_annotations(k).observables.append(obs_annotation)
 
 
 class LayerNode:
@@ -222,6 +357,179 @@ class LayerNode:
             return ret
         raise TQECError(f"Unknown layer type found: {type(self._layer).__name__}.")
 
+    def generate_circuits_with_potential_polygons_stream(
+        self,
+        k: int,
+        global_qubit_map: QubitMap,
+        reschedule_measurements: bool,
+        detectors_walker: AnnotateDetectorsOnLayerNode,
+        subtree_to_z: Dict[LayerNode, int], # Maybe this doesn't have to be passed down so many layers
+        abstract_observables,
+        observable_builder,
+        add_polygons: bool = False,
+        leaf_dict: Dict | None = None,
+    ) -> Iterator[stim.Circuit | list[Polygon]]:
+        """Generate the circuits and polygons for each nodes in the subtree rooted at ``self``.
+
+        Args:
+            k: scaling parameter.
+            global_qubit_map: qubit map that should be used to generate the
+                quantum circuit. Qubits from the returned quantum circuit will
+                adhere to the provided qubit map.
+            reschedule_measurements: if ``True``, measurements will be rescheduled
+                to optimize circuit execution.
+            detectors_walker: walker instance used to compute and annotate detectors
+                on leaf nodes during circuit generation.
+            subtree_to_z: mapping from direct children of root to their z-coordinate values,
+                used for determining which abstract observables to apply at each node.
+            abstract_observables: collection of abstract observable definitions to be
+                annotated in the circuit.
+            observable_builder: builder instance used to construct observable annotations
+                from abstract observable definitions.
+            add_polygons: if ``True``, polygon objects for visualization in Crumble
+                will be added to the returned list.
+            leaf_dict: optional dictionary mapping leaf nodes to lists of observable functions
+                that should be applied during node processing. Default to ``None``.
+
+        Returns:
+            an iterator to ``stim.Circuit`` and/or ``list[Polygon]`` objects.
+            Each ``stim.Circuit`` represents a quantum circuit of a leaf node in
+            the tree. Each polygon list represents the stabilizer configuration
+            for the corresponding leaf node and will be placed right before the
+            corresponding circuit in the returned list. If two consecutive leaf
+            nodes have the same stabilizer configuration, only the first polygons
+            will be kept.
+
+        """
+        if isinstance(self._layer, LayoutLayer):
+            annotations = self.get_annotations(k)
+
+            # circuit
+            base_circuit = self._layer.to_circuit(
+                k, reschedule_measurements=reschedule_measurements
+            )
+            if base_circuit is None:
+                raise TQECError(
+                    "Cannot generate the final quantum circuit before annotating "
+                    "nodes with their individual circuits. Did you call "
+                    "LayerTree.annotate_circuits before?"
+                )
+            annotations.circuit = base_circuit
+
+            # detectors
+            detectors_walker.enter_node(self)
+            detectors_walker.visit_node(self)
+
+            # observables
+            if leaf_dict is not None:
+                fns = leaf_dict.get(self)
+                if fns is not None:
+                    for fn in fns:
+                        fn(self)
+
+            local_qubit_map = base_circuit.qubit_map
+            qubit_indices_mapping = {
+                local_qubit_map[q]: global_qubit_map[q] for q in local_qubit_map.qubits
+            }
+            mapped_circuit = base_circuit.map_qubit_indices(qubit_indices_mapping)
+            for annotation in annotations.detectors + annotations.observables:
+                mapped_circuit.append_annotation(annotation.to_instruction())
+            mapped_circuit.append_annotation(
+                stim.CircuitInstruction(
+                    "SHIFT_COORDS", [], StimCoordinates(0, 0, 1).to_stim_coordinates()
+                )
+            )
+
+            if add_polygons:
+                yield annotations.polygons
+
+            yield mapped_circuit.get_circuit(include_qubit_coords=False)
+
+        if isinstance(self._layer, SequencedLayers):
+            leaf_dict = {}
+
+            if self in subtree_to_z:
+                z = subtree_to_z[self]
+                leaves = _get_ordered_leaves(self)
+
+                for obs_idx, observable in enumerate(abstract_observables):
+                    obs_slice = observable.slice_at_z(z)
+
+                    # Python is an awful language
+                    def ao0(leaf: LayerNode, obs_slice=obs_slice, k=k,
+                            obs_idx=obs_idx, observable_builder=observable_builder):
+                        _annotate_observable_at_node(leaf, obs_slice, k, obs_idx, observable_builder,
+                                                     ObservableComponent.BOTTOM_STABILIZERS)
+
+                    if leaves[0] not in leaf_dict:
+                        leaf_dict[leaves[0]] = []
+                    leaf_dict[leaves[0]].append(ao0)
+
+                    readout_layer = leaves[-1]
+                    if obs_slice.temporal_hadamard_pipes:
+                        readout_layer = leaves[-2]
+
+                        def ao1(leaf: LayerNode, obs_slice=obs_slice, k=k,
+                            obs_idx=obs_idx, observable_builder=observable_builder):
+                            _annotate_observable_at_node(leaf, obs_slice, k, obs_idx, observable_builder,
+                                                         ObservableComponent.REALIGNMENT)
+
+                        if leaves[-1] not in leaf_dict:
+                            leaf_dict[leaves[-1]] = []
+                        leaf_dict[leaves[-1]].append(ao1)
+
+                    def ao2(leaf: LayerNode, obs_slice=obs_slice, k=k,
+                            obs_idx=obs_idx, observable_builder=observable_builder):
+                        _annotate_observable_at_node(leaf, obs_slice, k, obs_idx, observable_builder,
+                                                     ObservableComponent.TOP_READOUTS)
+
+                    if readout_layer not in leaf_dict:
+                        leaf_dict[readout_layer] = []
+                    leaf_dict[readout_layer].append(ao2)
+
+
+            for child, next_child in itertools.pairwise(self._children):
+                circ = child.generate_circuits_with_potential_polygons_stream(
+                    k, global_qubit_map, reschedule_measurements, detectors_walker, subtree_to_z,
+                    abstract_observables, observable_builder, add_polygons,
+                    leaf_dict=leaf_dict
+                )
+
+                if not next_child.is_repeated:
+                    tick = stim.Circuit()
+                    tick.append("TICK", [], [])
+                    circ = itertools.chain(
+                        circ, [tick]
+                    )  # add TICK at the end if next child is not repeated
+
+                yield from circ
+
+            yield from self._children[-1].generate_circuits_with_potential_polygons_stream(
+                k, global_qubit_map, reschedule_measurements, detectors_walker, subtree_to_z,
+                abstract_observables, observable_builder, add_polygons,
+                leaf_dict=leaf_dict
+            )
+
+        if isinstance(self._layer, RepeatedLayer):
+            detectors_walker.enter_node(self)
+
+            body = self._children[0].generate_circuits_with_potential_polygons_stream(
+                k, global_qubit_map, reschedule_measurements, detectors_walker, subtree_to_z,
+                abstract_observables, observable_builder, add_polygons=add_polygons
+            )
+            body_circuit = sum(
+                (i for i in body if isinstance(i, stim.Circuit)),
+                start=stim.Circuit(),
+            )
+            body_circuit.insert(0, stim.CircuitInstruction("TICK"))
+
+            if add_polygons:
+                yield from body  # only keep the first set of polygons
+
+            yield body_circuit * self._layer.repetitions.integer_eval(k)
+
+        detectors_walker.exit_node(self)
+
     def generate_circuit(self, k: int, global_qubit_map: QubitMap) -> stim.Circuit:
         """Generate the quantum circuit representing the node.
 
@@ -244,3 +552,39 @@ class LayerNode:
             assert isinstance(circuit, stim.Circuit)
             ret += circuit
         return ret
+
+    def generate_circuit_stream(self, k: int, global_qubit_map: QubitMap,
+                                reschedule_measurements: bool,
+                                detectors_walker: AnnotateDetectorsOnLayerNode,
+                                subtree_to_z: Dict[LayerNode, int],
+                                abstract_observables,
+                                observable_builder) -> Iterator[stim.Circuit]:
+        """Generate the quantum circuit representing the node.
+
+        Args:
+            k: scaling parameter.
+            global_qubit_map: qubit map that should be used to generate the
+                quantum circuit. Qubits from the returned quantum circuit will
+                adhere to the provided qubit map.
+            reschedule_measurements: if ``True``, measurements will be rescheduled
+                to optimize circuit execution.
+            detectors_walker: walker instance used to compute and annotate detectors
+                on leaf nodes during circuit generation.
+            subtree_to_z: mapping from direct children of root to their z-coordinate values,
+                used for determining which abstract observables to apply at each node.
+            abstract_observables: collection of abstract observable definitions to be
+                annotated in the circuit.
+            observable_builder: builder instance used to construct observable annotations
+                from abstract observable definitions.
+
+        Returns:
+            a ``stim.Circuit`` instance representing ``self`` with the provided
+            ``global_qubit_map``.
+
+        """
+        circuits = self.generate_circuits_with_potential_polygons_stream(
+            k, global_qubit_map, reschedule_measurements, detectors_walker, subtree_to_z,
+            abstract_observables, observable_builder, add_polygons=False
+        )
+
+        return circuits
