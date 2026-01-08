@@ -78,7 +78,7 @@ S gate teleportation for example to show how to take a :code:`pyzx` graph as inp
     from pyzx import EdgeType, VertexType
     from pyzx.graph.graph_s import GraphS
 
-    from tqec.interop import block_synthesis
+    from tqec.interop.pyzx.synthesis.strategy import block_synthesis
     from tqec.utils.position import Position3D
 
     g_zx = GraphS()
