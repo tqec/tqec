@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 import numpy.typing as npt
 
-from tqec.computation.blocks import Cultivation, PatchRotation
 from tqec.computation.cube import YHalfCube, ZXCube
 from tqec.computation.pipe import PipeKind
 from tqec.interop.color import TQECColor
@@ -95,7 +94,7 @@ class BlockGeometries:
         self._load_y_cube_geometry()
         # patch rotation block
         # self._load_patch_rotation_geometry()
-        # cultivation block 
+        # cultivation block
         # self._load_cultivation_geometry()
         # 6 pipe blocks without H
         self._load_pipe_without_hadamard_geometries()
