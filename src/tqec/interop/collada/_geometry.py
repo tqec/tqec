@@ -154,7 +154,7 @@ class BlockGeometries:
         """
         raise NotImplementedError(
             "Patch rotation block geometry is not yet implemented. "
-            "See issue #814 for implementation details."
+            "See issue #571 for implementation details."
         )
 
     def _load_cultivation_geometry(self) -> None:
@@ -164,7 +164,7 @@ class BlockGeometries:
         """
         raise NotImplementedError(
             "Cultivation block geometry is not yet implemented. "
-            "See issue #814 for implementation details."
+            "See issue #571 for implementation details."
         )
 
     def _load_pipe_without_hadamard_geometries(self) -> None:

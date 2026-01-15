@@ -153,7 +153,7 @@ def read_block_graph_from_dae_file(
                 if isinstance(kind, (PatchRotation, Cultivation)):
                     raise NotImplementedError(
                         f"{type(kind).__name__} blocks are recognized but not yet implemented. "
-                        f"Found at position {translation}. See issue #814 for implementation status."
+                        f"Found at position {translation}. See issue #571 for implementation status."
                     )
                 # Checks
                 if not np.allclose(transformation.scale, np.ones(3), atol=1e-9):
