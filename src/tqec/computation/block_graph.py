@@ -14,7 +14,6 @@ import numpy as np
 from networkx import Graph, is_connected
 from networkx.utils import graphs_equal
 
-from tqec.computation.blocks import Cultivation, PatchRotation
 from tqec.computation.cube import (
     Cube,
     CubeKind,
@@ -35,7 +34,7 @@ if TYPE_CHECKING:
     from tqec.interop.pyzx.positioned import PositionedZX
 
 
-BlockKind = CubeKind | PipeKind | PatchRotation | Cultivation
+BlockKind = CubeKind | PipeKind
 
 
 class BlockGraph:
