@@ -14,14 +14,7 @@ import numpy as np
 from networkx import Graph, is_connected
 from networkx.utils import graphs_equal
 
-from tqec.computation.cube import (
-    Cube,
-    CubeKind,
-    Port,
-    YHalfCube,
-    ZXCube,
-    cube_kind_from_string,
-)
+from tqec.computation.cube import Cube, CubeKind, Port, YHalfCube, ZXCube, cube_kind_from_string
 from tqec.computation.pipe import Pipe, PipeKind
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
@@ -948,15 +941,10 @@ class BlockGraph:
 
 def block_kind_from_str(string: str) -> BlockKind:
     """Parse a block kind from a string."""
-    string_upper = string.upper()
-    string_lower = string.lower()
-    if "O" in string_upper:
-        return PipeKind.from_str(string_upper)
-    elif string_upper == "Y":
+    string = string.upper()
+    if "O" in string:
+        return PipeKind.from_str(string)
+    elif string == "Y":
         return YHalfCube()
-    elif string_upper == "PATCH_ROTATION" or string_lower == "patch_rotation":
-        return PatchRotation()
-    elif string_upper == "CULTIVATION" or string_lower == "cultivation":
-        return Cultivation()
     else:
-        return ZXCube.from_str(string_upper)
+        return ZXCube.from_str(string)

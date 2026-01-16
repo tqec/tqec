@@ -92,10 +92,6 @@ class BlockGeometries:
         self._load_zx_cube_geometries()
         # 1 y half cube block
         self._load_y_cube_geometry()
-        # patch rotation block
-        # self._load_patch_rotation_geometry()
-        # cultivation block
-        # self._load_cultivation_geometry()
         # 6 pipe blocks without H
         self._load_pipe_without_hadamard_geometries()
         # 6 pipe blocks with H
@@ -145,26 +141,6 @@ class BlockGeometries:
             translation[direction.value] = 1.0 if direction != Direction3D.Z else 0.5
             faces.append(face.shift_by(*translation).with_negated_normal_direction())
         self.geometries[YHalfCube()] = faces
-
-    def _load_patch_rotation_geometry(self) -> None:
-        """Geometry for the Patch Rotation block.
-
-        Patch rotation blocks enable rotating the logical basis of a surface code patch.
-        """
-        raise NotImplementedError(
-            "Patch rotation block geometry is not yet implemented. "
-            "See issue #571 for implementation details."
-        )
-
-    def _load_cultivation_geometry(self) -> None:
-        """Geometry for the Cultivation block.
-
-        Cultivation blocks span multiple temporal layers for state preparation.
-        """
-        raise NotImplementedError(
-            "Cultivation block geometry is not yet implemented. "
-            "See issue #571 for implementation details."
-        )
 
     def _load_pipe_without_hadamard_geometries(self) -> None:
         """Geometries for ozx, oxz, xoz, zox, xzo, zxo pipes."""

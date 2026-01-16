@@ -14,7 +14,6 @@ import numpy as np
 import numpy.typing as npt
 
 from tqec.computation.block_graph import BlockGraph, BlockKind, block_kind_from_str
-from tqec.computation.blocks import Cultivation, PatchRotation
 from tqec.computation.correlation import CorrelationSurface
 from tqec.computation.cube import CubeKind, Port, YHalfCube
 from tqec.computation.pipe import PipeKind
@@ -149,13 +148,6 @@ def read_block_graph_from_dae_file(
                 parsed_pipes.append((translation, kind, axes_directions))
 
             else:
-                # Check for new block types that are not yet fully implemented
-                if isinstance(kind, (PatchRotation, Cultivation)):
-                    raise NotImplementedError(
-                        f"{type(kind).__name__} blocks are recognized but not yet implemented. "
-                        f"Found at position {translation}. "
-                        f"See issue #571 for implementation status."
-                    )
                 # Checks
                 if not np.allclose(transformation.scale, np.ones(3), atol=1e-9):
                     raise TQECError(f"Cube at {translation} has a non-identity scale.")
