@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import astuple, dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from tqec.utils.enums import Basis
@@ -11,12 +11,12 @@ from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
 
 
-class CubeColor(Enum):
-    RED = (1,)
-    GREEN = (2,)
-    BLUE = (3,)
-    PURPLE = (4,)
-    YELLOW = 5
+class CubeColor(StrEnum):
+    RED = "red"
+    GREEN = "green"
+    BLUE = "blue"
+    PURPLE = "purple"
+    YELLOW = "yellow"
 
 
 @dataclass(frozen=True)
