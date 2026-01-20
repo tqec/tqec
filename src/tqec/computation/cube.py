@@ -2,12 +2,21 @@
 
 from __future__ import annotations
 
-from dataclasses import astuple, dataclass
+from dataclasses import astuple, dataclass, field
+from enum import Enum
 from typing import Any
 
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
+
+
+class CubeColor(Enum):
+    RED = (1,)
+    GREEN = (2,)
+    BLUE = (3,)
+    PURPLE = (4,)
+    YELLOW = 5
 
 
 @dataclass(frozen=True)
@@ -24,10 +33,14 @@ class ZXCube:
     x: Basis
     y: Basis
     z: Basis
+    color: CubeColor = field(init=False)
 
     def __post_init__(self) -> None:
         if self.x == self.y == self.z:
             raise TQECError("The cube with the same basis along all axes is not allowed.")
+        red_count = sum(1 for b in (self.x, self.y, self.z) if str(b) == "X")
+        color = CubeColor.RED if red_count == 1 else CubeColor.BLUE
+        super().__setattr__("color", color)
 
     def as_tuple(self) -> tuple[Basis, Basis, Basis]:
         """Return a tuple of ``(self.x, self.y, self.z)``.
@@ -143,6 +156,8 @@ class Port:
 
     """
 
+    color: CubeColor = None
+
     def __str__(self) -> str:
         return "PORT"
 
@@ -155,6 +170,8 @@ class Port:
 
 class YHalfCube:
     """Cube kind representing the Y-basis initialization/measurements."""
+
+    color: CubeColor = CubeColor.GREEN
 
     def __str__(self) -> str:
         return "Y"
@@ -251,6 +268,7 @@ class Cube:
             "position": self.position.as_tuple(),
             "kind": str(self.kind),
             "label": self.label,
+            "color": self.kind.color,
         }
 
     @staticmethod

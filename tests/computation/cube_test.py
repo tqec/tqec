@@ -1,6 +1,6 @@
 import pytest
 
-from tqec.computation.cube import Cube, Port, ZXCube
+from tqec.computation.cube import Cube, CubeColor, Port, ZXCube
 from tqec.utils.enums import Basis
 from tqec.utils.exceptions import TQECError
 from tqec.utils.position import Direction3D, Position3D
@@ -20,7 +20,7 @@ def test_zx_cube_kind() -> None:
     assert len(ZXCube.all_kinds()) == 6
 
 
-def test_zx_cube() -> None:
+def test_zx_cube_red() -> None:
     cube = Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))
     assert cube.is_zx_cube
     assert not cube.is_spatial
@@ -31,6 +31,22 @@ def test_zx_cube() -> None:
         "position": (0, 0, 0),
         "kind": "ZXZ",
         "label": "",
+        "color": CubeColor.RED,
+    }
+
+
+def test_zx_cube_blue() -> None:
+    cube = Cube(Position3D(0, 0, 0), ZXCube.from_str("XXZ"))
+    assert cube.is_zx_cube
+    assert cube.is_spatial
+    assert not cube.is_port
+    assert not cube.is_y_cube
+    assert str(cube) == "XXZ(0,0,0)"
+    assert cube.to_dict() == {
+        "position": (0, 0, 0),
+        "kind": "XXZ",
+        "label": "",
+        "color": CubeColor.BLUE,
     }
 
 
@@ -43,17 +59,9 @@ def test_port() -> None:
         Cube(Position3D(0, 0, 0), Port())
 
     assert cube == Cube(Position3D(0, 0, 0), Port(), "p")
-    assert cube.to_dict() == {
-        "position": (0, 0, 0),
-        "kind": "PORT",
-        "label": "p",
-    }
+    assert cube.to_dict() == {"position": (0, 0, 0), "kind": "PORT", "label": "p", "color": None}
 
 
 def test_cube_from_dict() -> None:
-    cube_dict = {
-        "position": (0, 0, 0),
-        "kind": "ZXZ",
-        "label": "",
-    }
+    cube_dict = {"position": (0, 0, 0), "kind": "ZXZ", "label": "", "color": CubeColor.RED}
     assert Cube.from_dict(cube_dict) == Cube(Position3D(0, 0, 0), ZXCube.from_str("ZXZ"))
