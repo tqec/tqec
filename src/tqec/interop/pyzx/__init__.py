@@ -1,8 +1,5 @@
 """Interopbility with PyZX representation of ZX-calculus graphs."""
 
-from tqec.interop.pyzx.correlation import (
-    find_correlation_surfaces as find_correlation_surfaces,
-)
 from tqec.interop.pyzx.plot import (
     draw_positioned_zx_graph_on as draw_positioned_zx_graph_on,
 )

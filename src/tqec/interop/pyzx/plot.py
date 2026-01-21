@@ -1,6 +1,9 @@
 """Defines functions to plot positioned ZX graphs and correlation surfaces on 3D axes."""
 
+from __future__ import annotations
+
 from dataclasses import astuple
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy
@@ -11,11 +14,13 @@ from pyzx import draw_3d
 from pyzx.graph.graph_s import GraphS
 from pyzx.pauliweb import PauliWeb
 
-from tqec.computation.correlation import CorrelationSurface
 from tqec.interop.color import RGBA, TQECColor
 from tqec.interop.pyzx.positioned import PositionedZX
 from tqec.interop.pyzx.utils import is_boundary, is_hadamard, is_s, is_z_no_phase
 from tqec.utils.position import Position3D
+
+if TYPE_CHECKING:
+    from tqec.computation.correlation import CorrelationSurface
 
 
 def _node_color(g: GraphS, v: int) -> RGBA:  # pragma: no cover

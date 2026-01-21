@@ -531,7 +531,7 @@ class BlockGraph:
 
         """
         # Needs to be imported here to avoid pulling pyzx when importing this module.
-        from tqec.interop.pyzx.correlation import find_correlation_surfaces  # noqa: PLC0415
+        from tqec.computation.correlation import find_correlation_surfaces  # noqa: PLC0415
 
         return find_correlation_surfaces(self.to_zx_graph().g)
 
